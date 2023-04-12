@@ -32,9 +32,26 @@ function calc() {
     document.getElementById("z").textContent = z.toFixed(4);
 }
 calc();
+
+// key press
+                //http://jsfiddle.net/L01v8waL/
+var runScript = function(e) {
+    if (e.keyCode == 13) {
+        var tb = document.getElementById("scriptBox");
+        //alert(tb.value);
+        calc();
+        var z = document.getElementById("z");
+        document.getElementById("percent").textContent = GetZPercent(z);
+        return false;
+    }
+    else {
+     return true;
+    }
+}
                 
-                //z-score to percentile
-                function GetZPercent(z) {
+                
+//z-score to percentile
+function GetZPercent(z) {
 
   // z == number of standard deviations from the mean
 
@@ -70,14 +87,17 @@ calc();
                 console.log(1.75, GetZPercent(1.75));
                 console.log(1.96, GetZPercent(1.96));
                 console.log(2.17, GetZPercent(2.17));
+                
+                
       </script>
     </head>
     <body>
 
     <!--Content goes here.-->
       Probability (between 0 and 1):
-<input type="number" id="prob" step="0.0001" min="0" max="1" value="0.9500" oninput="calc()"><p>
+<input type="number" id="prob" step="0.0001" min="0" max="1" value="0.9500" oninput="calc()" onkeypress="return functionCall(event)"><p>
 
-Z Score: <span id="z"></span>
+Z Score: <span id="z"></span><br/>
+        <span id="percent"></span>
     </body>
     </html>
