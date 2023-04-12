@@ -51,7 +51,9 @@ var functionCall = function(e) {
         var tb = document.getElementById("scriptBox");
         //alert(tb.value);
         calc();
-        var z = document.getElementById("z");
+        //var z = document.getElementById("z");
+        var p = +document.getElementById("prob").value;
+    var z = percentile_z(p);
         document.getElementById("percent").textContent = GetZPercent(z);
         return false;
     }
