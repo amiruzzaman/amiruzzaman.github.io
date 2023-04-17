@@ -11,6 +11,10 @@
 
     </head>
     <body>
+        <div class ="row">
+            <div class="col-md-4">&alpha;</div>
+            <div class="col-md-8"><input id="alphavalue" type="text" onkeypress="return functionCallAlpha(event)"></div>
+        </div><br/>
 
         <!--Content goes here.-->
         Probability (between 0 and 1):
@@ -21,6 +25,29 @@
             Enter your Z score:<input type="text" id="zscore" value ="" size=20>
 
             <script>
+                
+                
+                // key press
+                //http://jsfiddle.net/L01v8waL/
+                var functionCallAlpha = function (e) {
+                    if (e.keyCode == 13) {
+                        var alpha = document.getElementById("alphavalue").value;
+                        console.log(alpha);
+                        var area_to_left = (1+(1-2*alpha))/2;
+                        
+                        console.log(area_to_left);
+                        //calc();
+                        //var z = document.getElementById("z");
+                        //var p = +document.getElementById("prob").value;
+                        var z = percentile_z(area_to_left);
+                        //var percent = GetZPercent(z);
+                        document.getElementById("percent").textContent = area_to_left + "% (alpha = " + alpha + ") z:" + z.toFixed(3) + " CI: " +(1-2*alpha).toFixed(3);
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+                
 
                 // http://jsfiddle.net/TazQ5/1/    
                 var zscore = document.getElementById("zscore");
@@ -76,15 +103,15 @@
                         var p = +document.getElementById("prob").value;
                         var z = percentile_z(p);
                         var percent = GetZPercent(z);
-                        document.getElementById("percent").textContent = percent + " (alpha = " + getAlpha(percent) +")";
+                        document.getElementById("percent").textContent = percent + " (alpha = " + getAlpha(percent) + ")";
                         return false;
                     } else {
                         return true;
                     }
                 }
-                
-                function getAlpha(p){
-                    return (1-(2*p-1)).toFixed(4);
+
+                function getAlpha(p) {
+                    return (1 - (2 * p - 1)).toFixed(4);
                 }
 
                 //https://stackoverflow.com/questions/33087520/javascript-possible-to-get-percentile-by-given-z-score-calculating-quantile          
