@@ -25,29 +25,36 @@
             Enter your Z score:<input type="text" id="zscore" value ="" size=20>
 
             <script>
-                
-                
+                // How to convert a String containing Scientific Notation to correct Javascript number format
+                // https://stackoverflow.com/questions/10943997/how-to-convert-a-string-containing-scientific-notation-to-correct-javascript-num
+
+                function valueWithOutSciNotation(s) {
+                    value = new Number('4.6714730816965755e-7')
+                    //[Number: 3.53048874968162e-9]
+                    return value.toFixed(20)
+                }
+
                 // key press
                 //http://jsfiddle.net/L01v8waL/
                 var functionCallAlpha = function (e) {
                     if (e.keyCode == 13) {
                         var alpha = document.getElementById("alphavalue").value;
                         console.log(alpha);
-                        var area_to_left = (1+(1-2*alpha))/2;
-                        
+                        var area_to_left = (1 + (1 - 2 * alpha)) / 2;
+
                         console.log(area_to_left);
                         //calc();
                         //var z = document.getElementById("z");
                         //var p = +document.getElementById("prob").value;
                         var z = percentile_z(area_to_left);
                         //var percent = GetZPercent(z);
-                        document.getElementById("percent").textContent = area_to_left + "% (alpha = " + alpha + ") z:" + z.toFixed(3) + " CI: " +(1-2*alpha).toFixed(3);
+                        document.getElementById("percent").textContent = area_to_left + "% (alpha = " + alpha + ") z:" + z.toFixed(3) + " CI: " + (1 - 2 * alpha).toFixed(3);
                         return false;
                     } else {
                         return true;
                     }
                 }
-                
+
 
                 // http://jsfiddle.net/TazQ5/1/    
                 var zscore = document.getElementById("zscore");
@@ -57,7 +64,7 @@
                         console.log(e.target.value);
                         //validate(e);
                         var p = GetZPercent(z);
-                        document.getElementById("percent").textContent = "The p-value for z-score(" + z + ") is " + p + " = " + p.toFixed(3);
+                        document.getElementById("percent").textContent = "The p-value for z-score(" + z + ") is " + p + " = " + valueWithOutSciNotation(p)+ " or "+p.toFixed(3);
                     }
                 });
 
