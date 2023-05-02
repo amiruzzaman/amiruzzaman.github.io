@@ -5,12 +5,14 @@
         <title>Statistics</title>
         <meta name="description" content="stat first page">
         <meta name="keywords" content="html stat">
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default'></script>
         <style>
             input { width: 5em }
         </style>
 
     </head>
     <body>
+        <div>$$ {J(\theta) =\frac{1}{2m} [\sum^m_{i=1}(h_\theta(x^{(i)}) - y^{(i)})2 + \lambda\sum^n_{j=1}\theta^2_j} $$</div>
         <div class ="row">
             <div class="col-md-4">&alpha;</div>
             <div class="col-md-8"><input id="alphavalue" type="text" onkeypress="return functionCallAlpha(event)"></div>

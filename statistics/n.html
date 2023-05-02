@@ -1,0 +1,56 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>MathJax example</title>
+        <style>
+            div
+            {
+                display: inline-block;
+            }
+        </style>
+        <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML" async>
+        </script>
+    </head>
+
+    <body>
+        <!--https://stackoverflow.com/questions/19681089/html-css-make-div-be-on-the-same-line-as-text-->
+        <p >$$ n = \left[\frac{z \times \sigma}{\bar{y}-\mu} \right]^2 $$</p>
+        <p>$$ n = \left[\frac{1.96 \times 36 }{ 10 - 5 } \right]^2 $$</p>
+        <p><div style="width: 10px; height: 10px; background-color: green; border: 0px;" ></div><i>z</i><input id="z"></p>
+    <p ><div style="width: 10px; height: 10px; background-color: yellow; border: 0px;" ></div> &sigma;<input id="sigma"></p>
+<p ><div style="width: 10px; height: 10px; background-color: orange; border: 0px;" ></div> y&#772;<input id="y_bar"></p>
+<p ><div style="width: 10px; height: 10px; background-color: red; border: 0px;" ></div> &mu;<input id="mu"></p>
+<!--<p id="This_Is_What_I_Want"> $$ n = \left[\frac{z \times \sigma}{\bar{y}-\mu} \right]^2 $$</p>
+<p id="z_input"> <input id="z"></p>
+<p id="sigma_input"> <input id="sigma"></p>
+<p id="y_bar_input"> <input id="y_bar"></p>
+<p id="mu_input"> <input id="mu"></p>-->
+<p id="Activate"><button onclick="RUN()">Test This out</button></p>
+<p id="Output"></p>
+<p id="Initial"></p>
+<p id="Result"></p>
+<p id="Raw"></p>
+<p id="Final"></p>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+    function RUN() {
+        var z = document.getElementById("z").value
+        var sigma = document.getElementById("sigma").value
+        var y_bar = document.getElementById("y_bar").value
+        var mu = document.getElementById("mu").value
+        //"$$ n = \left[\frac{"+ z +" \times "+ sigma +"}{"+ y_bar + "-" + mu +"} \right]^2 $$"
+        document.getElementById("Output").innerHTML = "$$ n = \\left[\\frac{" + z + " \\times " + sigma + "}{" + y_bar + "-" + mu + "} \\right]^2 $$";
+        var x = ((z * sigma) / (y_bar - mu));
+        document.getElementById("Initial").innerHTML = "$$ n = \\left[\\frac{" + (z * sigma) +"}{" +(y_bar - mu) + "} \\right]^2 $$";
+        document.getElementById("Result").innerHTML = "$$ n =(" + x + ")^2 $$";
+        document.getElementById("Raw").innerHTML = "$$ n =" + Math.pow(x,2) + " $$";
+        document.getElementById("Final").innerHTML = "$$ n &asymp;" + Math.round(Math.ceil(Math.pow(x,2))) + " $$";
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+    }
+</script>
+</body>
+
+</html>

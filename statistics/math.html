@@ -1,0 +1,28 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>MathJax example</title>
+        <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML" async>
+        </script>
+    </head>
+
+    <body>
+        <p id="This_Is_What_I_Want"> $$ (a-b)^2 $$</p>
+        <p id="First_Input"> <input id="Value_A"></p>
+        <p id="Second_Input"> <input id="Value_B"></p>
+        <p id="Output"></p>
+        <p id="Activate"><button onclick="RUN()">Test This out</button></p>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+            function RUN() {
+                var a = document.getElementById("Value_A").value
+                var b = document.getElementById("Value_B").value
+                document.getElementById("Output").innerHTML = "$$ (" + a + "-" + b + ")^2 $$";
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+            }
+        </script>
+    </body>
+
+</html>
