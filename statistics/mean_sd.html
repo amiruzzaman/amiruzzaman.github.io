@@ -1,0 +1,115 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>MathJax example</title>
+        <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML" async>
+        </script>
+    </head>
+
+    <body>
+        <p id="This_Is_What_I_Want"> $$ \bar{x} = \frac{\sum_{i=1}^{n} x_i}{n} $$</p>
+        <!--        <p id="First_Input"> <input id="Value_A"></p>
+                <p id="Second_Input"> <input id="Value_B"></p>
+                <p id="Output"></p>-->
+
+        <textarea id="inputarea" name="inputarea" rows="4" cols="50">
+        </textarea>
+        <p id="Activate"><button onclick="RUN()">Test This out</button></p>
+        <div id="myDIV" style="padding:16px;background-color:lightgray"></div>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+
+            const standardDeviation = (arr, usePopulation = false) => {
+                const mean = arr.reduce((acc, val) => acc + val, 0) / arr.length;
+                console.log(mean);
+                print("Mean", mean);
+                return Math.sqrt(
+                        arr.reduce((acc, val) => acc.concat((val - mean) ** 2), []).reduce((acc, val) => acc + val, 0) /
+                        (arr.length - (usePopulation ? 0 : 1))
+                        );
+            };
+            /*
+             console.log('STDEV.S =>',
+             standardDeviation([
+             10, 2, 38, 23, 38, 23, 21
+             ])
+             );
+             
+             console.log('STDEV.P =>',
+             standardDeviation([
+             10, 2, 38, 23, 38, 23, 21
+             ], true)
+             );
+             */
+            // https://stackoverflow.com/questions/32394390/how-to-find-mean-and-variance-using-reduce
+            function getMeanAndVar(arr, usePopulation = false) {
+
+                function getVariance(arr, mean, usePopulation = false) {
+                    return arr.reduce(function (pre, cur) {
+                        pre = pre + Math.pow((cur - mean), 2);
+                        return pre;
+                    }, 0)
+                }
+
+                var meanTot = arr.reduce(function (pre, cur) {
+                    return pre + cur;
+                })
+                var total = getVariance(arr, meanTot / arr.length, usePopulation = false);
+
+                var res = {
+                    mean: meanTot / arr.length,
+                    variance: total / (arr.length-(usePopulation ? 0 : 1))//remove -1 for population
+                }
+
+                return ["Mean:",
+                    res.mean,
+                    "Variance:",
+                    res.variance
+                ].join(' ');
+            }
+
+            function print(t, val) {
+                const para = document.createElement("p");
+                para.innerHTML = t + ": " + val;
+                document.getElementById("myDIV").appendChild(para);
+            }
+            function RUN() {
+//                var a = document.getElementById("Value_A").value
+//                var b = document.getElementById("Value_B").value
+//                document.getElementById("Output").innerHTML = "$$ (" + a + "-" + b + ")^2 $$";
+//                MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+                // Get value from text area [duplicate]
+                // https://stackoverflow.com/questions/14939010/get-value-from-text-area
+                var input = document.getElementById("inputarea").value;
+                // Remove last comma (and possible whitespaces after the last comma) from the end of a string
+                // https://stackoverflow.com/questions/17720264/remove-last-comma-and-possible-whitespaces-after-the-last-comma-from-the-end-o
+                input = input.replace(/,\s*$/, "");
+                console.log(input);
+                // How can I convert a comma-separated string to an array?
+                // https://stackoverflow.com/questions/2858121/how-can-i-convert-a-comma-separated-string-to-an-array
+                var temp = new Array();
+                // This will return an array with strings "1", "2", etc.
+                temp = input.split(",");
+
+                for (a in temp) {
+                    temp[a] = parseInt(temp[a], 10); // Explicitly include base as per Álvaro's comment
+                }
+                console.log(temp);
+                print("SD", standardDeviation(temp));
+
+//                console.log('STDEV.S =>',
+//                        standardDeviation(temp)
+//                        );
+                var math = getMeanAndVar(temp);
+
+                console.log(math);
+                
+            }
+
+
+        </script>
+    </body>
+
+</html>
