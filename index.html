@@ -606,9 +606,13 @@
                                 'class': 'table_cell'
                             }).html(key)
                             if (key === "Year") {
+								let teaching_info = jsondata.graduate[i][key].toString();
+								//teaching_info = teaching_info.replaceAll(",", ", ")
+								//console.log(teaching_info.split(',').join(', '));
                                 var table_cell2_g = $('<div/>', {
                                     'class': 'table_cell'
-                                }).html(jsondata.graduate[i][key].toString().replace(",", ", "));
+                                }).html(teaching_info.split(',').join(', '));
+								//.html(jsondata.graduate[i][key].toString().replace(",", ", "));
                                 //.css("text-align", "left").css("padding-left", "5px");
                             } else {
                                 var table_cell2_g = $('<div/>', {
@@ -664,9 +668,13 @@
                                 'class': 'table_cell'
                             }).html(key)
                             if (key === "Year") {
+								let teaching_info = jsondata.undergraduate[i][key].toString();
+								//teaching_info = teaching_info.replaceAll(",", ", ")
+								//console.log(teaching_info.split(',').join('| '));
                                 var table_cell2_u = $('<div/>', {
                                     'class': 'table_cell'
-                                }).html(jsondata.undergraduate[i][key].toString().replace(",", ", "));
+                                }).html(teaching_info.split(',').join(', '));
+								//.html(jsondata.graduate[i][key].toString().replace(",", ", "));
                                 //.css("text-align", "left").css("padding-left", "5px");
                             } else {
                                 var table_cell2_u = $('<div/>', {
