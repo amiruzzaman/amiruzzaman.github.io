@@ -56,6 +56,33 @@
             }
 
         </style>
+		
+		<style>
+		/*logo images*/
+	 /* Three image containers 33.33%(use 25% for four, and 50% for two, etc) */
+.image_column {
+  float: left;
+  width: 16.66%; /*100 div 6*/
+  padding: 5px;
+}
+
+/* Clear floats after image containers */
+.image_row::after {
+  content: "";
+  clear: both;
+  display: table;
+} 
+
+/* Resize images */
+.image_row img {
+    width: 80px !important;
+    height: auto;
+	overflow: hidden;
+}
+.image_row{
+width: 490px;
+}
+	</style>
 
     </head>
     <body>
@@ -99,6 +126,30 @@
                 <h3>About Me</h3>
                 <p id ="bio" class="card-text">
                 </p>
+				<div id = "logo-images">
+				<div class="image_row">
+					<div class="image_column">
+					  <a href ="https://www.nu.ac.bd/"><img src="images/national-university.png" alt="national university" style="width:100%"></a>
+					  </div>
+					  <div class="image_column">
+						<a href ="https://eng.sejong.ac.kr/index.do"><img src="images/sejong-university-kr-logo.png" alt="sejong university" style="width:100%"></a>
+					  </div>
+					  <div class="image_column">
+						<a href ="http://korea.edu/mbshome/mbs/en/index.do"><img src="images/korea-university.png" alt="korea university" style="width:100%"></a>
+					  </div>
+					 
+					  <div class="image_column">
+						<a href ="https://www.kent.edu/"><img src="images/Kent_State_seal.svg.png" alt="kent state university" style="width:100%"></a>
+					  </div>
+						<div class="image_column">
+						<a href ="https://www.gatech.edu/"><img src="images/GeorgiaTech_RGB.png" alt="georgia tech" style="width:100%"></a>
+					  </div>
+					  <div class="image_column">
+						<a href ="https://www.wcupa.edu/"><img src="images/wcuSeal.png" alt="west chester university" style="width:100%"></a>
+					  </div>
+					</div> 
+				
+				</div>
             </div>
             <script>
                 // Read a text file
