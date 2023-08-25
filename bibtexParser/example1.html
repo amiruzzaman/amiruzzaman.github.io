@@ -1,0 +1,185 @@
+<!doctype html>
+
+<html>
+    <head>
+        <title>Testing bibtex</title>
+        <link rel="shortcut icon" href="#">
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta content="utf-8" http-equiv="encoding">
+        <script src = "bibtexParse.js" type = "text/javascript"/></script>
+    <script src="https://unpkg.com/bibtex-js-parser/umd/bibtex-js-parser.js"></script>
+    <script type="text/javascript">
+
+
+       function parseBibTex(text) {
+    var m = text.match(/^\s*@([^{]+){([^,\n]+)[,\n]/);
+    if (!m) {
+        throw new Error('Unrecogonised header format');
+    }
+    var result = {
+        typeName: m[1].trim(),
+        citationKey: m[2].trim()
+    }
+    text = text.slice(m[0].length).trim();
+    while (text[0] !== '}') {
+        var pair = parseBibTexLine(text);
+        result[pair.field] = pair.value;
+        text = text.slice(pair.length).trim();
+    }
+    return result;
+}
+
+
+
+
+// https://intellipaat.com/community/72740/how-to-read-a-local-text-file
+function readTextFile(file) {
+    var rawFile = new XMLHttpRequest();
+    rawFile.open("GET", file, true);
+    rawFile.onreadystatechange = function() {
+        if (rawFile.readyState === 4) {
+            if (rawFile.status === 200 || rawFile.status == 0) {
+                var allText = rawFile.responseText;
+                //alert(allText);
+
+                //console.log(allText);
+                //console.log(bibliography);
+                var bibJson = bibtexParse.toJSON(allText);
+                //console.log(bibtexParse.toJSON(allText));
+
+                for (let i = 0; i < bibJson.length; i++) {
+                    //console.log(bibJson[i]);
+                    //console.log(bibJson[i].entryTags);
+                    //console.log(i, bibJson[i].entryTags.author);
+                    //console.log(i, bibJson[i].entryTags.author.split(' and '));
+                    //console.log(i, bibJson[8].entryTags);
+                    let author = null;
+                    let firstname = null;
+                    let lastname = null;
+                    let abbr = null;
+                    let fullname = null; 
+
+                    if (bibJson[i].entryTags.hasOwnProperty('AUTHOR')) {
+                        author = bibJson[i].entryTags.AUTHOR.split(' and ');
+                        // https://stackoverflow.com/questions/68306749/how-to-extract-information-after-second-comma-in-a-string-and-remove-whats-in-f
+                        //Ahmed Bhuiyan, Rasel = Rasel
+                        //let firstname = author[0].split(',').slice(1).join(',');
+                        // Islam, Md Rashedul = Md Rashedul
+                        var _name;
+                        
+                        if (author.indexOf(',') > -1) { 
+                            _name = getFullname(author);
+                        }else{
+                            //console.log('here', author);
+                            _name = author;
+                        }
+                        
+
+                        console.log(i, _name);
+                    }else{
+                        author = bibJson[i].entryTags.author.split(' and ');
+                        // https://stackoverflow.com/questions/68306749/how-to-extract-information-after-second-comma-in-a-string-and-remove-whats-in-f
+                        //Ahmed Bhuiyan, Rasel = Rasel
+                        //let firstname = author[0].split(',').slice(1).join(',');
+                        // Islam, Md Rashedul = Md Rashedul
+                        var _name;
+                        _name = getFullname(author);
+                        /*
+                        if (author.indexOf(',') > -1) { 
+                            _name = getFullname(author);
+                        }else{
+                            //console.log('here', author);
+                            _name = author;
+                        }
+                        */
+                        console.log(i, _name);
+                    }
+                }
+
+                for (var item in bibJson) {
+                    document.write("<br>" + bibJson[item].citationKey);
+                    //document.write("<br>" + bibJson[item].entryTags.year);
+                    for (let ent in bibJson[item].entryTags) {
+                        //document.write("<br>" + ent);
+                        document.write("<br>" + ent + ":" + bibJson[item].entryTags[ent]);
+
+                    }
+
+                }
+
+
+                document.write("<br><br> Sorted Names : ");
+                for (var item in bibJson) {
+                    document.write("<br>" + bibJson[item].entryTags.author);
+                }
+            }
+        }
+    }
+    rawFile.send(null);
+}
+
+
+function getFullname(author) {
+    var name = '';
+    for (let i = 0; i < author.length; i++) {
+        firstname = author[i].split(',').slice(1).join(',');
+        console.log('comma based ', firstname);
+        lastname = author[i].split(',')[0];
+        console.log('lastname ', lastname);
+        firstname = firstname.trim();
+
+        // take first letters of each word
+        // https://stackoverflow.com/questions/8279859/get-first-letter-of-each-word-in-a-string-in-javascript
+        //var abbr = "Java Script Object Notation".split(' ').map(function(item){return item[0]}).join('');
+        let abbr='';
+        if(firstname.trim()){
+            abbr = firstname.split(' ').map(function(item) {
+                return item[0]
+            }).join('. ') + '.';
+        }
+        console.log('ABBR ', abbr);
+        // not wehite space
+        if(abbr.trim()){
+            fullname = lastname + ', ' + abbr;
+        }else{
+            let f = lastWord(lastname)
+            abbr = f.split(' ').map(function(item) {
+                return item[0]
+            }).join('. ') + '.';
+            // string without last word
+            //var str = "I want to remove the last word.";
+            //var lastIndex = str.lastIndexOf(" ");
+            //str = str.substring(0, lastIndex);
+            lastIndex = lastname.lastIndexOf(" ");
+            lastname = lastname.substring(0, lastIndex);
+            
+            fullname = lastname + ', ' + abbr;;
+        }
+        console.log('fullname ', fullname);
+        name += fullname + ', ';
+    }
+    return name;
+}
+// https://stackoverflow.com/questions/20883404/javascript-returning-the-last-word-in-a-string
+function lastWord(words) {
+    var n = words.split(" ");
+    return n[n.length - 1];
+
+}
+
+
+readTextFile("bibfile.bib");
+
+
+    </script>
+
+</head>
+<body>
+
+
+    <!--<div id="lastModifiedDiv">Testing</div>-->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+
+</body>
+</html>

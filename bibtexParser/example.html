@@ -1,0 +1,349 @@
+<!doctype html>
+</body>
+</html>
+<html>
+    <head>
+        <title>Testing bibtex</title>
+        <link rel="shortcut icon" href="#">
+        <!--<link rel="stylesheet" href="bib-publication-list.css"/>-->
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta content="utf-8" http-equiv="encoding">
+        <script src = "bibtexParse.js" type = "text/javascript"/></script>
+    <script src="https://unpkg.com/bibtex-js-parser/umd/bibtex-js-parser.js"></script>
+</head>
+<body>
+
+    <noscript>
+    <!-- bibtex source hidden by default, show it if JS disabled -->
+    <style>
+        #bibtex { display: block;}
+    </style>
+    </noscript>
+    <table id="pubTable" class="display"></table>
+    <pre id="bibtex" style="display:none;">
+	
+
+
+    </pre>
+    <!--<div id="lastModifiedDiv">Testing</div>-->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+
+        /*
+        function lastModified() {
+        var modiDate = new Date(document.lastModified);
+        var showAs = modiDate.getDate() + "-" + (modiDate.getMonth() + 1) + "-" + modiDate.getFullYear();
+        return showAs
+        }
+
+        function GetTime() {
+        var modiDate = new Date();
+        var Seconds
+
+        if (modiDate.getSeconds() < 10) {
+        Seconds = "0" + modiDate.getSeconds();
+        } else {
+        Seconds = modiDate.getSeconds();
+        }
+
+        var modiDate = new Date();
+        var CurTime = modiDate.getHours() + ":" + modiDate.getMinutes() + ":" + Seconds
+        return CurTime
+        }
+        //document.getElementById('lastModified');
+
+        let lmd = document.getElementById("lastModifiedDiv");
+        //lmd.innerHTML = "<br/>Paragraph changed!"; 
+        //lmd.innerHTML = "Last updated on ";
+        lmd.innerHTML = "Last updated on " + lastModified() + " @ " + GetTime();
+        */
+
+
+
+        });
+
+        var bibliography_ = "@inproceedings{Lysenko:2010:GMC:1839778.1839781,\
+        author = {Lysenko, Mikola and Nelaturi, Saigopal and Shapiro, Vadim},\
+        title = {Group morphology with convolution algebras},\
+        booktitle = {Proceedings of the 14th ACM Symposium on Solid and Physical Modeling},\
+        series = {SPM '10},\
+        year = {2010},\
+        isbn = {978-1-60558-984-8},\
+        location = {Haifa, Israel},\
+        pages = {11--22},\
+        numpages = {12},\
+        url = {http://doi.acm.org/10.1145/1839778.1839781},\
+        doi = {10.1145/1839778.1839781},\
+        acmid = {1839781},\
+        publisher = {ACM},\
+        address = {New York, NY, USA},\
+        }"
+
+        var bibliography ="@inproceedings{Lysenko:2010:GMC:1839778.1839781,\
+        author = {Lysenko, Mikola and Nelaturi, Saigopal and Shapiro, Vadim},\
+        title = {Group morphology with convolution algebras},\
+        booktitle = {Proceedings of the 14th ACM Symposium on Solid and Physical Modeling},\
+        series = {SPM '10},\
+        year = {2010},\
+        isbn = {978-1-60558-984-8},\
+        location = {Haifa, Israel},\
+        pages = {11--22},\
+        numpages = {12},\
+        url = {http://doi.acm.org/10.1145/1839778.1839781},\
+        doi = {10.1145/1839778.1839781},\
+        acmid = {1839781},\
+        publisher = {ACM},\
+        address = {New York, NY, USA}}\
+        @inproceedings{Lysenko:2010:GMC:1839778.1839781_,\
+        author = {Lysenko, Mikola and Nelaturi, Saigopal and Shapiro, Vadim},\
+        title = {Group morphology with convolution algebras},\
+        booktitle = {Proceedings of the 14th ACM Symposium on Solid and Physical Modeling},\
+        series = {SPM '10},\
+        year = {2010},\
+        isbn = {978-1-60558-984-8},\
+        location = {Haifa, Israel},\
+        pages = {11--22},\
+        numpages = {12},\
+        url = {http://doi.acm.org/10.1145/1839778.1839781},\
+        doi = {10.1145/1839778.1839781},\
+        acmid = {1839781},\
+        publisher = {ACM},\
+        address = {New York, NY, USA}}\
+        @article{jamonnak2021geo,\
+        title={Geo-context aware study of vision-based autonomous driving models and spatial video data},\
+        author={Jamonnak, Suphanut and Zhao, Ye and Huang, Xinyi and Amiruzzaman, Md},\
+        journal={IEEE transactions on visualization and computer graphics},\
+        volume={28},\
+        number={1},\
+        pages={1019--1029},\
+        year={2021},\
+        publisher={IEEE}\
+        }\
+        @article{amiruzzaman2021classifying,\
+        title={Classifying crime places by neighborhood visual appearance and police geonarratives: A machine learning approach},\
+        author={Amiruzzaman, Md and Curtis, Andrew and Zhao, Ye and Jamonnak, Suphanut and Ye, Xinyue},\
+        journal={Journal of computational social science},\
+        pages={1--25},\
+        year={2021},\
+        publisher={Springer}\
+        }\
+        @inproceedings{islam2021clustering,\
+        title={Clustering algorithms to analyze the road traffic crashes},\
+        author={Islam, Mahnaz Rafia and Jenny, Israt Jahan and Nayon, Moniruzzaman and Islam, Md Rajibul and Amiruzzaman, Md and Abdullah-Al-Wadud, Mohammad},\
+        booktitle={2021 International Conference on Science \& Contemporary Technologies (ICSCT)},\
+        pages={1--6},\
+        year={2021},\
+        organization={IEEE}\
+        }\
+        @article{jamonnak2022visualcommunity,\
+        title={VisualCommunity: a platform for archiving and studying communities},\
+        author={Jamonnak, Suphanut and Bhati, Deepshikha and Amiruzzaman, Md and Zhao, Ye and Ye, Xinyue and Curtis, Andrew},\
+        journal={Journal of Computational Social Science},\
+        volume={5},\
+        number={2},\
+        pages={1257--1279},\
+        year={2022},\
+        publisher={Springer}\
+        }"
+
+        //var parse = require("bibtex-parser")
+
+        //console.log(parse(bibliography))
+
+
+        var txt = "@inproceedings{Lysenko:2010:GMC:1839778.1839781,\
+        author = {Lysenko, Mikola and Nelaturi, Saigopal and Shapiro, Vadim},\
+        title = {Group morphology with convolution algebras},\
+        booktitle = {Proceedings of the 14th ACM Symposium on Solid and Physical Modeling},\
+        series = {SPM '10},\
+        year = {2010},\
+        isbn = {978-1-60558-984-8},\
+        location = {Haifa, Israel},\
+        pages = {11--22},\
+        numpages = {12},\
+        url = {http://doi.acm.org/10.1145/1839778.1839781},\
+        doi = {10.1145/1839778.1839781},\
+        acmid = {1839781},\
+        publisher = {ACM},\
+        address = {New York, NY, USA}}";
+
+
+        function parseBibTexLine (text) {
+            var m = text.match(/^\s*(\S+)\s*=\s*/);
+            if (!m) {
+            console.log('line: "' + text + '"');
+            throw new Error('Unrecogonised line format');
+            }
+            var name = m[1];
+            var search = text.slice(m[0].length);
+            var re = /[\n\r,{}]/g;
+            var braceCount = 0;
+            var length = m[0].length;
+            do {
+                m = re.exec(search);
+                if (m[0] === '{') {
+                    braceCount++;
+                } else if (m[0] === '}') {
+                    if (braceCount ===  0) {
+                        throw new Error('Unexpected closing brace: "}"');
+                    }
+                braceCount--;
+            }
+        } while (braceCount > 0);
+        return {
+        field:name,
+        value: search.slice(0, re.lastIndex),
+        length:length + re.lastIndex + m[0].length
+        };
+        }
+
+        function parseBibTex (text) {
+        var m = text.match(/^\s*@([^{]+){([^,\n]+)[,\n]/);
+        if (!m) {
+        throw new Error('Unrecogonised header format');
+        }
+        var result = {
+        typeName: m[1].trim(),
+        citationKey: m[2].trim()
+        }
+        text = text.slice(m[0].length).trim();
+        while (text[0] !== '}') {
+        var pair = parseBibTexLine(text);
+        result[pair.field] = pair.value;
+        text = text.slice(pair.length).trim();
+        }
+        return result;
+        }
+
+        //console.log(parseBibTex(bibliography));
+    </script>
+
+    <script>
+        // https://www.c-sharpcorner.com/UploadFile/fc34aa/sort-json-object-array-based-on-a-key-attribute-in-javascrip/
+        //Comparer Function    
+        function GetSortOrder(prop) {    
+        return function(a, b) {    
+        if (a[prop] > b[prop]) {    
+        return 1;    
+        } else if (a[prop] < b[prop]) {    
+        return -1;    
+        }    
+        return 0;    
+        }    
+        }    
+
+        // https://intellipaat.com/community/72740/how-to-read-a-local-text-file
+        function readTextFile(file)
+        {
+        var rawFile = new XMLHttpRequest();
+        rawFile.open("GET", file, true);
+        rawFile.onreadystatechange = function ()
+        {
+        if(rawFile.readyState === 4)
+        {
+        if(rawFile.status === 200 || rawFile.status == 0)
+        {
+        var allText = rawFile.responseText;
+        //alert(allText);
+
+        //console.log(allText);
+        //console.log(bibliography);
+        var bibJson = bibtexParse.toJSON(allText);
+        //console.log(bibtexParse.toJSON(allText));
+		
+		for (let i = 0; i<bibJson.length; i++) {
+			//console.log(bibJson[i]);
+			//console.log(bibJson[i].entryTags);
+			//console.log(i, bibJson[i].entryTags.author);
+			//console.log(i, bibJson[i].entryTags.author.split(' and '));
+			//console.log(i, bibJson[8].entryTags);
+			var author = null;
+			
+			if (bibJson[i].entryTags.hasOwnProperty('AUTHOR')){
+				author = bibJson[i].entryTags.AUTHOR.split(' and '); 
+				// https://stackoverflow.com/questions/68306749/how-to-extract-information-after-second-comma-in-a-string-and-remove-whats-in-f
+				//Ahmed Bhuiyan, Rasel = Rasel
+				//let firstname = author[0].split(',').slice(1).join(',');
+				// Islam, Md Rashedul = Md Rashedul
+				let firstname = author[3].split(',').slice(1).join(',');
+				console.log(i, bibJson[i].entryTags.AUTHOR.split(' and '));
+				console.log('comma based ', firstname);
+				let lastname = author[3].split(',')[0];
+				console.log('lastname ', lastname);
+				firstname = firstname.trim();
+				var abbr0 = firstname.split(' ').map(function(item){return item[0]}).join('. ') + '.';
+		console.log('ABBR ', abbr0);
+		
+		let fullname = lastname + ', ' + abbr0
+				console.log('fullname ', fullname);
+		
+				console.log(i, bibJson[i].entryTags.AUTHOR.split(' and '));
+			}
+		}
+		
+		// take first letters of each word
+		// https://stackoverflow.com/questions/8279859/get-first-letter-of-each-word-in-a-string-in-javascript
+		//var abbr = "Java Script Object Notation".split(' ').map(function(item){return item[0]}).join('');
+		var abbr = "Java Script Object Notation".split(' ').map(function(item){return item[0]}).join('. ');
+		console.log(abbr);
+		
+		// https://github.com/yepengding/bibtex-js-parser
+		//const bibJSON = BibtexParser.parseToJSON(allText);
+		//console.log('bibJSON', bibJSON);
+//const bibJSONString = BibtexParser.parseToJSONString(allText);
+//console.log('bibJSONString', bibJSONString); 
+
+        // https://www.c-sharpcorner.com/UploadFile/fc34aa/sort-json-object-array-based-on-a-key-attribute-in-javascrip/
+        bibJson.sort(GetSortOrder("year")); //Pass the attribute to be sorted on    
+        //bibJson = Object.keys(bibJson).sort((a, b) => bibJson[a].year - bibJson[b].year).map(f => bibJson[f]);
+        document.write("Sorted Years : "); 
+
+        var publication = [];
+
+
+
+        for (var item in bibJson) {    
+        document.write("<br>" + bibJson[item].citationKey);
+        //document.write("<br>" + bibJson[item].entryTags.year);
+        for(let ent in  bibJson[item].entryTags){   
+        //document.write("<br>" + ent);
+        document.write("<br>" + ent + ":"+ bibJson[item].entryTags[ent]);
+
+        }
+        var pub = {
+        'citationKey': bibJson[item].citationKey,
+        'author': bibJson[item].entryTags['author'],
+        'title': bibJson[item].entryTags['title'],
+        'year': bibJson[item].entryTags['year'],
+        }
+        publication.push(pub);    
+        }    
+        console.log(publication); 
+        bibJson.sort(GetSortOrder("author")); //Pass the attribute to be sorted on    
+        document.write("<br><br> Sorted Names : ");    
+        for (var item in bibJson) {    
+        document.write("<br>" + bibJson[item].entryTags.author);    
+        }   
+        }
+        }
+        }
+        rawFile.send(null);
+        }
+
+
+        readTextFile("bibfile.bib");
+
+
+        //console.log(bibtexParse.toJSON('@article{sample1,title={sample title}}'));
+        //console.log(bibtexParse.toJSON(bibliography));
+        //console.log(bibtexParse.toJSON(test));
+        //var b = bibtexParse.toJSON(bibliography)
+        //b[0].entryTags.author
+        //b[0].entryTags.author.split(' and ')[0].split(',')[0]
+    </script>
+
+</body>
+</html>
