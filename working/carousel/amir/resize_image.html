@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <head>
+
+        <link rel="shortcut icon" href="#">
+    </head>
+
+    <body>
+
+        <h2 style="text-align:center">Slideshow Gallery</h2>
+
+<!--        <img id="current-image-img" src="images/00a001f0a69a4c2995524f0444adfd2f-0.jpg" border="0" height="real_height" width="real_width" onload="resizeImg(this, 100, 100);"/>-->
+        <img id="current-image-img" src="images/india-rupee.jpg" border="0" height="real_height" width="real_width" onload="resizeImg(this, 100, 100);"/>
+
+
+        <div class="carousel-container">
+            <!--Add Add Preview and Next buttons-->
+            <div class="navigation">
+                <div class="prev nav-btn">&#60;</div>
+                <div class="next nav-btn">&#62;</div>
+            </div>
+            <!--Add Image-->
+            <div class="carousel">
+
+            </div>
+
+        </div>
+
+        <script>
+            // https://scriptygoddess.com/resources/proportioncalc.htm
+            function aspectRatio(x, y) {
+                var max = (x > y) ? x : y;
+                var min = (x < y) ? x : y;
+                return (max / min);
+            }
+
+        </script>
+
+        <script>
+            // https://stackoverflow.com/questions/1297449/change-image-size-with-javascript
+            function resizeImg(img, height, width) {
+                const current_img_dom = document.getElementById("current-image-img");
+                var desired = 300;
+                console.log(current_img_dom.height, " ", current_img_dom.width);
+                if (current_img_dom.height > desired) {
+                    img.height = desired;
+                    img.width = desired * aspectRatio(img.height, img.width);
+                    console.log(current_img_dom.height, " ", current_img_dom.width);
+                }
+            }
+
+        </script>
+        <!--
+        https://stackoverflow.com/questions/1297449/change-image-size-with-javascript
+        <img src="yourImage.jpg" border="0" height="real_height" width="real_width"
+    onload="resizeImg(this, 200, 100);">
+
+        <script type="text/javascript">
+        function resizeImg(img, height, width) {
+                img.height = height;
+                img.width = width;
+        }
+        </script>
+        -->
+    </body>
+
+</html>
