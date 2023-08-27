@@ -1,5 +1,4 @@
-<!doctype html>
-
+<!DOCTYPE html>
 <html>
     <head>
         <title>Testing bibtex</title>
@@ -10,8 +9,8 @@
     <script src="https://unpkg.com/bibtex-js-parser/umd/bibtex-js-parser.js"></script>
     <script type="text/javascript">
 
-
-       function parseBibTex(text) {
+/*
+function parseBibTex(text) {
     var m = text.match(/^\s*@([^{]+){([^,\n]+)[,\n]/);
     if (!m) {
         throw new Error('Unrecogonised header format');
@@ -28,7 +27,7 @@
     }
     return result;
 }
-
+*/
 
 
 
@@ -46,43 +45,69 @@ function readTextFile(file) {
                 //console.log(bibliography);
                 var bibJson = bibtexParse.toJSON(allText);
                 //console.log(bibtexParse.toJSON(allText));
-
+                
+                var jsonArray = [];
+                
+                console.log(bibJson[10])
                 for (let i = 0; i < bibJson.length; i++) {
                     //console.log(bibJson[i]);
                     //console.log(bibJson[i].entryTags);
                     //console.log(i, bibJson[i].entryTags.author);
                     //console.log(i, bibJson[i].entryTags.author.split(' and '));
                     //console.log(i, bibJson[8].entryTags);
+                    if(i==8)
+                    {
+                        console.log(i, bibJson[i].entryTags.AUTHOR, bibJson[i].entryTags.TITLE);
+                        console.log(i, bibJson[i].entryTags.author, bibJson[i].entryTags.title);
+                        //console.log(i, bibJson[i].entryTags.AUTHOR.split(' and '));
+                        //console.log(i, bibJson[i].entryTags.AUTHOR.split(' and ').length);
+                        console.log(i, bibJson[i].entryTags);
+                    }
                     let author = null;
                     let firstname = null;
                     let lastname = null;
                     let abbr = null;
                     let fullname = null; 
-
+                    let _name = null;
+                    
+                    let jsonBibtexObject = {
+                        
+                       
+                    };
+                    // AUTHOR
                     if (bibJson[i].entryTags.hasOwnProperty('AUTHOR')) {
                         author = bibJson[i].entryTags.AUTHOR.split(' and ');
                         // https://stackoverflow.com/questions/68306749/how-to-extract-information-after-second-comma-in-a-string-and-remove-whats-in-f
                         //Ahmed Bhuiyan, Rasel = Rasel
                         //let firstname = author[0].split(',').slice(1).join(',');
                         // Islam, Md Rashedul = Md Rashedul
-                        var _name;
                         
+                        /*
                         if (author.indexOf(',') > -1) { 
                             _name = getFullname(author);
                         }else{
                             //console.log('here', author);
                             _name = author;
                         }
-                        
-
+                        */
+                        _name = getFullname(author);
+                        let n = (_name.match(/,/g) || []).length
+                        console.log(i, replaceOccurrence(_name, /,/g, n-2, ', \&'))
                         console.log(i, _name);
+                        
+                        jsonBibtexObject = {
+                            'citationKey': bibJson[i].citationKey,
+                            'entryType': bibJson[i].entryType,
+                            'author': replaceOccurrence(_name, /,/g, n-2, ', \&'),
+                            'title': bibJson[i].entryTags.TITLE
+                        };
                     }else{
                         author = bibJson[i].entryTags.author.split(' and ');
                         // https://stackoverflow.com/questions/68306749/how-to-extract-information-after-second-comma-in-a-string-and-remove-whats-in-f
                         //Ahmed Bhuiyan, Rasel = Rasel
                         //let firstname = author[0].split(',').slice(1).join(',');
                         // Islam, Md Rashedul = Md Rashedul
-                        var _name;
+                        //var _name;
                         _name = getFullname(author);
                         /*
                         if (author.indexOf(',') > -1) { 
@@ -92,9 +117,40 @@ function readTextFile(file) {
                             _name = author;
                         }
                         */
-                        console.log(i, _name);
+                        //console.log(i, _name);
+                        // count number of commas in the string
+                        // https://stackoverflow.com/questions/881085/count-the-number-of-occurrences-of-a-character-in-a-string-in-javascript
+                        //console.log(("str1,str2,str3,str4".match(/,/g) || []).length); //logs 3
+                        //console.log((_name.match(/,/g) || []).length); //logs 3
+                        let n = (_name.match(/,/g) || []).length
+                        console.log(i, replaceOccurrence(_name, /,/g, n-2, ', \&'))
+                        jsonBibtexObject = {
+                            'citationKey': bibJson[i].citationKey,
+                            'entryType': bibJson[i].entryType,
+                            'author': replaceOccurrence(_name, /,/g, n-2, ', \&'),
+                            'title': (bibJson[i].entryTags.title).replace(/[{}]/g, ""),//10
+                            //remove curly braces from string
+                            // https://stackoverflow.com/questions/8307039/javascript-remove-braces
+                            //var str = "{Street Name}, {City}, {Country}";
+                            //str = str.replace(/[{}]/g, "");
+                            'year': bibJson[i].entryTags.year,
+                            'volume': bibJson[i].entryTags.volume,
+                            'number': bibJson[i].entryTags.number,
+                            'journal': bibJson[i].entryTags.journal,
+                            'issn': bibJson[i].entryTags.hasOwnProperty('issn')? bibJson[i].entryTags.issn: bibJson[i].entryTags.ISSN,
+                            'isbn': bibJson[i].entryTags.hasOwnProperty('isbn')? bibJson[i].entryTags.isbn: bibJson[i].entryTags.ISBN,
+                            'url': bibJson[i].entryTags.url,
+                            'booktitle': bibJson[i].entryTags.booktitle,
+                            'editor': bibJson[i].entryTags.editor,
+                            'publisher': bibJson[i].entryTags.publisher,
+                            'doi': bibJson[i].entryTags.hasOwnProperty('doi')? bibJson[i].entryTags.doi: bibJson[i].entryTags.DOI
+                        };
                     }
+                    console.log(bibJson[23].citationKey);
+                    jsonArray.push(jsonBibtexObject);
                 }
+                
+                console.log(jsonArray)
 
                 for (var item in bibJson) {
                     document.write("<br>" + bibJson[item].citationKey);
@@ -122,10 +178,10 @@ function readTextFile(file) {
 function getFullname(author) {
     var name = '';
     for (let i = 0; i < author.length; i++) {
-        firstname = author[i].split(',').slice(1).join(',');
-        console.log('comma based ', firstname);
+        firstname = author[i].split(', ').slice(1).join(',');
+        //console.log('comma based ', firstname);
         lastname = author[i].split(',')[0];
-        console.log('lastname ', lastname);
+        //console.log('lastname ', lastname);
         firstname = firstname.trim();
 
         // take first letters of each word
@@ -137,7 +193,7 @@ function getFullname(author) {
                 return item[0]
             }).join('. ') + '.';
         }
-        console.log('ABBR ', abbr);
+        //console.log('ABBR ', abbr);
         // not wehite space
         if(abbr.trim()){
             fullname = lastname + ', ' + abbr;
@@ -155,9 +211,13 @@ function getFullname(author) {
             
             fullname = lastname + ', ' + abbr;;
         }
-        console.log('fullname ', fullname);
+        if (fullname === 'Md, A.'){
+            fullname = 'Amiruzzaman, M.';
+        }
+        //console.log('fullname ', fullname);
         name += fullname + ', ';
     }
+    
     return name;
 }
 // https://stackoverflow.com/questions/20883404/javascript-returning-the-last-word-in-a-string
@@ -166,8 +226,15 @@ function lastWord(words) {
     return n[n.length - 1];
 
 }
-
-
+// https://stackoverflow.com/questions/46790263/replace-nth-occurence-of-number-in-string-with-javascript
+function replaceOccurrence(string, regex, n, replace) {
+   var i = 0;
+   return string.replace(regex, function(match) {
+        i+=1;
+        if(i===n) return replace;
+        return match;
+    });
+}
 readTextFile("bibfile.bib");
 
 
