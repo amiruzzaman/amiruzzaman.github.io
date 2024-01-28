@@ -1,0 +1,147 @@
+<html>
+    <head>
+        <title>..::Amir::..</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
+
+        <script>
+
+            function readTextFile(file, callback) {
+                var rawFile = new XMLHttpRequest();
+                rawFile.overrideMimeType("application/json");
+                rawFile.open("GET", file, true);
+                rawFile.onreadystatechange = function () {
+                    if (rawFile.readyState === 4 && rawFile.status == "200") {
+                        callback(rawFile.responseText);
+                    }
+                }
+                rawFile.send(null);
+            }
+
+            //usage:
+            readTextFile("data/mydata.js", function (text) {
+                var mydata = JSON.parse(text);
+                //console.log(mydata);
+
+                $(function () {
+                    $('#table').bootstrapTable({
+                        data: mydata
+                    });
+                });
+				var count= Object.keys(mydata).length-1;
+				document.getElementById("demo").innerHTML = count
+			//alert(count);
+			
+			
+			
+			var countResults = function() {
+    var coin = [];
+	var paperbill =[];
+
+    for ( var i = 0, arrLen = mydata.length; i < arrLen; ++i ) {
+        coin.push(mydata[i]["Coin"]);
+		paperbill.push(mydata[i]["PaperBill"]);
+    }
+
+    keyCount = {};
+    for(i = 0; i < coin.length; ++i) {
+        if(!keyCount[coin[i]]) {
+            keyCount[coin[i]] = 0;
+        }
+
+        ++keyCount[coin[i]];
+    }
+	
+	keyCount1 = {};
+    for(i = 0; i < paperbill.length; ++i) {
+        if(!keyCount1[paperbill[i]]) {
+            keyCount1[paperbill[i]] = 0;
+        }
+
+        ++keyCount1[paperbill[i]];
+    }
+
+    console.log( keyCount );
+	console.log( keyCount1 );
+}();
+			
+			
+            });
+
+			
+			
+			
+			
+        </script>
+		<script>
+		function LinkFormatter(value, row, index) {
+		console.log(value, row, index);
+  return "<a href='/carousel.html?country="+(row.Country).toLowerCase()+"'>"+value+"</a>";
+}
+		</script>
+
+        <style>
+            #myInput {
+                background-image: url('images/Search-icon.png'); /* Add a search icon to input */
+                background-position: 10px 12px; /* Position the search icon */
+                background-repeat: no-repeat; /* Do not repeat the icon image */
+                width: 100%; /* Full-width */
+                font-size: 16px; /* Increase font-size */
+                padding: 12px 20px 12px 40px; /* Add some padding */
+                border: 1px solid #ddd; /* Add a grey border */
+                margin-bottom: 12px; /* Add some space below the input */
+            }
+
+        </style>
+
+        <script>
+            function myFunction() {
+                // Declare variables
+                var input, filter, table, tr, td, i;
+                input = document.getElementById("myInput");
+                filter = input.value.toUpperCase();
+                table = document.getElementById("table");
+                tr = table.getElementsByTagName("tr");
+
+                // Loop through all table rows, and hide those who don't match the search query
+                for (i = 0; i < tr.length; i++) {
+                    td = tr[i].getElementsByTagName("td")[0];
+                    if (td) {
+                        if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                            tr[i].style.display = "";
+                        } else {
+                            tr[i].style.display = "none";
+                        }
+                    }
+                }
+            }
+        </script>
+
+    </head>
+    <body>
+    <center><h1>List of coin collection</h1></center>
+    <div class="container">
+        <!--<table id="table" data-height="460">-->
+
+        <input type="text" id="myInput" onkeyup="myFunction()" placeholder="What you looking for?">
+        <table id="table" data-height="600">
+            <thead class="cf">
+                <tr>
+                    <!--<th data-field="Country">Country</th>-->
+					<th data-field="Country" data-formatter="LinkFormatter">Country</th>
+                    <th data-field="Coin">Coin</th>
+                    <th data-field="PaperBill">PaperBill</th>
+                    <th data-field="Donor">Donor</th>
+                </tr>
+            </thead>
+        </table>
+        <div class="row">
+            <p class="bg-success" style="padding:10px;margin-top:20px">There are total <span id="demo" style="color: blue; font-weight: bold;"></span> countries in the collection<br><small>Copyright:&copy2018 Md Amiruzzaman.</small> </p>
+        </div>
+    </div>
+</body>
+</html>
