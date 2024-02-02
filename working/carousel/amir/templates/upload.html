@@ -1,5 +1,11 @@
 <!doctype html>
+<html>
+<head>
 <title>Coin/paper bill file upload form</title>
+<link rel="shortcut icon" href="#">
+</head>
+<body>
+<div style="text-align: center; width: 550px; height: 550px;border: solid 1px gray;">
 <h2>Select file to upload</h2>
 <p>
 	{% with messages = get_flashed_messages() %}
@@ -279,3 +285,7 @@
 		<input type="submit" value="Submit">
 	</p>
 </form>
+<a href = "./edit_table">edit list</a>
+</div>
+</body>
+</html>
