@@ -5,6 +5,7 @@
 <link rel="shortcut icon" href="#">
 </head>
 <body>
+<a href = "./logout">logout</a>
 <div style="text-align: center; width: 550px; height: 550px;border: solid 1px gray;">
 <h2>Select file to upload</h2>
 <p>
@@ -18,7 +19,7 @@
 	  {% endif %}
 	{% endwith %}
 </p>
-<form method="post" action="/" enctype="multipart/form-data">
+<form method="post" action="/upload" enctype="multipart/form-data">
     <dl>
 		<p>
 			<label for="country">Country</label><span style="color: red !important; display: inline; float: none;">*</span>      
