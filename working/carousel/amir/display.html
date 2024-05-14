@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carousel</title>
+    <title>Display coins/paperbills</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
@@ -171,15 +171,16 @@
     <div class="out-container">
         <div class="inner-container">
             <h1 id="image-caption" class="title"></h1>
+            <!--<div id="image-note" style="color: yellow;">Something</div>-->
             <div class="slider">
                 <div class="prev-button">
                     <div class="btn">&#60;</div>
                 </div>
                 <div class="current-img">
-                    <img id="current-image-img" onload="resizeImg(this, 100, 100);"/><br />
-                    <!-- <div id="image-caption">Something</div> -->
+                    <img id="current-image-img" onload="resizeImg(this, 100, 100);"/>
+                    
                 </div>
-
+                
                 <div class="next-button">
                     <div class="btn">&#62;</div>
                 </div>
@@ -225,6 +226,13 @@ function toTitleCase(str) {
             current_img_dom.setAttribute("src", src);
         }
 
+        function setNoteCurrentImage(note) {
+            console.log(note);
+            const notediv = document.getElementById("image-note");
+            notediv.innerHTML = "";
+            notediv.innerHTML = note;
+        }
+
         (() => {
 			
 			var query = getQueryParams(document.location.search);
@@ -240,6 +248,7 @@ function toTitleCase(str) {
             const IMAGE_FOLDER = "images/" + country_dir + "/";
             let img_index = 0;
 
+            
             // loading images metadata
             fetch("images/coins.json")
                 .then(response => response.json())
@@ -255,6 +264,8 @@ function toTitleCase(str) {
                     data.forEach((img, i) => {
                         const img_dom = document.createElement("img");
                         const src = IMAGE_FOLDER + img.image
+                        const note = img.note;
+                        console.log(img.note);
                         img_dom.setAttribute("src", src);
 
                         //console.log(i);
@@ -265,10 +276,13 @@ function toTitleCase(str) {
                         current_img_caption.innerHTML = "";
                         current_img_caption.innerHTML = 1 + "/" + data.length;
 
+                        
+
                         img_queue.appendChild(img_dom);
                         // load the first image as current image
                         if (i === 0) {
                             setCurrentImage(src);
+                            //setNoteCurrentImage(note);
                         }
 
                         // add event listener for changing current image
@@ -280,6 +294,10 @@ function toTitleCase(str) {
                             //current_img_caption.className = "caption";
                             current_img_caption.innerHTML = "";
                             current_img_caption.innerHTML = (i + 1) + "/" + data.length;
+                            //const notediv = document.getElementById("image-note");
+                            //notediv.innerHTML = "";
+                            //notediv.innerHTML = img.note;
+                            setNoteCurrentImage(note);
                         })
                     });
 
@@ -301,9 +319,12 @@ function toTitleCase(str) {
                             //current_img_caption.className = "caption";
                             current_img_caption.innerHTML = "";
                             current_img_caption.innerHTML = (img_index + 1) + "/" + data.length;
-
+                            
+                            //const notediv = document.getElementById("image-note");
+                            //notediv.innerHTML = "";
+                            //notediv.innerHTML = img.note;
+                            setNoteCurrentImage(note);
                         }
-
 
                     });
 

@@ -27,6 +27,7 @@
             var ajaxRq = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Msxml2.XMLHTTP");
             ajaxRq.open("GET", "publication_bib.txt", false);
             ajaxRq.send(null);
+			//console.log(ajaxRq.responseText);
             document.write(ajaxRq.responseText);
             document.write('</pre>');
         </script>

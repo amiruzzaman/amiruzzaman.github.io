@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Testing bibtex</title>
+        <link rel="shortcut icon" href="#">
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta content="utf-8" http-equiv="encoding">
+        <script src = "bibtexParse.js" type = "text/javascript"/></script>
+    <script src="https://unpkg.com/bibtex-js-parser/umd/bibtex-js-parser.js"></script>
+    <script type="text/javascript">
+
+/*
+function parseBibTex(text) {
+    var m = text.match(/^\s*@([^{]+){([^,\n]+)[,\n]/);
+    if (!m) {
+        throw new Error('Unrecogonised header format');
+    }
+    var result = {
+        typeName: m[1].trim(),
+        citationKey: m[2].trim()
+    }
+    text = text.slice(m[0].length).trim();
+    while (text[0] !== '}') {
+        var pair = parseBibTexLine(text);
+        result[pair.field] = pair.value;
+        text = text.slice(pair.length).trim();
+    }
+    return result;
+}
+*/
+
+
+
+// https://intellipaat.com/community/72740/how-to-read-a-local-text-file
+function readTextFile(file) {
+    var rawFile = new XMLHttpRequest();
+    rawFile.open("GET", file, true);
+    rawFile.onreadystatechange = function() {
+        if (rawFile.readyState === 4) {
+            if (rawFile.status === 200 || rawFile.status == 0) {
+                var allText = rawFile.responseText;
+                //alert(allText);
+
+                //console.log(allText);
+                //console.log(bibliography);
+                var bibJson = bibtexParse.toJSON(allText);
+                //console.log(bibtexParse.toJSON(allText));
+                
+                var jsonArray = [];
+                
+                console.log(bibJson[10])
+                for (let i = 0; i < bibJson.length; i++) {
+                    //console.log(bibJson[i]);
+                    //console.log(bibJson[i].entryTags);
+                    //console.log(i, bibJson[i].entryTags.author);
+                    //console.log(i, bibJson[i].entryTags.author.split(' and '));
+                    //console.log(i, bibJson[8].entryTags);
+                    if(i==8)
+                    {
+                        console.log(i, bibJson[i].entryTags.AUTHOR, bibJson[i].entryTags.TITLE);
+                        console.log(i, bibJson[i].entryTags.author, bibJson[i].entryTags.title);
+                        //console.log(i, bibJson[i].entryTags.AUTHOR.split(' and '));
+                        //console.log(i, bibJson[i].entryTags.AUTHOR.split(' and ').length);
+                        console.log(i, bibJson[i].entryTags);
+                    }
+                    
+                    if(i==2)
+                    {
+                        console.log(i, bibJson[i].entryTags.AUTHOR, bibJson[i].entryTags.TITLE);
+                        console.log(i, bibJson[i].entryTags.author, bibJson[i].entryTags.title);
+                        //console.log(i, bibJson[i].entryTags.AUTHOR.split(' and '));
+                        //console.log(i, bibJson[i].entryTags.AUTHOR.split(' and ').length);
+                        console.log(i, bibJson[i].entryTags);
+                        console.log(i, bibJson[i]);
+                    }
+                    let author = null;
+                    let firstname = null;
+                    let lastname = null;
+                    let abbr = null;
+                    let fullname = null; 
+                    let _name = null;
+                    
+                    let jsonBibtexObject = {
+                        
+                       
+                    };
+                    // AUTHOR
+                    if (bibJson[i].entryTags.hasOwnProperty('AUTHOR')) {
+                        author = bibJson[i].entryTags.AUTHOR.split(' and ');
+                        // https://stackoverflow.com/questions/68306749/how-to-extract-information-after-second-comma-in-a-string-and-remove-whats-in-f
+                        //Ahmed Bhuiyan, Rasel = Rasel
+                        //let firstname = author[0].split(',').slice(1).join(',');
+                        // Islam, Md Rashedul = Md Rashedul
+                        
+                        /*
+                        if (author.indexOf(',') > -1) { 
+                            _name = getFullname(author);
+                        }else{
+                            //console.log('here', author);
+                            _name = author;
+                        }
+                        */
+                        _name = getFullname(author);
+                        let n = (_name.match(/,/g) || []).length
+                        //console.log(i, replaceOccurrence(_name, /,/g, n-2, ', \&'))
+                        //console.log(i, _name);
+                        
+                        jsonBibtexObject = {
+                            'citationKey': bibJson[i].citationKey,
+                            'entryType': bibJson[i].entryType,
+                            'author': replaceOccurrence(_name, /,/g, n-2, ', \&').replace(/[, ]+$/, " "),
+                            'title': bibJson[i].entryTags.TITLE,
+                            'year': bibJson[i].entryTags.YEAR,
+                            'volume': bibJson[i].entryTags.VOLUME,
+                            'number': bibJson[i].entryTags.NUMBER,
+                            'journal': bibJson[i].entryTags.JOURNAL,
+                            'issn': bibJson[i].entryTags.hasOwnProperty('ISSN')? bibJson[i].entryTags.issn: bibJson[i].entryTags.ISSN,
+                            'isbn': bibJson[i].entryTags.hasOwnProperty('ISBN')? bibJson[i].entryTags.isbn: bibJson[i].entryTags.ISBN,
+                            'url': bibJson[i].entryTags.URL,
+                            'booktitle': bibJson[i].entryTags.BOOKTITLE,
+                            'editor': bibJson[i].entryTags.EDITOR,
+                            'publisher': bibJson[i].entryTags.PUBLISHER,
+                            'doi': bibJson[i].entryTags.hasOwnProperty('DOI')? bibJson[i].entryTags.doi: bibJson[i].entryTags.DOI,
+                            'pages': bibJson[i].entryTags.hasOwnProperty('pages')? bibJson[i].entryTags.pages : bibJson[i].entryTags.PAGES
+                        };
+                    }else{
+                        author = bibJson[i].entryTags.author.split(' and ');
+                        // https://stackoverflow.com/questions/68306749/how-to-extract-information-after-second-comma-in-a-string-and-remove-whats-in-f
+                        //Ahmed Bhuiyan, Rasel = Rasel
+                        //let firstname = author[0].split(',').slice(1).join(',');
+                        // Islam, Md Rashedul = Md Rashedul
+                        //var _name;
+                        _name = getFullname(author);
+                        /*
+                        if (author.indexOf(',') > -1) { 
+                            _name = getFullname(author);
+                        }else{
+                            //console.log('here', author);
+                            _name = author;
+                        }
+                        */
+                        //console.log(i, _name);
+                        // count number of commas in the string
+                        // https://stackoverflow.com/questions/881085/count-the-number-of-occurrences-of-a-character-in-a-string-in-javascript
+                        //console.log(("str1,str2,str3,str4".match(/,/g) || []).length); //logs 3
+                        //console.log((_name.match(/,/g) || []).length); //logs 3
+                        let n = (_name.match(/,/g) || []).length
+                        console.log(i, replaceOccurrence(_name, /,/g, n-2, ', \&'))
+                        //_name = _name.substring(0, _name.length - 1);
+                        jsonBibtexObject = {
+                            'citationKey': bibJson[i].citationKey,
+                            'entryType': bibJson[i].entryType,
+                            'author': replaceOccurrence(_name, /,/g, n-2, ', \&').replace(/[, ]+$/, " "),
+                            'title': (bibJson[i].entryTags.title).replace(/[{}]/g, ""),//10
+                            //remove curly braces from string
+                            // https://stackoverflow.com/questions/8307039/javascript-remove-braces
+                            //var str = "{Street Name}, {City}, {Country}";
+                            //str = str.replace(/[{}]/g, "");
+                            'year': bibJson[i].entryTags.year,
+                            'volume': bibJson[i].entryTags.volume,
+                            'number': bibJson[i].entryTags.number,
+                            'journal': bibJson[i].entryTags.journal,
+                            'issn': bibJson[i].entryTags.hasOwnProperty('issn')? bibJson[i].entryTags.issn : bibJson[i].entryTags.ISSN,
+                            'isbn': bibJson[i].entryTags.hasOwnProperty('isbn')? bibJson[i].entryTags.isbn : bibJson[i].entryTags.ISBN,
+                            'url': bibJson[i].entryTags.url,
+                            'booktitle': bibJson[i].entryTags.booktitle,
+                            'editor': bibJson[i].entryTags.editor,
+                            'publisher': bibJson[i].entryTags.publisher,
+                            'doi': bibJson[i].entryTags.hasOwnProperty('doi')? bibJson[i].entryTags.doi : bibJson[i].entryTags.DOI,
+                            'pages': bibJson[i].entryTags.hasOwnProperty('pages')? bibJson[i].entryTags.pages : bibJson[i].entryTags.PAGES
+                        };
+                    }
+                    console.log(bibJson[23].citationKey);
+                    jsonArray.push(jsonBibtexObject);
+                }
+                
+                //console.log(jsonArray)
+                document.write("<br><br> Sorted Names : ");
+                for(let i = 0; i<jsonArray.length; i++){
+                    console.log(i, apaFormat(jsonArray[i]));
+                    document.write("<br>" + apaFormat(jsonArray[i]));
+                }
+
+                for (var item in bibJson) {
+                    document.write("<br>" + bibJson[item].citationKey);
+                    //document.write("<br>" + bibJson[item].entryTags.year);
+                    for (let ent in bibJson[item].entryTags) {
+                        //document.write("<br>" + ent);
+                        document.write("<br>" + ent + ":" + bibJson[item].entryTags[ent]);
+
+                    }
+
+                }
+
+                /*
+                document.write("<br><br> Sorted Names : ");
+                for (var item in bibJson) {
+                    document.write("<br>" + bibJson[item].entryTags.author);
+                }
+                */
+            }
+        }
+    }
+    rawFile.send(null);
+}
+
+function apaFormat(obj){
+    let citeInfo = '';
+    if((obj.entryType === 'InProceedings')||(obj.entryType === 'INPROCEEDINGS')){
+        citeInfo = apaProceedings(obj);
+    }else if((obj.entryType === 'article')||(obj.entryType === 'ARTICLE')){
+        citeInfo = apaArticles(obj)
+    }
+    return citeInfo;
+}
+
+function apaProceedings(obj){
+
+    //console.log('found', obj);
+    let citation = obj.author + '(' + obj.year + '). ' + obj.title + '. <i>' + obj.booktitle +'</i>.';
+    if (typeof obj.volume === undefined){ 
+        citation +=  '(' + obj.volume + '). ';
+    }
+    if (obj.pages != undefined || obj.pages != null){
+        citation += ' pp.' + (obj.pages).replace(/--/g, "-") + '. ';// remove an extra dash
+    }
+    if (obj.doi != undefined || obj.doi != null){
+        citation += obj.doi + '. ';// remove an extra dash
+    }
+    
+    if (obj.publisher != undefined || obj.publisher != null){
+        citation += '' + obj.publisher + '.';// remove an extra dash
+    }
+    //+  obj.doi;
+    //console.log(citation);
+    return citation;
+}
+
+// https://libraryguides.vu.edu.au/apa-referencing/7JournalArticles
+function apaArticles(obj){
+
+    console.log('found', obj);
+    let citation = obj.author + '(' + obj.year + '). ' + obj.title + '. ';
+    if (obj.journal != undefined){ 
+        citation +=  '<i>' + obj.journal +'</i>.';
+    }
+    if (obj.volume != undefined || obj.volume != null){ 
+        citation +=  ' <i>' + obj.volume + '</i>';
+    }
+    
+    if (obj.number != undefined || obj.number != null ){ 
+        citation +=  '(' + obj.number + '), ';
+    }else{
+        citation +=  ', ';
+    }
+    if (obj.pages != undefined){
+        citation += ' ' + (obj.pages).replace(/--/g, "-") + '. ';// remove an extra dash
+    }
+    if (obj.doi != undefined || obj.doi != null){
+        citation += obj.doi + '. ';// remove an extra dash
+    }
+    
+    if (obj.publisher != undefined || obj.publisher != null){
+        citation += '' + obj.publisher + '.';// remove an extra dash
+    }
+    
+    //+  obj.doi;
+    //console.log(citation);
+    return citation;
+}
+
+function getFullname(author) {
+    var name = '';
+    for (let i = 0; i < author.length; i++) {
+        firstname = author[i].split(', ').slice(1).join(',');
+        //console.log('comma based ', firstname);
+        lastname = author[i].split(',')[0];
+        //console.log('lastname ', lastname);
+        firstname = firstname.trim();
+
+        // take first letters of each word
+        // https://stackoverflow.com/questions/8279859/get-first-letter-of-each-word-in-a-string-in-javascript
+        //var abbr = "Java Script Object Notation".split(' ').map(function(item){return item[0]}).join('');
+        let abbr='';
+        if(firstname.trim()){
+            abbr = firstname.split(' ').map(function(item) {
+                return item[0]
+            }).join('. ') + '.';
+        }
+        //console.log('ABBR ', abbr);
+        // not wehite space
+        if(abbr.trim()){
+            fullname = lastname + ', ' + abbr;
+        }else{
+            let f = lastWord(lastname)
+            abbr = f.split(' ').map(function(item) {
+                return item[0]
+            }).join('. ') + '.';
+            // string without last word
+            //var str = "I want to remove the last word.";
+            //var lastIndex = str.lastIndexOf(" ");
+            //str = str.substring(0, lastIndex);
+            lastIndex = lastname.lastIndexOf(" ");
+            lastname = lastname.substring(0, lastIndex);
+            
+            fullname = lastname + ', ' + abbr;;
+        }
+        if (fullname === 'Md, A.'){
+            fullname = 'Amiruzzaman, M.';
+        }
+        //console.log('fullname ', fullname);
+        name += fullname + ', ';
+    }
+    
+    return name;
+}
+// if keyvalue is empty
+// https://stackoverflow.com/questions/679915/how-do-i-test-for-an-empty-javascript-object
+function isEmpty(obj) {
+  for (const prop in obj) {
+    if (Object.hasOwn(obj, prop)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+// https://stackoverflow.com/questions/20883404/javascript-returning-the-last-word-in-a-string
+function lastWord(words) {
+    var n = words.split(" ");
+    return n[n.length - 1];
+
+}
+
+
+// https://stackoverflow.com/questions/46790263/replace-nth-occurence-of-number-in-string-with-javascript
+function replaceOccurrence(string, regex, n, replace) {
+   var i = 0;
+   return string.replace(regex, function(match) {
+        i+=1;
+        if(i===n) return replace;
+        return match;
+    });
+}
+readTextFile("bibfile.bib");
+
+
+    </script>
+
+</head>
+<body>
+
+
+    <!--<div id="lastModifiedDiv">Testing</div>-->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+
+</body>
+</html>
