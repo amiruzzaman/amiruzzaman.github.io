@@ -1,9 +1,12 @@
 import os
-from flask import Flask, flash, request, redirect, render_template, url_for
+from flask import Flask, flash, request, redirect, render_template, url_for, session
 from werkzeug.utils import secure_filename
 import uuid
 import json
 
+from flask_cors import CORS
+
+#from flask import session
 #from flask import Flask, render_template, redirect, url_for, request
 
 
@@ -81,11 +84,22 @@ def edit_delete(act, val):
     
 @app.route('/upload')
 def upload_form():
-    return render_template('upload.html')
+    print('session: upload_form ', session.get('id'))
+    if session.get('id') == None:
+        print("Should not be here ")
+        return render_template('login.html')
+    else:
+        print('session: upload_form request.url', request.url)
+#        return redirect('/upload')
+        return render_template('upload.html')
 
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
+    print('session: upload_file ', session.get('id'))
+    print('request.url', request.url)
+    if session.get('id') == None:
+        print("Should not be here ")
     if request.method == 'POST':
         note = request.form.get("note")
         country = request.form.get("country")
@@ -93,6 +107,7 @@ def upload_file():
         cp = os.path.join(UPLOAD_FOLDER, country)
         if not os.path.isdir(cp):
             os.mkdir(cp)
+            print('cp', cp)
         # check if the post request has the file part
         if 'file' not in request.files:
             flash('No file part')
@@ -146,6 +161,7 @@ def edit():
 
 @app.route('/edit_table')
 def edit_table():
+    print('session: ', session.get('id'))
     return render_template('edit_table.html')
 
 
@@ -224,9 +240,15 @@ def login():
         if request.form['username'] != 'admin' or request.form['password'] != 'admin':
             error = 'Invalid Credentials. Please try again.'
         else:
+            session['id'] = request.form['username']
             return redirect(url_for('upload_form'))
     return render_template('login.html', error=error)
 
+@app.route('/logout')
+def logout():
+    session.clear()
+    print('session: ', session.get('id'))
+    return render_template('login.html')
 
 if __name__ == "__main__":
     app.run(host = '127.0.0.1',port = 5000, debug = True)

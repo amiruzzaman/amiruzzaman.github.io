@@ -241,6 +241,10 @@ function toTitleCase(str) {
 		
 			//var country_dir = "bangladesh";
 			var country_dir = query.country;
+			country_dir = country_dir.toLowerCase();
+			console.log(country_dir);
+			country_dir = ((country_dir == 'usa') ? 'united states' : country_dir);
+			country_dir = ((country_dir == 'USA') ? 'united states' : country_dir);
 			
 			var title = document.getElementById("image-caption");
 			title.innerHTML = toTitleCase(country_dir);
