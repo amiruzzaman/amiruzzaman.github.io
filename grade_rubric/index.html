@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="style.css">
+	<link rel="shortcut icon" href="#">
 </head>
 <body>
     <div id="container"></div>
@@ -22,6 +23,26 @@
     <div id="overlay"></div>
 
     <script>
+	
+	function readTextFile(file, callback) {
+    var rawFile = new XMLHttpRequest();
+    rawFile.overrideMimeType("application/json");
+    rawFile.open("GET", file, true);
+    rawFile.onreadystatechange = function() {
+        if (rawFile.readyState === 4 && rawFile.status == "200") {
+            callback(rawFile.responseText);
+        }
+    }
+    rawFile.send(null);
+}
+
+//usage:
+readTextFile("template.json", function(text){
+    var data = JSON.parse(text);
+    //console.log(data);
+});
+	
+	
         let selectedItem = null;
 
         function editItem() {
@@ -34,9 +55,14 @@
             editScore.value = selectedItem.getAttribute('score');
             editBox.style.visibility = 'visible';
             overlay.style.visibility = 'visible';
+			
+			
         }
         
         function renderProblem(container, problems) {
+		let subTotal= 0;
+		var arr = [];
+		let subTotalDiv = document.createElement('div');
             for(let problem of problems) {
                 const yes = problem.yes;
                 const no = problem.no;
@@ -55,6 +81,14 @@
                 itemNo.classList.add('item-no');
                 itemNo.setAttribute('score', score);
                 itemNo.innerText = no;
+				
+				const itemScore = document.createElement('div');
+                itemScore.classList.add('item-score');
+                itemScore.innerHTML = score;
+				itemScore.style.color = 'red';
+                //itemScore.innerText = no;
+				subTotal += parseInt(score);
+				arr.push(score);
 
                 itemYes.addEventListener('click', () => {
                     itemYes.classList.add('selected');
@@ -64,6 +98,7 @@
                 itemYes.addEventListener('dblclick', function() {
                     selectedItem = this;
                     editItem();
+					console.log(selectedItem);
                 });
 
                 itemNo.addEventListener('click', () => {
@@ -78,10 +113,30 @@
 
                 itemContainer.appendChild(itemYes);
                 itemContainer.appendChild(itemNo);
+				itemContainer.appendChild(itemScore);
 
                 
                 container.appendChild(itemContainer);
             }
+			subTotalDiv.innerHTML = subTotal;
+			subTotalDiv.style.display = "flex";
+			subTotalDiv.style.color = 'green';
+			subTotalDiv.style.minHeight = "15px"; 
+			//subTotalDiv.setAttribute("align", "left");
+			subTotalDiv.setAttribute("text-align", "right");
+			//subTotalDiv.setAttribute("margin", "0 auto");
+			//subTotalDiv.setAttribute("display", "flex");
+			subTotalDiv.style.marginBottom = "10px"; 
+			subTotalDiv.style.float = "right";
+			subTotalDiv.style.fontSize = "12px";
+			subTotalDiv.style.padding = "5px";
+			//subTotalDiv.style.position = "relative";
+			//subTotalDiv.style.right = "0";
+			//subTotalDiv.align = 'left';
+			subTotalDiv.classList.add('sub-total-score');
+			container.appendChild(subTotalDiv);
+			
+			console.log(arr, subTotal);
         }
 
         fetch('template.json').then(response => response.json()).then(data => {
@@ -130,6 +185,19 @@
             const saveButton = document.createElement('button');
             saveButton.classList.add('save-button');
             saveButton.innerText = 'Save';
+			
+			const textAreaDiv = document.createElement('div');
+			var input = document.createElement("textarea");
+				input.name = "post";
+				input.maxLength = "5000";
+				input.cols = "80";
+				input.rows = "20";
+				input.classList.add('item-textareabox');
+			textAreaDiv.classList.add('item-textarea');
+			textAreaDiv.appendChild(input);
+			var inputTxt = document.createElement("input");
+			inputTxt.type = "text";
+			
             saveButton.addEventListener('click', () => {
                 // Formating document
                 let text = '';
@@ -148,14 +216,21 @@
 
                         const items = problem.querySelectorAll('.item-container');
                         items.forEach(item => {
+						console.log(item);
                             const itemYes = item.querySelector('.item-yes');
                             const itemNo = item.querySelector('.item-no');
+
+                            // Formating text for each question
                             if (itemYes.classList.contains('selected')) {
-                                text += `${itemYes.innerText}\n`;
-                                score += parseInt(itemYes.getAttribute('score'));
+                                const _score = parseInt(itemYes.getAttribute('score'));
+                                //text += `${_score}\t${itemYes.innerText}\n`;
+								text += `\t${itemYes.innerText}\n`;
+                                score += _score;
                             } else {
-                                text += `${itemNo.innerText}\n`;
-                                score += parseInt(itemNo.getAttribute('score'));
+                                const _score = parseInt(itemNo.getAttribute('score'));
+                                //text += `${_score}\t${itemNo.innerText}\n`;
+								text += `\t${itemNo.innerText}\n`;
+                                score += _score;
                             }
                         });
 
@@ -163,18 +238,29 @@
                     });
                     
                 });
-
-                text += "Overall: \n\n";
+				
+				
+                text += "Overall: \n\n" + input.value + '\n\n';
 
                 text += `Total score: ${score}\n`;
-                // console.log(text);
-                download('output.txt', text);
+                console.log(text);
+				if (inputTxt.value == ''){
+				    download('output.txt', text);
+				}else{
+					download(inputTxt.value+'.txt', text);
+				}
             });
-
+			container.appendChild(textAreaDiv);
+			
+			
+			container.appendChild(inputTxt);
             container.appendChild(saveButton);
         })
 
         function download(filename, text) {
+		
+			
+		
             const element = document.createElement('a');
             element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
             element.setAttribute('download', filename);
