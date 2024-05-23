@@ -3,10 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
+    <link rel="shortcut icon" href="#">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="shortcut icon" href="#">
     <style>
         table,
         th,
@@ -15,7 +15,6 @@
             border-collapse: collapse;
             padding: 2px 3px;
             text-align: center;
-            width: 30px;
         }
 
         th {
@@ -25,7 +24,9 @@
 </head>
 
 <body>
-    <div id="container"></div>
+    <div id="container">
+        <div id="showTable">Here</div>
+    </div>
     <div id="edit-box">
         <textarea id="edit-text"></textarea>
         <div id="edit-score-container">
@@ -39,29 +40,17 @@
     </div>
     <div id="overlay"></div>
 
+
     <script>
-
-        function readTextFile(file, callback) {
-            var rawFile = new XMLHttpRequest();
-            rawFile.overrideMimeType("application/json");
-            rawFile.open("GET", file, true);
-            rawFile.onreadystatechange = function () {
-                if (rawFile.readyState === 4 && rawFile.status == "200") {
-                    callback(rawFile.responseText);
-                }
-            }
-            rawFile.send(null);
-        }
-
-        //usage:
-        /*
-        readTextFile("template.json", function (text) {
-            var data = JSON.parse(text);
-            //console.log(data);
-        });
-        */
-
         let selectedItem = null;
+        let globalProblemID = 0;
+
+        const scores = {
+            'part-0': [],
+            "part-1": [],
+            "part-2": [],
+            "part-3": []
+        };
 
         function editItem() {
             const editBox = document.getElementById('edit-box');
@@ -69,18 +58,19 @@
             const editScore = document.getElementById('edit-score');
             const overlay = document.getElementById('overlay');
 
+            const part = selectedItem.getAttribute('part');
+            const partID = part.split('-')[1];
+            const itemID = part.split('-')[2];
+            const score = scores[`part-${partID}`][itemID];
+
             editText.value = selectedItem.innerText;
-            editScore.value = selectedItem.getAttribute('score');
+            editScore.value = score;
             editBox.style.visibility = 'visible';
             overlay.style.visibility = 'visible';
-
-
         }
 
-        function renderProblem(container, problems) {
-            let subTotal = 0;
-            var subScoreArr = [];
-            let subTotalDiv = document.createElement('div');
+        function renderProblem(container, problems, part) {
+            let problemScore = 0;
             for (let problem of problems) {
                 const yes = problem.yes;
                 const no = problem.no;
@@ -92,21 +82,15 @@
                 const itemYes = document.createElement('div');
                 itemYes.classList.add('item-yes');
                 itemYes.classList.add('selected');
-                itemYes.setAttribute('score', score);
+                itemYes.setAttribute('part', `part-${part}-${globalProblemID}`);
+                // itemYes.setAttribute('score', score); // Not used anymore
                 itemYes.innerText = yes;
 
                 const itemNo = document.createElement('div');
                 itemNo.classList.add('item-no');
-                itemNo.setAttribute('score', score);
+                itemNo.setAttribute('part', `part-${part}-${globalProblemID}`);
+                // itemNo.setAttribute('score', score); // Not used anymore
                 itemNo.innerText = no;
-
-                const itemScore = document.createElement('div');
-                itemScore.classList.add('item-score');
-                itemScore.innerHTML = score;
-                itemScore.style.color = 'red';
-                //itemScore.innerText = no;
-                subTotal += parseInt(score);
-                subScoreArr.push(score);
 
                 itemYes.addEventListener('click', () => {
                     itemYes.classList.add('selected');
@@ -116,7 +100,6 @@
                 itemYes.addEventListener('dblclick', function () {
                     selectedItem = this;
                     editItem();
-                    console.log(selectedItem);
                 });
 
                 itemNo.addEventListener('click', () => {
@@ -131,33 +114,12 @@
 
                 itemContainer.appendChild(itemYes);
                 itemContainer.appendChild(itemNo);
-                itemContainer.appendChild(itemScore);
 
 
                 container.appendChild(itemContainer);
+                scores[`part-${part}`].push(parseInt(score));
+                globalProblemID++;
             }
-            subTotalDiv.innerHTML = subTotal;
-            //subTotalDiv.style.display = "flex";
-            subTotalDiv.style.color = 'green';
-
-            ////subTotalDiv.style.minHeight = "15px"; 
-            ////subTotalDiv.setAttribute("align", "left");
-
-            //subTotalDiv.setAttribute("text-align", "right");
-
-            ////subTotalDiv.setAttribute("margin", "0 auto");
-            ////subTotalDiv.setAttribute("display", "flex");
-            //subTotalDiv.style.marginBottom = "10px"; 
-            //subTotalDiv.style.float = "right";
-            subTotalDiv.style.fontSize = "12px";
-            //subTotalDiv.style.padding = "5px";
-            ////subTotalDiv.style.position = "relative";
-            ////subTotalDiv.style.right = "0";
-            ////subTotalDiv.align = 'left';
-            subTotalDiv.classList.add('sub-total-score');
-            container.appendChild(subTotalDiv);
-
-            //console.log(subScoreArr, subTotal);
         }
 
         fetch('template.json').then(response => response.json()).then(data => {
@@ -165,16 +127,27 @@
             console.log(data);
             const container = document.getElementById('container');
             const parts = Object.keys(data);
+
+            let partID = 0;
             for (let part of parts) {
+                globalProblemID = 0;
                 const partContainer = document.createElement('div');
                 partContainer.classList.add('part-container');
 
                 const partTitle = data[part].title;
                 const partProblems = data[part].problems;
 
+                const partHeader = document.createElement('div');
+                partHeader.classList.add('part-header');
+
                 const h3 = document.createElement('h3');
                 h3.innerText = `${part}: ${partTitle}`;
-                partContainer.appendChild(h3);
+                partHeader.appendChild(h3);
+
+                const span = document.createElement('span');
+                partHeader.appendChild(span);
+
+                partContainer.appendChild(partHeader);
 
                 if (partProblems.length > 1) {
                     for (let i = 0; i < partProblems.length; i++) {
@@ -187,7 +160,7 @@
                         problemContainer.appendChild(h4);
 
                         const problemList = partProblems[i];
-                        renderProblem(problemContainer, problemList);
+                        renderProblem(problemContainer, problemList, partID);
                         partContainer.appendChild(problemContainer);
                     }
                 } else {
@@ -195,38 +168,23 @@
                     problemContainer.classList.add('problem-container');
                     const problemList = partProblems[0];
 
-                    renderProblem(problemContainer, problemList);
+                    renderProblem(problemContainer, problemList, partID);
                     partContainer.appendChild(problemContainer);
                 }
-
+                span.innerText = `Score: ${scores[`part-${partID}`].reduce((a, b) => a + b, 0)}`;
                 container.appendChild(partContainer);
+                partID++;
             }
 
             // Save button convert page to text file
             const saveButton = document.createElement('button');
             saveButton.classList.add('save-button');
             saveButton.innerText = 'Save';
-
-            const commentDiv = document.createElement('div');
-            commentDiv.innerHTML = "Overall";
-            const textAreaDiv = document.createElement('div');
-            var input = document.createElement("textarea");
-            input.name = "post";
-            input.maxLength = "5000";
-            input.cols = "80";
-            input.rows = "20";
-            input.classList.add('item-textareabox');
-            textAreaDiv.classList.add('item-textarea');
-            textAreaDiv.appendChild(input);
-            var inputTxt = document.createElement("input");
-            inputTxt.type = "text";
-
             saveButton.addEventListener('click', () => {
                 // Formating document
                 let text = '';
                 let score = 0; var sarr = []; var titlearr = []; var jsonData = {};
                 const parts = document.querySelectorAll('.part-container');
-                let s;
                 parts.forEach(part => {
                     const title = part.querySelector('h3').innerText;
                     text += `${title}\n`;
@@ -238,86 +196,50 @@
                         if (problemTitle) {
                             text += `${problemTitle.innerText}: \n`;
                         }
-
+                        var s = 0;
                         const items = problem.querySelectorAll('.item-container');
-                        s = 0;
                         items.forEach(item => {
-
-                            //console.log('item: ', item);
                             const itemYes = item.querySelector('.item-yes');
                             const itemNo = item.querySelector('.item-no');
 
+                            const partID = itemYes.getAttribute('part').split('-')[1];
+                            const itemID = itemYes.getAttribute('part').split('-')[2];
+                            const _score = scores[`part-${partID}`][itemID];
+
                             // Formating text for each question
                             if (itemYes.classList.contains('selected')) {
-                                const _score = parseInt(itemYes.getAttribute('score'));
-                                //text += `${_score}\t${itemYes.innerText}\n`;
-                                text += `\t${itemYes.innerText}\n`;
-                                score += _score;
-                                s += _score;
+                                text += `${itemYes.innerText}\n`;
                             } else {
-                                const _score = parseInt(itemNo.getAttribute('score'));
-                                //text += `${_score}\t${itemNo.innerText}\n`;
-                                text += `\t${itemNo.innerText}\n`;
-                                score += _score;
-                                s += _score;
+                                text += `${itemNo.innerText}\n`;
                             }
 
+                            score += _score;
+                            s += _score;
                         });
-                        if (problemTitle) {
-                            jsonData[title + problemTitle.innerText] = s;
-                        } else {
-                            jsonData[title] = s;
-                        }
+                        jsonData[title] = s;
                         sarr.push(s)
-
+                        console.log(s);
                         text += '\n';
                     });
 
-
                 });
 
-
-                text += "Overall: \n\n" + input.value + '\n\n';
+                text += "Overall: \n\n";
 
                 text += `Total score: ${score}\n`;
-                console.log(text);
-                if (inputTxt.value == '') {
-                    //download('output.txt', text);
-                } else {
-                    //download(inputTxt.value + '.txt', text);
-                }
                 jsonData['total'] = score;
-                console.log(sarr, jsonData);
-                // for (var key in jsonData) {
-                //     console.log(key);
-                //     console.log(jsonData[key]);
-                // }
+                console.log(text);
+                //download('output.txt', text);
+                for (var key in jsonData) {
+                    console.log(key);
+                    console.log(jsonData[key]);
+                }
                 createTableFromJSON(jsonData);
+
             });
-            container.appendChild(commentDiv);
-            container.appendChild(textAreaDiv);
 
-
-            container.appendChild(inputTxt);
             container.appendChild(saveButton);
         })
-
-        function download(filename, text) {
-
-
-
-            const element = document.createElement('a');
-            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-            element.setAttribute('download', filename);
-
-            element.style.display = 'none';
-            document.body.appendChild(element);
-
-            element.click();
-
-            document.body.removeChild(element);
-        }
-
 
         // https://stackoverflow.com/questions/61755373/create-html-table-using-json-data-in-javascript
         // Create an HTML table using the JSON data.
@@ -345,31 +267,41 @@
 
             tr = table.insertRow(-1); // add new row for the names
             // Add JSON to the table rows.
-
+            for (var i = 0; i < arrBirds.length; i++) {
+                var tabCell = tr.insertCell(-1);
+                tabCell.innerHTML = arrBirds[col[i]];
+                //tabCell.innerHTML = arrBirds[i].Name;
+                console.log('tabCell', arrBirds[col[i]]);
+            }
             for (var key in jsonData) {
                 //console.log(key);
                 //console.log(jsonData[key]);
                 var tabCell = tr.insertCell(-1);
                 tabCell.innerHTML = jsonData[key];
                 //tabCell.innerHTML = arrBirds[i].Name;
-                //console.log('tabCell', jsonData[key]);
+                console.log('tabCell', jsonData[key]);
             }
             // Finally, add the dynamic table to a container.
-            const container = document.getElementById('container');
-
-            var divContainer = document.createElement('div');
-            divContainer.id = "someID";
-            //document.getElementById("someID").innerHTML = "";
-            var myEle = document.getElementById("someID");
-
-            if (myEle) {
-                document.getElementById("someID").innerHTML = "";
-            }
-
+            var divContainer = document.getElementById("showTable");
             divContainer.innerHTML = "";
             divContainer.appendChild(table);
-            container.appendChild(divContainer);
         };
+
+
+
+        function download(filename, text) {
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', filename);
+
+            element.style.display = 'none';
+            document.body.appendChild(element);
+
+            element.click();
+
+            document.body.removeChild(element);
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('edit-save').addEventListener('click', () => {
                 const editBox = document.getElementById('edit-box');
@@ -378,7 +310,16 @@
                 const overlay = document.getElementById('overlay');
 
                 selectedItem.innerText = editText.value;
-                selectedItem.setAttribute('score', editScore.value);
+                const part = selectedItem.getAttribute('part');
+                const partID = part.split('-')[1];
+                const itemID = part.split('-')[2];
+                scores[`part-${partID}`][itemID] = parseInt(editScore.value); // update global score store
+
+                // update interface
+                const partContainer = document.querySelector(`.part-container:nth-child(${parseInt(partID) + 1})`);
+                const span = partContainer.querySelector('span');
+                span.innerText = `Score: ${scores[`part-${partID}`].reduce((a, b) => a + b, 0)}`;
+
                 editBox.style.visibility = 'hidden';
                 overlay.style.visibility = 'hidden';
             });
