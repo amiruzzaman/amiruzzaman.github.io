@@ -105,6 +105,53 @@ body {
     font-size: 14px;
 }
 
+.sub-total-score{
+	display: flex;
+    min-height: 50px;
+    margin-bottom: 10px;
+    padding: 10px;
+    gap: 16px;
+    background-color: #fff;
+    border: 1px solid #aaa;
+    color: #ccc;
+    font-weight: normal;
+    user-select: none;
+    font-size: 10px;
+}
+
+.item-textarea {
+    display: flex;
+    min-height: 50px;
+    margin-bottom: 10px;
+    padding: 10px;
+    gap: 16px;
+    background-color: #fff;
+    border: 1px solid #aaa;
+    color: #ccc;
+    font-weight: normal;
+    user-select: none;
+    font-size: 14px;
+}
+
+.item-textareabox{
+  margin-left:10%;
+  margin-right:10%;
+  padding: 12px 200px;
+  border-top: 15px solid transparent;
+  border-bottom: 15px solid transparent;
+  border-right: 0px solid transparent;
+  border-left: 0px solid transparent;
+  outline: 1px solid #dadcde;
+  padding-top: 30px;
+  padding-left: 30px;
+  padding-right: 30px;
+  display: table;
+  border: 1px solid #CCC;
+  padding: 1em; /* adjust value  to suit  */
+    box-sizing: border-box;
+    resize: vertical; 
+}
+
 .item-yes {
     flex: 1;
     cursor: pointer;
