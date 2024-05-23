@@ -221,6 +221,9 @@
             var inputTxt = document.createElement("input");
             inputTxt.type = "text";
 
+            const fileNameLabel = document.createElement('div');
+            fileNameLabel.innerHTML = "Filename";
+
             saveButton.addEventListener('click', () => {
                 // Formating document
                 let text = '';
@@ -282,9 +285,9 @@
                 text += `Total score: ${score}\n`;
                 console.log(text);
                 if (inputTxt.value == '') {
-                    //download('output.txt', text);
+                    download('output.txt', text);
                 } else {
-                    //download(inputTxt.value + '.txt', text);
+                    download(inputTxt.value + '.txt', text);
                 }
                 jsonData['total'] = score;
                 console.log(sarr, jsonData);
@@ -297,7 +300,7 @@
             container.appendChild(commentDiv);
             container.appendChild(textAreaDiv);
 
-
+            container.appendChild(fileNameLabel);
             container.appendChild(inputTxt);
             container.appendChild(saveButton);
         })
