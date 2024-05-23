@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="container"></div>
+    <div id="edit-box">
+        <textarea id="edit-text"></textarea>
+        <div id="edit-score-container">
+            <label for="edit-score">Score</label>
+            <input id="edit-score" type="number" />
+        </div>
+        <div id="edit-buttons">
+            <button id="edit-cancel">Cancel</button>
+            <button id="edit-save">Save</button>
+        </div>
+    </div>
+    <div id="overlay"></div>
+
+    <script>
+        let selectedItem = null;
+        let globalProblemID = 0;
+
+        const scores = {
+            'part-0': [],
+            "part-1": [],
+            "part-2": [],
+            "part-3": []
+        };
+
+        function editItem() {
+            const editBox = document.getElementById('edit-box');
+            const editText = document.getElementById('edit-text');
+            const editScore = document.getElementById('edit-score');
+            const overlay = document.getElementById('overlay');
+
+            const part = selectedItem.getAttribute('part');
+            const partID = part.split('-')[1];
+            const itemID = part.split('-')[2];
+            const score = scores[`part-${partID}`][itemID];
+
+            editText.value = selectedItem.innerText;
+            editScore.value = score;
+            editBox.style.visibility = 'visible';
+            overlay.style.visibility = 'visible';
+        }
+        
+        function renderProblem(container, problems, part) {
+            let problemScore = 0;
+            for(let problem of problems) {
+                const yes = problem.yes;
+                const no = problem.no;
+                const score = problem.point;
+
+                const itemContainer = document.createElement('div');
+                itemContainer.classList.add('item-container');
+
+                const itemYes = document.createElement('div');
+                itemYes.classList.add('item-yes');
+                itemYes.classList.add('selected');
+                itemYes.setAttribute('part', `part-${part}-${globalProblemID}`);
+                // itemYes.setAttribute('score', score); // Not used anymore
+                itemYes.innerText = yes;
+
+                const itemNo = document.createElement('div');
+                itemNo.classList.add('item-no');
+                itemNo.setAttribute('part', `part-${part}-${globalProblemID}`);
+                // itemNo.setAttribute('score', score); // Not used anymore
+                itemNo.innerText = no;
+
+                itemYes.addEventListener('click', () => {
+                    itemYes.classList.add('selected');
+                    itemNo.classList.remove('selected');
+                });
+
+                itemYes.addEventListener('dblclick', function() {
+                    selectedItem = this;
+                    editItem();
+                });
+
+                itemNo.addEventListener('click', () => {
+                    itemNo.classList.add('selected');
+                    itemYes.classList.remove('selected');
+                });
+
+                itemNo.addEventListener('dblclick', function() {
+                    selectedItem = this;
+                    editItem();
+                });
+
+                itemContainer.appendChild(itemYes);
+                itemContainer.appendChild(itemNo);
+
+                
+                container.appendChild(itemContainer);
+                scores[`part-${part}`].push(parseInt(score));
+                globalProblemID++;
+            }
+        }
+
+        fetch('template.json').then(response => response.json()).then(data => {
+            // Reder page
+            console.log(data);
+            const container = document.getElementById('container');
+            const parts = Object.keys(data);
+
+            let partID = 0;
+            for(let part of parts) {
+                globalProblemID = 0;
+                const partContainer = document.createElement('div');
+                partContainer.classList.add('part-container');
+
+                const partTitle = data[part].title;
+                const partProblems = data[part].problems;
+
+                const partHeader = document.createElement('div');
+                partHeader.classList.add('part-header');
+
+                const h3 = document.createElement('h3');
+                h3.innerText = `${part}: ${partTitle}`;
+                partHeader.appendChild(h3);
+
+                const span = document.createElement('span');
+                partHeader.appendChild(span);
+
+                partContainer.appendChild(partHeader);
+
+                if(partProblems.length > 1) {   
+                    for(let i=0; i<partProblems.length; i++) {
+                        const problemContainer = document.createElement('div');
+                        problemContainer.classList.add('problem-container');
+                    
+                        const problemTitle = `Problem ${i+1}`;
+                        const h4 = document.createElement('h4');
+                        h4.innerText = problemTitle;
+                        problemContainer.appendChild(h4);
+
+                        const problemList = partProblems[i];
+                        renderProblem(problemContainer, problemList, partID);
+                        partContainer.appendChild(problemContainer);
+                    }
+                } else {
+                    const problemContainer = document.createElement('div');
+                    problemContainer.classList.add('problem-container');
+                    const problemList = partProblems[0];
+
+                    renderProblem(problemContainer, problemList, partID);
+                    partContainer.appendChild(problemContainer);
+                }
+                span.innerText = `Score: ${scores[`part-${partID}`].reduce((a, b) => a + b, 0)}`;
+                container.appendChild(partContainer);
+                partID++;
+            }
+
+            // Save button convert page to text file
+            const saveButton = document.createElement('button');
+            saveButton.classList.add('save-button');
+            saveButton.innerText = 'Save';
+            saveButton.addEventListener('click', () => {
+                // Formating document
+                let text = '';
+                let score = 0;
+                const parts = document.querySelectorAll('.part-container');
+                parts.forEach(part => {
+                    const title = part.querySelector('h3').innerText;
+                    text += `${title}\n`;
+
+                    const problems = part.querySelectorAll('.problem-container');
+                    problems.forEach(problem => {
+                        const problemTitle = problem.querySelector('h4');
+                        if(problemTitle) {
+                            text += `${problemTitle.innerText}: \n`;
+                        }
+
+                        const items = problem.querySelectorAll('.item-container');
+                        items.forEach(item => {
+                            const itemYes = item.querySelector('.item-yes');
+                            const itemNo = item.querySelector('.item-no');
+
+                            const partID = itemYes.getAttribute('part').split('-')[1];
+                            const itemID = itemYes.getAttribute('part').split('-')[2];
+                            const _score = scores[`part-${partID}`][itemID];
+
+                            // Formating text for each question
+                            if (itemYes.classList.contains('selected')) {
+                                text += `${itemYes.innerText}\n`;
+                            } else {
+                                text += `${itemNo.innerText}\n`;
+                            }
+
+                            score += _score;
+                        });
+
+                        text += '\n';
+                    });
+                    
+                });
+
+                text += "Overall: \n\n";
+
+                text += `Total score: ${score}\n`;
+                console.log(text);
+                download('output.txt', text);
+            });
+
+            container.appendChild(saveButton);
+        })
+
+        function download(filename, text) {
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', filename);
+
+            element.style.display = 'none';
+            document.body.appendChild(element);
+
+            element.click();
+
+            document.body.removeChild(element);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('edit-save').addEventListener('click', () => {
+                const editBox = document.getElementById('edit-box');
+                const editText = document.getElementById('edit-text');
+                const editScore = document.getElementById('edit-score');
+                const overlay = document.getElementById('overlay');
+
+                selectedItem.innerText = editText.value;
+                const part = selectedItem.getAttribute('part');
+                const partID = part.split('-')[1];
+                const itemID = part.split('-')[2];
+                scores[`part-${partID}`][itemID] = parseInt(editScore.value); // update global score store
+
+                // update interface
+                const partContainer = document.querySelector(`.part-container:nth-child(${parseInt(partID) + 1})`);
+                const span = partContainer.querySelector('span');
+                span.innerText = `Score: ${scores[`part-${partID}`].reduce((a, b) => a + b, 0)}`;
+
+                editBox.style.visibility = 'hidden';
+                overlay.style.visibility = 'hidden';
+            });
+
+            document.getElementById('edit-cancel').addEventListener('click', () => {
+                const editBox = document.getElementById('edit-box');
+                const overlay = document.getElementById('overlay');
+
+                editBox.style.visibility = 'hidden';
+                overlay.style.visibility = 'hidden';
+            });
+        });
+    </script>
+</body>
+</html>
