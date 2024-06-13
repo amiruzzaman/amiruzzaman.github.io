@@ -254,13 +254,15 @@
                             if (itemYes.classList.contains('selected')) {
                                 const _score = parseInt(itemYes.getAttribute('score'));
                                 //text += `${_score}\t${itemYes.innerText}\n`;
-                                text += `\t${itemYes.innerText}\n`;
+                                //text += `\t${itemYes.innerText}\n`;
+								text += `${itemYes.innerText}\n`;
                                 score += _score;
                                 s += _score;
                             } else {
                                 const _score = parseInt(itemNo.getAttribute('score'));
                                 //text += `${_score}\t${itemNo.innerText}\n`;
-                                text += `\t${itemNo.innerText}\n`;
+                                //text += `\t${itemNo.innerText}\n`;
+								text += `${itemNo.innerText}\n`;
                                 score += _score;
                                 s += _score;
                             }
