@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Grade using rubric</title>
     <link rel="stylesheet" href="style.css">
     <link rel="shortcut icon" href="#">
     <style>
@@ -21,10 +21,26 @@
         th {
             font-weight: bold;
         }
+		
+		#notice {
+  width: 80%;
+  max-width: 1000px;
+  /*height: 100%;*/
+  margin: 0 auto;
+  padding: 5px 5px 5px 5px;
+  background-color: #f0f0f0;
+  border: 1px solid #e0e0e0;
+  overflow: auto;
+  font-family: Arial, sans-serif;
+ color: red;
+  font-weight: normal;
+  font-size: 14px;
+}
     </style>
 </head>
 
 <body>
+	<p id = "notice"> Selecting items from "No" will not subtract points. Double click on "No" side and adjust how much you want to take out. For example, if it shows 5, and you want to take out all, then make that 0.</p>
     <div id="container"></div>
     <div id="edit-box">
         <textarea id="edit-text"></textarea>
@@ -38,7 +54,7 @@
         </div>
     </div>
     <div id="overlay"></div>
-
+	<p id = "notice" style = "height: 30px;"></p>
     <script>
 
         function readTextFile(file, callback) {
@@ -223,6 +239,13 @@
 
             const fileNameLabel = document.createElement('div');
             fileNameLabel.innerHTML = "Filename";
+			
+			const lastDiv = document.createElement('div');
+            //lastDiv.style.width = '500px';
+			lastDiv.style.height = '100px';
+            lastDiv.innerText = 'Final grade by item will appear below';
+			//lastDiv.style.display = 'none';  
+			lastDiv.style.color = "green";
 
             saveButton.addEventListener('click', () => {
                 // Formating document
@@ -305,6 +328,7 @@
             container.appendChild(fileNameLabel);
             container.appendChild(inputTxt);
             container.appendChild(saveButton);
+			container.appendChild(lastDiv);
         })
 
         function download(filename, text) {
@@ -370,7 +394,7 @@
             if (myEle) {
                 document.getElementById("someID").innerHTML = "";
             }
-
+			divContainer.style.height ="300px";
             divContainer.innerHTML = "";
             divContainer.appendChild(table);
             container.appendChild(divContainer);
