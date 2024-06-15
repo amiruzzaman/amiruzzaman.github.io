@@ -233,6 +233,7 @@
             input.rows = "20";
             input.classList.add('item-textareabox');
             textAreaDiv.classList.add('item-textarea');
+			input.value = "Overall: Good start with your first assignment report. There are some sections needed some more work, for details please see the above comment/feedback.";
             textAreaDiv.appendChild(input);
             var inputTxt = document.createElement("input");
             inputTxt.type = "text";
@@ -305,7 +306,7 @@
                 });
 
 
-                text += "Overall: Good start with your first assignment report. There are some sections needed some more work, for details please see the above comment/feedback." + input.value + '\n\n';
+                text += "" + input.value + '\n\n'; // this is where additional overall comments will be added.
 
                 text += `Total score: ${score}\n`;
                 console.log(text);
