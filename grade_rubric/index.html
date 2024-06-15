@@ -248,6 +248,11 @@
 			//lastDiv.style.display = 'none';  
 			lastDiv.style.color = "green";
 
+
+			//var para = document.createElement('p');
+			var para = document.createElement('textarea');
+			para.id = "paraID";
+			
             saveButton.addEventListener('click', () => {
                 // Formating document
                 let text = '';
@@ -304,9 +309,20 @@
 
 
                 });
-
+//console.log(parts);
 
                 text += "" + input.value + '\n\n'; // this is where additional overall comments will be added.
+				
+				
+				//para.innerHTML = text;
+				para.maxLength = "50000";
+				para.cols = "80";
+				//para.rows = "50";
+				para.value = text;
+				var lines = para.value.split("\n");  
+				console.log("number of lines", lines.length);
+				para.rows = (lines.length).toString();
+				//console.log('paragraph:\n', para.innerHTML);
 
                 text += `Total score: ${score}\n`;
                 console.log(text);
@@ -330,6 +346,20 @@
             container.appendChild(inputTxt);
             container.appendChild(saveButton);
 			container.appendChild(lastDiv);
+			container.appendChild(para);
+			
+			//var btn = document.createElement("BUTTON");  //<button> element
+			//var t = document.createTextNode("Copy"); // Create a text node
+			//btn.appendChild(t);   
+
+			//btn.onclick = function(){myFunction(myparameter)};  
+			////document.getElementById("myView").appendChild(btn);//to show on myView
+			//container.appendChild(btn);
+			para.onclick = function(){myCopyFunction(para.id)};
+			//var span = document.createElement('span');
+			//span.innerHTML = '<button id="but" onclick="callJavascriptFunction('+para.id+')">Copy</button>';
+			//container.appendChild(span);
+
         })
 
         function download(filename, text) {
@@ -422,6 +452,30 @@
             });
         });
     </script>
+	<script>
+function callJavascriptFunction(id)
+{
+    document.getElementById(id).select();
+    document.execCommand('copy');
+}
+
+function myCopyFunction(id) {
+var para = document.getElementById('paraID');
+
+	navigator.clipboard.writeText(para.value);
+    //console.log(para.value);
+	//var copyText = para.value
+	//alert("Copied: " + copyText);
+} 
+
+
+
+
+
+
+
+
+</script>
 </body>
 
 </html>

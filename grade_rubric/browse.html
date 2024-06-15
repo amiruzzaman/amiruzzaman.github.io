@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Load JSON File</title>
+</head>
+<body>
+    <h1>Load JSON File</h1>
+    <input type="file" id="fileInput" accept=".json">
+    <pre id="fileContent"></pre>
+
+    <!--<script src="script.js">-->
+	<script>
+	document.getElementById('fileInput').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (file && file.type === 'application/json') {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const jsonContent = JSON.parse(e.target.result);
+                document.getElementById('fileContent').textContent = JSON.stringify(jsonContent, null, 2);
+            } catch (error) {
+                document.getElementById('fileContent').textContent = 'Error parsing JSON: ' + error.message;
+            }
+        };
+        reader.readAsText(file);
+    } else {
+        document.getElementById('fileContent').textContent = 'Please upload a valid JSON file.';
+    }
+});
+
+	</script>
+</body>
+</html>
