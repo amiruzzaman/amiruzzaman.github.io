@@ -1,0 +1,22 @@
+https://stackoverflow.com/questions/19706046/how-to-read-an-external-local-json-file-in-javascript
+<div id="content">
+    <input type="file" name="inputfile" id="inputfile">
+    <br>
+
+    <h2>
+        <pre id="output"></pre>
+    </h2>
+</div>
+<script type="text/javascript">
+    document.getElementById('inputfile')
+        .addEventListener('change', function () {
+
+            let fileReader = new FileReader();
+            fileReader.onload = function () {
+                let parsedJSON = JSON.parse(fileReader.result);
+                console.log(parsedJSON);
+                // your code to consume the json                    
+            }
+            fileReader.readAsText(this.files[0]);
+        }) 
+</script>
