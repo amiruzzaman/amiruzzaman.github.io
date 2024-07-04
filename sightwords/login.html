@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#loginform').submit(function(e) {
+                e.preventDefault();
+                $.ajax({
+                    type: "POST",
+                    url: 'login.php',
+                    data: $(this).serialize(),
+                    success: function(data) {
+                        if (data === 'CORRECTO') {
+                            window.location = 'csvupload.php';
+                        }
+                        else {
+                            alert('Invalid credentials');
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+    <style>
+        body {
+            font-family: "Comic Sans MS", cursive;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: #fafafa; /* Warna latar belakang abu-abu muda */
+            color: #333;
+          }
+          
+          .container {
+            width: 100%;
+            max-width: 400px;
+          }
+          
+          .card {
+            width: 100%;
+            background-color: #f8f8f8; /* Warna card */
+            padding: 20px;
+            border-radius: 12px; /* Border radius card */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          }
+          
+          h2 {
+            text-align: center;
+            color: #333;
+          }
+          
+          form {
+            display: flex;
+            flex-direction: column;
+          }
+          
+          input {
+            padding: 10px;
+            margin-bottom: 12px;
+            border: 2px solid #ddd; /* Border color input */
+            border-radius: 8px; /* Border radius input */
+            transition: border-color 0.3s ease-in-out;
+            outline: none;
+            color: #333;
+            background-color: #f4f4f4; /* Warna input */
+          }
+          
+          input:focus {
+            border-color: #ff9900; /* Warna input saat focus */
+          }
+          
+          button {
+            background-color: #ff9900; /* Warna button */
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 8px; /* Border radius button */
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+          }
+          
+          button:hover {
+            background-color: #ff6600; /* Warna button saat hover */
+          }
+    </style>
+<style>
+    /*https://css.gg/home-alt*/
+    .gg-home-alt {
+        box-sizing: border-box;
+        position: relative;
+        display: block;
+        transform: scale(var(--ggs,1));
+        width: 18px;
+        height: 14px;
+        border: 2px solid;
+        border-top: 0;
+        border-radius: 2px;
+        border-bottom-left-radius: 3px;
+        border-bottom-right-radius: 3px;
+        margin-bottom: -2px
+    }
+    .gg-home-alt::after,
+    .gg-home-alt::before {
+        content: "";
+        display: block;
+        box-sizing: border-box;
+        position: absolute
+    }
+    .gg-home-alt::before {
+        border-top: 2px solid;
+        border-left: 2px solid;
+        border-top-left-radius: 4px;
+        transform: rotate(45deg);
+        top: -5px;
+        border-radius: 3px;
+        width: 14px;
+        height: 14px;
+        left: 0
+    }
+    .gg-home-alt::after {
+        width: 6px;
+        height: 10px;
+        background: currentColor;
+        border-top-left-radius: 100px;
+        border-top-right-radius: 100px;
+        left: 4px;
+        bottom: -2px
+    }
+</style>
+</head>
+<body>
+    
+    <div class="container">
+        <div style="width:800px; margin:0 auto;">
+            <a href="index.html"><i class="gg-home-alt"></i></a>
+        </div>
+        <div class="card">
+          <h2>Login</h2>
+    <form id="loginform" method="post">
+        Username: <input type="text" name="username" id="username" value="">
+
+        Password: <input type="password" name="password" id="password" value="">
+
+        <input type="submit" name="loginsub" id="loginsub" value="Login">
+    </form>
+    <br/>
+
+</div>
+</div>
+</body>
+
+</html>

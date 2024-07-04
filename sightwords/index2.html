@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title> - jsFiddle demo by StyloMonnik</title>
+
+  <!-- UIkit CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/css/uikit.min.css" />
+
+<!-- UIkit JS -->
+<script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/uikit@3.17.11/dist/js/uikit-icons.min.js"></script>
+
+  <style type='text/css'>
+body {
+  padding: 1em;
+}
+.uk-dark svg polyline {
+  fill: #000;
+}
+
+  </style>
+
+
+
+<script type='text/javascript'>//<![CDATA[ 
+var slideshow = document.getElementById('uk-slideshow');
+var slideshowitems = document.getElementById('uk-slideshow-items');
+UIkit.util.on(slideshow, 'itemshown', function() {
+  slideshowitems.removeAttribute('style');
+  console.log('action');
+});
+
+</script>
+
+
+</head>
+<body>
+  <div class="uk-container">
+
+  <div class="uk-position-relative uk-dark" tabindex="-1" uk-slider>
+
+    <ul class="uk-slider-items uk-child-width-1-1">
+      <li>
+        <div class="tm-grid-expand uk-grid-margin" uk-grid>
+          <div class="uk-width-1-4@m">
+            <div class="uk-margin">
+              <img class="el-image uk-img-rounded" alt="ana ellipse" src="https://getuikit.com/docs/images/photo.jpg">
+            </div>
+          </div>
+          <div class="uk-width-3-4@m customer-quote">
+            <blockquote>
+              <span style="color: #333">It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of words and letters.</span>
+            </blockquote>
+            <div class="uk-panel pd-l-50 fw-500 text-color-dark uk-margin">
+              <p style="color: #333">BARBARA LIPOVŠEK, ZDRAVNICA</p>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="tm-grid-expand uk-grid-margin" uk-grid>
+          <div class="uk-width-1-4@m">
+            <div class="ana-ellipse uk-margin">
+              <img class="el-image" alt="ana ellipse" src="https://getuikit.com/docs/images/photo.jpg">
+            </div>
+          </div>
+          <div class="uk-width-3-4@m customer-quote">
+            <blockquote>
+              <span style="color: #333">It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of words and letters.</span>
+            </blockquote>
+            <div class="uk-panel pd-l-50 fw-500 text-color-dark uk-margin">
+              <p style="color: #333">BARBARA LIPOVŠEK, ZDRAVNICA</p>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="tm-grid-expand uk-grid-margin" uk-grid>
+          <div class="uk-width-1-4@m">
+            <div class="ana-ellipse uk-margin">
+              <img class="el-image" alt="ana ellipse" src="https://getuikit.com/docs/images/photo.jpg">
+            </div>
+          </div>
+          <div class="uk-width-3-4@m customer-quote">
+            <blockquote>
+              <span style="color: #333">It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of words and letters.</span>
+            </blockquote>
+            <div class="uk-panel pd-l-50 fw-500 text-color-dark uk-margin">
+              <p style="color: #333">BARBARA LIPOVŠEK, ZDRAVNICA</p>
+            </div>
+          </div>
+        </div>
+      </li>
+    </ul>
+
+    <div class="uk-flex uk-flex-right uk-margin-top">
+      <a class="uk-hidden-hover" href="#" uk-slidenav-previous uk-slider-item="previous"></a>
+      <a class="uk-hidden-hover" href="#" uk-slidenav-next uk-slider-item="next"></a>
+    </div>
+
+  </div>
+
+</div>
+
+
+</body>
+
+</html>

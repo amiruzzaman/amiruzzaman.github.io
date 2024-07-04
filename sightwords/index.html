@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html> <!-- This tag is compulsory for any HTML document. -->
+
+<head>
+  <title>Aleo</title>
+  <link rel="shortcut icon" href="#">
+  <!-- The head tag is used to create a title of web page, CSS syntax for a web page, and helps in written a JavaScript code. -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css?family=Lobster');
+    body {
+      font-family: sans-serif;
+    }
+
+    .div-zone {}
+
+    .slide {
+      text-align: center;
+      display: none;
+      background: rgb(252, 140, 123);
+      padding: 10px;
+      border-top-left-radius: 5px;
+      border-top-right-radius: 5px;
+      height: 300px;
+    }
+
+    .slide-heading {
+      /*font-family: 'Lobster', sans-serif;*/
+      font-size: 16em;
+      text-align: center;
+    }
+
+    .active {
+      display: block;
+    }
+
+    .slide-controls {
+      text-align: center;
+      background: #e5e5e5;
+      border-bottom-left-radius: 5px;
+      border-bottom-right-radius: 5px;
+      padding: 15px 10px;
+    }
+
+    .slide-button,
+    slide-button:focus {
+      background: #bdb6b6;
+      display: inline;
+      padding: 10px;
+      margin-right: 10px;
+      color: green;
+      border: none;
+      outline: none;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    .slide-button:hover {
+      background: #444444;
+      cursor: pointer;
+    }
+  </style>
+  <style>
+    .gg-log-in {
+      box-sizing: border-box;
+      position: relative;
+      display: block;
+      transform: scale(var(--ggs,1));
+      width: 6px;
+      height: 16px;
+      border: 2px solid;
+      border-left: 0;
+      border-top-right-radius: 2px;
+      border-bottom-right-radius: 2px;
+      margin-right: -10px
+  }
+  .gg-log-in::after,
+  .gg-log-in::before {
+      content: "";
+      display: block;
+      box-sizing: border-box;
+      position: absolute
+  }
+  .gg-log-in::after {
+      border-top: 2px solid;
+      border-right: 2px solid;
+      transform: rotate(45deg);
+      width: 8px;
+      height: 8px;
+      left: -8px;
+      bottom: 2px
+  }
+  .gg-log-in::before {
+      border-radius: 3px;
+      width: 10px;
+      height: 2px;
+      background: currentColor;
+      left: -11px;
+      bottom: 5px
+  }
+  .center {
+    margin: auto;
+    width: 60%;
+    border: 3px solid #73AD21;
+    padding: 10px;
+  }
+  </style>
+</head>
+
+<body>
+  <!-- The body tag is used to display the content on a web page. In this example we do not specify any content or any tag, so in output nothing will display on the web page. -->
+
+  <h2>Aleo sight words</h2>
+  <div class="div-zone" id="main-container">
+    <div id="slide-container-div" class="slide-div">
+      <!-- <div class="slide active">
+        <p>1st Slide</p>
+        <span class="slide-heading">This is a slide</span>
+        <p>This is slide 1</p>
+      </div>
+      <div class="slide">
+        <p>2nd Slide</p>This is another slide
+      </div>
+      <div class="slide">
+        <p>3rd Slide</p>
+        <span class="slide-heading">Third Slide</span>
+        <p>Super easy to add content</p>
+      </div> -->
+    </div>
+    <div class="slide-controls"><button class="slide-button" id="previous">Previous</button>
+      <button class="slide-button" id="next">Next</button>
+    </div>
+    <div style="width:800px; margin:0 auto;">
+      <a href="login.html"><i class="gg-log-in" style="text-align: center;display: block;"></i></a>
+  </div>
+  </div>
+
+
+  <script>
+    $.ajax({
+      url: 'data.csv',
+      type: 'GET',
+      dataType: "text",
+      contentType: 'application/json;charset=utf-8',
+      success: function (data) {
+        //console.log("success " + data);
+
+        var jsondata = csvJSON(data);
+        console.log(jsondata);
+        addToSpan(jsondata);
+        enableButtons();
+        arrowKeys();
+      },
+      error: function (data) {
+        console.log("error " + data);
+      }
+    });
+    function addToSpan(data) {
+      var slideDiv = document.getElementById("slide-container-div");
+      //var myJsonString = JSON.parse(JSON.stringify(data));
+      //console.log(data);
+      for (var i = 0; i < data.length - 1; i++) {
+        if (data[i].need != "0") {
+          console.log(data[i].word);
+          if (i == 0) {
+            if (data[i].focus == "1"){
+              $('#slide-container-div').append('<div class="slide active"><span class ="slide-heading" style="color:blue">' + data[i].word + '</span></div>');
+            }else{
+              $('#slide-container-div').append('<div class="slide active"><span class ="slide-heading">' + data[i].word + '</span></div>');
+            }
+          } else {
+            //$('#slide-container-div').append('<div class="slide"><span class ="slide-heading">' + data[i].word + '</span></div>');
+            if (data[i].focus == "1"){
+              $('#slide-container-div').append('<div class="slide"><span class ="slide-heading" style="color:blue">' + data[i].word + '</span></div>');
+            }else{
+              $('#slide-container-div').append('<div class="slide"><span class ="slide-heading">' + data[i].word + '</span></div>');
+            }
+          }
+        }
+      }
+      //slideDiv.appendChild(iDiv);
+    }
+    function csvJSON(csv) {
+      var lines = csv.split(/[\r\n\t]+/g);
+      var result = [];
+      var headers = lines[0].split(",");
+      for (var i = 1; i < lines.length; i++) {
+        var obj = {};
+        var currentline = lines[i].split(",");
+        for (var j = 0; j < headers.length; j++) {
+          obj[headers[j]] = currentline[j];
+        }
+        result.push(obj);
+      }
+      return result; //JavaScript object
+      //return JSON.stringify(result); //JSON
+    }
+  </script>
+
+
+  <script>
+    function enableButtons() {
+      var allSlides = $('.slide');
+      var activeSlide = 0;
+
+      $("#next").click(function () {
+        //console.log(allSlides.length);
+        if (activeSlide + 1 >= allSlides.length) {
+          allSlides.eq(activeSlide).removeClass("active");
+          activeSlide = 0;
+          allSlides.eq(0).addClass("active");
+        }
+        else {
+          allSlides.eq(activeSlide).removeClass("active");
+          activeSlide++;
+          allSlides.eq(activeSlide).addClass("active");
+        }
+      });
+      $("#previous").click(function () {
+        if (activeSlide - 1 < 0) {
+          allSlides.eq(0).removeClass("active");
+          activeSlide = allSlides.length - 1;
+          allSlides.eq(activeSlide).addClass("active");
+        }
+        else {
+          allSlides.eq(activeSlide).removeClass("active");
+          activeSlide--;
+          allSlides.eq(activeSlide).addClass("active");
+        }
+      });
+    }
+
+
+    function arrowKeys() {
+
+      var allSlides = $('.slide');
+      var activeSlide = 0;
+      $(document).keydown(function (e) {
+        if (e.which == 37) {
+          //alert("left pressed");
+          //console.log(allSlides.length);
+          if (activeSlide + 1 >= allSlides.length) {
+            allSlides.eq(activeSlide).removeClass("active");
+            activeSlide = 0;
+            allSlides.eq(0).addClass("active");
+          }
+          else {
+            allSlides.eq(activeSlide).removeClass("active");
+            activeSlide++;
+            allSlides.eq(activeSlide).addClass("active");
+          }
+          return false;
+        }
+
+        if (e.which == 39) {
+          //alert("right pressed");
+          //console.log(allSlides.length);
+          if (activeSlide + 1 >= allSlides.length) {
+            allSlides.eq(activeSlide).removeClass("active");
+            activeSlide = 0;
+            allSlides.eq(0).addClass("active");
+          }
+          else {
+            allSlides.eq(activeSlide).removeClass("active");
+            activeSlide++;
+            allSlides.eq(activeSlide).addClass("active");
+          }
+
+          return false;
+        }
+      });
+    }
+
+    // document.onkeydown = checkKey;
+
+    // function checkKey(e) {
+    //   e = e || window.event;
+
+
+    //   if (e.keyCode == '38') {
+    //     // up arrow
+    //     console.log("up arrow");
+    //   }
+    //   else if (e.keyCode == '40') {
+    //     // down arrow
+    //     console.log("down arrow");
+    //   }
+    //   else if (e.keyCode == '37') {
+    //     // left arrow
+    //     console.log("left arrow");
+    //     var allSlides = $('.slide');
+    //     var activeSlide = 0;
+    //     if (activeSlide + 1 >= allSlides.length) {
+    //       allSlides.eq(activeSlide).removeClass("active");
+    //       activeSlide = 0;
+    //       allSlides.eq(0).addClass("active");
+    //     }
+    //     else {
+    //       allSlides.eq(activeSlide).removeClass("active");
+    //       activeSlide++;
+    //       allSlides.eq(activeSlide).addClass("active");
+    //     }
+
+    //   }
+    //   else if (e.keyCode == '39') {
+    //     // right arrow
+    //     console.log("right arrow");
+    //     var allSlides = $('.slide');
+    //     var activeSlide = 0;
+    //     if (activeSlide - 1 < 0) {
+    //       allSlides.eq(0).removeClass("active");
+    //       activeSlide = allSlides.length - 1;
+    //       allSlides.eq(activeSlide).addClass("active");
+    //     }
+    //     else {
+    //       allSlides.eq(activeSlide).removeClass("active");
+    //       activeSlide--;
+    //       allSlides.eq(activeSlide).addClass("active");
+    //     }
+
+    //   }
+    // }
+  </script>
+</body>
+
+
+</html>
