@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1.0">
+	<title>The GPA Calculator</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+	<div class="flex justify-center 
+				items-center h-screen">
+		<div class="max-w-md w-full bg-white 
+					p-8 rounded-lg shadow-lg 
+					border-2 border-green-500">
+			<h1 class="text-3xl font-bold 
+					text-center mb-8">
+				GPA Calculator
+			</h1>
+			<div id="courses">
+				<div class="mb-4">
+					<label for="courseName"
+						class="block text-sm 
+								font-medium 
+								text-gray-700">
+						Course Name:
+					</label>
+					<input type="text" id="courseName"
+						name="courseName"
+						class="w-full border border-gray-300
+								rounded-md py-2 px-3 
+								focus:outline-none 
+								focus:border-blue-500">
+				</div>
+				<div class="mb-4">
+					<label for="grade"
+						class="block text-sm font-medium
+								text-gray-700">
+						Grade:
+					</label>
+					<select id="grade" name="grade"
+							class="w-full border border-gray-300
+								rounded-md py-2 px-3 
+								focus:outline-none 
+								focus:border-blue-500">
+						<option value="A">A</option>
+						<option value="A-">A-</option>
+						<option value="B+">B+</option>
+						<option value="B">B</option>
+						<option value="B-">B-</option>
+						<option value="C+">C+</option>
+						<option value="C">C</option>
+						<option value="C-">C-</option>
+						<option value="D+">D+</option>
+						<option value="D">D</option>
+						<option value="F">F</option>
+					</select>
+				</div>
+				<div class="mb-4">
+					<label for="credits"
+						class="block text-sm font-medium
+								text-gray-700">
+						Credits:
+					</label>
+					<input type="number" id="credits"
+						name="credits" min="1"
+						class="w-full border border-gray-300
+								rounded-md py-2 px-3 
+								focus:outline-none 
+								focus:border-blue-500">
+				</div>
+				<button id="addCourse"
+						class="w-full bg-blue-500 text-white
+							rounded-md py-2 px-4 
+							hover:bg-blue-600 
+							focus:outline-none mb-4">
+				Add Course
+				</button>
+			</div>
+			<div id="results" class="hidden">
+				<hr class="my-6">
+				<h2 class="text-xl font-semibold mb-4">
+					Course List
+				</h2>
+				<ul id="courseList" class="mb-4"></ul>
+				<div class="flex justify-between 
+							items-center mb-4">
+					<span class="font-semibold">GPA:</span>
+					<span id="gpa"></span>
+				</div>
+				<button id="clear"
+						class="w-full bg-gray-300 
+							text-gray-700 rounded-md 
+							py-2 px-4 hover:bg-gray-400
+							focus:outline-none">
+					Clear
+				</button>
+			</div>
+		</div>
+	</div>
+	<script>
+		const courseNameInput = document.getElementById('courseName');
+		const gradeSelect = document.getElementById('grade');
+		const creditsInput = document.getElementById('credits');
+		const addCourseButton = document.getElementById('addCourse');
+		const clearButton = document.getElementById('clear');
+		const courseList = document.getElementById('courseList');
+		const gpaDisplay = document.getElementById('gpa');
+		const resultsSection = document.getElementById('results');
+		addCourseButton.addEventListener('click', addCourse);
+		clearButton.addEventListener('click', clearAll);
+
+		function addCourse() {
+			const courseName = courseNameInput.value;
+			const grade = gradeSelect.value;
+			const credits = parseInt(creditsInput.value);
+			if (!courseName || !grade || isNaN(credits)) {
+				alert('Please fill in all fields.');
+				return;
+			}
+			const listItem = document.createElement('li');
+			listItem.textContent = 
+			`${courseName} - Grade: ${grade} - Credits: ${credits}`;
+			courseList.appendChild(listItem);
+			updateGPA();
+			courseNameInput.value = '';
+			gradeSelect.selectedIndex = 0;
+			creditsInput.value = '';
+		}
+		function updateGPA() {
+			const courses = courseList.children;
+			let totalCredits = 0;
+			let totalPoints = 0;
+			for (let course of courses) {
+				const credits = parseInt(course.textContent
+												.split('Credits: ')[1]);
+				totalCredits += credits;
+
+				const grade = course.textContent
+									.split(' - ')[1]
+									.split(' ')[1];
+				totalPoints += getPointsForGrade(grade) * credits;
+			}
+			const gpa = totalPoints / totalCredits;
+			gpaDisplay.textContent = gpa.toFixed(2);
+
+			resultsSection.classList.remove('hidden');
+		}
+		function getPointsForGrade(grade) {
+			switch (grade) {
+				case 'A': return 4.0;
+				case 'A-': return 3.7;
+				case 'B+': return 3.3;
+				case 'B': return 3.0;
+				case 'B-': return 2.7;
+				case 'C+': return 2.3;
+				case 'C': return 2.0;
+				case 'C-': return 1.7;
+				case 'D+': return 1.3;
+				case 'D': return 1.0;
+				case 'F': return 0.0;
+				default: return 0.0;
+			}
+		}
+		function clearAll() {
+			courseNameInput.value = '';
+			gradeSelect.selectedIndex = 0;
+			creditsInput.value = '';
+			courseList.innerHTML = '';
+			gpaDisplay.textContent = '';
+			resultsSection.classList.add('hidden');
+		}
+	</script>
+</body>
+
+</html>

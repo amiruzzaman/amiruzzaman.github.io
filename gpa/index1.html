@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+https://jsfiddle.net/nathanjones/V4CF9/
+https://catalog.wcupa.edu/undergraduate/academic-policies-procedures/grading-information/
+-->
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1.0">
+	<title>The GPA Calculator</title>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+	<script type='text/javascript' src='knockout-2.2.1.js'></script>
+	<script>
+	</script>
+	
+	
+</head>
+
+<body>
+	<ul data-bind="foreach: classes">
+    <li>
+        <input type="text" data-bind="value: title" placeholder="Title"/>
+        <input type="text" data-bind="value: credits" placeholder="Credits"/>
+        <input type="text" data-bind="value: letterGrade" placeholder="Letter Grade"/>  
+    </li>
+</ul>
+
+<button data-bind="click: addClass">Add a Class</button>
+
+<hr />
+
+Your Data:
+<pre data-bind="text: ko.toJSON($root, null, 2)"></pre>
+<script>
+		function Class(title,credits,letterGrade){
+    var self = this;
+    var gradeMapping = {
+        'A+': 4.00,
+        'A': 4.00,
+        'A-': 3.67,
+        'B+': 3.33,        
+        'B': 3.00,
+        'B-': 2.67,
+        'C+': 2.33,
+        'C': 2.00,
+        'C-': 1.67,
+        'D+': 1.33,
+        'D': 1.00,
+        'D-': 0.67
+    }
+    
+    
+    self.title = ko.observable(title);
+    self.credits = ko.observable(credits);
+    self.letterGrade = ko.observable(letterGrade);
+    
+    self.gpa = ko.computed(function(){        
+        return gradeMapping[self.letterGrade()];
+    });
+}
+
+function GpaCalcViewModel (){
+    var self = this;
+    self.classes = ko.observableArray();
+    self.totalGPA = ko.computed(function() {
+        var totalWeightedGPA = 0, totalCredits = 0;
+        
+        $.each(self.classes(), function() {             
+            totalWeightedGPA += ( this.gpa() * this.credits() );
+            totalCredits += (this.credits() * 1);
+			console.log(totalCredits);
+        })
+        
+        return totalWeightedGPA / totalCredits;
+    });
+    
+
+    self.addClass = function(){        
+        self.classes.push( new Class() );
+    }
+
+    
+};
+
+var viewModel = new GpaCalcViewModel();
+
+ko.applyBindings( viewModel );
+
+
+	</script>
+</body>
+
+</html>
