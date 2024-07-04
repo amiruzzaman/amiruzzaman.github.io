@@ -319,6 +319,8 @@
 				para.cols = "80";
 				//para.rows = "50";
 				para.value = text;
+				
+				text = text.replace("Part 10: EC\n", "");
 				var lines = para.value.split("\n");  
 				console.log("number of lines", lines.length);
 				para.rows = (lines.length).toString();
@@ -326,11 +328,13 @@
 
                 text += `Total score: ${score}\n`;
                 console.log(text);
+				/*
                 if (inputTxt.value == '') {
                     download('output.txt', text);
                 } else {
                     download(inputTxt.value + '.txt', text);
                 }
+				*/
                 jsonData['total'] = score;
                 console.log(sarr, jsonData);
                 // for (var key in jsonData) {
