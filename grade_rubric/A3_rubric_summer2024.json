@@ -26,8 +26,8 @@
                     "point": 2
                 },
                 {
-                    "yes": "You described how each dataset is interesting from an ML perspective. You also described the underlying structure of each problem, e.g., differing sample sizes, varying length of features, class imbalance, mix of continuous and categorical features, noise, etc. ",
-                    "no": "You needed to describe how each dataset is interesting from an ML perspective. As well as you needed to discuss the underlying structure of each problem, e.g., differing sample sizes, varying length of features, class imbalance, mix of continuous and categorical features, noise, etc.",
+                    "yes": "You described how each dataset is interesting from an ML perspective. You also described the underlying structure of each problem, e.g., di?ering sample sizes, varying length of features, class imbalance, mix of continuous and categorical features, noise, etc. ",
+                    "no": "You needed to describe how each dataset is interesting from an ML perspective. As well as you needed to discuss the underlying structure of each problem, e.g., di?ering sample sizes, varying length of features, class imbalance, mix of continuous and categorical features, noise, etc.",
                     "point": 2
                 }
             ]
@@ -68,7 +68,7 @@
         ]
     },
     "Part 4": {
-        "title": "DR RP",
+        "title": "DR (RP, PCA, ICA)",
         "problems": [
             [
                 {
@@ -80,14 +80,7 @@
                     "yes": "You described the reconstruction error for RP.",
                     "no": "We wanted to see that you described the reconstruction error for RP. You could have used distance metrics to accomplish this. ",
                     "point": 4
-                }
-            ]
-        ]
-    },
-    "Part 5": {
-        "title": "DR PCA",
-        "problems": [
-            [
+                },
                 {
                     "yes": "You justified the number of components you chose.",
                     "no": "We wanted to see that you justified the number of components you chose.",
@@ -97,14 +90,7 @@
                     "yes": "You described the distribution of eigenvalues for PCA. ",
                     "no": "We wanted to see that you described the distribution of eigenvalues for PCA. You could have used the variance here to accomplish this. ",
                     "point": 4
-                }
-            ]
-        ]
-    },
-    "Part 6": {
-        "title": "DR ICA",
-        "problems": [
-            [
+                },
                 {
                     "yes": "You justified the number of components you chose.",
                     "no": "We wanted to see that you justified the number of components you chose.",
@@ -118,7 +104,7 @@
             ]
         ]
     },
-    "Part 7": {
+    "Part 5": {
         "title": "DR then Clustering (dataset 1-2)",
         "problems": [
             [
@@ -165,7 +151,7 @@
             ]
         ]
     },
-    "Part 8": {
+    "Part 6": {
         "title": "DR on NN",
         "problems": [
             [
@@ -192,7 +178,7 @@
             ]
         ]
     },
-    "Part 9": {
+    "Part 7": {
         "title": "Clustering on NN",
         "problems": [
             [
@@ -204,14 +190,14 @@
             ]
         ]
     },
-    "Part 10": {
+    "Part 8": {
         "title": "EC",
         "problems": [
             [
                 {
                     "yes": "Good work!",
                     "no": "…",
-                    "point": 0
+                    "point": 5
                 }
             ]
         ]
