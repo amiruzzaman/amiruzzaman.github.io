@@ -27,7 +27,7 @@
                 },
                 {
                     "yes": "You described how each dataset is interesting from an ML perspective. You also described the underlying structure of each problem, e.g., differing sample sizes, varying length of features, class imbalance, mix of continuous and categorical features, noise, etc. ",
-                    "no": "You needed to describe how each dataset is interesting from an ML perspective. As well as you needed to discuss the underlying structure of each problem, e.g., di?ering sample sizes, varying length of features, class imbalance, mix of continuous and categorical features, noise, etc.",
+                    "no": "You needed to describe how each dataset is interesting from an ML perspective. As well as you needed to discuss the underlying structure of each problem, e.g., differing sample sizes, varying length of features, class imbalance, mix of continuous and categorical features, noise, etc.",
                     "point": 2
                 }
             ]
@@ -119,9 +119,29 @@
         ]
     },
     "Part 7": {
-        "title": "DR then Clustering-dataset 1",
+        "title": "DR then Clustering (dataset 1-2)",
         "problems": [
             [
+                {
+                    "yes": "You have provided some visual demonstration of the performance of a combination of methods. ",
+                    "no": "You needed to provide some visual demonstration of the performance of a combination of methods. ",
+                    "point": 2
+                },
+                {
+                    "yes": "You provided some discussion on the comparison of different methods.",
+                    "no": "Your report is missing a detailed discussion on the comparison of different methods.",
+                    "point": 3
+                },
+                {
+                    "yes": "You discussed what combination is the best for the dataset.",
+                    "no": "You did not discuss what combination is the best for the dataset.",
+                    "point": 1
+                },
+                {
+                    "yes": "You provided some justification for the best combination from evidence in experiments.",
+                    "no": "You needed to provide some justification for the best combination from evidence in experiments.",
+                    "point": 2
+                },
                 {
                     "yes": "You have provided some visual demonstration of the performance of a combination of methods. ",
                     "no": "You needed to provide some visual demonstration of the performance of a combination of methods. ",
@@ -146,33 +166,6 @@
         ]
     },
     "Part 8": {
-        "title": "DR then Clustering-dataset 2",
-        "problems": [
-            [
-                {
-                    "yes": "You have provided some visual demonstration of the performance of a combination of methods. ",
-                    "no": "You needed to provide some visual demonstration of the performance of a combination of methods. ",
-                    "point": 2
-                },
-                {
-                    "yes": "You provided some discussion on the comparison of different methods.",
-                    "no": "Your report is missing a detailed discussion on the comparison of different methods.",
-                    "point": 3
-                },
-                {
-                    "yes": "You discussed what combination is the best for the dataset.",
-                    "no": "You did not discuss what combination is the best for the dataset.",
-                    "point": 1
-                },
-                {
-                    "yes": "You provided some justification for the best combination from evidence in experiments.",
-                    "no": "You needed to provide some justification for the best combination from evidence in experiments.",
-                    "point": 2
-                }
-            ]
-        ]
-    },
-    "Part 9": {
         "title": "DR on NN",
         "problems": [
             [
@@ -180,6 +173,11 @@
                     "yes": "You provided some discussion and rationale.",
                     "no": "You did not provide a detailed discussion and rationale. ",
                     "point": 2
+                },
+                {
+                    "yes": "You provided supporting results for RP",
+                    "no": "You needed to provide some supporting results for RP. For example, you could have discussed if there was a change in wall clock time/speed? You also could have discussed if there were any alternative ways to judge/measure/evaluate the results. ",
+                    "point": 6
                 },
                 {
                     "yes": "You provided supporting results for PCA",
@@ -194,19 +192,7 @@
             ]
         ]
     },
-    "Part 10": {
-        "title": "DR on NN ",
-        "problems": [
-            [
-                {
-                    "yes": "You provided supporting results for RP",
-                    "no": "You needed to provide some supporting results for RP. For example, you could have discussed if there was a change in wall clock time/speed? You also could have discussed if there were any alternative ways to judge/measure/evaluate the results. ",
-                    "point": 6
-                }
-            ]
-        ]
-    },
-    "Part 11": {
+    "Part 9": {
         "title": "Clustering on NN",
         "problems": [
             [
@@ -218,25 +204,13 @@
             ]
         ]
     },
-    "Part 12": {
-        "title": "Conclusion",
-        "problems": [
-            [
-                {
-                    "yes": "You summarized your work nicely.",
-                    "no": "You did not summarize your work .",
-                    "point": 0
-                }
-            ]
-        ]
-    },
-    "Part 13": {
+    "Part 10": {
         "title": "EC",
         "problems": [
             [
                 {
-                    "yes": "",
-                    "no": "",
+                    "yes": "Good work!",
+                    "no": "…",
                     "point": 0
                 }
             ]
