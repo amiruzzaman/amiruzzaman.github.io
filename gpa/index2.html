@@ -125,11 +125,19 @@ function toTable(data, headers) {
 
 function addRowsBefore(table, data) {
     table.find('tbody').prepend(data.map(function(row) {
+		let current = 0;
         return $('<tr>').append(row.map(function(cell) {
+			//console.log(cell, current);
+			if (current == 1){
+				current -= 1; 
+				return $('<td style ="background-color: yellow; font-weight: 800;">').html(cell);
+			}
 			if ((cell.toString()).indexOf("TOTAL")!== -1){
+				current += 1; 
 				console.log(cell);
 				return $('<td style ="background-color: yellow;">').html(cell);
 			}else{
+				current -= 1; 
 				return $('<td>').html(cell);
 			}
         }));
