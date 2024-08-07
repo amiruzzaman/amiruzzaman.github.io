@@ -7,52 +7,11 @@
     <!--<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>-->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 	<script type='text/javascript' src='knockout-2.2.1.js'></script>
-	<style>
-	.div-table {
-  display: table;         
-  width: auto;         
-  background-color: #eee;         
-  border: 1px solid #666666;         
-  border-spacing: 5px; /* cellspacing:poor IE support for  this */
-}
-.div-table-row {
-  display: table-row;
-  width: auto;
-  clear: both;
-}
-.div-table-col {
-  float: left; /* fix for  buggy browsers */
-  display: table-column;         
-  width: 200px;         
-  background-color: #ccc;  
-}
-	</style>
 </head>
 <body>
-<ul>
-  <li><a href="index.html">GPA/word counter</a></li>
-  <li><a href="index1.html">GPA</a></li>
-</ul>
     <input type="file" id="fileInput">
     <button id="loadButton">Load Data</button>
     <div id="content">
-		<div class="div-table">
-			<div class="div-table-row">
-				<!--https://stackoverflow.com/questions/3053205/how-create-table-only-using-div-tag-and-css-->
-                <div class="div-table-col">Title</div>
-                <div  class="div-table-col">Credits</div>
-                <div  class="div-table-col">Letter Grade</div>
-				<div  class="div-table-col">GPA</div>
-             </div>
-			 <div class="div-table-row" data-bind="foreach: classes">
-				<li>
-                <div class="div-table-col"><span data-bind="text: title"></span></div>
-                <div class="div-table-col"><span data-bind="text: credits"></div>
-                <div class="div-table-col"><span data-bind="text: letterGrade"></div>
-				<div  class="div-table-col"><span data-bind="text: gpa"></span></div>
-				</li>
-            </div>
-		<!--
         <ul data-bind="foreach: classes">
             <li>
                 <strong>Title:</strong> <span data-bind="text: title"></span><br>
@@ -61,11 +20,9 @@
                 <strong>GPA:</strong> <span data-bind="text: gpa"></span><br>
             </li>
         </ul>
-		-->
         <div>
             <strong>Total GPA:</strong> <span data-bind="text: totalGPA"></span>
         </div>
-		</div>
     </div>
 
     <script>
