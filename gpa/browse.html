@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Load and Display Knockout.js Data</title>
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.1/knockout-min.js"></script>-->
+    <!--<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>-->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+	<script type='text/javascript' src='knockout-2.2.1.js'></script>
+</head>
+<body>
+    <input type="file" id="fileInput">
+    <button id="loadButton">Load Data</button>
+    <div id="content">
+        <ul data-bind="foreach: classes">
+            <li>
+                <strong>Title:</strong> <span data-bind="text: title"></span><br>
+                <strong>Credits:</strong> <span data-bind="text: credits"></span><br>
+                <strong>Letter Grade:</strong> <span data-bind="text: letterGrade"></span><br>
+                <strong>GPA:</strong> <span data-bind="text: gpa"></span><br>
+            </li>
+        </ul>
+        <div>
+            <strong>Total GPA:</strong> <span data-bind="text: totalGPA"></span>
+        </div>
+    </div>
+
+    <script>
+        function Class(title, credits, letterGrade) {
+            var self = this;
+            var gradeMapping = {
+                'A+': 4.00,
+                'A': 4.00,
+                'A-': 3.67,
+                'B+': 3.33,
+                'B': 3.00,
+                'B-': 2.67,
+                'C+': 2.33,
+                'C': 2.00,
+                'C-': 1.67,
+                'D+': 1.33,
+                'D': 1.00,
+                'D-': 0.67
+            };
+
+            self.title = ko.observable(title);
+            self.credits = ko.observable(credits);
+            self.letterGrade = ko.observable(letterGrade);
+
+            self.gpa = ko.computed(function() {
+                return gradeMapping[self.letterGrade()];
+            });
+        }
+
+        function GpaCalcViewModel() {
+            var self = this;
+            self.classes = ko.observableArray();
+            self.totalGPA = ko.computed(function() {
+                var totalWeightedGPA = 0, totalCredits = 0;
+
+                $.each(self.classes(), function() {
+                    totalWeightedGPA += (this.gpa() * this.credits());
+                    totalCredits += (this.credits() * 1);
+                });
+
+                return totalWeightedGPA / totalCredits;
+            });
+
+            self.addClass = function(title, credits, letterGrade) {
+                self.classes.push(new Class(title, credits, letterGrade));
+            };
+
+            self.loadClasses = function(classesData) {
+                self.classes.removeAll();
+				console.log(classesData);
+				for(let i = 0; i<classesData.classes.length; i++){
+					self.addClass(classesData.classes[i].title, classesData.classes[i].credits, classesData.classes[i].letterGrade);
+				}
+                //classesData.forEach(function(classData) {
+                //    self.addClass(classData.title, classData.credits, classData.letterGrade);
+                //});
+            };
+        }
+
+        var viewModel = new GpaCalcViewModel();
+        ko.applyBindings(viewModel);
+
+        // Function to read the JSON file and load data
+        function loadFile(event) {
+            var file = event.target.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var data = JSON.parse(e.target.result);
+                    viewModel.loadClasses(data);
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        document.getElementById('fileInput').addEventListener('change', loadFile);
+    </script>
+</body>
+</html>

@@ -21,6 +21,7 @@ https://catalog.wcupa.edu/undergraduate/academic-policies-procedures/grading-inf
 <body>
 <ul>
   <li><a href="index.html">GPA/word counter</a></li>
+  <li><a href="browse.html">Load</a></li>
 </ul>
 	<ul data-bind="foreach: classes">
     <li>
@@ -33,7 +34,7 @@ https://catalog.wcupa.edu/undergraduate/academic-policies-procedures/grading-inf
 <button data-bind="click: addClass">Add a Class</button>
 
 <hr />
-
+<button id="saveButton">Save Data</button>
 Your Data:
 <pre data-bind="text: ko.toJSON($root, null, 2)"></pre>
 <script>
@@ -73,7 +74,7 @@ function GpaCalcViewModel (){
         $.each(self.classes(), function() {             
             totalWeightedGPA += ( this.gpa() * this.credits() );
             totalCredits += (this.credits() * 1);
-			console.log(totalCredits);
+			//console.log(totalCredits);
         })
         
         return totalWeightedGPA / totalCredits;
@@ -91,6 +92,23 @@ var viewModel = new GpaCalcViewModel();
 
 ko.applyBindings( viewModel );
 
+//console.log(ko.applyBindings( viewModel ));
+
+// Function to save data as a file
+        function saveData() {
+            var data = ko.toJSON(viewModel, null, 2);
+            var blob = new Blob([data], { type: 'application/json' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'data.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        document.getElementById('saveButton').addEventListener('click', saveData);
 
 	</script>
 </body>
