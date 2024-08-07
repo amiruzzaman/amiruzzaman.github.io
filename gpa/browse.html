@@ -26,6 +26,24 @@
   width: 200px;         
   background-color: #ccc;  
 }
+
+#resp-table {
+        width: 100%;
+        display: table;
+    }
+    #resp-table-body{
+        display: table-row-group;
+    }
+    .resp-table-row{
+        display: table-row;
+    }
+    .table-body-cell{
+        display: table-cell;
+        border: 1px solid #dddddd;
+        padding: 8px;
+        line-height: 1.42857143;
+        vertical-align: top;
+    }
 	</style>
 </head>
 <body>
@@ -35,11 +53,13 @@
 </ul>
     <input type="file" id="fileInput">
     <button id="loadButton">Load Data</button>
+	<br/><br/>
     <div id="content">
+		<!--https://stackoverflow.com/questions/3053205/how-create-table-only-using-div-tag-and-css-->
+		
 		<div class="div-table">
 			<div class="div-table-row">
-				<!--https://stackoverflow.com/questions/3053205/how-create-table-only-using-div-tag-and-css-->
-                <div class="div-table-col">Title</div>
+				<div class="div-table-col">Title</div>
                 <div  class="div-table-col">Credits</div>
                 <div  class="div-table-col">Letter Grade</div>
 				<div  class="div-table-col">GPA</div>
@@ -49,7 +69,7 @@
                 <div class="div-table-col"><span data-bind="text: title"></span></div>
                 <div class="div-table-col"><span data-bind="text: credits"></div>
                 <div class="div-table-col"><span data-bind="text: letterGrade"></div>
-				<div  class="div-table-col"><span data-bind="text: gpa"></span></div>
+				<div  class="div-table-col"><span data-bind="text: gpaFormatted"></span></div>
 				</li>
             </div>
 		<!--
@@ -63,7 +83,7 @@
         </ul>
 		-->
         <div>
-            <strong>Total GPA:</strong> <span data-bind="text: totalGPA"></span>
+            <strong>Total GPA:</strong> <span data-bind="text: displayTotalGPA"></span>
         </div>
 		</div>
     </div>
@@ -93,7 +113,15 @@
             self.gpa = ko.computed(function() {
                 return gradeMapping[self.letterGrade()];
             });
+			
+			self.gpaFormatted = ko.computed(function() {
+				//console.log(self.gpa().toFixed(2));
+                return self.gpa().toFixed(2);
+            });
         }
+		function roundTwoDecimal(val){
+			return parseFloat(val).toFixed(2);
+		}
 
         function GpaCalcViewModel() {
             var self = this;
@@ -106,9 +134,14 @@
                     totalCredits += (this.credits() * 1);
                 });
 
-                return totalWeightedGPA / totalCredits;
+                var result = totalWeightedGPA / totalCredits;
+                return isNaN(result) ? 0 : result;
             });
-
+			
+			self.displayTotalGPA = ko.computed(function() {
+                return isNaN(self.totalGPA()) ? 'N/A' : self.totalGPA().toFixed(2);
+            });
+			
             self.addClass = function(title, credits, letterGrade) {
                 self.classes.push(new Class(title, credits, letterGrade));
             };
