@@ -1,0 +1,226 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+    color: #333;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#container {
+    width: 80%;
+    max-width: 1000px;
+    height: 100%;
+    margin: 0 auto;
+    padding: 0;
+    background-color: #f0f0f0;
+    border: 1px solid #e0e0e0;
+    overflow: auto;
+}
+
+#footer {
+        background-color: #f1f1f1;
+        color: #333;
+        padding: 10px;
+        text-align: center;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
+        font-size: 14px;
+    }
+
+#overlay {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+    visibility: hidden;
+}
+
+#edit-box {
+    position: fixed;
+    width: 400px;
+    height: 300px;
+    top: calc(100vh / 2 - 150px);
+    left: calc(100vw / 2 - 200px);
+    background-color: #fff;
+    border: 1px solid #aaa;
+    border-radius: 10px;
+    box-shadow: 0 0 14px rgba(0, 0, 0, 0.2);
+    z-index: 2;
+    visibility: hidden;
+}
+
+#edit-text {
+    width: 390px;
+    height: 200px;
+    margin: 20px 4px 0 4px;
+    padding: 6px;
+}
+
+#edit-score-container {
+    margin-left: 4px;
+}
+
+#edit-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.part-container {
+    width: 100%;
+    margin: 0;
+    padding: 20px;
+    background-color: #f0f0f0;
+    border: 1px solid #e0e0e0;
+}
+
+.part-container h3 {
+    margin-bottom: 10px;
+}
+
+.part-container h4 {
+    margin-bottom: 8px;
+}
+
+.problem-container {
+    margin-bottom: 8px;
+}
+
+.item-container {
+    display: flex;
+    min-height: 50px;
+    margin-bottom: 10px;
+    padding: 10px;
+    gap: 16px;
+    background-color: #fff;
+    border: 1px solid #aaa;
+    color: #ccc;
+    font-weight: normal;
+    user-select: none;
+    font-size: 14px;
+}
+
+.sub-total-score{
+	display: flex;
+    min-height: 50px;
+    margin-bottom: 10px;
+    padding: 10px;
+    gap: 16px;
+    background-color: #fff;
+    border: 1px solid #aaa;
+    color: #ccc;
+    font-weight: normal;
+    user-select: none;
+    font-size: 10px;
+}
+
+.item-textarea {
+    display: flex;
+    min-height: 50px;
+    margin-bottom: 10px;
+    padding: 10px;
+    gap: 16px;
+    background-color: #fff;
+    border: 1px solid #aaa;
+    color: #ccc;
+    font-weight: normal;
+    user-select: none;
+    font-size: 14px;
+}
+
+.item-textareabox{
+  margin-left:10%;
+  margin-right:10%;
+  padding: 12px 200px;
+  border-top: 15px solid transparent;
+  border-bottom: 15px solid transparent;
+  border-right: 0px solid transparent;
+  border-left: 0px solid transparent;
+  outline: 1px solid #dadcde;
+  padding-top: 30px;
+  padding-left: 30px;
+  padding-right: 30px;
+  display: table;
+  border: 1px solid #CCC;
+  padding: 1em; /* adjust value  to suit  */
+    box-sizing: border-box;
+    resize: vertical; 
+}
+
+.item-yes {
+    flex: 1;
+    cursor: pointer;
+}
+
+.item-no {
+    flex: 1;
+    cursor: pointer;
+}
+
+.item-container .selected {
+    color: #333;
+    font-weight: bold;
+}
+
+.save-button {
+    width: 100px;
+    height: 50px;
+    padding: 10px;
+    margin: 10px calc(100% / 2 - 50px);
+    border-radius: 16px;
+    background-color: steelblue;
+    color: #fff;
+    border: 1px solid #e0e0e0;
+    cursor: pointer;
+}
+
+.save-button:hover {
+    background-color: #4d4dff;
+}
+
+
+table,
+        th,
+        td {
+            border: solid 1px #ddd;
+            border-collapse: collapse;
+            padding: 2px 3px;
+            text-align: center;
+            width: 30px;
+        }
+
+        th {
+            font-weight: bold;
+        }
+		
+		#notice {
+  width: 80%;
+  max-width: 1000px;
+  /*height: 100%;*/
+  margin: 0 auto;
+  padding: 5px 5px 5px 5px;
+  background-color: #f0f0f0;
+  border: 1px solid #e0e0e0;
+  overflow: auto;
+  font-family: Arial, sans-serif;
+ color: red;
+  font-weight: normal;
+  font-size: 14px;
+}

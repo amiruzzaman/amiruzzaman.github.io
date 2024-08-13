@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade using rubric</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="#">
+    <style>
+        table,
+        th,
+        td {
+            border: solid 1px #ddd;
+            border-collapse: collapse;
+            padding: 2px 3px;
+            text-align: center;
+            width: 30px;
+        }
+
+        th {
+            font-weight: bold;
+        }
+
+        #notice {
+            width: 80%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 5px;
+            background-color: #f0f0f0;
+            border: 1px solid #e0e0e0;
+            overflow: auto;
+            font-family: Arial, sans-serif;
+            color: red;
+            font-weight: normal;
+            font-size: 14px;
+        }
+
+        #container {
+            margin-top: 20px;
+        }
+
+        .item-container,
+        .part-container {
+            margin-bottom: 10px;
+        }
+
+        .selected {
+            background-color: #e0e0e0;
+        }
+
+        .item-yes,
+        .item-no {
+            cursor: pointer;
+            display: inline-block;
+            padding: 5px;
+            margin: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .item-score {
+            display: inline-block;
+            padding: 5px;
+            margin: 5px;
+            color: red;
+        }
+
+        #edit-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 20px;
+            z-index: 1000;
+            visibility: hidden;
+        }
+
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 500;
+            visibility: hidden;
+        }
+
+        .save-button {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <p id="notice">Selecting items from "No" will not subtract points. Double click on "No" side and adjust how much you want to take out. For example, if it shows 5, and you want to take out all, then make that 0.</p>
+    <input type="file" id="fileInput" accept=".json" />
+    <div id="container"></div>
+    <div id="edit-box">
+        <textarea id="edit-text"></textarea>
+        <div id="edit-score-container">
+            <label for="edit-score">Score</label>
+            <input id="edit-score" type="number" />
+        </div>
+        <div id="edit-buttons">
+            <button id="edit-cancel">Cancel</button>
+            <button id="edit-save">Save</button>
+        </div>
+    </div>
+    <div id="overlay"></div>
+    <script>
+        let selectedItem = null;
+
+        function editItem() {
+            const editBox = document.getElementById('edit-box');
+            const editText = document.getElementById('edit-text');
+            const editScore = document.getElementById('edit-score');
+            const overlay = document.getElementById('overlay');
+
+            editText.value = selectedItem.innerText;
+            editScore.value = selectedItem.getAttribute('score');
+            editBox.style.visibility = 'visible';
+            overlay.style.visibility = 'visible';
+        }
+
+        function renderProblem(container, problems) {
+            let subTotal = 0;
+            var subScoreArr = [];
+            let subTotalDiv = document.createElement('div');
+            for (let problem of problems) {
+                const yes = problem.yes;
+                const no = problem.no;
+                const score = problem.point;
+
+                const itemContainer = document.createElement('div');
+                itemContainer.classList.add('item-container');
+
+                const itemYes = document.createElement('div');
+                itemYes.classList.add('item-yes');
+                itemYes.classList.add('selected');
+                itemYes.setAttribute('score', score);
+                itemYes.innerText = yes;
+
+                const itemNo = document.createElement('div');
+                itemNo.classList.add('item-no');
+                itemNo.setAttribute('score', score);
+                itemNo.innerText = no;
+
+                const itemScore = document.createElement('div');
+                itemScore.classList.add('item-score');
+                itemScore.innerHTML = score;
+                itemScore.style.color = 'red';
+                subTotal += parseInt(score);
+                subScoreArr.push(score);
+
+                itemYes.addEventListener('click', () => {
+                    itemYes.classList.add('selected');
+                    itemNo.classList.remove('selected');
+                });
+
+                itemYes.addEventListener('dblclick', function () {
+                    selectedItem = this;
+                    editItem();
+                    console.log(selectedItem);
+                });
+
+                itemNo.addEventListener('click', () => {
+                    itemNo.classList.add('selected');
+                    itemYes.classList.remove('selected');
+                });
+
+                itemNo.addEventListener('dblclick', function () {
+                    selectedItem = this;
+                    editItem();
+                });
+
+                itemContainer.appendChild(itemYes);
+                itemContainer.appendChild(itemNo);
+                itemContainer.appendChild(itemScore);
+
+                container.appendChild(itemContainer);
+            }
+            subTotalDiv.innerHTML = subTotal;
+            subTotalDiv.style.color = 'green';
+            subTotalDiv.classList.add('sub-total-score');
+            container.appendChild(subTotalDiv);
+        }
+
+        document.getElementById('fileInput').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const data = JSON.parse(e.target.result);
+                    const container = document.getElementById('container');
+                    container.innerHTML = ''; // Clear previous content
+                    const parts = Object.keys(data);
+                    for (let part of parts) {
+                        const partContainer = document.createElement('div');
+                        partContainer.classList.add('part-container');
+
+                        const partTitle = data[part].title;
+                        const partProblems = data[part].problems;
+
+                        const h3 = document.createElement('h3');
+                        h3.innerText = `${part}: ${partTitle}`;
+                        partContainer.appendChild(h3);
+
+                        if (partProblems.length > 1) {
+                            for (let i = 0; i < partProblems.length; i++) {
+                                const problemContainer = document.createElement('div');
+                                problemContainer.classList.add('problem-container');
+
+                                const problemTitle = `Problem ${i + 1}`;
+                                const h4 = document.createElement('h4');
+                                h4.innerText = problemTitle;
+                                problemContainer.appendChild(h4);
+
+                                const problemList = partProblems[i];
+                                renderProblem(problemContainer, problemList);
+                                partContainer.appendChild(problemContainer);
+                            }
+                        } else {
+                            const problemContainer = document.createElement('div');
+                            problemContainer.classList.add('problem-container');
+                            const problemList = partProblems[0];
+
+                            renderProblem(problemContainer, problemList);
+                            partContainer.appendChild(problemContainer);
+                        }
+
+                        container.appendChild(partContainer);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        function download(filename, text) {
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', filename);
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+
+        function createTableFromJSON(jsonData) {
+            var col = [];
+            for (var key in jsonData) {
+                if (col.indexOf(key) === -1) {
+                    col.push(key);
+                }
+            }
+            var table = document.createElement("table");
+            var tr = table.insertRow(-1);
+
+            for (var i = 0; i < col.length; i++) {
+                var th = document.createElement("th");
+                th.innerHTML = col[i];
+                tr.appendChild(th);
+            }
+
+            tr = table.insertRow(-1);
+            for (var key in jsonData) {
+                var tabCell = tr.insertCell(-1);
+                tabCell.innerHTML = jsonData[key];
+            }
+
+            const container = document.getElementById('container');
+            var divContainer = document.createElement('div');
+            divContainer.id = "someID";
+            var myEle = document.getElementById("someID");
+
+            if (myEle) {
+                document.getElementById("someID").innerHTML = "";
+            }
+            divContainer.style.height = "300px";
+            divContainer.innerHTML = "";
+            divContainer.appendChild(table);
+            container.appendChild(divContainer);
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('edit-save').addEventListener('click', function () {
+                selectedItem.innerText = document.getElementById('edit-text').value;
+                selectedItem.setAttribute('score', document.getElementById('edit-score').value);
+                selectedItem = null;
+                document.getElementById('edit-box').style.visibility = 'hidden';
+                document.getElementById('overlay').style.visibility = 'hidden';
+            });
+
+            document.getElementById('edit-cancel').addEventListener('click', function () {
+                selectedItem = null;
+                document.getElementById('edit-box').style.visibility = 'hidden';
+                document.getElementById('overlay').style.visibility = 'hidden';
+            });
+
+            document.getElementById('overlay').addEventListener('click', function () {
+                selectedItem = null;
+                document.getElementById('edit-box').style.visibility = 'hidden';
+                document.getElementById('overlay').style.visibility = 'hidden';
+            });
+        });
+    </script>
+</body>
+
+</html>
