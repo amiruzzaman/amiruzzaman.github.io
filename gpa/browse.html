@@ -44,6 +44,11 @@
         line-height: 1.42857143;
         vertical-align: top;
     }
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
 	</style>
 </head>
 <body>
@@ -65,7 +70,7 @@
 				<div  class="div-table-col">GPA</div>
              </div>
 			 <div class="div-table-row" data-bind="foreach: classes">
-				<li>
+				<li style="list-style: none;">
                 <div class="div-table-col"><span data-bind="text: title"></span></div>
                 <div class="div-table-col"><span data-bind="text: credits"></div>
                 <div class="div-table-col"><span data-bind="text: letterGrade"></div>
