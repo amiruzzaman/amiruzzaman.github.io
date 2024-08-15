@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Presentation - Repo Search</title>
+    <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css'>
+    <link rel="stylesheet" href="./style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!--<script type="text/javascript" src="omscentral_courses.json"></script>-->
+
+
+</head>
+
+<body>
+    <!-- partial:index.partial.html -->
+    <div class="form-group pull-right">
+        <input type="text" class="search form-control" placeholder="What you looking for?">
+    </div>
+    <span class="counter pull-right"></span>
+    <table class="table table-hover table-bordered results" id="tableid">
+        <thead>
+            <tr>
+                <th>Presenter</th>
+                <th class="col-md-5 col-xs-5">Title</th>
+                <th class="col-md-4 col-xs-4">Conference/Journal</th>
+                <th class="col-md-3 col-xs-3">PPT</th>
+                <th class="col-md-3 col-xs-3">Link</th>
+            </tr>
+            <tr class="warning no-result">
+                <td colspan="4"><i class="fa fa-warning"></i> No result</td>
+            </tr>
+        </thead>
+        <tbody>
+            <!--                <tr>
+                                    <th scope="row">Course ID</th>
+                                    <td>Difficulty</td>
+                                    <td>Workload</td>
+                                    <td>Comment</td>
+                                </tr>-->
+            <!--                <tr>
+                                    <th scope="row">2</th>
+                                    <td>Burak Özkan</td>
+                                    <td>Software Developer</td>
+                                    <td>Istanbul</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">3</th>
+                                    <td>Egemen Özbeyli</td>
+                                    <td>Purchasing</td>
+                                    <td>Kocaeli</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">4</th>
+                                    <td>Engin Kızıl</td>
+                                    <td>Sales</td>
+                                    <td>Bozuyük</td>
+                                </tr>-->
+        </tbody>
+    </table>
+    <!-- partial -->
+    <!--        <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!--        <script  src="./script.js"></script>-->
+    <script type="text/javascript" src="csvjson.js"></script>
+    <script>
+
+        // https://stackoverflow.com/questions/3603242/convert-csv-file-to-json-object-datatable/6991791
+        $.ajax("presentation.csv", {
+            success: function (data) {
+                var jsonobject = csvjson.csv2json(data);
+                // Now use jsonobject to do some charting...
+                console.log('Reading from csv');
+                var data = jsonobject.rows;
+                console.log(data);
+                //console.log(jsonobject);
+                var presentationinfo = data;
+                console.log(presentationinfo);
+                //                },
+                //            error: function () {
+                //                    // Show some error message, couldn't get the CSV file
+                //                }
+                //            });
+                for (let i = 0; i < data.length; i++) {
+                    var myHtmlContent = '<tr>'
+                        + '<td>' + data[i]['presenter'] + '</td>'
+                        + '<td>' + data[i]['title'] + '</td>'
+                        + '<td>' + data[i]['venue'] + '</td>'
+                        + '<td><a href="' + data[i]['presentation'] + '">' + data[i]['presentation'] + '</a></td>'
+                        + '<td><a href="' + data[i]['link'] + '">' + data[i]['link'] + '</a></td>'
+                        + '</tr>'
+                    var tableRef = document.getElementById('tableid').getElementsByTagName('tbody')[0];
+
+                    var newRow = tableRef.insertRow(tableRef.rows.length);
+                    newRow.innerHTML = myHtmlContent;
+                }
+            },
+            error: function () {
+                // Show some error message, couldn't get the CSV file
+            }
+        });
+
+        //var mydata = JSON.parse(data);
+        //console.log(mydata);
+
+        //            function readTextFile(file, callback) {
+        //                var rawFile = new XMLHttpRequest();
+        //                rawFile.overrideMimeType("application/json");
+        //                rawFile.open("GET", file, true);
+        //                rawFile.onreadystatechange = function () {
+        //                    if (rawFile.readyState === 4 && rawFile.status == "200") {
+        //                        callback(rawFile.responseText);
+        //                    }
+        //                }
+        //                rawFile.send(null);
+        //            }
+
+        //usage:
+        //            readTextFile("presentation.json", function (text) {
+        //                var data = JSON.parse(text);
+        //                //console.log(data[0]);
+        //                //$('tableid').append(data[0]);
+        //                for (var i = 0; i < data.length; i++) {
+        //
+        //                    var myHtmlContent = '<tr>'
+        //                            + '<td>' + data[i]['presenter'] + '</td>'
+        //                            + '<td>' + data[i]['title'] + '</td>'
+        //                            + '<td>' + data[i]['venue'] + '</td>'
+        //                            + '<td><a href="' + data[i]['presentation'] + '">' + data[i]['presentation'] + '</a></td>'
+        //                            + '<td><a href="' + data[i]['link'] + '">' + data[i]['link'] + '</a></td>'
+        //                            + '</tr>'
+        //                    var tableRef = document.getElementById('tableid').getElementsByTagName('tbody')[0];
+        //
+        //                    var newRow = tableRef.insertRow(tableRef.rows.length);
+        //                    newRow.innerHTML = myHtmlContent;
+        //                }
+        //            });
+        $.ajax("teaching/teaching_ugrad_grad.csv", {
+            success: function (data) {
+                var jsonobject = csvjson.csv2json(data);
+                // Now use jsonobject to do some charting...
+                //console.log(jsonobject);
+                var data = jsonobject.rows;
+                //console.log(data);
+
+                var jsondata = aggregate(jsonobject);
+                //console.log(jsondata);
+
+
+                var ugrad = [];
+                var grad = [];
+
+                // graduate section
+                for (let i = 0; i < jsondata.graduate.length; i++) {
+                    //                        grad.push(jsondata.graduate[i]);
+                    var result_g = $('<div/>', {
+                        'id': 'results_g',
+                        'class': 'table'
+                    });
+
+                    var headers_g = $('<div/>', {
+                        'class': 'theader'
+                    });
+                    Object.keys(jsondata.graduate[0]).forEach(function (key) {
+                        //console.log(key);
+                        var table_header_g = $('<div/>', {
+                            'class': 'table_header'
+                        }).html(key);
+                        headers_g.append(table_header_g);
+
+                    })
+                    result_g.append(headers_g);
+
+                }
+                // end of firt loop graduate
+                //push the data rows
+                jsondata.graduate = sortJSON(jsondata.graduate, 'Year', '321');
+                for (let i = 0; i < jsondata.graduate.length; i++) {
+                    var table_row_g = $('<div/>', {
+                        'class': 'table_row'
+                    });
+
+                    Object.keys(jsondata.graduate[i]).forEach(function (key) {
+                        //console.log(jsondata.graduate[i]);
+                        var table_small_g = $('<div/>', {
+                            'class': 'table_small'
+                        });
+                        var table_cell1_g = $('<div/>', {
+                            'class': 'table_cell'
+                        }).html(key)
+                        if (key === "Year") {
+                            let teaching_info = jsondata.graduate[i][key].toString();
+                            //teaching_info = teaching_info.replaceAll(",", ", ")
+                            //console.log(teaching_info.split(',').join(', '));
+                            var table_cell2_g = $('<div/>', {
+                                'class': 'table_cell'
+                            }).html(teaching_info.split(',').join(', '));
+                            //.html(jsondata.graduate[i][key].toString().replace(",", ", "));
+                            //.css("text-align", "left").css("padding-left", "5px");
+                        } else {
+                            var table_cell2_g = $('<div/>', {
+                                'class': 'table_cell'
+                            }).html(jsondata.graduate[i][key]);
+                        }
+                        table_small_g.append(table_cell1_g).append(table_cell2_g);
+                        table_row_g.append(table_small_g);
+                    });
+                    result_g.append(table_row_g);
+                }
+                //console.log(grad);
+                $('#grad').append(result_g);
+
+
+                //undergraduate section
+                for (let i = 0; i < jsondata.undergraduate.length; i++) {
+                    //                        grad.push(jsondata.graduate[i]);
+                    var result_u = $('<div/>', {
+                        'id': 'results_u',
+                        'class': 'table'
+                    });
+
+                    var headers_u = $('<div/>', {
+                        'class': 'theader'
+                    });
+                    Object.keys(jsondata.undergraduate[0]).forEach(function (key) {
+                        //console.log(key);
+                        var table_header_u = $('<div/>', {
+                            'class': 'table_header'
+                        }).html(key);
+                        headers_u.append(table_header_u);
+
+                    })
+                    result_u.append(headers_u);
+
+                }
+                //push the data rows
+                jsondata.undergraduate = sortJSON(jsondata.undergraduate, 'Year', '321');
+                for (let i = 0; i < jsondata.undergraduate.length; i++) {
+                    var table_row_u = $('<div/>', {
+                        'class': 'table_row'
+                    });
+
+                    Object.keys(jsondata.undergraduate[i]).forEach(function (key) {
+                        //console.log(jsondata.undergraduate[i]);
+                        var table_small_u = $('<div/>', {
+                            'class': 'table_small'
+                        });
+                        var table_cell1_u = $('<div/>', {
+                            'class': 'table_cell'
+                        }).html(key)
+                        if (key === "Year") {
+                            let teaching_info = jsondata.undergraduate[i][key].toString();
+                            //teaching_info = teaching_info.replaceAll(",", ", ")
+                            //console.log(teaching_info.split(',').join('| '));
+                            var table_cell2_u = $('<div/>', {
+                                'class': 'table_cell'
+                            }).html(teaching_info.split(',').join(', '));
+                            //.html(jsondata.graduate[i][key].toString().replace(",", ", "));
+                            //.css("text-align", "left").css("padding-left", "5px");
+                        } else {
+                            var table_cell2_u = $('<div/>', {
+                                'class': 'table_cell'
+                            }).html(jsondata.undergraduate[i][key]);
+                        }
+                        table_small_u.append(table_cell1_u).append(table_cell2_u);
+                        table_row_u.append(table_small_u);
+                    });
+                    result_u.append(table_row_u);
+                }
+                //console.log(grad);
+                $('#ugrad').append(result_u);
+            },
+            error: function () {
+                // Show some error message, couldn't get the CSV file
+            }
+        });
+    </script>
+</body>
+
+</html>

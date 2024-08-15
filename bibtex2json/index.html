@@ -1,0 +1,138 @@
+<!doctype html>
+<html>
+  <head>
+    <title>This is the title of the webpage!</title>
+	<style>
+	@use postcss-nested;
+
+@import url(https://fonts.googleapis.com/css?family=Inter:500);
+@import url(https://fonts.googleapis.com/css?family=Inter:200);
+
+
+html,
+body {
+  font-family: "Inter", arial, sans-serif;
+  font-weight: 300;
+  text-align: center;
+  color: #eaeaea;
+  background: #2a2b34;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+a {
+  color: #8aafff;
+  &:hover {
+    color: #aaeeff;
+  }
+}
+h1 {
+  font-size: 3em;
+  font-weight: 200;
+  a {
+    color: #fff;
+  }
+}
+strong {
+  font-weight: 500;
+}
+textarea {
+  width: 100%;
+  border: 0;
+  background: #eee;
+  font-family: "Fira Code", monospace;
+  font-variant-ligatures: normal;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+  background: rgb(13, 15, 17);
+  resize: none;
+  border: none;
+  overflow: auto;
+  outline: none;
+}
+p {
+  line-height: 2em;
+  padding: 0.5em;
+}
+section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.codeblock {
+  display: flex;
+  height: 40vh;
+  width: 100%;
+}
+
+@media only screen and (max-width: 600px) {
+  .codeblock {
+    flex-direction: column;
+  }
+}
+
+.error {
+  background: #a24242;
+  margin-top: 0.5em;
+  display: none;
+}
+
+	</style>
+  </head>
+  <body>
+    <p>This is an example paragraph. Anything in the <strong>body</strong> tag will appear on the page, just like this <strong>p</strong> tag and its contents.</p>
+	
+	<h1>🎓 <a href="http://www.bibtex.org/" target="_blank" rel="noopener noreferrer">Bib<strong>TeX</strong></a> to <a href="http://okfnlabs.org/bibjson/" target="_blank" rel="noopener noreferrer">{ Bib<strong>Json</strong> }</a></h1>
+<p>Convert your Bibtex files to BibJson.</p>
+<p><a href="https://github.com/plus1tv/bibtex-bibjson" target="_blank" rel="noopener noreferrer">GitHub</a> | <a href="https://www.npmjs.com/package/bibtex-bibjson" target="_blank" rel="noopener noreferrer">NPM</a></p>
+<div class="codeblock">
+  <textarea id="bibtex" autocorrect="off" autocapitalize="off" spellcheck="false" wrap="off" placeholder="Place your BibTex here."></textarea>
+  <textarea style="background:rgb(20, 23, 24); border-left: 2px solid #222" id="bibjson" autocorrect="off" autocapitalize="off" spellcheck="false" wrap="off" placeholder="Extract your BibJson here."></textarea>
+</div>
+<p class="error" id="error"></p>
+<script type="text/javascript">
+function t(r,e,n,s){this.message=r,this.expected=e,this.found=n,this.location=s,this.name="SyntaxError","function"==typeof Error.captureStackTrace&&Error.captureStackTrace(this,t)}!function(t,r){function e(){this.constructor=t}e.prototype=r.prototype,t.prototype=new e}(t,Error),t.buildMessage=function(t,r){var e={literal:function(t){return'"'+s(t.text)+'"'},class:function(t){var r,e="";for(r=0;r<t.parts.length;r++)e+=t.parts[r]instanceof Array?a(t.parts[r][0])+"-"+a(t.parts[r][1]):a(t.parts[r]);return"["+(t.inverted?"^":"")+e+"]"},any:function(t){return"any character"},end:function(t){return"end of input"},other:function(t){return t.description}};function n(t){return t.charCodeAt(0).toString(16).toUpperCase()}function s(t){return t.replace(/\\/g,"\\\\").replace(/"/g,'\\"').replace(/\0/g,"\\0").replace(/\t/g,"\\t").replace(/\n/g,"\\n").replace(/\r/g,"\\r").replace(/[\x00-\x0F]/g,function(t){return"\\x0"+n(t)}).replace(/[\x10-\x1F\x7F-\x9F]/g,function(t){return"\\x"+n(t)})}function a(t){return t.replace(/\\/g,"\\\\").replace(/\]/g,"\\]").replace(/\^/g,"\\^").replace(/-/g,"\\-").replace(/\0/g,"\\0").replace(/\t/g,"\\t").replace(/\n/g,"\\n").replace(/\r/g,"\\r").replace(/[\x00-\x0F]/g,function(t){return"\\x0"+n(t)}).replace(/[\x10-\x1F\x7F-\x9F]/g,function(t){return"\\x"+n(t)})}return"Expected "+function(t){var r,n,s,a=new Array(t.length);for(r=0;r<t.length;r++)a[r]=e[(s=t[r]).type](s);if(a.sort(),a.length>0){for(r=1,n=1;r<a.length;r++)a[r-1]!==a[r]&&(a[n]=a[r],n++);a.length=n}switch(a.length){case 1:return a[0];case 2:return a[0]+" or "+a[1];default:return a.slice(0,-1).join(", ")+", or "+a[a.length-1]}}(t)+" but "+function(t){return t?'"'+s(t)+'"':"end of input"}(r)+" found."},window.bibTexBibJSON={SyntaxError:t,parse:function(r,e){e=void 0!==e?e:{};var n,s,a,i,u,c,o,l,f={},h={Citations:nt},p=nt,A=/^[@]/,g=tt(["@"],!1,!1),d=",",b=_(",",!1),v=/^[a-z]/i,C=tt([["a","z"]],!1,!0),x=_("{",!1),m=_("}",!1),y=/^[a-z:.\/0-9]/i,z=tt([["a","z"],":",".","/",["0","9"]],!1,!0),w=/^[a-z:'\/,\-(). 0-9\n\t\r\/]/i,F=tt([["a","z"],":","'","/",",","-","(",")","."," ",["0","9"],"\n","\t","\r","/"],!1,!0),E="=",L=_("=",!1),S=_("title",!0),R=/^[a-z:. 0-9]/i,j=tt([["a","z"],":","."," ",["0","9"]],!1,!0),k=_("publisher",!0),M=_("url",!0),O=/^[a-z:.\/ 0-9]/i,T=tt([["a","z"],":",".","/"," ",["0","9"]],!1,!0),I=_("year",!0),U=/^[0-9]/i,q=tt([["0","9"]],!1,!0),B=_("author",!0),D=/^[a-z,.]/i,G=tt([["a","z"],",","."],!1,!0),H="and",J=_("and",!1),K=/^[a-z .]/i,N=tt([["a","z"]," ","."],!1,!0),P={type:"other",description:"whitespace"},Q=/^[ \t\n\r]/,V=tt([" ","\t","\n","\r"],!1,!1),W=0,X=[{line:1,column:1}],Y=0,Z=[],$=0;if("startRule"in e){if(!(e.startRule in h))throw new Error("Can't start parsing from rule \""+e.startRule+'".');p=h[e.startRule]}function _(t,r){return{type:"literal",text:t,ignoreCase:r}}function tt(t,r,e){return{type:"class",parts:t,inverted:r,ignoreCase:e}}function rt(t){var e,n=X[t];if(n)return n;for(e=t-1;!X[e];)e--;for(n={line:(n=X[e]).line,column:n.column};e<t;)10===r.charCodeAt(e)?(n.line++,n.column=1):n.column++,e++;return X[t]=n,n}function et(t){W<Y||(W>Y&&(Y=W,Z=[]),Z.push(t))}function nt(){var t,r,e,n;for(t=[],r=W,(e=st())!==f&&(n=ct())!==f?r=e=[e,n]:(W=r,r=f);r!==f;)t.push(r),r=W,(e=st())!==f&&(n=ct())!==f?r=e=[e,n]:(W=r,r=f);return t!==f&&(t=function(t){var r={};for(let e of t)Object.assign(r,{[e[0][0]]:e[0][1]});return r}(t)),t}function st(){var t,e,n,s,a,i;if(t=W,A.test(r.charAt(W))?(e=r.charAt(W),W++):(e=f,0===$&&et(g)),e!==f)if(function(){var t,e,n;if(t=W,e=[],v.test(r.charAt(W))?(n=r.charAt(W),W++):(n=f,0===$&&et(C)),n!==f)for(;n!==f;)e.push(n),v.test(r.charAt(W))?(n=r.charAt(W),W++):(n=f,0===$&&et(C));else e=f;return e!==f?r.substring(t,W):e}()!==f)if(ct()!==f)if(at()!==f)if(ct()!==f)if((n=function(){var t,e,n;if(t=W,e=[],y.test(r.charAt(W))?(n=r.charAt(W),W++):(n=f,0===$&&et(z)),n!==f)for(;n!==f;)e.push(n),y.test(r.charAt(W))?(n=r.charAt(W),W++):(n=f,0===$&&et(z));else e=f;return e!==f?r.substring(t,W):e}())!==f)if(ct()!==f)if(44===r.charCodeAt(W)?(s=d,W++):(s=f,0===$&&et(b)),s!==f)if(ct()!==f){for(a=[],i=it();i!==f;)a.push(i),i=it();a!==f&&(i=ct())!==f&&at()!==f?t=e=function(t,r){var e={};for(let t of r)Object.assign(e,{[t[0]]:t[1]});return[t,e]}(n,a):(W=t,t=f)}else W=t,t=f;else W=t,t=f;else W=t,t=f;else W=t,t=f;else W=t,t=f;else W=t,t=f;else W=t,t=f;else W=t,t=f;else W=t,t=f;return t}function at(){var t;return 123===r.charCodeAt(W)?(t="{",W++):(t=f,0===$&&et(x)),t===f&&(125===r.charCodeAt(W)?(t="}",W++):(t=f,0===$&&et(m))),t}function it(){var t;return(t=function(){var t,e,n,s,a,i,u;if(t=W,"title"===r.substr(W,5).toLowerCase()?(e=r.substr(W,5),W+=5):(e=f,0===$&&et(S)),e!==f)if(ct()!==f)if(61===r.charCodeAt(W)?(n=E,W++):(n=f,0===$&&et(L)),n!==f)if(ct()!==f)if(at()!==f)if(ct()!==f){if(s=W,a=[],R.test(r.charAt(W))?(i=r.charAt(W),W++):(i=f,0===$&&et(j)),i!==f)for(;i!==f;)a.push(i),R.test(r.charAt(W))?(i=r.charAt(W),W++):(i=f,0===$&&et(j));else a=f;(s=a!==f?r.substring(s,W):a)!==f&&(a=ct())!==f&&(i=at())!==f?(44===r.charCodeAt(W)?(u=d,W++):(u=f,0===$&&et(b)),u===f&&(u=null),u!==f&&ct()!==f?t=e=["title",s.trim()]:(W=t,t=f)):(W=t,t=f)}else W=t,t=f;else W=t,t=f;else W=t,t=f;else W=t,t=f;else W=t,t=f;else W=t,t=f;return t}())===f&&(t=function(){var t,e,n,s,a,i,u;if(t=W,"publisher"===r.substr(W,9).toLowerCase()?(e=r.substr(W,9),W+=9):(e=f,0===$&&et(k)),e!==f)if(ct()!==f)if(61===r.charCodeAt(W)?(n=E,W++):(n=f,0===$&&et(L)),n!==f)if(ct()!==f)if(at()!==f)if(ct()!==f){if(s=W,a=[],R.test(r.charAt(W))?(i=r.charAt(W),W++):(i=f,0===$&&et(j)),i!==f)for(;i!==f;)a.push(i),R.test(r.charAt(W))?(i=r.charAt(W),W++):(i=f,0===$&&et(j));else a=f;(s=a!==f?r.substring(s,W):a)!==f&&(a=ct())!==f&&(i=at())!==f?(44===r.charCodeAt(W)?(u=d,W++):(u=f,0===$&&et(b)),u===f&&(u=null),u!==f&&ct()!==f?t=e=["publisher",s.trim()]:(W=t,t=f)):(W=t,t=f)}else W=t,t=f;else W=t,t=f;else W=t,t=f;else W=t,t=f;else W=t,t=f;else W=t,t=f;return t}())===f&&(t=function(){var t,e,n,s,a,i,u;if(t=W,"url"===r.substr(W,3).toLowerCase()?(e=r.substr(W,3),W+=3):(e=f,0===$&&et(M)),e!==f)if(ct()!==f)if(61===r.charCodeAt(W)?(n=E,W++):(n=f,0===$&&et(L)),n!==f)if(ct()!==f)if(at()!==f)if(ct()!==f){if(s=W,a=[],O.test(r.charAt(W))?(i=r.charAt(W),W++):(i=f,0===$&&et(T)),i!==f)for(;i!==f;)a.push(i),O.test(r.charAt(W))?(i=r.charAt(W),W++):(i=f,0===$&&et(T));else a=f;(s=a!==f?r.substring(s,W):a)!==f&&(a=ct())!==f&&(i=at())!==f?(44===r.charCodeAt(W)?(u=d,W++):(u=f,0===$&&et(b)),u===f&&(u=null),u!==f&&ct()!==f?t=e=["link",[{url:s.trim()}]]:(W=t,t=f)):(W=t,t=f)}else W=t,t=f;else W=t,t=f;else W=t,t=f;else W=t,t=f;else W=t,t=f;else W=t,t=f;return t}())===f&&(t=function(){var t,e,n,s,a,i,u;if(t=W,"year"===r.substr(W,4).toLowerCase()?(e=r.substr(W,4),W+=4):(e=f,0===$&&et(I)),e!==f)if(ct()!==f)if(61===r.charCodeAt(W)?(n=E,W++):(n=f,0===$&&et(L)),n!==f)if(ct()!==f)if(at()!==f)if(ct()!==f){if(s=W,a=[],U.test(r.charAt(W))?(i=r.charAt(W),W++):(i=f,0===$&&et(q)),i!==f)for(;i!==f;)a.push(i),U.test(r.charAt(W))?(i=r.charAt(W),W++):(i=f,0===$&&et(q));else a=f;(s=a!==f?r.substring(s,W):a)!==f&&(a=ct())!==f&&(i=at())!==f?(44===r.charCodeAt(W)?(u=d,W++):(u=f,0===$&&et(b)),u===f&&(u=null),u!==f&&ct()!==f?t=e=["year",parseInt(s.trim())]:(W=t,t=f)):(W=t,t=f)}else W=t,t=f;else W=t,t=f;else W=t,t=f;else W=t,t=f;else W=t,t=f;else W=t,t=f;return t}())===f&&(t=function(){var t,e,n,s,a;if(t=W,"author"===r.substr(W,6).toLowerCase()?(e=r.substr(W,6),W+=6):(e=f,0===$&&et(B)),e!==f)if(ct()!==f)if(61===r.charCodeAt(W)?(n=E,W++):(n=f,0===$&&et(L)),n!==f)if(ct()!==f)if(at()!==f)if(ct()!==f){if(s=[],(a=ut())!==f)for(;a!==f;)s.push(a),a=ut();else s=f;s!==f?t=e=["author",s[0]]:(W=t,t=f)}else W=t,t=f;else W=t,t=f;else W=t,t=f;else W=t,t=f;else W=t,t=f;else W=t,t=f;return t}())===f&&(t=function(){var t,e,n,s,a,i;return t=W,(e=function(){var t,e,n;if(t=W,e=[],v.test(r.charAt(W))?(n=r.charAt(W),W++):(n=f,0===$&&et(C)),n!==f)for(;n!==f;)e.push(n),v.test(r.charAt(W))?(n=r.charAt(W),W++):(n=f,0===$&&et(C));else e=f;return e!==f?r.substring(t,W):e}())!==f&&ct()!==f?(61===r.charCodeAt(W)?(n=E,W++):(n=f,0===$&&et(L)),n!==f&&ct()!==f&&at()!==f&&ct()!==f&&(s=function(){var t,e,n;if(t=W,e=[],w.test(r.charAt(W))?(n=r.charAt(W),W++):(n=f,0===$&&et(F)),n!==f)for(;n!==f;)e.push(n),w.test(r.charAt(W))?(n=r.charAt(W),W++):(n=f,0===$&&et(F));else e=f;return e!==f?r.substring(t,W):e}())!==f&&ct()!==f&&at()!==f?(44===r.charCodeAt(W)?(a=d,W++):(a=f,0===$&&et(b)),a===f&&(a=null),a!==f&&ct()!==f?(i=s,t=e=[e.trim(),i.trim()]):(W=t,t=f)):(W=t,t=f)):(W=t,t=f),t}()),t}function ut(){var t;return(t=function(){var t,e,n,s,a,i;if(t=W,e=[],n=W,s=W,a=[],D.test(r.charAt(W))?(i=r.charAt(W),W++):(i=f,0===$&&et(G)),i!==f)for(;i!==f;)a.push(i),D.test(r.charAt(W))?(i=r.charAt(W),W++):(i=f,0===$&&et(G));else a=f;if((s=a!==f?r.substring(s,W):a)!==f&&(a=ct())!==f?n=s=[s,a]:(W=n,n=f),n!==f)for(;n!==f;){if(e.push(n),n=W,s=W,a=[],D.test(r.charAt(W))?(i=r.charAt(W),W++):(i=f,0===$&&et(G)),i!==f)for(;i!==f;)a.push(i),D.test(r.charAt(W))?(i=r.charAt(W),W++):(i=f,0===$&&et(G));else a=f;(s=a!==f?r.substring(s,W):a)!==f&&(a=ct())!==f?n=s=[s,a]:(W=n,n=f)}else e=f;return e!==f?(r.substr(W,3)===H?(n=H,W+=3):(n=f,0===$&&et(J)),n===f&&(n=W,(s=at())!==f?(44===r.charCodeAt(W)?(a=d,W++):(a=f,0===$&&et(b)),a===f&&(a=null),a!==f?n=s=[s,a]:(W=n,n=f)):(W=n,n=f)),n!==f&&(s=ct())!==f?t=e=function(t){var r=[],e="",n="";for(let s of t)","==s[0].substr(s[0].length-1,1)?n=s[0].substr(0,s[0].length-1):"and"===s[0]||s==t[t.length-1]?(r.push({name:e+=("and"!==s[0]?s[0]+" ":"")+n}),n="",e=""):e+=s[0]+" ";return r}(e):(W=t,t=f)):(W=t,t=f),t}())===f&&(t=function(){var t,e,n,s,a;if(t=W,e=W,n=[],K.test(r.charAt(W))?(s=r.charAt(W),W++):(s=f,0===$&&et(N)),s!==f)for(;s!==f;)n.push(s),K.test(r.charAt(W))?(s=r.charAt(W),W++):(s=f,0===$&&et(N));else n=f;return(e=n!==f?r.substring(e,W):n)!==f&&(n=ct())!==f?(r.substr(W,3)===H?(s=H,W+=3):(s=f,0===$&&et(J)),s!==f&&(a=ct())!==f?t=e=[e,n,s,a]:(W=t,t=f)):(W=t,t=f),t}()),t}function ct(){var t,e;for($++,t=[],Q.test(r.charAt(W))?(e=r.charAt(W),W++):(e=f,0===$&&et(V));e!==f;)t.push(e),Q.test(r.charAt(W))?(e=r.charAt(W),W++):(e=f,0===$&&et(V));return $--,t===f&&(e=f,0===$&&et(P)),t}if((n=p())!==f&&W===r.length)return n;throw n!==f&&W<r.length&&et({type:"end"}),s=Z,a=Y<r.length?r.charAt(Y):null,c=Y<r.length?Y+1:Y,o=rt(u=Y),l=rt(c),i={start:{offset:u,line:o.line,column:o.column},end:{offset:c,line:l.line,column:l.column}},new t(t.buildMessage(s,a),s,a,i)}};
+</script>
+
+<script>
+// TextArea IDs
+let bibtex = document.getElementById('bibtex');
+let error = document.getElementById('error');
+
+bibtex.addEventListener('input', bibTexToBibJson);
+
+function bibTexToBibJson(_) {
+	let texstr = bibtex.value;
+	error.style.display = 'none';
+
+	let json = {};
+
+	// 📒 Parse BibTex
+	try {
+		json = bibTexBibJSON.parse(texstr);
+	} catch (e) {
+		error.style.display = 'inline';
+		error.innerHTML = e;
+		return;
+	}
+
+	// {} Convert to BibJSON
+	try {
+		bibjson.value = JSON.stringify(json, null, 2);
+	} catch (e) {
+		error.style.display = 'inline';
+		error.innerHTML = e;
+		return;
+	}
+}
+</script>
+  </body>
+</html>
