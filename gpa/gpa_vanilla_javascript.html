@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The GPA Calculator</title>
+</head>
+
+<body>
+    <ul>
+        <li><a href="index.html">GPA/word counter</a></li>
+        <li><a href="browse.html">Load</a></li>
+    </ul>
+
+    <ul id="class-list">
+        <!-- Class items will be added here dynamically -->
+    </ul>
+
+    <button id="addClassButton">Add a Class</button>
+
+    <hr />
+    <button id="saveButton">Save Data</button>
+    <p>Total GPA: <span id="totalGPA">0.00</span></p>
+    Your Data:
+    <pre id="dataOutput"></pre>
+
+    <script>
+        // Define the Class constructor
+        function Class(title = "", credits = 0, letterGrade = "") {
+            this.title = title;
+            this.credits = credits;
+            this.letterGrade = letterGrade;
+        }
+
+        // Define the GPA Calculator ViewModel
+        function GpaCalcViewModel() {
+            this.classes = [];
+            this.gradeMapping = {
+                'A+': 4.00,
+                'A': 4.00,
+                'A-': 3.67,
+                'B+': 3.33,
+                'B': 3.00,
+                'B-': 2.67,
+                'C+': 2.33,
+                'C': 2.00,
+                'C-': 1.67,
+                'D+': 1.33,
+                'D': 1.00,
+                'D-': 0.67,
+                'F': 0.00 // Added F grade
+            };
+        }
+
+        // Add methods to the GpaCalcViewModel
+        GpaCalcViewModel.prototype.addClass = function () {
+            const newClass = new Class();
+            this.classes.push(newClass);
+            this.renderClasses();
+        };
+
+        GpaCalcViewModel.prototype.calculateTotalGPA = function () {
+            let totalWeightedGPA = 0, totalCredits = 0;
+            this.classes.forEach((classObj) => {
+                const gpa = this.gradeMapping[classObj.letterGrade] || 0;
+                totalWeightedGPA += (gpa * classObj.credits);
+                totalCredits += parseFloat(classObj.credits);
+            });
+            return totalCredits ? (totalWeightedGPA / totalCredits).toFixed(2) : 0;
+        };
+
+        GpaCalcViewModel.prototype.renderClasses = function () {
+            const classList = document.getElementById('class-list');
+            classList.innerHTML = '';
+
+            this.classes.forEach((classObj, index) => {
+                const li = document.createElement('li');
+
+                const titleInput = document.createElement('input');
+                titleInput.type = 'text';
+                titleInput.placeholder = 'Title';
+                titleInput.value = classObj.title;
+                titleInput.addEventListener('input', (e) => {
+                    classObj.title = e.target.value;
+                    this.updateDataOutput();
+                });
+
+                const creditsInput = document.createElement('input');
+                creditsInput.type = 'number';
+                creditsInput.placeholder = 'Credits';
+                creditsInput.value = classObj.credits;
+                creditsInput.addEventListener('input', (e) => {
+                    classObj.credits = parseFloat(e.target.value) || 0;
+                    this.updateDataOutput();
+                });
+
+                const gradeInput = document.createElement('input');
+                gradeInput.type = 'text';
+                gradeInput.placeholder = 'Letter Grade';
+                gradeInput.value = classObj.letterGrade;
+                gradeInput.addEventListener('input', (e) => {
+                    classObj.letterGrade = e.target.value.toUpperCase();
+                    this.updateDataOutput();
+                });
+
+                li.appendChild(titleInput);
+                li.appendChild(creditsInput);
+                li.appendChild(gradeInput);
+
+                classList.appendChild(li);
+            });
+
+            this.updateDataOutput();
+        };
+
+        GpaCalcViewModel.prototype.updateDataOutput = function () {
+            const dataOutput = document.getElementById('dataOutput');
+            const totalGPAElement = document.getElementById('totalGPA');
+            const totalGPA = this.calculateTotalGPA();
+            totalGPAElement.textContent = totalGPA;
+
+            const data = {
+                classes: this.classes,
+                totalGPA: totalGPA
+            };
+
+            dataOutput.textContent = JSON.stringify(data, null, 2);
+        };
+
+        GpaCalcViewModel.prototype.saveData = function () {
+            const totalGPA = this.calculateTotalGPA();
+
+            const data = {
+                classes: this.classes,
+                totalGPA: totalGPA
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'data.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        };
+
+        // Initialize ViewModel and set up event listeners
+        const viewModel = new GpaCalcViewModel();
+
+        document.getElementById('addClassButton').addEventListener('click', () => viewModel.addClass());
+        document.getElementById('saveButton').addEventListener('click', () => viewModel.saveData());
+
+        viewModel.renderClasses(); // Initial render
+    </script>
+</body>
+
+</html>
