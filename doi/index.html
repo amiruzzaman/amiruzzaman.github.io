@@ -4,16 +4,106 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BibTeX Key Extractor</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"],
+        input[type="text"] {
+            margin-bottom: 15px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: calc(100% - 20px);
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <h1>BibTeX Key Extractor</h1>
         <input type="file" id="fileInput" accept=".bib">
+        <input type="text" id="prefixInput" placeholder="Optional: Prefix text">
+        <input type="text" id="postfixInput" placeholder="Optional: Postfix text">
         <textarea id="keyOutput" placeholder="BibTeX keys will appear here..." readonly></textarea>
         <button id="copyButton">Copy Keys</button>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const content = e.target.result;
+                    const keys = extractBibTeXKeys(content);
+                    document.getElementById('keyOutput').value = keys.join('\n');
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        function extractBibTeXKeys(content) {
+            const keyRegex = /@[a-zA-Z]+\{([^,]+),/g;
+            let match;
+            const keys = [];
+            const prefix = document.getElementById('prefixInput').value;
+            const postfix = document.getElementById('postfixInput').value;
+
+            while ((match = keyRegex.exec(content)) !== null) {
+                const key = match[1];
+                keys.push(`${prefix}${key}${postfix}`);
+            }
+            return keys;
+        }
+
+        document.getElementById('copyButton').addEventListener('click', function() {
+            const keyOutput = document.getElementById('keyOutput');
+            keyOutput.select();
+            document.execCommand('copy');
+        });
+    </script>
 </body>
 </html>
