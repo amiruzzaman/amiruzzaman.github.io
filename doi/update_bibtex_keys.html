@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BibTeX Key Modifier</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            margin-bottom: 15px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: calc(100% - 16px);
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #downloadButton {
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>BibTeX Key Modifier</h1>
+        <input type="file" id="fileInput" accept=".bib">
+        <textarea id="keyOutput" placeholder="Modified BibTeX content will appear here..." readonly></textarea>
+        <button id="downloadButton" style="display:none;">Download Modified BibTeX</button>
+    </div>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const content = e.target.result;
+                    const modifiedContent = modifyBibTeXKeys(content);
+                    document.getElementById('keyOutput').value = modifiedContent;
+                    document.getElementById('downloadButton').style.display = 'block';
+
+                    document.getElementById('downloadButton').addEventListener('click', function() {
+                        downloadModifiedBibTeX(modifiedContent, file.name);
+                    });
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        function modifyBibTeXKeys(content) {
+            const keyRegex = /@(\w+)\{([^,]+),/g;
+            const entries = content.split(/@/).filter(entry => entry.trim() !== ''); // Split the content by each BibTeX entry
+            const uniqueKeys = new Set();
+            let modifiedContent = '';
+
+            entries.forEach(entry => {
+                const typeMatch = /(\w+)\{/.exec(entry);
+                const type = typeMatch ? typeMatch[1] : '';
+                const authorMatch = /author\s*=\s*\{([^}]+)\}/i.exec(entry);
+                const yearMatch = /year\s*=\s*\{(\d+)\}/i.exec(entry);
+                const titleMatch = /title\s*=\s*\{([^}]+)\}/i.exec(entry);
+
+                let newKey = '';
+
+                if (authorMatch) {
+                    const authors = authorMatch[1].split('and')[0].trim();
+                    const lastName = authors.split(',').length > 1 ? authors.split(',')[0].trim() : authors.split(' ').slice(-1)[0].trim();
+                    newKey += lastName.toLowerCase();
+                }
+                if (yearMatch) {
+                    newKey += yearMatch[1];
+                }
+                if (titleMatch) {
+                    const firstWord = titleMatch[1].split(' ')[0].replace(/[^\w]/g, '').toLowerCase();
+                    newKey += firstWord;
+                }
+                newKey += type.toLowerCase();
+
+                // Ensure uniqueness by adding a 6-digit random number
+                let uniqueKey = newKey;
+                do {
+                    const randomSuffix = Math.floor(100000 + Math.random() * 900000); // Generate a 6-digit number
+                    uniqueKey = newKey + randomSuffix;
+                } while (uniqueKeys.has(uniqueKey)); // Ensure the key is unique
+
+                uniqueKeys.add(uniqueKey);
+
+                // Replace the old key with the new unique key
+                modifiedContent += `@${type}{${uniqueKey},${entry.replace(/^\w+\{[^,]+,/, '').trim()}\n`;
+            });
+
+            return modifiedContent;
+        }
+
+        function downloadModifiedBibTeX(content, originalFilename) {
+            const blob = new Blob([content], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `modified_${originalFilename}`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
