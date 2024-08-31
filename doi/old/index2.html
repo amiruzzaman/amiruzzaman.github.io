@@ -8,24 +8,11 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             margin: 0;
-        }
-
-        nav {
-            background-color: #007bff;
-            padding: 10px;
-            text-align: center;
-        }
-
-        nav a {
-            color: white;
-            margin: 0 15px;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        nav a:hover {
-            text-decoration: underline;
         }
 
         .container {
@@ -36,7 +23,6 @@
             text-align: center;
             width: 80%;
             max-width: 600px;
-            margin: 50px auto;
         }
 
         h1 {
@@ -81,14 +67,6 @@
     </style>
 </head>
 <body>
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="index.html">Extractor</a>
-		<a href="update_bibtex_keys.html">Key modifier</a>
-        <a href="index.html">About</a>
-        <a href="index.html">Contact</a>
-    </nav>
-
     <div class="container">
         <h1>BibTeX Key Modifier</h1>
         <input type="file" id="fileInput" accept=".bib">
@@ -117,22 +95,15 @@
 
         function modifyBibTeXKeys(content) {
             const keyRegex = /@(\w+)\{([^,]+),/g;
-            const entries = content.split(/@/).filter(entry => entry.trim() !== ''); // Split the content by each BibTeX entry
-            const uniqueKeys = new Set();
-            let modifiedContent = '';
-
-            entries.forEach(entry => {
-                const typeMatch = /(\w+)\{/.exec(entry);
-                const type = typeMatch ? typeMatch[1] : '';
-                const authorMatch = /author\s*=\s*\{([^}]+)\}/i.exec(entry);
-                const yearMatch = /year\s*=\s*\{(\d+)\}/i.exec(entry);
-                const titleMatch = /title\s*=\s*\{([^}]+)\}/i.exec(entry);
+            return content.replace(keyRegex, (match, type, oldKey) => {
+                const authorMatch = /author\s*=\s*\{([^}]+)\}/i.exec(content);
+                const yearMatch = /year\s*=\s*\{(\d+)\}/i.exec(content);
+                const titleMatch = /title\s*=\s*\{([^}]+)\}/i.exec(content);
 
                 let newKey = '';
-
                 if (authorMatch) {
                     const authors = authorMatch[1].split('and')[0].trim();
-                    const lastName = authors.split(',').length > 1 ? authors.split(',')[0].trim() : authors.split(' ').slice(-1)[0].trim();
+                    const lastName = authors.split(',').length > 1 ? authors.split(',')[0].trim() : authors.split(' ')[1];
                     newKey += lastName.toLowerCase();
                 }
                 if (yearMatch) {
@@ -144,20 +115,8 @@
                 }
                 newKey += type.toLowerCase();
 
-                // Ensure uniqueness by adding a 6-digit random number
-                let uniqueKey = newKey;
-                do {
-                    const randomSuffix = Math.floor(100000 + Math.random() * 900000); // Generate a 6-digit number
-                    uniqueKey = newKey + randomSuffix;
-                } while (uniqueKeys.has(uniqueKey)); // Ensure the key is unique
-
-                uniqueKeys.add(uniqueKey);
-
-                // Replace the old key with the new unique key
-                modifiedContent += `@${type}{${uniqueKey},${entry.replace(/^\w+\{[^,]+,/, '').trim()}\n`;
+                return `@${type}{${newKey},`;
             });
-
-            return modifiedContent;
         }
 
         function downloadModifiedBibTeX(content, originalFilename) {
