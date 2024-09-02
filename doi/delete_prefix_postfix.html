@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BibTeX Key Extractor</title>
+    <title>Prefix & Postfix Remover</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -43,7 +43,6 @@
             margin-bottom: 20px;
         }
 
-        input[type="file"],
         input[type="text"] {
             margin-bottom: 15px;
             padding: 8px;
@@ -77,7 +76,7 @@
     </style>
 </head>
 <body>
-	<nav>
+    <nav>
         <a href="index.html">Home</a>
         <a href="index.html">Extractor</a>
         <a href="update_bibtex_keys.html">Key modifier</a>
@@ -86,46 +85,56 @@
     </nav>
 
     <div class="container">
-        <h1>BibTeX Key Extractor</h1>
-        <input type="file" id="fileInput" accept=".bib">
-        <input type="text" id="prefixInput" placeholder="Optional: Prefix text">
-        <input type="text" id="postfixInput" placeholder="Optional: Postfix text">
-        <textarea id="keyOutput" placeholder="BibTeX keys will appear here..." readonly></textarea>
-        <button id="copyButton">Copy Keys</button>
+        <h1>Prefix & Postfix Remover</h1>
+        <textarea id="inputText" placeholder="Paste text here..."></textarea>
+        <input type="text" id="prefixInput" placeholder="Text to remove (Prefix)">
+        <input type="text" id="postfixInput" placeholder="Text to remove (Postfix)">
+        <button id="processButton">Process Text</button>
+        <textarea id="outputText" placeholder="Processed text will appear here..." readonly></textarea>
+        <button id="copyButton">Copy Text</button>
+        <button id="downloadButton">Download as File</button>
     </div>
 
     <script>
-        document.getElementById('fileInput').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const content = e.target.result;
-                    const keys = extractBibTeXKeys(content);
-                    document.getElementById('keyOutput').value = keys.join('\n');
-                };
-                reader.readAsText(file);
-            }
-        });
-
-        function extractBibTeXKeys(content) {
-            const keyRegex = /@[a-zA-Z]+\{([^,]+),/g;
-            let match;
-            const keys = [];
+        document.getElementById('processButton').addEventListener('click', function() {
+            let inputText = document.getElementById('inputText').value;
             const prefix = document.getElementById('prefixInput').value;
             const postfix = document.getElementById('postfixInput').value;
 
-            while ((match = keyRegex.exec(content)) !== null) {
-                const key = match[1];
-                keys.push(`${prefix}${key}${postfix}`);
+            // Remove all occurrences of the prefix
+            if (prefix) {
+                const prefixRegex = new RegExp(escapeRegExp(prefix), 'g');
+                inputText = inputText.replace(prefixRegex, '');
             }
-            return keys;
+
+            // Remove all occurrences of the postfix
+            if (postfix) {
+                const postfixRegex = new RegExp(escapeRegExp(postfix), 'g');
+                inputText = inputText.replace(postfixRegex, '');
+            }
+
+            document.getElementById('outputText').value = inputText;
+        });
+
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         }
 
         document.getElementById('copyButton').addEventListener('click', function() {
-            const keyOutput = document.getElementById('keyOutput');
-            keyOutput.select();
+            const outputText = document.getElementById('outputText');
+            outputText.select();
             document.execCommand('copy');
+        });
+
+        document.getElementById('downloadButton').addEventListener('click', function() {
+            const text = document.getElementById('outputText').value;
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'processed_text.txt';
+            a.click();
+            URL.revokeObjectURL(url);
         });
     </script>
 </body>
