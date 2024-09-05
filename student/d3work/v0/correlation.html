@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correlation Scatter Plot</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Correlation Scatter Plot Generator</h1>
+
+        <div class="input-section">
+            <label for="list1">List 1 (e.g., Midterm Scores):</label>
+            <textarea id="list1" placeholder="Enter numbers separated by commas"></textarea>
+
+            <label for="list2">List 2 (e.g., Final Scores):</label>
+            <textarea id="list2" placeholder="Enter numbers separated by commas"></textarea>
+
+            <button id="generate">Generate Scatter Plot</button>
+        </div>
+
+        <div id="chart"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
