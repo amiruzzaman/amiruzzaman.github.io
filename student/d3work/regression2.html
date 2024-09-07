@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Scatter Plot with Statistics</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-statistics/7.8.1/simple-statistics.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #statistics {
+            margin-top: 20px;
+        }
+        svg {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <h1>Interactive Scatter Plot with Statistics</h1>
+    <div id="scatterplot"></div>
+
+    <div id="statistics">
+        <p><strong>Mean:</strong> <span id="mean"></span></p>
+        <p><strong>Median:</strong> <span id="median"></span></p>
+        <p><strong>Mode:</strong> <span id="mode"></span></p>
+        <p><strong>Range:</strong> <span id="range"></span></p>
+        <p><strong>Correlation:</strong> <span id="correlation"></span></p>
+        <p><strong>Dataset 1:</strong> <span id="dataset1"></span></p>
+        <p><strong>Dataset 2:</strong> <span id="dataset2"></span></p>
+    </div>
+
+    <script>
+        const margin = { top: 20, right: 20, bottom: 30, left: 50 };
+        const width = 600 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
+        let dataset1 = [];
+        let dataset2 = [];
+        let toggle = true;  // To alternate between dataset1 and dataset2
+
+        // Create SVG element
+        const svg = d3.select("#scatterplot")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+        // Scales
+        const xScale = d3.scaleLinear().domain([0, 100]).range([0, width]);
+        const yScale = d3.scaleLinear().domain([0, 100]).range([height, 0]);
+
+        // Axes
+        svg.append("g").attr("class", "x-axis").attr("transform", `translate(0, ${height})`).call(d3.axisBottom(xScale));
+        svg.append("g").attr("class", "y-axis").call(d3.axisLeft(yScale));
+
+        // Add a rect for click detection
+        svg.append("rect")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("fill", "transparent")
+            .on("click", function(event) {
+                const coords = d3.pointer(event);  // Get the coordinates of the mouse click
+                const x = Math.round(xScale.invert(coords[0]));  // Scale back to the original x values
+                const y = Math.round(yScale.invert(coords[1]));  // Scale back to the original y values
+
+                const point = { x: x, y: y };
+
+                // Alternate between dataset1 and dataset2
+                if (toggle) {
+                    dataset1.push(point);
+                } else {
+                    dataset2.push(point);
+                }
+                toggle = !toggle;
+
+                updatePlot();
+                updateStatistics();
+            });
+
+        // Function to update scatter plot
+        function updatePlot() {
+            // Clear old points
+            svg.selectAll(".point").remove();
+            svg.selectAll(".regression-line").remove();
+
+            // Plot dataset1
+            svg.selectAll(".point1")
+                .data(dataset1)
+                .enter()
+                .append("circle")
+                .attr("class", "point point1")
+                .attr("cx", d => xScale(d.x))
+                .attr("cy", d => yScale(d.y))
+                .attr("r", 5)
+                .style("fill", "blue");
+
+            // Plot dataset2
+            svg.selectAll(".point2")
+                .data(dataset2)
+                .enter()
+                .append("circle")
+                .attr("class", "point point2")
+                .attr("cx", d => xScale(d.x))
+                .attr("cy", d => yScale(d.y))
+                .attr("r", 5)
+                .style("fill", "green");
+
+            // Draw regression line for dataset1
+            if (dataset1.length >= 2) {
+                drawRegressionLine(dataset1, "blue");
+            }
+
+            // Draw regression line for dataset2
+            if (dataset2.length >= 2) {
+                drawRegressionLine(dataset2, "green");
+            }
+        }
+
+        // Function to draw regression line
+        function drawRegressionLine(dataset, color) {
+            const xValues = dataset.map(d => d.x);
+            const yValues = dataset.map(d => d.y);
+
+            const regression = ss.linearRegressionLine(ss.linearRegression(dataset.map(d => [d.x, d.y])));
+
+            const x1 = d3.min(xValues);
+            const y1 = regression(x1);
+            const x2 = d3.max(xValues);
+            const y2 = regression(x2);
+
+            svg.append("line")
+                .attr("class", "regression-line")
+                .attr("x1", xScale(x1))
+                .attr("y1", yScale(y1))
+                .attr("x2", xScale(x2))
+                .attr("y2", yScale(y2))
+                .attr("stroke", color)
+                .attr("stroke-width", 2);
+        }
+
+        // Function to update statistics
+        function updateStatistics() {
+            const allData = [...dataset1, ...dataset2];
+            if (allData.length > 0) {
+                const xValues = allData.map(d => d.x);
+                const yValues = allData.map(d => d.y);
+
+                // Calculate mean
+                const meanX = ss.mean(xValues);
+                const meanY = ss.mean(yValues);
+
+                // Calculate median
+                const medianX = ss.median(xValues);
+                const medianY = ss.median(yValues);
+
+                // Calculate mode
+                const modeX = ss.mode(xValues);
+                const modeY = ss.mode(yValues);
+
+                // Calculate range
+                const rangeX = ss.max(xValues) - ss.min(xValues);
+                const rangeY = ss.max(yValues) - ss.min(yValues);
+
+                // Calculate correlation
+                const correlation = ss.sampleCorrelation(xValues, yValues);
+
+                // Update HTML with statistics
+                document.getElementById("mean").innerHTML = `(${meanX.toFixed(2)}, ${meanY.toFixed(2)})`;
+                document.getElementById("median").innerHTML = `(${medianX.toFixed(2)}, ${medianY.toFixed(2)})`;
+                document.getElementById("mode").innerHTML = `(${modeX}, ${modeY})`;
+                document.getElementById("range").innerHTML = `(${rangeX}, ${rangeY})`;
+                document.getElementById("correlation").innerHTML = correlation.toFixed(2);
+
+                // Display datasets
+                document.getElementById("dataset1").innerHTML = JSON.stringify(dataset1);
+                document.getElementById("dataset2").innerHTML = JSON.stringify(dataset2);
+            }
+        }
+    </script>
+</body>
+</html>

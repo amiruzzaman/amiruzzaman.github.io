@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Scatter Plot with Statistics</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-statistics/7.8.1/simple-statistics.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #statistics {
+            margin-top: 20px;
+        }
+        svg {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <h1>Interactive Scatter Plot with Statistics</h1>
+    <div id="scatterplot"></div>
+
+    <div id="statistics">
+        <p><strong>Mean:</strong> <span id="mean"></span></p>
+        <p><strong>Median:</strong> <span id="median"></span></p>
+        <p><strong>Mode:</strong> <span id="mode"></span></p>
+        <p><strong>Range:</strong> <span id="range"></span></p>
+        <p><strong>Correlation:</strong> <span id="correlation"></span></p>
+        <p><strong>Regression Line:</strong> \( y = mx + b \), where \( m \) (slope) = <span id="slope"></span> and \( b \) (intercept) = <span id="intercept"></span></p>
+        <p><strong>Dataset 1 (X-values):</strong> <span id="dataset1"></span></p>
+        <p><strong>Dataset 2 (Y-values):</strong> <span id="dataset2"></span></p>
+    </div>
+
+    <script>
+        const margin = { top: 20, right: 20, bottom: 30, left: 50 };
+        const width = 600 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
+        let dataset1 = [];  // X-values
+        let dataset2 = [];  // Y-values
+
+        // Create SVG element
+        const svg = d3.select("#scatterplot")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+        // Scales
+        const xScale = d3.scaleLinear().domain([0, 100]).range([0, width]);
+        const yScale = d3.scaleLinear().domain([0, 100]).range([height, 0]);
+
+        // Axes
+        svg.append("g").attr("class", "x-axis").attr("transform", `translate(0, ${height})`).call(d3.axisBottom(xScale));
+        svg.append("g").attr("class", "y-axis").call(d3.axisLeft(yScale));
+
+        // Add a rect for click detection
+        svg.append("rect")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("fill", "transparent")
+            .on("click", function(event) {
+                const coords = d3.pointer(event);  // Get the coordinates of the mouse click
+                const x = Math.round(xScale.invert(coords[0]));  // Scale back to the original x values
+                const y = Math.round(yScale.invert(coords[1]));  // Scale back to the original y values
+
+                // Check if the point exists and remove it
+                let pointIndex = dataset1.findIndex((d, i) => d === x && dataset2[i] === y);
+                if (pointIndex !== -1) {
+                    dataset1.splice(pointIndex, 1);
+                    dataset2.splice(pointIndex, 1);
+                } else {
+                    // Add the point if not existing
+                    dataset1.push(x);
+                    dataset2.push(y);
+                }
+
+                updatePlot();
+                updateStatistics();
+            });
+
+        // Function to update scatter plot
+        function updatePlot() {
+            // Clear old points and lines
+            svg.selectAll(".point").remove();
+            svg.selectAll(".regression-line").remove();
+
+            // Plot points
+            svg.selectAll(".point")
+                .data(dataset1)
+                .enter()
+                .append("circle")
+                .attr("class", "point")
+                .attr("cx", (d, i) => xScale(d))
+                .attr("cy", (d, i) => yScale(dataset2[i]))
+                .attr("r", 5)
+                .style("fill", "blue");
+
+            // Draw regression line
+            if (dataset1.length >= 2) {
+                drawRegressionLine(dataset1, dataset2);
+            }
+        }
+
+        // Function to draw regression line
+        function drawRegressionLine(xData, yData) {
+            const regression = ss.linearRegressionLine(ss.linearRegression(xData.map((x, i) => [x, yData[i]])));
+
+            const x1 = d3.min(xData);
+            const y1 = regression(x1);
+            const x2 = d3.max(xData);
+            const y2 = regression(x2);
+
+            svg.append("line")
+                .attr("class", "regression-line")
+                .attr("x1", xScale(x1))
+                .attr("y1", yScale(y1))
+                .attr("x2", xScale(x2))
+                .attr("y2", yScale(y2))
+                .attr("stroke", "red")
+                .attr("stroke-width", 2);
+
+            const slope = ss.linearRegression(xData.map((x, i) => [x, yData[i]])).m;
+            const intercept = ss.linearRegression(xData.map((x, i) => [x, yData[i]])).b;
+
+            document.getElementById("slope").textContent = slope.toFixed(2);
+            document.getElementById("intercept").textContent = intercept.toFixed(2);
+        }
+
+        // Function to update statistics
+        function updateStatistics() {
+            if (dataset1.length > 0 && dataset2.length > 0) {
+                const meanX = ss.mean(dataset1);
+                const meanY = ss.mean(dataset2);
+                const medianX = ss.median(dataset1);
+                const medianY = ss.median(dataset2);
+                const modeX = ss.mode(dataset1);
+                const modeY = ss.mode(dataset2);
+                const rangeX = ss.max(dataset1) - ss.min(dataset1);
+                const rangeY = ss.max(dataset2) - ss.min(dataset2);
+                const correlation = ss.sampleCorrelation(dataset1, dataset2);
+
+                // Update HTML with statistics
+                document.getElementById("mean").innerHTML = `(${meanX.toFixed(2)}, ${meanY.toFixed(2)})`;
+                document.getElementById("median").innerHTML = `(${medianX.toFixed(2)}, ${medianY.toFixed(2)})`;
+                document.getElementById("mode").innerHTML = `(${modeX}, ${modeY})`;
+                document.getElementById("range").innerHTML = `(${rangeX}, ${rangeY})`;
+                document.getElementById("correlation").innerHTML = correlation.toFixed(2);
+
+                // Display datasets
+                document.getElementById("dataset1").innerHTML = JSON.stringify(dataset1);
+                document.getElementById("dataset2").innerHTML = JSON.stringify(dataset2);
+            }
+        }
+    </script>
+</body>
+</html>
