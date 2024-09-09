@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics Calculator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .result {
+            margin-top: 20px;
+        }
+
+        .result p {
+            margin: 10px 0;
+        }
+
+        .equation {
+            font-family: 'Cambria Math', 'Times New Roman', serif;
+            background-color: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Statistics Calculator</h1>
+    <input type="text" id="dataset" placeholder="Enter numbers separated by commas">
+    <button onclick="calculate()">Calculate</button>
+    
+    <div class="result" id="result">
+        <p><strong>Mean: </strong><span id="mean"></span></p>
+        <p><strong>Median: </strong><span id="median"></span></p>
+        <p><strong>Mode: </strong><span id="mode"></span></p>
+        <p><strong>Range: </strong><span id="range"></span></p>
+        <p><strong>Min: </strong><span id="min"></span></p>
+        <p><strong>Max: </strong><span id="max"></span></p>
+
+        <h3>Equations:</h3>
+        <p class="equation">Mean (&#x1D6C1;) = (Sum of all values) / (Number of values)</p>
+        <p class="equation">Median = Middle value of the sorted dataset (or the average of the two middle values if the dataset has an even number of values)</p>
+        <p class="equation">Mode = Most frequent value in the dataset</p>
+        <p class="equation">Range = Max value - Min value</p>
+        <p class="equation">Min = Smallest value in the dataset</p>
+        <p class="equation">Max = Largest value in the dataset</p>
+    </div>
+</div>
+
+<script>
+    function calculate() {
+        const input = document.getElementById('dataset').value;
+        const values = input.split(',').map(Number).sort((a, b) => a - b);
+
+        if (values.length === 0 || values.includes(NaN)) {
+            alert("Please enter valid numbers separated by commas.");
+            return;
+        }
+
+        const mean = values.reduce((a, b) => a + b, 0) / values.length;
+
+        const median = values.length % 2 === 0 ? 
+            (values[values.length / 2 - 1] + values[values.length / 2]) / 2 :
+            values[Math.floor(values.length / 2)];
+
+        const mode = findMode(values);
+        const range = values[values.length - 1] - values[0];
+        const min = values[0];
+        const max = values[values.length - 1];
+
+        document.getElementById('mean').innerText = mean.toFixed(2);
+        document.getElementById('median').innerText = median;
+        document.getElementById('mode').innerText = mode.length > 0 ? mode.join(", ") : "No mode";
+        document.getElementById('range').innerText = range;
+        document.getElementById('min').innerText = min;
+        document.getElementById('max').innerText = max;
+    }
+
+    function findMode(arr) {
+        const frequency = {};
+        let maxFreq = 0;
+        const modes = [];
+
+        arr.forEach(value => {
+            frequency[value] = (frequency[value] || 0) + 1;
+            if (frequency[value] > maxFreq) {
+                maxFreq = frequency[value];
+            }
+        });
+
+        for (const key in frequency) {
+            if (frequency[key] === maxFreq && maxFreq > 1) {
+                modes.push(Number(key));
+            }
+        }
+
+        return modes;
+    }
+</script>
+
+</body>
+</html>

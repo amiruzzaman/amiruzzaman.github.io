@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1.0">
+	<title>3 digit numbers</title>
+	
+</head>
+
+<body>
+	<div id="numbers"></div>
+	<script>
+		const arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+const result = arr.reduce((a, v) => arr.reduce((a, v2) => {
+	arr.reduce((a, v3) => {
+		const current = [v, v2, v3].sort().join(",");
+		!a.find(_ => _.sort().join() === current) && a.push([v, v2, v3]);
+		return a;
+	}, a);
+	return a;
+}, a), []);
+
+console.log(result.length);
+console.log(...result.map(JSON.stringify));
+//console.log(result);
+for(let i = 0; i<result.length; i++){
+console.log(result[i]);
+var div = document.createElement("div");
+div.style.width = "100px";
+div.style.height = "15px";
+div.style.background = "red";
+div.style.color = "white";
+div.innerHTML = result[i];
+
+document.getElementById("numbers").appendChild(div);
+}
+	</script>
+</body>
+
+</html>
