@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Quiz System</h1>
+    
+    <form id="quiz-form">
+      <div id="questions-container">
+        <!-- Questions will be dynamically added here -->
+      </div>
+
+      <button type="button" onclick="calculatePoints()">Calculate Points</button>
+      <button type="button" onclick="downloadFeedback('txt')">Download Feedback (.txt)</button>
+      <button type="button" onclick="downloadFeedback('json')">Download Selections (.json)</button>
+    </form>
+
+    <div class="file-upload">
+      <label for="file-input">Upload JSON File:</label>
+      <input type="file" id="file-input" accept="application/json" onchange="uploadJsonFile()">
+    </div>
+    
+    <p id="total-points">Total Points: 0</p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

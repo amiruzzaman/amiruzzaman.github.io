@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Quiz System</h1>
+    
+    <form id="quiz-form">
+      <div id="questions-container">
+        <!-- Questions will be dynamically added here -->
+      </div>
+
+      <button type="button" onclick="calculatePoints()">Calculate Points</button>
+      <button type="button" onclick="downloadFeedback('txt')">Download Feedback (.txt)</button>
+      <button type="button" onclick="downloadFeedback('json')">Download Selections (.json)</button>
+    </form>
+
+    <div class="file-upload">
+      <label for="file-input">Upload JSON File:</label>
+      <input type="file" id="file-input" accept="application/json" onchange="uploadJsonFile()">
+    </div>
+    
+    <p id="total-points">Total Points: 0</p>
+	
+	<div>
+  <h2>Directions:</h2>
+
+  <h3>1. Custom Feedback Input Field:</h3>
+  <p>
+    When the user selects "Incorrect," a text field appears (<code>custom-feedback-{index}</code>) to allow custom feedback input.
+    This is controlled by the <code>showFeedbackField</code> function.
+  </p>
+
+  <h3>2. Custom Feedback Handling:</h3>
+  <p>
+    In the <code>calculatePoints</code> function, the user's custom feedback is prioritized over the pre-loaded feedback.
+    If the custom feedback field is empty, it defaults to the pre-loaded feedback for incorrect answers.
+  </p>
+
+  <h3>3. Feedback Download:</h3>
+  <p>
+    When downloading feedback as <code>.txt</code>, the system checks if custom feedback was provided and includes that
+    in the downloaded file.
+  </p>
+
+  <p>This setup allows users to provide their own feedback for incorrect answers, which is then incorporated into the generated feedback file.</p>
+</div>
+  </div>
+
+  <script src="script.js"></script>
+  
+  
+  
+</body>
+</html>
