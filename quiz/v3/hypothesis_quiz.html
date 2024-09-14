@@ -39,7 +39,7 @@
             padding: 10px;
             border: 1px solid #ccc;
             background-color: #f9f9f9;
-            white-space: pre-wrap;
+            white-space: pre-wrap; /* Preserves line breaks */
         }
 
         button {
@@ -74,28 +74,6 @@
             font-weight: bold;
             margin-top: 20px;
         }
-
-        /* Div table styling */
-        .div-table {
-            display: table;
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .div-table-row {
-            display: table-row;
-        }
-
-        .div-table-col {
-            display: table-cell;
-            padding: 10px;
-            border: 1px solid #ddd;
-        }
-
-        .div-table-header {
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }
     </style>
 </head>
 <body>
@@ -113,17 +91,6 @@
         <div id="feedback-display" class="feedback-display">
             <h3>Saved Feedback:</h3>
             <p id="saved-feedback">No feedback yet.</p>
-
-            <!-- Div table for individual scores -->
-            <div class="div-table" id="scores-table">
-                <div class="div-table-row div-table-header">
-                    <div class="div-table-col">Question</div>
-                    <div class="div-table-col">Score</div>
-                </div>
-                <!-- Individual scores will be populated here -->
-            </div>
-
-            <p id="total-points"></p>
         </div>
     </div>
 
@@ -222,41 +189,18 @@
         function updateFeedbackDisplay() {
             let totalPoints = 0;
             let feedbackContent = '';
-            const scoresTable = document.getElementById('scores-table');
-            
-            // Clear previous individual scores
-            scoresTable.innerHTML = `
-                <div class="div-table-row div-table-header">
-                    <div class="div-table-col">Question</div>
-                    <div class="div-table-col">Score</div>
-                </div>
-            `;
 
             questionsData.forEach((questionData, index) => {
                 const correctRadio = document.querySelector(`input[name="question-${index}"][value="correct"]`);
                 const incorrectRadio = document.querySelector(`input[name="question-${index}"][value="incorrect"]`);
 
-                let score = 0;
                 if (correctRadio && correctRadio.checked) {
-                    score = 1;
                     totalPoints += 1; // Add 1 point for correct answer
-                    //feedbackContent += `Question ${index + 1} (Correct): ${questionData.feedback.correct}\n`;
-					feedbackContent += `Question ${index + 1}: ${questionData.feedback.correct}\n`;
+                    feedbackContent += `Question ${index + 1} (Correct): ${questionData.feedback.correct}\n`;
                 } else if (incorrectRadio && incorrectRadio.checked) {
-                    score = 0.5;
                     totalPoints += 0.5; // Add 0.5 point for incorrect answer
-                    //feedbackContent += `Question ${index + 1} (Incorrect): ${questionData.feedback.incorrect}\n`;
-					feedbackContent += `Question ${index + 1}: ${questionData.feedback.incorrect}\n`;
+                    feedbackContent += `Question ${index + 1} (Incorrect): ${questionData.feedback.incorrect}\n`;
                 }
-
-                // Add individual score row
-                const scoreRow = document.createElement('div');
-                scoreRow.className = 'div-table-row';
-                scoreRow.innerHTML = `
-                    <div class="div-table-col">Question ${index + 1}</div>
-                    <div class="div-table-col">${score}</div>
-                `;
-                scoresTable.appendChild(scoreRow);
             });
 
             // Update feedback display
