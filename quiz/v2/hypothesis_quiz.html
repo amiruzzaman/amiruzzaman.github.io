@@ -83,8 +83,8 @@
 
         <div id="questions-container"></div>
 
-        <h3>Edit Feedback:</h3>
-        <textarea id="feedback-textarea" class="feedback-area"></textarea><br><br>
+        <h3>Edit Incorrect Answer Feedback:</h3>
+        <textarea id="incorrect-feedback" class="feedback-area"></textarea><br><br>
 
         <button onclick="saveFeedback()">Save Feedback</button>
 
@@ -100,7 +100,7 @@
     question: "Question 1: Much like Rule 6 in Ten simple rules for structuring papers by Konrad Kording and Brett Mensh, what is the gap the authors provide?",
     feedback: {
       correct: "You have good job capturing some of the gaps from the article.",
-      incorrect: "It seems that you tried! However, you seem to be discussing more about what the authors did to address the gaps. Try to stay with the questions."
+      incorrect: "Incorrect! HTML is not a programming language."
     },
     points: 0
   },
@@ -108,7 +108,7 @@
     question: "Question 2: What is the hypothesis of the article? Please provide 100 words or less.",
     feedback: {
       correct: "Good work on hypothesis.",
-      incorrect: "You needed to simply state the hypothesis instead of how the benchmark dataset could be a solution. Try to stay on the point."
+      incorrect: "Incorrect! CSS is a styling language."
     },
     points: 0
   },
@@ -116,7 +116,7 @@
     question: "Question 3: What specifics from article do you personally need to look up for understanding of claims? How will this information provide context to the claims? This can include background, notation, and citations. Please provide 400 words or less.",
     feedback: {
       correct: "Good work on this. You have captured important points that would be helpful to understand the article in depth.",
-      incorrect: "A list would have helped here. We wanted to know what you studied to understand the article."
+      incorrect: "Incorrect! JavaScript is often used for client-side."
     },
     points: 0
   },
@@ -124,7 +124,7 @@
     question: "Question 4: After reviewing and re-reviewing the article, what limitations did do discern? These can be simple or more complex observations. Please provide reasoning in 400 words or less. ",
     feedback: {
       correct: "You have listed some limitations, good work!",
-      incorrect: "Good attempt. Note that more experiments would have helped to strengthen the discoveries. In addition, keep in mid that a good dataset also plays a role in performance. "
+      incorrect: "Incorrect! Python can indeed be used for web development."
     },
     points: 0
   },
@@ -132,16 +132,14 @@
     question: "Question 5: What might be next steps to further this research? There is no correct answer here, however your answer must be grounded in reasoning. Please then provide a hypothesis on what you'd like to investigate based on the knowledge gained in this exercise. Be concise with detail.Limit full response to 400 words. ",
     feedback: {
       correct: "Good work presenting some justification and guided your hypothesis using those.",
-      incorrect: "This question was looking for more of your reasoning. You provided what could be the next step, but did not build the background to help us understand why those steps are needed."
+      incorrect: "Your opinion needed to be guided by reasoning."
     },
     points: 0
   }
 ];
 
-        let currentFeedbackType = ''; // Keep track of whether editing correct or incorrect feedback
-        let currentQuestionIndex = null;
+        let currentFeedback = '';
 
-        // Load questions into the DOM
         function loadQuestions(questions) {
             const container = document.getElementById('questions-container');
             container.innerHTML = '';
@@ -152,71 +150,44 @@
 
                 questionDiv.innerHTML = `
                     <label class="question-label">${questionData.question}</label>
-                    <input type="radio" name="question-${index}" value="correct" onclick="loadFeedback(${index}, 'correct')"> Correct
-                    <input type="radio" name="question-${index}" value="incorrect" onclick="loadFeedback(${index}, 'incorrect')"> Incorrect
+                    <input type="radio" name="question-${index}" value="correct" onclick="clearFeedback()"> Correct
+                    <input type="radio" name="question-${index}" value="incorrect" onclick="showFeedback(${index})"> Incorrect
                 `;
-
+                
                 container.appendChild(questionDiv);
             });
         }
 
-        // Load the appropriate feedback into the text area for editing
-        function loadFeedback(index, feedbackType) {
-            const feedbackText = questionsData[index].feedback[feedbackType];
-            const feedbackTextarea = document.getElementById('feedback-textarea');
-            feedbackTextarea.value = feedbackText; // Load feedback into text area
-            currentFeedbackType = feedbackType; // Track which feedback is being edited
-            currentQuestionIndex = index; // Track which question's feedback is being edited
+        function showFeedback(index) {
+            const feedbackText = questionsData[index].feedback.incorrect;
+            const feedbackTextarea = document.getElementById('incorrect-feedback');
+            feedbackTextarea.value = feedbackText;  // Load the feedback for the incorrect answer
+            currentFeedback = feedbackText;
         }
 
-        // Save the edited feedback and display all feedback
+        function clearFeedback() {
+            document.getElementById('incorrect-feedback').value = '';  // Clear the feedback for correct answer
+        }
+
         function saveFeedback() {
-            const feedbackTextarea = document.getElementById('feedback-textarea');
+            const feedbackTextarea = document.getElementById('incorrect-feedback');
             const feedback = feedbackTextarea.value;
 
-            if (currentQuestionIndex !== null && currentFeedbackType) {
-                // Save the feedback to the questionsData array
-                questionsData[currentQuestionIndex].feedback[currentFeedbackType] = feedback;
+            if (feedback) {
+                localStorage.setItem('quizFeedback', feedback);  // Save feedback in localStorage
+                document.getElementById('saved-feedback').textContent = feedback;  // Display feedback in the div
 
-                // Update feedback display for all questions
-                updateFeedbackDisplay();
-            } else {
-                alert('Please select a question and feedback type to edit.');
+                // Simulate saving feedback to a text file
+                downloadFile(feedback, 'feedback.txt', 'text/plain');
             }
         }
 
-        // Calculate total points and display all feedback
-        function updateFeedbackDisplay() {
-            let totalPoints = 0;
-            let feedbackContent = '';
-
-            questionsData.forEach((questionData, index) => {
-                const correctRadio = document.querySelector(`input[name="question-${index}"][value="correct"]`);
-                const incorrectRadio = document.querySelector(`input[name="question-${index}"][value="incorrect"]`);
-
-                if (correctRadio && correctRadio.checked) {
-                    totalPoints += 1; // Add 1 point for correct answer
-                    feedbackContent += `Question ${index + 1} (Correct): ${questionData.feedback.correct}\n`;
-                } else if (incorrectRadio && incorrectRadio.checked) {
-                    totalPoints += 0.5; // Add 0.5 point for incorrect answer
-                    feedbackContent += `Question ${index + 1} (Incorrect): ${questionData.feedback.incorrect}\n`;
-                }
-            });
-
-            // Update feedback display
-            const feedbackDisplay = document.getElementById('saved-feedback');
-            feedbackDisplay.textContent = feedbackContent ? feedbackContent : 'No feedback yet.';
-
-            // Display total points
-            const totalPointsDisplay = document.getElementById('total-points');
-            if (totalPointsDisplay) {
-                totalPointsDisplay.textContent = `Total Points: ${totalPoints}`;
-            } else {
-                const newTotalPointsDisplay = document.createElement('p');
-                newTotalPointsDisplay.id = 'total-points';
-                newTotalPointsDisplay.textContent = `Total Points: ${totalPoints}`;
-                document.getElementById('feedback-display').appendChild(newTotalPointsDisplay);
-            }
+        function downloadFile(content, fileName, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            link.click();
         }
 
         // Load default questions on page load
