@@ -28,26 +28,36 @@
 
         .feedback-area {
             width: 100%;
-            height: 100px;
+            height: 150px;
             padding: 10px;
             font-size: 16px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            margin-top: 10px;
+        }
+
+        .feedback-display {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            white-space: pre-wrap;
         }
 
         button {
-            padding: 5px 10px;
+            padding: 10px 20px;
             background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            margin-top: 5px;
         }
 
         button:hover {
             background-color: #45a049;
+        }
+
+        h3 {
+            margin-top: 0;
         }
 
         .question-item {
@@ -66,6 +76,7 @@
             margin-top: 20px;
         }
 
+        /* Div table styling */
         .div-table {
             display: table;
             width: 100%;
@@ -86,22 +97,6 @@
             background-color: #f2f2f2;
             font-weight: bold;
         }
-
-        .hidden {
-            display: none;
-        }
-
-        #feedback-container {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f9f9f9;
-            border: 1px solid #ccc;
-        }
-
-        #selected-feedback {
-            white-space: pre-wrap;
-            /* Preserve line breaks */
-        }
     </style>
 </head>
 
@@ -112,8 +107,14 @@
 
         <div id="questions-container"></div>
 
+        <h3>Edit Feedback:</h3>
+        <textarea id="feedback-textarea" class="feedback-area"></textarea><br><br>
+
+        <button onclick="saveFeedback()">Save Feedback</button>
+
         <div id="feedback-display" class="feedback-display">
             <h3>Saved Feedback:</h3>
+            <p id="saved-feedback">No feedback yet.</p>
 
             <!-- Div table for individual scores -->
             <div class="div-table" id="scores-table">
@@ -125,21 +126,11 @@
             </div>
 
             <p id="total-points"></p>
-
-            <!-- Display all selected feedback here -->
-            <div id="feedback-container">
-                <h4>All Selected Feedback:</h4>
-                <div id="selected-feedback"></div>
-            </div>
-
-            <button onclick="copyFeedback()" id="copyButton">Copy All Feedback</button>
         </div>
-
-        <button onclick="resetAll()">Reset All</button>
     </div>
 
     <script>
-        const defaultQuestionsData = [
+        const questionsData = [
             {
                 question: "Question 1: Much like Rule 6 in Ten simple rules for structuring papers by Konrad Kording and Brett Mensh, what is the gap the authors provide?",
                 feedback: {
@@ -182,8 +173,8 @@
             }
         ];
 
-        let questionsData = [...defaultQuestionsData]; // Copy of default data
-        let currentFeedbackTextarea = null;
+        let currentFeedbackType = ''; // Keep track of whether editing correct or incorrect feedback
+        let currentQuestionIndex = null;
 
         // Load questions into the DOM
         function loadQuestions(questions) {
@@ -196,63 +187,52 @@
 
                 questionDiv.innerHTML = `
                     <label class="question-label">${questionData.question}</label>
-                    <input type="radio" name="question-${index}" value="correct" onclick="showFeedback(${index}, 'correct')"> Correct
-                    <input type="radio" name="question-${index}" value="incorrect" onclick="showFeedback(${index}, 'incorrect')"> Incorrect
-                    <textarea id="feedback-${index}" class="feedback-area hidden" onblur="saveFeedback(${index})"></textarea>
+                    <input type="radio" name="question-${index}" value="correct" onclick="loadFeedback(${index}, 'correct')"> Correct
+                    <input type="radio" name="question-${index}" value="incorrect" onclick="loadFeedback(${index}, 'incorrect')"> Incorrect
                 `;
 
                 container.appendChild(questionDiv);
             });
         }
 
-        // Show feedback for the selected radio button and hide the textarea for the other
-        function showFeedback(index, feedbackType) {
-            const feedbackTextarea = document.getElementById(`feedback-${index}`);
-            feedbackTextarea.classList.remove('hidden');
-            feedbackTextarea.value = questionsData[index].feedback[feedbackType];
-            feedbackTextarea.setAttribute('data-feedback-type', feedbackType);
-
-            // If the user had previously selected another feedback field, save it
-            if (currentFeedbackTextarea && currentFeedbackTextarea !== feedbackTextarea) {
-                currentFeedbackTextarea.blur(); // Trigger blur event to save the previous feedback
-            }
-            currentFeedbackTextarea = feedbackTextarea;
+        // Load the appropriate feedback into the text area for editing
+        function loadFeedback(index, feedbackType) {
+            const feedbackText = questionsData[index].feedback[feedbackType];
+            const feedbackTextarea = document.getElementById('feedback-textarea');
+            feedbackTextarea.value = feedbackText; // Load feedback into text area
+            currentFeedbackType = feedbackType; // Track which feedback is being edited
+            currentQuestionIndex = index; // Track which question's feedback is being edited
         }
 
-        // Save the feedback when the user clicks outside the textarea
-        function saveFeedback(index) {
-            const feedbackTextarea = document.getElementById(`feedback-${index}`);
+        // Save the edited feedback and display all feedback
+        function saveFeedback() {
+            const feedbackTextarea = document.getElementById('feedback-textarea');
             const feedback = feedbackTextarea.value;
-            const feedbackType = feedbackTextarea.getAttribute('data-feedback-type');
 
-            // Save the feedback to the questionsData array
-            questionsData[index].feedback[feedbackType] = feedback;
+            if (currentQuestionIndex !== null && currentFeedbackType) {
+                // Save the feedback to the questionsData array
+                questionsData[currentQuestionIndex].feedback[currentFeedbackType] = feedback;
 
-            // Hide the textarea
-            feedbackTextarea.classList.add('hidden');
-
-            // Update feedback display for all questions
-            updateFeedbackDisplay();
+                // Update feedback display for all questions
+                updateFeedbackDisplay();
+            } else {
+                alert('Please select a question and feedback type to edit.');
+            }
         }
 
-        // Calculate total points and display all selected feedback
+        // Calculate total points and display all feedback
         function updateFeedbackDisplay() {
             let totalPoints = 0;
             let feedbackContent = '';
             const scoresTable = document.getElementById('scores-table');
-            const selectedFeedback = document.getElementById('selected-feedback');
 
-            // Clear previous individual scores and selected feedback
+            // Clear previous individual scores
             scoresTable.innerHTML = `
                 <div class="div-table-row div-table-header">
                     <div class="div-table-col">Question</div>
                     <div class="div-table-col">Score</div>
                 </div>
             `;
-            selectedFeedback.innerHTML = ''; // Clear feedback container
-
-            // Create a Set to avoid duplicate feedback
-            const feedbackSet = new Set();
 
             questionsData.forEach((questionData, index) => {
                 const correctRadio = document.querySelector(`input[name="question-${index}"][value="correct"]`);
@@ -261,14 +241,14 @@
                 let score = 0;
                 if (correctRadio && correctRadio.checked) {
                     score = 1;
-                    totalPoints += score;
+                    totalPoints += 1; // Add 1 point for correct answer
+                    //feedbackContent += `Question ${index + 1} (Correct): ${questionData.feedback.correct}\n`;
                     feedbackContent += `Question ${index + 1}: ${questionData.feedback.correct}\n`;
-                    feedbackSet.add(`Question ${index + 1}: ${questionData.feedback.correct}`);
                 } else if (incorrectRadio && incorrectRadio.checked) {
                     score = 0.5;
-                    totalPoints += score;
+                    totalPoints += 0.5; // Add 0.5 point for incorrect answer
+                    //feedbackContent += `Question ${index + 1} (Incorrect): ${questionData.feedback.incorrect}\n`;
                     feedbackContent += `Question ${index + 1}: ${questionData.feedback.incorrect}\n`;
-                    feedbackSet.add(`Question ${index + 1}: ${questionData.feedback.incorrect}`);
                 }
 
                 // Add individual score row
@@ -281,59 +261,20 @@
                 scoresTable.appendChild(scoreRow);
             });
 
-            // Update selected feedback display
-            feedbackSet.forEach(feedback => {
-                const feedbackDiv = document.createElement('div');
-                feedbackDiv.textContent = feedback;
-                selectedFeedback.appendChild(feedbackDiv);
-            });
+            // Update feedback display
+            const feedbackDisplay = document.getElementById('saved-feedback');
+            feedbackDisplay.textContent = feedbackContent ? feedbackContent : 'No feedback yet.';
 
             // Display total points
             const totalPointsDisplay = document.getElementById('total-points');
-            totalPointsDisplay.textContent = `Total Points: ${totalPoints}`;
-
-            // Update saved feedback
-            const feedbackDisplay = document.getElementById('saved-feedback');
-            feedbackDisplay.textContent = feedbackContent;
-        }
-
-        // Copy all feedback to clipboard
-        function copyFeedback() {
-            let feedbackContent = '';
-            questionsData.forEach((questionData, index) => {
-                const correctRadio = document.querySelector(`input[name="question-${index}"][value="correct"]`);
-                const incorrectRadio = document.querySelector(`input[name="question-${index}"][value="incorrect"]`);
-
-                if (correctRadio && correctRadio.checked) {
-                    feedbackContent += `Question ${index + 1}: ${questionData.feedback.correct}\n`;
-                } else if (incorrectRadio && incorrectRadio.checked) {
-                    feedbackContent += `Question ${index + 1}: ${questionData.feedback.incorrect}\n`;
-                }
-            });
-
-            const textArea = document.createElement('textarea');
-            textArea.value = feedbackContent;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-            const copyButton = document.getElementById("copyButton");
-            copyButton.innerHTML = "Copied";
-            copyButton.style.background = '#EE4B2B';
-            //alert('Feedback copied to clipboard!');
-        }
-
-        // Reset all feedback, scores, and selections to the default stage
-        function resetAll() {
-            questionsData = [...defaultQuestionsData]; // Reset to default data
-            loadQuestions(questionsData); // Reload questions
-
-            const copyButton = document.getElementById("copyButton");
-            copyButton.innerHTML = "Copy All Feedback";
-            copyButton.style.background = '#4CAF50';
-
-            // Clear feedback and scores display
-            updateFeedbackDisplay();
+            if (totalPointsDisplay) {
+                totalPointsDisplay.textContent = `Total Points: ${totalPoints}`;
+            } else {
+                const newTotalPointsDisplay = document.createElement('p');
+                newTotalPointsDisplay.id = 'total-points';
+                newTotalPointsDisplay.textContent = `Total Points: ${totalPoints}`;
+                document.getElementById('feedback-display').appendChild(newTotalPointsDisplay);
+            }
         }
 
         // Load default questions on page load
