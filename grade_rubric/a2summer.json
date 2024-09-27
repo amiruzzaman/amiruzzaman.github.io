@@ -6,217 +6,223 @@
                 {
                     "yes": "You have provided your README file and your implementation is accessible. ",
                     "no": "You did not provide a README file but your implementation is not accessible. ",
-                    "point": 5
+                    "point": 4
                 },
                 {
                     "yes": "You have provided a READ ONLY link to overleaf for your project report.",
                     "no": "You did not provide a READ ONLY link to overleaf for your project report.",
-                    "point": 5
-                }
-            ]
-        ]
-    },
-    "Part 1": {
-        "title": "Hypothesis",
-        "problems": [
-            [
-                {
-                    "yes": "You have included hypothesis/hypotheses",
-                    "no": "We wanted to see hypothesis/hypotheses. You did not include any hypothesis/hypotheses in your report. ",
-                    "point": 4
+                    "point": 2
                 },
                 {
-                    "yes": "You have justified the need for your hypothesis.",
-                    "no": "How did you come up with your hypothesis? What is the reason behind having that hypothesis? We wanted to see why the hypothesis/hypotheses needed. You could have explained how the hypothesis/hypotheses provides some insight on the results and discussions.",
+                    "yes": "You have provided exact commit hash for your GitHub",
+                    "no": "",
+                    "point": 2
+                },
+                {
+                    "yes": "Your report is 8 pages.",
+                    "no": "Your report is not 8 pages",
+                    "point": 2
+                },
+                {
+                    "yes": "Your graphs/figures are readable. Good job!",
+                    "no": "Your figures/graphs are not readable",
                     "point": 2
                 }
             ]
         ]
     },
-    "Part 2": {
-        "title": "NN RHC",
+    "Part 1": {
+        "title": "Problem description",
         "problems": [
             [
                 {
-                    "yes": "You have explained why you got this result. ",
-                    "no": "We wanted to see some discussion on why you have obtained the results that you did.",
-                    "point": 3
+                    "yes": "You have chosesn two datasets for your analysis.",
+                    "no": "You did not select two datasets for your analysis",
+                    "point": 2
                 },
                 {
-                    "yes": "You have included the hyperparameters and their impact on algorithmic behavior as well as hypothesize about improvements.",
-                    "no": "We wanted to see more discussion on your analysis of hyperparameters and hypothesize about improvements. For example, what you did to improve the performance and what else could have done to improve it further would have been helpful.",
+                    "yes": "You described why your datasets are interesting in ML perspective",
+                    "no": "You did not describe why your datasets are interesting in ML perspective",
                     "point": 4
                 },
                 {
-                    "yes": "Nice comparison based on performance and time for backprop vs RO as well as explained the reason why backprop or RO performed better.",
-                    "no": "We also wanted to see some discussion on comparision. For example, you could have compared performance and time for backprop vs RO and explain why backprop or RO performed better.",
+                    "yes": "You have presented your motivation for the data comparison.",
+                    "no": "You did not present your motivation for the data comparison.",
+                    "point": 4
+                }
+            ]
+        ]
+    },
+    "Part 2": {
+        "title": "Hypothesis",
+        "problems": [
+            [
+                {
+                    "yes": "You have stated your initial hypotheses.",
+                    "no": "You needed to state your initial hypotheses.",
+                    "point": 2
+                },
+                {
+                    "yes": "You have justified your hypotheses explicitly.",
+                    "no": "You did not justify your hypotheses explicitly.",
+                    "point": 2
+                },
+                {
+                    "yes": "You followed up with the hypothesis in your discusssion/conclusion.",
+                    "no": "You cannot just state a hypothesis since it needs to follow through from a narrative perspective at the end of your report.",
+                    "point": 2
+                },
+                {
+                    "yes": "You have provided direct evidence to support whether your hypothesis has been met.",
+                    "no": "You didn't provide a direct evidence to support whether your hypothesis has been met.",
                     "point": 2
                 }
             ]
         ]
     },
     "Part 3": {
-        "title": "NN SA",
+        "title": "NN ",
         "problems": [
             [
                 {
-                    "yes": "You have explained why you got this result. ",
-                    "no": "We wanted to see some discussion on why you have obtained the results that you did.",
-                    "point": 3
+                    "yes": "You showed valid results for Learning Complexity (LC) curves. ",
+                    "no": "You did not show valid results for Learning Complexity (LC) curves. ",
+                    "point": 2
                 },
                 {
-                    "yes": "You have included the hyperparameters and their impact on algorithmic behavior as well as hypothesize about improvements.",
-                    "no": "We wanted to see more discussion on your analysis of hyperparameters and hypothesize about improvements. For example, what you did to improve the performance and what else could have done to improve it further would have been helpful.",
+                    "yes": "You provided extensive analysis of results on Learning Complexity (LC) curves.",
+                    "no": "You did not provide extensive analysis of results on Learning Complexity (LC) curves.",
                     "point": 4
                 },
                 {
-                    "yes": "Nice comparison based on performance and time for backprop vs RO as well as explained the reason why backprop or RO performed better.",
-                    "no": "You needed to compares performance and time for backprop vs RO and explains why backprop or RO performed better.",
+                    "yes": "You showed valid results for Model Complexity (MC) curves. ",
+                    "no": "You did not show valid results for Model Complexity (MC) curves. ",
                     "point": 2
                 }
             ]
         ]
     },
     "Part 4": {
-        "title": "NN GA",
+        "title": "NN",
         "problems": [
             [
                 {
-                    "yes": "You have explained why you got this result. ",
-                    "no": "We wanted to see some discussion on why you have obtained the results that you did.",
-                    "point": 3
-                },
-                {
-                    "yes": "You have included the hyperparameters and their impact on algorithmic behavior as well as hypothesize about improvements.",
-                    "no": "We wanted to see more discussion on your analysis of hyperparameters and hypothesize about improvements. For example, what you did to improve the performance and what else could have done to improve it further would have been helpful.",
+                    "yes": "You provided extensive analysis of results on Model Complexity (MC) curves.",
+                    "no": "You did not provide extensive analysis of results on Model Complexity (MC) curves.",
                     "point": 4
                 },
                 {
-                    "yes": "Nice comparison based on performance and time for backprop vs RO as well as explained the reason why backprop or RO performed better.",
-                    "no": "You needed to compares performance and time for backprop vs RO and explains why backprop or RO performed better.",
-                    "point": 2
+                    "yes": "You pointed out bias or variance in plot. You also provided extensive analysis, including 3 or more ways to show evidence/discussion on the bias and variance. ",
+                    "no": "Missing analysis or no plot provided to analyze bias/variance",
+                    "point": 8
                 }
             ]
         ]
     },
     "Part 5": {
-        "title": "OP justification",
+        "title": "SVM",
         "problems": [
             [
                 {
-                    "yes": "You have explained why the problems are interesting from an ML perspective",
-                    "no": "You needed to explain why the problems are interesting from an ML perspective. We wanted to see a detailed discussion on why the problems are interesting from an ML perspective, e.g., How many local peaks, is it smooth or non-smooth, what is the computational complexity (P, NP-hard, etc.). Also, missing the bit-string descriptions of how they represent the problems in detail and hypotheses on the strengths and weaknesses of each algorithm. ",
-                    "point": 6
+                    "yes": "You showed valid results for Learning Complexity (LC) curves. ",
+                    "no": "You did not show valid results for Learning Complexity (LC) curves. ",
+                    "point": 2
+                },
+                {
+                    "yes": "You provided extensive analysis of results on Learning Complexity (LC) curves.",
+                    "no": "You did not provide extensive analysis of results on Learning Complexity (LC) curves.",
+                    "point": 4
+                },
+                {
+                    "yes": "You showed valid results for Model Complexity (MC) curves. ",
+                    "no": "You did not show valid results for Model Complexity (MC) curves. ",
+                    "point": 2
+                },
+                {
+                    "yes": "You provided extensive analysis of results on Model Complexity (MC) curves.",
+                    "no": "You did not provide extensive analysis of results on Model Complexity (MC) curves.",
+                    "point": 4
+                },
+                {
+                    "yes": "You pointed out bias or variance in plot. You also provided extensive analysis, including 3 or more ways to show evidence/discussion on the bias and variance. ",
+                    "no": "Missing analysis or no plot provided to analyze bias/variance",
+                    "point": 8
                 }
             ]
         ]
     },
     "Part 6": {
-        "title": "OP Problem I",
+        "title": "KNN",
         "problems": [
             [
                 {
-                    "yes": "You explained results in context by connecting back to 3 algorithm, hyperparameters, and problem selection.",
-                    "no": "You needed to explain results in context by connecting back to 3 algorithm, hyperparameters, and problem selection.",
-                    "point": 6
+                    "yes": "You showed valid results for Learning Complexity (LC) curves. ",
+                    "no": "You did not show valid results for Learning Complexity (LC) curves. ",
+                    "point": 2
                 },
                 {
-                    "yes": "You did explain performance vs. iterations based on plot/table.",
-                    "no": "You did not provide plot/table to show performance vs. iterations results.",
-                    "point": 3
-                },
-                {
-                    "yes": "You did explain performance vs. size of problem based on plot/table.",
-                    "no": "You did not provide plot/table to show performance vs. size of problem results.",
-                    "point": 3
-                },
-                {
-                    "yes": "Nice explanation on the convergence criterion and behavior.",
-                    "no": "You needed to include the convergence criterion and behavior.",
-                    "point": 3
-                },
-                {
-                    "yes": "Nice addition on the improvements, such as extensive hyperparameter exploration, modifying algorithm behavior, adding domain knowledge, etc.",
-                    "no": "Your report lacks on evidence of the improvements, such as extensive hyperparameter exploration, modifying algorithm behavior, adding domain knowledge, etc.",
-                    "point": 3
-                },
-                {
-                    "yes": "Your report shows creativity. ",
-                    "no": "Your report lacked creativity. Some highlighting color to separate min and max values would have helped too. ",
+                    "yes": "You provided extensive analysis of results on Learning Complexity (LC) curves.",
+                    "no": "You did not provide extensive analysis of results on Learning Complexity (LC) curves.",
                     "point": 4
+                },
+                {
+                    "yes": "You showed valid results for Model Complexity (MC) curves. ",
+                    "no": "You did not show valid results for Model Complexity (MC) curves. ",
+                    "point": 2
+                },
+                {
+                    "yes": "You provided extensive analysis of results on Model Complexity (MC) curves.",
+                    "no": "You did not provide extensive analysis of results on Model Complexity (MC) curves.",
+                    "point": 4
+                },
+                {
+                    "yes": "You pointed out bias or variance in plot. You also provided extensive analysis, including 3 or more ways to show evidence/discussion on the bias and variance. ",
+                    "no": "Missing analysis or no plot provided to analyze bias/variance",
+                    "point": 8
                 }
             ]
         ]
     },
     "Part 7": {
-        "title": "OP Problem II",
+        "title": "Conclusion",
         "problems": [
             [
                 {
-                    "yes": "You explained results in context by connecting back to 3 algorithm, hyperparameters, and problem selection.",
-                    "no": "You needed to explain results in context by connecting back to 3 algorithm, hyperparameters, and problem selection.",
-                    "point": 6
+                    "yes": "You have provided an overall comparison between your runs on each data set. You considered Type I and Type II errors. ",
+                    "no": "You did not provided an overall comparison between your runs on each data set. You also did not consider Type I and Type II errors. ",
+                    "point": 2
                 },
                 {
-                    "yes": "You did explain performance vs. iterations based on plot/table.",
-                    "no": "You did not provide plot/table to show performance vs. iterations results.",
-                    "point": 3
+                    "yes": "You have provided some discussion on accuracies/performances of different ML algorithms using wall clock times.",
+                    "no": "You have not provide a detailed discussion on accuracies/performances of different ML algorithms using wall clock times.",
+                    "point": 2
                 },
                 {
-                    "yes": "You did explain performance vs. size of problem based on plot/table.",
-                    "no": "You did not provide plot/table to show performance vs. size of problem results.",
-                    "point": 3
+                    "yes": "You also provided some discussion on performances: noise and number of sample needed to learn efectively. ",
+                    "no": "You needed to provide a detailed discussion on performances: noise and number of sample needed to learn efectively. ",
+                    "point": 2
                 },
                 {
-                    "yes": "Nice explanation on the convergence criterion and behavior.",
-                    "no": "You needed to include the convergence criterion and behavior.",
-                    "point": 3
+                    "yes": "You have provided some discussion on different ML algorithms: time and space complexity, and sensitivity to tuning.",
+                    "no": "You did not provide a detailed discussion on different ML algorithms: time and space complexity, and sensitivity to tuning.",
+                    "point": 2
                 },
                 {
-                    "yes": "Nice addition on the improvements, such as extensive hyperparameter exploration, modifying algorithm behavior, adding domain knowledge, etc.",
-                    "no": "Your report lacks on evidence of the improvements, such as extensive hyperparameter exploration, modifying algorithm behavior, adding domain knowledge, etc.",
-                    "point": 3
-                },
-                {
-                    "yes": "Your report shows creativity. ",
-                    "no": "Your report lacked creativity. Some highlighting color to separate min and max values would have helped too. ",
-                    "point": 4
+                    "yes": "You also provided some discussion to show a broad understanding.",
+                    "no": "You also needed some discussion to show a broad understanding. ",
+                    "point": 2
                 }
             ]
         ]
     },
     "Part 8": {
-        "title": "Conclusion",
-        "problems": [
-            [
-                {
-                    "yes": "You concluded to show which algorithm performed best, and why. Also, you included wall clock times, trade-offs, discussion of no free lunch theorem, etc.",
-                    "no": "You did not concluded which algorithm performed best, and why. Also, you included wall clock times, trade-offs, discussion of no free lunch theorem, etc.",
-                    "point": 3
-                }
-            ]
-        ]
-    },
-    "Part 9": {
-        "title": "Formatting",
-        "problems": [
-            [
-                {
-                    "yes": "Images are formatting properly and legible. Also, you provided proper references.",
-                    "no": "Images are not formatting properly and legible. Also, you did not provide proper references.",
-                    "point": 4
-                }
-            ]
-        ]
-    },
-    "Part 10": {
         "title": "EC",
         "problems": [
             [
                 {
-                    "yes": "",
-                    "no": "",
-                    "point": 0
+                    "yes": "Decision Trees are implemented with comprehensive analysis that adds significant insights into the datesets and theoretical implications. Adaboost will be used.",
+                    "no": "Did not implement Decision Trees or Boosting. ",
+                    "point": 5
                 }
             ]
         ]
