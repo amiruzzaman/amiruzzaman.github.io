@@ -90,18 +90,6 @@
         .hidden {
             display: none;
         }
-
-        #feedback-container {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f9f9f9;
-            border: 1px solid #ccc;
-        }
-
-        #selected-feedback {
-            white-space: pre-wrap;
-            /* Preserve line breaks */
-        }
     </style>
 </head>
 
@@ -126,20 +114,14 @@
 
             <p id="total-points"></p>
 
-            <!-- Display all selected feedback here -->
-            <div id="feedback-container">
-                <h4>All Selected Feedback:</h4>
-                <div id="selected-feedback"></div>
-            </div>
-
-            <button onclick="copyFeedback()" id="copyButton">Copy All Feedback</button>
+            <button onclick="copyFeedback()">Copy All Feedback</button>
         </div>
 
         <button onclick="resetAll()">Reset All</button>
     </div>
 
     <script>
-        const defaultQuestionsData = [
+        const questionsData = [
             {
                 question: "Question 1: Much like Rule 6 in Ten simple rules for structuring papers by Konrad Kording and Brett Mensh, what is the gap the authors provide?",
                 feedback: {
@@ -182,7 +164,6 @@
             }
         ];
 
-        let questionsData = [...defaultQuestionsData]; // Copy of default data
         let currentFeedbackTextarea = null;
 
         // Load questions into the DOM
@@ -235,24 +216,19 @@
             updateFeedbackDisplay();
         }
 
-        // Calculate total points and display all selected feedback
+        // Calculate total points and display all feedback
         function updateFeedbackDisplay() {
             let totalPoints = 0;
             let feedbackContent = '';
             const scoresTable = document.getElementById('scores-table');
-            const selectedFeedback = document.getElementById('selected-feedback');
 
-            // Clear previous individual scores and selected feedback
+            // Clear previous individual scores
             scoresTable.innerHTML = `
                 <div class="div-table-row div-table-header">
                     <div class="div-table-col">Question</div>
                     <div class="div-table-col">Score</div>
                 </div>
             `;
-            selectedFeedback.innerHTML = ''; // Clear feedback container
-
-            // Create a Set to avoid duplicate feedback
-            const feedbackSet = new Set();
 
             questionsData.forEach((questionData, index) => {
                 const correctRadio = document.querySelector(`input[name="question-${index}"][value="correct"]`);
@@ -261,14 +237,12 @@
                 let score = 0;
                 if (correctRadio && correctRadio.checked) {
                     score = 1;
-                    totalPoints += score;
+                    totalPoints += 1; // Add 1 point for correct answer
                     feedbackContent += `Question ${index + 1}: ${questionData.feedback.correct}\n`;
-                    feedbackSet.add(`Question ${index + 1}: ${questionData.feedback.correct}`);
                 } else if (incorrectRadio && incorrectRadio.checked) {
                     score = 0.5;
-                    totalPoints += score;
+                    totalPoints += 0.5; // Add 0.5 points for incorrect answer
                     feedbackContent += `Question ${index + 1}: ${questionData.feedback.incorrect}\n`;
-                    feedbackSet.add(`Question ${index + 1}: ${questionData.feedback.incorrect}`);
                 }
 
                 // Add individual score row
@@ -279,13 +253,6 @@
                     <div class="div-table-col">${score}</div>
                 `;
                 scoresTable.appendChild(scoreRow);
-            });
-
-            // Update selected feedback display
-            feedbackSet.forEach(feedback => {
-                const feedbackDiv = document.createElement('div');
-                feedbackDiv.textContent = feedback;
-                selectedFeedback.appendChild(feedbackDiv);
             });
 
             // Display total points
@@ -317,22 +284,20 @@
             textArea.select();
             document.execCommand('copy');
             document.body.removeChild(textArea);
-            const copyButton = document.getElementById("copyButton");
-            copyButton.innerHTML = "Copied";
-            copyButton.style.background = '#EE4B2B';
-            //alert('Feedback copied to clipboard!');
+            alert('Feedback copied to clipboard!');
         }
 
-        // Reset all feedback, scores, and selections to the default stage
+        // Reset all feedback, scores, and selections
         function resetAll() {
-            questionsData = [...defaultQuestionsData]; // Reset to default data
-            loadQuestions(questionsData); // Reload questions
+            questionsData.forEach((questionData, index) => {
+                questionData.points = 0;
+                document.querySelector(`input[name="question-${index}"][value="correct"]`).checked = false;
+                document.querySelector(`input[name="question-${index}"][value="incorrect"]`).checked = false;
+                const feedbackTextarea = document.getElementById(`feedback-${index}`);
+                feedbackTextarea.value = '';
+                feedbackTextarea.classList.add('hidden');
+            });
 
-            const copyButton = document.getElementById("copyButton");
-            copyButton.innerHTML = "Copy All Feedback";
-            copyButton.style.background = '#4CAF50';
-
-            // Clear feedback and scores display
             updateFeedbackDisplay();
         }
 
