@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Practice for Kids</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Math Practice: Addition & Subtraction</h1>
+        
+        <div class="problem">
+            <div class="vertical-problem">
+                <div id="problem1-top" class="number"></div>
+                <div id="problem1-bottom" class="number"></div>
+                <div id="problem1-carry" class="carry"></div>
+            </div>
+            <input type="number" id="answer1" placeholder="Your answer">
+        </div>
+        
+        <div class="problem">
+            <div class="vertical-problem">
+                <div id="problem2-top" class="number"></div>
+                <div id="problem2-bottom" class="number"></div>
+                <div id="problem2-carry" class="carry"></div>
+            </div>
+            <input type="number" id="answer2" placeholder="Your answer">
+        </div>
+        
+        <div class="buttons">
+            <button onclick="generateProblems()">Reload Problems</button>
+            <button onclick="verifyAnswers()">Verify Answers</button>
+        </div>
+        
+        <div id="result" class="result"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
