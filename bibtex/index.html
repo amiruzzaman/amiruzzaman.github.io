@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BibTeX Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 3px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .output {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+        }
+        .copy-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .copy-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>BibTeX Generator</h1>
+
+    <div class="form-group">
+        <label for="entryType">Select Entry Type</label>
+        <select id="entryType" onchange="displayFormFields()">
+            <option value="article">Journal Article</option>
+            <option value="book">Book</option>
+            <option value="inbook">Book Chapter</option>
+            <option value="conference">Conference</option>
+            <option value="misc">Misc</option>
+            <option value="thesis">Thesis</option>
+        </select>
+    </div>
+
+    <div id="formFields"></div>
+
+    <button class="copy-btn" onclick="generateBibTex()">Generate BibTeX</button>
+
+    <div class="output" id="bibtexOutput"></div>
+
+    <script>
+        function displayFormFields() {
+            const entryType = document.getElementById('entryType').value;
+            let formFields = `
+                <div class="form-group">
+                    <label for="author">Author (e.g., Doe, John or John Doe and Jane Doe)</label>
+                    <input type="text" id="author">
+                </div>
+                <div class="form-group">
+                    <label for="year">Year</label>
+                    <input type="text" id="year">
+                </div>
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" id="title">
+                </div>
+            `;
+
+            if (entryType === 'article') {
+                formFields += `
+                    <div class="form-group">
+                        <label for="journal">Journal Name</label>
+                        <input type="text" id="journal">
+                    </div>
+                    <div class="form-group">
+                        <label for="volume">Volume</label>
+                        <input type="text" id="volume">
+                    </div>
+                    <div class="form-group">
+                        <label for="number">Issue Number (optional)</label>
+                        <input type="text" id="number">
+                    </div>
+                    <div class="form-group">
+                        <label for="pages">Pages</label>
+                        <input type="text" id="pages">
+                    </div>
+                `;
+            } else if (entryType === 'book' || entryType === 'inbook') {
+                formFields += `
+                    <div class="form-group">
+                        <label for="publisher">Publisher</label>
+                        <input type="text" id="publisher">
+                    </div>
+                    <div class="form-group">
+                        <label for="editor">Editor (optional)</label>
+                        <input type="text" id="editor">
+                    </div>
+                `;
+                if (entryType === 'inbook') {
+                    formFields += `
+                        <div class="form-group">
+                            <label for="chapter">Chapter</label>
+                            <input type="text" id="chapter">
+                        </div>
+                    `;
+                }
+            } else if (entryType === 'conference') {
+                formFields += `
+                    <div class="form-group">
+                        <label for="conference">Conference Name</label>
+                        <input type="text" id="conference">
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" id="location">
+                    </div>
+                `;
+            }
+
+            formFields += `
+                <div class="form-group">
+                    <label for="note">Additional Notes (optional)</label>
+                    <textarea id="note" rows="3"></textarea>
+                </div>
+            `;
+
+            document.getElementById('formFields').innerHTML = formFields;
+        }
+
+        function getFirstAuthorLastName(authorStr) {
+            if (authorStr.includes("and")) {
+                const firstAuthor = authorStr.split("and")[0].trim();
+                return firstAuthor.split(" ").pop();
+            } else if (authorStr.includes(",")) {
+                return authorStr.split(",")[0].trim();
+            } else {
+                return authorStr.split(" ").pop();
+            }
+        }
+
+        function generateBibTex() {
+            const author = document.getElementById('author').value;
+            const year = document.getElementById('year').value;
+            const title = document.getElementById('title').value;
+            const entryType = document.getElementById('entryType').value;
+
+            const firstAuthorLastName = getFirstAuthorLastName(author);
+            const firstWordTitle = title.split(' ')[0].trim();
+            const bibtexKey = `${firstAuthorLastName}${year}${firstWordTitle}${entryType}`;
+
+            let bibtexEntry = `@${entryType}{${bibtexKey},\n`;
+            bibtexEntry += `  author = {${author}},\n`;
+            bibtexEntry += `  year = {${year}},\n`;
+            bibtexEntry += `  title = {${title}},\n`;
+
+            if (entryType === 'article') {
+                const journal = document.getElementById('journal').value;
+                const volume = document.getElementById('volume').value;
+                const number = document.getElementById('number').value;
+                const pages = document.getElementById('pages').value;
+                bibtexEntry += `  journal = {${journal}},\n`;
+                bibtexEntry += `  volume = {${volume}},\n`;
+                if (number) bibtexEntry += `  number = {${number}},\n`;
+                bibtexEntry += `  pages = {${pages}},\n`;
+            } else if (entryType === 'book' || entryType === 'inbook') {
+                const publisher = document.getElementById('publisher').value;
+                const editor = document.getElementById('editor').value;
+                bibtexEntry += `  publisher = {${publisher}},\n`;
+                if (editor) bibtexEntry += `  editor = {${editor}},\n`;
+                if (entryType === 'inbook') {
+                    const chapter = document.getElementById('chapter').value;
+                    bibtexEntry += `  chapter = {${chapter}},\n`;
+                }
+            } else if (entryType === 'conference') {
+                const conference = document.getElementById('conference').value;
+                const location = document.getElementById('location').value;
+                bibtexEntry += `  booktitle = {${conference}},\n`;
+                bibtexEntry += `  location = {${location}},\n`;
+            }
+
+            const note = document.getElementById('note').value;
+            if (note) bibtexEntry += `  note = {${note}},\n`;
+
+            bibtexEntry += `}`;
+
+            document.getElementById('bibtexOutput').innerText = bibtexEntry;
+        }
+    </script>
+
+</body>
+</html>

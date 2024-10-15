@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BibTeX Generator</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <h1>BibTeX Generator</h1>
+
+        <label for="entry-type">Select Entry Type:</label>
+        <select id="entry-type">
+            <option value="">--Select--</option>
+            <option value="journal">Journal</option>
+            <option value="conference">Conference</option>
+            <option value="book">Book</option>
+            <option value="chapter">Book Chapter</option>
+            <option value="thesis">Thesis</option>
+            <option value="misc">Miscellaneous</option>
+        </select>
+
+        <div id="form-container"></div>
+
+        <button id="generate-button">Generate BibTeX</button>
+
+        <div id="output">
+            <h2>Generated BibTeX:</h2>
+            <pre id="bibtex-output"></pre>
+            <button id="copy-button">Copy to Clipboard</button>
+        </div>
+    </div>
+</body>
+</html>
