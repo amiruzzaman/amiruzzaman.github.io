@@ -69,13 +69,6 @@
             rawFile.send(null);
         }
 
-        //usage:
-        /*
-        readTextFile("template.json", function (text) {
-            var data = JSON.parse(text);
-            //console.log(data);
-        });
-        */
 
         let selectedItem = null;
 
@@ -153,23 +146,8 @@
                 container.appendChild(itemContainer);
             }
             subTotalDiv.innerHTML = subTotal;
-            //subTotalDiv.style.display = "flex";
             subTotalDiv.style.color = 'green';
-
-            ////subTotalDiv.style.minHeight = "15px"; 
-            ////subTotalDiv.setAttribute("align", "left");
-
-            //subTotalDiv.setAttribute("text-align", "right");
-
-            ////subTotalDiv.setAttribute("margin", "0 auto");
-            ////subTotalDiv.setAttribute("display", "flex");
-            //subTotalDiv.style.marginBottom = "10px"; 
-            //subTotalDiv.style.float = "right";
             subTotalDiv.style.fontSize = "12px";
-            //subTotalDiv.style.padding = "5px";
-            ////subTotalDiv.style.position = "relative";
-            ////subTotalDiv.style.right = "0";
-            ////subTotalDiv.align = 'left';
             subTotalDiv.classList.add('sub-total-score');
             container.appendChild(subTotalDiv);
 
@@ -282,16 +260,12 @@
                             // Formating text for each question
                             if (itemYes.classList.contains('selected')) {
                                 const _score = parseInt(itemYes.getAttribute('score'));
-                                //text += `${_score}\t${itemYes.innerText}\n`;
-                                //text += `\t${itemYes.innerText}\n`;
-								text += `${itemYes.innerText} `;
+								text += `${itemYes.innerText}\n`;
                                 score += _score;
                                 s += _score;
                             } else {
                                 const _score = parseInt(itemNo.getAttribute('score'));
-                                //text += `${_score}\t${itemNo.innerText}\n`;
-                                //text += `\t${itemNo.innerText}\n`;
-								text += `${itemNo.innerText} `;
+								text += `${itemNo.innerText}\n`;
                                 score += _score;
                                 s += _score;
                             }
@@ -328,13 +302,6 @@
 
                 text += `Total score: ${score}\n`;
                 console.log(text);
-				/*
-                if (inputTxt.value == '') {
-                    download('output.txt', text);
-                } else {
-                    download(inputTxt.value + '.txt', text);
-                }
-				*/
                 jsonData['total'] = score;
                 console.log(sarr, jsonData);
                 // for (var key in jsonData) {
@@ -351,18 +318,7 @@
             container.appendChild(saveButton);
 			container.appendChild(lastDiv);
 			container.appendChild(para);
-			
-			//var btn = document.createElement("BUTTON");  //<button> element
-			//var t = document.createTextNode("Copy"); // Create a text node
-			//btn.appendChild(t);   
-
-			//btn.onclick = function(){myFunction(myparameter)};  
-			////document.getElementById("myView").appendChild(btn);//to show on myView
-			//container.appendChild(btn);
 			para.onclick = function(){myCopyFunction(para.id)};
-			//var span = document.createElement('span');
-			//span.innerHTML = '<button id="but" onclick="callJavascriptFunction('+para.id+')">Copy</button>';
-			//container.appendChild(span);
 
         })
 
@@ -467,9 +423,6 @@ function myCopyFunction(id) {
 var para = document.getElementById('paraID');
 
 	navigator.clipboard.writeText(para.value);
-    //console.log(para.value);
-	//var copyText = para.value
-	//alert("Copied: " + copyText);
 } 
 
 
