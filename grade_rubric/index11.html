@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade using rubric</title>
+    <style>
+        /* Styling for container, header, and text areas */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.5;
+        }
+        #container {
+            width: 80%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        h3, h4 {
+            color: #333;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+        .item-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .item-container div {
+            padding: 5px 10px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 5px;
+        }
+        .item-yes.selected, .item-no.selected {
+            background-color: #e0f7e0;
+            border-color: #5cb85c;
+            font-weight: bold;
+        }
+        .item-score {
+            color: red;
+            font-weight: bold;
+        }
+        .sub-total-score {
+            color: green;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        /* Save button and comment section styling */
+        .save-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #5cb85c;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .save-button:hover {
+            background-color: #4cae4c;
+        }
+        #comment-section {
+            margin-top: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 80px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+
+<div id="container">
+    <p>Note: Selecting items from "No" will not subtract points. Double-click on "No" to adjust the score if needed.</p>
+
+    <!-- Container for the rubric -->
+    <div id="rubric-container"></div>
+
+    <!-- Comment Section -->
+    <div id="comment-section">
+        <label for="overall-comment">Overall Comment:</label>
+        <textarea id="overall-comment">Overall: Good start with your assignment report. Please see feedback above for areas needing improvement.</textarea>
+    </div>
+
+    <!-- Save button and output section -->
+    <button class="save-button" id="save-button">Save</button>
+    <textarea id="output" readonly></textarea>
+</div>
+
+<script>
+    function renderProblem(container, problems) {
+        let subTotal = 0;
+
+        for (let problem of problems) {
+            const { yes, no, point } = problem;
+
+            // Create container for each problem
+            const itemContainer = document.createElement('div');
+            itemContainer.classList.add('item-container');
+
+            // Create Yes, No, and Score elements
+            const itemYes = document.createElement('div');
+            itemYes.classList.add('item-yes', 'selected');
+            itemYes.setAttribute('score', point);
+            itemYes.innerText = yes;
+
+            const itemNo = document.createElement('div');
+            itemNo.classList.add('item-no');
+            itemNo.setAttribute('score', point);
+            itemNo.innerText = no;
+
+            const itemScore = document.createElement('div');
+            itemScore.classList.add('item-score');
+            itemScore.innerText = point;
+            subTotal += parseInt(point);
+
+            // Toggle selection between Yes and No
+            itemYes.addEventListener('click', () => {
+                itemYes.classList.add('selected');
+                itemNo.classList.remove('selected');
+            });
+
+            itemNo.addEventListener('click', () => {
+                itemNo.classList.add('selected');
+                itemYes.classList.remove('selected');
+            });
+
+            // Append to container
+            itemContainer.appendChild(itemYes);
+            itemContainer.appendChild(itemNo);
+            itemContainer.appendChild(itemScore);
+            container.appendChild(itemContainer);
+        }
+
+        // Display subtotal
+        const subTotalDiv = document.createElement('div');
+        subTotalDiv.classList.add('sub-total-score');
+        subTotalDiv.innerText = `Subtotal: ${subTotal}`;
+        container.appendChild(subTotalDiv);
+    }
+
+    // Fetch JSON data and render the rubric
+    fetch('a2fall24.json').then(response => response.json()).then(data => {
+        const rubricContainer = document.getElementById('rubric-container');
+        const parts = Object.keys(data);
+
+        parts.forEach(part => {
+            const partContainer = document.createElement('div');
+            partContainer.classList.add('part-container');
+
+            const partTitle = document.createElement('h3');
+            partTitle.innerText = `${part}: ${data[part].title}`;
+            partContainer.appendChild(partTitle);
+
+            data[part].problems.forEach((problemList, index) => {
+                const problemContainer = document.createElement('div');
+                problemContainer.classList.add('problem-container');
+
+                const problemTitle = document.createElement('h4');
+                problemTitle.innerText = `Problem ${index + 1}`;
+                problemContainer.appendChild(problemTitle);
+
+                renderProblem(problemContainer, problemList);
+                partContainer.appendChild(problemContainer);
+            });
+
+            rubricContainer.appendChild(partContainer);
+        });
+
+        // Save button functionality
+        document.getElementById('save-button').addEventListener('click', () => {
+            let outputText = '';
+            let totalScore = 0;
+
+            document.querySelectorAll('.part-container').forEach(part => {
+                const title = part.querySelector('h3').innerText;
+                outputText += `${title}:\n`;
+
+                let partParagraph = ''; // Collect all selected items for this part
+
+                part.querySelectorAll('.problem-container').forEach(problem => {
+                    problem.querySelectorAll('.item-container').forEach(item => {
+                        const selected = item.querySelector('.selected');
+                        const score = parseInt(selected.getAttribute('score'));
+                        totalScore += score;
+                        partParagraph += `${selected.innerText} `;
+                    });
+                });
+
+                // Append part's selected items as a single paragraph
+                outputText += `  ${partParagraph.trim()}\n\n`;
+            });
+
+            // Append overall comment and total score
+            const overallComment = document.getElementById('overall-comment').value;
+            outputText += `Overall Comment:\n${overallComment}\n\nTotal Score: ${totalScore}`;
+            document.getElementById('output').value = outputText;
+        });
+    });
+</script>
+
+</body>
+</html>

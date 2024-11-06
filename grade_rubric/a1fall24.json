@@ -4,8 +4,8 @@
         "problems": [
             [
                 {
-                    "yes": "You have provided your README file and your implementation is accessible.",
-                    "no": "You did not provide a README file but your implementation is accessible. You should upload your README file on Canvas for upcoming assignments.",
+                    "yes": "You have provided your README file and your implementation is accessible. ",
+                    "no": "You did not provide a README file but your implementation is not accessible. ",
                     "point": 4
                 },
                 {
@@ -14,8 +14,8 @@
                     "point": 2
                 },
                 {
-                    "yes": "You have provided an exact commit hash for your GitHub.",
-                    "no": "You did not provide an exact commit hash for your GitHub. You should add an exact hash for the commit you want us to consider for upcoming assignments. You should add this information as part of your Canvas submission.",
+                    "yes": "You have provided exact commit hash for your GitHub",
+                    "no": "",
                     "point": 2
                 },
                 {
@@ -25,7 +25,7 @@
                 },
                 {
                     "yes": "Your graphs/figures are readable. Good job!",
-                    "no": "Your figures/graphs are not readable.",
+                    "no": "Your figures/graphs are not readable",
                     "point": 2
                 }
             ]
@@ -36,13 +36,13 @@
         "problems": [
             [
                 {
-                    "yes": "You have chosen two datasets for your analysis.",
-                    "no": "You did not select two datasets for your analysis.",
+                    "yes": "You have chosesn two datasets for your analysis.",
+                    "no": "You did not select two datasets for your analysis",
                     "point": 2
                 },
                 {
-                    "yes": "You described why your datasets are interesting in ML perspective.",
-                    "no": "You did not describe why your datasets are interesting in ML perspective.",
+                    "yes": "You described why your datasets are interesting in ML perspective",
+                    "no": "You did not describe why your datasets are interesting in ML perspective",
                     "point": 4
                 },
                 {
@@ -68,7 +68,7 @@
                     "point": 2
                 },
                 {
-                    "yes": "You followed up with the hypothesis in your discussion/conclusion.",
+                    "yes": "You followed up with the hypothesis in your discusssion/conclusion.",
                     "no": "You cannot just state a hypothesis since it needs to follow through from a narrative perspective at the end of your report.",
                     "point": 2
                 },
@@ -85,8 +85,8 @@
         "problems": [
             [
                 {
-                    "yes": "You showed valid results for Learning Complexity (LC) curves.",
-                    "no": "You did not show valid results for Learning Complexity (LC) curves.",
+                    "yes": "You showed valid results for Learning Complexity (LC) curves. ",
+                    "no": "You did not show valid results for Learning Complexity (LC) curves. ",
                     "point": 2
                 },
                 {
@@ -95,42 +95,17 @@
                     "point": 4
                 },
                 {
-                    "yes": "You showed valid results for Model Complexity (MC) curves.",
-                    "no": "You did not show valid results for Model Complexity (MC) curves.",
+                    "yes": "You showed valid results for Model Complexity (MC) curves. ",
+                    "no": "You did not show valid results for Model Complexity (MC) curves. ",
                     "point": 2
-                },
-				{
-                    "yes": "You provided extensive analysis of results on Model Complexity (MC) curves.",
-                    "no": "You did not provide extensive analysis of results on Model Complexity (MC) curves.",
-                    "point": 4
-                },
-                {
-                    "yes": "You pointed out bias or variance in plot. You also provided extensive analysis, including 3 or more ways to show evidence/discussion on the bias and variance. ",
-                    "no": "8 You did not provide an extensive analysis on bias/variance plot. We wanted to see 3 or more ways you present evidence or discussion on the bias and variance.6 You provided somediscussion on bias/variance using plots. However, you only presented your evidence/discussion using 2 different ways.4 You provided some discussion on bias/variance using plots. However, you only presented your evidence/discussion using only 1 way.0 Missing analysis or no plot provided to analyze bias/variance",
-                    "point": 8
                 }
             ]
         ]
     },
     "Part 4": {
-        "title": "SVM",
+        "title": "NN",
         "problems": [
             [
-                {
-                    "yes": "You showed valid results for Learning Complexity (LC) curves.",
-                    "no": "You did not show valid results for Learning Complexity (LC) curves.",
-                    "point": 2
-                },
-                {
-                    "yes": "You provided extensive analysis of results on Learning Complexity (LC) curves.",
-                    "no": "You did not provide extensive analysis of results on Learning Complexity (LC) curves.",
-                    "point": 4
-                },
-                {
-                    "yes": "You showed valid results for Model Complexity (MC) curves.",
-                    "no": "You did not show valid results for Model Complexity (MC) curves.",
-                    "point": 2
-                },
                 {
                     "yes": "You provided extensive analysis of results on Model Complexity (MC) curves.",
                     "no": "You did not provide extensive analysis of results on Model Complexity (MC) curves.",
@@ -138,19 +113,19 @@
                 },
                 {
                     "yes": "You pointed out bias or variance in plot. You also provided extensive analysis, including 3 or more ways to show evidence/discussion on the bias and variance. ",
-                    "no": "Missing analysis or no plot provided to analyze bias/variance.",
+                    "no": "Missing analysis or no plot provided to analyze bias/variance",
                     "point": 8
                 }
             ]
         ]
     },
     "Part 5": {
-        "title": "KNN",
+        "title": "SVM",
         "problems": [
             [
                 {
-                    "yes": "You showed valid results for Learning Complexity (LC) curves.",
-                    "no": "You did not show valid results for Learning Complexity (LC) curves.",
+                    "yes": "You showed valid results for Learning Complexity (LC) curves. ",
+                    "no": "You did not show valid results for Learning Complexity (LC) curves. ",
                     "point": 2
                 },
                 {
@@ -159,8 +134,8 @@
                     "point": 4
                 },
                 {
-                    "yes": "You showed valid results for Model Complexity (MC) curves.",
-                    "no": "You did not show valid results for Model Complexity (MC) curves.",
+                    "yes": "You showed valid results for Model Complexity (MC) curves. ",
+                    "no": "You did not show valid results for Model Complexity (MC) curves. ",
                     "point": 2
                 },
                 {
@@ -170,13 +145,45 @@
                 },
                 {
                     "yes": "You pointed out bias or variance in plot. You also provided extensive analysis, including 3 or more ways to show evidence/discussion on the bias and variance. ",
-                    "no": "Missing analysis or no plot provided to analyze bias/variance.",
+                    "no": "Missing analysis or no plot provided to analyze bias/variance",
                     "point": 8
                 }
             ]
         ]
     },
     "Part 6": {
+        "title": "KNN",
+        "problems": [
+            [
+                {
+                    "yes": "You showed valid results for Learning Complexity (LC) curves. ",
+                    "no": "You did not show valid results for Learning Complexity (LC) curves. ",
+                    "point": 2
+                },
+                {
+                    "yes": "You provided extensive analysis of results on Learning Complexity (LC) curves.",
+                    "no": "You did not provide extensive analysis of results on Learning Complexity (LC) curves.",
+                    "point": 4
+                },
+                {
+                    "yes": "You showed valid results for Model Complexity (MC) curves. ",
+                    "no": "You did not show valid results for Model Complexity (MC) curves. ",
+                    "point": 2
+                },
+                {
+                    "yes": "You provided extensive analysis of results on Model Complexity (MC) curves.",
+                    "no": "You did not provide extensive analysis of results on Model Complexity (MC) curves.",
+                    "point": 4
+                },
+                {
+                    "yes": "You pointed out bias or variance in plot. You also provided extensive analysis, including 3 or more ways to show evidence/discussion on the bias and variance. ",
+                    "no": "Missing analysis or no plot provided to analyze bias/variance",
+                    "point": 8
+                }
+            ]
+        ]
+    },
+    "Part 7": {
         "title": "Conclusion",
         "problems": [
             [
@@ -192,7 +199,7 @@
                 },
                 {
                     "yes": "You also provided some discussion on performances: noise and number of sample needed to learn efectively. ",
-                    "no": "You needed to provide a detailed discussion on performances: noise and number of sample needed to learn effectively. ",
+                    "no": "You needed to provide a detailed discussion on performances: noise and number of sample needed to learn efectively. ",
                     "point": 2
                 },
                 {
@@ -202,19 +209,19 @@
                 },
                 {
                     "yes": "You also provided some discussion to show a broad understanding.",
-                    "no": "You also needed some discussion to show a broad understanding.",
+                    "no": "You also needed some discussion to show a broad understanding. ",
                     "point": 2
                 }
             ]
         ]
     },
-    "Part 7": {
+    "Part 8": {
         "title": "EC",
         "problems": [
             [
                 {
                     "yes": "Decision Trees are implemented with comprehensive analysis that adds significant insights into the datesets and theoretical implications. Adaboost will be used.",
-                    "no": "Did not implement Decision Trees or Boosting for extra credit.",
+                    "no": "Did not implement Decision Trees or Boosting. ",
                     "point": 5
                 }
             ]

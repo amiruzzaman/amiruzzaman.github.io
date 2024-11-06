@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math Challenge with Carry Feedback</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f5f5f5;
+    }
+    .container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 300px;
+    }
+    .row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 5px 0;
+    }
+    .number {
+      font-size: 2rem;
+      margin: 5px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .select-operation {
+      margin-left: 10px;
+      font-size: 1.5rem;
+    }
+    .line {
+      width: 100%;
+      height: 2px;
+      background-color: black;
+      margin: 10px 0;
+    }
+    input[type="text"] {
+      font-size: 1.5rem;
+      width: 100%;
+      text-align: center;
+      padding: 5px;
+      margin-bottom: 10px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      background-color: #28a745;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    .result {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .carry-feedback {
+      margin-top: 10px;
+      text-align: left;
+      font-size: 0.9rem;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="row">
+    <div class="number" id="num1" onclick="makeEditable('num1')">123</div>
+  </div>
+  <div class="row">
+    <div class="number" id="num2" onclick="makeEditable('num2')">456</div>
+    <select id="operation" class="select-operation">
+      <option value="+">+</option>
+      <option value="-">-</option>
+      <option value="*">*</option>
+      <option value="/">/</option>
+    </select>
+  </div>
+  <div class="line"></div>
+  <input type="text" id="userAnswer" placeholder="Enter your answer" />
+  <button onclick="checkAnswer()">Check Answer</button>
+  <div class="result" id="resultMessage"></div>
+  <div class="carry-feedback" id="carryFeedback"></div>
+</div>
+
+<script>
+  // Generate a random number with a length between 1 and 7 digits
+  function generateRandomNumber() {
+    const min = Math.pow(10, Math.floor(Math.random() * 7));
+    const max = Math.pow(10, Math.ceil(Math.random() * 7)) - 1;
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  // Set random numbers initially
+  document.getElementById('num1').innerText = generateRandomNumber();
+  document.getElementById('num2').innerText = generateRandomNumber();
+
+  // Make the numbers editable on click
+  function makeEditable(id) {
+    const element = document.getElementById(id);
+    const value = element.innerText;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = value;
+    input.onblur = () => {
+      element.innerText = input.value;
+      element.onclick = () => makeEditable(id);
+    };
+    element.innerHTML = '';
+    element.appendChild(input);
+    input.focus();
+  }
+
+  // Check the user's answer and display result and carry feedback
+  function checkAnswer() {
+    const num1 = parseInt(document.getElementById('num1').innerText);
+    const num2 = parseInt(document.getElementById('num2').innerText);
+    const operation = document.getElementById('operation').value;
+    const userAnswer = parseFloat(document.getElementById('userAnswer').value);
+    let correctAnswer;
+
+    // Perform the selected operation
+    switch (operation) {
+      case '+':
+        correctAnswer = num1 + num2;
+        break;
+      case '-':
+        correctAnswer = num1 - num2;
+        break;
+      case '*':
+        correctAnswer = num1 * num2;
+        break;
+      case '/':
+        correctAnswer = num2 !== 0 ? num1 / num2 : 'undefined'; // Avoid division by zero
+        break;
+      default:
+        correctAnswer = NaN;
+    }
+
+    // Display result message
+    const resultMessage = document.getElementById('resultMessage');
+    if (userAnswer === correctAnswer) {
+      resultMessage.innerText = 'Correct!';
+      resultMessage.style.color = 'green';
+    } else {
+      resultMessage.innerText = `Wrong! Correct answer: ${correctAnswer}`;
+      resultMessage.style.color = 'red';
+    }
+
+    // Show carry feedback for addition or subtraction
+    const carryFeedback = document.getElementById('carryFeedback');
+    if (operation === '+' || operation === '-') {
+      carryFeedback.innerHTML = generateCarryFeedback(num1, num2, operation);
+    } else {
+      carryFeedback.innerHTML = ''; // Clear feedback for other operations
+    }
+  }
+
+  // Generate carry feedback for addition or subtraction
+  function generateCarryFeedback(num1, num2, operation) {
+    const n1 = num1.toString().split('').reverse();
+    const n2 = num2.toString().split('').reverse();
+    const length = Math.max(n1.length, n2.length);
+    let carry = 0;
+    let feedback = '<strong>Carry Operation:</strong><br>';
+
+    for (let i = 0; i < length; i++) {
+      const digit1 = parseInt(n1[i] || '0');
+      const digit2 = parseInt(n2[i] || '0');
+      let result;
+
+      if (operation === '+') {
+        result = digit1 + digit2 + carry;
+        carry = Math.floor(result / 10);
+      } else {
+        result = digit1 - digit2 - carry;
+        carry = result < 0 ? 1 : 0;
+        result = (result + 10) % 10; // Handle negative result
+      }
+
+      feedback += `Position ${i + 1}: ${digit1} ${operation} ${digit2} + Carry(${carry}) = ${result}<br>`;
+    }
+
+    return feedback;
+  }
+</script>
+
+</body>
+</html>
