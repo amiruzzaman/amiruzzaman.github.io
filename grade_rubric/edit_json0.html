@@ -16,7 +16,7 @@
         th {
             background-color: #f4f4f4;
         }
-        .save-button, .load-button {
+        .save-button {
             margin-top: 20px;
             padding: 10px 15px;
             background-color: #4CAF50;
@@ -24,7 +24,7 @@
             border: none;
             cursor: pointer;
         }
-        .save-button:hover, .load-button:hover {
+        .save-button:hover {
             background-color: #45a049;
         }
     </style>
@@ -32,27 +32,17 @@
 <body>
 
 <h1>Edit JSON Data</h1>
-<input type="file" id="fileInput" accept=".json" class="load-button" onchange="handleFileLoad()" />
 <div id="table-container"></div>
-<br>
-<input type="text" id="filename" placeholder="Enter filename (optional)" />
 <button class="save-button" onclick="saveJson()">Save Changes</button>
 
 <script>
     let jsonData = null;
 
-    // Load JSON data from a selected file
-    function handleFileLoad() {
-        const fileInput = document.getElementById("fileInput");
-        const file = fileInput.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                jsonData = JSON.parse(event.target.result);
-                displayTable(jsonData);
-            };
-            reader.readAsText(file);
-        }
+    // Fetch JSON data from a file (simulate file loading here)
+    async function loadJson() {
+        const response = await fetch('a2fall24.json');
+        jsonData = await response.json();
+        displayTable(jsonData);
     }
 
     // Display the JSON data in a table format
@@ -113,19 +103,17 @@
             });
         });
 
-        // Set the default filename or use custom filename if provided
-        const filenameInput = document.getElementById("filename").value;
-        const filename = filenameInput ? filenameInput : "a2fall24.json";
-
         // Convert JSON to blob and download as JSON file
         const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: "application/json" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = filename;
+        a.download = "updated_a2fall24.json";
         a.click();
         URL.revokeObjectURL(url);
     }
+
+    loadJson();
 </script>
 
 </body>
