@@ -21,26 +21,27 @@
         th {
             font-weight: bold;
         }
-		
-		#notice {
-  width: 80%;
-  max-width: 1000px;
-  /*height: 100%;*/
-  margin: 0 auto;
-  padding: 5px 5px 5px 5px;
-  background-color: #f0f0f0;
-  border: 1px solid #e0e0e0;
-  overflow: auto;
-  font-family: Arial, sans-serif;
- color: red;
-  font-weight: normal;
-  font-size: 14px;
-}
+
+        #notice {
+            width: 80%;
+            max-width: 1000px;
+            /*height: 100%;*/
+            margin: 0 auto;
+            padding: 5px 5px 5px 5px;
+            background-color: #f0f0f0;
+            border: 1px solid #e0e0e0;
+            overflow: auto;
+            font-family: Arial, sans-serif;
+            color: red;
+            font-weight: normal;
+            font-size: 14px;
+        }
     </style>
 </head>
 
 <body>
-	<p id = "notice"> Selecting items from "No" will not subtract points. Double click on "No" side and adjust how much you want to take out. For example, if it shows 5, and you want to take out all, then make that 0.</p>
+    <p id="notice"> Selecting items from "No" will not subtract points. Double click on "No" side and adjust how much
+        you want to take out. For example, if it shows 5, and you want to take out all, then make that 0.</p>
     <div id="container"></div>
     <div id="edit-box">
         <textarea id="edit-text"></textarea>
@@ -54,7 +55,7 @@
         </div>
     </div>
     <div id="overlay"></div>
-	<p id = "notice" style = "height: 30px;"></p>
+    <p id="notice" style="height: 30px;"></p>
     <script>
 
         function readTextFile(file, callback) {
@@ -230,30 +231,30 @@
             input.name = "post";
             input.maxLength = "5000";
             input.cols = "80";
-            input.rows = "20";
+            input.rows = "5";
             input.classList.add('item-textareabox');
             textAreaDiv.classList.add('item-textarea');
-			//input.value = "Overall: Good start with your assignment report. There are some sections needed some more work, for details please see the above comment/feedback. You could have done a better job in managing your empty spaces in your report, which would have allowed you to add more discussions on your results and comparisons.";
-			input.value = "Your assignment report is off to a good start. There are a few sections that require more attention. Please refer to the comment/feedback above for further details.";
+            //input.value = "Overall: Good start with your assignment report. There are some sections needed some more work, for details please see the above comment/feedback. You could have done a better job in managing your empty spaces in your report, which would have allowed you to add more discussions on your results and comparisons.";
+            input.value = "Overall: Your assignment report is off to a good start. There are a few sections that require more attention. Please refer to the comment/feedback above for further details.";
             textAreaDiv.appendChild(input);
             var inputTxt = document.createElement("input");
             inputTxt.type = "text";
 
             const fileNameLabel = document.createElement('div');
             fileNameLabel.innerHTML = "Filename";
-			
-			const lastDiv = document.createElement('div');
+
+            const lastDiv = document.createElement('div');
             //lastDiv.style.width = '500px';
-			lastDiv.style.height = '100px';
+            lastDiv.style.height = '100px';
             lastDiv.innerText = 'Final grade by item will appear below';
-			//lastDiv.style.display = 'none';  
-			lastDiv.style.color = "green";
+            //lastDiv.style.display = 'none';  
+            lastDiv.style.color = "green";
 
 
-			//var para = document.createElement('p');
-			var para = document.createElement('textarea');
-			para.id = "paraID";
-			
+            //var para = document.createElement('p');
+            var para = document.createElement('textarea');
+            para.id = "paraID";
+
             saveButton.addEventListener('click', () => {
                 // Formating document
                 let text = '';
@@ -285,14 +286,14 @@
                                 const _score = parseInt(itemYes.getAttribute('score'));
                                 //text += `${_score}\t${itemYes.innerText}\n`;
                                 //text += `\t${itemYes.innerText}\n`;
-								text += `${itemYes.innerText} `;
+                                text += `${itemYes.innerText} `;
                                 score += _score;
                                 s += _score;
                             } else {
                                 const _score = parseInt(itemNo.getAttribute('score'));
                                 //text += `${_score}\t${itemNo.innerText}\n`;
                                 //text += `\t${itemNo.innerText}\n`;
-								text += `${itemNo.innerText} `;
+                                text += `${itemNo.innerText} `;
                                 score += _score;
                                 s += _score;
                             }
@@ -305,37 +306,37 @@
                         }
                         sarr.push(s)
 
-                        text += '\n';
+                        text += '\n\n';
                     });
 
 
                 });
-//console.log(parts);
+                //console.log(parts);
 
                 text += "" + input.value + '\n\n'; // this is where additional overall comments will be added.
-				
-				
-				//para.innerHTML = text;
-				para.maxLength = "50000";
-				para.cols = "80";
-				//para.rows = "50";
-				para.value = text;
-				
-				text = text.replace("Part 10: EC\n", "");
-				var lines = para.value.split("\n");  
-				console.log("number of lines", lines.length);
-				para.rows = (lines.length).toString();
-				//console.log('paragraph:\n', para.innerHTML);
+
+
+                //para.innerHTML = text;
+                para.maxLength = "50000";
+                para.cols = "80";
+                //para.rows = "50";
+                para.value = text;
+
+                text = text.replace("Part 10: EC\n", "");
+                var lines = para.value.split("\n");
+                console.log("number of lines", lines.length);
+                para.rows = (lines.length).toString();
+                //console.log('paragraph:\n', para.innerHTML);
 
                 text += `Total score: ${score}\n`;
                 console.log(text);
-				/*
+                /*
                 if (inputTxt.value == '') {
                     download('output.txt', text);
                 } else {
                     download(inputTxt.value + '.txt', text);
                 }
-				*/
+                */
                 jsonData['total'] = score;
                 console.log(sarr, jsonData);
                 // for (var key in jsonData) {
@@ -350,20 +351,20 @@
             container.appendChild(fileNameLabel);
             container.appendChild(inputTxt);
             container.appendChild(saveButton);
-			container.appendChild(lastDiv);
-			container.appendChild(para);
-			
-			//var btn = document.createElement("BUTTON");  //<button> element
-			//var t = document.createTextNode("Copy"); // Create a text node
-			//btn.appendChild(t);   
+            container.appendChild(lastDiv);
+            container.appendChild(para);
 
-			//btn.onclick = function(){myFunction(myparameter)};  
-			////document.getElementById("myView").appendChild(btn);//to show on myView
-			//container.appendChild(btn);
-			para.onclick = function(){myCopyFunction(para.id)};
-			//var span = document.createElement('span');
-			//span.innerHTML = '<button id="but" onclick="callJavascriptFunction('+para.id+')">Copy</button>';
-			//container.appendChild(span);
+            //var btn = document.createElement("BUTTON");  //<button> element
+            //var t = document.createTextNode("Copy"); // Create a text node
+            //btn.appendChild(t);   
+
+            //btn.onclick = function(){myFunction(myparameter)};  
+            ////document.getElementById("myView").appendChild(btn);//to show on myView
+            //container.appendChild(btn);
+            para.onclick = function () { myCopyFunction(para.id) };
+            //var span = document.createElement('span');
+            //span.innerHTML = '<button id="but" onclick="callJavascriptFunction('+para.id+')">Copy</button>';
+            //container.appendChild(span);
 
         })
 
@@ -430,7 +431,7 @@
             if (myEle) {
                 document.getElementById("someID").innerHTML = "";
             }
-			divContainer.style.height ="300px";
+            divContainer.style.height = "300px";
             divContainer.innerHTML = "";
             divContainer.appendChild(table);
             container.appendChild(divContainer);
@@ -457,22 +458,20 @@
             });
         });
     </script>
-	<script>
-function callJavascriptFunction(id)
-{
-    document.getElementById(id).select();
-    document.execCommand('copy');
-}
+    <script>
+        function callJavascriptFunction(id) {
+            document.getElementById(id).select();
+            document.execCommand('copy');
+        }
 
-function myCopyFunction(id) {
-var para = document.getElementById('paraID');
+        function myCopyFunction(id) {
+            var para = document.getElementById('paraID');
 
-	navigator.clipboard.writeText(para.value);
-    //console.log(para.value);
-	//var copyText = para.value
-	//alert("Copied: " + copyText);
-} 
-
+            navigator.clipboard.writeText(para.value);
+            //console.log(para.value);
+            //var copyText = para.value
+            //alert("Copied: " + copyText);
+        }
 
 
 
@@ -480,7 +479,8 @@ var para = document.getElementById('paraID');
 
 
 
-</script>
+
+    </script>
 </body>
 
 </html>
