@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentence Analyzer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .output {
+            margin-top: 20px;
+            font-size: 18px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Sentence Analyzer</h1>
+<textarea id="inputText" placeholder="Enter sentences here..."></textarea>
+<button onclick="analyzeSentences()">Analyze and Combine</button>
+
+<div id="output" class="output"></div>
+
+<script>
+    function analyzeSentences() {
+        const inputText = document.getElementById("inputText").value;
+        const sentences = inputText.split(/(?<=[.!?])\s+/);
+
+        const positiveKeywords = ["good", "great", "excellent", "amazing", "happy", "positive", "love", "have"];
+        const negativeKeywords = ["bad", "poor", "terrible", "sad", "unhappy", "negative", "hate", "not", "did not"];
+
+        let outputSentences = [];
+        let prevSentiment = null;
+
+        function determineSentiment(sentence) {
+            const lowerSentence = sentence.toLowerCase();
+            let isPositive = positiveKeywords.some(word => lowerSentence.includes(word));
+            let isNegative = negativeKeywords.some(word => lowerSentence.includes(word));
+            return isPositive && !isNegative ? "positive" : isNegative ? "negative" : "neutral";
+        }
+
+        for (let i = 0; i < sentences.length; i++) {
+            const currentSentence = sentences[i].trim();
+            const currentSentiment = determineSentiment(currentSentence);
+
+            if (prevSentiment === "positive" && currentSentiment === "positive") {
+                // Combine two positive sentences with "and"
+                let lastSentence = outputSentences.pop();
+                let combinedSentence = lastSentence.replace(/(\w)([.!?])$/, (match, p1) => p1.toLowerCase()) + " and " + currentSentence[0].toLowerCase() + currentSentence.slice(1);
+                outputSentences.push(combinedSentence);
+            } else if (prevSentiment === "positive" && currentSentiment === "negative") {
+                // Add "However, " before the negative sentence
+                outputSentences.push("However, " + currentSentence[0].toLowerCase() + currentSentence.slice(1));
+            } else {
+                // Add sentence without modification
+                outputSentences.push(currentSentence);
+            }
+
+            prevSentiment = currentSentiment;
+        }
+
+        // Display the output
+        document.getElementById("output").textContent = outputSentences.join(" ");
+    }
+</script>
+
+</body>
+</html>
