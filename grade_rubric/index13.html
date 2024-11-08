@@ -254,23 +254,6 @@
             //var para = document.createElement('p');
             var para = document.createElement('textarea');
             para.id = "paraID";
-			
-			
-			
-			// Add Checkbox for Additional Comment
-            const checkBoxDiv = document.createElement('div');
-            checkBoxDiv.classList.add('checkbox-container');
-            const checkBox = document.createElement('input');
-            checkBox.type = 'checkbox';
-            checkBox.id = 'additional-comment';
-            const checkBoxLabel = document.createElement('label');
-            checkBoxLabel.innerHTML = 'Include additional comment about page management!';
-            checkBoxLabel.htmlFor = 'additional-comment';
-
-            checkBoxDiv.appendChild(checkBox);
-            checkBoxDiv.appendChild(checkBoxLabel);
-            container.appendChild(checkBoxDiv);
-			
 
             saveButton.addEventListener('click', () => {
                 // Formating document
@@ -325,21 +308,12 @@
 
                         text += '\n\n';
                     });
-					
-				
-
 
 
                 });
                 //console.log(parts);
 
-                //text += "" + input.value + '\n\n'; // this is where additional overall comments will be added.
-				
-					// Append overall comment and conditional additional comment
-                text += "" + input.value + ' ';
-                if (checkBox.checked) {
-                    text += "You could have done a better job in managing your empty spaces in your report, which would have allowed you to add more discussions on your results and comparisons.\n";
-                }
+                text += "" + input.value + '\n\n'; // this is where additional overall comments will be added.
 
 
                 //para.innerHTML = text;
@@ -499,51 +473,14 @@
             //alert("Copied: " + copyText);
         }
 
+
+
+
+
+
+
+
     </script>
-	
-	<style>
-    table,
-    th,
-    td {
-        border: solid 1px #ddd;
-        border-collapse: collapse;
-        padding: 2px 3px;
-        text-align: center;
-        width: 30px;
-    }
-
-    th {
-        font-weight: bold;
-    }
-
-    #notice {
-        width: 80%;
-        max-width: 1000px;
-        margin: 0 auto;
-        padding: 5px;
-        background-color: #f0f0f0;
-        border: 1px solid #e0e0e0;
-        overflow: auto;
-        font-family: Arial, sans-serif;
-        color: red;
-        font-weight: normal;
-        font-size: 14px;
-    }
-
-    /* Style for the para textarea to match the container's width and appearance */
-    #paraID {
-        width: 100%;
-        max-width: 1000px;
-        margin: 20px auto;
-        padding: 10px;
-        font-size: 14px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        resize: vertical;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-</style>
-
 </body>
 
 </html>

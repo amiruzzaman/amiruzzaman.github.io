@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade using rubric</title>
+    <link rel="stylesheet" href="style.css"> <!-- Keeps original styling intact -->
+    <style>
+        /* Add custom styling adjustments */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #container {
+            max-width: 800px;
+            width: 100%;
+            padding: 20px;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 10px;
+        }
+
+        #notice {
+            width: 100%;
+            background-color: #f0f0f0;
+            padding: 10px;
+            text-align: center;
+            color: #d9534f;
+            font-size: 14px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .save-button {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            border-radius: 4px;
+        }
+
+        .save-button:hover {
+            background-color: #45a049;
+        }
+
+        .item-textareabox {
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .checkbox-container label {
+            margin-left: 5px;
+            font-size: 14px;
+        }
+
+        /* Output textarea styling for visibility */
+        #paraID {
+            width: 100%;
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+            min-height: 150px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <p id="notice">Selecting items from "No" will not subtract points. Double-click on "No" side to adjust deductions.</p>
+    <div id="container"></div>
+
+    <script>
+        // Render grading rubric from JSON file
+        fetch('a2fall24.json').then(response => response.json()).then(data => {
+            const container = document.getElementById('container');
+            const parts = Object.keys(data);
+
+            for (let part of parts) {
+                const partContainer = document.createElement('div');
+                partContainer.classList.add('part-container');
+                const partTitle = data[part].title;
+                const partProblems = data[part].problems;
+                const h3 = document.createElement('h3');
+                h3.innerText = `${part}: ${partTitle}`;
+                partContainer.appendChild(h3);
+
+                if (partProblems.length > 1) {
+                    for (let i = 0; i < partProblems.length; i++) {
+                        const problemContainer = document.createElement('div');
+                        problemContainer.classList.add('problem-container');
+                        const problemTitle = `Problem ${i + 1}`;
+                        const h4 = document.createElement('h4');
+                        h4.innerText = problemTitle;
+                        problemContainer.appendChild(h4);
+                        renderProblem(problemContainer, partProblems[i]);
+                        partContainer.appendChild(problemContainer);
+                    }
+                } else {
+                    const problemContainer = document.createElement('div');
+                    problemContainer.classList.add('problem-container');
+                    renderProblem(problemContainer, partProblems[0]);
+                    partContainer.appendChild(problemContainer);
+                }
+                container.appendChild(partContainer);
+            }
+
+            // Add "Overall" Comment Section
+            const commentDiv = document.createElement('div');
+            commentDiv.innerHTML = "Overall";
+            const textAreaDiv = document.createElement('div');
+            var input = document.createElement("textarea");
+            input.maxLength = "5000";
+            input.cols = "80";
+            input.rows = "5";
+            input.classList.add('item-textareabox');
+            input.value = "Overall: Your assignment report is off to a good start. There are a few sections that require more attention. Please refer to the comment/feedback above for further details.";
+            textAreaDiv.appendChild(input);
+            container.appendChild(commentDiv);
+            container.appendChild(textAreaDiv);
+
+            // Add Checkbox for Additional Comment
+            const checkBoxDiv = document.createElement('div');
+            checkBoxDiv.classList.add('checkbox-container');
+            const checkBox = document.createElement('input');
+            checkBox.type = 'checkbox';
+            checkBox.id = 'additional-comment';
+            const checkBoxLabel = document.createElement('label');
+            checkBoxLabel.innerHTML = 'Include additional comment';
+            checkBoxLabel.htmlFor = 'additional-comment';
+
+            checkBoxDiv.appendChild(checkBox);
+            checkBoxDiv.appendChild(checkBoxLabel);
+            container.appendChild(checkBoxDiv);
+
+            // Add Save Button and Display Area
+            const saveButton = document.createElement('button');
+            saveButton.classList.add('save-button');
+            saveButton.innerText = 'Save';
+            const para = document.createElement('textarea');
+            para.id = "paraID";
+            para.maxLength = "50000";
+            para.cols = "80";
+
+            saveButton.addEventListener('click', () => {
+                let text = '';
+                let score = 0;
+
+                // Retrieve selected items and scores
+                const parts = document.querySelectorAll('.part-container');
+                parts.forEach(part => {
+                    const title = part.querySelector('h3').innerText;
+                    text += `${title}\n`;
+
+                    const problems = part.querySelectorAll('.problem-container');
+                    problems.forEach(problem => {
+                        const problemTitle = problem.querySelector('h4');
+                        if (problemTitle) text += `${problemTitle.innerText}: \n`;
+
+                        const items = problem.querySelectorAll('.item-container');
+                        items.forEach(item => {
+                            const itemYes = item.querySelector('.item-yes');
+                            const itemNo = item.querySelector('.item-no');
+
+                            if (itemYes.classList.contains('selected')) {
+                                text += `${itemYes.innerText} `;
+                                score += parseInt(itemYes.getAttribute('score'));
+                            } else {
+                                text += `${itemNo.innerText} `;
+                                score += parseInt(itemNo.getAttribute('score'));
+                            }
+                        });
+                        text += '\n\n';
+                    });
+                });
+
+                // Append overall comment and conditional additional comment
+                text += "" + input.value + '\n\n';
+                if (checkBox.checked) {
+                    text += "You could have done a better job in managing your empty spaces in your report, which would have allowed you to add more discussions on your results and comparisons.\n";
+                }
+
+                text += `Total score: ${score}\n`;
+                para.value = text;
+            });
+
+            container.appendChild(saveButton);
+            container.appendChild(para);
+        });
+
+        // Function to render each problem and its options
+        function renderProblem(container, problems) {
+            for (let problem of problems) {
+                const yes = problem.yes;
+                const no = problem.no;
+                const score = problem.point;
+
+                const itemContainer = document.createElement('div');
+                itemContainer.classList.add('item-container');
+
+                const itemYes = document.createElement('div');
+                itemYes.classList.add('item-yes');
+                itemYes.classList.add('selected');
+                itemYes.setAttribute('score', score);
+                itemYes.innerText = yes;
+
+                const itemNo = document.createElement('div');
+                itemNo.classList.add('item-no');
+                itemNo.setAttribute('score', score);
+                itemNo.innerText = no;
+
+                const itemScore = document.createElement('div');
+                itemScore.classList.add('item-score');
+                itemScore.innerHTML = score;
+                itemScore.style.color = 'red';
+
+                itemYes.addEventListener('click', () => {
+                    itemYes.classList.add('selected');
+                    itemNo.classList.remove('selected');
+                });
+
+                itemNo.addEventListener('click', () => {
+                    itemNo.classList.add('selected');
+                    itemYes.classList.remove('selected');
+                });
+
+                itemContainer.appendChild(itemYes);
+                itemContainer.appendChild(itemNo);
+                itemContainer.appendChild(itemScore);
+                container.appendChild(itemContainer);
+            }
+        }
+    </script>
+</body>
+
+</html>

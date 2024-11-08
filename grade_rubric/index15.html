@@ -235,7 +235,7 @@
             input.classList.add('item-textareabox');
             textAreaDiv.classList.add('item-textarea');
             //input.value = "Overall: Good start with your assignment report. There are some sections needed some more work, for details please see the above comment/feedback. You could have done a better job in managing your empty spaces in your report, which would have allowed you to add more discussions on your results and comparisons.";
-            input.value = "Overall: Your assignment report is off to a good start. There are a few sections that require more attention. Please refer to the comment/feedback above for further details.";
+            input.value = "Your assignment report is off to a good start. There are a few sections that require more attention. Please refer to the comment/feedback above for further details.";
             textAreaDiv.appendChild(input);
             var inputTxt = document.createElement("input");
             inputTxt.type = "text";
@@ -264,7 +264,7 @@
             checkBox.type = 'checkbox';
             checkBox.id = 'additional-comment';
             const checkBoxLabel = document.createElement('label');
-            checkBoxLabel.innerHTML = 'Include additional comment about page management!';
+            checkBoxLabel.innerHTML = 'Include additional comment';
             checkBoxLabel.htmlFor = 'additional-comment';
 
             checkBoxDiv.appendChild(checkBox);
@@ -500,50 +500,6 @@
         }
 
     </script>
-	
-	<style>
-    table,
-    th,
-    td {
-        border: solid 1px #ddd;
-        border-collapse: collapse;
-        padding: 2px 3px;
-        text-align: center;
-        width: 30px;
-    }
-
-    th {
-        font-weight: bold;
-    }
-
-    #notice {
-        width: 80%;
-        max-width: 1000px;
-        margin: 0 auto;
-        padding: 5px;
-        background-color: #f0f0f0;
-        border: 1px solid #e0e0e0;
-        overflow: auto;
-        font-family: Arial, sans-serif;
-        color: red;
-        font-weight: normal;
-        font-size: 14px;
-    }
-
-    /* Style for the para textarea to match the container's width and appearance */
-    #paraID {
-        width: 100%;
-        max-width: 1000px;
-        margin: 20px auto;
-        padding: 10px;
-        font-size: 14px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        resize: vertical;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-</style>
-
 </body>
 
 </html>
