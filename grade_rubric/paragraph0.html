@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Combine Sentences into Paragraphs</title>
+  <style>
+    /* CSS */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    #inputContainer {
+      margin-bottom: 20px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+
+    #outputContainer {
+      margin-top: 20px;
+      background-color: #f9f9f9;
+      padding: 15px;
+      border-radius: 5px;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="inputContainer">
+    <textarea id="inputText" placeholder="Enter individual lines of text here..."></textarea>
+    <button onclick="combineText()">Combine Text</button>
+  </div>
+  
+  <div id="outputContainer">
+    <h2>Combined Paragraph</h2>
+    <p id="outputText"></p>
+  </div>
+
+  <script>
+    // JavaScript
+    function combineText() {
+      const inputText = document.getElementById("inputText").value;
+      const sentences = inputText.split("\n").filter(sentence => sentence.trim() !== "");
+      let result = "";
+
+      for (let i = 0; i < sentences.length; i++) {
+        let sentence = sentences[i].trim();
+        const isPositive = !sentence.includes("did not") && !sentence.includes("cannot");
+
+        if (i > 0) {
+          const previousIsPositive = !sentences[i - 1].includes("did not") && !sentences[i - 1].includes("cannot");
+
+          if (isPositive && previousIsPositive) {
+            // Combine positive sentences with "and"
+            result += " and " + sentence;
+          } else if (!isPositive && !previousIsPositive) {
+            // Combine negative sentences with "However,"
+            result += " However, " + sentence;
+          } else {
+            // Randomly add transition phrases for variety
+            const connectors = ["In addition,", "Also,", "On a positive note,"];
+            const randomConnector = connectors[Math.floor(Math.random() * connectors.length)];
+            result += " " + randomConnector + " " + sentence;
+          }
+        } else {
+          // Add the first sentence without any connectors
+          result += sentence;
+        }
+      }
+
+      document.getElementById("outputText").innerText = result;
+    }
+  </script>
+
+</body>
+</html>

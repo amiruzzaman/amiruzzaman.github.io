@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Table Viewer and Editor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        input[type="text"] {
+            padding: 8px;
+            margin-bottom: 15px;
+            width: 100%;
+            max-width: 300px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        input[type="file"] {
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <h1>CSV Table Viewer and Editor</h1>
+    <input type="file" id="fileInput" accept=".csv" onchange="handleFileUpload(event)">
+    <input type="text" id="searchBox" placeholder="Search..." oninput="filterTable()" disabled>
+    <table id="csvTable">
+        <thead>
+            <tr id="headerRow"></tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+
+    <script>
+        let csvData = [];
+        let originalData = [];
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file && file.type === "text/csv") {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const data = e.target.result;
+                    parseCSV(data);
+                };
+                reader.readAsText(file);
+                document.getElementById("searchBox").disabled = false;
+            } else {
+                alert("Please upload a valid CSV file.");
+            }
+        }
+
+        function parseCSV(data) {
+            const rows = data.split("\n").filter(row => row.trim() !== "");
+            const headers = rows[0].split(",");
+            
+            csvData = rows.slice(1).map(row => row.split(","));
+            originalData = [...csvData];
+            
+            renderTable(headers, csvData);
+        }
+
+        function renderTable(headers, data) {
+            const tableHeader = document.getElementById("headerRow");
+            tableHeader.innerHTML = "";
+            
+            // Create header row
+            headers.forEach(header => {
+                const th = document.createElement("th");
+                th.textContent = header;
+                tableHeader.appendChild(th);
+            });
+
+            const tableBody = document.getElementById("tableBody");
+            tableBody.innerHTML = "";
+
+            // Create table rows
+            data.forEach((row, rowIndex) => {
+                const tr = document.createElement("tr");
+                row.forEach((cell, cellIndex) => {
+                    const td = document.createElement("td");
+                    td.textContent = cell;
+                    td.contentEditable = true;  // Make cells editable
+                    td.addEventListener("blur", (e) => {
+                        saveEditedData(rowIndex, cellIndex, e.target.textContent);
+                    });
+                    tr.appendChild(td);
+                });
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function filterTable() {
+            const searchValue = document.getElementById("searchBox").value.toLowerCase();
+            const filteredData = originalData.filter(row => {
+                return row.some(cell => cell.toLowerCase().includes(searchValue));
+            });
+
+            renderTable(originalData[0], filteredData);  // Re-render table with filtered data
+        }
+
+        function saveEditedData(rowIndex, cellIndex, newValue) {
+            csvData[rowIndex][cellIndex] = newValue;
+            console.log("Data saved:", csvData);
+            // Optionally, save this to a server or a file
+        }
+    </script>
+</body>
+</html>
