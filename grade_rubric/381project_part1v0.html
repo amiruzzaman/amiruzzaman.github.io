@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment Grading Rubric</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            max-width: 700px;
+        }
+        .rubric {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .rubric th, .rubric td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .rubric th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .score {
+            text-align: center;
+            width: 80px;
+        }
+        .total-score {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .comments {
+            width: 100%;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Assignment Grading Rubric</h2>
+
+<table class="rubric">
+    <tr>
+        <th>Criteria</th>
+        <th>Description</th>
+        <th>Score</th>
+        <th>Comments</th>
+    </tr>
+
+    <!-- Dataset Description Criterion -->
+    <tr>
+        <td>Dataset Description</td>
+        <td>Includes a detailed description of the dataset, source, size, number of records, and type of data (e.g., numerical, text).</td>
+        <td class="score">
+            <select onchange="calculateTotal()" id="datasetScore">
+                <option value="0">0 - Missing</option>
+                <option value="1">1 - Poor</option>
+                <option value="2">2 - Fair</option>
+                <option value="3">3 - Good</option>
+                <option value="4">4 - Excellent</option>
+            </select>
+        </td>
+        <td><input type="text" class="comments" id="datasetComments" placeholder="Add specific comments..."></td>
+    </tr>
+
+    <!-- Problem Statement Criterion -->
+    <tr>
+        <td>Problem Statement</td>
+        <td>Clearly defines the problem, its importance, and includes questions to be answered through analysis.</td>
+        <td class="score">
+            <select onchange="calculateTotal()" id="problemScore">
+                <option value="0">0 - Missing</option>
+                <option value="1">1 - Poor</option>
+                <option value="2">2 - Fair</option>
+                <option value="3">3 - Good</option>
+                <option value="4">4 - Excellent</option>
+            </select>
+        </td>
+        <td><input type="text" class="comments" id="problemComments" placeholder="Add specific comments..."></td>
+    </tr>
+
+</table>
+
+<div class="total-score">Total Score: <span id="totalScore">0</span>/10</div>
+
+<script>
+    function calculateTotal() {
+        const datasetScore = parseInt(document.getElementById("datasetScore").value);
+        const problemScore = parseInt(document.getElementById("problemScore").value);
+
+        const totalScore = datasetScore + problemScore;
+        document.getElementById("totalScore").innerText = totalScore;
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment Grading Rubric</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            max-width: 800px;
+        }
+        .rubric {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .rubric th, .rubric td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .rubric th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .score {
+            text-align: center;
+            width: 80px;
+        }
+        .total-score {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .comments {
+            width: 100%;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Assignment Grading Rubric</h2>
+
+<table class="rubric">
+    <tr>
+        <th>Criteria</th>
+        <th>Description</th>
+        <th>Score</th>
+        <th>Comments</th>
+    </tr>
+
+    <!-- Dataset Description Criteria Breakdown -->
+    <tr>
+        <td>Dataset Source</td>
+        <td>Includes the source of the dataset, properly cited or referenced.</td>
+        <td class="score">
+            <select onchange="calculateTotal()" id="sourceScore">
+                <option value="0">0 - Missing</option>
+                <option value="0.5">0.5 - Incomplete</option>
+                <option value="1">1 - Complete</option>
+            </select>
+        </td>
+        <td><input type="text" class="comments" id="sourceComments" placeholder="Add specific comments..."></td>
+    </tr>
+    <tr>
+        <td>Dataset Size</td>
+        <td>Describes the size of the dataset (e.g., number of records or files).</td>
+        <td class="score">
+            <select onchange="calculateTotal()" id="sizeScore">
+                <option value="0">0 - Missing</option>
+                <option value="0.5">0.5 - Incomplete</option>
+                <option value="1">1 - Complete</option>
+            </select>
+        </td>
+        <td><input type="text" class="comments" id="sizeComments" placeholder="Add specific comments..."></td>
+    </tr>
+    <tr>
+        <td>Data Type</td>
+        <td>Specifies types of data included (e.g., numerical, text, categorical).</td>
+        <td class="score">
+            <select onchange="calculateTotal()" id="typeScore">
+                <option value="0">0 - Missing</option>
+                <option value="0.5">0.5 - Incomplete</option>
+                <option value="1">1 - Complete</option>
+            </select>
+        </td>
+        <td><input type="text" class="comments" id="typeComments" placeholder="Add specific comments..."></td>
+    </tr>
+    <tr>
+        <td>Dataset Description</td>
+        <td>Provides a detailed description of the dataset contents.</td>
+        <td class="score">
+            <select onchange="calculateTotal()" id="descriptionScore">
+                <option value="0">0 - Missing</option>
+                <option value="0.5">0.5 - Incomplete</option>
+                <option value="1">1 - Complete</option>
+            </select>
+        </td>
+        <td><input type="text" class="comments" id="descriptionComments" placeholder="Add specific comments..."></td>
+    </tr>
+
+    <!-- Problem Statement Criteria Breakdown -->
+    <tr>
+        <td>Problem Clarity</td>
+        <td>Clearly defines the problem to be explored.</td>
+        <td class="score">
+            <select onchange="calculateTotal()" id="clarityScore">
+                <option value="0">0 - Missing</option>
+                <option value="0.5">0.5 - Incomplete</option>
+                <option value="1">1 - Complete</option>
+            </select>
+        </td>
+        <td><input type="text" class="comments" id="clarityComments" placeholder="Add specific comments..."></td>
+    </tr>
+    <tr>
+        <td>Problem Importance</td>
+        <td>Explains the significance or relevance of the problem.</td>
+        <td class="score">
+            <select onchange="calculateTotal()" id="importanceScore">
+                <option value="0">0 - Missing</option>
+                <option value="0.5">0.5 - Incomplete</option>
+                <option value="1">1 - Complete</option>
+            </select>
+        </td>
+        <td><input type="text" class="comments" id="importanceComments" placeholder="Add specific comments..."></td>
+    </tr>
+    <tr>
+        <td>Research Questions</td>
+        <td>Lists questions that will be answered through analysis.</td>
+        <td class="score">
+            <select onchange="calculateTotal()" id="questionsScore">
+                <option value="0">0 - Missing</option>
+                <option value="0.5">0.5 - Incomplete</option>
+                <option value="1">1 - Complete</option>
+            </select>
+        </td>
+        <td><input type="text" class="comments" id="questionsComments" placeholder="Add specific comments..."></td>
+    </tr>
+
+</table>
+
+<div class="total-score">Total Score: <span id="totalScore">0</span>/10</div>
+
+<script>
+    function calculateTotal() {
+        // Dataset-related scores
+        const sourceScore = parseFloat(document.getElementById("sourceScore").value);
+        const sizeScore = parseFloat(document.getElementById("sizeScore").value);
+        const typeScore = parseFloat(document.getElementById("typeScore").value);
+        const descriptionScore = parseFloat(document.getElementById("descriptionScore").value);
+
+        // Problem statement-related scores
+        const clarityScore = parseFloat(document.getElementById("clarityScore").value);
+        const importanceScore = parseFloat(document.getElementById("importanceScore").value);
+        const questionsScore = parseFloat(document.getElementById("questionsScore").value);
+
+        // Calculate total score
+        const totalScore = sourceScore + sizeScore + typeScore + descriptionScore + clarityScore + importanceScore + questionsScore;
+        document.getElementById("totalScore").innerText = totalScore.toFixed(1);
+    }
+</script>
+
+</body>
+</html>
