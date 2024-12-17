@@ -50,10 +50,9 @@
 
     <script>
         let csvData = [];
-        let filteredData = [];
+        let originalData = [];
         let headers = [];
-        let sortDirections = [];
-        let lastEditedCell = null;
+        let sortDirections = []; // Keep track of sorting directions for each column
 
         function handleFileUpload(event) {
             const file = event.target.files[0];
@@ -62,7 +61,7 @@
                 reader.onload = function(e) {
                     const data = e.target.result;
                     parseCSV(data);
-                    document.getElementById("downloadButton").disabled = false;
+                    document.getElementById("downloadButton").disabled = false; // Enable download button
                 };
                 reader.readAsText(file);
                 document.getElementById("searchBox").disabled = false;
@@ -76,19 +75,17 @@
             headers = rows[0].split(",");
             sortDirections = Array(headers.length).fill(null);
             
-            csvData = rows.slice(1).map((row, index) => ({
-                originalIndex: index,
-                values: row.split(",")
-            }));
-            filteredData = [...csvData];
-
-            renderTable(headers, filteredData);
+            csvData = rows.slice(1).map(row => row.split(","));
+            originalData = [...csvData];
+            
+            renderTable(headers, csvData);
         }
 
         function renderTable(headers, data) {
             const tableHeader = document.getElementById("headerRow");
             tableHeader.innerHTML = "";
-
+            
+            // Create header row with sorting feature
             headers.forEach((header, index) => {
                 const th = document.createElement("th");
                 th.textContent = header;
@@ -99,68 +96,56 @@
             const tableBody = document.getElementById("tableBody");
             tableBody.innerHTML = "";
 
+            // Create table rows
             data.forEach((row, rowIndex) => {
                 const tr = document.createElement("tr");
-                row.values.forEach((cell, cellIndex) => {
+                row.forEach((cell, cellIndex) => {
                     const td = document.createElement("td");
                     td.textContent = cell;
-                    td.contentEditable = true;
-
-                    td.addEventListener("focus", () => {
-                        lastEditedCell = { td, row, cellIndex, originalValue: td.textContent };
+                    td.contentEditable = true;  // Make cells editable
+                    td.addEventListener("blur", (e) => {
+                        saveEditedData(rowIndex, cellIndex, e.target.textContent);
                     });
-
-                    td.addEventListener("input", (e) => {
-                        row.values[cellIndex] = e.target.textContent;
-                    });
-
                     tr.appendChild(td);
                 });
                 tableBody.appendChild(tr);
             });
         }
 
-        document.addEventListener("click", (event) => {
-            if (lastEditedCell && document.activeElement !== lastEditedCell.td) {
-                const { td, row, cellIndex, originalValue } = lastEditedCell;
-                const newValue = td.textContent;
-
-                if (newValue !== originalValue) {
-                    row.values[cellIndex] = newValue;
-                    csvData[row.originalIndex].values[cellIndex] = newValue; // Update original data
-                }
-
-                lastEditedCell = null;
-            }
-        });
-
         function filterTable() {
             const searchValue = document.getElementById("searchBox").value.toLowerCase();
-            filteredData = csvData.filter(row => {
-                return row.values.some(cell => cell.toLowerCase().includes(searchValue));
+            const filteredData = originalData.filter(row => {
+                return row.some(cell => cell.toLowerCase().includes(searchValue));
             });
 
-            renderTable(headers, filteredData);
+            renderTable(headers, filteredData);  // Re-render table with filtered data
+        }
+
+        function saveEditedData(rowIndex, cellIndex, newValue) {
+            csvData[rowIndex][cellIndex] = newValue;
+            originalData[rowIndex][cellIndex] = newValue; // Update original data to keep it consistent
         }
 
         function sortTableByColumn(columnIndex) {
             const currentDirection = sortDirections[columnIndex];
             const isAscending = currentDirection === "asc";
-
-            filteredData.sort((a, b) => {
-                if (a.values[columnIndex] < b.values[columnIndex]) return isAscending ? -1 : 1;
-                if (a.values[columnIndex] > b.values[columnIndex]) return isAscending ? 1 : -1;
+            
+            // Sort the data
+            csvData.sort((a, b) => {
+                if (a[columnIndex] < b[columnIndex]) return isAscending ? -1 : 1;
+                if (a[columnIndex] > b[columnIndex]) return isAscending ? 1 : -1;
                 return 0;
             });
 
+            // Toggle the sort direction
             sortDirections[columnIndex] = isAscending ? "desc" : "asc";
 
-            renderTable(headers, filteredData);
+            renderTable(headers, csvData);
         }
 
         function downloadCSV() {
             const csvContent = [headers.join(",")].concat(
-                csvData.map(row => row.values.join(","))
+                csvData.map(row => row.join(","))
             ).join("\n");
 
             const blob = new Blob([csvContent], { type: "text/csv" });

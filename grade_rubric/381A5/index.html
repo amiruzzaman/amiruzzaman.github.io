@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rubric Grading</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+
+        .rubric {
+            max-width: 600px;
+            margin: 0 auto;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .rubric h1 {
+            text-align: center;
+        }
+
+        .rubric-item {
+            margin-bottom: 20px;
+        }
+
+        .rubric-item label {
+            font-weight: bold;
+        }
+
+        .summary {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .summary strong {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="rubric">
+        <h1>Rubric Grading</h1>
+
+        <div id="rubric-container"></div>
+
+        <div class="summary">
+            <p><strong>Total Points:</strong> <span id="total-points">0</span> / 6</p>
+            <p><strong>Feedback:</strong> <span id="feedback">Select criteria to generate feedback.</span></p>
+        </div>
+    </div>
+
+    <script>
+        const rubric = [
+            {
+                "criteria": "Purpose of the Study",
+                "description": "Clearly and accurately identifies the purpose of the study as described in the paper.",
+                "points": 1
+            },
+            {
+                "criteria": "Source of the Dataset",
+                "description": "Correctly specifies the origin or source of the dataset used in the study, including relevant details provided in the paper.",
+                "points": 1
+            },
+            {
+                "criteria": "Analysis Tool",
+                "description": "Explains the analysis tools or methodologies employed in the study, including any software, techniques, or models mentioned in the paper.",
+                "points": 1
+            },
+            {
+                "criteria": "Findings of the Study",
+                "description": "Summarizes the key findings or results of the study, focusing on the main conclusions or outcomes presented in the paper.",
+                "points": 2
+            },
+            {
+                "criteria": "Clarity and Organization",
+                "description": "Report is well-organized, clear, and concise, with logical flow between sections. Proper grammar, spelling, and formatting are maintained throughout.",
+                "points": 1
+            }
+        ];
+
+        const container = document.getElementById("rubric-container");
+
+        // Generate rubric items
+        rubric.forEach((item, index) => {
+            const div = document.createElement("div");
+            div.className = "rubric-item";
+            div.innerHTML = `
+                <label>
+                    <input type="checkbox" data-points="${item.points}" onchange="updateScore()"> ${item.criteria}
+                </label>
+                <p>${item.description}</p>
+            `;
+            container.appendChild(div);
+        });
+
+        function updateScore() {
+            const checkboxes = document.querySelectorAll("input[type='checkbox']");
+            let totalPoints = 0;
+            let metFeedback = [];
+            let unmetFeedback = [];
+
+            checkboxes.forEach((checkbox, index) => {
+                if (checkbox.checked) {
+                    totalPoints += parseInt(checkbox.dataset.points);
+                    metFeedback.push(rubric[index].criteria);
+                } else {
+                    unmetFeedback.push(rubric[index].criteria);
+                }
+            });
+
+            document.getElementById("total-points").textContent = totalPoints;
+
+            const feedbackText = [];
+            if (metFeedback.length > 0) {
+                feedbackText.push(`Criteria met: ${metFeedback.join(", ")}.`);
+            }
+            if (unmetFeedback.length > 0) {
+                feedbackText.push(`Criteria not met: ${unmetFeedback.join(", ")}.`);
+            }
+
+            document.getElementById("feedback").textContent = feedbackText.join(" ");
+        }
+    </script>
+</body>
+</html>
