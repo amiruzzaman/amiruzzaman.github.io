@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade using rubric</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="#">
+    <style>
+        table,
+        th,
+        td {
+            border: solid 1px #ddd;
+            border-collapse: collapse;
+            padding: 2px 3px;
+            text-align: center;
+            width: 30px;
+        }
+
+        th {
+            font-weight: bold;
+        }
+
+        #notice {
+            width: 80%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 5px;
+            background-color: #f0f0f0;
+            border: 1px solid #e0e0e0;
+            overflow: auto;
+            font-family: Arial, sans-serif;
+            color: red;
+            font-weight: normal;
+            font-size: 14px;
+        }
+
+        #paraID {
+            width: 100%;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <p id="notice"> Selecting items from "No" will not subtract points. Double click on "No" side and adjust how much
+        you want to take out. For example, if it shows 5, and you want to take out all, then make that 0.</p>
+    <div id="container"></div>
+    <div id="edit-box">
+        <textarea id="edit-text"></textarea>
+        <div id="edit-score-container">
+            <label for="edit-score">Score</label>
+            <input id="edit-score" type="number" />
+        </div>
+        <div id="edit-buttons">
+            <button id="edit-cancel">Cancel</button>
+            <button id="edit-save">Save</button>
+        </div>
+    </div>
+    <div id="overlay"></div>
+    <p id="notice" style="height: 30px;"></p>
+    <script>
+        let selectedItem = null;
+
+        function editItem() {
+            const editBox = document.getElementById('edit-box');
+            const editText = document.getElementById('edit-text');
+            const editScore = document.getElementById('edit-score');
+            const overlay = document.getElementById('overlay');
+
+            editText.value = selectedItem.innerText;
+            editScore.value = selectedItem.getAttribute('score');
+            editBox.style.visibility = 'visible';
+            overlay.style.visibility = 'visible';
+        }
+
+        function updateSubTotal(container) {
+            let subTotal = 0;
+            const scores = container.querySelectorAll('.item-container .item-score');
+            scores.forEach(scoreElement => {
+                subTotal += parseInt(scoreElement.innerHTML || '0');
+            });
+            const subTotalDiv = container.querySelector('.sub-total-score');
+            if (subTotalDiv) {
+                subTotalDiv.innerHTML = subTotal;
+            }
+        }
+
+        function renderProblem(container, problems) {
+            let subTotal = 0;
+            let subTotalDiv = document.createElement('div');
+
+            for (let problem of problems) {
+                const yes = problem.yes;
+                const no = problem.no;
+                const score = problem.point;
+
+                const itemContainer = document.createElement('div');
+                itemContainer.classList.add('item-container');
+
+                const itemYes = document.createElement('div');
+                itemYes.classList.add('item-yes', 'selected');
+                itemYes.setAttribute('score', score);
+                itemYes.innerText = yes;
+
+                const itemNo = document.createElement('div');
+                itemNo.classList.add('item-no');
+                itemNo.setAttribute('score', score);
+                itemNo.innerText = no;
+
+                const itemScore = document.createElement('div');
+                itemScore.classList.add('item-score');
+                itemScore.innerHTML = score;
+                itemScore.style.color = 'red';
+
+                subTotal += parseInt(score);
+
+                itemYes.addEventListener('click', () => {
+                    itemYes.classList.add('selected');
+                    itemNo.classList.remove('selected');
+                    itemScore.innerHTML = itemYes.getAttribute('score');
+                    updateSubTotal(container);
+                });
+
+                itemYes.addEventListener('dblclick', function () {
+                    selectedItem = this;
+                    editItem();
+                });
+
+                itemNo.addEventListener('click', () => {
+                    itemNo.classList.add('selected');
+                    itemYes.classList.remove('selected');
+                    itemNo.setAttribute('score', 0); // Set score to 0 when "No" is selected
+                    itemScore.innerHTML = 0; // Update displayed score to 0
+                    updateSubTotal(container);
+                });
+
+                itemNo.addEventListener('dblclick', function () {
+                    selectedItem = this;
+                    editItem();
+                });
+
+                itemContainer.appendChild(itemYes);
+                itemContainer.appendChild(itemNo);
+                itemContainer.appendChild(itemScore);
+
+                container.appendChild(itemContainer);
+            }
+
+            subTotalDiv.innerHTML = subTotal;
+            subTotalDiv.style.color = 'green';
+            subTotalDiv.classList.add('sub-total-score');
+            container.appendChild(subTotalDiv);
+        }
+
+        fetch('a3fall24.json')
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('container');
+                const parts = Object.keys(data);
+
+                for (let part of parts) {
+                    const partContainer = document.createElement('div');
+                    partContainer.classList.add('part-container');
+
+                    const partTitle = data[part].title;
+                    const partProblems = data[part].problems;
+
+                    const h3 = document.createElement('h3');
+                    h3.innerText = `${part}: ${partTitle}`;
+                    partContainer.appendChild(h3);
+
+                    if (partProblems.length > 1) {
+                        for (let i = 0; i < partProblems.length; i++) {
+                            const problemContainer = document.createElement('div');
+                            problemContainer.classList.add('problem-container');
+
+                            const problemTitle = `Problem ${i + 1}`;
+                            const h4 = document.createElement('h4');
+                            h4.innerText = problemTitle;
+                            problemContainer.appendChild(h4);
+
+                            const problemList = partProblems[i];
+                            renderProblem(problemContainer, problemList);
+                            partContainer.appendChild(problemContainer);
+                        }
+                    } else {
+                        const problemContainer = document.createElement('div');
+                        problemContainer.classList.add('problem-container');
+                        const problemList = partProblems[0];
+
+                        renderProblem(problemContainer, problemList);
+                        partContainer.appendChild(problemContainer);
+                    }
+
+                    container.appendChild(partContainer);
+                }
+            });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('edit-save').addEventListener('click', () => {
+                const editBox = document.getElementById('edit-box');
+                const editText = document.getElementById('edit-text');
+                const editScore = document.getElementById('edit-score');
+                const overlay = document.getElementById('overlay');
+
+                selectedItem.innerText = editText.value;
+                selectedItem.setAttribute('score', editScore.value);
+                const itemContainer = selectedItem.parentNode;
+                const itemScore = itemContainer.querySelector('.item-score');
+                itemScore.innerHTML = editScore.value;
+
+                updateSubTotal(itemContainer.parentNode);
+
+                editBox.style.visibility = 'hidden';
+                overlay.style.visibility = 'hidden';
+            });
+
+            document.getElementById('edit-cancel').addEventListener('click', () => {
+                const editBox = document.getElementById('edit-box');
+                const overlay = document.getElementById('overlay');
+
+                editBox.style.visibility = 'hidden';
+                overlay.style.visibility = 'hidden';
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BibTeX Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        textarea {
+            resize: none;
+            height: 100px;
+        }
+        button {
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .output-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>BibTeX Generator</h1>
+    <form id="bibtex-form">
+        <label for="entry-type">Entry Type:</label>
+        <select id="entry-type">
+            <option value="article">Article</option>
+            <option value="book">Book</option>
+            <option value="inproceedings">InProceedings</option>
+        </select>
+        
+        <label for="author">Author:</label>
+        <input type="text" id="author" placeholder="Author name(s)">
+        
+        <label for="title">Title:</label>
+        <input type="text" id="title" placeholder="Title of the work">
+        
+        <label for="year">Year:</label>
+        <input type="text" id="year" placeholder="Year of publication">
+        
+        <label for="journal">Journal (if applicable):</label>
+        <input type="text" id="journal" placeholder="Journal name">
+        
+        <label for="publisher">Publisher (if applicable):</label>
+        <input type="text" id="publisher" placeholder="Publisher name">
+        
+        <button type="button" onclick="generateBibtex()">Generate BibTeX</button>
+    </form>
+
+    <div class="output-container">
+        <textarea id="output" readonly placeholder="Generated BibTeX will appear here"></textarea>
+        <br>
+        <button onclick="copyBibtex()">Copy to Clipboard</button>
+    </div>
+
+    <script>
+        function generateBibtex() {
+            const entryType = document.getElementById("entry-type").value;
+            const author = document.getElementById("author").value.trim();
+            const title = document.getElementById("title").value.trim();
+            const year = document.getElementById("year").value.trim();
+            const journal = document.getElementById("journal").value.trim();
+            const publisher = document.getElementById("publisher").value.trim();
+
+            let bibtex = `@${entryType}{\n`;
+            if (author) bibtex += `  author = {${author}},\n`;
+            if (title) bibtex += `  title = {${title}},\n`;
+            if (year) bibtex += `  year = {${year}},\n`;
+
+            if (entryType === "article" && journal) {
+                bibtex += `  journal = {${journal}},\n`;
+            } else if (entryType === "book" && publisher) {
+                bibtex += `  publisher = {${publisher}},\n`;
+            }
+
+            bibtex += `}`;
+
+            document.getElementById("output").value = bibtex;
+        }
+
+        function copyBibtex() {
+            const output = document.getElementById("output");
+            output.select();
+            document.execCommand("copy");
+            alert("BibTeX copied to clipboard!");
+        }
+    </script>
+</body>
+</html>

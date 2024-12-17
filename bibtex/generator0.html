@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BibTeX Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
+        }
+        input, select, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        textarea {
+            resize: none;
+            height: 150px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .output {
+            margin-top: 20px;
+        }
+        .copy-btn {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>BibTeX Generator</h1>
+    <form id="bibtexForm">
+        <label for="type">Select Type:</label>
+        <select id="type" required>
+            <option value="article">Article</option>
+            <option value="book">Book</option>
+            <option value="inproceedings">In Proceedings</option>
+        </select>
+
+        <label for="citeKey">Citation Key:</label>
+        <input type="text" id="citeKey" placeholder="Enter citation key" required>
+
+        <label for="author">Author:</label>
+        <input type="text" id="author" placeholder="Enter author(s)" required>
+
+        <label for="title">Title:</label>
+        <input type="text" id="title" placeholder="Enter title" required>
+
+        <label for="year">Year:</label>
+        <input type="number" id="year" placeholder="Enter year" required>
+
+        <label for="journal">Journal/Booktitle (Optional):</label>
+        <input type="text" id="journal" placeholder="Enter journal or book title">
+
+        <label for="publisher">Publisher (Optional):</label>
+        <input type="text" id="publisher" placeholder="Enter publisher">
+
+        <button type="button" onclick="generateBibTeX()">Generate BibTeX</button>
+    </form>
+
+    <div class="output">
+        <label for="bibtexOutput">Generated BibTeX:</label>
+        <textarea id="bibtexOutput" readonly></textarea>
+        <button class="copy-btn" onclick="copyToClipboard()">Copy to Clipboard</button>
+    </div>
+
+    <script>
+        function generateBibTeX() {
+            const type = document.getElementById("type").value;
+            const citeKey = document.getElementById("citeKey").value;
+            const author = document.getElementById("author").value;
+            const title = document.getElementById("title").value;
+            const year = document.getElementById("year").value;
+            const journal = document.getElementById("journal").value;
+            const publisher = document.getElementById("publisher").value;
+
+            let bibtex = `@${type}{${citeKey},\n`;
+            bibtex += `  author = {${author}},\n`;
+            bibtex += `  title = {${title}},\n`;
+            bibtex += `  year = {${year}},\n`;
+
+            if (journal) bibtex += `  journal = {${journal}},\n`;
+            if (publisher) bibtex += `  publisher = {${publisher}},\n`;
+
+            // Remove trailing comma and add closing brace
+            bibtex = bibtex.trim().replace(/,$/, "") + "\n}";
+
+            document.getElementById("bibtexOutput").value = bibtex;
+        }
+
+        function copyToClipboard() {
+            const bibtexOutput = document.getElementById("bibtexOutput");
+            bibtexOutput.select();
+            document.execCommand("copy");
+            alert("BibTeX copied to clipboard!");
+        }
+    </script>
+</body>
+</html>
