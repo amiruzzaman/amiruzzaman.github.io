@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RIS to BibTeX Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        input[type="file"] {
+            margin-bottom: 10px;
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            margin-top: 10px;
+            font-family: monospace;
+        }
+        button {
+            margin-top: 10px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>RIS to BibTeX Converter</h1>
+        <input type="file" id="risFile" accept=".ris">
+        <button id="convertButton">Convert to BibTeX</button>
+        <textarea id="output" readonly class="hidden"></textarea>
+        <button id="copyButton" class="hidden">Copy to Clipboard</button>
+    </div>
+
+    <script>
+        document.getElementById("convertButton").addEventListener("click", () => {
+            const fileInput = document.getElementById("risFile");
+            if (!fileInput.files.length) {
+                alert("Please select a RIS file to convert.");
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = () => {
+                const risContent = reader.result;
+                const bibtexContent = risToBibtex(risContent);
+                displayBibtex(bibtexContent);
+            };
+
+            reader.readAsText(file);
+        });
+
+        document.getElementById("copyButton").addEventListener("click", () => {
+            const outputTextarea = document.getElementById("output");
+            outputTextarea.select();
+            document.execCommand("copy");
+            alert("BibTeX content copied to clipboard!");
+        });
+
+        function risToBibtex(risContent) {
+            const lines = risContent.split(/\r?\n/);
+            let entry = {};
+            let authors = [];
+            let bibtexEntries = [];
+
+            lines.forEach(line => {
+                if (!line.trim()) return;
+
+                const [rawKey, value] = line.split("  - ");
+                const key = rawKey ? rawKey.trim().toUpperCase() : null;
+                if (key === "TY") {
+                    if (Object.keys(entry).length > 0) {
+                        entry.author = authors.join(" and ");
+                        bibtexEntries.push(formatBibtexEntry(entry));
+                        entry = {};
+                        authors = [];
+                    }
+                    entry.type = value.trim().toLowerCase() === "journal" ? "article" : "misc";
+                } else if (key === "ER") {
+                    entry.author = authors.join(" and ");
+                    bibtexEntries.push(formatBibtexEntry(entry));
+                    entry = {};
+                    authors = [];
+                } else if (key === "AU" || key === "A1") {
+                    authors.push(value.trim());
+                } else if (key && value) {
+                    const mappings = {
+                        "TI": "title",
+                        "JO": "journal",
+                        "VL": "volume",
+                        "IS": "number",
+                        "AB": "abstract",
+                        "SN": "pages",
+                        "UR": "URL",
+                        "DO": "DOI"
+                    };
+                    const bibtexKey = mappings[key] || key.toLowerCase();
+                    entry[bibtexKey] = value.trim();
+                }
+            });
+
+            return bibtexEntries.join("\n\n");
+        }
+
+        function formatBibtexEntry(entry) {
+            const identifier = entry.title ? entry.title.replace(/\s+/g, "_").toLowerCase() : "unknown";
+            const fields = Object.entries(entry)
+                .filter(([key]) => !["type"].includes(key))
+                .map(([key, value]) => `  ${key} = {${value}}`)
+                .join(",\n");
+            return `@${entry.type}{${identifier},\n${fields}\n}`;
+        }
+
+        function displayBibtex(content) {
+            const outputTextarea = document.getElementById("output");
+            const copyButton = document.getElementById("copyButton");
+
+            outputTextarea.value = content;
+            outputTextarea.classList.remove("hidden");
+            copyButton.classList.remove("hidden");
+        }
+    </script>
+</body>
+</html>

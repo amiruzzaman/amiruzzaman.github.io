@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload and JSON Update</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: #212529;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        input[type="file"] {
+            border: none;
+        }
+
+        .preview-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .preview-container img {
+            max-width: 100%;
+            max-height: 300px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        button {
+            margin-top: 15px;
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Image Upload</h1>
+        <form id="uploadForm">
+            <label for="file">Choose Image</label>
+            <input type="file" id="file" accept="image/*" required>
+
+            <label for="country">Country</label>
+            <!-- Country dropdown -->
+            <select id="country" required>
+                <option value="">Select Country</option>
+                <option value="USA">USA</option>
+                <option value="Canada">Canada</option>
+                <option value="United Kingdom">United Kingdom</option>
+                <option value="Australia">Australia</option>
+                <option value="Bangladesh">Bangladesh</option>
+                <option value="Argentina">Argentina</option>
+                <option value="Brazil">Brazil</option>
+                <option value="France">France</option>
+                <option value="Germany">Germany</option>
+                <option value="India">India</option>
+                <option value="Italy">Italy</option>
+                <option value="Japan">Japan</option>
+                <option value="Korea">Korea</option>
+                <option value="Mexico">Mexico</option>
+                <option value="New Zealand">New Zealand</option>
+                <option value="Russia">Russia</option>
+                <option value="South Africa">South Africa</option>
+                <option value="Spain">Spain</option>
+                <option value="Sweden">Sweden</option>
+                <option value="United States">United States</option>
+                <!-- Add more countries as needed -->
+            </select>
+
+            <label for="note">Note</label>
+            <textarea id="note" rows="3" placeholder="Enter note"></textarea>
+
+            <div class="preview-container" id="previewContainer" style="display: none;">
+                <p>Image Preview:</p>
+                <img id="previewImage" src="" alt="Image Preview">
+            </div>
+
+            <button type="submit">Upload</button>
+        </form>
+    </div>
+
+    <script>
+        const form = document.getElementById("uploadForm");
+        const fileInput = document.getElementById("file");
+        const previewContainer = document.getElementById("previewContainer");
+        const previewImage = document.getElementById("previewImage");
+
+        let jsonData = []; // Existing JSON data
+
+        // Function to show image preview
+        fileInput.addEventListener("change", () => {
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    previewImage.src = e.target.result;
+                    previewContainer.style.display = "block";
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Function to handle form submission
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            const file = fileInput.files[0];
+            const country = document.getElementById("country").value.trim();
+            const note = document.getElementById("note").value.trim();
+
+            if (!file || !country) {
+                alert("Please fill in all required fields and select an image.");
+                return;
+            }
+
+            // Generate a new filename using UUID
+            const fileExtension = file.name.split('.').pop();
+            const newFilename = uuid.v4() + "." + fileExtension;
+
+            // Prepare the JSON entry
+            const newEntry = {
+                country: country,
+                image: newFilename,
+                note: note
+            };
+
+            // Add entry to JSON data
+            jsonData.push(newEntry);
+
+            // Log JSON data to console (simulating server update)
+            console.log("Updated JSON Data:", JSON.stringify(jsonData, null, 2));
+
+            // Simulate file upload to server (replace with actual server call)
+            uploadFileToServer(file, newFilename, newEntry);
+
+            // Reset form
+            form.reset();
+            previewContainer.style.display = "none";
+        });
+
+        // Simulated server upload
+        function uploadFileToServer(file, filename, jsonEntry) {
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("filename", filename);
+            formData.append("data", JSON.stringify(jsonEntry));
+
+            console.log("Simulated upload:", {
+                file: filename,
+                data: jsonEntry
+            });
+
+            // Example: Use fetch() to send data to your server
+            /*
+            fetch('/upload-endpoint', {
+                method: 'POST',
+                body: formData
+            }).then(response => {
+                if (response.ok) {
+                    alert('File uploaded successfully!');
+                } else {
+                    alert('Error uploading file.');
+                }
+            });
+            */
+        }
+    </script>
+</body>
+
+</html>

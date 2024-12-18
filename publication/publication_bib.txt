@@ -967,13 +967,17 @@ month={Jul.},
 pages={70–81} 
 }
 
-@article{afia2024YOLOv8,
-author  = "Afia Tasnim and Baivab Das and Md. Rajibul Islam and Md Amiruzzaman and Md. Rashedul Islam and Nadeem Ahmed",
-  title = {Revolutionizing Rose Grading: Real-time Detection and Accurate Assessment with YOLOv8 and Deep Learning Models},
-  journal = "SN Computer Science (to appear)",
-  year    = 2024,
-  volume  = "",
-  number  = "",
-  pages   = ""
-}
 
+@article{Tasnim2024,
+  year = {2025},
+  note = {2024/12/18},
+  title = {Revolutionizing Rose Grading: Real-Time Detection and Accurate Assessment with YOLOv8 and Deep Learning Models},
+  journal = {SN Computer Science},
+  volume = {6},
+  number = {1},
+  abstract = {Yield estimation and identifying the growth stages of roses greatly depend on the automatic detection of roses in orchards. YOLO is well known for its high accuracy and real-time performance among the deep learning-based object detection techniques. In our study, we proposed a model based on YOLOv8 and DNN that uses detection, localization, and classification to grade rose quality. YOLOv8 was used to localize the roses with bounding boxes. The regions of interest are detected by YOLOv8 and cropped from the source images by the bounding boxes and fed into deep learning model for classifying roses according to growth stages, thus, the freshness level is ultimately graded. We used YOLOv8 for detection and DNN for classification. We proposed two different deep learning models for the classification task. The first was a lightweight CNN model which achieved a faster speed in grading roses, while the second was a fine-tuned MobileNet model which achieved a higher accuracy. We have also collected a new dataset that contained variety, complex backgrounds, overlapping roses etc. Numerous deep learning models were exploited in this work, including ResNet50, VGG19, MobileNet, NASNetMobile for comparison purpose. Comparing with these models, proposed CNN and fine-tuned MobileNet had simple and light-weight structure, better accuracy and our method could fulfill the real-time requirements. In our proposed method, YOLOv8 was used to detect roses. Then after applying fine-tuning, fine-tuned MobileNet achieved remarkable accuracy in classifying roses. The study may give technological references for developing rose harvesting robots and estimating orchard yields.},
+  pages = {2661-8907},
+  URL = {https://doi.org/10.1007/s42979-024-03556-z},
+  DOI = {10.1007/s42979-024-03556-z},
+  author = {Tasnim, Afia and Das, Baivab and Islam, Md. Rajibul and Amiruzzaman, Md and Islam, Md. Rashedul and Ahmed, Nadeem}
+}

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display coins/paperbills</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+	<link rel="shortcut icon" href="#">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            color: #212529;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .out-container {
+            width: 100vw;
+            height: 100vh;
+            background: #495057;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .inner-container {
+            width: 80%;
+            height: 95%;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .title {
+            margin-top: 40px;
+            font-size: 24px;
+            flex: 1;
+            color: #f8f9fa;
+        }
+
+        .slider {
+            width: 80%;
+            height: 66%;
+
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .current-img {
+            width: 60%;
+            /*height: 80%;*/
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .current-img img {
+            height: 100%;
+            max-width: 100%;
+
+            border: 4px solid #dee2e6;
+            box-shadow: 2px 6px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        .prev-button {
+            flex: 1;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .next-button {
+            flex: 1;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn {
+            width: 60px;
+            height: 60px;
+            background: #dee2e6;
+            font-size: 32px;
+            font-weight: bolder;
+            border-radius: 100%;
+            box-shadow: 2px 6px 6px rgba(0, 0, 0, 0.4);
+            cursor: pointer;
+            transition: 0.1s;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.4);
+            background: #e9ecef
+        }
+
+        .img-queue {
+            width: 80%;
+            height: 20%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .img-queue-in {
+            width: 100%;
+            height: 90%;
+            overflow: auto;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .img-queue-in img {
+            height: 90%;
+            border: 4px solid #dee2e6;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+
+        .img-queue-in img:hover {
+            height: 100%;
+        }
+
+        .caption {
+            position: relative;
+            bottom: 0;
+            width: 103%;
+            display: flex;
+            font-size: 20px;
+            justify-content: center;
+            align-items: center;
+            color: rgb(255, 255, 255);
+            background: rgba(0, 0, 0, 0.3);
+            height: 35px;
+            margin-top: 450px;
+            float: inherit;
+        }
+
+        .content {
+            border: 2px solid red;
+        }
+
+        .rel {
+            position: relative;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="out-container">
+        <div class="inner-container">
+            <h1 id="image-caption" class="title"></h1>
+            <!--<div id="image-note" style="color: yellow;">Something</div>-->
+            <div class="slider">
+                <div class="prev-button">
+                    <div class="btn">&#60;</div>
+                </div>
+                <div class="current-img">
+                    <img id="current-image-img" onload="resizeImg(this, 100, 100);"/>
+                    
+                </div>
+                
+                <div class="next-button">
+                    <div class="btn">&#62;</div>
+                </div>
+            </div>
+            <div class="img-queue">
+                <div class="img-queue-in"></div>
+            </div>
+        </div>
+    </div>
+
+	<script>
+	function getQueryParams(qs) {
+    qs = qs.split('+').join(' ');
+
+    var params = {},
+        tokens,
+        re = /[?&]?([^=]+)=([^&]*)/g;
+
+    while (tokens = re.exec(qs)) {
+        params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+    }
+
+    return params;
+}
+
+//var query = getQueryParams(document.location.search);
+//alert(query.foo);
+
+
+function toTitleCase(str) {
+  return str.replace(
+    /\w\S*/g,
+    function(txt) {
+      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    }
+  );
+}
+	</script>
+	
+    <script>
+        function setCurrentImage(src) {
+            const current_img_dom = document.getElementById("current-image-img");
+            current_img_dom.setAttribute("src", src);
+        }
+
+        function setNoteCurrentImage(note) {
+            console.log(note);
+            const notediv = document.getElementById("image-note");
+            notediv.innerHTML = "";
+            notediv.innerHTML = note;
+        }
+
+        (() => {
+			
+			var query = getQueryParams(document.location.search);
+			console.log(query.country);
+			//alert(query);
+		
+			//var country_dir = "bangladesh";
+			var country_dir = query.country;
+			country_dir = country_dir.toLowerCase();
+			console.log(country_dir);
+			country_dir = ((country_dir == 'usa') ? 'united states' : country_dir);
+			country_dir = ((country_dir == 'USA') ? 'united states' : country_dir);
+			
+			var title = document.getElementById("image-caption");
+			title.innerHTML = toTitleCase(country_dir);
+			
+            const IMAGE_FOLDER = "images/" + country_dir + "/";
+            let img_index = 0;
+
+            
+            // loading images metadata
+            fetch("images/coins.json")
+                .then(response => response.json())
+                .then(data => {
+				console.log(data);
+				data = data.filter(o => o.country == country_dir);
+				console.log(data);
+                    const img_queue = document.querySelector(".img-queue-in");
+                    const current_img = document.querySelector(".current-img");
+                    const prev_btn = document.querySelector(".prev-button .btn");
+                    const next_btn = document.querySelector(".next-button .btn");
+
+                    data.forEach((img, i) => {
+                        const img_dom = document.createElement("img");
+                        const src = IMAGE_FOLDER + img.image
+                        const note = img.note;
+                        console.log(img.note);
+                        img_dom.setAttribute("src", src);
+
+                        //console.log(i);
+
+                        // add the caption
+                        const current_img_caption = document.getElementById("image-caption");
+                        //current_img_caption.className = "caption";
+                        current_img_caption.innerHTML = "";
+                        current_img_caption.innerHTML = 1 + "/" + data.length;
+
+                        
+
+                        img_queue.appendChild(img_dom);
+                        // load the first image as current image
+                        if (i === 0) {
+                            setCurrentImage(src);
+                            //setNoteCurrentImage(note);
+                        }
+
+                        // add event listener for changing current image
+                        img_dom.addEventListener("click", () => {
+                            img_index = i;
+                            setCurrentImage(src);
+                            // add the caption
+                            const current_img_caption = document.getElementById("image-caption");
+                            //current_img_caption.className = "caption";
+                            current_img_caption.innerHTML = "";
+                            current_img_caption.innerHTML = (i + 1) + "/" + data.length;
+                            //const notediv = document.getElementById("image-note");
+                            //notediv.innerHTML = "";
+                            //notediv.innerHTML = img.note;
+                            setNoteCurrentImage(note);
+                        })
+                    });
+
+                    // add event listener for buttons
+                    prev_btn.addEventListener("click", () => {
+                        if (img_index > -1) {
+                            img_index--;
+							if(img_index == -1){
+								img_index =  data.length-1;
+							}
+                            const src = IMAGE_FOLDER + data[img_index].image;
+                            setCurrentImage(src);
+
+                            console.log(img_index, data.length);
+
+                            // add the caption
+                            //(img_index === 0) ? 1 : img_index;
+                            const current_img_caption = document.getElementById("image-caption");
+                            //current_img_caption.className = "caption";
+                            current_img_caption.innerHTML = "";
+                            current_img_caption.innerHTML = (img_index + 1) + "/" + data.length;
+                            
+                            //const notediv = document.getElementById("image-note");
+                            //notediv.innerHTML = "";
+                            //notediv.innerHTML = img.note;
+                            setNoteCurrentImage(note);
+                        }
+
+                    });
+
+                    next_btn.addEventListener("click", () => {
+
+                        //console.log(img_index, data.length);
+
+
+                        //slides.appendChild(number);
+
+                        if (img_index < data.length) {
+                            img_index++;
+							console.log(img_index, data.length);
+							
+							if(img_index == (data.length)){
+								img_index =  0;
+							}
+                            const src = IMAGE_FOLDER + data[img_index].image;
+                            setCurrentImage(src);
+							//resizeImg(src);
+							
+                            // add the caption
+                            (img_index === 0) ? 1 : img_index;
+                            const current_img_caption = document.getElementById("image-caption");
+                            //current_img_caption.className = "caption";
+                            current_img_caption.innerHTML = "";
+                            current_img_caption.innerHTML = (img_index + 1) + "/" + data.length;
+                        }
+                    })
+					//arrow keys
+					document.addEventListener('keydown', function(event) {
+						if(event.keyCode == 37) {
+							console.log("left");
+							if (img_index > -1) {
+								img_index--;
+								if(img_index == -1){
+									img_index =  data.length-1;
+								}
+								const src = IMAGE_FOLDER + data[img_index].image;
+								setCurrentImage(src);
+
+								console.log(img_index, data.length);
+
+								// add the caption
+								//(img_index === 0) ? 1 : img_index;
+								const current_img_caption = document.getElementById("image-caption");
+								//current_img_caption.className = "caption";
+								current_img_caption.innerHTML = "";
+								current_img_caption.innerHTML = (img_index + 1) + "/" + data.length;
+
+							}
+						}
+						else if(event.keyCode == 39) {
+							console.log("right");
+							console.log(img_index, data.length);
+
+
+							//slides.appendChild(number);
+
+							if (img_index < data.length) {
+								img_index++;
+								if(img_index == (data.length)){
+									img_index =  0;
+								}
+								const src = IMAGE_FOLDER + data[img_index].image;
+								setCurrentImage(src);
+
+								// add the caption
+								(img_index === 0) ? 1 : img_index;
+								const current_img_caption = document.getElementById("image-caption");
+								//current_img_caption.className = "caption";
+								current_img_caption.innerHTML = "";
+								current_img_caption.innerHTML = (img_index + 1) + "/" + data.length;
+							}
+						}
+					});
+                })
+        })()
+    </script>
+	
+	<script>
+            // https://scriptygoddess.com/resources/proportioncalc.htm
+            function aspectRatio(x, y) {
+                var max = (x > y) ? x : y;
+                var min = (x < y) ? x : y;
+                return (max / min);
+            }
+
+        </script>
+	<script>
+            // https://stackoverflow.com/questions/1297449/change-image-size-with-javascript
+            function resizeImg(img, height, width) {
+                const current_img_dom = document.getElementById("current-image-img");
+                var desired = 300;
+                console.log(current_img_dom.height, " ", current_img_dom.width);
+                if (current_img_dom.height > desired) {
+                    img.height = desired;
+                    img.width = desired * aspectRatio(img.height, img.width);
+                    console.log(current_img_dom.height, " ", current_img_dom.width);
+					console.log(img.height, " ", img.width);
+                }
+            }
+
+        </script>
+</body>
+
+</html>
