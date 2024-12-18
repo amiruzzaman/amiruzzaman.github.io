@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>..::Amir::..</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
+
+    <script>
+        function readTextFile(file, callback) {
+            var rawFile = new XMLHttpRequest();
+            rawFile.overrideMimeType("application/json");
+            rawFile.open("GET", file, true);
+            rawFile.onreadystatechange = function () {
+                if (rawFile.readyState === 4 && rawFile.status == "200") {
+                    callback(rawFile.responseText);
+                }
+            };
+            rawFile.send(null);
+        }
+
+        function LinkFormatter(value, row, index, validCountries) {
+            if (validCountries.includes(row.Country.toLowerCase())) {
+                return "<a href='./display.html?country=" + row.Country.toLowerCase() + "'>" + value + "</a>";
+            } else {
+                return value;
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            readTextFile("data/mydata.js", function (text) {
+                var mydata = JSON.parse(text);
+
+                // Extract unique countries from JSON data
+                const validCountries = [...new Set(mydata.map(coin => coin.Country.toLowerCase()))];
+
+                $(function () {
+                    $('#table').bootstrapTable({
+                        data: mydata,
+                        columns: [
+                            {
+                                field: "Country",
+                                title: "Country",
+                                formatter: function (value, row, index) {
+                                    return LinkFormatter(value, row, index, validCountries);
+                                }
+                            },
+                            {
+                                field: "Coin",
+                                title: "Coin"
+                            },
+                            {
+                                field: "PaperBill",
+                                title: "PaperBill"
+                            },
+                            {
+                                field: "Donor",
+                                title: "Donor"
+                            }
+                        ]
+                    });
+                });
+
+                // Update count of countries in the collection
+                document.getElementById("demo").innerText = validCountries.length;
+
+            });
+        });
+    </script>
+
+    <style>
+        #myInput {
+            background-image: url('images/Search-icon.png');
+            background-position: 10px 12px;
+            background-repeat: no-repeat;
+            width: 100%;
+            font-size: 16px;
+            padding: 12px 20px 12px 40px;
+            border: 1px solid #ddd;
+            margin-bottom: 12px;
+        }
+    </style>
+
+    <script>
+        function myFunction() {
+            var input, filter, table, tr, td, i;
+            input = document.getElementById("myInput");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("table");
+            tr = table.getElementsByTagName("tr");
+
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                    if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <center><h1>List of Coin Collection</h1></center>
+    <div class="container">
+        <input type="text" id="myInput" onkeyup="myFunction()" placeholder="What are you looking for?">
+        <table id="table" data-height="600">
+            <thead class="cf">
+                <tr>
+                    <th data-field="Country">Country</th>
+                    <th data-field="Coin">Coin</th>
+                    <th data-field="PaperBill">PaperBill</th>
+                    <th data-field="Donor">Donor</th>
+                </tr>
+            </thead>
+        </table>
+        <div class="row">
+            <p class="bg-success" style="padding:10px;margin-top:20px">
+                There are total <span id="demo" style="color: blue; font-weight: bold;"></span> countries in the collection.<br>
+                <small>Copyright: &copy;2018 Md Amiruzzaman.</small>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
