@@ -110,14 +110,16 @@
     {% endif %}
     {% endwith %}
 
-    {% if uploaded_file %}
-    <div class="recent-upload">
-        <h3>Recently Uploaded:</h3>
-        <p><strong>Country:</strong> {{ uploaded_country }}</p>
-        <p><strong>Note:</strong> {{ uploaded_note }}</p>
-        <img src="{{ url_for('static', filename='uploads/' + uploaded_file) }}" alt="Uploaded Image">
-    </div>
-    {% endif %}
+{% if uploaded_file %}
+<div class="recent-upload">
+    <h3>Recently Uploaded:</h3>
+    <p><strong>Country:</strong> {{ uploaded_country }}</p>
+    <p><strong>Note:</strong> {{ uploaded_note }}</p>
+    <img src="{{ url_for('static', filename=uploaded_file) }}" alt="Uploaded Image">
+</div>
+{% endif %}
+
+
 
     <form method="post" action="/upload" enctype="multipart/form-data">
         <div class="form-group">

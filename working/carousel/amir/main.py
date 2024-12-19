@@ -72,6 +72,7 @@ def delete_entry(entry):
 
 # Routes
 @app.route('/upload')
+@app.route("/", methods=["GET", "POST"])
 def upload():
     if request.method == "POST":
         country = request.form.get("country")
@@ -79,21 +80,30 @@ def upload():
         file = request.files.get("file")
 
         if file and country and note:
-            filename = file.filename
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(filepath)
-            flash("File uploaded successfully!")
-            return render_template(
-                "upload.html",
-                uploaded_file=filename,
-                uploaded_country=country,
-                uploaded_note=note,
-            )
+            if allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(filepath)
 
-        flash("All fields are required!")
+                # Prepare data for response
+                uploaded_file = f"uploads/{filename}"
+                flash("File successfully uploaded!")
+
+                return render_template(
+                    "upload.html",
+                    uploaded_country=country,
+                    uploaded_note=note,
+                    uploaded_file=uploaded_file
+                )
+            else:
+                flash("Invalid file type!")
+        else:
+            flash("All fields are required!")
         return redirect(url_for("upload"))
 
     return render_template("upload.html")
+
+
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
