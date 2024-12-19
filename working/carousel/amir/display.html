@@ -16,128 +16,135 @@
             font-family: 'Montserrat', sans-serif;
         }
 
+        body {
+            background: #72787e;
+        }
+
         .out-container {
             width: 100vw;
-            height: 100vh;
-            background: #495057;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
+            padding: 20px;
         }
 
         .inner-container {
             width: 80%;
-            height: 95%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            margin-bottom: 20px;
         }
 
         .title {
-            margin-top: 40px;
+            margin-top: 20px;
             font-size: 24px;
-            flex: 1;
             color: #f8f9fa;
         }
 
         .slider {
             width: 80%;
-            height: 66%;
             display: flex;
-            flex-direction: row;
             align-items: center;
             justify-content: center;
+            gap: 10px;
         }
-
         .current-img-container {
             width: 400px;
-            height: 350px;
+            height: 400px; /* Adjusted for image space */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            background: #495057;
+            position: relative; /* For dynamic note handling */
         }
-
+        
         .current-img-container img {
-            width: 100%;
-            height: 80%;
+            max-width: 100%;
+            max-height: 70%; /* Reduced height to give space for notes */
             object-fit: contain;
             border: 4px solid #dee2e6;
             box-shadow: 2px 6px 6px rgba(0, 0, 0, 0.4);
         }
-
+        
         .note {
             margin-top: 8px;
-            width: 100%;
-            text-align: center;
             color: #f8f9fa;
-            font-size: 16px;
-            line-height: 1.2;
-            white-space: normal;
+            text-align: center;
+            width: 100%; /* Ensure it takes full width */
+            padding: 10px;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-y: auto; /* Allow scrolling for very long notes */
+            max-height: 25%; /* Limit height to avoid breaking layout */
+            white-space: normal; /* Ensure text wraps */
         }
-
-        .note.long {
-            font-size: 12px; /* Smaller font for long notes */
-        }
-
-        .prev-button,
-        .next-button {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn {
-            width: 60px;
-            height: 60px;
-            background: #dee2e6;
-            font-size: 32px;
-            font-weight: bolder;
-            border-radius: 100%;
-            box-shadow: 2px 6px 6px rgba(0, 0, 0, 0.4);
-            cursor: pointer;
-            transition: 0.1s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn:hover {
-            box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.4);
-            background: #e9ecef
-        }
+        
 
         .img-queue {
+            margin-top: 20px;
             width: 80%;
-            height: 20%;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .img-queue-in {
-            width: 100%;
-            height: 90%;
-            overflow: auto;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            flex-wrap: wrap;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px;
         }
 
         .img-queue-in img {
-            height: 90%;
-            border: 4px solid #dee2e6;
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border: 2px solid #dee2e6;
             cursor: pointer;
-            transition: 0.1s;
+            transition: transform 0.2s;
         }
 
         .img-queue-in img:hover {
-            height: 100%;
+            transform: scale(1.1);
+        }
+
+        .countries-list {
+            margin-top: 40px;
+            padding: 20px;
+            width: 80%;
+            background: #495057;
+            border-radius: 10px;
+            color: #f8f9fa;
+            text-align: center;
+        }
+
+        .countries-list h2 {
+            margin-bottom: 10px;
+        }
+
+        .countries-list ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .countries-list a {
+            padding: 5px 10px;
+            background: #dee2e6;
+            border-radius: 5px;
+            color: #212529;
+            text-decoration: none;
+        }
+
+        .countries-list a:hover {
+            background: #e9ecef;
         }
     </style>
 </head>
@@ -145,97 +152,117 @@
 <body>
     <div class="out-container">
         <div class="inner-container">
+            <!-- Back to Home Button -->
+            <a href="index.html" class="btn">🏠</a>
+
             <h1 id="image-caption" class="title"></h1>
             <div class="slider">
-                <div class="prev-button">
-                    <div class="btn">&#60;</div>
-                </div>
+                <button id="prev-btn" class="btn">&#60;</button>
                 <div class="current-img-container">
-                    <img id="current-image-img" src="" alt="Current Image" />
+                    <img id="current-image-img" src="placeholder.jpg" alt="Loading..." />
                     <div id="current-image-note" class="note"></div>
                 </div>
-                <div class="next-button">
-                    <div class="btn">&#62;</div>
-                </div>
+                <button id="next-btn" class="btn">&#62;</button>
             </div>
             <div class="img-queue">
-                <div class="img-queue-in"></div>
+                <div class="img-queue-in" id="thumbnail-container"></div>
             </div>
+        </div>
+
+        <div class="countries-list" id="countries-list">
+            <h2>Available Countries</h2>
+            <ul id="countries-ul"></ul>
         </div>
     </div>
 
     <script>
-        function getQueryParams(qs) {
-            qs = qs.split('+').join(' ');
-            var params = {},
-                tokens,
-                re = /[?&]?([^=]+)=([^&]*)/g;
-            while (tokens = re.exec(qs)) {
-                params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
-            }
-            return params;
-        }
-
         function toTitleCase(str) {
-            return str.replace(/\w\S*/g, function (txt) {
-                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-            });
+            return str.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
         }
 
         function setCurrentImage(src, note) {
             const image = document.getElementById("current-image-img");
             const noteElement = document.getElementById("current-image-note");
+            
             image.setAttribute("src", src);
             noteElement.textContent = note;
-
-            // Adjust font size for long notes
-            if (note.length > 20) {
-                noteElement.classList.add("long");
+        
+            // Adjust the style dynamically if the note is too long
+            if (note.length > 200) { // Arbitrary character limit for long notes
+                noteElement.style.overflowY = "auto";
             } else {
-                noteElement.classList.remove("long");
+                noteElement.style.overflowY = "hidden";
             }
+        }
+        
+
+        function renderCountries(countries) {
+            const countriesList = document.getElementById("countries-ul");
+            countries.forEach(country => {
+                const li = document.createElement("li");
+                const link = document.createElement("a");
+                link.textContent = country;
+                link.href = `?country=${country.toLowerCase()}`;
+                li.appendChild(link);
+                countriesList.appendChild(li);
+            });
         }
 
         (() => {
-            const query = getQueryParams(document.location.search);
-            const country_dir = (query.country || 'default').toLowerCase();
-            document.getElementById("image-caption").innerHTML = toTitleCase(country_dir);
+            const queryParams = new URLSearchParams(window.location.search);
+            const countryQuery = queryParams.get("country") || "default";
+            const countryTitle = toTitleCase(countryQuery);
 
-            const IMAGE_FOLDER = "images/" + toTitleCase(country_dir) + "/";
-            let img_index = 0;
+            document.getElementById("image-caption").textContent = countryTitle;
 
             fetch("images/coins.json")
                 .then(response => response.json())
                 .then(data => {
-                    const img_queue = document.querySelector(".img-queue-in");
-                    const prev_btn = document.querySelector(".prev-button .btn");
-                    const next_btn = document.querySelector(".next-button .btn");
+                    // Extract unique countries in alphabetical order
+                    const countries = [...new Set(data.map(coin => toTitleCase(coin.country)))].sort();
 
-                    data = data.filter(o => o.country.toLowerCase() === country_dir);
-                    data.forEach((img, i) => {
-                        const img_dom = document.createElement("img");
-                        const src = IMAGE_FOLDER + img.image;
+                    // Render the list of countries
+                    renderCountries(countries);
 
-                        img_dom.setAttribute("src", src);
-                        if (i === 0) setCurrentImage(src, img.note);
+                    // Filter data for the current country
+                    const countryData = data.filter(coin => coin.country.toLowerCase() === countryQuery.toLowerCase());
 
-                        img_dom.addEventListener("click", () => {
-                            img_index = i;
-                            setCurrentImage(src, img.note);
+                    // Set up image slider and thumbnails
+                    const imageElements = countryData.map(coin => ({
+                        src: `images/${countryTitle}/${coin.image}`,
+                        note: coin.note
+                    }));
+
+                    const thumbnailContainer = document.getElementById("thumbnail-container");
+                    let currentIndex = 0;
+
+                    const updateImage = () => {
+                        const { src, note } = imageElements[currentIndex];
+                        setCurrentImage(src, note);
+                    };
+
+                    imageElements.forEach((img, index) => {
+                        const thumbnail = document.createElement("img");
+                        thumbnail.src = img.src;
+                        thumbnail.alt = `Thumbnail ${index + 1}`;
+                        thumbnail.addEventListener("click", () => {
+                            currentIndex = index;
+                            updateImage();
                         });
-
-                        img_queue.appendChild(img_dom);
+                        thumbnailContainer.appendChild(thumbnail);
                     });
 
-                    prev_btn.addEventListener("click", () => {
-                        img_index = (img_index - 1 + data.length) % data.length;
-                        setCurrentImage(IMAGE_FOLDER + data[img_index].image, data[img_index].note);
+                    document.getElementById("prev-btn").addEventListener("click", () => {
+                        currentIndex = (currentIndex - 1 + imageElements.length) % imageElements.length;
+                        updateImage();
                     });
 
-                    next_btn.addEventListener("click", () => {
-                        img_index = (img_index + 1) % data.length;
-                        setCurrentImage(IMAGE_FOLDER + data[img_index].image, data[img_index].note);
+                    document.getElementById("next-btn").addEventListener("click", () => {
+                        currentIndex = (currentIndex + 1) % imageElements.length;
+                        updateImage();
                     });
+
+                    if (imageElements.length) updateImage();
                 });
         })();
     </script>
