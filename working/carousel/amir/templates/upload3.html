@@ -8,123 +8,86 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #72787e; /* Matching the index page background color */
-            color: #fff; /* Text color matching the index page */
+            background-color: #f4f4f4;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
         }
-    
         .container {
-            background-color: #495057; /* Darker container color matching the index page */
+            background-color: white;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Slightly darker shadow for better contrast */
-            width: 100%;
-            max-width: 500px; /* Ensure the container doesn't exceed this width */
-            color: #fff; /* Ensures text is visible against the dark background */
-            box-sizing: border-box; /* Include padding and border in the width */
-            overflow: hidden; /* Prevent content overflow */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 500px;
         }
-    
         h2 {
             text-align: center;
-            color: #ffc107; /* Accent color matching the index page links */
-            word-wrap: break-word; /* Handle long text wrapping */
+            color: #333;
         }
-    
         .form-group {
             margin-bottom: 20px;
-            overflow: hidden; /* Prevent content overflow */
         }
-    
         label {
             font-weight: bold;
-            color: #ffc107; /* Matching accent color */
+            color: #333;
             display: block;
             margin-bottom: 5px;
-            word-wrap: break-word; /* Handle long text wrapping */
         }
-    
         input[type="file"], select, textarea, input[type="submit"] {
             width: 100%;
-            padding: 12px; /* Slightly increased padding for consistency */
+            padding: 10px;
             margin-top: 5px;
-            border: 1px solid #ddd;
+            border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 14px;
-            background-color: #6c757d; /* Slightly darker input background for contrast */
-            color: #fff; /* White text color for inputs */
-            box-sizing: border-box; /* Include padding and border in the width */
         }
-    
-        input[type="file"]:focus, select:focus, textarea:focus, input[type="submit"]:focus {
-            outline: none;
-            border-color: #ffc107; /* Accent color for focus */
-            box-shadow: 0 0 5px #ffc107; /* Matching the index page accent */
-        }
-    
         input[type="submit"] {
-            background-color: #198754; /* Green background matching index page success messages */
-            color: #fff;
+            background-color: #4CAF50;
+            color: white;
             cursor: pointer;
             font-size: 16px;
         }
-    
         input[type="submit"]:hover {
-            background-color: #145c41; /* Darker hover effect for submit button */
+            background-color: #45a049;
         }
-    
         .note {
-            color: #ff6f61; /* Slightly brighter red for notes */
+            color: red;
             font-size: 12px;
         }
-    
-        #image-preview {
-            display: none;
-            margin-top: 10px;
+        .recent-upload {
+            margin-top: 20px;
             text-align: center;
-            overflow: hidden; /* Prevent image overflow */
         }
-    
-        #image-preview img {
+        .recent-upload img {
             max-width: 100%;
             height: auto;
             border-radius: 5px;
-            border: 2px solid #ffc107; /* Highlight border matching the accent color */
             margin-top: 10px;
         }
-    
         a {
-            color: #ffc107; /* Accent color matching the index page links */
+            color: #007BFF;
             text-decoration: none;
             font-weight: bold;
             display: block;
             text-align: center;
             margin-top: 20px;
-            word-wrap: break-word; /* Handle long link text */
         }
-    
         a:hover {
-            color: #fff; /* White hover color for better contrast */
             text-decoration: underline;
         }
-    
-        /* Ensure all form elements align correctly and handle resizing */
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px; /* Add space between form elements */
+        #image-preview {
+            display: none;
+            margin-top: 10px;
+            text-align: center;
         }
-    
-        textarea {
-            resize: vertical; /* Allow vertical resizing only */
+        #image-preview img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
         }
     </style>
-    
-    
 </head>
 <body>
 
