@@ -166,9 +166,8 @@
 
         function renderTable(data) {
             const tableContainer = document.getElementById("jsonTableContainer");
-            tableContainer.innerHTML = ''; // Clear the table
-    
-            // Header row
+            tableContainer.innerHTML = ''; 
+
             const headerRow = document.createElement('div');
             headerRow.classList.add('row', 'header');
             const headers = ['Country', 'Image', 'Note', 'Actions'];
@@ -179,12 +178,11 @@
                 headerRow.appendChild(column);
             });
             tableContainer.appendChild(headerRow);
-    
+
             data.forEach((row, index) => {
                 const rowDiv = document.createElement('div');
                 rowDiv.classList.add('row');
-    
-                // Country column
+
                 const countryDiv = document.createElement('div');
                 countryDiv.classList.add('column', 'editable');
                 countryDiv.contentEditable = true;
@@ -193,24 +191,10 @@
                     row.country = countryDiv.textContent;
                 });
                 rowDiv.appendChild(countryDiv);
-    
-                // Image column
+
                 const imageDiv = document.createElement('div');
                 imageDiv.classList.add('column');
-    
-                if (row.isNew) {
-                    // For new rows, show a text input for the image name
-                    const imageInput = document.createElement('input');
-                    imageInput.classList.add('image-input');
-                    imageInput.type = 'text';
-                    imageInput.placeholder = 'Enter image name';
-                    imageInput.value = row.image || '';
-                    imageInput.addEventListener('input', () => {
-                        row.image = imageInput.value;
-                    });
-                    imageDiv.appendChild(imageInput);
-                } else {
-                    // For existing rows, show the image thumbnail
+                if (row.image && row.country) {
                     const img = document.createElement('img');
                     img.src = `images/${row.country}/${row.image}`;
                     img.alt = `Image for ${row.country}`;
@@ -221,10 +205,11 @@
                     };
                     img.addEventListener('click', () => showImageModal(img.src));
                     imageDiv.appendChild(img);
+                } else {
+                    imageDiv.textContent = "No Image Available";
                 }
                 rowDiv.appendChild(imageDiv);
-    
-                // Note column
+
                 const noteDiv = document.createElement('div');
                 noteDiv.classList.add('column', 'editable');
                 noteDiv.contentEditable = true;
@@ -233,20 +218,19 @@
                     row.note = noteDiv.textContent;
                 });
                 rowDiv.appendChild(noteDiv);
-    
-                // Action column for deleting the row
+
                 const actionDiv = document.createElement('div');
                 actionDiv.classList.add('column');
                 const deleteBtn = document.createElement('span');
                 deleteBtn.classList.add('delete-btn');
                 deleteBtn.textContent = 'Delete';
                 deleteBtn.addEventListener('click', () => {
-                    jsonData.splice(index, 1); // Remove the row from the data
-                    renderTable(jsonData); // Re-render the table
+                    jsonData.splice(index, 1);
+                    renderTable(jsonData);
                 });
                 actionDiv.appendChild(deleteBtn);
                 rowDiv.appendChild(actionDiv);
-    
+
                 tableContainer.appendChild(rowDiv);
             });
         }
