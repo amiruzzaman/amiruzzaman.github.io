@@ -36,7 +36,7 @@ def write_json_file(data):
 
 def add_to_json(country, image, note):
     data = read_json_file()
-    data.append({'country': country.lower(), 'image': image, 'note': note})
+    data.append({'country': country.title(), 'image': image, 'note': note})
     write_json_file(data)
 
 def edit_or_delete_entry(action, value):
