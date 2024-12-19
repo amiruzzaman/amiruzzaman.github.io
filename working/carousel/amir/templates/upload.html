@@ -130,6 +130,30 @@
 </div>
 
 <script>
+    // Load countries from countries.json and populate the select element
+    document.addEventListener('DOMContentLoaded', function () {
+        const countrySelect = document.getElementById('country');
+
+        fetch('static/countries.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch countries.json');
+                }
+                return response.json();
+            })
+            .then(data => {
+                data.forEach(country => {
+                    const option = document.createElement('option');
+                    option.value = country.code; // Use country code as the value
+                    option.textContent = country.name; // Display country name
+                    countrySelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading countries:', error);
+            });
+    });
+
     document.getElementById('file-input').addEventListener('change', function(event) {
         const preview = document.getElementById('image-preview');
         const previewImg = document.getElementById('preview-img');
