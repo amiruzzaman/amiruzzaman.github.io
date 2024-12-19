@@ -56,19 +56,6 @@
             color: red;
             font-size: 12px;
         }
-        .messages {
-            background-color: #ffeb3b;
-            padding: 10px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-        }
-        .messages ul {
-            margin: 0;
-            padding-left: 20px;
-        }
-        .messages ul li {
-            list-style: disc;
-        }
         .recent-upload {
             margin-top: 20px;
             text-align: center;
@@ -90,6 +77,16 @@
         a:hover {
             text-decoration: underline;
         }
+        #image-preview {
+            display: none;
+            margin-top: 10px;
+            text-align: center;
+        }
+        #image-preview img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -98,41 +95,25 @@
     <a href="./logout">Logout</a>
     <h2>Select file to upload</h2>
 
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    <div class="messages">
-        <ul>
-            {% for message in messages %}
-            <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-    </div>
-    {% endif %}
-    {% endwith %}
-
-{% if uploaded_file %}
-<div class="recent-upload">
-    <h3>Recently Uploaded:</h3>
-    <p><strong>Country:</strong> {{ uploaded_country }}</p>
-    <p><strong>Note:</strong> {{ uploaded_note }}</p>
-    <img src="{{ url_for('static', filename=uploaded_file) }}" alt="Uploaded Image">
-</div>
-{% endif %}
-
-
-
     <form method="post" action="/upload" enctype="multipart/form-data">
         <div class="form-group">
             <label for="country">Country <span class="note">*</span></label>
             <select required id="country" name="country">
-			    <option hidden disabled selected value></option>
-                <!-- Countries will be dynamically loaded here -->
+                <option hidden disabled selected value></option>
+                <option value="USA">USA</option>
+                <option value="Canada">Canada</option>
+                <option value="India">India</option>
+                <!-- Add more countries here if needed -->
             </select>
         </div>
 
         <div class="form-group">
             <label for="file">File <span class="note">*</span></label>
-            <input type="file" name="file" autocomplete="off" required>
+            <input type="file" name="file" id="file-input" autocomplete="off" required>
+            <div id="image-preview">
+                <h3>Selected Image:</h3>
+                <img id="preview-img" alt="Image preview">
+            </div>
         </div>
 
         <div class="form-group">
@@ -149,31 +130,25 @@
 </div>
 
 <script>
-    // Load countries from countries.json and populate the select element
-    document.addEventListener('DOMContentLoaded', function () {
-        const countrySelect = document.getElementById('country');
+    document.getElementById('file-input').addEventListener('change', function(event) {
+        const preview = document.getElementById('image-preview');
+        const previewImg = document.getElementById('preview-img');
 
-        fetch('static/countries.json')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to fetch countries.json');
-                }
-                return response.json();
-            })
-            .then(data => {
-                data.forEach(country => {
-                    const option = document.createElement('option');
-                    option.value = country.name; // Use country name as the value
-                    option.textContent = country.name; // Display country name
-                    countrySelect.appendChild(option);
-                });
-            })
-            .catch(error => {
-                console.error('Error loading countries:', error);
-            });
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                preview.style.display = 'block';
+            };
+
+            reader.readAsDataURL(file);
+        } else {
+            preview.style.display = 'none';
+        }
     });
 </script>
-
 
 </body>
 </html>
