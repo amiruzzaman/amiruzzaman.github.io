@@ -201,7 +201,7 @@
             const country_dir = (query.country || 'default').toLowerCase();
             document.getElementById("image-caption").innerHTML = toTitleCase(country_dir);
 
-            const IMAGE_FOLDER = "images/" + country_dir + "/";
+            const IMAGE_FOLDER = "images/" + toTitleCase(country_dir) + "/";
             let img_index = 0;
 
             fetch("images/coins.json")
