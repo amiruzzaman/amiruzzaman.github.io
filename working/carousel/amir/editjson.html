@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JSON Table Viewer & Editor</title>
+    <title>JSON Viewer & Editor</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"></script>
     <style>
         * {
@@ -34,31 +34,34 @@
             border-radius: 8px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-
-        table th,
-        table td {
+        #jsonTableContainer {
+            border: 2px solid red;
             padding: 10px;
-            border: 1px solid #ddd;
-            text-align: center;
+            background-color: lightgray;
+            min-height: 100px;
         }
 
-        table th {
-            background-color: #f1f1f1;
-            font-weight: bold;
+        .row {
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
         }
 
-        .editable {
+        .row:nth-child(odd) {
             background-color: #f9f9f9;
-            cursor: pointer;
         }
 
-        .editable:hover {
-            background-color: #e9e9e9;
+        .column {
+            flex: 1;
+            text-align: center;
+            padding: 5px;
+        }
+
+        .thumbnail {
+            max-width: 50px;
+            max-height: 50px;
+            border-radius: 4px;
         }
 
         .delete-btn {
@@ -87,18 +90,49 @@
             margin-bottom: 20px;
             display: block;
         }
+
+        .header {
+            font-weight: bold;
+            background-color: #f1f1f1;
+        }
+
+        .add-row-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .add-row-btn:hover {
+            background-color: #218838;
+        }
+
+        .image-input {
+            width: 100%;
+            padding: 5px;
+            font-size: 14px;
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>JSON Table Viewer & Editor</h1>
+        <h1>JSON Viewer & Editor</h1>
 
         <!-- File input to load JSON -->
         <input type="file" id="jsonFileInput" class="file-input" accept=".json" />
 
         <!-- Table container -->
-        <div id="jsonTableContainer"></div>
+        <div id="jsonTableContainer">Container is here</div>
+
+        <!-- Button to add a new row -->
+        <button class="add-row-btn" id="addRowBtn">Add New Row</button>
 
         <!-- Download Button -->
         <button class="download-btn" id="downloadBtn">Download Updated JSON</button>
@@ -107,44 +141,85 @@
     <script>
         let jsonData = [];
 
-        // Function to render the JSON data as a table
+        // Function to render the JSON data as a div-based table
         function renderTable(data) {
             const tableContainer = document.getElementById("jsonTableContainer");
             tableContainer.innerHTML = '';  // Clear any existing table
 
-            const table = document.createElement('table');
-            const headerRow = document.createElement('tr');
+            // Header row
+            const headerRow = document.createElement('div');
+            headerRow.classList.add('row', 'header');
             const headers = ['Country', 'Image', 'Note', 'Actions'];
             headers.forEach(headerText => {
-                const th = document.createElement('th');
-                th.textContent = headerText;
-                headerRow.appendChild(th);
+                const column = document.createElement('div');
+                column.classList.add('column');
+                column.textContent = headerText;
+                headerRow.appendChild(column);
             });
-            table.appendChild(headerRow);
+            tableContainer.appendChild(headerRow);
 
-            // Generate table rows from JSON data
+            // Generate rows from JSON data
             data.forEach((row, index) => {
-                const tr = document.createElement('tr');
+                const rowDiv = document.createElement('div');
+                rowDiv.classList.add('row');
 
-                Object.keys(row).forEach(key => {
-                    const td = document.createElement('td');
-                    td.classList.add('editable');
-                    td.contentEditable = true;
-                    td.textContent = row[key];
-                    td.addEventListener('blur', () => {
-                        row[key] = td.textContent;  // Update the JSON data when content is changed
-                    });
-                    td.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();  // Prevent Enter key from creating a new line
-                            td.blur();  // Trigger blur to save changes
-                        }
-                    });
-                    tr.appendChild(td);
+                // Country column
+                const countryDiv = document.createElement('div');
+                countryDiv.classList.add('column', 'editable');
+                countryDiv.contentEditable = true;
+                countryDiv.textContent = row.country || "No Country"; // Ensure default text if empty
+                countryDiv.addEventListener('blur', () => {
+                    row.country = countryDiv.textContent;
                 });
+                rowDiv.appendChild(countryDiv);
+
+                // Image column
+                const imageDiv = document.createElement('div');
+                imageDiv.classList.add('column');
+
+                if (row.image && row.country && !row.isNew) {
+                    // For existing rows, show the image thumbnail
+                    const img = document.createElement('img');
+                    const imagePath = `images/${row.country}/${row.image}`;
+                    img.src = imagePath;
+                    img.alt = `Image for ${row.country}`;
+                    img.classList.add('thumbnail');
+                    img.onerror = () => {
+                        img.src = "images/placeholder.png"; // Placeholder if the image is missing
+                        img.alt = "Placeholder Image";
+                    };
+                    imageDiv.appendChild(img);
+                } else if (row.isNew) {
+                    // For new rows, don't attempt to load the image and only show a filename input
+                    const imageInput = document.createElement('input');
+                    imageInput.classList.add('image-input');
+                    imageInput.type = 'text';
+                    imageInput.value = row.image || "No Image";  // Display current image filename or placeholder
+
+                    imageInput.addEventListener('input', () => {
+                        row.image = imageInput.value; // Update the image filename
+                    });
+
+                    imageDiv.appendChild(imageInput);
+                } else {
+                    imageDiv.textContent = "No Image Available";
+                }
+
+                rowDiv.appendChild(imageDiv);
+
+                // Note column
+                const noteDiv = document.createElement('div');
+                noteDiv.classList.add('column', 'editable');
+                noteDiv.contentEditable = true;
+                noteDiv.textContent = row.note || "No Note"; // Ensure default text if empty
+                noteDiv.addEventListener('blur', () => {
+                    row.note = noteDiv.textContent;
+                });
+                rowDiv.appendChild(noteDiv);
 
                 // Action column for deleting the row
-                const actionTd = document.createElement('td');
+                const actionDiv = document.createElement('div');
+                actionDiv.classList.add('column');
                 const deleteBtn = document.createElement('span');
                 deleteBtn.classList.add('delete-btn');
                 deleteBtn.textContent = 'Delete';
@@ -152,13 +227,11 @@
                     jsonData.splice(index, 1);  // Remove the row from the data
                     renderTable(jsonData);  // Re-render the table
                 });
-                actionTd.appendChild(deleteBtn);
-                tr.appendChild(actionTd);
+                actionDiv.appendChild(deleteBtn);
+                rowDiv.appendChild(actionDiv);
 
-                table.appendChild(tr);
+                tableContainer.appendChild(rowDiv);
             });
-
-            tableContainer.appendChild(table);
         }
 
         // Function to download the updated JSON file
@@ -191,6 +264,18 @@
                 }
             };
             reader.readAsText(file);
+        });
+
+        // Add new row with a generated image filename
+        document.getElementById("addRowBtn").addEventListener("click", function () {
+            const newRow = {
+                country: "New Country",
+                image: "new_" + uuid.v4() + ".jpg",  // Generate a unique image filename using UUID, marked as 'new_'
+                note: "Add a note",
+                isNew: true  // Flag to identify that this is a new row
+            };
+            jsonData.push(newRow);  // Add the new row to the JSON data
+            renderTable(jsonData);   // Re-render the table to include the new row
         });
     </script>
 </body>
