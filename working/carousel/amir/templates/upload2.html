@@ -69,16 +69,6 @@
         .messages ul li {
             list-style: disc;
         }
-        .recent-upload {
-            margin-top: 20px;
-            text-align: center;
-        }
-        .recent-upload img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 5px;
-            margin-top: 10px;
-        }
         a {
             color: #007BFF;
             text-decoration: none;
@@ -109,15 +99,6 @@
     </div>
     {% endif %}
     {% endwith %}
-
-    {% if uploaded_file %}
-    <div class="recent-upload">
-        <h3>Recently Uploaded:</h3>
-        <p><strong>Country:</strong> {{ uploaded_country }}</p>
-        <p><strong>Note:</strong> {{ uploaded_note }}</p>
-        <img src="{{ url_for('static', filename='uploads/' + uploaded_file) }}" alt="Uploaded Image">
-    </div>
-    {% endif %}
 
     <form method="post" action="/upload" enctype="multipart/form-data">
         <div class="form-group">
@@ -161,7 +142,7 @@
             .then(data => {
                 data.forEach(country => {
                     const option = document.createElement('option');
-                    option.value = country.name; // Use country name as the value
+                    option.value = country.code; // Use country code as the value
                     option.textContent = country.name; // Display country name
                     countrySelect.appendChild(option);
                 });
@@ -171,7 +152,6 @@
             });
     });
 </script>
-
 
 </body>
 </html>

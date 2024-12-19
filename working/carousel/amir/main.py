@@ -14,7 +14,7 @@ app.secret_key = "secret key"
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 # Paths and file setup
-file_name = 'static/coins.json'
+file_name = './images/coins.json'
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'images')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
@@ -72,10 +72,28 @@ def delete_entry(entry):
 
 # Routes
 @app.route('/upload')
-def upload_form():
-    if not session.get('id'):
-        return render_template('login.html')
-    return render_template('upload.html')
+def upload():
+    if request.method == "POST":
+        country = request.form.get("country")
+        note = request.form.get("note")
+        file = request.files.get("file")
+
+        if file and country and note:
+            filename = file.filename
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
+            flash("File uploaded successfully!")
+            return render_template(
+                "upload.html",
+                uploaded_file=filename,
+                uploaded_country=country,
+                uploaded_note=note,
+            )
+
+        flash("All fields are required!")
+        return redirect(url_for("upload"))
+
+    return render_template("upload.html")
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
