@@ -4,6 +4,7 @@ import json
 from flask import Flask, flash, request, redirect, render_template, url_for, session
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
+from flask import jsonify
 
 app = Flask(__name__, static_url_path='/static')
 CORS(app)
@@ -71,61 +72,96 @@ def delete_entry(entry):
     write_json_file(updated_data)
 
 # Routes
-@app.route('/upload')
-@app.route("/", methods=["GET", "POST"])
-def upload():
-    if request.method == "POST":
-        country = request.form.get("country")
-        note = request.form.get("note")
-        file = request.files.get("file")
+# @app.route('/upload')
+# @app.route("/", methods=["GET", "POST"])
+# def upload():
+#     if request.method == "POST":
+#         country = request.form.get("country")
+#         note = request.form.get("note")
+#         file = request.files.get("file")
 
-        if file and country and note:
-            if allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(filepath)
+#         if file and country and note:
+#             if allowed_file(file.filename):
+#                 filename = secure_filename(file.filename)
+#                 filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+#                 file.save(filepath)
 
-                # Prepare data for response
-                uploaded_file = f"uploads/{filename}"
-                flash("File successfully uploaded!")
+#                 new_entry = {
+#                     "country": country,
+#                     "note": note,
+#                     "file_path": f"uploads/{filename}"
+#                 }
 
-                return render_template(
-                    "upload.html",
-                    uploaded_country=country,
-                    uploaded_note=note,
-                    uploaded_file=uploaded_file
-                )
-            else:
-                flash("Invalid file type!")
-        else:
-            flash("All fields are required!")
-        return redirect(url_for("upload"))
+#                 # Update JSON file
+#                 with open(file_name, 'r+') as f:
+#                     data = json.load(f)
+#                     data.append(new_entry)
+#                     f.seek(0)
+#                     json.dump(data, f, indent=4)
 
-    return render_template("upload.html")
+#                 flash("File uploaded successfully!")
+#                 return render_template(
+#                     "upload.html",
+#                     uploaded_file=filename,
+#                     uploaded_country=country,
+#                     uploaded_note=note,
+#                     uploaded_path=url_for('static', filename=f'uploads/{filename}')
+#                 )
+#             else:
+#                 flash("Invalid file type!")
+#         else:
+#             flash("All fields are required!")
 
+#         return redirect(url_for("upload"))
+
+#     return render_template("upload.html")
 
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if not session.get('id'):
         return render_template('login.html')
-
-    country = request.form.get("country")
-    note = request.form.get("note")
-    file = request.files.get("file")
-
-    if not file or not allowed_file(file.filename):
-        flash('Invalid file type or no file selected')
-        return redirect(request.url)
-
-    filename = f"{uuid.uuid4().hex}{os.path.splitext(file.filename)[1]}"
-    country_path = os.path.join(UPLOAD_FOLDER, country)
-    os.makedirs(country_path, exist_ok=True)
-    file.save(os.path.join(country_path, filename))
-
-    add_to_json(country, filename, note)
-    flash('File successfully uploaded')
-    return redirect('/upload')
+    try:
+        # Your logic for handling the uploaded file
+        # For example, saving the file and extracting data from the form
+        country = request.form.get("country")
+        note = request.form.get("note")
+        file = request.files.get("file")
+        
+        if not file or not allowed_file(file.filename):
+            flash('Invalid file type or no file selected')
+            return redirect(request.url)
+        
+        filename = f"{uuid.uuid4().hex}{os.path.splitext(file.filename)[1]}"
+        country_path = os.path.join(UPLOAD_FOLDER, country)
+        os.makedirs(country_path, exist_ok=True)
+        file.save(os.path.join(country_path, filename))
+        
+        add_to_json(country, filename, note)
+        flash('File successfully uploaded')
+                  
+        
+        # Simulate file saving and processing
+        file_path = f"{country}/{filename}"
+        
+        # Returning a success message as JSON
+        return jsonify({
+            'message': 'File uploaded successfully!',
+            'country': country,
+            'note': note,
+            'file_path': file_path
+        })
+    except Exception as e:
+        # Handling errors by returning a JSON response with the error message
+        return jsonify({'message': f'Error: {str(e)}'}), 500
+    
+    
+# Serve the HTML form
+@app.route('/')
+@app.route('/upload')
+@app.route("/", methods=["GET", "POST"])
+def upload_form():
+    return render_template('upload.html')
 
 @app.route('/edit', methods=['GET', 'POST'])
 def edit():

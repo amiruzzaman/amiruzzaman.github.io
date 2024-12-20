@@ -24,7 +24,6 @@
             max-width: 500px;
             width: 100%;
             box-sizing: border-box;
-            overflow: hidden; /* Prevent content overflow */
         }
 
         h2 {
@@ -44,18 +43,16 @@
         }
 
         input, select, textarea {
-            width: calc(100% - 22px); /* Match other fields' sizes */
+            width: 100%;
             padding: 10px;
             margin-top: 5px;
             border-radius: 5px;
             border: 1px solid #ddd;
             background-color: #6c757d;
             color: #fff;
-            box-sizing: border-box; /* Consistent box model */
         }
 
         input[type="submit"] {
-            width: 100%; /* Consistent width for button */
             background-color: #198754;
             color: #fff;
             cursor: pointer;
@@ -111,32 +108,25 @@
     // Load country options dynamically
     function loadCountries() {
         fetch('/static/countries.json')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to load countries.json');
+                }
+                return response.json();
+            })
             .then(data => {
                 const countrySelect = document.getElementById('country');
-                const currentSelection = countrySelect.value; // Save the current selection
-                countrySelect.innerHTML = '<option value="" disabled>Select a country</option>';
+                // Clear existing options
+                countrySelect.innerHTML = '<option value="" disabled selected>Select a country</option>';
                 data.forEach(country => {
                     const option = document.createElement('option');
                     option.value = country.name;
                     option.textContent = country.name;
-                    if (country.name === currentSelection) {
-                        option.selected = true; // Retain the current selection
-                    }
                     countrySelect.appendChild(option);
                 });
             })
             .catch(error => console.error('Error loading countries:', error));
     }
-
-    // Clear information when a new country is selected
-    document.getElementById('country').addEventListener('change', () => {
-        const selectedCountry = document.getElementById('country').value;
-        document.getElementById('upload-form').reset();
-        document.getElementById('image-preview').style.display = 'none';
-        document.getElementById('message-container').innerHTML = '';
-        document.getElementById('country').value = selectedCountry; // Retain selected country
-    });
 
     // Preview selected image
     document.getElementById('file-input').addEventListener('change', function () {
@@ -165,7 +155,12 @@
             method: 'POST',
             body: formData
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to upload data');
+                }
+                return response.json();
+            })
             .then(result => {
                 const messageContainer = document.getElementById('message-container');
                 if (result.message) {
@@ -176,6 +171,13 @@
                             <strong>Note:</strong> ${result.note}<br>
                             <strong>File Path:</strong> ${result.file_path}
                         </div>`;
+
+                    // Clear the form after successful upload
+                    document.getElementById('upload-form').reset();
+                    document.getElementById('image-preview').style.display = 'none';
+
+                    // Reload countries (in case the country list has changed)
+                    loadCountries();
                 }
             })
             .catch(error => {
