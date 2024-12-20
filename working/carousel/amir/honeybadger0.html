@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Realistic Honey Badger SVG</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f4f4f4;
+    }
+
+    svg {
+      width: 400px;
+      height: 200px;
+      border: 1px solid #ccc;
+      background-color: white;
+    }
+
+    /* Body of the Honey Badger */
+    .body {
+      fill: #2f2f2f;
+      stroke: #000;
+      stroke-width: 1;
+    }
+
+    /* Stripe across the back */
+    .stripe {
+      fill: #fff;
+      stroke: #ddd;
+      stroke-width: 1;
+    }
+
+    /* Ears */
+    .ears {
+      fill: #3e3e3e;
+      stroke: #000;
+      stroke-width: 1;
+    }
+
+    /* Legs */
+    .legs {
+      fill: #333;
+      stroke: #000;
+      stroke-width: 1;
+    }
+
+    /* Tail */
+    .tail {
+      fill: #333;
+      stroke: #000;
+      stroke-width: 1;
+    }
+
+    /* Eyes */
+    .eyes {
+      fill: white;
+      stroke: black;
+      stroke-width: 2;
+    }
+
+    .pupils {
+      fill: black;
+    }
+
+    /* Nose */
+    .nose {
+      fill: #7d4d3b;
+    }
+
+    /* Mouth */
+    .mouth {
+      stroke: #000;
+      stroke-width: 1;
+      fill: none;
+    }
+
+    /* Whiskers */
+    .whiskers {
+      stroke: #000;
+      stroke-width: 0.5;
+    }
+  </style>
+</head>
+<body>
+
+<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Honey Badger Body -->
+  <ellipse cx="200" cy="120" rx="140" ry="60" class="body" />
+  
+  <!-- White Stripe Across the Back -->
+  <path d="M 60 100 Q 200 40, 340 100" class="stripe" />
+  
+  <!-- Ears -->
+  <circle cx="110" cy="70" r="20" class="ears" />
+  <circle cx="290" cy="70" r="20" class="ears" />
+
+  <!-- Legs -->
+  <ellipse cx="130" cy="160" rx="30" ry="15" class="legs" />
+  <ellipse cx="270" cy="160" rx="30" ry="15" class="legs" />
+  
+  <!-- Tail -->
+  <path d="M 350 130 Q 380 120, 360 170" class="tail" />
+  
+  <!-- Eyes -->
+  <circle cx="160" cy="100" r="12" class="eyes" />
+  <circle cx="240" cy="100" r="12" class="eyes" />
+
+  <!-- Pupils -->
+  <circle cx="160" cy="100" r="5" class="pupils" />
+  <circle cx="240" cy="100" r="5" class="pupils" />
+  
+  <!-- Nose -->
+  <circle cx="200" cy="130" r="6" class="nose" />
+
+  <!-- Mouth -->
+  <path d="M 190 138 Q 200 145 210 138" class="mouth" />
+  
+  <!-- Whiskers -->
+  <line x1="180" y1="135" x2="150" y2="130" class="whiskers" />
+  <line x1="180" y1="140" x2="150" y2="140" class="whiskers" />
+  <line x1="180" y1="145" x2="150" y2="150" class="whiskers" />
+  <line x1="220" y1="135" x2="250" y2="130" class="whiskers" />
+  <line x1="220" y1="140" x2="250" y2="140" class="whiskers" />
+  <line x1="220" y1="145" x2="250" y2="150" class="whiskers" />
+</svg>
+
+</body>
+</html>
