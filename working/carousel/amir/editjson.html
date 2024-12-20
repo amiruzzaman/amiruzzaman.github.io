@@ -133,14 +133,19 @@
             z-index: 1000;
         }
 
+        .modal-content {
+            text-align: center;
+            color: white;
+        }
+
         .modal img {
             max-width: 90%;
             max-height: 90%;
             border-radius: 8px;
         }
 
-        .modal.close {
-            cursor: pointer;
+        .modal h2, .modal p {
+            margin: 10px 0;
         }
     </style>
 </head>
@@ -157,17 +162,24 @@
         <button class="download-btn" id="downloadBtn">Download Updated JSON</button>
     </div>
 
+    <!-- Modal -->
     <div id="imageModal" class="modal">
-        <img src="" alt="Enlarged Image">
+        <div class="modal-content">
+            <h2 id="modalCountry"></h2>
+            <p id="modalNote"></p>
+            <p id="modalFileName"></p>
+            <img src="" alt="Enlarged Image">
+        </div>
     </div>
 
     <script>
+        /*
         let jsonData = [];
 
         function renderTable(data) {
             const tableContainer = document.getElementById("jsonTableContainer");
             tableContainer.innerHTML = ''; // Clear the table
-    
+
             // Header row
             const headerRow = document.createElement('div');
             headerRow.classList.add('row', 'header');
@@ -179,11 +191,11 @@
                 headerRow.appendChild(column);
             });
             tableContainer.appendChild(headerRow);
-    
+
             data.forEach((row, index) => {
                 const rowDiv = document.createElement('div');
                 rowDiv.classList.add('row');
-    
+
                 // Country column
                 const countryDiv = document.createElement('div');
                 countryDiv.classList.add('column', 'editable');
@@ -193,37 +205,24 @@
                     row.country = countryDiv.textContent;
                 });
                 rowDiv.appendChild(countryDiv);
-    
+
                 // Image column
                 const imageDiv = document.createElement('div');
                 imageDiv.classList.add('column');
-    
-                if (row.isNew) {
-                    // For new rows, show a text input for the image name
-                    const imageInput = document.createElement('input');
-                    imageInput.classList.add('image-input');
-                    imageInput.type = 'text';
-                    imageInput.placeholder = 'Enter image name';
-                    imageInput.value = row.image || '';
-                    imageInput.addEventListener('input', () => {
-                        row.image = imageInput.value;
-                    });
-                    imageDiv.appendChild(imageInput);
-                } else {
-                    // For existing rows, show the image thumbnail
-                    const img = document.createElement('img');
-                    img.src = `images/${row.country}/${row.image}`;
-                    img.alt = `Image for ${row.country}`;
-                    img.classList.add('thumbnail');
-                    img.onerror = () => {
-                        img.src = "images/placeholder.png";
-                        img.alt = "Placeholder Image";
-                    };
-                    img.addEventListener('click', () => showImageModal(img.src));
-                    imageDiv.appendChild(img);
-                }
+                const img = document.createElement('img');
+                img.src = `images/${row.country}/${row.image}`;
+                img.alt = `Image for ${row.country}`;
+                img.classList.add('thumbnail');
+                img.onerror = () => {
+                    img.src = "images/placeholder.png";
+                    img.alt = "Placeholder Image";
+                };
+                img.addEventListener('click', () => {
+                    showImageModal(img.src, row.country || 'No Country', row.note || 'No Note', row.image || 'N/A');
+                });
+                imageDiv.appendChild(img);
                 rowDiv.appendChild(imageDiv);
-    
+
                 // Note column
                 const noteDiv = document.createElement('div');
                 noteDiv.classList.add('column', 'editable');
@@ -233,7 +232,7 @@
                     row.note = noteDiv.textContent;
                 });
                 rowDiv.appendChild(noteDiv);
-    
+
                 // Action column for deleting the row
                 const actionDiv = document.createElement('div');
                 actionDiv.classList.add('column');
@@ -246,15 +245,180 @@
                 });
                 actionDiv.appendChild(deleteBtn);
                 rowDiv.appendChild(actionDiv);
-    
+
                 tableContainer.appendChild(rowDiv);
             });
         }
 
-        function showImageModal(imageSrc) {
+        function showImageModal(imageSrc, country, note, fileName) {
             const modal = document.getElementById('imageModal');
             const modalImg = modal.querySelector('img');
+            const modalCountry = document.getElementById('modalCountry');
+            const modalNote = document.getElementById('modalNote');
+            const modalFileName = document.getElementById('modalFileName');
+
             modalImg.src = imageSrc;
+            modalCountry.textContent = `Country: ${country}`;
+            modalNote.textContent = `Note: ${note}`;
+            modalFileName.textContent = `File Name: ${fileName}`;
+            modal.style.display = 'flex';
+        }
+
+        function hideImageModal() {
+            const modal = document.getElementById('imageModal');
+            modal.style.display = 'none';
+        }
+
+        document.getElementById('imageModal').addEventListener('click', hideImageModal);
+
+        document.getElementById("downloadBtn").addEventListener('click', () => {
+            const dataStr = JSON.stringify(jsonData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'data.json';
+            link.click();
+        });
+
+        document.getElementById("jsonFileInput").addEventListener("change", function (event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    jsonData = JSON.parse(e.target.result);
+                    renderTable(jsonData);
+                } catch (error) {
+                    alert("Invalid JSON file.");
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        document.getElementById("addRowBtn").addEventListener("click", function () {
+            const newRow = {
+                country: "New Country",
+                image: "new_" + uuid.v4() + ".jpg",
+                note: "Add a note"
+            };
+            jsonData.push(newRow);
+            renderTable(jsonData);
+        });
+        */
+    </script>
+    <script>
+        let jsonData = [];
+
+        function renderTable(data) {
+            const tableContainer = document.getElementById("jsonTableContainer");
+            tableContainer.innerHTML = '';
+
+            const headerRow = document.createElement('div');
+            headerRow.classList.add('row', 'header');
+            const headers = ['Country', 'Image', 'Note', 'Actions'];
+            headers.forEach(headerText => {
+                const column = document.createElement('div');
+                column.classList.add('column');
+                column.textContent = headerText;
+                headerRow.appendChild(column);
+            });
+            tableContainer.appendChild(headerRow);
+
+            data.forEach((row, index) => {
+                const rowDiv = document.createElement('div');
+                rowDiv.classList.add('row');
+
+                // Country column
+                const countryDiv = document.createElement('div');
+                countryDiv.classList.add('column', 'editable');
+                countryDiv.contentEditable = true;
+                countryDiv.textContent = row.country || "No Country";
+                countryDiv.addEventListener('blur', () => {
+                    row.country = countryDiv.textContent;
+                });
+                rowDiv.appendChild(countryDiv);
+
+                // Image column
+                const imageDiv = document.createElement('div');
+                imageDiv.classList.add('column');
+
+                const isEditableRow = row.image.startsWith("new_");
+                if (isEditableRow) {
+                    const filenameInput = document.createElement('input');
+                    filenameInput.type = 'text';
+                    filenameInput.value = row.image;
+                    filenameInput.classList.add('image-input');
+
+                    const img = document.createElement('img');
+                    img.src = "";
+                    img.alt = "Image Placeholder";
+                    img.classList.add('thumbnail');
+
+                    filenameInput.addEventListener('blur', () => {
+                        row.image = filenameInput.value.trim();
+                        if (row.country && row.image) {
+                            img.src = `images/${row.country}/${row.image}`;
+                        }
+                    });
+
+                    imageDiv.appendChild(filenameInput);
+                    imageDiv.appendChild(img);
+                } else {
+                    const img = document.createElement('img');
+                    img.src = `images/${row.country}/${row.image}`;
+                    img.alt = `Image for ${row.country}`;
+                    img.classList.add('thumbnail');
+                    img.onerror = () => {
+                        img.src = "images/placeholder.png";
+                        img.alt = "Placeholder Image";
+                    };
+                    img.addEventListener('click', () => {
+                        showImageModal(img.src, row.country || 'No Country', row.note || 'No Note', row.image || 'N/A');
+                    });
+                    imageDiv.appendChild(img);
+                }
+
+                rowDiv.appendChild(imageDiv);
+
+                // Note column
+                const noteDiv = document.createElement('div');
+                noteDiv.classList.add('column', 'editable');
+                noteDiv.contentEditable = true;
+                noteDiv.textContent = row.note || "No Note";
+                noteDiv.addEventListener('blur', () => {
+                    row.note = noteDiv.textContent;
+                });
+                rowDiv.appendChild(noteDiv);
+
+                // Actions column
+                const actionDiv = document.createElement('div');
+                actionDiv.classList.add('column');
+                const deleteBtn = document.createElement('span');
+                deleteBtn.classList.add('delete-btn');
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.addEventListener('click', () => {
+                    jsonData.splice(index, 1);
+                    renderTable(jsonData);
+                });
+                actionDiv.appendChild(deleteBtn);
+                rowDiv.appendChild(actionDiv);
+
+                tableContainer.appendChild(rowDiv);
+            });
+        }
+
+        function showImageModal(imageSrc, country, note, fileName) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = modal.querySelector('img');
+            const modalCountry = document.getElementById('modalCountry');
+            const modalNote = document.getElementById('modalNote');
+            const modalFileName = document.getElementById('modalFileName');
+
+            modalImg.src = imageSrc;
+            modalCountry.textContent = `Country: ${country}`;
+            modalNote.textContent = `Note: ${note}`;
+            modalFileName.textContent = `File Name: ${fileName}`;
             modal.style.display = 'flex';
         }
 
@@ -276,9 +440,7 @@
 
         document.getElementById("jsonFileInput").addEventListener("change", function (event) {
             const file = event.target.files[0];
-            if (!file) {
-                return;
-            }
+            if (!file) return;
 
             const reader = new FileReader();
             reader.onload = function (e) {
@@ -296,8 +458,7 @@
             const newRow = {
                 country: "New Country",
                 image: "new_" + uuid.v4() + ".jpg",
-                note: "Add a note",
-                isNew: true
+                note: "Add a note"
             };
             jsonData.push(newRow);
             renderTable(jsonData);
