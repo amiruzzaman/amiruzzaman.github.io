@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>..::Amir::..</title>
+    <meta charset="utf-8">
+	<link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
+    <script>
+        function readJsonFile(file, callback) {
+            const rawFile = new XMLHttpRequest();
+            rawFile.overrideMimeType("application/json");
+            rawFile.open("GET", file, true);
+            rawFile.onreadystatechange = function () {
+                if (rawFile.readyState === 4 && rawFile.status == "200") {
+                    callback(JSON.parse(rawFile.responseText));
+                }
+            };
+            rawFile.send(null);
+        }
+
+        function createList(data, validCountries) {
+            const container = document.getElementById("list-container");
+            container.innerHTML = ""; // Clear previous content
+
+            // Create header
+            const headerRow = `
+                <div class="row bg-primary text-white" style="padding:10px; font-weight:bold;">
+                    <div class="col-md-3">Country</div>
+                    <div class="col-md-3">Coin</div>
+                    <div class="col-md-3">PaperBill</div>
+                    <div class="col-md-3">Donor</div>
+                </div>`;
+            container.innerHTML += headerRow;
+
+            // Populate rows dynamically
+            data.forEach(item => {
+                const countryLink = validCountries.includes(item.Country.toLowerCase())
+                    ? `<a href='./display.html?country=${item.Country.toLowerCase()}'>${item.Country}</a>`
+                    : item.Country;
+
+                const row = `
+                    <div class="row" style="padding:10px; border-bottom:1px solid #ddd;">
+                        <div class="col-md-3">${countryLink}</div>
+                        <div class="col-md-3">${item.Coin || ""}</div>
+                        <div class="col-md-3">${item.PaperBill || ""}</div>
+                        <div class="col-md-3">${item.Donor || ""}</div>
+                    </div>`;
+                container.innerHTML += row;
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            // Read both JSON files
+            readJsonFile("data/mydata.js", function (myData) {
+                readJsonFile("images/coins.json", function (coinData) {
+                    // Extract unique countries from coins.json
+                    const validCountries = [...new Set(coinData.map(coin => coin.country.toLowerCase()))];
+
+                    // Create the list based on mydata.js and validCountries
+                    createList(myData, validCountries);
+
+                    // Update count of objects in mydata.js
+                    document.getElementById("demo").innerText = myData.length;
+                });
+            });
+        });
+    </script>
+
+    <style>
+        body {
+            background-color: #72787e;
+            color: #fff;
+        }
+
+        .search-bar {
+            width: 100%;
+            font-size: 16px;
+            padding: 12px 20px 12px 40px;
+            border: 1px solid #ddd;
+            margin-bottom: 12px;
+            background-image: url('images/Search-icon.png');
+            background-position: 10px 12px;
+            background-repeat: no-repeat;
+        }
+
+        .row {
+            display: flex;
+            transition: background-color 0.3s ease;
+        }
+
+        .col-md-3 {
+            flex: 1;
+            padding: 5px;
+        }
+
+        a {
+            color: #ffc107;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+
+        .bg-success {
+            background-color: #198754 !important;
+        }
+
+        /* Highlight row on hover */
+        .row:hover {
+            background-color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <center><h1>List of Coin Collection</h1></center>
+    <div class="container">
+        <input type="text" id="myInput" class="search-bar" onkeyup="filterList()" placeholder="What are you looking for?">
+        <div id="list-container"></div>
+        <div class="row">
+            <p class="bg-success" style="padding:10px;margin-top:20px;width:100%;">
+                There are total <span id="demo" style="color: blue; font-weight: bold;"></span> objects in the collection.<br>
+                <small>Copyright: &copy;2018 Md Amiruzzaman.</small>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function filterList() {
+            const input = document.getElementById("myInput").value.toUpperCase();
+            const rows = document.querySelectorAll("#list-container .row:not(:first-child)");
+
+            rows.forEach(row => {
+                const countryCell = row.querySelector(".col-md-3:first-child");
+                if (countryCell && countryCell.textContent.toUpperCase().indexOf(input) > -1) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
+    </script>
+</body>
+</html>

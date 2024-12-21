@@ -3,7 +3,7 @@
 <head>
     <title>..::Amir::..</title>
     <meta charset="utf-8">
-	<link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 
@@ -33,6 +33,9 @@
                     <div class="col-md-3">Donor</div>
                 </div>`;
             container.innerHTML += headerRow;
+
+            // Sort data by country name in ascending order
+            data.sort((a, b) => a.Country.localeCompare(b.Country));
 
             // Populate rows dynamically
             data.forEach(item => {
@@ -80,9 +83,20 @@
             padding: 12px 20px 12px 40px;
             border: 1px solid #ddd;
             margin-bottom: 12px;
-            background-image: url('images/Search-icon.png');
-            background-position: 10px 12px;
-            background-repeat: no-repeat;
+            background-color: #fff;
+            color: #333;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .search-bar::before {
+            content: '\1F50D'; /* Unicode character for search icon */
+            font-size: 20px;
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #333;
         }
 
         .row {

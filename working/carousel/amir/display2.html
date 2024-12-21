@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Coins with Notes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            color: #212529;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background: #72787e;
+        }
+
+        .out-container {
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px;
+        }
+
+        .inner-container {
+            width: 80%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            margin-top: 20px;
+            font-size: 24px;
+            color: #f8f9fa;
+        }
+
+        .slider {
+            width: 80%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .current-img-container {
+            width: 400px;
+            height: 400px; /* Adjusted for image space */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #495057;
+            position: relative; /* For dynamic note handling */
+        }
+        
+        .current-img-container img {
+            max-width: 100%;
+            max-height: 70%; /* Reduced height to give space for notes */
+            object-fit: contain;
+            border: 4px solid #dee2e6;
+            box-shadow: 2px 6px 6px rgba(0, 0, 0, 0.4);
+        }
+        
+        .note {
+            margin-top: 8px;
+            color: #f8f9fa;
+            text-align: center;
+            width: 100%; /* Ensure it takes full width */
+            padding: 10px;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-y: auto; /* Allow scrolling for very long notes */
+            max-height: 25%; /* Limit height to avoid breaking layout */
+            white-space: normal; /* Ensure text wraps */
+        }
+        
+
+        .img-queue {
+            margin-top: 20px;
+            width: 80%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .img-queue-in {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px;
+        }
+
+        .img-queue-in img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border: 2px solid #dee2e6;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .img-queue-in img:hover {
+            transform: scale(1.1);
+        }
+
+        .countries-list {
+            margin-top: 40px;
+            padding: 20px;
+            width: 80%;
+            background: #495057;
+            border-radius: 10px;
+            color: #f8f9fa;
+            text-align: center;
+        }
+
+        .countries-list h2 {
+            margin-bottom: 10px;
+        }
+
+        .countries-list ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .countries-list a {
+            padding: 5px 10px;
+            background: #dee2e6;
+            border-radius: 5px;
+            color: #212529;
+            text-decoration: none;
+        }
+
+        .countries-list a:hover {
+            background: #e9ecef;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="out-container">
+        <div class="inner-container">
+            <!-- Back to Home Button -->
+            <a href="index.html" class="btn">🏠</a>
+
+            <h1 id="image-caption" class="title"></h1>
+            <div class="slider">
+                <button id="prev-btn" class="btn">&#60;</button>
+                <div class="current-img-container">
+                    <img id="current-image-img" src="placeholder.jpg" alt="Loading..." />
+                    <div id="current-image-note" class="note"></div>
+                </div>
+                <button id="next-btn" class="btn">&#62;</button>
+            </div>
+            <div class="img-queue">
+                <div class="img-queue-in" id="thumbnail-container"></div>
+            </div>
+        </div>
+
+        <div class="countries-list" id="countries-list">
+            <h2>Available Countries</h2>
+            <ul id="countries-ul"></ul>
+        </div>
+    </div>
+
+    <script>
+        function toTitleCase(str) {
+            return str.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+        }
+
+        function setCurrentImage(src, note) {
+            const image = document.getElementById("current-image-img");
+            const noteElement = document.getElementById("current-image-note");
+            
+            image.setAttribute("src", src);
+            noteElement.textContent = note;
+        
+            // Adjust the style dynamically if the note is too long
+            if (note.length > 200) { // Arbitrary character limit for long notes
+                noteElement.style.overflowY = "auto";
+            } else {
+                noteElement.style.overflowY = "hidden";
+            }
+        }
+        
+
+        function renderCountries(countries) {
+            const countriesList = document.getElementById("countries-ul");
+            countries.forEach(country => {
+                const li = document.createElement("li");
+                const link = document.createElement("a");
+                link.textContent = country;
+                link.href = `?country=${country.toLowerCase()}`;
+                li.appendChild(link);
+                countriesList.appendChild(li);
+            });
+        }
+
+        (() => {
+            const queryParams = new URLSearchParams(window.location.search);
+            const countryQuery = queryParams.get("country") || "default";
+            const countryTitle = toTitleCase(countryQuery);
+
+            document.getElementById("image-caption").textContent = countryTitle;
+
+            fetch("images/coins.json")
+                .then(response => response.json())
+                .then(data => {
+                    // Extract unique countries in alphabetical order
+                    const countries = [...new Set(data.map(coin => toTitleCase(coin.country)))].sort();
+
+                    // Render the list of countries
+                    renderCountries(countries);
+
+                    // Filter data for the current country
+                    const countryData = data.filter(coin => coin.country.toLowerCase() === countryQuery.toLowerCase());
+
+                    // Set up image slider and thumbnails
+                    const imageElements = countryData.map(coin => ({
+                        src: `images/${countryTitle}/${coin.image}`,
+                        note: coin.note
+                    }));
+
+                    const thumbnailContainer = document.getElementById("thumbnail-container");
+                    let currentIndex = 0;
+
+                    const updateImage = () => {
+                        const { src, note } = imageElements[currentIndex];
+                        setCurrentImage(src, note);
+                    };
+
+                    imageElements.forEach((img, index) => {
+                        const thumbnail = document.createElement("img");
+                        thumbnail.src = img.src;
+                        thumbnail.alt = `Thumbnail ${index + 1}`;
+                        thumbnail.addEventListener("click", () => {
+                            currentIndex = index;
+                            updateImage();
+                        });
+                        thumbnailContainer.appendChild(thumbnail);
+                    });
+
+                    document.getElementById("prev-btn").addEventListener("click", () => {
+                        currentIndex = (currentIndex - 1 + imageElements.length) % imageElements.length;
+                        updateImage();
+                    });
+
+                    document.getElementById("next-btn").addEventListener("click", () => {
+                        currentIndex = (currentIndex + 1) % imageElements.length;
+                        updateImage();
+                    });
+
+                    if (imageElements.length) updateImage();
+                });
+        })();
+    </script>
+</body>
+
+</html>
