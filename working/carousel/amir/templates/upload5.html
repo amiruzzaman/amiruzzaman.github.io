@@ -24,7 +24,7 @@
             max-width: 500px;
             width: 100%;
             box-sizing: border-box;
-            overflow: hidden;
+            overflow: hidden; /* Prevent content overflow */
         }
 
         h2 {
@@ -44,18 +44,18 @@
         }
 
         input, select, textarea {
-            width: calc(100% - 22px);
+            width: calc(100% - 22px); /* Match other fields' sizes */
             padding: 10px;
             margin-top: 5px;
             border-radius: 5px;
             border: 1px solid #ddd;
             background-color: #6c757d;
             color: #fff;
-            box-sizing: border-box;
+            box-sizing: border-box; /* Consistent box model */
         }
 
         input[type="submit"] {
-            width: 100%;
+            width: 100%; /* Consistent width for button */
             background-color: #198754;
             color: #fff;
             cursor: pointer;
@@ -93,14 +93,10 @@
         </div>
         <div class="form-group">
             <label for="file-input">File</label>
-            <input type="file" id="file-input" name="file">
+            <input type="file" id="file-input" name="file" required>
             <div id="image-preview">
                 <img id="preview-img" alt="Preview">
             </div>
-        </div>
-        <div class="form-group">
-            <label for="file-url">File URL</label>
-            <input type="url" id="file-url" name="file-url" placeholder="Enter file URL">
         </div>
         <div class="form-group">
             <label for="note">Note</label>
@@ -118,14 +114,14 @@
             .then(response => response.json())
             .then(data => {
                 const countrySelect = document.getElementById('country');
-                const currentSelection = countrySelect.value;
+                const currentSelection = countrySelect.value; // Save the current selection
                 countrySelect.innerHTML = '<option value="" disabled>Select a country</option>';
                 data.forEach(country => {
                     const option = document.createElement('option');
                     option.value = country.name;
                     option.textContent = country.name;
                     if (country.name === currentSelection) {
-                        option.selected = true;
+                        option.selected = true; // Retain the current selection
                     }
                     countrySelect.appendChild(option);
                 });
@@ -139,7 +135,7 @@
         document.getElementById('upload-form').reset();
         document.getElementById('image-preview').style.display = 'none';
         document.getElementById('message-container').innerHTML = '';
-        document.getElementById('country').value = selectedCountry;
+        document.getElementById('country').value = selectedCountry; // Retain selected country
     });
 
     // Preview selected image
@@ -163,41 +159,14 @@
     // Handle form submission
     document.getElementById('upload-form').addEventListener('submit', function (event) {
         event.preventDefault();
-    
-        const fileInput = document.getElementById('file-input');
-        const fileUrlInput = document.getElementById('file-url');
-        const country = document.getElementById('country').value;
-        const note = document.getElementById('note').value;
-    
-        const formData = new FormData();
-    
-        // Check if a file is provided via local upload
-        if (fileInput.files.length > 0) {
-            formData.append('file', fileInput.files[0]);
-        } 
-    
-        // Check if a file is provided via URL
-        const fileUrlValue = fileUrlInput.value.trim();
-        if (fileUrlValue) {
-            formData.append('file-url', fileUrlValue);
-        }
-    
-        // Add other form fields
-        formData.append('country', country);
-        formData.append('note', note);
-    
-        // Ensure at least one file input is provided
-        if (!fileInput.files.length && !fileUrlValue) {
-            alert('Please provide either a file or a valid URL.');
-            return;
-        }
-    
+
+        const formData = new FormData(this);
         fetch('/upload', {
             method: 'POST',
-            body: formData,
+            body: formData
         })
-            .then((response) => response.json())
-            .then((result) => {
+            .then(response => response.json())
+            .then(result => {
                 const messageContainer = document.getElementById('message-container');
                 if (result.message) {
                     messageContainer.innerHTML = `
@@ -209,13 +178,12 @@
                         </div>`;
                 }
             })
-            .catch((error) => {
+            .catch(error => {
                 const messageContainer = document.getElementById('message-container');
                 messageContainer.innerHTML = `
                     <div style="color: red;">Error: ${error.message}</div>`;
             });
     });
-    
 
     // Initialize the countries when the page loads
     window.addEventListener('DOMContentLoaded', loadCountries);

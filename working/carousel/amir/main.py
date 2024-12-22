@@ -23,6 +23,113 @@ ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
+BASE_UPLOAD_FOLDER = './images'
+JSON_FILE_PATH = os.path.join(BASE_UPLOAD_FOLDER, 'coins.json')
+os.makedirs(BASE_UPLOAD_FOLDER, exist_ok=True)
+
+# Ensure the JSON file exists
+if not os.path.exists(JSON_FILE_PATH):
+    with open(JSON_FILE_PATH, 'w') as f:
+        json.dump([], f)
+
+
+def save_file(file, country):
+    """
+    Save the file with a random UUID and structured path.
+    """
+    file_ext = file.filename.rsplit('.', 1)[-1]  # Get the file extension
+    file_uuid = str(uuid.uuid4())  # Generate a random UUID
+    country_folder = os.path.join(BASE_UPLOAD_FOLDER, country)
+
+    # Ensure the country folder exists
+    os.makedirs(country_folder, exist_ok=True)
+
+    file_path = os.path.join(country_folder, f"{file_uuid}.{file_ext}")
+    file.save(file_path)
+    return file_path, f"{file_uuid}.{file_ext}"
+
+
+def download_file_from_url(url, country):
+    """
+    Download the file from the given URL and save it.
+    """
+    response = requests.get(url, stream=True)
+    response.raise_for_status()
+
+    file_ext = url.split('.')[-1]  # Extract file extension from URL
+    file_uuid = str(uuid.uuid4())  # Generate a random UUID
+    country_folder = os.path.join(BASE_UPLOAD_FOLDER, country)
+
+    # Ensure the country folder exists
+    os.makedirs(country_folder, exist_ok=True)
+
+    file_path = os.path.join(country_folder, f"{file_uuid}.{file_ext}")
+    with open(file_path, 'wb') as f:
+        f.write(response.content)
+    return file_path, f"{file_uuid}.{file_ext}"
+
+
+def update_json_file(country, image, note):
+    """
+    Update the coins.json file with the new entry.
+    """
+    with open(JSON_FILE_PATH, 'r') as f:
+        data = json.load(f)
+
+    # Add the new entry
+    data.append({
+        "country": country,
+        "image": image,
+        "note": note
+    })
+
+    with open(JSON_FILE_PATH, 'w') as f:
+        json.dump(data, f, indent=4)
+
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    country = request.form.get('country')
+    note = request.form.get('note')
+
+    # Validate the country field
+    if not country:
+        return jsonify({"message": "Country is required!"}), 400
+
+    file = request.files.get('file')
+    file_url = request.form.get('file-url')
+
+    # Handle local file upload
+    if file:
+        try:
+            file_path, file_name = save_file(file, country)
+            update_json_file(country, file_name, note)  # Update the JSON file
+            return jsonify({
+                "message": "File uploaded successfully!",
+                "country": country,
+                "note": note,
+                "file_path": file_path
+            })
+        except Exception as e:
+            return jsonify({"message": "Error saving file!", "error": str(e)}), 500
+
+    # Handle file upload via URL
+    if file_url:
+        try:
+            file_path, file_name = download_file_from_url(file_url, country)
+            update_json_file(country, file_name, note)  # Update the JSON file
+            return jsonify({
+                "message": "File fetched and saved successfully!",
+                "country": country,
+                "note": note,
+                "file_path": file_path
+            })
+        except requests.RequestException as e:
+            return jsonify({"message": "Error fetching the file from URL!", "error": str(e)}), 400
+
+    return jsonify({"message": "No file or URL provided!"}), 400
+
+
 # Helper functions
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -117,43 +224,44 @@ def delete_entry(entry):
 #     return render_template("upload.html")
 
 
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    if not session.get('id'):
-        return render_template('login.html')
-    try:
-        # Your logic for handling the uploaded file
-        # For example, saving the file and extracting data from the form
-        country = request.form.get("country")
-        note = request.form.get("note")
-        file = request.files.get("file")
+
+# @app.route('/upload', methods=['POST'])
+# def upload_file():
+#     if not session.get('id'):
+#         return render_template('login.html')
+#     try:
+#         # Your logic for handling the uploaded file
+#         # For example, saving the file and extracting data from the form
+#         country = request.form.get("country")
+#         note = request.form.get("note")
+#         file = request.files.get("file")
         
-        if not file or not allowed_file(file.filename):
-            flash('Invalid file type or no file selected')
-            return redirect(request.url)
+#         if not file or not allowed_file(file.filename):
+#             flash('Invalid file type or no file selected')
+#             return redirect(request.url)
         
-        filename = f"{uuid.uuid4().hex}{os.path.splitext(file.filename)[1]}"
-        country_path = os.path.join(UPLOAD_FOLDER, country)
-        os.makedirs(country_path, exist_ok=True)
-        file.save(os.path.join(country_path, filename))
+#         filename = f"{uuid.uuid4().hex}{os.path.splitext(file.filename)[1]}"
+#         country_path = os.path.join(UPLOAD_FOLDER, country)
+#         os.makedirs(country_path, exist_ok=True)
+#         file.save(os.path.join(country_path, filename))
         
-        add_to_json(country, filename, note)
-        flash('File successfully uploaded')
+#         add_to_json(country, filename, note)
+#         flash('File successfully uploaded')
                   
         
-        # Simulate file saving and processing
-        file_path = f"{country}/{filename}"
+#         # Simulate file saving and processing
+#         file_path = f"{country}/{filename}"
         
-        # Returning a success message as JSON
-        return jsonify({
-            'message': 'File uploaded successfully!',
-            'country': country,
-            'note': note,
-            'file_path': file_path
-        })
-    except Exception as e:
-        # Handling errors by returning a JSON response with the error message
-        return jsonify({'message': f'Error: {str(e)}'}), 500
+#         # Returning a success message as JSON
+#         return jsonify({
+#             'message': 'File uploaded successfully!',
+#             'country': country,
+#             'note': note,
+#             'file_path': file_path
+#         })
+#     except Exception as e:
+#         # Handling errors by returning a JSON response with the error message
+#         return jsonify({'message': f'Error: {str(e)}'}), 500
     
     
 # Serve the HTML form
