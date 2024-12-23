@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Countries Information</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .search-container {
+      margin-bottom: 10px;
+    }
+    .search-input {
+      padding: 10px;
+      font-size: 16px;
+      width: 300px;
+      margin-right: 10px;
+    }
+    .sort-button {
+      padding: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .countries-table {
+      display: table;
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    .countries-header {
+      display: table-header-group;
+      background-color: #f4f4f4;
+    }
+    .countries-row {
+      display: table-row;
+    }
+    .countries-row:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    .countries-row:hover {
+      background-color: #eaeaea;
+    }
+    .countries-cell {
+      display: table-cell;
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+    .countries-header .countries-cell {
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="search-container">
+    <input type="text" id="search" class="search-input" placeholder="Search by name..." />
+    <button id="sort" class="sort-button">Sort by Name</button>
+  </div>
+
+  <div id="countriesTable" class="countries-table">
+    <div class="countries-header">
+      <div class="countries-cell">Country</div>
+      <div class="countries-cell">Capital</div>
+      <div class="countries-cell">Currency</div>
+      <div class="countries-cell">Language</div>
+    </div>
+  </div>
+
+  <script>
+    async function fetchCountries() {
+      const response = await fetch('countries.json');
+      return response.json();
+    }
+
+    let countries = [];
+    let isSortedAsc = false;
+
+    function renderTable(data) {
+      const table = document.getElementById('countriesTable');
+      const rows = table.querySelectorAll('.countries-row');
+      rows.forEach(row => row.remove()); // Clear existing rows
+
+      data.forEach(country => {
+        const row = document.createElement('div');
+        row.className = 'countries-row';
+        row.innerHTML = `
+          <div class="countries-cell">${country.name}</div>
+          <div class="countries-cell">${country.capital}</div>
+          <div class="countries-cell">${country.currency.name} (${country.currency.symbol})</div>
+          <div class="countries-cell">${country.language.name}</div>
+        `;
+        table.appendChild(row);
+      });
+    }
+
+    function searchCountries(query) {
+      const filtered = countries.filter(country =>
+        country.name.toLowerCase().includes(query.toLowerCase())
+      );
+      renderTable(filtered);
+    }
+
+    function sortCountries() {
+      isSortedAsc = !isSortedAsc;
+      const sorted = [...countries].sort((a, b) =>
+        isSortedAsc ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
+      );
+      renderTable(sorted);
+    }
+
+    document.getElementById('search').addEventListener('input', (e) => {
+      searchCountries(e.target.value);
+    });
+
+    document.getElementById('sort').addEventListener('click', () => {
+      sortCountries();
+    });
+
+    fetchCountries().then(data => {
+      countries = data;
+      renderTable(countries);
+    });
+  </script>
+</body>
+</html>
