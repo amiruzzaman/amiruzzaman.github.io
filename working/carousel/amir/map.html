@@ -7,74 +7,143 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     #map {
-      width: 100%;
+      width: 75%;
       height: 90vh;
+      float: left;
+    }
+    #sidebar {
+      width: 25%;
+      height: 90vh;
+      float: left;
+      overflow-y: auto;
+      border-left: 1px solid #ccc;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    #country-list li {
+      cursor: pointer;
+      margin: 5px 0;
+    }
+    #country-list li:hover {
+      color: blue;
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
   <h1>World Map with GeoJSON</h1>
   <div id="map"></div>
+  <div id="sidebar">
+    <h2>Unique Countries:</h2>
+    <ul id="country-list"></ul>
+  </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    // Create a map and set its initial view
+    let geoJsonLayer;
+    let allCountriesSet = null;
+
     const map = L.map('map').setView([20, 0], 2);
 
-    // Add a tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Fetch the list of country names from countries.txt
-    const fetchCountryNames = async () => {
-      const response = await fetch('countries.txt');
+    function getFullCountryName(countryName) {
+      const countryMap = {
+        "united states": "united states of america",
+        "korea": "south korea",
+        "bahamas": "the bahamas"
+      };
+
+      const lowerCaseName = countryName.toLowerCase().trim();
+
+      const toTitleCase = (str) => str.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+
+      return toTitleCase(countryMap[lowerCaseName] || countryName);
+    }
+
+    const fetchCountryNamesFromJSON = async () => {
+      const response = await fetch('./images/coins.json');
       if (!response.ok) {
-        throw new Error(`Failed to load countries.txt: ${response.statusText}`);
+        throw new Error(`Failed to load coins.json: ${response.statusText}`);
       }
-      const text = await response.text();
-      return new Set(text.split('\n').map(name => name.trim()).filter(name => name.length > 0));
+      const data = await response.json();
+      const countryNames = new Set();
+      data.forEach(item => {
+        if (item.country) {
+          const fullName = getFullCountryName(item.country.trim());
+          countryNames.add(fullName);
+        }
+      });
+      allCountriesSet = countryNames; // Store all unique countries globally
+      return countryNames;
     };
 
-    // Style function to determine country color based on name presence
     const styleFeature = (feature, highlightedCountries) => {
       const name = feature.properties.name || 'Unknown';
+      const fullName = getFullCountryName(name);
+      const isHighlighted = highlightedCountries ? highlightedCountries.has(fullName) : true;
       return {
-        color: highlightedCountries.has(name) ? 'red' : 'blue', // Red border if name is in the file
+        color: isHighlighted ? 'red' : 'blue',
         weight: 2,
-        fillColor: highlightedCountries.has(name) ? 'red' : 'lightgray', // Fill red for highlighted countries
+        fillColor: isHighlighted ? 'red' : 'lightgray',
         fillOpacity: 0.7
       };
     };
 
-    // Fetch GeoJSON data and highlight countries
-    const loadMap = async () => {
+    const loadMap = async (highlightedCountries = null) => {
       try {
-        // Fetch country names
-        const highlightedCountries = await fetchCountryNames();
+        if (geoJsonLayer) {
+          map.removeLayer(geoJsonLayer);
+        }
 
-        // Fetch GeoJSON data
         const geojsonResponse = await fetch('countries.geo.json');
         if (!geojsonResponse.ok) {
           throw new Error(`Failed to load GeoJSON file: ${geojsonResponse.statusText}`);
         }
         const geojsonData = await geojsonResponse.json();
 
-        // Add GeoJSON layer to the map
-        L.geoJSON(geojsonData, {
+        geoJsonLayer = L.geoJSON(geojsonData, {
           style: (feature) => styleFeature(feature, highlightedCountries),
           onEachFeature: (feature, layer) => {
             const name = feature.properties.name || 'Unknown';
-            layer.bindPopup(`Country: ${name}`);
+            const fullName = getFullCountryName(name);
+            layer.bindPopup(`Country: ${fullName}`);
           }
-        }).addTo(map);
+        });
+        geoJsonLayer.addTo(map);
       } catch (error) {
         console.error('Error loading data:', error);
       }
     };
 
-    // Load the map
+    const displayCountryList = async () => {
+      try {
+        const countries = await fetchCountryNamesFromJSON();
+        const countryListElement = document.getElementById('country-list');
+
+        const allItem = document.createElement('li');
+        allItem.textContent = "All";
+        allItem.onclick = () => loadMap(allCountriesSet);
+        countryListElement.appendChild(allItem);
+
+        countries.forEach(country => {
+          const listItem = document.createElement('li');
+          listItem.textContent = country;
+          listItem.onclick = () => {
+            const highlightedCountries = new Set([country]);
+            loadMap(highlightedCountries);
+          };
+          countryListElement.appendChild(listItem);
+        });
+      } catch (error) {
+        console.error('Error displaying country list:', error);
+      }
+    };
+
     loadMap();
+    displayCountryList();
   </script>
 </body>
 </html>
