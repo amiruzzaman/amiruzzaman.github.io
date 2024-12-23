@@ -135,6 +135,8 @@
             flex-wrap: wrap;
             gap: 10px;
             justify-content: center;
+            margin: 0;
+            padding: 0;
         }
 
         .countries-list a {
@@ -143,6 +145,12 @@
             border-radius: 5px;
             color: #212529;
             text-decoration: none;
+            white-space: nowrap;  /* Prevent text from wrapping inside the button */
+            overflow: hidden;
+            text-overflow: ellipsis;  /* Display ellipsis when text overflows */
+            max-width: 180px;  /* Set a maximum width to avoid overcrowding */
+            display: inline-block;
+            text-align: center;
         }
 
         .countries-list a:hover {
@@ -321,9 +329,6 @@
                 .then(geojson => {
                     geoJsonLayer.clearLayers();
                     geoJsonLayer.addData(geojson);
-                    //console.log(getFullCountryName("united states")); // Output: "united states of america"
-                    //console.log(getFullCountryName("korea")); // Output: "south korea"
-                    //console.log(getFullCountryName("canada")); // Output: "canada"
                     countryName = getFullCountryName(countryName);
                     geoJsonLayer.setStyle(feature => {
                         return feature.properties.name.toLowerCase() === countryName.toLowerCase() ? {
