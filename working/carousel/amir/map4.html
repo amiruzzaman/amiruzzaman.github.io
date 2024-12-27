@@ -49,19 +49,6 @@
       font-size: 14px;
       border-top: 1px solid #ccc;
     }
-    .color-square {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      margin-right: 5px;
-      vertical-align: middle;
-    }
-    .red-square {
-      background-color: red;
-    }
-    .green-square {
-      background-color: green;
-    }
   </style>
 </head>
 <body>
@@ -79,11 +66,11 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     let geoJsonLayer, continentLayer;
-    const map = L.map('map').setView([20, 0], 1);
+    const map = L.map('map').setView([20, 0], 2);
     const continentMap = L.map('continent-map', {
       attributionControl: false,
       zoomControl: false
-    }).setView([20, 0], 0.4);
+    }).setView([20, 0], 0.5);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
@@ -91,19 +78,11 @@
       attribution: '© OpenStreetMap contributors'
     }).addTo(continentMap);
 
-    function getFullCountryName(countryName) {
-      const countryMap = {
-        "united states": "United States of America",
-        "korea": "South Korea",
-        "bahamas": "The Bahamas"
-      };
-
-      const lowerCaseName = countryName.toLowerCase().trim();
-
-      const toTitleCase = (str) => str.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-
-      return countryMap[lowerCaseName] || toTitleCase(countryName);
-    }
+    const fetchGeoJSON = async (file) => {
+      const response = await fetch(file);
+      if (!response.ok) throw new Error(`Failed to load ${file}`);
+      return response.json();
+    };
 
     const styleFeature = (highlight = false) => ({
       color: highlight ? 'red' : 'blue',
@@ -122,12 +101,8 @@
     const loadMap = async (countryName) => {
       const geojsonData = await fetchGeoJSON('./countries.geo.json');
       if (geoJsonLayer) map.removeLayer(geoJsonLayer);
-
       geoJsonLayer = L.geoJSON(geojsonData, {
-        style: (feature) => {
-          const normalizedFeatureName = getFullCountryName(feature.properties.name);
-          return styleFeature(normalizedFeatureName === getFullCountryName(countryName));
-        },
+        style: (feature) => styleFeature(feature.properties.name === countryName),
         onEachFeature: (feature, layer) => {
           layer.bindPopup(`Country: ${feature.properties.name}`);
         }
@@ -137,27 +112,13 @@
     const loadContinentMap = async (continentName) => {
       const continentGeoJSON = await fetchGeoJSON('./continents.geojson');
       if (continentLayer) continentMap.removeLayer(continentLayer);
-
       continentLayer = L.geoJSON(continentGeoJSON, {
         style: styleContinentFeature,
-        filter: (feature) => {
-          // Handle special case for Australia and Oceania
-          if (continentName === "Australia" || continentName === "Oceania") {
-            return feature.properties.CONTINENT === "Australia" || feature.properties.CONTINENT === "Oceania";
-          }
-          return feature.properties.CONTINENT === continentName;
-        }
+        filter: (feature) => feature.properties.CONTINENT === continentName
       }).addTo(continentMap);
-
       if (continentLayer.getBounds().isValid()) {
         continentMap.fitBounds(continentLayer.getBounds(), { maxZoom: 1 });
       }
-    };
-
-    const fetchGeoJSON = async (file) => {
-      const response = await fetch(file);
-      if (!response.ok) throw new Error(`Failed to load ${file}`);
-      return response.json();
     };
 
     const displayCountryList = async () => {
@@ -166,42 +127,34 @@
       const countryListElement = document.getElementById('country-list');
       const countryInfoElement = document.getElementById('country-info');
 
+      // Create a map of country names to continent info
       const countriesMap = new Map();
-      countriesInfo.countries.country.forEach((item) => {
-        const normalizedCountry = getFullCountryName(item.countryName);
-        countriesMap.set(normalizedCountry, item);
-      });
+      countriesInfo.countries.country.forEach((item) =>
+        countriesMap.set(item.countryName, item)
+      );
 
-      const uniqueCountries = new Set();
+      // Display list of countries
       coinsData.forEach((item) => {
-        const normalizedCountry = getFullCountryName(item.country);
-        uniqueCountries.add(normalizedCountry);
-      });
-
-      const sortedCountries = Array.from(uniqueCountries).sort();
-
-      sortedCountries.forEach((country) => {
         const listItem = document.createElement('li');
-        listItem.textContent = country;
-
+        listItem.textContent = item.country;
         listItem.onclick = () => {
-          const countryData = countriesMap.get(country);
-
+          const countryData = countriesMap.get(item.country);
           if (countryData) {
-            loadMap(country);
+            loadMap(item.country);
             loadContinentMap(countryData.continentName);
             countryInfoElement.innerHTML = `
-              <strong><span class="color-square red-square"></span>Country:</strong> ${country}<br>
-              <strong><span class="color-square green-square"></span>Continent:</strong> ${countryData.continentName}<br>
+              <strong>Country:</strong> ${item.country}<br>
               <strong>Capital:</strong> ${countryData.capital}<br>
+              <strong>Continent:</strong> ${countryData.continentName}<br>
               <strong>Population:</strong> ${countryData.population}<br>
-              <strong>Currency:</strong> ${countryData.currencyCode}
+              <strong>Currency:</strong> ${countryData.currencyCode}<br>
+              <strong>Note:</strong> ${item.note}<br>
+              <img src="./images/${item.image}" alt="${item.note}" style="max-width:100%;height:auto;">
             `;
           } else {
-            countryInfoElement.innerHTML = `No information found for ${country}`;
+            countryInfoElement.innerHTML = `No information found for ${item.country}`;
           }
         };
-
         countryListElement.appendChild(listItem);
       });
     };

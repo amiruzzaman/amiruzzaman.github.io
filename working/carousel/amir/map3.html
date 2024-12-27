@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World Map with GeoJSON</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    #map {
+      width: 100%;
+      height: 60vh;
+      position: relative;
+    }
+    #continent-map {
+      width: 25%;
+      height: 25%;
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      border: 1px solid #ccc;
+      z-index: 1000;
+    }
+    #sidebar {
+      width: 25%;
+      height: 90vh;
+      float: left;
+      overflow-y: auto;
+      border-left: 1px solid #ccc;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    #country-list li {
+      cursor: pointer;
+      margin: 5px 0;
+    }
+    #country-list li:hover {
+      color: blue;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>World Map with GeoJSON</h1>
+  <div id="map">
+    <div id="continent-map"></div>
+  </div>
+  <div id="sidebar">
+    <h2>Unique Countries:</h2>
+    <ul id="country-list"></ul>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    let geoJsonLayer;
+    let continentLayer;
+    let allCountriesSet = null;
+
+    const map = L.map('map').setView([20, 0], 2);
+    const continentMap = L.map('continent-map', {
+      attributionControl: false,
+      zoomControl: false
+    }).setView([20, 0], 0.5);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(continentMap);
+
+    async function fetchGeoJSON(file) {
+      const response = await fetch(file);
+      if (!response.ok) {
+        throw new Error(`Failed to load ${file}: ${response.statusText}`);
+      }
+      return response.json();
+    }
+
+    const styleFeature = (feature, highlightedCountries) => {
+      const name = feature.properties.name || 'Unknown';
+      const isHighlighted = highlightedCountries ? highlightedCountries.has(name) : true;
+      return {
+        color: isHighlighted ? 'red' : 'blue',
+        weight: 2,
+        fillColor: isHighlighted ? 'red' : 'lightgray',
+        fillOpacity: 0.7
+      };
+    };
+
+    const styleContinentFeature = () => ({
+      color: 'green',
+      weight: 2,
+      fillColor: 'green',
+      fillOpacity: 0.5
+    });
+
+    const loadMap = async (highlightedCountries = null) => {
+      if (geoJsonLayer) map.removeLayer(geoJsonLayer);
+      const geojsonData = await fetchGeoJSON('countries.geo.json');
+      geoJsonLayer = L.geoJSON(geojsonData, {
+        style: (feature) => styleFeature(feature, highlightedCountries),
+        onEachFeature: (feature, layer) => {
+          layer.bindPopup(`Country: ${feature.properties.name || 'Unknown'}`);
+        }
+      }).addTo(map);
+    };
+
+    const displayContinentMap = async (continentName) => {
+      if (continentLayer) continentMap.removeLayer(continentLayer);
+      const continentGeoJSON = await fetchGeoJSON('./continents.geojson');
+      continentLayer = L.geoJSON(continentGeoJSON, {
+        style: styleContinentFeature,
+        filter: (feature) => feature.properties.CONTINENT === continentName
+      }).addTo(continentMap);
+      if (continentLayer.getBounds().isValid()) {
+        continentMap.fitBounds(continentLayer.getBounds(), { maxZoom: 1 });
+      }
+    };
+
+    const displayCountryList = async () => {
+      const countriesData = await fetchGeoJSON('./images/coins.json');
+      const continentInfo = await fetchGeoJSON('./countries.continents.json');
+      const countryListElement = document.getElementById('country-list');
+      
+      // Mapping country names to their continent
+      const countries = new Map();
+      continentInfo.countries.country.forEach(country => {
+        countries.set(country.countryName, country.continentName);
+      });
+
+      const allItem = document.createElement('li');
+      allItem.textContent = "All";
+      allItem.onclick = () => loadMap(countries.keys());
+      countryListElement.appendChild(allItem);
+
+      // Create the list of countries with their respective continent
+      Array.from(countries.keys()).forEach(country => {
+        const listItem = document.createElement('li');
+        listItem.textContent = country;
+        listItem.onclick = () => {
+          loadMap(new Set([country]));
+          const continentName = countries.get(country);
+          if (continentName) displayContinentMap(continentName);
+        };
+        countryListElement.appendChild(listItem);
+      });
+    };
+
+    loadMap();
+    displayCountryList();
+  </script>
+</body>
+</html>

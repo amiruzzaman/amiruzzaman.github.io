@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Continent Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    #continent-map {
+      width: 100%;
+      height: 90vh;
+      border: 1px solid #ccc;
+    }
+    #continent-select {
+      margin: 10px;
+      padding: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Continent Map</h1>
+  <select id="continent-select">
+    <option value="">-- Select a Continent --</option>
+  </select>
+  <div id="continent-map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    let continentLayer;
+
+    const continentMap = L.map('continent-map').setView([20, 0], 1);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(continentMap);
+
+    const fetchContinentsGeoJSON = async () => {
+      const response = await fetch('./continents.geojson');
+      if (!response.ok) {
+        throw new Error(`Failed to load continents.geojson: ${response.statusText}`);
+      }
+      return response.json();
+    };
+
+    const styleContinentFeature = () => {
+      return {
+        color: 'green',
+        weight: 2,
+        fillColor: 'green',
+        fillOpacity: 0.5
+      };
+    };
+
+    const displayContinentMap = async (continentName) => {
+      try {
+        if (continentLayer) {
+          continentMap.removeLayer(continentLayer);
+        }
+
+        const continentGeoJSON = await fetchContinentsGeoJSON();
+
+        continentLayer = L.geoJSON(continentGeoJSON, {
+          style: styleContinentFeature,
+          filter: (feature) => feature.properties.CONTINENT === continentName
+        });
+
+        continentLayer.addTo(continentMap);
+        if (continentLayer.getBounds().isValid()) {
+          continentMap.fitBounds(continentLayer.getBounds(), { maxZoom: 1 });
+        }
+      } catch (error) {
+        console.error('Error displaying continent map:', error);
+      }
+    };
+
+    const populateContinentSelect = async () => {
+      try {
+        const continentGeoJSON = await fetchContinentsGeoJSON();
+        const selectElement = document.getElementById('continent-select');
+
+        const uniqueContinents = new Set(
+          continentGeoJSON.features.map(feature => feature.properties.CONTINENT)
+        );
+
+        uniqueContinents.forEach(continent => {
+          const option = document.createElement('option');
+          option.value = continent;
+          option.textContent = continent;
+          selectElement.appendChild(option);
+        });
+
+        selectElement.addEventListener('change', (event) => {
+          const selectedContinent = event.target.value;
+          if (selectedContinent) {
+            displayContinentMap(selectedContinent);
+          }
+        });
+      } catch (error) {
+        console.error('Error populating continent select:', error);
+      }
+    };
+
+    populateContinentSelect();
+  </script>
+</body>
+</html>
