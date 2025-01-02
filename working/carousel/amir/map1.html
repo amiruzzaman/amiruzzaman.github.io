@@ -38,6 +38,11 @@
       font-size: 16px;
       width: 100%;
     }
+
+    .highlighted {
+      border: 2px solid yellow;
+      /* Apply a yellow border to the clicked country */
+    }
   </style>
 </head>
 
@@ -58,6 +63,7 @@
     }).addTo(map);
 
     let highlightedLayer = null;
+    let lastHighlightedCountry = null;
 
     const capitalizeFirstLetter = (string) => {
       return string.charAt(0).toUpperCase() + string.slice(1);
@@ -127,23 +133,27 @@
           onEachFeature: (feature, layer) => {
             const name = feature.properties.ADMIN || 'Unknown';
             layer.bindPopup(`Country: ${name}`);
-            layer.on('click', () => highlightCountry(layer));
+            layer.on('click', () => highlightCountry(layer, name));
           }
         }).addTo(map);
 
         const countryListDiv = document.getElementById('highlighted-countries');
         countryListDiv.innerHTML = '<h3>Highlighted Countries</h3>';
 
-        Object.entries(countryFiles).forEach(([country, files]) => {
+        const sortedCountries = Object.entries(countryFiles).sort(([countryA], [countryB]) =>
+          countryA.localeCompare(countryB)
+        );
+
+        sortedCountries.forEach(([country, files]) => {
           const color = files.length === 3 ? 'blue' : files.length === 2 ? 'purple' : 'red';
           const countryDiv = document.createElement('div');
           countryDiv.classList.add('country');
           countryDiv.style.color = color;
-          countryDiv.innerHTML = `<span style="font-weight: bold;">${country} (${files.join(', ')})</span>`;
+          countryDiv.innerHTML = `<span style="font-weight: bold;" data-country="${country}">${country} (${files.join(', ')})</span>`;
 
           countryDiv.addEventListener('click', () => {
             const layer = getLayerByCountryName(layerGroup, country);
-            if (layer) highlightCountry(layer);
+            if (layer) highlightCountry(layer, country);
           });
 
           countryListDiv.appendChild(countryDiv);
@@ -175,14 +185,11 @@
       return targetLayer;
     };
 
-    const highlightCountry = (layer) => {
+    const highlightCountry = (layer, countryName) => {
       if (highlightedLayer && highlightedLayer !== layer) {
         // Reset the previous highlighted country's style
         const previousFeature = highlightedLayer.feature;
-        highlightedLayer.setStyle({
-          color: styleFeature(previousFeature, {}).color,
-          weight: 0.5
-        });
+        highlightedLayer.setStyle(styleFeature(previousFeature, {}));
       }
 
       highlightedLayer = layer; // Set the current layer as highlighted
@@ -190,6 +197,21 @@
         color: 'yellow',
         weight: 3
       });
+
+      // Highlight the country name in the list with yellow border
+      if (lastHighlightedCountry) {
+        const lastCountryDiv = document.querySelector(`#highlighted-countries .country span[data-country="${lastHighlightedCountry}"]`);
+        if (lastCountryDiv) {
+          lastCountryDiv.parentElement.classList.remove('highlighted');
+        }
+      }
+
+      const currentCountryDiv = document.querySelector(`#highlighted-countries .country span[data-country="${countryName}"]`);
+      if (currentCountryDiv) {
+        currentCountryDiv.parentElement.classList.add('highlighted');
+      }
+
+      lastHighlightedCountry = countryName;
 
       map.fitBounds(layer.getBounds()); // Zoom to the highlighted country
     };
