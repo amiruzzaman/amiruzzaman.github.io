@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World Map with GeoJSON</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    #map {
+      width: 100%;
+      height: 70vh;
+    }
+
+    #highlighted-countries {
+      margin-top: 20px;
+      max-height: 400px;
+      /* Limiting the height of the list */
+      overflow-y: auto;
+      /* Enable scrolling */
+      padding: 10px;
+      border: 1px solid #ddd;
+      background-color: #f9f9f9;
+      font-size: 10px;
+      /* Small font size */
+      font-family: 'Arial', 'Helvetica', sans-serif;
+      /* Cleaner, more readable font */
+      line-height: 1.4;
+      /* Improve readability by adding line spacing */
+    }
+
+    .country {
+      display: flex;
+      align-items: center;
+      padding: 5px;
+      cursor: pointer;
+      border-bottom: 1px solid #ddd;
+      font-size: 10px;
+      /* Small font size */
+      font-family: 'Arial', 'Helvetica', sans-serif;
+      /* Cleaner font for list items */
+    }
+
+    .color-square {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+      display: inline-block;
+      position: relative;
+    }
+
+    .square-number {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .search-box {
+      margin-bottom: 10px;
+      padding: 5px;
+      font-size: 16px;
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>World Map with GeoJSON</h1>
+  <div id="map"></div>
+
+  <div>
+    <input type="text" id="search" class="search-box" placeholder="Search for a country..." />
+  </div>
+  <div id="highlighted-countries"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // Create a map and set its initial view
+    const map = L.map('map').setView([20, 0], 2);
+
+    // Add a tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Fetch the list of country names from countries.txt
+    const fetchCountryNames = async () => {
+      const response = await fetch('countries.txt');
+      if (!response.ok) {
+        throw new Error(`Failed to load countries.txt: ${response.statusText}`);
+      }
+      const text = await response.text();
+      return text.split('\n').map(name => name.trim()).filter(name => name.length > 0);
+    };
+
+    // Generate a random color for each country
+    const generateRandomColor = () => {
+      const letters = '0123456789ABCDEF';
+      let color = '#';
+      for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    };
+
+    // Store GeoJSON layer references to interact with later
+    let geoJsonLayer;
+
+    // Style function to determine country color based on name presence
+    const styleFeature = (feature, highlightedCountries, colors) => {
+      const name = feature.properties.name || 'Unknown';
+      if (highlightedCountries.has(name)) {
+        return {
+          color: colors[name], // Border with country-specific color
+          weight: 0.5,
+          fillColor: colors[name], // Fill with country-specific color
+          fillOpacity: 0.7
+        };
+      }
+      return {
+        color: 'blue',
+        weight: 0.5,
+        fillColor: 'lightgray',
+        fillOpacity: 0.7
+      };
+    };
+
+    // Fetch GeoJSON data and highlight countries
+    const loadMap = async () => {
+      try {
+        // Fetch country names
+        const highlightedCountries = await fetchCountryNames();
+        const countryColors = {};
+
+        // Assign a random color to each highlighted country
+        highlightedCountries.forEach(country => {
+          countryColors[country] = generateRandomColor();
+        });
+
+        // Fetch GeoJSON data
+        const geojsonResponse = await fetch('countries.geo.json');
+        if (!geojsonResponse.ok) {
+          throw new Error(`Failed to load GeoJSON file: ${geojsonResponse.statusText}`);
+        }
+        const geojsonData = await geojsonResponse.json();
+
+        // Add GeoJSON layer to the map and save it for later reference
+        geoJsonLayer = L.geoJSON(geojsonData, {
+          style: (feature) => styleFeature(feature, new Set(highlightedCountries), countryColors),
+          onEachFeature: (feature, layer) => {
+            const name = feature.properties.name || 'Unknown';
+            layer.bindPopup(`Country: ${name}`);
+          }
+        }).addTo(map);
+
+        // Display the highlighted countries and their colors
+        const countryListDiv = document.getElementById('highlighted-countries');
+        countryListDiv.innerHTML = '<h3>Highlighted Countries</h3>';
+
+        highlightedCountries.forEach((country, index) => {
+          const color = countryColors[country];
+          const countryDiv = document.createElement('div');
+          countryDiv.classList.add('country');
+          countryDiv.style.color = color;
+
+          // Create the square with color and number
+          const colorSquare = document.createElement('div');
+          colorSquare.classList.add('color-square');
+          colorSquare.style.backgroundColor = color;
+
+          const squareNumber = document.createElement('div');
+          squareNumber.classList.add('square-number');
+          squareNumber.innerText = index + 1; // Number starts from 1
+
+          colorSquare.appendChild(squareNumber);
+
+          countryDiv.appendChild(colorSquare);
+          countryDiv.innerHTML += `<span style="font-weight: bold;">${country}</span>`;
+
+          // Add click event to zoom into the country
+          countryDiv.addEventListener('click', () => {
+            zoomToCountry(country, geojsonData);
+          });
+
+          countryListDiv.appendChild(countryDiv);
+        });
+
+        // Search functionality for filtering countries
+        const searchBox = document.getElementById('search');
+        searchBox.addEventListener('input', () => {
+          const searchTerm = searchBox.value.toLowerCase();
+          const countryDivs = countryListDiv.getElementsByClassName('country');
+
+          Array.from(countryDivs).forEach(countryDiv => {
+            const countryName = countryDiv.innerText.toLowerCase();
+            countryDiv.style.display = countryName.includes(searchTerm) ? 'flex' : 'none';
+          });
+        });
+
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
+    };
+
+    // Function to zoom to the clicked country
+    const zoomToCountry = (countryName, geojsonData) => {
+      const countryFeature = geojsonData.features.find(
+        feature => feature.properties.name === countryName
+      );
+      if (countryFeature) {
+        const bounds = L.geoJSON(countryFeature).getBounds();
+        map.fitBounds(bounds);
+      }
+    };
+
+    // Load the map
+    loadMap();
+  </script>
+</body>
+
+</html>

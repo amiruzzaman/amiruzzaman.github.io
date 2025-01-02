@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,73 +9,193 @@
   <style>
     #map {
       width: 100%;
-      height: 90vh;
+      height: 70vh;
+    }
+
+    #highlighted-countries {
+      margin-top: 20px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 10px;
+      border: 1px solid #ddd;
+      background-color: #f9f9f9;
+      font-size: 12px;
+      font-family: 'Arial', 'Helvetica', sans-serif;
+      line-height: 1.4;
+    }
+
+    .country {
+      display: flex;
+      align-items: center;
+      padding: 5px;
+      cursor: pointer;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .search-box {
+      margin-bottom: 10px;
+      padding: 5px;
+      font-size: 16px;
+      width: 100%;
     }
   </style>
 </head>
+
 <body>
   <h1>World Map with GeoJSON</h1>
   <div id="map"></div>
+  <div>
+    <input type="text" id="search" class="search-box" placeholder="Search for a country..." />
+  </div>
+  <div id="highlighted-countries"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    // Create a map and set its initial view
     const map = L.map('map').setView([20, 0], 2);
 
-    // Add a tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Fetch the list of country names from countries.txt
-    const fetchCountryNames = async () => {
-      const response = await fetch('countries.txt');
-      if (!response.ok) {
-        throw new Error(`Failed to load countries.txt: ${response.statusText}`);
-      }
-      const text = await response.text();
-      return new Set(text.split('\n').map(name => name.trim()).filter(name => name.length > 0));
+    let highlightedLayer = null;
+
+    const capitalizeFirstLetter = (string) => {
+      return string.charAt(0).toUpperCase() + string.slice(1);
     };
 
-    // Style function to determine country color based on name presence
-    const styleFeature = (feature, highlightedCountries) => {
-      const name = feature.properties.name || 'Unknown';
+    const fetchCountryNames = async () => {
+      const fileUrls = ['amir.txt', 'stefanie.txt', 'aleo.txt'];
+      const countryFiles = {};
+
+      for (const fileUrl of fileUrls) {
+        const response = await fetch(fileUrl);
+        if (!response.ok) {
+          throw new Error(`Failed to load ${fileUrl}: ${response.statusText}`);
+        }
+        const text = await response.text();
+        const countries = text.split('\n').map(name => name.trim()).filter(name => name.length > 0);
+        const fileName = capitalizeFirstLetter(fileUrl.replace('.txt', ''));
+
+        countries.forEach(country => {
+          if (!countryFiles[country]) {
+            countryFiles[country] = [];
+          }
+          if (!countryFiles[country].includes(fileName)) {
+            countryFiles[country].push(fileName);
+          }
+        });
+      }
+
+      return countryFiles;
+    };
+
+    const styleFeature = (feature, countryFiles) => {
+      const name = feature.properties.ADMIN || 'Unknown';
+      const fileCount = countryFiles[name] ? countryFiles[name].length : 0;
+
+      let fillColor;
+      if (fileCount === 3) {
+        fillColor = 'blue';
+      } else if (fileCount === 2) {
+        fillColor = 'purple';
+      } else if (fileCount === 1) {
+        fillColor = 'red';
+      } else {
+        fillColor = 'lightgray';
+      }
+
       return {
-        color: highlightedCountries.has(name) ? 'red' : 'blue', // Red border if name is in the file
-        weight: 2,
-        fillColor: highlightedCountries.has(name) ? 'red' : 'lightgray', // Fill red for highlighted countries
+        color: fillColor,
+        weight: 0.5,
+        fillColor,
         fillOpacity: 0.7
       };
     };
 
-    // Fetch GeoJSON data and highlight countries
     const loadMap = async () => {
       try {
-        // Fetch country names
-        const highlightedCountries = await fetchCountryNames();
+        const countryFiles = await fetchCountryNames();
 
-        // Fetch GeoJSON data
-        const geojsonResponse = await fetch('countries.geo.json');
+        const geojsonResponse = await fetch('countries.geojson');
         if (!geojsonResponse.ok) {
           throw new Error(`Failed to load GeoJSON file: ${geojsonResponse.statusText}`);
         }
         const geojsonData = await geojsonResponse.json();
 
-        // Add GeoJSON layer to the map
-        L.geoJSON(geojsonData, {
-          style: (feature) => styleFeature(feature, highlightedCountries),
+        const layerGroup = L.geoJSON(geojsonData, {
+          style: (feature) => styleFeature(feature, countryFiles),
           onEachFeature: (feature, layer) => {
-            const name = feature.properties.name || 'Unknown';
+            const name = feature.properties.ADMIN || 'Unknown';
             layer.bindPopup(`Country: ${name}`);
+            layer.on('click', () => highlightCountry(layer));
           }
         }).addTo(map);
+
+        const countryListDiv = document.getElementById('highlighted-countries');
+        countryListDiv.innerHTML = '<h3>Highlighted Countries</h3>';
+
+        Object.entries(countryFiles).forEach(([country, files]) => {
+          const color = files.length === 3 ? 'blue' : files.length === 2 ? 'purple' : 'red';
+          const countryDiv = document.createElement('div');
+          countryDiv.classList.add('country');
+          countryDiv.style.color = color;
+          countryDiv.innerHTML = `<span style="font-weight: bold;">${country} (${files.join(', ')})</span>`;
+
+          countryDiv.addEventListener('click', () => {
+            const layer = getLayerByCountryName(layerGroup, country);
+            if (layer) highlightCountry(layer);
+          });
+
+          countryListDiv.appendChild(countryDiv);
+        });
+
+        const searchBox = document.getElementById('search');
+        searchBox.addEventListener('input', () => {
+          const searchTerm = searchBox.value.toLowerCase();
+          const countryDivs = countryListDiv.getElementsByClassName('country');
+
+          Array.from(countryDivs).forEach(countryDiv => {
+            const countryName = countryDiv.innerText.toLowerCase();
+            countryDiv.style.display = countryName.includes(searchTerm) ? 'flex' : 'none';
+          });
+        });
+
       } catch (error) {
         console.error('Error loading data:', error);
       }
     };
 
-    // Load the map
+    const getLayerByCountryName = (layerGroup, countryName) => {
+      let targetLayer = null;
+      layerGroup.eachLayer(layer => {
+        if (layer.feature && layer.feature.properties.ADMIN === countryName) {
+          targetLayer = layer;
+        }
+      });
+      return targetLayer;
+    };
+
+    const highlightCountry = (layer) => {
+      if (highlightedLayer && highlightedLayer !== layer) {
+        // Reset the previous highlighted country's style
+        const previousFeature = highlightedLayer.feature;
+        highlightedLayer.setStyle({
+          color: styleFeature(previousFeature, {}).color,
+          weight: 0.5
+        });
+      }
+
+      highlightedLayer = layer; // Set the current layer as highlighted
+      layer.setStyle({
+        color: 'yellow',
+        weight: 3
+      });
+
+      map.fitBounds(layer.getBounds()); // Zoom to the highlighted country
+    };
+
     loadMap();
   </script>
 </body>
+
 </html>
