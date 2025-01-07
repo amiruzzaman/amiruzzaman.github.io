@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BibTeX to APA Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            text-align: center;
+        }
+        .year {
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .publication {
+            margin-left: 20px;
+            padding: 10px;
+        }
+        .publication:nth-child(odd) {
+            background-color: #f9f9f9;
+        }
+        .publication:nth-child(even) {
+            background-color: #e9e9e9;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>BibTeX to APA Style</h1>
+    <input type="file" id="fileInput" accept=".bib">
+    <div id="output"></div>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const bibtex = e.target.result;
+                try {
+                    const publications = parseBibTeX(bibtex);
+                    renderPublications(publications);
+                } catch (error) {
+                    document.getElementById('output').innerHTML = `<p class="error">Error parsing BibTeX: ${error.message}</p>`;
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function parseBibTeX(bibtex) {
+            const entries = bibtex.split(/@\w+\{/).slice(1);
+            return entries.map(entry => {
+                const fields = {};
+                entry.split(/\n/).forEach(line => {
+                    const match = line.match(/(\w+)\s*=\s*\{(.+?)\}/);
+                    if (match) {
+                        fields[match[1].toLowerCase()] = match[2];
+                    }
+                });
+                return fields;
+            }).filter(fields => fields.author && fields.title && fields.year); // Filter out entries missing key fields
+        }
+
+        function renderPublications(publications) {
+            const output = document.getElementById('output');
+            output.innerHTML = '';
+
+            const sorted = publications.sort((a, b) => (b.year || 0) - (a.year || 0));
+            const grouped = sorted.reduce((acc, pub) => {
+                const year = pub.year || 'Unknown';
+                acc[year] = acc[year] || [];
+                acc[year].push(pub);
+                return acc;
+            }, {});
+
+            for (const year of Object.keys(grouped).sort((a, b) => b - a)) {
+                const yearDiv = document.createElement('div');
+                yearDiv.classList.add('year');
+                yearDiv.textContent = year;
+                output.appendChild(yearDiv);
+
+                grouped[year].forEach(pub => {
+                    const pubDiv = document.createElement('div');
+                    pubDiv.classList.add('publication');
+                    pubDiv.textContent = formatAPA(pub);
+                    output.appendChild(pubDiv);
+                });
+            }
+        }
+
+        function formatAPA(pub) {
+            const authors = pub.author.replace(/ and /g, ', ');
+            const year = pub.year;
+            const title = pub.title;
+            const journal = pub.journal || pub.booktitle || '';
+            const volume = pub.volume ? `, ${pub.volume}` : '';
+            const pages = pub.pages ? `, pp. ${pub.pages}` : '';
+
+            return `${authors} (${year}). ${title}. ${journal}${volume}${pages}.`;
+        }
+    </script>
+</body>
+</html>
