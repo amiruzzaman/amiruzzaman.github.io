@@ -375,7 +375,6 @@
             fetch("images/coins.json")
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data);
                     const countryData = data.filter(coin => coin.country.toLowerCase() === countryName);
                     const imageElements = countryData.map(coin => ({
                         src: `images/${toTitleCase(countryName)}/${coin.image}`,
@@ -383,10 +382,8 @@
                         donor: coin.donor_name,
                         currency_type: coin.currency_type
                     }));
-
                     const thumbnailContainer = document.getElementById("thumbnail-container");
                     thumbnailContainer.innerHTML = "";
-
                     let currentIndex = 0;
 
                     const updateImage = () => {
@@ -395,6 +392,26 @@
                             setCurrentImage(src, note, donor, currency_type, countryInfo);
                         });
                     };
+
+                    document.getElementById("prev-btn").addEventListener("click", () => {
+                        currentIndex = (currentIndex - 1 + imageElements.length) % imageElements.length;
+                        updateImage();
+                    });
+
+                    document.getElementById("next-btn").addEventListener("click", () => {
+                        currentIndex = (currentIndex + 1) % imageElements.length;
+                        updateImage();
+                    });
+
+                    window.addEventListener("keydown", (event) => {
+                        if (event.key === "ArrowLeft") {
+                            currentIndex = (currentIndex - 1 + imageElements.length) % imageElements.length;
+                            updateImage();
+                        } else if (event.key === "ArrowRight") {
+                            currentIndex = (currentIndex + 1) % imageElements.length;
+                            updateImage();
+                        }
+                    });
 
                     imageElements.forEach((img, index) => {
                         const thumbnail = document.createElement("img");
@@ -426,7 +443,6 @@
 
                     if (countryQuery !== "default") {
                         loadCountryImages(countryQuery);
-                        highlightCountry(countryQuery);
                     }
                 });
 
