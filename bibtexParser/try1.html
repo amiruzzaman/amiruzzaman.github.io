@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BibTeX to APA Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            text-align: center;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .summary {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .year {
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .publication {
+            margin-left: 20px;
+            padding: 10px;
+        }
+        .publication:nth-child(odd) {
+            background-color: #F0FFFF;
+        }
+        .publication:nth-child(even) {
+            background-color: #ffffff;
+        }
+        .publication .icons {
+            margin-left: 10px;
+        }
+        .publication .icons a {
+            margin-right: 5px;
+        }
+        .error {
+            color: red;
+        }
+        @media (max-width: 600px) {
+            .publication {
+                margin-left: 10px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>BibTeX to APA Style</h1>
+    <div class="controls">
+        <input type="file" id="fileInput" accept=".bib">
+        <input type="text" id="searchInput" placeholder="Search publications">
+    </div>
+    <div class="summary" id="summary"></div>
+    <div id="output"></div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const searchInput = document.getElementById('searchInput');
+        const summary = document.getElementById('summary');
+        const output = document.getElementById('output');
+
+        fileInput.addEventListener('change', handleFileSelect);
+        searchInput.addEventListener('input', filterPublications);
+
+        let allPublications = [];
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const bibtex = e.target.result;
+                try {
+                    allPublications = parseBibTeX(bibtex);
+                    renderSummary(allPublications);
+                    renderPublications(allPublications);
+                } catch (error) {
+                    output.innerHTML = `<p class="error">Error parsing BibTeX: ${error.message}</p>`;
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function parseBibTeX(bibtex) {
+            const entries = bibtex.split(/@/).slice(1); // Split by '@' to separate entries
+            const publications = [];
+            for (let entry of entries) {
+                const [typeLine, ...fieldLines] = entry.split(/\n/);
+                const typeMatch = typeLine.match(/^(\w+)\s*\{/);
+                if (!typeMatch) continue;
+
+                const type = typeMatch[1].toLowerCase();
+                const fields = {};
+                for (let line of fieldLines) {
+                    const match = line.match(/(\w+)\s*=\s*\{(.+?)\}/);
+                    if (match) {
+                        fields[match[1].toLowerCase()] = match[2];
+                    }
+                }
+                if (fields.author && fields.title && fields.year) {
+                    fields.type = type;
+                    publications.push(fields);
+                }
+            }
+            return publications;
+        }
+
+        function renderSummary(publications) {
+            const groupedByType = publications.reduce((acc, pub) => {
+                const type = pub.type;
+                acc[type] = (acc[type] || 0) + 1;
+                return acc;
+            }, {});
+
+            const total = publications.length;
+            const summaryHTML = Object.entries(groupedByType)
+                .map(([type, count]) => `@${type}: ${count}`)
+                .join(' | ');
+
+            summary.innerHTML = `Total: ${total} | ${summaryHTML}`;
+        }
+
+        function renderPublications(publications) {
+            output.innerHTML = '';
+
+            const sorted = publications.sort((a, b) => (b.year || 0) - (a.year || 0));
+            const grouped = sorted.reduce((acc, pub) => {
+                const year = pub.year || 'Unknown';
+                acc[year] = acc[year] || [];
+                acc[year].push(pub);
+                return acc;
+            }, {});
+
+            for (const year of Object.keys(grouped).sort((a, b) => b - a)) {
+                const yearDiv = document.createElement('div');
+                yearDiv.classList.add('year');
+                yearDiv.textContent = year;
+                output.appendChild(yearDiv);
+
+                grouped[year].forEach((pub, index) => {
+                    const pubDiv = document.createElement('div');
+                    pubDiv.classList.add('publication', pub.type);
+                    pubDiv.style.backgroundColor = index % 2 === 0 ? '#F0FFFF' : '#FFFFFF';
+                    pubDiv.innerHTML = `${formatAPA(pub)} ${renderIcons(pub)}`;
+                    output.appendChild(pubDiv);
+                });
+            }
+        }
+
+        function renderIcons(pub) {
+            const doi = pub.doi ? `<a href="https://doi.org/${pub.doi}" target="_blank">🔗</a>` : '';
+            const pdf = pub.url ? `<a href="${pub.url}" target="_blank">📄</a>` : '';
+            return `<span class="icons">${doi}${pdf}</span>`;
+        }
+function formatAuthors(authors) {
+    if (typeof authors !== "string" || authors.trim() === "") {
+        return "(No author)";
+    }
+
+    return authors
+        .split(' and ')
+        .map(name => {
+            // Handle special cases for "Md" and "Md."
+            if (name.trim() === "Md, Amiruzzaman" || 
+                name.trim() === "Md Amiruzzaman" || 
+                name.trim() === "Amiruzzaman, Md" || 
+                name.trim() === "Md. Amiruzzaman" || 
+                name.trim() === "Amiruzzaman, Md.") {
+                return "Amiruzzaman, M.";
+            }
+
+            // Replace "Md" or "Md." with "M." in all other cases
+            name = name.replace(/\bMd\.?\b/g, "M.");
+
+            // Handle special cases
+            if (/^.+,\s*.+$/.test(name)) {
+                // Case 1: "Doe, John" or "Doe, J." or "Doe, J"
+                const parts = name.split(',');
+                const lastName = parts[0].trim();
+                const firstNamePart = parts[1]?.trim() || '';
+
+                if (/^[A-Z]\.?$/.test(firstNamePart)) {
+                    return `${lastName}, ${firstNamePart}.`; // Ensure it ends with a dot
+                } else if (firstNamePart) {
+                    const initials = firstNamePart.split(/\s+/).map(part => part[0].toUpperCase() + '.').join(' ');
+                    return `${lastName}, ${initials}`;
+                }
+            }
+
+            // General handling for names without commas
+            const nameParts = name.trim().split(/\s+/);
+            if (nameParts.length > 1) {
+                const lastName = nameParts.pop(); // Treat the last part as the last name
+                const initials = nameParts.map(part => part[0].toUpperCase() + '.').join(' ');
+                return `${lastName}, ${initials}`;
+            }
+            return name; // Return single-word names as is
+        })
+        .join(', '); // Join authors with a comma
+}
+
+
+
+
+
+
+function formatAPA(pub) {
+    const authors = pub.author
+        ? formatAuthors(pub.author) // Pass the author string to formatAuthors
+        : "(No author)";
+
+    const year = pub.year || "(n.d.)"; // Default to "(n.d.)" if no year
+    const title = pub.title || "(No title)";
+    const journal = pub.journal || pub.booktitle || ""; // Check journal or booktitle
+    const publisher = pub.publisher ? `. ${pub.publisher}` : "";
+    const volume = pub.volume ? `, ${pub.volume}` : "";
+    const pages = pub.pages ? `, pp. ${pub.pages}` : "";
+
+    return `${authors} (${year}). ${title}. ${journal}${volume}${pages}${publisher}.`;
+}
+
+
+
+
+
+/*
+function formatAPA(pub) {
+    const authors = pub.author
+        .split(' and ')
+        .map(name => {
+            // Handle special cases specifically
+            if (name === "Md, Amiruzzaman" || name === "Md Amiruzzaman" || name === "Amiruzzaman, M."|| name === "Amiruzzaman, Md" || name === "M. Amiruzzaman") {
+                return "Amiruzzaman, M."; // Special case handling
+            }
+
+            // General processing for other names
+            let nameParts = name.trim().split(/\s+/);
+
+            
+
+            if (nameParts.length > 1) {
+                const lastName = nameParts.pop(); // Treat the last part as the last name
+                const initials = nameParts.map(part => part[0].toUpperCase() + '.').join(' ');
+                return `${lastName}, ${initials}`;
+            } else {
+                // If only one name is present, treat it as the last name
+                return name;
+            }
+        })
+        .join(', ');
+
+    const year = pub.year || "n.d."; // Default to "n.d." if no year is provided
+    const title = pub.title || "(No title)";
+    const journal = pub.journal || pub.booktitle || '';
+    const publisher = pub.publisher ? `. ${pub.publisher}` : '';
+    const volume = pub.volume ? `, ${pub.volume}` : '';
+    const pages = pub.pages ? `, pp. ${pub.pages}` : '';
+
+    return `${authors} (${year}). ${title}. ${journal}${volume}${pages}${publisher}.`;
+}
+
+*/
+
+
+
+
+        function filterPublications() {
+            const query = searchInput.value.toLowerCase();
+            const filtered = allPublications.filter(pub => {
+                return Object.values(pub).some(value =>
+                    value.toLowerCase().includes(query)
+                );
+            });
+            renderSummary(filtered);
+            renderPublications(filtered);
+        }
+    </script>
+</body>
+</html>

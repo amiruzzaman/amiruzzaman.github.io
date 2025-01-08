@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Drag and Crop</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            margin: 50px auto;
+            max-width: 600px;
+        }
+
+        #image-container {
+            margin: 20px auto;
+            width: 500px;
+            height: 500px;
+            border: 2px dashed #ccc;
+            position: relative;
+            overflow: hidden;
+            background-color: #e9e9e9;
+        }
+
+        #image {
+            max-width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        #crop-box {
+            position: absolute;
+            border: 2px solid #4CAF50;
+            background-color: rgba(0, 255, 0, 0.2);
+            cursor: move;
+        }
+
+        .resize-handle {
+            width: 10px;
+            height: 10px;
+            background-color: #4CAF50;
+            position: absolute;
+            cursor: pointer;
+        }
+
+        .resize-handle.tl { top: -5px; left: -5px; cursor: nwse-resize; }
+        .resize-handle.tr { top: -5px; right: -5px; cursor: nesw-resize; }
+        .resize-handle.bl { bottom: -5px; left: -5px; cursor: nesw-resize; }
+        .resize-handle.br { bottom: -5px; right: -5px; cursor: nwse-resize; }
+
+        #crop-button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        #crop-button:hover {
+            background-color: #45a049;
+        }
+
+        canvas {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Image Drag and Crop</h1>
+        <input type="file" id="file-input" accept="image/*">
+        <div id="image-container">
+            <img id="image" src="#" alt="Upload an image to crop">
+            <div id="crop-box" style="width: 100px; height: 100px; left: 50px; top: 50px;">
+                <div class="resize-handle tl"></div>
+                <div class="resize-handle tr"></div>
+                <div class="resize-handle bl"></div>
+                <div class="resize-handle br"></div>
+            </div>
+        </div>
+        <button id="crop-button">Crop</button>
+        <canvas id="canvas"></canvas>
+        <p id="result"></p>
+    </div>
+
+    <script>
+        const image = document.getElementById("image");
+        const container = document.getElementById("image-container");
+        const cropBox = document.getElementById("crop-box");
+        const fileInput = document.getElementById("file-input");
+        const cropButton = document.getElementById("crop-button");
+        const canvas = document.getElementById("canvas");
+        const handles = document.querySelectorAll(".resize-handle");
+
+        let originalFileName = '';
+        let isDragging = false;
+        let isResizing = false;
+        let startX, startY, startWidth, startHeight;
+
+        // Handle file upload
+        fileInput.addEventListener("change", (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                originalFileName = file.name;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    image.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Dragging the crop box
+        cropBox.addEventListener("mousedown", (event) => {
+            if (!event.target.classList.contains("resize-handle")) {
+                isDragging = true;
+                startX = event.clientX - cropBox.offsetLeft;
+                startY = event.clientY - cropBox.offsetTop;
+            }
+        });
+
+        document.addEventListener("mousemove", (event) => {
+            if (isDragging) {
+                const x = event.clientX - startX;
+                const y = event.clientY - startY;
+
+                // Ensure crop box stays within container
+                const containerRect = container.getBoundingClientRect();
+                const boxRect = cropBox.getBoundingClientRect();
+
+                const newLeft = Math.max(0, Math.min(containerRect.width - boxRect.width, x));
+                const newTop = Math.max(0, Math.min(containerRect.height - boxRect.height, y));
+
+                cropBox.style.left = `${newLeft}px`;
+                cropBox.style.top = `${newTop}px`;
+            }
+
+            if (isResizing) {
+                const dx = event.clientX - startX;
+                const dy = event.clientY - startY;
+
+                const newWidth = Math.max(50, startWidth + dx);
+                const newHeight = Math.max(50, startHeight + dy);
+
+                cropBox.style.width = `${newWidth}px`;
+                cropBox.style.height = `${newHeight}px`;
+            }
+        });
+
+        document.addEventListener("mouseup", () => {
+            isDragging = false;
+            isResizing = false;
+        });
+
+        // Resizing crop box
+        handles.forEach((handle) => {
+            handle.addEventListener("mousedown", (event) => {
+                isResizing = true;
+                startX = event.clientX;
+                startY = event.clientY;
+                startWidth = cropBox.offsetWidth;
+                startHeight = cropBox.offsetHeight;
+                event.stopPropagation();
+            });
+        });
+
+        // Cropping the image
+cropButton.addEventListener("click", () => {
+    const containerRect = container.getBoundingClientRect();
+    const cropBoxRect = cropBox.getBoundingClientRect();
+    const imgRect = image.getBoundingClientRect();
+
+    // Calculate the scaling factor between the displayed image and the original image
+    const scaleX = image.naturalWidth / imgRect.width;
+    const scaleY = image.naturalHeight / imgRect.height;
+
+    // Adjust crop dimensions and position to match the original image's scale
+    const cropX = (cropBoxRect.left - imgRect.left) * scaleX;
+    const cropY = (cropBoxRect.top - imgRect.top) * scaleY;
+    const cropWidth = cropBoxRect.width * scaleX;
+    const cropHeight = cropBoxRect.height * scaleY;
+
+    canvas.width = cropWidth;
+    canvas.height = cropHeight;
+
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+    img.src = image.src;
+    img.onload = () => {
+        ctx.drawImage(
+            img,
+            cropX, cropY, cropWidth, cropHeight, // Source area from the original image
+            0, 0, cropWidth, cropHeight         // Target area on the canvas
+        );
+
+        const fileExtension = originalFileName.split('.').pop();
+        const fileNameWithoutExt = originalFileName.replace(/\.[^/.]+$/, "");
+        const newFileName = `${fileNameWithoutExt}_crop.${fileExtension}`;
+
+        // Send cropped image to the backend
+        canvas.toBlob((blob) => {
+            const formData = new FormData();
+            formData.append("image", blob, newFileName);
+
+            fetch("/crop", {
+                method: "POST",
+                body: formData
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    document.getElementById("result").textContent = data.message;
+                })
+                .catch((err) => {
+                    console.error(err);
+                    document.getElementById("result").textContent = "Error uploading the cropped image.";
+                });
+        });
+    };
+});
+
+    </script>
+</body>
+</html>
