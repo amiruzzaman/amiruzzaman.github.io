@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
+        /* General Styles */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -56,35 +57,35 @@
 
         .current-img-container {
             width: 400px;
-            height: 400px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            overflow: hidden;
+            justify-content: flex-start;
             background: #495057;
             position: relative;
+            padding: 10px;
+            gap: 10px;
         }
 
         .current-img-container img {
             max-width: 100%;
-            max-height: 70%;
+            height: 250px;
             object-fit: contain;
             border: 4px solid #dee2e6;
             box-shadow: 2px 6px 6px rgba(0, 0, 0, 0.4);
         }
 
         .note {
-            margin-top: 8px;
-            color: #f8f9fa;
-            text-align: center;
             width: 100%;
+            max-height: 150px;
+            overflow-y: auto;
             padding: 10px;
             font-size: 14px;
             line-height: 1.5;
-            overflow-y: auto;
-            max-height: 25%;
-            white-space: normal;
+            text-align: center;
+            color: #f8f9fa;
+            background-color: #343a40;
+            border-top: 2px solid #dee2e6;
         }
 
         .img-queue {
@@ -130,32 +131,49 @@
         }
 
         .countries-list ul {
-            list-style: none;
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 15px;
             justify-content: center;
-            margin: 0;
             padding: 0;
+            /* Remove padding */
+            list-style: none;
+            /* Remove bullets */
         }
 
         .countries-list a {
-            padding: 5px 10px;
+            display: flex;
+            /* Flexbox for centering */
+            align-items: center;
+            /* Vertically center text */
+            justify-content: center;
+            /* Horizontally center text */
+            width: 120px;
+            /* Fixed width */
+            height: 40px;
+            /* Reduced height */
             background: #dee2e6;
             border-radius: 5px;
             color: #212529;
             text-decoration: none;
-            white-space: nowrap;  /* Prevent text from wrapping inside the button */
-            overflow: hidden;
-            text-overflow: ellipsis;  /* Display ellipsis when text overflows */
-            max-width: 180px;  /* Set a maximum width to avoid overcrowding */
-            display: inline-block;
             text-align: center;
+            font-size: 14px;
+            /* Base font size */
+            line-height: 1.2;
+            word-wrap: break-word;
+            /* Break long words */
+            white-space: normal;
+            /* Allow wrapping */
+            overflow-wrap: break-word;
+            /* Handle very long words */
+            text-overflow: ellipsis;
+            /* Ensure text truncates gracefully */
         }
 
         .countries-list a:hover {
             background: #e9ecef;
         }
+
 
         #map {
             margin-top: 20px;
@@ -169,9 +187,7 @@
 <body>
     <div class="out-container">
         <div class="inner-container">
-            <!-- Back to Home Button -->
             <a href="index.html" class="btn">🏠</a>
-
             <h1 id="image-caption" class="title"></h1>
             <div class="slider">
                 <button id="prev-btn" class="btn">&#60;</button>
@@ -185,193 +201,163 @@
                 <div class="img-queue-in" id="thumbnail-container"></div>
             </div>
         </div>
-
         <div class="countries-list" id="countries-list">
-            <h2>Available Countries</h2>
+            <h2 style="color:#dee2e6">Available Countries</h2>
             <ul id="countries-ul"></ul>
         </div>
-
         <div id="map"></div>
     </div>
 
     <script>
+        document.querySelectorAll('.countries-list a').forEach(link => {
+            const nameLength = link.textContent.length;
+            if (nameLength > 12) {
+                link.style.fontSize = '12px'; // Smaller font for long names
+            } else if (nameLength > 8) {
+                link.style.fontSize = '14px'; // Slightly smaller font for medium-length names
+            } else {
+                link.style.fontSize = '16px'; // Default font size for shorter names
+            }
+        });
+
+
         function toTitleCase(str) {
             return str.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
         }
 
-        function setCurrentImage(src, note) {
+        function setCurrentImage(src, note, donor, currency_type, countryInfo) {
             const image = document.getElementById("current-image-img");
             const noteElement = document.getElementById("current-image-note");
 
             image.setAttribute("src", src);
-            noteElement.textContent = note;
 
-            if (note.length > 200) {
-                noteElement.style.overflowY = "auto";
-            } else {
-                noteElement.style.overflowY = "hidden";
-            }
+            const countryDetails = countryInfo
+                ? `
+                <div style="margin-top: 10px; text-align: left; font-size: 12px; color: lightgray;">
+                    <strong style="color: #ffd700;">Capital:</strong> ${countryInfo.capital || "N/A"}<br>
+                    <strong style="color: #ffd700;">Language:</strong> ${countryInfo.language?.name || "N/A"}<br>
+                    <strong style="color: #ffd700;">Currency:</strong> ${countryInfo.currency?.name || "N/A"} (${countryInfo.currency?.symbol || ""})
+                </div>
+                `
+                : `<div style="color: lightgray;">Country information not available.</div>`;
+
+            noteElement.innerHTML = `
+                <strong style="color: yellow;">Note:</strong> ${note || "No note available"}<br>
+                <strong style="color: yellow;">Donor (${currency_type || "--"}):</strong> ${donor || "Unknown"}<br>
+                ${countryDetails}
+            `;
         }
 
         function renderCountries(countries) {
             const countriesList = document.getElementById("countries-ul");
+            countriesList.innerHTML = "";
+
             countries.forEach(country => {
                 const li = document.createElement("li");
                 const link = document.createElement("a");
                 link.textContent = country;
                 link.href = `?country=${country.toLowerCase()}`;
-        
-                link.addEventListener("click", (event) => {
+
+                link.addEventListener("click", event => {
                     event.preventDefault();
                     const countryName = country.toLowerCase();
-        
-                    // Highlight the selected country on the map
+                    history.pushState(null, "", `?country=${countryName}`);
                     highlightCountry(countryName);
-        
-                    // Update the image section based on the selected country
-                    fetch("images/coins.json")
-                        .then(response => response.json())
-                        .then(data => {
-                            const countryData = data.filter(coin => coin.country.toLowerCase() === countryName);
-        
-                            const imageElements = countryData.map(coin => ({
-                                src: `images/${toTitleCase(countryName)}/${coin.image}`,
-                                note: coin.note
-                            }));
-        
-                            const thumbnailContainer = document.getElementById("thumbnail-container");
-                            thumbnailContainer.innerHTML = ""; // Clear previous thumbnails
-        
-                            let currentIndex = 0;
-        
-                            const updateImage = () => {
-                                const { src, note } = imageElements[currentIndex];
-                                setCurrentImage(src, note);
-                            };
-        
-                            imageElements.forEach((img, index) => {
-                                const thumbnail = document.createElement("img");
-                                thumbnail.src = img.src;
-                                thumbnail.alt = `Thumbnail ${index + 1}`;
-                                thumbnail.addEventListener("click", () => {
-                                    currentIndex = index;
-                                    updateImage();
-                                });
-                                thumbnailContainer.appendChild(thumbnail);
-                            });
-        
-                            document.getElementById("prev-btn").addEventListener("click", () => {
-                                currentIndex = (currentIndex - 1 + imageElements.length) % imageElements.length;
-                                updateImage();
-                            });
-        
-                            document.getElementById("next-btn").addEventListener("click", () => {
-                                currentIndex = (currentIndex + 1) % imageElements.length;
-                                updateImage();
-                            });
-        
-                            if (imageElements.length) updateImage();
-        
-                            // Update the page title
-                            document.getElementById("image-caption").textContent = toTitleCase(countryName);
-        
-                            // Update the URL
-                            history.pushState(null, "", `?country=${countryName}`);
-                        });
+                    loadCountryImages(countryName);
                 });
-        
+
                 li.appendChild(link);
                 countriesList.appendChild(li);
             });
         }
-        
 
-        let map, geoJsonLayer;
+        function fetchCountryInfo(countryName) {
+            return fetch("countries.json")
+                .then(response => response.json())
+                .then(countries => countries.find(country => country.name.toLowerCase() === countryName.toLowerCase()));
+        }
 
         function initializeMap() {
-            map = L.map("map").setView([20, 0], 2);
+            const map = L.map("map").setView([20, 0], 2);
 
             L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
                 maxZoom: 18,
-                attribution: '© OpenStreetMap contributors'
+                attribution: "© OpenStreetMap contributors"
             }).addTo(map);
 
-            fetch("countries.geo.json")
-                .then(response => response.json())
-                .then(geojson => {
-                    geoJsonLayer = L.geoJSON(geojson, {
-                        style: {
-                            color: "#555",
-                            weight: 1,
-                            fillOpacity: 0.2
+            let geoJsonLayer = null;
+
+            function highlightCountry(countryName) {
+                fetch("countries.geo.json")
+                    .then(response => response.json())
+                    .then(geojson => {
+                        if (geoJsonLayer) {
+                            map.removeLayer(geoJsonLayer);
                         }
-                    }).addTo(map);
-                });
+
+                        geoJsonLayer = L.geoJSON(geojson, {
+                            style: feature => ({
+                                color: feature.properties.name.toLowerCase() === countryName ? "red" : "#555",
+                                weight: feature.properties.name.toLowerCase() === countryName ? 2 : 1,
+                                fillOpacity: feature.properties.name.toLowerCase() === countryName ? 0.6 : 0.2
+                            }),
+                            onEachFeature: (feature, layer) => {
+                                if (feature.properties.name.toLowerCase() === countryName) {
+                                    map.fitBounds(layer.getBounds());
+                                }
+                            }
+                        }).addTo(map);
+                    })
+                    .catch(error => console.error("Error loading country geoJSON:", error));
+            }
+
+            window.highlightCountry = highlightCountry; // Expose function globally for usage in URL updates
         }
 
-        function getFullCountryName(countryName) {
-            const countryMap = {
-                "united states": "united states of america",
-                "korea": "south korea",
-                "bahamas": "the bahamas"
-            };
-        
-            // Convert input to lowercase for case-insensitive matching
-            const lowerCaseName = countryName.toLowerCase();
-        
-            // Return the mapped name or the original name if no match is found
-            return countryMap[lowerCaseName] || countryName;
-        }
-
-        function highlightCountry(countryName) {
-            fetch("countries.geo.json")
-                .then(response => response.json())
-                .then(geojson => {
-                    geoJsonLayer.clearLayers();
-                    geoJsonLayer.addData(geojson);
-                    countryName = getFullCountryName(countryName);
-                    geoJsonLayer.setStyle(feature => {
-                        return feature.properties.name.toLowerCase() === countryName.toLowerCase() ? {
-                            color: "red",
-                            weight: 2,
-                            fillOpacity: 0.6
-                        } : {
-                            color: "#555",
-                            weight: 1,
-                            fillOpacity: 0.2
-                        };
-                    });
-                });
-        }
-
-        (() => {
-            const queryParams = new URLSearchParams(window.location.search);
-            const countryQuery = queryParams.get("country") || "default";
-            const countryTitle = toTitleCase(countryQuery);
-
-            document.getElementById("image-caption").textContent = countryTitle;
-
+        function loadCountryImages(countryName) {
             fetch("images/coins.json")
                 .then(response => response.json())
                 .then(data => {
-                    const countries = [...new Set(data.map(coin => toTitleCase(coin.country)))].sort();
-
-                    renderCountries(countries);
-
-                    const countryData = data.filter(coin => coin.country.toLowerCase() === countryQuery.toLowerCase());
-
+                    const countryData = data.filter(coin => coin.country.toLowerCase() === countryName);
                     const imageElements = countryData.map(coin => ({
-                        src: `images/${countryTitle}/${coin.image}`,
-                        note: coin.note
+                        src: `images/${toTitleCase(countryName)}/${coin.image}`,
+                        note: coin.note,
+                        donor: coin.donor_name,
+                        currency_type: coin.currency_type
                     }));
-
                     const thumbnailContainer = document.getElementById("thumbnail-container");
+                    thumbnailContainer.innerHTML = "";
                     let currentIndex = 0;
 
                     const updateImage = () => {
-                        const { src, note } = imageElements[currentIndex];
-                        setCurrentImage(src, note);
+                        const { src, note, donor, currency_type } = imageElements[currentIndex];
+                        fetchCountryInfo(countryName).then(countryInfo => {
+                            setCurrentImage(src, note, donor, currency_type, countryInfo);
+                        });
                     };
+
+                    const changeImage = (direction) => {
+                        if (imageElements.length > 0) {
+                            currentIndex = (currentIndex + direction + imageElements.length) % imageElements.length;
+                            updateImage();
+                        }
+                    };
+
+                    document.getElementById("prev-btn").addEventListener("click", () => {
+                        changeImage(-1);
+                    });
+
+                    document.getElementById("next-btn").addEventListener("click", () => {
+                        changeImage(1);
+                    });
+
+                    window.addEventListener("keydown", (event) => {
+                        if (event.key === "ArrowLeft") {
+                            changeImage(-1);
+                        } else if (event.key === "ArrowRight") {
+                            changeImage(1);
+                        }
+                    });
 
                     imageElements.forEach((img, index) => {
                         const thumbnail = document.createElement("img");
@@ -384,24 +370,31 @@
                         thumbnailContainer.appendChild(thumbnail);
                     });
 
-                    document.getElementById("prev-btn").addEventListener("click", () => {
-                        currentIndex = (currentIndex - 1 + imageElements.length) % imageElements.length;
-                        updateImage();
-                    });
-
-                    document.getElementById("next-btn").addEventListener("click", () => {
-                        currentIndex = (currentIndex + 1) % imageElements.length;
-                        updateImage();
-                    });
-
                     if (imageElements.length) updateImage();
+                });
+        }
 
-                    highlightCountry(countryQuery);
+
+        (() => {
+            const queryParams = new URLSearchParams(window.location.search);
+            const countryQuery = queryParams.get("country") || "default";
+
+            fetch("images/coins.json")
+                .then(response => response.json())
+                .then(data => {
+                    const countries = [...new Set(data.map(coin => toTitleCase(coin.country)))].sort();
+                    renderCountries(countries);
+
+                    if (countryQuery !== "default") {
+                        highlightCountry(countryQuery.toLowerCase());
+                        loadCountryImages(countryQuery.toLowerCase());
+                    }
                 });
 
             initializeMap();
         })();
     </script>
+
 </body>
 
 </html>
