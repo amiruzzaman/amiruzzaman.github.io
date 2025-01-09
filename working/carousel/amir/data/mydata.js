@@ -1,6 +1,6 @@
 [
   {
-    "Country": "Afganistan",
+    "Country": "Afghanistan",
     "Coin": "Coins",
     "PaperBill": "Paper Bill",
     "Type": "",
