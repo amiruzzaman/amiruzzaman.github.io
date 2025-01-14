@@ -749,7 +749,7 @@
     "Donor": "Cheryl, Bate"
   },
   {
-    "Country": "Viet Nam",
+    "Country": "Vietnam",
     "Coin": "Coins",
     "PaperBill": "Paper Bill",
     "Type": "",
