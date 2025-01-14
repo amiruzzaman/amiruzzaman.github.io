@@ -2,10 +2,14 @@ import os
 import uuid
 import json
 import requests  # Importing the requests library
-from flask import Flask, flash, request, redirect, render_template, url_for, session
+from flask import Flask, flash, request, redirect, render_template, url_for, session, flash, send_from_directory
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
 from flask import jsonify
+#from flask import Flask, render_template, request, redirect, flash, send_from_directory
+import os
+
+import os
 
 app = Flask(__name__, static_url_path='/static')
 CORS(app)
@@ -246,24 +250,61 @@ def logout():
 def crop_image():
     return render_template('crop.html')
 
-CROP_FOLDER = "crop"
-os.makedirs(CROP_FOLDER, exist_ok=True)
+IMAGE_FOLDER = os.path.join(os.getcwd(), 'crop')
+#IMAGE_FOLDER = 'crop'  # Folder where the images are stored
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
-@app.route('/crop', methods=['POST'])
-def crop():
-    if request.method == 'GET':
-        return jsonify({"message": "This endpoint is working and ready for POST requests!"})
-    
-    if 'image' not in request.files:
-        return jsonify({"message": "No file uploaded"}), 400
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-    file = request.files['image']
-    if file.filename == '':
-        return jsonify({"message": "No file selected"}), 400
+# Custom route to serve images from the /crop folder
+@app.route('/crop/<filename>')
+def serve_image(filename):
+    return send_from_directory(IMAGE_FOLDER, filename)
 
-    file_path = os.path.join(CROP_FOLDER, file.filename)
-    file.save(file_path)
-    return jsonify({"message": "Image uploaded successfully!", "path": file_path}), 200
+@app.route('/manage_image', methods=['GET', 'POST'])
+def manage_image():
+    # List the images in the /crop folder
+    image_files = [f for f in os.listdir(IMAGE_FOLDER) if allowed_file(f)]
+
+    if request.method == 'POST':
+        # Uploading a new image
+        if 'image_file' in request.files:
+            file = request.files['image_file']
+            if file.filename == '':
+                flash('No selected file', 'error')
+            elif file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(IMAGE_FOLDER, filename))
+                flash(f"Image uploaded successfully: {filename}", 'success')
+                return redirect(url_for('manage_image'))
+
+        # Renaming the image
+        if 'new_name' in request.form:
+            image_file = request.form['image_file']
+            new_name = request.form['new_name']
+            if image_file and new_name:
+                extension = os.path.splitext(image_file)[1]  # Preserve the file extension
+                new_image_path = os.path.join(IMAGE_FOLDER, f'{new_name}{extension}')
+                try:
+                    os.rename(os.path.join(IMAGE_FOLDER, image_file), new_image_path)
+                    flash(f"Image renamed successfully to {new_name}{extension}", 'success')
+                except Exception as e:
+                    flash(f"Error renaming image: {e}", 'error')
+                return redirect(url_for('manage_image'))
+
+        # Deleting the image
+        if 'delete' in request.form:
+            image_file = request.form['image_file']
+            if image_file:
+                try:
+                    os.remove(os.path.join(IMAGE_FOLDER, image_file))
+                    flash("Image deleted successfully.", 'success')
+                except Exception as e:
+                    flash(f"Error deleting image: {e}", 'error')
+                return redirect(url_for('manage_image'))
+
+    return render_template('renameimage.html', image_files=image_files)
 
 if __name__ == "__main__":
     app.run(host='127.0.0.1', port=5000, debug=True)

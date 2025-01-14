@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BibTeX Generator with Fetch</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        select, input, textarea, button {
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        textarea {
+            height: 120px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .output {
+            margin-top: 20px;
+            padding: 10px;
+            background: #e9ecef;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>BibTeX Generator with Fetch</h1>
+        <label for="type">Select BibTeX Type:</label>
+        <select id="type">
+            <option value="misc">Website</option>
+            <option value="article">Article</option>
+            <option value="inproceedings">Proceedings</option>
+            <option value="book">Book</option>
+            <option value="phdthesis">PhD Thesis</option>
+            <option value="mastersthesis">Master Thesis</option>
+            <option value="bachelorsthesis">Bachelor Thesis</option>
+        </select>
+        <label for="fetch-input">Enter DOI/URL:</label>
+        <input type="text" id="fetch-input" placeholder="Enter DOI or URL">
+        <button id="fetch-button">Fetch Citation</button>
+        <div id="fields"></div>
+        <h2>Generated BibTeX</h2>
+        <textarea id="output" readonly></textarea>
+    </div>
+    <script>
+        const templates = {
+            misc: { title: "", url: "", author: "", year: "", note: "" },
+            article: { author: "", title: "", journal: "", year: "", volume: "", number: "", pages: "", doi: "" },
+            inproceedings: { title: "", author: "", year: "", month: "", booktitle: "", publisher: "", address: "", series: "", volume: "", number: "", pages: "", editor: "", organization: "", doi: "" },
+            book: { title: "", author: "", year: "", publisher: "", address: "", isbn: "" },
+            phdthesis: { title: "", author: "", year: "", month: "", address: "", note: "", school: "", type: "PhD thesis" },
+            mastersthesis: { author: "", title: "", school: "", year: "", type: "Master thesis", address: "", month: "", note: "" },
+            bachelorsthesis: { author: "", title: "", type: "Bachelor thesis", institution: "", year: "" },
+        };
+
+        const typeSelect = document.getElementById("type");
+        const fieldsDiv = document.getElementById("fields");
+        const output = document.getElementById("output");
+
+        let currentLabel = "label";
+
+        function renderFields(type) {
+            const fields = templates[type];
+            fieldsDiv.innerHTML = "";
+            for (const [key, value] of Object.entries(fields)) {
+                fieldsDiv.innerHTML += `
+                    <label for="${key}">${key.charAt(0).toUpperCase() + key.slice(1)}:</label>
+                    <input type="text" id="${key}" value="${value}" oninput="updateField('${key}')">
+                `;
+            }
+        }
+
+        function generateLabel(author, year) {
+            if (!author || !year) return "label";
+            const lastName = author.split(",")[0].trim().toLowerCase();
+            const randomDigits = Math.floor(1000 + Math.random() * 9000);
+            return `${lastName}${year}${randomDigits}`;
+        }
+
+        function updateField(key) {
+            const value = document.getElementById(key)?.value || "";
+            if (key === "author" || key === "year") {
+                const author = document.getElementById("author")?.value || "";
+                const year = document.getElementById("year")?.value || "";
+                currentLabel = generateLabel(author, year);
+            }
+            updateBibTeX();
+        }
+
+        function updateBibTeX() {
+            const type = typeSelect.value;
+            const fields = templates[type];
+            const data = {};
+
+            for (const key of Object.keys(fields)) {
+                data[key] = document.getElementById(key)?.value || "";
+            }
+
+            let entry = `@${type}{${currentLabel},\n`;
+            for (const [key, value] of Object.entries(data)) {
+                if (value) entry += `    ${key} = {${value}},\n`;
+            }
+            entry += "}";
+            output.value = entry;
+        }
+
+        async function fetchCitation() {
+            const input = document.getElementById("fetch-input").value.trim();
+            if (!input) {
+                alert("Please enter a DOI or URL.");
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://api.crossref.org/works/${input}`);
+                if (!response.ok) throw new Error("Invalid DOI or data not found.");
+                const data = await response.json();
+                const citation = data.message;
+
+                document.getElementById("author").value = citation.author
+                    ? citation.author.map(a => `${a.family}, ${a.given}`).join(" and ")
+                    : "";
+                document.getElementById("title").value = citation.title ? citation.title[0] : "";
+                document.getElementById("year").value = citation.published
+                    ? citation.published["date-parts"][0][0]
+                    : "";
+                document.getElementById("journal").value = citation["container-title"]
+                    ? citation["container-title"][0]
+                    : "";
+                document.getElementById("doi").value = citation.DOI || "";
+
+                updateBibTeX();
+            } catch (error) {
+                alert("Error fetching citation data. Please ensure the DOI is correct.");
+                console.error(error);
+            }
+        }
+
+        typeSelect.addEventListener("change", () => renderFields(typeSelect.value));
+        document.getElementById("fetch-button").addEventListener("click", fetchCitation);
+
+        renderFields(typeSelect.value);
+    </script>
+</body>
+</html>
