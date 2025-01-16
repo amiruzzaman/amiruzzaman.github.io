@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index</title>
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+            color: #222;
+        }
+
+        .container {
+            flex: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .section {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h2 {
+            margin-top: 0;
+            color: #555;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            margin: 10px 0;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+            display: inline-block;
+            transition: all 0.3s ease-in-out;
+        }
+
+        a:hover {
+            text-decoration: none;
+            color: #0056b3;
+            box-shadow: 0 4px 6px rgba(0, 91, 179, 0.2);
+            padding-left: 5px;
+        }
+
+        .footer {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .footer p {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Index of all functions</h1>
+
+    <div class="container">
+        <div class="section">
+            <h2>JSON Management</h2>
+            <ul>
+                <li><a href="/edit_json" target="_blank">Edit JSON Data</a></li>
+                <li><a href="/get-json" target="_blank">View JSON Data (Raw)</a></li>
+                <li><a href="/upload" target="_blank">Upload Files to JSON</a></li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Image Management</h2>
+            <ul>
+                <li><a href="/manage_image" target="_blank">Manage Uploaded Images</a></li>
+                <li><a href="/merge-images" target="_blank">Merge Images</a></li>
+                <li><a href="/crop-image" target="_blank">Crop Image</a></li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Authentication</h2>
+            <ul>
+                <li><a href="/login" target="_blank">Login</a></li>
+                <li><a href="/logout" target="_blank">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2025 Amiruzzaman. All rights reserved.</p>
+    </div>
+</body>
+
+</html>

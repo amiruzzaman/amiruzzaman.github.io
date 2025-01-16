@@ -25,7 +25,7 @@ def save_json(data):
         json.dump(data, file, indent=2)
 
 @app.route('/edit_json')
-def index():
+def edit_json():
     # Render the HTML template
     return render_template('editjson_python.html')
 

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -30,9 +31,11 @@
 
         #image {
             max-width: 100%;
+            max-height: 100%;
             position: absolute;
-            top: 0;
-            left: 0;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
         #crop-box {
@@ -50,10 +53,29 @@
             cursor: pointer;
         }
 
-        .resize-handle.tl { top: -5px; left: -5px; cursor: nwse-resize; }
-        .resize-handle.tr { top: -5px; right: -5px; cursor: nesw-resize; }
-        .resize-handle.bl { bottom: -5px; left: -5px; cursor: nesw-resize; }
-        .resize-handle.br { bottom: -5px; right: -5px; cursor: nwse-resize; }
+        .resize-handle.tl {
+            top: -5px;
+            left: -5px;
+            cursor: nwse-resize;
+        }
+
+        .resize-handle.tr {
+            top: -5px;
+            right: -5px;
+            cursor: nesw-resize;
+        }
+
+        .resize-handle.bl {
+            bottom: -5px;
+            left: -5px;
+            cursor: nesw-resize;
+        }
+
+        .resize-handle.br {
+            bottom: -5px;
+            right: -5px;
+            cursor: nwse-resize;
+        }
 
         #crop-button {
             padding: 10px 20px;
@@ -74,6 +96,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Image Drag and Crop</h1>
@@ -106,6 +129,29 @@
         let isResizing = false;
         let startX, startY, startWidth, startHeight;
 
+        // Scale and center image to fit within container
+        function fitImageToContainer() {
+            const containerRect = container.getBoundingClientRect();
+            const imgWidth = image.naturalWidth;
+            const imgHeight = image.naturalHeight;
+
+            const containerAspect = containerRect.width / containerRect.height;
+            const imgAspect = imgWidth / imgHeight;
+
+            if (imgAspect > containerAspect) {
+                image.style.width = "100%";
+                image.style.height = "auto";
+            } else {
+                image.style.width = "auto";
+                image.style.height = "100%";
+            }
+
+            // Center image
+            image.style.top = "50%";
+            image.style.left = "50%";
+            image.style.transform = "translate(-50%, -50%)";
+        }
+
         // Handle file upload
         fileInput.addEventListener("change", (event) => {
             const file = event.target.files[0];
@@ -114,6 +160,7 @@
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     image.src = e.target.result;
+                    image.onload = fitImageToContainer;
                 };
                 reader.readAsDataURL(file);
             }
@@ -174,59 +221,56 @@
         });
 
         // Cropping the image
-cropButton.addEventListener("click", () => {
-    const containerRect = container.getBoundingClientRect();
-    const cropBoxRect = cropBox.getBoundingClientRect();
-    const imgRect = image.getBoundingClientRect();
+        cropButton.addEventListener("click", () => {
+            const containerRect = container.getBoundingClientRect();
+            const cropBoxRect = cropBox.getBoundingClientRect();
+            const imgRect = image.getBoundingClientRect();
 
-    // Calculate the scaling factor between the displayed image and the original image
-    const scaleX = image.naturalWidth / imgRect.width;
-    const scaleY = image.naturalHeight / imgRect.height;
+            const scaleX = image.naturalWidth / imgRect.width;
+            const scaleY = image.naturalHeight / imgRect.height;
 
-    // Adjust crop dimensions and position to match the original image's scale
-    const cropX = (cropBoxRect.left - imgRect.left) * scaleX;
-    const cropY = (cropBoxRect.top - imgRect.top) * scaleY;
-    const cropWidth = cropBoxRect.width * scaleX;
-    const cropHeight = cropBoxRect.height * scaleY;
+            const cropX = (cropBoxRect.left - imgRect.left) * scaleX;
+            const cropY = (cropBoxRect.top - imgRect.top) * scaleY;
+            const cropWidth = cropBoxRect.width * scaleX;
+            const cropHeight = cropBoxRect.height * scaleY;
 
-    canvas.width = cropWidth;
-    canvas.height = cropHeight;
+            canvas.width = cropWidth;
+            canvas.height = cropHeight;
 
-    const ctx = canvas.getContext("2d");
-    const img = new Image();
-    img.src = image.src;
-    img.onload = () => {
-        ctx.drawImage(
-            img,
-            cropX, cropY, cropWidth, cropHeight, // Source area from the original image
-            0, 0, cropWidth, cropHeight         // Target area on the canvas
-        );
+            const ctx = canvas.getContext("2d");
+            const img = new Image();
+            img.src = image.src;
+            img.onload = () => {
+                ctx.drawImage(
+                    img,
+                    cropX, cropY, cropWidth, cropHeight,
+                    0, 0, cropWidth, cropHeight
+                );
 
-        const fileExtension = originalFileName.split('.').pop();
-        const fileNameWithoutExt = originalFileName.replace(/\.[^/.]+$/, "");
-        const newFileName = `${fileNameWithoutExt}_crop.${fileExtension}`;
+                const fileExtension = originalFileName.split('.').pop();
+                const fileNameWithoutExt = originalFileName.replace(/\.[^/.]+$/, "");
+                const newFileName = `${fileNameWithoutExt}_crop.${fileExtension}`;
 
-        // Send cropped image to the backend
-        canvas.toBlob((blob) => {
-            const formData = new FormData();
-            formData.append("image", blob, newFileName);
+                canvas.toBlob((blob) => {
+                    const formData = new FormData();
+                    formData.append("image", blob, newFileName);
 
-            fetch("/crop", {
-                method: "POST",
-                body: formData
-            })
-                .then((response) => response.json())
-                .then((data) => {
-                    document.getElementById("result").textContent = data.message;
-                })
-                .catch((err) => {
-                    console.error(err);
-                    document.getElementById("result").textContent = "Error uploading the cropped image.";
+                    fetch("/crop", {
+                        method: "POST",
+                        body: formData
+                    })
+                        .then((response) => response.json())
+                        .then((data) => {
+                            document.getElementById("result").textContent = data.message;
+                        })
+                        .catch((err) => {
+                            console.error(err);
+                            document.getElementById("result").textContent = "Error uploading the cropped image.";
+                        });
                 });
+            };
         });
-    };
-});
-
     </script>
 </body>
+
 </html>
