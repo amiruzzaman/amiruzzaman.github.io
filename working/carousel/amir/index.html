@@ -1,69 +1,139 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <title>Country Currency Table</title>
+  <title>..::Amir::..</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    /* Basic styling */
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background-color: #f5f5f5;
-    }
-    .table-container {
-      margin-top: 20px;
-      overflow-x: auto;
-    }
-    .table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    .table th, .table td {
-      border: 1px solid #ccc;
-      padding: 10px;
-      text-align: left;
-    }
-    .table th {
-      background-color: #007bff;
-      color: white;
-      cursor: pointer;
-    }
-    .table th:hover {
-      background-color: #0056b3;
-    }
-    .table tbody tr:nth-child(odd) {
-      background-color: #f9f9f9;
-    }
-    .table tbody tr:nth-child(even) {
-      background-color: #e9ecef;
-    }
-    .search-bar {
-      margin-bottom: 20px;
-    }
-    .summary {
-      margin-top: 20px;
-      padding: 10px;
-      background-color: #007bff;
-      color: white;
-    }
-    footer {
-      margin-top: 40px;
-      text-align: center;
-      font-size: 0.9em;
-      color: #555;
-    }
-    footer a {
-      color: #007bff;
-      text-decoration: none;
-    }
-    footer a:hover {
-      text-decoration: underline;
-    }
+/* Basic Styling */
+body {
+  background-color: #72787e;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 40px 0; /* Added space at the top and bottom */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh; /* Full height */
+}
+
+/* Search Bar */
+.search-bar {
+  width: 96%; /* 80% width */
+  font-size: 16px;
+  padding: 16px 24px 16px 48px; /* Increased padding */
+  border: 1px solid #ddd;
+  margin-bottom: 40px; /* Increased bottom margin */
+  background-color: #fff;
+  color: #333;
+  border-radius: 4px;
+  position: relative;
+}
+
+.search-bar::before {
+  content: '\1F50D'; /* Unicode character for search icon */
+  font-size: 22px; /* Larger icon */
+  position: absolute;
+  left: 16px; /* Adjusted for increased space */
+  top: 50%;
+  transform: translateY(-50%);
+  color: #333;
+}
+
+/* Table Container */
+.table-container {
+  width: 96%; /* 80% width */
+  /*margin-top: 40px;*/
+  overflow-x: auto;
+  margin-left: auto;
+  margin-right: auto; /* Centering the table */
+}
+
+/* Table */
+.table {
+  width: 100%; /* Table takes up full width of its container */
+  border-collapse: collapse;
+  margin-top: 20px; /* Added margin between table and other elements */
+}
+
+.table th, .table td {
+  border: 1px solid #ccc;
+  padding: 14px 24px; /* Increased padding for larger cells */
+  text-align: left;
+}
+
+.table th {
+  background-color: #198754;
+  color: white;
+  cursor: pointer;
+}
+
+.table th:hover {
+  background-color: #145a32;
+}
+
+.table tbody tr:nth-child(odd) {
+  background-color: #495057;
+}
+
+.table tbody tr:nth-child(even) {
+  background-color: #343a40;
+}
+
+.table tbody tr:hover {
+  background-color: #495057;
+}
+
+/* Links */
+a {
+  color: #ffc107;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+/* Summary Section */
+.summary {
+  width: 96%; /* 80% width */
+  margin-top: 40px; /* Increased top margin */
+  padding: 20px 40px; /* Added more padding */
+  background-color: #198754;
+  color: white;
+  border-radius: 8px; /* Rounded corners */
+  margin-left: auto;
+  margin-right: auto; /* Centering the summary */
+}
+
+/* Footer */
+footer {
+  width: 80%; /* 80% width */
+  margin-top: 60px; /* Increased top margin */
+  text-align: center;
+  font-size: 1.1em; /* Slightly larger footer font size */
+  color: #ffc107;
+  padding: 20px 40px; /* More padding for footer */
+  margin-left: auto;
+  margin-right: auto; /* Centering the footer */
+}
+
+footer a {
+  color: #ffc107;
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+  color: #fff;
+}
   </style>
 </head>
 <body>
+  <center><h1>List of Coin Collection</h1></center>
   <div>
     <input type="text" id="search-input" class="search-bar" placeholder="Search by country, currency, or donor">
     <div class="table-container">
@@ -81,8 +151,8 @@
     <div id="summary-container" class="summary"></div>
   </div>
   <footer>
-    <p>© 2025 Amiruzzaman. All rights reserved. | 
-      <a href="#" target="_blank">Privacy Policy</a>
+    <p>© 2025 Currency Collector's Guide. All rights reserved. | 
+      <a href="https://example.com" target="_blank">Privacy Policy</a>
     </p>
   </footer>
 
