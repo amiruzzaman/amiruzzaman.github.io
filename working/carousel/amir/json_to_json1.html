@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Country Currency Table</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* General Styles */
+    body {
+      background: #72787e;
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+    }
+
+    /* Table Container */
+    .table-container {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      overflow-x: auto;
+      padding: 10px;
+    }
+
+    /* Table */
+    .table {
+      width: 100%;
+      background: #495057;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header Row */
+    .row.header {
+      display: flex;
+      background-color: #007bff;
+      color: white;
+      text-align: left;
+      font-weight: bold;
+      text-transform: uppercase;
+      padding: 12px;
+    }
+
+    /* Table Row */
+    .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px;
+      border-bottom: 1px solid #ced4da;
+    }
+
+    /* Alternate Row Colors */
+    .row:nth-child(odd):not(.header) {
+      background-color: #3c4045;
+    }
+
+    .row:nth-child(even):not(.header) {
+      background-color: #495057;
+    }
+
+    /* Hover Effect */
+    .row:hover {
+      background-color: #343a40;
+    }
+
+    /* Cells */
+    .cell {
+      flex: 1;
+      padding: 10px;
+      color: #f8f9fa;
+      overflow-wrap: break-word;
+    }
+
+    /* Links in Cells */
+    .cell a {
+      color: #0dcaf0;
+      text-decoration: none;
+    }
+
+    .cell a:hover {
+      color: #0abde3;
+    }
+
+    /* Media Queries for Responsiveness */
+    @media (max-width: 768px) {
+      .table {
+        flex-direction: column;
+      }
+
+      .row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .cell {
+        width: 100%;
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="table-container">
+    <div class="table">
+      <div class="row header">
+        <div class="cell">Country</div>
+        <div class="cell">Currency Type</div>
+        <div class="cell">Donor Name</div>
+      </div>
+      <div class="row">
+        <div class="cell"><a href="#">United States</a></div>
+        <div class="cell">Paper Bill, Coin</div>
+        <div class="cell">Federal Reserve</div>
+      </div>
+      <div class="row">
+        <div class="cell"><a href="#">Canada</a></div>
+        <div class="cell">Coin</div>
+        <div class="cell">Royal Mint</div>
+      </div>
+      <div class="row">
+        <div class="cell"><a href="#">Germany</a></div>
+        <div class="cell">Paper Bill</div>
+        <div class="cell">Deutsche Bank</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

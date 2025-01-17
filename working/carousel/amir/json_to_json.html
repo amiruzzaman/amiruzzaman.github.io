@@ -1,221 +1,189 @@
-
-    <!doctype html>
-    <html>
-    <head>
-    <title>Our Funky HTML Page</title>
-    <meta name="description" content="Our first page">
-    <meta name="keywords" content="html tutorial template">
-	<meta charset="UTF-8">
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Country Currency Table</title>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="shortcut icon" href="#">
-	<style>
-    .table {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-      border: 1px solid #ddd;
+  <style>
+    /* Basic styling */
+    body {
       font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
     }
-    .row {
-      display: flex;
+    .table-container {
+      margin-top: 20px;
+      overflow-x: auto;
     }
-    .row.header {
-      background-color: #f4f4f4;
-      font-weight: bold;
-      cursor: pointer;
+    .table {
+      width: 100%;
+      border-collapse: collapse;
     }
-    .row:hover {
-      background-color: #f9f9f9;
-    }
-    .cell {
-      flex: 1;
+    .table th, .table td {
+      border: 1px solid #ccc;
       padding: 10px;
-      border: 1px solid #ddd;
       text-align: left;
     }
-    .cell:hover {
-      background-color: #eee;
+    .table th {
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    .table th:hover {
+      background-color: #0056b3;
+    }
+    .table tbody tr:nth-child(odd) {
+      background-color: #f9f9f9;
+    }
+    .table tbody tr:nth-child(even) {
+      background-color: #e9ecef;
+    }
+    .search-bar {
+      margin-bottom: 20px;
+    }
+    .summary {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+    }
+    footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 0.9em;
+      color: #555;
+    }
+    footer a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
     }
   </style>
-    </head>
-    <body>
-    Content goes here.
-	<div id ="table-container"></div>
-	 <script>
-//document.getElementById("demo").innerHTML = "Hello JavaScript!";
-// Fetch the JSON file and process it
-fetch('images/coins.json')
-  .then((response) => response.json())
-  .then((data) => {
-    const result = [];
+</head>
+<body>
+  <div>
+    <input type="text" id="search-input" class="search-bar" placeholder="Search by country, currency, or donor">
+    <div class="table-container">
+      <table class="table" id="data-table">
+        <thead>
+          <tr>
+            <th data-key="country">Country</th>
+            <th data-key="currency_type">Currency Type</th>
+            <th data-key="donor_name">Donor Name</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div id="summary-container" class="summary"></div>
+  </div>
+  <footer>
+    <p>© 2025 Amiruzzaman. All rights reserved. | 
+      <a href="#" target="_blank">Privacy Policy</a>
+    </p>
+  </footer>
 
-    data.forEach((item) => {
-      // Find if the country already exists in the result array
-      let existing = result.find((entry) => entry.country === item.country);
+  <script>
+    let originalData = [];
+    let isAscending = true;
+    let lastSortedColumn = null;
 
-      if (existing) {
-        // Add unique donor names
-        if (!existing.donor_name.split(', ').includes(item.donor_name)) {
-          existing.donor_name += `, ${item.donor_name}`;
+    // Fetch and process data
+    fetch('images/coins.json')
+      .then(response => response.json())
+      .then(data => {
+        originalData = combineData(data);
+        renderTable(originalData);
+        renderSummary(originalData);
+      })
+      .catch(error => console.error('Error fetching JSON:', error));
+
+    // Combine duplicate countries
+    function combineData(data) {
+      const result = [];
+      data.forEach(item => {
+        // Check if the country already exists in the result
+        let existing = result.find(entry => entry.country === item.country);
+        if (existing) {
+          // Merge unique donor names
+          const donorNames = new Set(existing.donor_name.split(', ').concat(item.donor_name.split(', ')));
+          existing.donor_name = Array.from(donorNames).join(', ');
+
+          // Merge unique currency types
+          const currencyTypes = new Set(existing.currency_type.split(', ').concat(item.currency_type.split(', ')));
+          existing.currency_type = Array.from(currencyTypes).join(', ');
+        } else {
+          // Add new country entry
+          result.push({ ...item });
         }
-
-        // Add unique currency types (case insensitive)
-        const currencyType = item.currency_type.toLowerCase();
-        const existingCurrencyTypes = existing.currency_type
-          .toLowerCase()
-          .split(', ');
-
-        if (!existingCurrencyTypes.includes(currencyType)) {
-          existing.currency_type += `, ${item.currency_type}`;
-        }
-      } else {
-        // Add new country entry
-        result.push({
-          country: item.country,
-          currency_type: item.currency_type,
-          donor_name: item.donor_name,
-        });
-      }
-    });
-
-    // Render the result as a table
-    renderTable(result);
-
-    // Render the summary
-    renderSummary(result);
-
-    // Render the search bar
-    renderSearch(result);
-  })
-  .catch((error) => console.error('Error fetching the JSON file:', error));
-
-// Function to render the table
-function renderTable(data) {
-  const container = document.getElementById('table-container');
-
-  // Create the table container
-  const table = document.createElement('div');
-  table.className = 'table';
-
-  // Create the header row
-  const headerRow = document.createElement('div');
-  headerRow.className = 'row header';
-  headerRow.style.backgroundColor = '#007bff';
-  headerRow.style.color = 'white';
-  ['Country', 'Currency Type', 'Donor Name'].forEach((header) => {
-    const div = document.createElement('div');
-    div.className = 'cell';
-    div.textContent = header;
-
-    // Add sorting functionality
-    div.addEventListener('click', () => {
-      const column = header.toLowerCase().replace(' ', '_');
-      const sortedData = [...data].sort((a, b) => {
-        if (a[column] < b[column]) return -1;
-        if (a[column] > b[column]) return 1;
-        return 0;
       });
-      renderTable(sortedData);
-    });
-
-    headerRow.appendChild(div);
-  });
-  table.appendChild(headerRow);
-
-  // Create the data rows
-  data.forEach((item, index) => {
-    const row = document.createElement('div');
-    row.className = 'row';
-    if (index % 2 !== 0) {
-      row.style.backgroundColor = 'lightblue';
+      return result;
     }
 
-    Object.values(item).forEach((value) => {
-      const div = document.createElement('div');
-      div.className = 'cell';
-      div.textContent = value;
-      row.appendChild(div);
-    });
+    // Render the table
+    function renderTable(data) {
+      const tbody = document.querySelector('#data-table tbody');
+      tbody.innerHTML = '';
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><a href="display.html?country=${encodeURIComponent(row.country)}">${row.country}</a></td>
+          <td>${row.currency_type}</td>
+          <td>${row.donor_name}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
 
-    table.appendChild(row);
-  });
+    // Render the summary
+    function renderSummary(data) {
+      const summary = document.getElementById('summary-container');
+      const numCountries = data.length;
+      let numPaperBills = 0;
+      let numCoins = 0;
 
-  // Clear the container and append the new table
-  container.innerHTML = '';
-  container.appendChild(table);
-}
+      data.forEach(item => {
+        item.currency_type.split(', ').forEach(type => {
+          if (type.toLowerCase() === 'paper bill') numPaperBills++;
+          if (type.toLowerCase() === 'coin') numCoins++;
+        });
+      });
 
-// Function to render the summary
-function renderSummary(data) {
-  let summaryContainer = document.getElementById('summary-container');
+      summary.innerHTML = `
+        <p>Number of Countries: ${numCountries}</p>
+        <p>Number of Paper Bills: ${numPaperBills}</p>
+        <p>Number of Coins: ${numCoins}</p>
+      `;
+    }
 
-  // Create the summary container if it doesn't exist
-  if (!summaryContainer) {
-    summaryContainer = document.createElement('div');
-    summaryContainer.id = 'summary-container';
-    document.body.appendChild(summaryContainer);
-  }
-
-  // Calculate the number of countries, paper bills, and coins
-  const numCountries = data.length;
-  let numPaperBills = 0;
-  let numCoins = 0;
-
-  data.forEach((item) => {
-    const currencyTypes = item.currency_type.toLowerCase().split(', ');
-    currencyTypes.forEach((type) => {
-      if (type === 'paper bill' || type === 'paper-bill') numPaperBills++;
-      if (type === 'coin') numCoins++;
-    });
-  });
-
-  // Create the summary content
-  const summary = document.createElement('div');
-  summary.className = 'summary';
-  summary.innerHTML = `
-    <p>Number of Countries: ${numCountries}</p>
-    <p>Number of Paper Bills: ${numPaperBills}</p>
-    <p>Number of Coins: ${numCoins}</p>
-  `;
-
-  // Clear the container and append the new summary
-  summaryContainer.innerHTML = '';
-  summaryContainer.appendChild(summary);
-}
-
-// Function to render the search bar
-function renderSearch(data) {
-  let searchContainer = document.getElementById('search-container');
-
-  // Create the search container if it doesn't exist
-  if (!searchContainer) {
-    searchContainer = document.createElement('div');
-    searchContainer.id = 'search-container';
-    document.body.insertBefore(searchContainer, document.getElementById('table-container'));
-  }
-
-  // Create the search input
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.placeholder = 'Search by country, currency, or donor';
-  input.addEventListener('input', () => {
-    const query = input.value.toLowerCase();
-    const filteredData = data.filter((item) => {
-      return (
+    // Add search functionality
+    document.getElementById('search-input').addEventListener('input', event => {
+      const query = event.target.value.toLowerCase();
+      const filteredData = originalData.filter(item =>
         item.country.toLowerCase().includes(query) ||
         item.currency_type.toLowerCase().includes(query) ||
         item.donor_name.toLowerCase().includes(query)
       );
+      renderTable(filteredData);
     });
-    renderTable(filteredData);
-  });
 
-  // Clear the container and append the input
-  searchContainer.innerHTML = '';
-  searchContainer.appendChild(input);
-}
-
-
-</script> 
-    </body>
-    </html>
+    // Add sorting functionality
+    document.querySelectorAll('#data-table th').forEach(th => {
+      th.addEventListener('click', () => {
+        const key = th.dataset.key;
+        const sortedData = [...originalData].sort((a, b) => {
+          if (a[key] < b[key]) return isAscending ? -1 : 1;
+          if (a[key] > b[key]) return isAscending ? 1 : -1;
+          return 0;
+        });
+        isAscending = key === lastSortedColumn ? !isAscending : true;
+        lastSortedColumn = key;
+        renderTable(sortedData);
+      });
+    });
+  </script>
+</body>
+</html>

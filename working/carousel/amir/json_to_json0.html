@@ -1,0 +1,235 @@
+
+    <!doctype html>
+    <html>
+    <head>
+    <title>Our Funky HTML Page</title>
+    <meta name="description" content="Our first page">
+    <meta name="keywords" content="html tutorial template">
+	<meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="#">
+	<style>
+    .table {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      border: 1px solid #ddd;
+      font-family: Arial, sans-serif;
+    }
+    .row {
+      display: flex;
+    }
+    .row.header {
+      background-color: #f4f4f4;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .row:hover {
+      background-color: #f9f9f9;
+    }
+    .cell {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    .cell:hover {
+      background-color: #eee;
+    }
+  </style>
+    </head>
+    <body>
+    Content goes here.
+	<div id ="table-container"></div>
+	 <script>
+//document.getElementById("demo").innerHTML = "Hello JavaScript!";
+// Fetch the JSON file and process it
+fetch('images/coins.json')
+  .then((response) => response.json())
+  .then((data) => {
+    const result = [];
+
+    data.forEach((item) => {
+      // Find if the country already exists in the result array
+      let existing = result.find((entry) => entry.country === item.country);
+
+      if (existing) {
+        // Add unique donor names
+        if (!existing.donor_name.split(', ').includes(item.donor_name)) {
+          existing.donor_name += `, ${item.donor_name}`;
+        }
+
+        // Add unique currency types (case insensitive)
+        const currencyType = item.currency_type.toLowerCase();
+        const existingCurrencyTypes = existing.currency_type
+          .toLowerCase()
+          .split(', ');
+
+        if (!existingCurrencyTypes.includes(currencyType)) {
+          existing.currency_type += `, ${item.currency_type}`;
+        }
+      } else {
+        // Add new country entry
+        result.push({
+          country: item.country,
+          currency_type: item.currency_type,
+          donor_name: item.donor_name,
+        });
+      }
+    });
+
+    // Render the result as a table
+    renderTable(result);
+
+    // Render the summary
+    renderSummary(result);
+
+    // Render the search bar
+    renderSearch(result);
+  })
+  .catch((error) => console.error('Error fetching the JSON file:', error));
+
+// Function to render the table
+function renderTable(data) {
+  const container = document.getElementById('table-container');
+
+  // Create the table container
+  const table = document.createElement('div');
+  table.className = 'table';
+
+  // Create the header row
+  const headerRow = document.createElement('div');
+  headerRow.className = 'row header';
+  headerRow.style.backgroundColor = '#007bff';
+  headerRow.style.color = 'white';
+  ['Country', 'Currency Type', 'Donor Name'].forEach((header) => {
+    const div = document.createElement('div');
+    div.className = 'cell';
+    div.textContent = header;
+
+    // Add sorting functionality
+    div.addEventListener('click', () => {
+      const column = header.toLowerCase().replace(' ', '_');
+      const sortedData = [...data].sort((a, b) => {
+        if (a[column] < b[column]) return -1;
+        if (a[column] > b[column]) return 1;
+        return 0;
+      });
+      renderTable(sortedData);
+    });
+
+    headerRow.appendChild(div);
+  });
+  table.appendChild(headerRow);
+
+  // Create the data rows
+  data.forEach((item, index) => {
+    const row = document.createElement('div');
+    row.className = 'row';
+    if (index % 2 !== 0) {
+      row.style.backgroundColor = 'lightblue';
+    }
+
+    // Create a cell for the country with a hyperlink
+    const countryCell = document.createElement('div');
+    countryCell.className = 'cell';
+    const countryLink = document.createElement('a');
+    countryLink.href = `display.html?country=${encodeURIComponent(item.country)}`;
+    countryLink.textContent = item.country;
+    countryCell.appendChild(countryLink);
+    row.appendChild(countryCell);
+
+    // Create cells for currency type and donor name
+    const currencyCell = document.createElement('div');
+    currencyCell.className = 'cell';
+    currencyCell.textContent = item.currency_type;
+    row.appendChild(currencyCell);
+
+    const donorCell = document.createElement('div');
+    donorCell.className = 'cell';
+    donorCell.textContent = item.donor_name;
+    row.appendChild(donorCell);
+
+    table.appendChild(row);
+  });
+
+  // Clear the container and append the new table
+  container.innerHTML = '';
+  container.appendChild(table);
+}
+
+
+// Function to render the summary
+function renderSummary(data) {
+  let summaryContainer = document.getElementById('summary-container');
+
+  // Create the summary container if it doesn't exist
+  if (!summaryContainer) {
+    summaryContainer = document.createElement('div');
+    summaryContainer.id = 'summary-container';
+    document.body.appendChild(summaryContainer);
+  }
+
+  // Calculate the number of countries, paper bills, and coins
+  const numCountries = data.length;
+  let numPaperBills = 0;
+  let numCoins = 0;
+
+  data.forEach((item) => {
+    const currencyTypes = item.currency_type.toLowerCase().split(', ');
+    currencyTypes.forEach((type) => {
+      if (type === 'paper bill' || type === 'paper-bill' || type === 'Paper bill') numPaperBills++;
+      if (type === 'coin') numCoins++;
+    });
+  });
+
+  // Create the summary content
+  const summary = document.createElement('div');
+  summary.className = 'summary';
+  summary.innerHTML = `
+    <p>Number of Countries: ${numCountries}</p>
+    <p>Number of Paper Bills: ${numPaperBills}</p>
+    <p>Number of Coins: ${numCoins}</p>
+  `;
+
+  // Clear the container and append the new summary
+  summaryContainer.innerHTML = '';
+  summaryContainer.appendChild(summary);
+}
+
+// Function to render the search bar
+function renderSearch(data) {
+  let searchContainer = document.getElementById('search-container');
+
+  // Create the search container if it doesn't exist
+  if (!searchContainer) {
+    searchContainer = document.createElement('div');
+    searchContainer.id = 'search-container';
+    document.body.insertBefore(searchContainer, document.getElementById('table-container'));
+  }
+
+  // Create the search input
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.placeholder = 'Search by country, currency, or donor';
+  input.addEventListener('input', () => {
+    const query = input.value.toLowerCase();
+    const filteredData = data.filter((item) => {
+      return (
+        item.country.toLowerCase().includes(query) ||
+        item.currency_type.toLowerCase().includes(query) ||
+        item.donor_name.toLowerCase().includes(query)
+      );
+    });
+    renderTable(filteredData);
+  });
+
+  // Clear the container and append the input
+  searchContainer.innerHTML = '';
+  searchContainer.appendChild(input);
+}
+
+
+</script> 
+    </body>
+    </html>
