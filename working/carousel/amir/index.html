@@ -4,28 +4,29 @@
   <title>..::Amir::..</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="#">
   <style>
-/* Basic Styling */
+/* General Styles */
 body {
   background-color: #72787e;
   color: #fff;
   font-family: Arial, sans-serif;
   margin: 0;
-  padding: 40px 0; /* Added space at the top and bottom */
+  padding: 40px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  min-height: 100vh; /* Full height */
+  min-height: 100vh;
 }
 
 /* Search Bar */
 .search-bar {
-  width: 96%; /* 80% width */
+  width: 96%; /* Matches the table's width */
   font-size: 16px;
-  padding: 16px 24px 16px 48px; /* Increased padding */
+  padding: 16px 24px 16px 48px;
   border: 1px solid #ddd;
-  margin-bottom: 40px; /* Increased bottom margin */
+  margin-bottom: 40px;
   background-color: #fff;
   color: #333;
   border-radius: 4px;
@@ -33,10 +34,10 @@ body {
 }
 
 .search-bar::before {
-  content: '\1F50D'; /* Unicode character for search icon */
-  font-size: 22px; /* Larger icon */
+  content: '\1F50D';
+  font-size: 22px;
   position: absolute;
-  left: 16px; /* Adjusted for increased space */
+  left: 16px;
   top: 50%;
   transform: translateY(-50%);
   color: #333;
@@ -44,34 +45,42 @@ body {
 
 /* Table Container */
 .table-container {
-  width: 96%; /* 80% width */
-  /*margin-top: 40px;*/
+  width: 80vw; /* Explicitly use 98% of the viewport width */
+  max-width: none; /* Remove max-width constraint */
+  margin: 0 auto;
   overflow-x: auto;
-  margin-left: auto;
-  margin-right: auto; /* Centering the table */
+  padding: 10px;
 }
 
 /* Table */
 .table {
-  width: 100%; /* Table takes up full width of its container */
+  width: 100%; /* Fully occupy the container */
+  background: #495057;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   border-collapse: collapse;
-  margin-top: 20px; /* Added margin between table and other elements */
+  margin-top: 20px;
+  display: table;
 }
 
-.table th, .table td {
-  border: 1px solid #ccc;
-  padding: 14px 24px; /* Increased padding for larger cells */
-  text-align: left;
-}
-
+/* Header Row */
 .table th {
   background-color: #198754;
   color: white;
+  text-align: left;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 14px 24px;
   cursor: pointer;
 }
 
 .table th:hover {
   background-color: #145a32;
+}
+
+/* Table Body Rows */
+.table tbody tr {
+  border-bottom: 1px solid #ced4da;
 }
 
 .table tbody tr:nth-child(odd) {
@@ -86,39 +95,49 @@ body {
   background-color: #495057;
 }
 
-/* Links */
-a {
+/* Table Cells */
+.table td {
+  padding: 14px 24px;
+  color: #f8f9fa;
+  text-align: left;
+  overflow-wrap: break-word;
+}
+
+/* Links in Cells */
+.table td a {
   color: #ffc107;
   text-decoration: none;
 }
 
-a:hover {
+.table td a:hover {
   color: #fff;
   text-decoration: underline;
 }
 
 /* Summary Section */
 .summary {
-  width: 96%; /* 80% width */
-  margin-top: 40px; /* Increased top margin */
-  padding: 20px 40px; /* Added more padding */
+  width: 80vw; /* Matches the table width */
+  max-width: none; /* Explicitly use almost the full width */
+  margin-top: 40px;
+  padding: 20px 40px;
   background-color: #198754;
   color: white;
-  border-radius: 8px; /* Rounded corners */
+  border-radius: 8px;
   margin-left: auto;
-  margin-right: auto; /* Centering the summary */
+  margin-right: auto;
 }
 
 /* Footer */
 footer {
-  width: 80%; /* 80% width */
-  margin-top: 60px; /* Increased top margin */
+  width: 80vw; /* Matches the width for consistency */
+  max-width: none;
+  margin-top: 60px;
   text-align: center;
-  font-size: 1.1em; /* Slightly larger footer font size */
+  font-size: 1.1em;
   color: #ffc107;
-  padding: 20px 40px; /* More padding for footer */
+  padding: 20px 40px;
   margin-left: auto;
-  margin-right: auto; /* Centering the footer */
+  margin-right: auto;
 }
 
 footer a {
@@ -130,6 +149,47 @@ footer a:hover {
   text-decoration: underline;
   color: #fff;
 }
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+  .table-container {
+    overflow-x: auto;
+  }
+
+  .table {
+    display: block; /* Stack the table for smaller screens */
+    width: 100%;
+  }
+
+  .table tbody tr {
+    display: flex; /* Make rows flexible */
+    flex-direction: column;
+    border-bottom: 1px solid #ced4da;
+  }
+
+  .table td, .table th {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 8px;
+  }
+
+  .table th {
+    font-size: 14px;
+    text-transform: uppercase;
+  }
+
+  .summary {
+    width: 100%; /* Expand summary section for smaller screens */
+    padding: 16px;
+  }
+
+  footer {
+    width: 100%; /* Full-width footer */
+    padding: 16px;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -193,15 +253,27 @@ footer a:hover {
       return result;
     }
 
+    function swapCoinAndBill(input) {
+      if (input === "coin, paper-bill") {
+        return "paper-bill, coin";
+      }
+      return input;
+    }
+    
+    // Example usage
+    //console.log(swapCoinAndBill("coin, paper-bill")); // Output: "paper-bill, coin"
+    //console.log(swapCoinAndBill("coin, note")); // Output: "coin, note"
+
     // Render the table
     function renderTable(data) {
+      //console.log(data);
       const tbody = document.querySelector('#data-table tbody');
       tbody.innerHTML = '';
       data.forEach(row => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td><a href="display.html?country=${encodeURIComponent(row.country)}">${row.country}</a></td>
-          <td>${row.currency_type}</td>
+          <td>${swapCoinAndBill(row.currency_type)}</td>
           <td>${row.donor_name}</td>
         `;
         tbody.appendChild(tr);
