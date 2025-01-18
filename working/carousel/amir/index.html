@@ -289,7 +289,7 @@ footer a:hover {
 
       data.forEach(item => {
         item.currency_type.split(', ').forEach(type => {
-          if (type.toLowerCase() === 'paper bill') numPaperBills++;
+          if (type.toLowerCase() === 'paper bill' || type.toLowerCase() === 'paper-bill') numPaperBills++;
           if (type.toLowerCase() === 'coin') numCoins++;
         });
       });
