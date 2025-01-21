@@ -68,7 +68,6 @@
             display: block;
         }
 
-        select,
         input[type="text"] {
             width: 100%;
             padding: 10px;
@@ -123,12 +122,76 @@
             background-color: #218838;
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .preview {
-                flex-direction: column;
-                gap: 15px;
-            }
+        .merge-icons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .icon.selected {
+            background-color: #007bff;
+            color: #fff;
+            transform: scale(1.1);
+        }
+
+        .icon-vertical {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+            height: 50px;
+            width: 30px;
+        }
+    
+        .icon-vertical .box {
+            width: 30px;
+            height: 15px;
+            background-color: #007BFF;
+            border: 1px solid #0056b3;
+            border-radius: 2px;
+        }
+
+        .icon-horizontal {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: 30px;
+            width: 50px;
+        }
+    
+        .icon-horizontal .box {
+            width: 15px;
+            height: 30px;
+            background-color: #007BFF;
+            border: 1px solid #0056b3;
+            border-radius: 2px;
+        }
+        .arrow {
+            width: 10px;
+            height: 10px;
+            border: 2px solid #333;
+            transform: rotate(45deg);
+        }
+
+        .arrow.vertical {
+            transform: rotate(-45deg);
+            margin: 5px 0;
+        }
+
+        .arrow.horizontal {
+            margin: 0 5px;
         }
     </style>
 </head>
@@ -152,23 +215,47 @@
                     </div>
                 </div>
             </div>
-
+    
             <div>
-                <label for="mergeType">Select Merge Type:</label>
-                <select id="mergeType" name="mergeType">
-                    <option value="vertical">Vertical</option>
-                    <option value="horizontal">Horizontal</option>
+                <label>Select Merge Type:</label>
+                <div class="merge-icons">
+                    <div class="icon selected" id="verticalMerge" data-merge="vertical">
+                        <div class="icon-vertical">
+                            <div class="box"></div>
+                            <div class="arrow vertical"></div>
+                            <div class="box"></div>
+                        </div>
+                        <p>Vertical Merge</p>
+                    </div>
+                    <div class="icon" id="horizontalMerge" data-merge="horizontal">
+                        <div class="icon-horizontal">
+                            <div class="box"></div>
+                            <div class="arrow horizontal"></div>
+                            <div class="box"></div>
+                        </div>
+                        <p>Horizontal Merge</p>
+                    </div>
+                </div>
+                <input type="hidden" id="mergeType" name="mergeType" value="vertical">
+            </div>
+    
+            <div>
+                <label for="format">Select Image Format:</label>
+                <select id="format" name="format">
+                    <option value="jpg" selected>JPG</option>
+                    <option value="png">PNG</option>
+                    <option value="bmp">BMP</option>
                 </select>
             </div>
-
+    
             <div>
                 <label for="filename">Filename (optional):</label>
                 <input type="text" id="filename" name="filename" placeholder="Enter a name">
             </div>
-
+    
             <button type="button" id="mergeButton">Merge Images</button>
         </form>
-
+    
         <div class="result">
             <h3>Result</h3>
             <img id="resultImage" alt="Merged Image">
@@ -176,7 +263,7 @@
             <a id="downloadLink" href="#" download>Download Merged Image</a>
         </div>
     </div>
-
+    
     <script>
         const image1Input = document.getElementById('image1');
         const image2Input = document.getElementById('image2');
@@ -185,57 +272,69 @@
         const mergeButton = document.getElementById('mergeButton');
         const resultImage = document.getElementById('resultImage');
         const downloadLink = document.getElementById('downloadLink');
-
+        const mergeTypeInput = document.getElementById('mergeType');
+        const formatInput = document.getElementById('format');
+    
+        const mergeIcons = document.querySelectorAll('.icon');
+    
+        // Set default merge type on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const defaultIcon = document.querySelector('.icon.selected');
+            mergeTypeInput.value = defaultIcon.dataset.merge;
+        });
+    
+        mergeIcons.forEach(icon => {
+            icon.addEventListener('click', () => {
+                mergeIcons.forEach(i => i.classList.remove('selected'));
+                icon.classList.add('selected');
+                mergeTypeInput.value = icon.dataset.merge;
+            });
+        });
+    
         const handleImagePreview = (input, previewImage) => {
             const file = input.files[0];
             if (file) {
                 previewImage.src = URL.createObjectURL(file);
             }
         };
-
+    
         image1Input.addEventListener('change', () => {
             handleImagePreview(image1Input, preview1);
         });
-
+    
         image2Input.addEventListener('change', () => {
             handleImagePreview(image2Input, preview2);
         });
-
-        function uuidv4() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-                var r = parseFloat('0.' + Math.random().toString().replace('0.', '') + new Date().getTime()) * 16 | 0,
-                    v = c == 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            });
-        }
-
+    
         mergeButton.addEventListener('click', async () => {
+            const format = formatInput.value || 'jpg';  // Correct input reference for format
             const formData = new FormData();
             formData.append('image1', image1Input.files[0]);
             formData.append('image2', image2Input.files[0]);
-            formData.append('mergeType', document.getElementById('mergeType').value);
+            formData.append('mergeType', mergeTypeInput.value);
             formData.append('filename', document.getElementById('filename').value);
-
+            formData.append('format', format);
+    
             try {
                 const response = await fetch('/merge-images', {
                     method: 'POST',
                     body: formData
                 });
-
+    
                 if (!response.ok) {
                     throw new Error('Failed to merge images');
                 }
-
+    
                 const blob = await response.blob();
                 const url = URL.createObjectURL(blob);
                 resultImage.src = url;
                 downloadLink.href = url;
-                downloadLink.download = document.getElementById('filename').value || uuidv4() + '.png';
+                downloadLink.download = document.getElementById('filename').value || 'merged_image.jpg';
             } catch (error) {
+                console.error('Error:', error);
                 alert(error.message);
             }
         });
     </script>
 </body>
-
 </html>

@@ -375,54 +375,61 @@ def update_json():
         return jsonify({"error": str(e)}), 500
     
 
+
+import logging
+
 @app.route('/merge-images', methods=['GET', 'POST'])
 def merge_images():
     if request.method == 'GET':
         return render_template('merge_images.html')
-
     try:
-        # Get uploaded files
-        image1_file = request.files.get('image1')
-        image2_file = request.files.get('image2')
-        merge_type = request.form.get('mergeType', 'vertical')
-        filename = request.form.get('filename', str(uuid.uuid4()))
+        # Retrieve the uploaded files
+        image1_file = request.files['image1']
+        image2_file = request.files['image2']
+        merge_type = request.form['mergeType']
+        format = request.form['format']  # JPG, PNG, BMP, etc.
+        filename = request.form.get('filename', 'merged_image')
 
-        if not image1_file or not image2_file:
-            return jsonify({'error': 'Both images are required.'}), 400
+        # Open images using PIL
+        image1 = Image.open(image1_file)
+        image2 = Image.open(image2_file)
 
-        # Open and convert images
-        image1 = Image.open(image1_file).convert("RGBA")
-        image2 = Image.open(image2_file).convert("RGBA")
-
-        # Resize images for seamless merging
+        # Resize images to the same width or height for merging
         if merge_type == 'vertical':
             new_width = max(image1.width, image2.width)
-            image1 = image1.resize((new_width, int(image1.height * (new_width / image1.width))), Image.ANTIALIAS)
-            image2 = image2.resize((new_width, int(image2.height * (new_width / image2.width))), Image.ANTIALIAS)
-            new_height = image1.height + image2.height
-            merged_image = Image.new('RGBA', (new_width, new_height))
+            total_height = image1.height + image2.height
+            merged_image = Image.new('RGB', (new_width, total_height), (255, 255, 255))
             merged_image.paste(image1, (0, 0))
             merged_image.paste(image2, (0, image1.height))
         elif merge_type == 'horizontal':
+            total_width = image1.width + image2.width
             new_height = max(image1.height, image2.height)
-            image1 = image1.resize((int(image1.width * (new_height / image1.height)), new_height), Image.ANTIALIAS)
-            image2 = image2.resize((int(image2.width * (new_height / image2.height)), new_height), Image.ANTIALIAS)
-            new_width = image1.width + image2.width
-            merged_image = Image.new('RGBA', (new_width, new_height))
+            merged_image = Image.new('RGB', (total_width, new_height), (255, 255, 255))
             merged_image.paste(image1, (0, 0))
             merged_image.paste(image2, (image1.width, 0))
-        else:
-            return jsonify({'error': 'Invalid merge type.'}), 400
 
-        # Save merged image to a bytes buffer
-        buffer = io.BytesIO()
-        merged_image.save(buffer, format="PNG")
-        buffer.seek(0)
+        # Handle JPG format conversion for PIL compatibility
+        if format.upper() == 'JPG':
+            format = 'JPEG'
 
-        return send_file(buffer, mimetype='image/png')
+        # Save the image to a BytesIO buffer in the requested format
+        image_io = io.BytesIO()
+        merged_image.save(image_io, format=format.upper())
+        image_io.seek(0)
 
+        # Set the correct content type for the response
+        mime_type = f'image/{format.lower()}'
+        return send_file(
+            image_io,
+            mimetype=mime_type,
+            as_attachment=True,
+            download_name=f"{filename}.{format.lower()}"
+        )
     except Exception as e:
-        return jsonify({'error': f'An error occurred during processing: {str(e)}'}), 500
+        return {"error": str(e)}, 400
+
+
+
 
 if __name__ == "__main__":
     app.run(host='127.0.0.1', port=5000, debug=True)
