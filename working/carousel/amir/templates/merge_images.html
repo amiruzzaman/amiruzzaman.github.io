@@ -305,6 +305,14 @@
         image2Input.addEventListener('change', () => {
             handleImagePreview(image2Input, preview2);
         });
+
+        function uuidv4() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = parseFloat('0.' + Math.random().toString().replace('0.', '') + new Date().getTime()) * 16 | 0,
+                    v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
     
         mergeButton.addEventListener('click', async () => {
             const format = formatInput.value || 'jpg';  // Correct input reference for format
@@ -329,7 +337,8 @@
                 const url = URL.createObjectURL(blob);
                 resultImage.src = url;
                 downloadLink.href = url;
-                downloadLink.download = document.getElementById('filename').value || 'merged_image.jpg';
+                //downloadLink.download = document.getElementById('filename').value || 'merged_image.jpg';
+                downloadLink.download = document.getElementById('filename').value || uuidv4() + '.png';
             } catch (error) {
                 console.error('Error:', error);
                 alert(error.message);
