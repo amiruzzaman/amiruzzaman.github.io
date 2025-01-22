@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JSON Viewer & Editor</title>
+    <link rel="shortcut icon" href="#">
+    <title>..::Amir's edit json::..</title>
     <style>
-        /* Same CSS as provided */
         * {
             margin: 0;
             padding: 0;
@@ -15,30 +15,32 @@
         }
 
         body {
-            background-color: #f8f9fa;
-            color: #212529;
+            background-color: #72787e;
+            color: #fff;
             padding: 20px;
         }
 
         h1 {
             text-align: center;
             margin-bottom: 20px;
+            color: #ffc107;
         }
 
         .container {
             width: 80%;
             margin: 0 auto;
             padding: 20px;
-            background-color: #ffffff;
+            background-color: #495057;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
             border-radius: 8px;
         }
 
         #jsonTableContainer {
-            border: 2px solid red;
+            border: 2px solid #198754;
             padding: 10px;
-            background-color: lightgray;
+            background-color: #6c757d;
             min-height: 100px;
+            border-radius: 4px;
         }
 
         .row {
@@ -46,16 +48,22 @@
             align-items: center;
             border-bottom: 1px solid #ddd;
             padding: 10px 0;
+            transition: background-color 0.3s ease;
         }
 
         .row:nth-child(odd) {
-            background-color: #f9f9f9;
+            background-color: #6c757d;
+        }
+
+        .row:hover {
+            background-color: #495057;
         }
 
         .column {
             flex: 1;
             text-align: center;
             padding: 5px;
+            color: #fff;
         }
 
         .thumbnail {
@@ -66,51 +74,69 @@
         }
 
         .delete-btn {
-            color: red;
+            color: #ff4d4d;
             cursor: pointer;
             font-weight: bold;
+        }
+
+        a {
+            color: #ffc107;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #fff;
+            text-decoration: underline;
         }
 
         .download-btn {
             width: 100%;
             padding: 10px;
-            background-color: #007bff;
-            color: white;
+            background-color: #198754;
+            color: #fff;
             border: none;
             border-radius: 4px;
             font-size: 16px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: background 0.3s ease;
         }
 
         .download-btn:hover {
-            background-color: #0056b3;
+            background-color: #145d37;
         }
 
         .file-input {
             margin-bottom: 20px;
             display: block;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fff;
+            color: #333;
         }
 
         .header {
             font-weight: bold;
-            background-color: #f1f1f1;
+            background-color: #198754;
+            color: #fff;
         }
 
         .add-row-btn {
             width: 100%;
             padding: 10px;
-            background-color: #28a745;
-            color: white;
+            background-color: #ffc107;
+            color: #333;
             border: none;
             border-radius: 4px;
             font-size: 16px;
             cursor: pointer;
             margin-top: 10px;
+            transition: background 0.3s ease;
         }
 
         .add-row-btn:hover {
-            background-color: #218838;
+            background-color: #e0a800;
         }
 
         .image-input {
@@ -137,7 +163,7 @@
             position: relative;
             width: 80%;
             max-width: 600px;
-            background-color: white;
+            background-color: #fff;
             border-radius: 8px;
             padding: 20px;
             text-align: center;
@@ -162,15 +188,17 @@
         .modal p {
             margin: 10px 0;
         }
-        /* Add styles for drag-and-drop effects */
-    .row.draggable {
-        cursor: move;
-    }
 
-    .row.drag-over {
-        background-color: #f0f8ff; /* Highlight when dragged over */
-    }
+        /* Drag-and-drop effects */
+        .row.draggable {
+            cursor: move;
+        }
+
+        .row.drag-over {
+            background-color: #495057;
+        }
     </style>
+
 </head>
 
 <body>
@@ -195,201 +223,201 @@
     <script>
         let jsonData = [];
 
-function renderTable(data) {
-    const tableContainer = document.getElementById("jsonTableContainer");
-    tableContainer.innerHTML = ''; // Clear the table
+        function renderTable(data) {
+            const tableContainer = document.getElementById("jsonTableContainer");
+            tableContainer.innerHTML = ''; // Clear the table
 
-    // Header row
-    const headerRow = document.createElement('div');
-    headerRow.classList.add('row', 'header');
-    const headers = ['Country', 'Currency Type', 'Donor Name', 'Image', 'Note', 'Actions'];
-    headers.forEach(headerText => {
-        const column = document.createElement('div');
-        column.classList.add('column');
-        column.textContent = headerText;
-        headerRow.appendChild(column);
-    });
-    tableContainer.appendChild(headerRow);
+            // Header row
+            const headerRow = document.createElement('div');
+            headerRow.classList.add('row', 'header');
+            const headers = ['Country', 'Currency Type', 'Donor Name', 'Image', 'Note', 'Actions'];
+            headers.forEach(headerText => {
+                const column = document.createElement('div');
+                column.classList.add('column');
+                column.textContent = headerText;
+                headerRow.appendChild(column);
+            });
+            tableContainer.appendChild(headerRow);
 
-    data.forEach((row, index) => {
-        const rowDiv = document.createElement('div');
-        rowDiv.classList.add('row');
-        rowDiv.draggable = true; // Make rows draggable
-        rowDiv.setAttribute('data-index', index);
+            data.forEach((row, index) => {
+                const rowDiv = document.createElement('div');
+                rowDiv.classList.add('row');
+                rowDiv.draggable = true; // Make rows draggable
+                rowDiv.setAttribute('data-index', index);
 
-        // Drag-and-drop event handlers
-        rowDiv.addEventListener('dragstart', handleDragStart);
-        rowDiv.addEventListener('dragover', handleDragOver);
-        rowDiv.addEventListener('drop', handleDrop);
+                // Drag-and-drop event handlers
+                rowDiv.addEventListener('dragstart', handleDragStart);
+                rowDiv.addEventListener('dragover', handleDragOver);
+                rowDiv.addEventListener('drop', handleDrop);
 
-        // Country column
-        const countryDiv = document.createElement('div');
-        countryDiv.classList.add('column', 'editable');
-        countryDiv.contentEditable = true;
-        countryDiv.textContent = row.country || "No Country";
-        countryDiv.addEventListener('blur', () => {
-            row.country = countryDiv.textContent;
-            saveUpdates();
-        });
-        rowDiv.appendChild(countryDiv);
+                // Country column
+                const countryDiv = document.createElement('div');
+                countryDiv.classList.add('column', 'editable');
+                countryDiv.contentEditable = true;
+                countryDiv.textContent = row.country || "No Country";
+                countryDiv.addEventListener('blur', () => {
+                    row.country = countryDiv.textContent;
+                    saveUpdates();
+                });
+                rowDiv.appendChild(countryDiv);
 
-        // Currency Type column
-        const currencyDiv = document.createElement('div');
-        currencyDiv.classList.add('column', 'editable');
-        currencyDiv.contentEditable = true;
-        currencyDiv.textContent = row.currency_type || "No Currency Type";
-        currencyDiv.addEventListener('blur', () => {
-            row.currency_type = currencyDiv.textContent;
-            saveUpdates();
-        });
-        rowDiv.appendChild(currencyDiv);
+                // Currency Type column
+                const currencyDiv = document.createElement('div');
+                currencyDiv.classList.add('column', 'editable');
+                currencyDiv.contentEditable = true;
+                currencyDiv.textContent = row.currency_type || "No Currency Type";
+                currencyDiv.addEventListener('blur', () => {
+                    row.currency_type = currencyDiv.textContent;
+                    saveUpdates();
+                });
+                rowDiv.appendChild(currencyDiv);
 
-        // Donor Name column
-        const donorDiv = document.createElement('div');
-        donorDiv.classList.add('column', 'editable');
-        donorDiv.contentEditable = true;
-        donorDiv.textContent = row.donor_name || "No Donor Name";
-        donorDiv.addEventListener('blur', () => {
-            row.donor_name = donorDiv.textContent;
-            saveUpdates();
-        });
-        rowDiv.appendChild(donorDiv);
+                // Donor Name column
+                const donorDiv = document.createElement('div');
+                donorDiv.classList.add('column', 'editable');
+                donorDiv.contentEditable = true;
+                donorDiv.textContent = row.donor_name || "No Donor Name";
+                donorDiv.addEventListener('blur', () => {
+                    row.donor_name = donorDiv.textContent;
+                    saveUpdates();
+                });
+                rowDiv.appendChild(donorDiv);
 
-        // Image column
-        const imageDiv = document.createElement('div');
-        imageDiv.classList.add('column');
-        const img = document.createElement('img');
-        img.src = `images/${row.country}/${row.image}`;
-        img.alt = `Image for ${row.country}`;
-        img.classList.add('thumbnail');
-        img.onerror = () => {
-            img.src = "images/placeholder.jpg";
-            img.alt = "Placeholder Image";
-        };
-        imageDiv.appendChild(img);
-        rowDiv.appendChild(imageDiv);
+                // Image column
+                const imageDiv = document.createElement('div');
+                imageDiv.classList.add('column');
+                const img = document.createElement('img');
+                img.src = `images/${row.country}/${row.image}`;
+                img.alt = `Image for ${row.country}`;
+                img.classList.add('thumbnail');
+                img.onerror = () => {
+                    img.src = "images/placeholder.jpg";
+                    img.alt = "Placeholder Image";
+                };
+                imageDiv.appendChild(img);
+                rowDiv.appendChild(imageDiv);
 
-        // Note column
-        const noteDiv = document.createElement('div');
-        noteDiv.classList.add('column', 'editable');
-        noteDiv.contentEditable = true;
-        noteDiv.textContent = row.note || "No Note";
-        noteDiv.addEventListener('blur', () => {
-            row.note = noteDiv.textContent;
-            saveUpdates();
-        });
-        rowDiv.appendChild(noteDiv);
+                // Note column
+                const noteDiv = document.createElement('div');
+                noteDiv.classList.add('column', 'editable');
+                noteDiv.contentEditable = true;
+                noteDiv.textContent = row.note || "No Note";
+                noteDiv.addEventListener('blur', () => {
+                    row.note = noteDiv.textContent;
+                    saveUpdates();
+                });
+                rowDiv.appendChild(noteDiv);
 
-        // Actions column
-        const actionDiv = document.createElement('div');
-        actionDiv.classList.add('column');
-        const deleteBtn = document.createElement('span');
-        deleteBtn.classList.add('delete-btn');
-        deleteBtn.textContent = 'Delete';
-        deleteBtn.addEventListener('click', () => {
-            jsonData.splice(index, 1);
+                // Actions column
+                const actionDiv = document.createElement('div');
+                actionDiv.classList.add('column');
+                const deleteBtn = document.createElement('span');
+                deleteBtn.classList.add('delete-btn');
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.addEventListener('click', () => {
+                    jsonData.splice(index, 1);
+                    renderTable(jsonData);
+                    saveUpdates();
+                });
+                actionDiv.appendChild(deleteBtn);
+                rowDiv.appendChild(actionDiv);
+
+                tableContainer.appendChild(rowDiv);
+            });
+        }
+
+        // Drag-and-drop handlers
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.getAttribute('data-index'));
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const draggedIndex = e.dataTransfer.getData('text/plain');
+            const targetIndex = e.target.closest('.row').getAttribute('data-index');
+
+            if (draggedIndex !== targetIndex) {
+                const draggedItem = jsonData.splice(draggedIndex, 1)[0];
+                jsonData.splice(targetIndex, 0, draggedItem);
+                renderTable(jsonData);
+                saveUpdates();
+            }
+        }
+
+        function saveUpdates() {
+            fetch('/update-json', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(jsonData),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data.message || "File updated.");
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("An error occurred while updating the file.");
+                });
+        }
+
+        // Fetch initial JSON data on load
+        fetch('/get-json')
+            .then(response => response.json())
+            .then(data => {
+                jsonData = data;
+                renderTable(jsonData);
+            });
+
+        document.getElementById("addRowBtn").addEventListener("click", function () {
+            const newRow = {
+                country: "New Country",
+                currency_type: "New Currency Type",
+                donor_name: "New Donor",
+                image: "placeholder.jpg",
+                note: "Add a note"
+            };
+            jsonData.push(newRow);
             renderTable(jsonData);
             saveUpdates();
         });
-        actionDiv.appendChild(deleteBtn);
-        rowDiv.appendChild(actionDiv);
 
-        tableContainer.appendChild(rowDiv);
-    });
-}
-
-// Drag-and-drop handlers
-function handleDragStart(e) {
-    e.dataTransfer.setData('text/plain', e.target.getAttribute('data-index'));
-}
-
-function handleDragOver(e) {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-}
-
-function handleDrop(e) {
-    e.preventDefault();
-    const draggedIndex = e.dataTransfer.getData('text/plain');
-    const targetIndex = e.target.closest('.row').getAttribute('data-index');
-
-    if (draggedIndex !== targetIndex) {
-        const draggedItem = jsonData.splice(draggedIndex, 1)[0];
-        jsonData.splice(targetIndex, 0, draggedItem);
-        renderTable(jsonData);
-        saveUpdates();
-    }
-}
-
-function saveUpdates() {
-    fetch('/update-json', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(jsonData),
-    })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data.message || "File updated.");
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            alert("An error occurred while updating the file.");
+        document.getElementById("downloadBtn").addEventListener('click', () => {
+            const dataStr = JSON.stringify(jsonData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'data.json';
+            link.click();
         });
-}
 
-// Fetch initial JSON data on load
-fetch('/get-json')
-    .then(response => response.json())
-    .then(data => {
-        jsonData = data;
-        renderTable(jsonData);
-    });
+        // Modal functionality
+        const modal = document.getElementById("imageModal");
+        const modalImage = document.getElementById("modalImage");
+        const closeModal = document.getElementById("closeModal");
 
-document.getElementById("addRowBtn").addEventListener("click", function () {
-    const newRow = {
-        country: "New Country",
-        currency_type: "New Currency Type",
-        donor_name: "New Donor",
-        image: "placeholder.jpg",
-        note: "Add a note"
-    };
-    jsonData.push(newRow);
-    renderTable(jsonData);
-    saveUpdates();
-});
+        document.addEventListener("click", (e) => {
+            if (e.target.classList.contains("thumbnail")) {
+                modalImage.src = e.target.src;
+                modal.style.display = "flex";
+            }
+        });
 
-document.getElementById("downloadBtn").addEventListener('click', () => {
-    const dataStr = JSON.stringify(jsonData, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'data.json';
-    link.click();
-});
+        closeModal.addEventListener("click", () => {
+            modal.style.display = "none";
+        });
 
-// Modal functionality
-const modal = document.getElementById("imageModal");
-const modalImage = document.getElementById("modalImage");
-const closeModal = document.getElementById("closeModal");
-
-document.addEventListener("click", (e) => {
-    if (e.target.classList.contains("thumbnail")) {
-        modalImage.src = e.target.src;
-        modal.style.display = "flex";
-    }
-});
-
-closeModal.addEventListener("click", () => {
-    modal.style.display = "none";
-});
-
-modal.addEventListener("click", (e) => {
-    if (e.target === modal) {
-        modal.style.display = "none";
-    }
-});
+        modal.addEventListener("click", (e) => {
+            if (e.target === modal) {
+                modal.style.display = "none";
+            }
+        });
 
     </script>
 </body>
