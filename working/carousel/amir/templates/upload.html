@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="#">
     <title>Donation Form</title>
     <style>
         body {
@@ -233,13 +234,15 @@
                     } else {
                         messageContainer.innerHTML = `
                         <div style="color: green;">
-                            ${result.message}<br>
-                            <strong>Donor Name:</strong> ${result['donor_name']}<br>
-                            <strong>Country:</strong> ${result.country}<br>
-                            <strong>Currency Type:</strong> ${result['currency_type']}<br>
-                            <strong>Note:</strong> ${result.note}<br>
-                            <strong>File Path:</strong> ${result.file_path}
-                        </div>`;
+            <p>${result.message}</p>
+            <p><strong>Donor Name:</strong> ${result.donor_name}</p>
+            <p><strong>Country:</strong> ${result.country}</p>
+            <p><strong>Currency Type:</strong> ${result.currency_type}</p>
+            <p><strong>Note:</strong> ${result.note}</p>
+        </div>
+        <div style="margin-top: 10px; text-align: center;">
+            <img src="${result.file_path}" alt="Uploaded Image" style="max-width: 100%; border-radius: 5px;">
+        </div>`;
                     }
                 })
                 .catch((error) => {
