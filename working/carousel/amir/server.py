@@ -25,6 +25,7 @@ CORS(app)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.secret_key = "secret key"
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+app.config["UPLOAD_FOLDER"] = "upload"
 
 # Paths and file setup
 file_name = './images/coins.json'
@@ -336,7 +337,11 @@ def manage_image():
 
     return render_template('renameimage.html', image_files=image_files)
 
-JSON_FILE_PATH = 'images/coins.json'
+#----------------edit json------------------------
+# Default JSON file path
+DEFAULT_JSON_FILE_PATH = 'images/coins.json'
+# Variable to track the currently active JSON file path
+current_json_file_path = DEFAULT_JSON_FILE_PATH
 
 @app.route('/images/<path:filename>')
 def serve_images(filename):
@@ -344,18 +349,22 @@ def serve_images(filename):
 
 # Load JSON data
 def load_json():
-    if os.path.exists(JSON_FILE_PATH):
-        with open(JSON_FILE_PATH, 'r') as file:
+    if os.path.exists(current_json_file_path):
+        with open(current_json_file_path, 'r') as file:
             return json.load(file)
     return []
 
 # Save JSON data
 def save_json(data):
-    with open(JSON_FILE_PATH, 'w') as file:
+    with open(current_json_file_path, 'w') as file:
         json.dump(data, file, indent=2)
 
 @app.route('/edit_json')
 def edit_json():
+    # Reset the current JSON file path to the default file when the page is loaded
+    global current_json_file_path
+    current_json_file_path = DEFAULT_JSON_FILE_PATH
+
     # Render the HTML template
     return render_template('editjson_python.html')
 
@@ -368,13 +377,36 @@ def get_json():
 def update_json():
     try:
         updated_data = request.json
-        with open(JSON_FILE_PATH, 'w') as json_file:
-            json.dump(updated_data, json_file, indent=2)
+        save_json(updated_data)
         return jsonify({"message": "JSON updated successfully!"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
 
+# Upload a new JSON file and set it as the active file
+@app.route('/upload-json', methods=['POST'])
+def upload_json():
+    global current_json_file_path
+    if 'file' not in request.files:
+        return jsonify({"error": "No file provided!"}), 400
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return jsonify({"error": "No file selected!"}), 400
+
+    if file and file.filename.endswith('.json'):
+        upload_folder = 'uploads'
+        os.makedirs(upload_folder, exist_ok=True)
+        upload_path = os.path.join(upload_folder, file.filename)
+        file.save(upload_path)
+
+        # Update the current file path to the uploaded file
+        current_json_file_path = upload_path
+        return jsonify({"message": f"File uploaded and set to: {current_json_file_path}"}), 200
+
+    return jsonify({"error": "Invalid file format. Only JSON files are allowed."}), 400
+
+#---------------end edit json---------------------
 
 import logging
 

@@ -197,8 +197,86 @@
         .row.drag-over {
             background-color: #495057;
         }
-    </style>
 
+        /* imageModal */
+        .image-filename {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #333;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Hide the default file input */
+        #uploadFileInput {
+            display: none;
+        }
+
+        /* Style the file input trigger (the label) */
+        label {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        label i {
+            margin-right: 8px;
+        }
+
+        label:hover {
+            background-color: #0056b3;
+        }
+
+        /* Style the upload button with an icon */
+        #uploadFileBtn {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: none;
+            margin-top: 10px;
+        }
+
+        #uploadFileBtn i {
+            margin-right: 8px;
+        }
+
+        #uploadFileBtn:hover {
+            background-color: #218838;
+        }
+
+        /* css for delete buttons*/
+
+        .delete-btn {
+            display: inline-flex;
+            align-items: center;
+            color: yellow;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .delete-btn i {
+            margin-right: 8px;
+            /* Add some spacing between the icon and text */
+        }
+
+        .delete-btn:hover {
+            color: red;
+            /* Change color on hover */
+        }
+    </style>
 </head>
 
 <body>
@@ -206,6 +284,19 @@
         <h1>JSON Viewer & Editor</h1>
 
         <input type="file" id="jsonFileInput" class="file-input" accept=".json" />
+
+        <!-- <input type="file" id="uploadFileInput" />
+        <button id="uploadFileBtn">Upload File</button> -->
+        <!-- File Input styled as a label with an icon -->
+        <label for="uploadFileInput">
+            <i class="fas fa-file-upload"></i> Choose File
+        </label>
+        <input type="file" id="uploadFileInput" accept=".json" />
+
+        <!-- Upload File button with an icon -->
+        <button id="uploadFileBtn">
+            <i class="fas fa-upload"></i> Upload File
+        </button>
 
         <div id="jsonTableContainer">Container is here</div>
 
@@ -217,10 +308,90 @@
         <div class="modal-content">
             <span id="closeModal" class="modal-close">&times;</span>
             <img id="modalImage" src="" alt="Enlarged Image">
+            <div id="imageFileName" class="image-filename"></div> <!-- This will display the image file name -->
         </div>
     </div>
 
     <script>
+        document.getElementById("uploadFileBtn").addEventListener("click", function () {
+            const fileInput = document.getElementById("uploadFileInput");
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("Please select a file to upload.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            fetch('/upload-json', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        alert(data.message);
+                        // Reload JSON data after successful upload
+                        fetch('/get-json')
+                            .then(response => response.json())
+                            .then(newData => {
+                                jsonData = newData;
+                                renderTable(jsonData);
+                            });
+                    } else {
+                        alert(data.error || "An error occurred.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("An error occurred while uploading the file.");
+                });
+        });
+
+
+        document.getElementById("jsonFileInput").addEventListener("change", function (event) {
+            const file = event.target.files[0];
+
+            // Check if a file is selected
+            if (!file) {
+                alert("No file selected. Please select a JSON file.");
+                return;
+            }
+
+            // Ensure the selected file is a JSON file
+            if (file.type !== "application/json") {
+                alert("Invalid file type. Please upload a valid JSON file.");
+                return;
+            }
+
+            // Read the JSON file
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    // Parse JSON data
+                    jsonData = JSON.parse(e.target.result);
+
+                    // Render the table with the loaded data
+                    renderTable(jsonData);
+                } catch (error) {
+                    alert("Error parsing JSON file. Please check the file format.");
+                    console.error("JSON Parsing Error:", error);
+                }
+            };
+
+            // Handle file read errors
+            reader.onerror = function () {
+                alert("Error reading the file. Please try again.");
+            };
+
+            // Read the file as text
+            reader.readAsText(file);
+        });
+
+
+
         let jsonData = [];
 
         function renderTable(data) {
@@ -312,8 +483,18 @@
                 const actionDiv = document.createElement('div');
                 actionDiv.classList.add('column');
                 const deleteBtn = document.createElement('span');
+                // deleteBtn.classList.add('delete-btn');
+                // deleteBtn.textContent = 'Delete';
+
                 deleteBtn.classList.add('delete-btn');
-                deleteBtn.textContent = 'Delete';
+
+                // Add the Font Awesome delete icon
+                const deleteIcon = document.createElement('i');
+                deleteIcon.classList.add('fas', 'fa-trash'); // Font Awesome trash icon
+                deleteBtn.appendChild(deleteIcon);
+
+                // Add text alongside the icon if needed
+                // deleteBtn.appendChild(document.createTextNode(' Delete'));
                 deleteBtn.addEventListener('click', () => {
                     jsonData.splice(index, 1);
                     renderTable(jsonData);
@@ -401,10 +582,18 @@
         const modal = document.getElementById("imageModal");
         const modalImage = document.getElementById("modalImage");
         const closeModal = document.getElementById("closeModal");
+        const imageFileName = document.getElementById("imageFileName"); // New element for file name
 
         document.addEventListener("click", (e) => {
             if (e.target.classList.contains("thumbnail")) {
-                modalImage.src = e.target.src;
+                // Get the image file name from the image source
+                const imageSrc = e.target.src;
+                const fileName = imageSrc.split('/').pop(); // Extract the file name from the URL
+
+                // Set the image source and file name in the modal
+                modalImage.src = imageSrc;
+                imageFileName.textContent = fileName; // Display the file name
+
                 modal.style.display = "flex";
             }
         });

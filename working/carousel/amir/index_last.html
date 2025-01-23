@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>..::Amir::..</title>
     <meta charset="utf-8">
@@ -90,7 +91,8 @@
         }
 
         .search-bar::before {
-            content: '\1F50D'; /* Unicode character for search icon */
+            content: '\1F50D';
+            /* Unicode character for search icon */
             font-size: 20px;
             position: absolute;
             left: 10px;
@@ -129,14 +131,19 @@
         }
     </style>
 </head>
+
 <body>
-    <center><h1>List of Coin Collection</h1></center>
+    <center>
+        <h1>List of Coin Collection</h1>
+    </center>
     <div class="container">
-        <input type="text" id="myInput" class="search-bar" onkeyup="filterList()" placeholder="What are you looking for?">
+        <input type="text" id="myInput" class="search-bar" onkeyup="filterList()"
+            placeholder="What are you looking for?">
         <div id="list-container"></div>
         <div class="row">
             <p class="bg-success" style="padding:10px;margin-top:20px;width:100%;">
-                There are total <span id="demo" style="color: blue; font-weight: bold;"></span> objects in the collection.<br>
+                There are total <span id="demo" style="color: blue; font-weight: bold;"></span> objects in the
+                collection.<br>
                 <small>Copyright: &copy;2018 Md Amiruzzaman.</small>
             </p>
         </div>
@@ -158,4 +165,5 @@
         }
     </script>
 </body>
+
 </html>
