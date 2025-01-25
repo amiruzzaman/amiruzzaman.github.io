@@ -408,35 +408,51 @@ def upload_json():
 
 #---------------end edit json---------------------
 
+#------------------merge images--------------------
 import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 @app.route('/merge-images', methods=['GET', 'POST'])
 def merge_images():
     if request.method == 'GET':
+        logger.info("Rendering the merge images page.")
         return render_template('merge_images.html')
+
     try:
+        logger.info("Processing image merge request.")
+        
         # Retrieve the uploaded files
         image1_file = request.files['image1']
         image2_file = request.files['image2']
         merge_type = request.form['mergeType']
-        format = request.form['format']  # JPG, PNG, BMP, etc.
+        format = request.form['format']  # JPG, PNG, BMP, WebP, etc.
         filename = request.form.get('filename', 'merged_image')
+
+        logger.info(f"Received images: {image1_file.filename}, {image2_file.filename}")
+        logger.info(f"Merge type: {merge_type}, Output format: {format}, Filename: {filename}")
 
         # Open images using PIL
         image1 = Image.open(image1_file)
         image2 = Image.open(image2_file)
 
+        # Ensure the images are compatible for WebP or other formats
+        image1 = image1.convert('RGBA') if format.upper() == 'WEBP' else image1.convert('RGB')
+        image2 = image2.convert('RGBA') if format.upper() == 'WEBP' else image2.convert('RGB')
+
         # Resize images to the same width or height for merging
         if merge_type == 'vertical':
             new_width = max(image1.width, image2.width)
             total_height = image1.height + image2.height
-            merged_image = Image.new('RGB', (new_width, total_height), (255, 255, 255))
+            merged_image = Image.new('RGBA' if format.upper() == 'WEBP' else 'RGB', 
+                                     (new_width, total_height), (255, 255, 255, 0))
             merged_image.paste(image1, (0, 0))
             merged_image.paste(image2, (0, image1.height))
         elif merge_type == 'horizontal':
             total_width = image1.width + image2.width
             new_height = max(image1.height, image2.height)
-            merged_image = Image.new('RGB', (total_width, new_height), (255, 255, 255))
+            merged_image = Image.new('RGBA' if format.upper() == 'WEBP' else 'RGB', 
+                                     (total_width, new_height), (255, 255, 255, 0))
             merged_image.paste(image1, (0, 0))
             merged_image.paste(image2, (image1.width, 0))
 
@@ -451,6 +467,7 @@ def merge_images():
 
         # Set the correct content type for the response
         mime_type = f'image/{format.lower()}'
+        logger.info(f"Image merged successfully. Returning image in {mime_type} format.")
         return send_file(
             image_io,
             mimetype=mime_type,
@@ -458,9 +475,9 @@ def merge_images():
             download_name=f"{filename}.{format.lower()}"
         )
     except Exception as e:
+        logger.error(f"An error occurred: {str(e)}")
         return {"error": str(e)}, 400
-
-
+#---------------end merge images-------------------
 
 
 if __name__ == "__main__":
