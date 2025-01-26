@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Image Collage</title>
+    <style>
+        body {
+          margin: 0;
+          font-family: Arial, sans-serif;
+          background-color: #f9f9f9;
+        }
+      
+        /* Top Banner Styling */
+        .top-banner {
+          width: 100%;
+          height: 24vh; /* 240px when viewport height is 1000px */
+          background-color: #333;
+          color: #fff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 3vw;
+          font-weight: bold;
+          overflow: hidden;
+          position: relative;
+          padding: 1rem; /* Added padding inside the banner */
+        }
+      
+        /* Collage Container inside Banner */
+        .collage-container {
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          top: 0;
+          left: 0;
+          padding: 0.5rem; /* Added padding around the collage items */
+        }
+      
+        /* Image Collage Item */
+        .collage-item {
+          position: absolute;
+          transform: rotate(calc(var(--rotation, 0) * 1deg)) translate(-50%, -50%);
+          z-index: calc(var(--z-index, 0));
+          padding: 0.25rem; /* Added padding to space out collage items */
+        }
+      
+        .collage-item img {
+          width: auto;
+          height: auto;
+          max-width: 15vw;
+          max-height: 15vw;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          transition: transform 0.3s ease-in-out;
+        }
+      
+        .collage-item img:hover {
+          transform: scale(1.1);
+          box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+        }
+      
+        /* Responsive Adjustments */
+        @media (max-width: 1024px) {
+          .top-banner {
+            height: 40vh; /* Slightly taller for smaller screens */
+          }
+      
+          .collage-item img {
+            max-width: 20vw;
+            max-height: 20vw;
+          }
+        }
+      
+        @media (max-width: 768px) {
+          .top-banner {
+            height: 45vh;
+          }
+      
+          .collage-item img {
+            max-width: 25vw;
+            max-height: 25vw;
+          }
+        }
+      
+        @media (max-width: 480px) {
+          .top-banner {
+            height: 50vh;
+            font-size: 4vw;
+          }
+      
+          .collage-item img {
+            max-width: 30vw;
+            max-height: 30vw;
+          }
+        }
+      </style>
+</head>
+<body>
+  <!-- Top Banner -->
+  <div class="top-banner">
+    Responsive Image Collage
+    <div class="collage-container" id="collageContainer">
+      <!-- Images will be dynamically added here -->
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const collageContainer = document.getElementById('collageContainer');
+        const jsonFilePath = 'images/coins.json'; // Path to your JSON file
+      
+        // Fetch JSON file and generate collage
+        fetch(jsonFilePath)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error('Failed to load JSON file');
+            }
+            return response.json();
+          })
+          .then((data) => {
+            data.forEach((item, index) => {
+              const { country, image } = item;
+      
+              // Create a collage item div
+              const collageItem = document.createElement('div');
+              collageItem.className = 'collage-item';
+      
+              // Random positions within the banner
+              const randomX = Math.random() * 100;
+              const randomY = Math.random() * 100;
+      
+              // Random rotation angle and z-index
+              collageItem.style.setProperty('--rotation', Math.floor(Math.random() * 20) - 10);
+              collageItem.style.setProperty('--z-index', index);
+      
+              // Position the collage item
+              collageItem.style.left = `${randomX}%`;
+              collageItem.style.top = `${randomY}%`;
+
+              // Create a link element
+              const linkElement = document.createElement('a');
+              linkElement.href = `display.html?country=${country}`;
+      
+              // Create an image element
+              const imgElement = document.createElement('img');
+              imgElement.src = `images/${country}/${image}`;
+              imgElement.alt = `${country} image`;
+      
+              // Append the image to the link
+              linkElement.appendChild(imgElement);
+
+              // Append the link to the collage item
+              collageItem.appendChild(linkElement);
+      
+              // Append the collage item to the collage container
+              collageContainer.appendChild(collageItem);
+            });
+          })
+          .catch((error) => {
+            collageContainer.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+          });
+      });
+  </script>
+</body>
+</html>
