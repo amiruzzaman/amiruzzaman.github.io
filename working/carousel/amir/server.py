@@ -18,6 +18,8 @@ import uuid
 
 import os
 
+from threading import Lock
+
 app = Flask(__name__, static_url_path='/static')
 CORS(app)
 
@@ -340,49 +342,53 @@ def manage_image():
 #----------------edit json------------------------
 # Default JSON file path
 DEFAULT_JSON_FILE_PATH = 'images/coins.json'
-# Variable to track the currently active JSON file path
 current_json_file_path = DEFAULT_JSON_FILE_PATH
+file_lock = Lock()  # Lock for thread-safe file operations
 
+# Serve image files
 @app.route('/images/<path:filename>')
 def serve_images(filename):
     return send_from_directory('images', filename)
 
 # Load JSON data
 def load_json():
-    if os.path.exists(current_json_file_path):
-        with open(current_json_file_path, 'r') as file:
-            return json.load(file)
+    with file_lock:  # Ensure thread-safe access
+        if os.path.exists(current_json_file_path):
+            with open(current_json_file_path, 'r') as file:
+                return json.load(file)
     return []
 
 # Save JSON data
 def save_json(data):
-    with open(current_json_file_path, 'w') as file:
-        json.dump(data, file, indent=2)
+    with file_lock:  # Ensure thread-safe access
+        with open(current_json_file_path, 'w') as file:
+            json.dump(data, file, indent=2)
 
+# Edit JSON page
 @app.route('/edit_json')
 def edit_json():
-    # Reset the current JSON file path to the default file when the page is loaded
     global current_json_file_path
-    current_json_file_path = DEFAULT_JSON_FILE_PATH
-
-    # Render the HTML template
+    current_json_file_path = DEFAULT_JSON_FILE_PATH  # Reset to default file
     return render_template('editjson_python.html')
 
+# API to get JSON data
 @app.route('/get-json', methods=['GET'])
 def get_json():
     return jsonify(load_json())
 
-# Save updates to the JSON file
+# API to update JSON data
 @app.route('/update-json', methods=['POST'])
 def update_json():
     try:
         updated_data = request.json
+        if not isinstance(updated_data, list):  # Ensure it's a list of items
+            return jsonify({"error": "Invalid JSON structure. Must be a list."}), 400
         save_json(updated_data)
         return jsonify({"message": "JSON updated successfully!"}), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": f"Failed to update JSON: {str(e)}"}), 500
 
-# Upload a new JSON file and set it as the active file
+# Upload and set a new JSON file
 @app.route('/upload-json', methods=['POST'])
 def upload_json():
     global current_json_file_path
@@ -391,20 +397,18 @@ def upload_json():
 
     file = request.files['file']
 
-    if file.filename == '':
-        return jsonify({"error": "No file selected!"}), 400
+    if not file.filename.endswith('.json'):
+        return jsonify({"error": "Invalid file format. Only JSON files are allowed."}), 400
 
-    if file and file.filename.endswith('.json'):
-        upload_folder = 'uploads'
-        os.makedirs(upload_folder, exist_ok=True)
-        upload_path = os.path.join(upload_folder, file.filename)
+    upload_folder = 'uploads'
+    os.makedirs(upload_folder, exist_ok=True)
+    upload_path = os.path.join(upload_folder, file.filename)
+    try:
         file.save(upload_path)
-
-        # Update the current file path to the uploaded file
-        current_json_file_path = upload_path
+        current_json_file_path = upload_path  # Update the current file path
         return jsonify({"message": f"File uploaded and set to: {current_json_file_path}"}), 200
-
-    return jsonify({"error": "Invalid file format. Only JSON files are allowed."}), 400
+    except Exception as e:
+        return jsonify({"error": f"Failed to upload file: {str(e)}"}), 500
 
 #---------------end edit json---------------------
 
