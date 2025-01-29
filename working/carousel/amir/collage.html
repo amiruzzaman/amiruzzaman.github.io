@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coin Image Collage</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+    }
+
+    .collage-banner {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      padding: 20px;
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .collage-item {
+      text-align: center;
+      width: 200px;
+    }
+
+    .collage-item img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .collage-item img:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .collage-item .caption {
+      margin-top: 8px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .loading {
+      text-align: center;
+      font-size: 16px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <div id="collageContainer">
+    <div class="loading">Loading images...</div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const collageContainer = document.getElementById('collageContainer');
+        const jsonFilePath = 'images/coins.json'; // Path to your JSON file
+      
+        // Fetch JSON file and render collage
+        fetch(jsonFilePath)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error('Failed to load JSON file');
+            }
+            return response.json();
+          })
+          .then((data) => {
+            // Clear loading text
+            collageContainer.innerHTML = '';
+      
+            // Create a div for the collage
+            const collageBanner = document.createElement('div');
+            collageBanner.className = 'collage-banner';
+      
+            // Add images to the collage
+            data.forEach((coin) => {
+              const { country, image, note } = coin;
+              
+              // Create container for each item
+              const collageItem = document.createElement('div');
+              collageItem.className = 'collage-item';
+      
+              // Create image element
+              const imgElement = document.createElement('img');
+              imgElement.src = `images/${country}/${image}`;
+              imgElement.alt = note;
+      
+              // Add caption below the image
+              const caption = document.createElement('div');
+              caption.className = 'caption';
+              caption.textContent = `${country}: ${note}`;
+      
+              // Append image and caption to the item container
+              collageItem.appendChild(imgElement);
+              collageItem.appendChild(caption);
+      
+              // Add the item to the banner
+              collageBanner.appendChild(collageItem);
+            });
+      
+            collageContainer.appendChild(collageBanner);
+          })
+          .catch((error) => {
+            collageContainer.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+          });
+      });
+      
+  </script>
+</body>
+</html>

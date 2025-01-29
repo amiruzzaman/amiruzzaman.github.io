@@ -301,7 +301,7 @@
     "Donor": "Bayu"
   },
   {
-    "Country": "Iran, Islamic Republic of",
+    "Country": "Iran",
     "Coin": "Coins",
     "PaperBill": "Paper Bill",
     "Type": "",

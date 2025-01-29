@@ -206,6 +206,21 @@
             text-align: center;
             font-weight: bold;
         }
+
+        /*sorting*/
+        .sortable {
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .sortable:after {
+            content: ' ⇅';
+            font-size: 0.8em;
+            color: #ccc;
+            position: absolute;
+            right: 5px;
+        }
+        
     </style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
@@ -397,104 +412,77 @@
         function renderTable(data) {
             const tableContainer = document.getElementById("jsonTableContainer");
             tableContainer.innerHTML = ''; // Clear the table
-
+        
             // Header row
             const headerRow = document.createElement('div');
             headerRow.classList.add('row', 'header');
-            const headers = ['Country', 'Currency Type', 'Donor Name', 'Image', 'Note', 'Actions'];
-            headers.forEach(headerText => {
+            const headers = [
+                { text: 'Country', key: 'country' },
+                { text: 'Currency Type', key: 'currency_type' },
+                { text: 'Donor Name', key: 'donor_name' },
+                { text: 'Image', key: 'image' },
+                { text: 'Note', key: 'note' },
+                { text: 'Actions', key: null } // Actions don't need sorting
+            ];
+            
+            headers.forEach(header => {
                 const column = document.createElement('div');
                 column.classList.add('column');
-                column.textContent = headerText;
+                column.textContent = header.text;
+                if (header.key) {
+                    column.dataset.key = header.key;
+                    column.classList.add('sortable'); // Add class for styling
+                    column.addEventListener('click', () => {
+                        sortTable(header.key);
+                    });
+                }
                 headerRow.appendChild(column);
             });
             tableContainer.appendChild(headerRow);
-
+        
+            // Data rows
             data.forEach((row, index) => {
                 const rowDiv = document.createElement('div');
                 rowDiv.classList.add('row');
                 rowDiv.draggable = true; // Make rows draggable
                 rowDiv.setAttribute('data-index', index);
-
+        
                 // Drag-and-drop event handlers
                 rowDiv.addEventListener('dragstart', handleDragStart);
                 rowDiv.addEventListener('dragover', handleDragOver);
                 rowDiv.addEventListener('drop', handleDrop);
-
-                // Country column
-                const countryDiv = document.createElement('div');
-                countryDiv.classList.add('column', 'editable');
-                countryDiv.contentEditable = true;
-                countryDiv.textContent = row.country || "No Country";
-                countryDiv.addEventListener('blur', () => {
-                    row.country = countryDiv.textContent;
-                    saveUpdates();
+        
+                // Add columns
+                const columns = [
+                    { content: row.country || "No Country", key: 'country' },
+                    { content: row.currency_type || "No Currency Type", key: 'currency_type' },
+                    { content: row.donor_name || "No Donor Name", key: 'donor_name' },
+                    { content: `<img src="images/${row.country}/${row.image}" alt="Image" class="thumbnail" onerror="this.src='images/placeholder.jpg';" />`, key: 'image', isHTML: true },
+                    { content: row.note || "No Note", key: 'note' }
+                ];
+        
+                columns.forEach(col => {
+                    const columnDiv = document.createElement('div');
+                    columnDiv.classList.add('column', 'editable');
+                    if (col.isHTML) {
+                        columnDiv.innerHTML = col.content;
+                    } else {
+                        columnDiv.contentEditable = true;
+                        columnDiv.textContent = col.content;
+                        columnDiv.addEventListener('blur', () => {
+                            row[col.key] = columnDiv.textContent;
+                            saveUpdates();
+                        });
+                    }
+                    rowDiv.appendChild(columnDiv);
                 });
-                rowDiv.appendChild(countryDiv);
-
-                // Currency Type column
-                const currencyDiv = document.createElement('div');
-                currencyDiv.classList.add('column', 'editable');
-                currencyDiv.contentEditable = true;
-                currencyDiv.textContent = row.currency_type || "No Currency Type";
-                currencyDiv.addEventListener('blur', () => {
-                    row.currency_type = currencyDiv.textContent;
-                    saveUpdates();
-                });
-                rowDiv.appendChild(currencyDiv);
-
-                // Donor Name column
-                const donorDiv = document.createElement('div');
-                donorDiv.classList.add('column', 'editable');
-                donorDiv.contentEditable = true;
-                donorDiv.textContent = row.donor_name || "No Donor Name";
-                donorDiv.addEventListener('blur', () => {
-                    row.donor_name = donorDiv.textContent;
-                    saveUpdates();
-                });
-                rowDiv.appendChild(donorDiv);
-
-                // Image column
-                const imageDiv = document.createElement('div');
-                imageDiv.classList.add('column');
-                const img = document.createElement('img');
-                img.src = `images/${row.country}/${row.image}`;
-                img.alt = `Image for ${row.country}`;
-                img.classList.add('thumbnail');
-                img.onerror = () => {
-                    img.src = "images/placeholder.jpg";
-                    img.alt = "Placeholder Image";
-                };
-                imageDiv.appendChild(img);
-                rowDiv.appendChild(imageDiv);
-
-                // Note column
-                const noteDiv = document.createElement('div');
-                noteDiv.classList.add('column', 'editable');
-                noteDiv.contentEditable = true;
-                noteDiv.textContent = row.note || "No Note";
-                noteDiv.addEventListener('blur', () => {
-                    row.note = noteDiv.textContent;
-                    saveUpdates();
-                });
-                rowDiv.appendChild(noteDiv);
-
+        
                 // Actions column
                 const actionDiv = document.createElement('div');
                 actionDiv.classList.add('column');
                 const deleteBtn = document.createElement('span');
-                // deleteBtn.classList.add('delete-btn');
-                // deleteBtn.textContent = 'Delete';
-
                 deleteBtn.classList.add('delete-btn');
-
-                // Add the Font Awesome delete icon
-                const deleteIcon = document.createElement('i');
-                deleteIcon.classList.add('fas', 'fa-trash'); // Font Awesome trash icon
-                deleteBtn.appendChild(deleteIcon);
-
-                // Add text alongside the icon if needed
-                // deleteBtn.appendChild(document.createTextNode(' Delete'));
+                deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
                 deleteBtn.addEventListener('click', () => {
                     jsonData.splice(index, 1);
                     renderTable(jsonData);
@@ -502,11 +490,23 @@
                 });
                 actionDiv.appendChild(deleteBtn);
                 rowDiv.appendChild(actionDiv);
-
+        
                 tableContainer.appendChild(rowDiv);
             });
         }
-
+        
+        // Sorting logic
+        let sortOrder = 1; // 1 for ascending, -1 for descending
+        function sortTable(key) {
+            jsonData.sort((a, b) => {
+                if (a[key] < b[key]) return -1 * sortOrder;
+                if (a[key] > b[key]) return 1 * sortOrder;
+                return 0;
+            });
+            sortOrder *= -1; // Toggle sort order
+            renderTable(jsonData);
+        }
+        
         // Drag-and-drop handlers
         function handleDragStart(e) {
             e.dataTransfer.setData('text/plain', e.target.getAttribute('data-index'));
@@ -607,7 +607,43 @@
                 modal.style.display = "none";
             }
         });
-
+        // sorting
+        function sortTable(key) {
+            jsonData.sort((a, b) => {
+                if (a[key] < b[key]) return -1 * sortOrder;
+                if (a[key] > b[key]) return 1 * sortOrder;
+                return 0;
+            });
+        
+            sortOrder *= -1; // Toggle sort order
+            renderTable(jsonData); // Re-render the table with sorted data
+        
+            console.log('Sending sorted data to the backend');
+        
+            // Send the sorted data to the backend to update the JSON file
+            fetch('/update-json', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(jsonData)  // Send the sorted jsonData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    console.log('Backend JSON updated successfully:', data.message);
+                    //alert('Backend JSON updated successfully!');
+                } else {
+                    console.error('Error updating JSON:', data.error);
+                    alert(`Error updating JSON: ${data.error}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error with fetch request:', error);
+                alert('An error occurred while updating the JSON file.');
+            });
+        }
+        
     </script>
 </body>
 

@@ -18,6 +18,8 @@ import uuid
 
 import os
 
+from threading import Lock
+
 app = Flask(__name__, static_url_path='/static')
 CORS(app)
 
@@ -340,49 +342,53 @@ def manage_image():
 #----------------edit json------------------------
 # Default JSON file path
 DEFAULT_JSON_FILE_PATH = 'images/coins.json'
-# Variable to track the currently active JSON file path
 current_json_file_path = DEFAULT_JSON_FILE_PATH
+file_lock = Lock()  # Lock for thread-safe file operations
 
+# Serve image files
 @app.route('/images/<path:filename>')
 def serve_images(filename):
     return send_from_directory('images', filename)
 
 # Load JSON data
 def load_json():
-    if os.path.exists(current_json_file_path):
-        with open(current_json_file_path, 'r') as file:
-            return json.load(file)
+    with file_lock:  # Ensure thread-safe access
+        if os.path.exists(current_json_file_path):
+            with open(current_json_file_path, 'r') as file:
+                return json.load(file)
     return []
 
 # Save JSON data
 def save_json(data):
-    with open(current_json_file_path, 'w') as file:
-        json.dump(data, file, indent=2)
+    with file_lock:  # Ensure thread-safe access
+        with open(current_json_file_path, 'w') as file:
+            json.dump(data, file, indent=2)
 
+# Edit JSON page
 @app.route('/edit_json')
 def edit_json():
-    # Reset the current JSON file path to the default file when the page is loaded
     global current_json_file_path
-    current_json_file_path = DEFAULT_JSON_FILE_PATH
-
-    # Render the HTML template
+    current_json_file_path = DEFAULT_JSON_FILE_PATH  # Reset to default file
     return render_template('editjson_python.html')
 
+# API to get JSON data
 @app.route('/get-json', methods=['GET'])
 def get_json():
     return jsonify(load_json())
 
-# Save updates to the JSON file
+# API to update JSON data
 @app.route('/update-json', methods=['POST'])
 def update_json():
     try:
         updated_data = request.json
+        if not isinstance(updated_data, list):  # Ensure it's a list of items
+            return jsonify({"error": "Invalid JSON structure. Must be a list."}), 400
         save_json(updated_data)
         return jsonify({"message": "JSON updated successfully!"}), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": f"Failed to update JSON: {str(e)}"}), 500
 
-# Upload a new JSON file and set it as the active file
+# Upload and set a new JSON file
 @app.route('/upload-json', methods=['POST'])
 def upload_json():
     global current_json_file_path
@@ -391,52 +397,66 @@ def upload_json():
 
     file = request.files['file']
 
-    if file.filename == '':
-        return jsonify({"error": "No file selected!"}), 400
+    if not file.filename.endswith('.json'):
+        return jsonify({"error": "Invalid file format. Only JSON files are allowed."}), 400
 
-    if file and file.filename.endswith('.json'):
-        upload_folder = 'uploads'
-        os.makedirs(upload_folder, exist_ok=True)
-        upload_path = os.path.join(upload_folder, file.filename)
+    upload_folder = 'uploads'
+    os.makedirs(upload_folder, exist_ok=True)
+    upload_path = os.path.join(upload_folder, file.filename)
+    try:
         file.save(upload_path)
-
-        # Update the current file path to the uploaded file
-        current_json_file_path = upload_path
+        current_json_file_path = upload_path  # Update the current file path
         return jsonify({"message": f"File uploaded and set to: {current_json_file_path}"}), 200
-
-    return jsonify({"error": "Invalid file format. Only JSON files are allowed."}), 400
+    except Exception as e:
+        return jsonify({"error": f"Failed to upload file: {str(e)}"}), 500
 
 #---------------end edit json---------------------
 
+#------------------merge images--------------------
 import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 @app.route('/merge-images', methods=['GET', 'POST'])
 def merge_images():
     if request.method == 'GET':
+        logger.info("Rendering the merge images page.")
         return render_template('merge_images.html')
+
     try:
+        logger.info("Processing image merge request.")
+        
         # Retrieve the uploaded files
         image1_file = request.files['image1']
         image2_file = request.files['image2']
         merge_type = request.form['mergeType']
-        format = request.form['format']  # JPG, PNG, BMP, etc.
+        format = request.form['format']  # JPG, PNG, BMP, WebP, etc.
         filename = request.form.get('filename', 'merged_image')
+
+        logger.info(f"Received images: {image1_file.filename}, {image2_file.filename}")
+        logger.info(f"Merge type: {merge_type}, Output format: {format}, Filename: {filename}")
 
         # Open images using PIL
         image1 = Image.open(image1_file)
         image2 = Image.open(image2_file)
 
+        # Ensure the images are compatible for WebP or other formats
+        image1 = image1.convert('RGBA') if format.upper() == 'WEBP' else image1.convert('RGB')
+        image2 = image2.convert('RGBA') if format.upper() == 'WEBP' else image2.convert('RGB')
+
         # Resize images to the same width or height for merging
         if merge_type == 'vertical':
             new_width = max(image1.width, image2.width)
             total_height = image1.height + image2.height
-            merged_image = Image.new('RGB', (new_width, total_height), (255, 255, 255))
+            merged_image = Image.new('RGBA' if format.upper() == 'WEBP' else 'RGB', 
+                                     (new_width, total_height), (255, 255, 255, 0))
             merged_image.paste(image1, (0, 0))
             merged_image.paste(image2, (0, image1.height))
         elif merge_type == 'horizontal':
             total_width = image1.width + image2.width
             new_height = max(image1.height, image2.height)
-            merged_image = Image.new('RGB', (total_width, new_height), (255, 255, 255))
+            merged_image = Image.new('RGBA' if format.upper() == 'WEBP' else 'RGB', 
+                                     (total_width, new_height), (255, 255, 255, 0))
             merged_image.paste(image1, (0, 0))
             merged_image.paste(image2, (image1.width, 0))
 
@@ -451,6 +471,7 @@ def merge_images():
 
         # Set the correct content type for the response
         mime_type = f'image/{format.lower()}'
+        logger.info(f"Image merged successfully. Returning image in {mime_type} format.")
         return send_file(
             image_io,
             mimetype=mime_type,
@@ -458,9 +479,9 @@ def merge_images():
             download_name=f"{filename}.{format.lower()}"
         )
     except Exception as e:
+        logger.error(f"An error occurred: {str(e)}")
         return {"error": str(e)}, 400
-
-
+#---------------end merge images-------------------
 
 
 if __name__ == "__main__":
