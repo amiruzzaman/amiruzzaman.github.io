@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Replacer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .drop-zone {
+            width: 250px;
+            height: 300px;
+            border: 2px dashed #ccc;
+            padding: 10px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .drop-zone img {
+            width: 100%;
+            height: auto;
+            max-height: 200px;
+            display: none;
+            margin-top: 10px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: blue;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .drop-zone p {
+            margin: 10px 0;
+        }
+
+    </style>
+</head>
+<body>
+    <h2>Drag & Drop Two Images</h2>
+
+    <div class="container">
+        <!-- Box A -->
+        <div class="drop-zone" id="dropZoneA" ondrop="dropImage(event, 'A')" ondragover="allowDrop(event)">
+            <p>Drop Image A Here</p>
+            <input type="file" id="fileA" accept="image/*" style="display:none" onchange="uploadImage(event, 'A')">
+            <img id="previewA">
+            <label><input type="checkbox" id="checkA"> Replace A with B</label>
+        </div>
+
+        <!-- Box B -->
+        <div class="drop-zone" id="dropZoneB" ondrop="dropImage(event, 'B')" ondragover="allowDrop(event)">
+            <p>Drop Image B Here</p>
+            <input type="file" id="fileB" accept="image/*" style="display:none" onchange="uploadImage(event, 'B')">
+            <img id="previewB">
+            <label><input type="checkbox" id="checkB"> Replace B with A</label>
+        </div>
+    </div>
+
+    <button id="replaceBtn">Replace Image</button>
+
+    <script>
+        // Allow drop function to prevent default behavior (to allow image drop)
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        // Drop image handler
+        function dropImage(event, slot) {
+            event.preventDefault();
+            let file = event.dataTransfer.files[0]; // Get the first file dropped
+
+            // Call uploadImage to handle the file drop
+            uploadImage({ target: { files: [file] } }, slot);
+        }
+
+        // Upload Image function (handles both file input and dropped images)
+        function uploadImage(event, slot) {
+            let file = event.target.files ? event.target.files[0] : event.target.files[0]; // Get file from input or drop
+            if (!file) return; // If no file, exit
+
+            let formData = new FormData();
+            formData.append("file", file);
+            formData.append("slot", slot);
+
+            fetch("/upload_replace", { method: "POST", body: formData })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        let timestamp = new Date().getTime();  // Cache-busting
+                        let imageUrl = `${window.location.origin}/${data.filepath}?t=${timestamp}`;
+                        document.getElementById(`preview${slot}`).src = imageUrl;
+                        document.getElementById(`preview${slot}`).style.display = "block";
+                    }
+                });
+        }
+
+        // Handle the replace button action
+        document.getElementById("replaceBtn").addEventListener("click", function() {
+            let target = document.getElementById("checkA").checked ? "A" : 
+                         document.getElementById("checkB").checked ? "B" : null;
+
+            if (!target) {
+                alert("Select which image to replace!");
+                return;
+            }
+
+            fetch("/replace", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ target: target })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    let timestamp = new Date().getTime();  // Cache-busting
+                    let imageUrl = `${window.location.origin}/${data.updated}?t=${timestamp}`;
+                    document.getElementById(`previewA`).src = imageUrl;
+                    document.getElementById(`previewB`).src = imageUrl;
+                    document.getElementById(`previewA`).style.display = "block";
+                    document.getElementById(`previewB`).style.display = "block";
+                } else {
+                    alert("Error: " + data.message);
+                }
+            })
+            .catch(error => console.error("Fetch error:", error));
+        });
+    </script>
+</body>
+</html>

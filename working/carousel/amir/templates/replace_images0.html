@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Replacer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .drop-zone {
+            width: 250px;
+            height: 300px;
+            border: 2px dashed #ccc;
+            padding: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        .drop-zone img {
+            width: 100%;
+            height: auto;
+            max-height: 200px;
+            display: none;
+            margin-top: 10px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: blue;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h2>Drag & Drop Two Images</h2>
+
+    <div class="container">
+        <div class="drop-zone" id="dropZoneA">
+            <p>Drop Image A Here</p>
+            <input type="file" id="fileA" accept="image/*">
+            <img id="previewA">
+            <label><input type="checkbox" id="checkA"> Replace A with B</label>
+        </div>
+
+        <div class="drop-zone" id="dropZoneB">
+            <p>Drop Image B Here</p>
+            <input type="file" id="fileB" accept="image/*">
+            <img id="previewB">
+            <label><input type="checkbox" id="checkB"> Replace B with A</label>
+        </div>
+    </div>
+
+    <button id="replaceBtn">Replace Image</button>
+
+    <script>
+        document.getElementById("fileA").addEventListener("change", function(event) {
+            uploadImage(event.target.files[0], "A");
+        });
+
+        document.getElementById("fileB").addEventListener("change", function(event) {
+            uploadImage(event.target.files[0], "B");
+        });
+
+        function uploadImage(file, slot) {
+            let formData = new FormData();
+            formData.append("file", file);
+            formData.append("slot", slot);
+
+            fetch("/upload_replace", { method: "POST", body: formData })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        let timestamp = new Date().getTime();  // Cache-busting
+                        let imageUrl = `${window.location.origin}/${data.filepath}?t=${timestamp}`;
+                        document.getElementById(`preview${slot}`).src = imageUrl;
+                        document.getElementById(`preview${slot}`).style.display = "block";
+                    }
+                });
+        }
+
+        document.getElementById("replaceBtn").addEventListener("click", function() {
+            let target = document.getElementById("checkA").checked ? "A" : 
+                         document.getElementById("checkB").checked ? "B" : null;
+
+            if (!target) {
+                alert("Select which image to replace!");
+                return;
+            }
+
+            fetch("/replace", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ target: target })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    let timestamp = new Date().getTime();  // Cache-busting
+                    let imageUrl = `${window.location.origin}/${data.updated}?t=${timestamp}`;
+                    document.getElementById(`previewA`).src = imageUrl;
+                    document.getElementById(`previewB`).src = imageUrl;
+                    document.getElementById(`previewA`).style.display = "block";
+                    document.getElementById(`previewB`).style.display = "block";
+                } else {
+                    alert("Error: " + data.message);
+                }
+            })
+            .catch(error => console.error("Fetch error:", error));
+        });
+    </script>
+</body>
+</html>
