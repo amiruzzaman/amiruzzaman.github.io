@@ -244,21 +244,12 @@
 
             // Clear previous individual scores and selected feedback
             scoresTable.innerHTML = `
-        <div class="div-table-row div-table-header">
-            <div class="div-table-col">Q1</div>
-            <div class="div-table-col">Q2</div>
-            <div class="div-table-col">Q3</div>
-            <div class="div-table-col">Q4</div>
-            <div class="div-table-col">Q5</div>
-        </div>
-        <div class="div-table-row" id="scores-row">
-            <!-- Scores will be populated here -->
-        </div>
-    `;
+                <div class="div-table-row div-table-header">
+                    <div class="div-table-col">Question</div>
+                    <div class="div-table-col">Score</div>
+                </div>
+            `;
             selectedFeedback.innerHTML = ''; // Clear feedback container
-
-            // Create row for the scores
-            const scoresRow = document.getElementById('scores-row');
 
             // Create a Set to avoid duplicate feedback
             const feedbackSet = new Set();
@@ -280,22 +271,15 @@
                     feedbackSet.add(`Question ${index + 1}: ${questionData.feedback.incorrect}`);
                 }
 
-                // Add score to the respective column (Q1, Q2, Q3, Q4, Q5)
-                const scoreCell = document.createElement('div');
-                scoreCell.className = 'div-table-col';
-                scoreCell.textContent = score;
-                scoresRow.appendChild(scoreCell);
+                // Add individual score row
+                const scoreRow = document.createElement('div');
+                scoreRow.className = 'div-table-row';
+                scoreRow.innerHTML = `
+                    <div class="div-table-col">Question ${index + 1}</div>
+                    <div class="div-table-col">${score}</div>
+                `;
+                scoresTable.appendChild(scoreRow);
             });
-
-            // Add total points row
-            const totalRow = document.createElement('div');
-            totalRow.className = 'div-table-row';
-            const totalCell = document.createElement('div');
-            totalCell.className = 'div-table-col';
-            totalCell.colSpan = 5; // Spanning across all columns
-            totalCell.textContent = `Total Points: ${totalPoints}`;
-            totalRow.appendChild(totalCell);
-            scoresTable.appendChild(totalRow);
 
             // Update selected feedback display
             feedbackSet.forEach(feedback => {
@@ -312,7 +296,6 @@
             const feedbackDisplay = document.getElementById('saved-feedback');
             feedbackDisplay.textContent = feedbackContent;
         }
-
 
         // Copy all feedback to clipboard
         function copyFeedback() {
@@ -358,6 +341,7 @@
             loadQuestions(questionsData);
         });
     </script>
+
 </body>
 
 </html>
