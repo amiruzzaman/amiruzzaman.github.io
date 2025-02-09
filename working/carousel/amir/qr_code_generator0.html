@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Styled QR Code Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        input, button {
+            padding: 10px;
+            font-size: 16px;
+            margin: 10px;
+        }
+        #qrcode canvas {
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        #downloadBtn {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Styled QR Code Generator</h2>
+    <input type="text" id="url" placeholder="Enter URL">
+    <button onclick="generateQR()">Generate QR Code</button>
+    <div id="qrcode"></div>
+    <button id="downloadBtn" onclick="downloadQR()">Download QR Code</button>
+
+    <script>
+        function generateQR() {
+            let url = document.getElementById("url").value.trim();
+            if (!url) {
+                alert("Please enter a valid URL.");
+                return;
+            }
+
+            document.getElementById("qrcode").innerHTML = "";
+
+            let qr = new QRCode(document.getElementById("qrcode"), {
+                text: url,
+                width: 296,
+                height: 296,
+                colorDark: "#000",
+                colorLight: "#fff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            document.getElementById("downloadBtn").style.display = "block";
+        }
+
+        function downloadQR() {
+            let canvas = document.querySelector("#qrcode canvas");
+            if (!canvas) {
+                alert("Generate a QR code first!");
+                return;
+            }
+
+            let link = document.createElement("a");
+            link.href = canvas.toDataURL("image/png");
+            link.download = "qrcode.png";
+            link.click();
+        }
+    </script>
+
+</body>
+</html>
