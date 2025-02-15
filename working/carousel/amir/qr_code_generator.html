@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Styled QR Code Generator</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='10' y='10' width='80' height='80' rx='10' ry='10' fill='white' stroke='black' stroke-width='3'/%3E%3Ccircle cx='50' cy='50' r='6' fill='black'/%3E%3Ccircle cx='25' cy='30' r='5' fill='black'/%3E%3Ccircle cx='50' cy='50' r='5' fill='black'/%3E%3Ccircle cx='25' cy='70' r='5' fill='black'/%3E%3Ccircle cx='75' cy='25' r='5' fill='black'/%3E%3Ccircle cx='75' cy='75' r='5' fill='black'/%3E%3Ccircle cx='50' cy='25' r='5' fill='black'/%3E%3Ccircle cx='50' cy='75' r='5' fill='black'/%3E%3C/svg%3E">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script> <!-- For capturing full image -->
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .input-group {
+            margin: 10px 0;
+        }
+        input {
+            padding: 10px;
+            font-size: 16px;
+            width: 80%;
+            max-width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .btn {
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .btn::before {
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+        }
+        .generate::before {
+            content: "⚡";
+        }
+        .download::before {
+            content: "⬇";
+        }
+        #qrcode-container {
+            display: inline-block;
+            text-align: center;
+            margin-top: 20px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        #qrcode canvas {
+            border-radius: 8px;
+        }
+        #qr-text {
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+        #downloadBtn {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Styled QR Code Generator</h2>
+    <div class="input-group">
+        <input type="text" id="url" placeholder="Enter URL">
+    </div>
+    <div class="input-group">
+        <input type="text" id="caption" placeholder="Enter text below QR (optional)">
+    </div>
+    <button class="btn generate" onclick="generateQR()">Generate QR Code</button>
+
+    <div id="qrcode-container">
+        <div id="qrcode"></div>
+        <div id="qr-text"></div>
+    </div>
+
+    <button id="downloadBtn" class="btn download" onclick="downloadQR()">Download QR Code</button>
+
+    <script>
+        // Disable right-click functionality on a website
+        document.addEventListener('contextmenu', function(event) {
+            event.preventDefault();
+        });
+        
+        function generateQR() {
+            let url = document.getElementById("url").value.trim();
+            let caption = document.getElementById("caption").value.trim();
+
+            if (!url) {
+                alert("Please enter a valid URL.");
+                return;
+            }
+
+            document.getElementById("qrcode").innerHTML = "";
+            document.getElementById("qr-text").textContent = caption;
+
+            new QRCode(document.getElementById("qrcode"), {
+                text: url,
+                width: 300,
+                height: 300,
+                colorDark: "#000",
+                colorLight: "#fff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            document.getElementById("downloadBtn").style.display = "inline-flex";
+        }
+
+        function downloadQR() {
+            let container = document.getElementById("qrcode-container");
+
+            html2canvas(container, { backgroundColor: null }).then(canvas => {
+                let link = document.createElement("a");
+                link.href = canvas.toDataURL("image/png");
+                link.download = "qrcode_with_text.png";
+                link.click();
+            });
+        }
+    </script>
+
+</body>
+</html>
