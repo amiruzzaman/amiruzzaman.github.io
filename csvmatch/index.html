@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Match Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        input {
+            margin: 10px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .match {
+            background-color: lightgreen;
+        }
+
+        .no-match {
+            background-color: lightcoral;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>CSV Match Checker</h2>
+    <input type="file" id="file1" accept=".csv">
+    <input type="file" id="file2" accept=".csv">
+    <input type="text" id="matchColumn" placeholder="Enter column name to match">
+    <button onclick="compareCSV()">Compare</button>
+    <table id="resultTable"></table>
+
+    <script>
+        function parseCSV(csv) {
+            const rows = csv.split("\n").map(row => row.split(","));
+            const headers = rows[0];
+            const data = rows.slice(1).map(row => {
+                let obj = {};
+                headers.forEach((header, index) => {
+                    obj[header.trim()] = row[index] ? row[index].trim() : "";
+                });
+                return obj;
+            });
+            return { headers, data };
+        }
+
+        function compareCSV() {
+            const file1 = document.getElementById("file1").files[0];
+            const file2 = document.getElementById("file2").files[0];
+            const matchColumn = document.getElementById("matchColumn").value.trim();
+            if (!file1 || !file2 || !matchColumn) {
+                alert("Please upload both files and specify a matching column.");
+                return;
+            }
+
+            Promise.all([file1.text(), file2.text()]).then(([csv1, csv2]) => {
+                const data1 = parseCSV(csv1);
+                const data2 = parseCSV(csv2);
+
+                if (!data1.headers.includes(matchColumn) || !data2.headers.includes(matchColumn)) {
+                    alert("Matching column not found in one or both files.");
+                    return;
+                }
+
+                const set1 = new Set(data1.data.map(row => row[matchColumn]));
+                const set2 = new Set(data2.data.map(row => row[matchColumn]));
+
+                let resultHTML = "<tr><th>" + matchColumn + "</th><th>Status</th></tr>";
+
+                data1.data.forEach(row => {
+                    const value = row[matchColumn];
+                    if (set2.has(value)) {
+                        resultHTML += `<tr class='match'><td>${value}</td><td>Match</td></tr>`;
+                    } else {
+                        resultHTML += `<tr class='no-match'><td>${value}</td><td>No Match</td></tr>`;
+                    }
+                });
+
+                document.getElementById("resultTable").innerHTML = resultHTML;
+            });
+        }
+    </script>
+</body>
+
+</html>

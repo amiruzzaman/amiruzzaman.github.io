@@ -1,0 +1,193 @@
+{
+  "Part 0": {
+    "title": "Requirements",
+    "problems": [
+      [
+        {
+          "yes": "You have provided your README file and your implementation is accessible. ",
+          "no": "You did not provide a README file but your implementation is not accessible. ",
+          "point": 5
+        },
+        {
+          "yes": "You have provided a READ ONLY link to Overleaf for your project report.",
+          "no": "You did not provide a READ ONLY link to Overleaf for your project report.",
+          "point": 2
+        },
+        {
+          "yes": "You have provided exact commit hash for your GitHub final commit.",
+          "no": "You should provide the commit hash that you want us to consider for grading.",
+          "point": 2
+        },
+        {
+          "yes": "Your report is 8 pages.",
+          "no": "Your report is not __ pages long. Please make sure to follow the page limit instruction for next assignment.",
+          "point": 2
+        },
+        {
+          "yes": "Your graphs/figures are readable. Good job!",
+          "no": "Some of your figures/graphs are not readable. For example, ____. One of the easy way to improve this to increase the font size of legends and other texts in the plot/graph.",
+          "point": 2
+        },
+		{
+          "yes": "I see some citation in your report, and you followed a consistent style there.",
+          "no": "I did not see any citation in your report.",
+          "point": 2
+        }
+      ]
+    ]
+  },
+  "Part 1": {
+    "title": "Problem description",
+    "problems": [
+      [
+        {
+          "yes": "You have chosen two datasets for your analysis. ",
+          "no": "You did not select two datasets for your analysis",
+          "point": 2
+        },
+        {
+          "yes": "You described why your datasets structures, and provided some basic information. In addition, you explained why your datasets are interesting in ML's perspective",
+          "no": "You did not describe why your datasets are interesting in ML's perspective. To describe your dataset you could have add descriptive statistics, discuss about class distributions, list attributes, and types. ",
+          "point": 2
+        }
+      ]
+    ]
+  },
+  "Part 2": {
+    "title": "Hypothesis",
+    "problems": [
+      [
+        {
+          "yes": "You have stated your initial hypotheses.",
+          "no": "You needed to state your initial hypotheses explicitly.",
+          "point": 5
+        },
+        {
+          "yes": "You have justified your hypotheses explicitly.",
+          "no": "You did not justify your hypotheses explicitly.",
+          "point": 2
+        },
+        {
+          "yes": "You followed up with the hypothesis in your discussion/conclusion.",
+          "no": "You cannot just state a hypothesis since it needs to follow through from a narrative perspective at the end of your report.",
+          "point": 5
+        },
+        {
+          "yes": "You have provided direct evidence to support whether your hypothesis has been met.",
+          "no": "You didn't provide a direct evidence to support whether your hypothesis has been met.",
+          "point": 2
+        }
+      ]
+    ]
+  },
+  "Part 3": {
+    "title": "NN",
+    "problems": [
+      [
+        {
+          "yes": "You provided some error metrics (least square error, type I/II error, confusion matrix, PR AUC, F1, precision recall.). ",
+          "no": "You did not show valid results for Learning Complexity (LC) curves. Keep in mind that for regression least square error is helpful information, and for classification type I/II error, confusion matrix, PR AUC, F1, precision recall are helpful information for insightful discussion.",
+          "point": 1
+        },
+        {
+          "yes": "You showed valid results for Learning Complexity (LC) curves. Discussed underfitting/overfitting, data sufficiency, optimal model performances.",
+          "no": "You did not show valid results for Learning Complexity (LC) curves. You also needed to enrich this part by adding some discussion on underfitting/overfitting, data sufficiency, optimal model performances. ",
+          "point": 10
+        },
+        {
+          "yes": "You showed valid results for Model Complexity (MC) curves. ",
+          "no": "You did not show valid results for Model Complexity (MC) curves.",
+          "point": 10
+        }
+      ]
+    ]
+  },
+  "Part 4": {
+    "title": "SVM",
+    "problems": [
+      [
+        {
+          "yes": "You provided some error metrics (least square error, type I/II error, confusion matrix, PR AUC, F1, precision recall.). ",
+          "no": "You did not show valid results for Learning Complexity (LC) curves. Keep in mind that for regression least square error is helpful information, and for classification type I/II error, confusion matrix, PR AUC, F1, precision recall are helpful information for insightful discussion.",
+          "point": 1
+        },
+        {
+          "yes": "You showed valid results for Learning Complexity (LC) curves. Discussed underfitting/overfitting, data sufficiency, optimal model performances.",
+          "no": "You did not show valid results for Learning Complexity (LC) curves. You also needed to enrich this part by adding some discussion on underfitting/overfitting, data sufficiency, optimal model performances. ",
+          "point": 10
+        },
+        {
+          "yes": "You showed valid results for Model Complexity (MC) curves. ",
+          "no": "You did not show valid results for Model Complexity (MC) curves.",
+          "point": 10
+        }
+      ]
+    ]
+  },
+  "Part 5": {
+    "title": "KNN",
+    "problems": [
+      [
+	    {
+          "yes": "You provided some error metrics (least square error, type I/II error, confusion matrix, PR AUC, F1, precision recall.). ",
+          "no": "You did not show valid results for Learning Complexity (LC) curves. Keep in mind that for regression least square error is helpful information, and for classification type I/II error, confusion matrix, PR AUC, F1, precision recall are helpful information for insightful discussion.",
+          "point": 1
+        },
+        {
+          "yes": "You showed valid results for Learning Complexity (LC) curves. Discussed underfitting/overfitting, data sufficiency, optimal model performances.",
+          "no": "You did not show valid results for Learning Complexity (LC) curves. You also needed to enrich this part by adding some discussion on underfitting/overfitting, data sufficiency, optimal model performances. ",
+          "point": 10
+        },
+        {
+          "yes": "You showed valid results for Model Complexity (MC) curves. ",
+          "no": "You did not show valid results for Model Complexity (MC) curves.",
+          "point": 10
+        }
+      ]
+    ]
+  },
+  "Part 6": {
+    "title": "Conclusion",
+    "problems": [
+      [
+        {
+          "yes": "You have provided an overall comparison between your runs on each data set. You considered Type I and Type II errors.",
+          "no": "You did not provided an overall comparison between your runs on each data set. You also did not consider Type I and Type II errors.",
+          "point": 1
+        },
+        {
+          "yes": "You have provided some discussion on accuracies/performances of different ML algorithms using wall clock times.",
+          "no": "You have not provide a detailed discussion on accuracies/performances of different ML algorithms using wall clock times.",
+          "point": 1
+        },
+        {
+          "yes": "You also provided some discussion on performances: noise and number of sample needed to learn effectively. ",
+          "no": "You needed to provide a detailed discussion on performances: noise and number of sample needed to learn effectively. ",
+          "point": 1
+        },
+        {
+          "yes": "You have provided some discussion on different ML algorithms: time and space complexity, and sensitivity to tuning.",
+          "no": "You did not provide a detailed discussion on different ML algorithms: time and space complexity, and sensitivity to tuning.",
+          "point": 1
+        },
+        {
+          "yes": "You also provided some discussion to show a broad understanding.",
+          "no": "You also needed some discussion to show a broad understanding.",
+          "point": 1
+        }
+      ]
+    ]
+  },
+  "Part 7": {
+    "title": "Extra Credit",
+    "problems": [
+      [
+        {
+          "yes": "You have implemented Decision Trees with comprehensive analysis, and provided significant insights into the datasets and theoretical implications.",
+          "no": "Did not implement Decision Trees or Boosting.",
+          "point": 5
+        }
+      ]
+    ]
+  }
+}
