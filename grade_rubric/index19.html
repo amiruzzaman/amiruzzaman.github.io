@@ -514,14 +514,14 @@
         function insertScores(text, subTotalScoreArr, sarr) {
             return text.replace(/(Part (\d+):)(.*?)(?=\n|$)/g, (match, partPrefix, partNumber, title) => {
                 // Log the captured parts
-                //console.log(`Match: ${match}`);
-                //console.log(`Part Number: ${partNumber}`);
-                //console.log(`Title: ${title}`);
+                console.log(`Match: ${match}`);
+                console.log(`Part Number: ${partNumber}`);
+                console.log(`Title: ${title}`);
 
                 let index = parseInt(partNumber, 10);
                 if (index >= 0 && index < subTotalScoreArr.length && index < sarr.length) {
                     // Log the final replacement before return
-                    let replacement = `${title.trim()}: (${sarr[index]}/${subTotalScoreArr[index]})`;
+                    let replacement = `${partPrefix} (${sarr[index]}/${subTotalScoreArr[index]}): ${title.trim()}`;
                     console.log(`Replacement: ${replacement}`);
                     return replacement;
                 }
