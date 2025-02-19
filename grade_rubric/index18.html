@@ -80,9 +80,6 @@
 
         let selectedItem = null;
 
-        let subTotalScoreArr = [];
-        let sarr = [];
-
         function editItem() {
             const editBox = document.getElementById('edit-box');
             const editText = document.getElementById('edit-text');
@@ -157,7 +154,6 @@
                 container.appendChild(itemContainer);
             }
             subTotalDiv.innerHTML = subTotal;
-            subTotalScoreArr.push(subTotal);
             //subTotalDiv.style.display = "flex";
             subTotalDiv.style.color = 'green';
 
@@ -258,10 +254,10 @@
             //var para = document.createElement('p');
             var para = document.createElement('textarea');
             para.id = "paraID";
-
-
-
-            // Add Checkbox for Additional Comment
+			
+			
+			
+			// Add Checkbox for Additional Comment
             const checkBoxDiv = document.createElement('div');
             checkBoxDiv.classList.add('checkbox-container');
             const checkBox = document.createElement('input');
@@ -274,12 +270,12 @@
             checkBoxDiv.appendChild(checkBox);
             checkBoxDiv.appendChild(checkBoxLabel);
             container.appendChild(checkBoxDiv);
-
+			
 
             saveButton.addEventListener('click', () => {
                 // Formating document
                 let text = '';
-                let score = 0; var titlearr = []; var jsonData = {}; //var sarr = [];
+                let score = 0; var sarr = []; var titlearr = []; var jsonData = {};
                 const parts = document.querySelectorAll('.part-container');
                 let s;
                 parts.forEach(part => {
@@ -328,12 +324,9 @@
                         sarr.push(s)
 
                         text += '\n\n';
-                        // Showing the final text
-                        //console.log('Final text\n', text);
-                        //console.log('subTotalScoreArr\n', subTotalScoreArr);
                     });
-
-
+					
+				
 
 
 
@@ -341,8 +334,8 @@
                 //console.log(parts);
 
                 //text += "" + input.value + '\n\n'; // this is where additional overall comments will be added.
-
-                // Append overall comment and conditional additional comment
+				
+					// Append overall comment and conditional additional comment
                 text += "" + input.value + ' ';
                 if (checkBox.checked) {
                     text += "You could have done a better job in managing your empty spaces in your report, which would have allowed you to add more discussions on your results and comparisons.\n";
@@ -362,7 +355,7 @@
                 //console.log('paragraph:\n', para.innerHTML);
 
                 text += `Total score: ${score}\n`;
-                //console.log(text);
+                console.log(text);
                 /*
                 if (inputTxt.value == '') {
                     download('output.txt', text);
@@ -371,17 +364,12 @@
                 }
                 */
                 jsonData['total'] = score;
-                //console.log(sarr, jsonData);
-
-                let updatedText = insertScores(text, subTotalScoreArr, sarr);
-                console.log('Updated Text:', updatedText);
+                console.log(sarr, jsonData);
                 // for (var key in jsonData) {
                 //     console.log(key);
                 //     console.log(jsonData[key]);
                 // }
-                document.getElementById("paraID").value = "";
                 createTableFromJSON(jsonData);
-                para.value = updatedText;
             });
             container.appendChild(commentDiv);
             container.appendChild(textAreaDiv);
@@ -511,59 +499,9 @@
             //alert("Copied: " + copyText);
         }
 
-        function insertScores(text, subTotalScoreArr, sarr) {
-            return text.replace(/(Part (\d+):)(.*?)(?=\n|$)/g, (match, partPrefix, partNumber, title) => {
-                // Log the captured parts
-                console.log(`Match: ${match}`);
-                console.log(`Part Number: ${partNumber}`);
-                console.log(`Title: ${title}`);
-
-                let index = parseInt(partNumber, 10);
-                if (index >= 0 && index < subTotalScoreArr.length && index < sarr.length) {
-                    // Log the final replacement before return
-                    let replacement = `${partPrefix} (${sarr[index]}/${subTotalScoreArr[index]}): ${title.trim()}`;
-                    console.log(`Replacement: ${replacement}`);
-                    return replacement;
-                }
-                return match;  // Return the original match if no replacement
-            });
-        }
-
-        let text = `Part 0: Requirements
-You have provided your README file and your implementation is accessible. You have provided a READ ONLY link to Overleaf for your project report. You have provided exact commit hash for your GitHub final commit. Your report is 8 pages. Your graphs/figures are readable. Good job! I see some citation in your report, and you followed a consistent style there. 
-
-Part 1: Problem description
-You have chosen two datasets for your analysis. You described why your datasets structures, and provided some basic information. In addition, you explained why your datasets are interesting in ML's perspective. 
-
-Part 2: Hypothesis
-You have stated your initial hypotheses. You have justified your hypotheses explicitly. You followed up with the hypothesis in your discussion/conclusion. You have provided direct evidence to support whether your hypothesis has been met. 
-
-Part 3: NN
-You provided some error metrics (least square error, type I/II error, confusion matrix, PR AUC, F1, precision recall). You showed valid results for Learning Complexity (LC) curves. Discussed underfitting/overfitting, data sufficiency, optimal model performances. You showed valid results for Model Complexity (MC) curves. 
-
-Part 4: SVM
-You provided some error metrics (least square error, type I/II error, confusion matrix, PR AUC, F1, precision recall). You showed valid results for Learning Complexity (LC) curves. Discussed underfitting/overfitting, data sufficiency, optimal model performances. You showed valid results for Model Complexity (MC) curves. 
-
-Part 5: KNN
-You provided some error metrics (least square error, type I/II error, confusion matrix, PR AUC, F1, precision recall). You showed valid results for Learning Complexity (LC) curves. Discussed underfitting/overfitting, data sufficiency, optimal model performances. You showed valid results for Model Complexity (MC) curves. 
-
-Part 6: Conclusion
-You have provided an overall comparison between your runs on each dataset. You considered Type I and Type II errors. You have provided some discussion on accuracies/performances of different ML algorithms using wall clock times. You also provided some discussion on performances: noise and number of samples needed to learn effectively. You have provided some discussion on different ML algorithms: time and space complexity, and sensitivity to tuning. You also provided some discussion to show a broad understanding. 
-
-Part 7: Extra Credit
-You have implemented Decision Trees with comprehensive analysis, and provided significant insights into the datasets and theoretical implications.`;
-
-        let subTotalScoreArr1 = [15, 4, 14, 21, 21, 21, 5, 5];
-        let sarr1 = [14, 3, 13, 20, 20, 20, 4, 0];
-
-        //let updatedText = insertScores(text, subTotalScoreArr1, sarr1);
-        //console.log('Updated Text:', updatedText);
-
-
-
     </script>
-
-    <style>
+	
+	<style>
         table,
         th,
         td {
@@ -605,8 +543,7 @@ You have implemented Decision Trees with comprehensive analysis, and provided si
             max-width: 1200px;
             margin: 20px auto;
             overflow: auto;
-            padding-bottom: 50px;
-            /* Prevent content cutoff at the bottom */
+            padding-bottom: 50px; /* Prevent content cutoff at the bottom */
         }
 
         table {
@@ -617,8 +554,7 @@ You have implemented Decision Trees with comprehensive analysis, and provided si
             overflow-x: auto;
         }
 
-        html,
-        body {
+        html, body {
             height: 100%;
         }
 
