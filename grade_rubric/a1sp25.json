@@ -63,19 +63,19 @@
           "point": 5
         },
         {
-          "yes": "You have justified your hypotheses explicitly.",
-          "no": "You did not justify your hypotheses explicitly.",
+          "yes": "You supported your hypotheses with reasoning related to feature interactions and dataset structure.",
+          "no": "You did not support your hypotheses with reasoning related to feature interactions and dataset structure.",
           "point": 2
         },
         {
           "yes": "You followed up with the hypothesis in your discussion/conclusion.",
           "no": "You cannot just state a hypothesis since it needs to follow through from a narrative perspective at the end of your report.",
-          "point": 5
+          "point": 2
         },
         {
           "yes": "You have provided direct evidence to support whether your hypothesis has been met.",
           "no": "You didn't provide a direct evidence to support whether your hypothesis has been met.",
-          "point": 2
+          "point": 5
         }
       ]
     ]
@@ -85,7 +85,7 @@
     "problems": [
       [
         {
-          "yes": "You provided some error metrics (least square error, type I/II error, confusion matrix, PR AUC, F1, precision, recall).",
+          "yes": "You provided some error metrics.",
           "no": "Keep in mind that for regression least square error is helpful information, and for classification type I/II error, confusion matrix, PR AUC, F1, precision recall are helpful information for insightful discussion.",
           "point": 1
         },
@@ -95,7 +95,7 @@
           "point": 10
         },
         {
-          "yes": "You showed valid results for Model Complexity (MC) curves.",
+          "yes": "You included model complexity graphs.",
           "no": "You did not show valid results for Model Complexity (MC) curves.",
           "point": 10
         }
@@ -107,7 +107,7 @@
     "problems": [
       [
         {
-          "yes": "You provided some error metrics (least square error, type I/II error, confusion matrix, PR AUC, F1, precision, recall).",
+          "yes": "You provided some error metrics.",
           "no": "Keep in mind that for regression least square error is helpful information, and for classification type I/II error, confusion matrix, PR AUC, F1, precision recall are helpful information for insightful discussion.",
           "point": 1
         },
@@ -117,7 +117,7 @@
           "point": 10
         },
         {
-          "yes": "You showed valid results for Model Complexity (MC) curves.",
+          "yes": "You presented Model Complexity (MC) graph.",
           "no": "You did not show valid results for Model Complexity (MC) curves.",
           "point": 10
         }
@@ -129,7 +129,7 @@
     "problems": [
       [
 	    {
-          "yes": "You provided some error metrics (least square error, type I/II error, confusion matrix, PR AUC, F1, precision, recall).",
+          "yes": "You provided some error metrics.",
           "no": "Keep in mind that for regression least square error is helpful information, and for classification type I/II error, confusion matrix, PR AUC, F1, precision recall are helpful information for insightful discussion.",
           "point": 1
         },
@@ -139,7 +139,7 @@
           "point": 10
         },
         {
-          "yes": "You showed valid results for Model Complexity (MC) curves.",
+          "yes": "You included Model Complexity (MC) graph.",
           "no": "You did not show valid results for Model Complexity (MC) curves.",
           "point": 10
         }
