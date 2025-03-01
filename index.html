@@ -1,813 +1,833 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <!-- Required meta tags -->
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <!-- Bootstrap CSS -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" 
-              rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.3/css/bootstrap.min.css" rel="stylesheet" />
-        <link href="styles/newIndex.css" type="text/css" rel="stylesheet">
-        <title>Md Amiruzzaman</title>
-        <link rel="shortcut icon" type="image/jpg" href="./images/favicon.ico"/>
-        <!-- <script src="bootstrap.js"></script> -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-        <script type="text/javascript" src="education/csvjson.js" ></script>
-        <script src="https://unpkg.com/papaparse@5.3.1/papaparse.min.js"></script>
-        <script type='text/javascript' src='scripts/respond.min.js'></script>
-        <!--        <script src="js/teaching.js"></script> -->
-        <link rel="stylesheet" href="css/newEducation.css">
-        <link rel="stylesheet" href="css/teaching.css">
-        <link rel="stylesheet" href="styles/bib-publication-list.css"/>
-        <!-- news -->
-        <style>
-            .ticker {
-                width: 100%;
-                height: 100%;
-                overflow: hidden;
-                border: 1px solid #DDD;
-                border-radius: 5px;
-                box-shadow: 0px 0px 5px #DDD;
-                text-align: left;
-            }
-
-            .ticker h3 {
-                padding: 10px 10px 10px 10px;
-                border-bottom: 1px solid #A7A7A7;
-                background-color:  #D3D3D3;
-            }
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
 
-            ulclass {
-                list-style: none;
-                padding: 0;
-                margin: 0;
-                font-style: italic;
-            }
-            ulclass list {
-                list-style: none;
-                height:50px;
-                padding:7px;
-                border-bottom: 1px solid #D6CFB8;
-            }
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-K240EJJ3JT"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
 
-        </style>
-		
-		<style>
-		/*logo images*/
-	 /* Three image containers 33.33%(use 25% for four, and 50% for two, etc) */
-.image_column {
-  float: left;
-  width: 16.66%; /*100 div 6*/
-  padding: 5px;
-}
+        gtag('config', 'G-K240EJJ3JT');
+    </script>
 
-/* Clear floats after image containers */
-.image_row::after {
-  content: "";
-  clear: both;
-  display: table;
-} 
 
-/* Resize images */
-.image_row img {
-    width: 80px !important;
-    height: auto;
-	overflow: hidden;
-}
-.image_row{
-width: 490px;
-}
-	</style>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.3/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="styles/newIndex.css" type="text/css" rel="stylesheet">
+    <title>Md Amiruzzaman</title>
+    <link rel="shortcut icon" type="image/jpg" href="./images/favicon.ico" />
+    <!-- <script src="bootstrap.js"></script> -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="education/csvjson.js"></script>
+    <script src="https://unpkg.com/papaparse@5.3.1/papaparse.min.js"></script>
+    <script type='text/javascript' src='scripts/respond.min.js'></script>
+    <!--        <script src="js/teaching.js"></script> -->
+    <link rel="stylesheet" href="css/newEducation.css">
+    <link rel="stylesheet" href="css/teaching.css">
+    <link rel="stylesheet" href="styles/bib-publication-list.css" />
+    <!-- news -->
+    <style>
+        .ticker {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            border: 1px solid #DDD;
+            border-radius: 5px;
+            box-shadow: 0px 0px 5px #DDD;
+            text-align: left;
+        }
 
-    </head>
-    <body>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky">
-            <a class="navbar-brand" href="../~mamiruzz/index.html">Md Amiruzzaman</a>
+        .ticker h3 {
+            padding: 10px 10px 10px 10px;
+            border-bottom: 1px solid #A7A7A7;
+            background-color: #D3D3D3;
+        }
 
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#pub">Publication</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#education">Education</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#teach">Teaching</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#interest">Interests</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#news">News</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#office">Office</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#contact">Contact</a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-        <div class="row about-me-section">
-            <div class="col-md-1">
 
-            </div>
-            <div class="col-md-2 ">
-                <img class="card-img-left col-md-2 profile-pic" src="./images/amiruzzaman.jpg" alt="Amiruzzaman Photo">
-            </div>
-            <div class="col-md-8 about-me">
-                <h3>About Me</h3>
-                <p id ="bio" class="card-text">
-                </p>
-				<div id = "logo-images">
-				<div class="image_row">
-					<div class="image_column">
-					  <a href ="https://www.nu.ac.bd/"><img src="images/national-university.png" alt="national university" style="width:100%"></a>
-					  </div>
-					  <div class="image_column">
-						<a href ="https://eng.sejong.ac.kr/index.do"><img src="images/sejong-university-kr-logo.png" alt="sejong university" style="width:100%"></a>
-					  </div>
-					  <div class="image_column">
-						<a href ="http://korea.edu/mbshome/mbs/en/index.do"><img src="images/korea-university.png" alt="korea university" style="width:100%"></a>
-					  </div>
-					 
-					  <div class="image_column">
-						<a href ="https://www.kent.edu/"><img src="images/Kent_State_seal.svg.png" alt="kent state university" style="width:100%"></a>
-					  </div>
-						<div class="image_column">
-						<a href ="https://www.gatech.edu/"><img src="images/GeorgiaTech_RGB.png" alt="georgia tech" style="width:100%"></a>
-					  </div>
-					  <div class="image_column">
-						<a href ="https://www.wcupa.edu/"><img src="images/wcuSeal.png" alt="west chester university" style="width:100%"></a>
-					  </div>
-					</div> 
-				
-				</div>
-            </div>
-            <script>
-                // Read a text file
-                // https://stackoverflow.com/questions/196498/how-do-i-load-the-contents-of-a-text-file-into-a-javascript-variable
-                jQuery.get('bio/bio.txt', function (data) {
-                    //console.log(data);
-                    var lineByLine = data.split("\n");
-                    //console.log(lineByLine);
-                    var str = '';
-                    for (let i = 0; i < lineByLine.length; i++)
-                    {
-                        str += lineByLine[i] + "<br/>";
-                    }
-                    $('#bio').html(str);
-                });
+        ulclass {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-style: italic;
+        }
 
-            </script>
-            <div class="col-md-1">
+        ulclass list {
+            list-style: none;
+            height: 50px;
+            padding: 7px;
+            border-bottom: 1px solid #D6CFB8;
+        }
+    </style>
+
+    <style>
+        /*logo images*/
+        /* Three image containers 33.33%(use 25% for four, and 50% for two, etc) */
+        .image_column {
+            float: left;
+            width: 16.66%;
+            /*100 div 6*/
+            padding: 5px;
+        }
+
+        /* Clear floats after image containers */
+        .image_row::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+
+        /* Resize images */
+        .image_row img {
+            width: 80px !important;
+            height: auto;
+            overflow: hidden;
+        }
+
+        .image_row {
+            width: 490px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky">
+        <a class="navbar-brand" href="../~mamiruzz/index.html">Md Amiruzzaman</a>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#pub">Publication</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#education">Education</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#teach">Teaching</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#interest">Interests</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#news">News</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#office">Office</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#contact">Contact</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="row about-me-section">
+        <div class="col-md-1">
+
+        </div>
+        <div class="col-md-2 ">
+            <img class="card-img-left col-md-2 profile-pic" src="./images/amiruzzaman.jpg" alt="Amiruzzaman Photo">
+        </div>
+        <div class="col-md-8 about-me">
+            <h3>About Me</h3>
+            <p id="bio" class="card-text">
+            </p>
+            <div id="logo-images">
+                <div class="image_row">
+                    <div class="image_column">
+                        <a href="https://www.nu.ac.bd/"><img src="images/national-university.png"
+                                alt="national university" style="width:100%"></a>
+                    </div>
+                    <div class="image_column">
+                        <a href="https://eng.sejong.ac.kr/index.do"><img src="images/sejong-university-kr-logo.png"
+                                alt="sejong university" style="width:100%"></a>
+                    </div>
+                    <div class="image_column">
+                        <a href="http://korea.edu/mbshome/mbs/en/index.do"><img src="images/korea-university.png"
+                                alt="korea university" style="width:100%"></a>
+                    </div>
+
+                    <div class="image_column">
+                        <a href="https://www.kent.edu/"><img src="images/Kent_State_seal.svg.png"
+                                alt="kent state university" style="width:100%"></a>
+                    </div>
+                    <div class="image_column">
+                        <a href="https://www.gatech.edu/"><img src="images/GeorgiaTech_RGB.png" alt="georgia tech"
+                                style="width:100%"></a>
+                    </div>
+                    <div class="image_column">
+                        <a href="https://www.wcupa.edu/"><img src="images/wcuSeal.png" alt="west chester university"
+                                style="width:100%"></a>
+                    </div>
+                </div>
 
             </div>
         </div>
-        <!-- Tabs for Education, Publication and Teaching starts here -->
-        <div class="nav-tabs-container">
-            <div class="row">
-                <div class="col-md-1"></div>
-                <div class="col-md-10">
-                    <ul class="nav nav-tabs">
-                        <li class="active"><a data-toggle="tab" href="#pub">Publications</a></li>
-                        <li><a data-toggle="tab" href="#education">Education</a></li>
-                        <li><a data-toggle="tab" href="#teach">Teaching</a></li>
-                        <li><a data-toggle="tab" href="#interest">Interests</a></li>
-                        <li><a data-toggle="tab" href="#news">News</a></li>
-                    </ul>
+        <script>
+            // Read a text file
+            // https://stackoverflow.com/questions/196498/how-do-i-load-the-contents-of-a-text-file-into-a-javascript-variable
+            jQuery.get('bio/bio.txt', function (data) {
+                //console.log(data);
+                var lineByLine = data.split("\n");
+                //console.log(lineByLine);
+                var str = '';
+                for (let i = 0; i < lineByLine.length; i++) {
+                    str += lineByLine[i] + "<br/>";
+                }
+                $('#bio').html(str);
+            });
 
-                    <div class="tab-content">
-                        <div id="pub" class="tab-pane fade in active">
-                            <!-- <h1>List of publications</h1> -->
-                            <div class="card card-body">
-                                <noscript>
+        </script>
+        <div class="col-md-1">
+
+        </div>
+    </div>
+    <!-- Tabs for Education, Publication and Teaching starts here -->
+    <div class="nav-tabs-container">
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-10">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="#pub">Publications</a></li>
+                    <li><a data-toggle="tab" href="#education">Education</a></li>
+                    <li><a data-toggle="tab" href="#teach">Teaching</a></li>
+                    <li><a data-toggle="tab" href="#interest">Interests</a></li>
+                    <li><a data-toggle="tab" href="#news">News</a></li>
+                </ul>
+
+                <div class="tab-content">
+                    <div id="pub" class="tab-pane fade in active">
+                        <!-- <h1>List of publications</h1> -->
+                        <div class="card card-body">
+                            <noscript>
                                 <!-- bibtex source hidden by default, show it if JS disabled -->
                                 <style>
-                                    #bibtex { display: block;}
+                                    #bibtex {
+                                        display: block;
+                                    }
                                 </style>
-                                </noscript>
-                                <table id="pubTable" class="display"></table>
-                                <script type="text/javascript">
-                                    //https://stackoverflow.com/questions/23175287/how-to-include-a-file-and-wrap-its-contents-in-a-pre-tag
-                                    document.write('<pre id="bibtex" style="display:none;">');
-                                    var ajaxRq = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Msxml2.XMLHTTP");
-                                    ajaxRq.open("GET", "publication/publication_bib.txt", false);
-                                    ajaxRq.send(null);
-                                    document.write(ajaxRq.responseText);
-                                    document.write('</pre>');
-                                </script>
-                            </div>
+                            </noscript>
+                            <table id="pubTable" class="display"></table>
+                            <script type="text/javascript">
+                                //https://stackoverflow.com/questions/23175287/how-to-include-a-file-and-wrap-its-contents-in-a-pre-tag
+                                document.write('<pre id="bibtex" style="display:none;">');
+                                var ajaxRq = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Msxml2.XMLHTTP");
+                                ajaxRq.open("GET", "publication/publication_bib.txt", false);
+                                ajaxRq.send(null);
+                                document.write(ajaxRq.responseText);
+                                document.write('</pre>');
+                            </script>
                         </div>
-                        <!-- Education starts here -->
-                        <div id="education" class="tab-pane fade">
-                            <div class="card card-body" id="education-table"></div>
-                        </div>
-                        <!-- Teaching starts here -->
-                        <div id="teach" class="tab-pane fade">
-                            <div class="card card-body">
-                                <ul class="nav nav-tabs">
-                                    <li class="active"><a data-toggle="tab" href="#ugrad">Undergraduate Courses</a></li>
-                                    <li><a data-toggle="tab" href="#grad">Graduate Courses</a></li>
-                                </ul>
+                    </div>
+                    <!-- Education starts here -->
+                    <div id="education" class="tab-pane fade">
+                        <div class="card card-body" id="education-table"></div>
+                    </div>
+                    <!-- Teaching starts here -->
+                    <div id="teach" class="tab-pane fade">
+                        <div class="card card-body">
+                            <ul class="nav nav-tabs">
+                                <li class="active"><a data-toggle="tab" href="#ugrad">Undergraduate Courses</a></li>
+                                <li><a data-toggle="tab" href="#grad">Graduate Courses</a></li>
+                            </ul>
 
-                                <div class="tab-content">
-                                    <div id="ugrad" class="tab-pane fade in active"> 
-                                        <!--                                        <div class="card card-body">
+                            <div class="tab-content">
+                                <div id="ugrad" class="tab-pane fade in active">
+                                    <!--                                        <div class="card card-body">
                                                                                     <div id="add-ugrad-table" class="table"></div>
                                                                                 </div>-->
-                                    </div>
-                                    <div id="grad" class="tab-pane fade"> 
-                                        <!--                                        <div class="card card-body">
+                                </div>
+                                <div id="grad" class="tab-pane fade">
+                                    <!--                                        <div class="card card-body">
                                                                                     <div id="add-grad-table" class="table"></div>
                                                                                 </div>-->
-                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <!-- Research interests starts here -->
-                        <div id="interest" class="tab-pane fade">
-                            <div class="card card-body" id="interest-table"></div>
-                        </div>
-                        <!-- News starts here -->
-                        <div id="news" class="tab-pane fade">
-                            <div class="card card-body" id="interest-table">
-                                <div class="ticker">
-                                    <h3>Latest News</h3>
-                                    <ul id="ticker">
+                    </div>
+                    <!-- Research interests starts here -->
+                    <div id="interest" class="tab-pane fade">
+                        <div class="card card-body" id="interest-table"></div>
+                    </div>
+                    <!-- News starts here -->
+                    <div id="news" class="tab-pane fade">
+                        <div class="card card-body" id="interest-table">
+                            <div class="ticker">
+                                <h3>Latest News</h3>
+                                <ul id="ticker">
 
-                                    </ul>
-                                </div>
-                                <div id = "lastModified"></div>
+                                </ul>
                             </div>
-
+                            <div id="lastModified"></div>
                         </div>
+
                     </div>
                 </div>
             </div>
-            <div class="col-md-1"></div>
         </div>
-        <!--</div>-->
+        <div class="col-md-1"></div>
+    </div>
+    <!--</div>-->
 
 
 
-        <!-- Office hour Starts here -->
-        <div class="meet-me-container row" id="office"> 
-            <div class="col-md-6"> <a name="office"></a>
-                <div id ="officehours"></div>
-                <!--                <h5>Office Hours (Spring 2022)</h5>
+    <!-- Office hour Starts here -->
+    <div class="meet-me-container row" id="office">
+        <div class="col-md-6"> <a name="office"></a>
+            <div id="officehours"></div>
+            <!--                <h5>Office Hours (Spring 2022)</h5>
                                 <div>Monday - 10:00 am - 11:00 am </div>
                                 <div>Monday - 1:00 pm - 2:00 pm </div>
                                 <div>Wednesday - 10:00 am - 11:00 am</div>
                                 <div>Wednesday - 1:00 pm - 2:00 pm </div>
                                 <div>Friday - 1:00 pm - 2:00 pm</div>-->
-            </div>
-            <div class="col-md-6" id = "contact"> <a name="contact"></a>
-                <h5>Contact Details</h5>
-                <div>Room # 134</div>
-                <div><a href="https://goo.gl/maps/8b7d8D47pK622g21A" target="blank">25, University Avenue </a></div>
-                <div>West Chester University</div>
-                <div> PA, 19383</div>
-                <div>Email : <b>mamiruzzaman [AT] wcupa [DOT] edu</b></div>
-            </div>
         </div>
+        <div class="col-md-6" id="contact"> <a name="contact"></a>
+            <h5>Contact Details</h5>
+            <div>Room # 134</div>
+            <div><a href="https://goo.gl/maps/8b7d8D47pK622g21A" target="blank">25, University Avenue </a></div>
+            <div>West Chester University</div>
+            <div> PA, 19383</div>
+            <div>Email : <b>mamiruzzaman [AT] wcupa [DOT] edu</b></div>
+        </div>
+    </div>
 
 
 
-        <!-- Footer Starts here -->
-        <footer class="footer-class">
-            <div class="row">
-                <div class="col-md-1"></div>
-                <div class="col-md-3"><a href="https://www.linkedin.com/in/md-amiruzzaman-4b35a348" target="_blank">Linkedin</a></div>
-                <div class="col-md-3"><a href="https://scholar.google.com/citations?hl=en&user=1TS4jxIAAAAJ&view_op=list_works&authuser=1&gmla=AJsN-F5-HSls7tSuGytC1c76O_6894V7B4rBHBx-GJ4yNVAm-CJMaIEOe9hdRD8OdolQ8zUuBTkOW0q4Rs9Vj8xlrIGrZljeRsrtOFhmyegjWDqLTomEFIA" target="_blank">Scholar</a></div>
-                <div class="col-md-3"><a href="https://publons.com/researcher/1217299/amir-md-amiruzzaman/" target="_blank">Publons</a></div>
-                <div class="col-md-1"></div>
+    <!-- Footer Starts here -->
+    <footer class="footer-class">
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-3"><a href="https://www.linkedin.com/in/md-amiruzzaman-4b35a348"
+                    target="_blank">Linkedin</a></div>
+            <div class="col-md-3"><a
+                    href="https://scholar.google.com/citations?hl=en&user=1TS4jxIAAAAJ&view_op=list_works&authuser=1&gmla=AJsN-F5-HSls7tSuGytC1c76O_6894V7B4rBHBx-GJ4yNVAm-CJMaIEOe9hdRD8OdolQ8zUuBTkOW0q4Rs9Vj8xlrIGrZljeRsrtOFhmyegjWDqLTomEFIA"
+                    target="_blank">Scholar</a></div>
+            <div class="col-md-3"><a href="https://publons.com/researcher/1217299/amir-md-amiruzzaman/"
+                    target="_blank">Publons</a></div>
+            <div class="col-md-1"></div>
+        </div>
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-3"><a href="https://orcid.org/0000-0002-2292-5798" target="_blank">Orcid</a></div>
+            <div class="col-md-3"><a
+                    href="https://www.semanticscholar.org/author/Md-Amiruzzaman/153586738?sort=influence&page=2"
+                    target="_blank">Semantic Scholar</a></div>
+            <div class="col-md-3"><a href="https://dblp.uni-trier.de/search?q=amiruzzaman" target="_blank">DBLP</a>
             </div>
-            <div class="row">
-                <div class="col-md-2"></div>
-                <div class="col-md-3"><a href="https://orcid.org/0000-0002-2292-5798" target="_blank">Orcid</a></div>
-                <div class="col-md-3"><a href="https://www.semanticscholar.org/author/Md-Amiruzzaman/153586738?sort=influence&page=2" target="_blank">Semantic Scholar</a></div>
-                <div class="col-md-3"><a href="https://dblp.uni-trier.de/search?q=amiruzzaman" target="_blank">DBLP</a></div>
-                <div class="col-md-1"></div>
-            </div>
-            <div class="row">
-                <div class="col-md-3"></div>
-                <div class="col-md-6">Copyrights © Md Amiruzzaman</div>
-                <div class="col-md-3"></div>
-            </div>
-        </footer>
+            <div class="col-md-1"></div>
+        </div>
+        <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-6">Copyrights © Md Amiruzzaman</div>
+            <div class="col-md-3"></div>
+        </div>
+    </footer>
 
-        <!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script> -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.3.4/js/tether.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.3/js/bootstrap.min.js"></script>
-        <script type="text/javascript" src="build/bib-list.js"></script>
-        <script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.3.4/js/tether.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.3/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="build/bib-list.js"></script>
+    <script>
 
-        </script>
+    </script>
 
-        <script>
-            // https://stackoverflow.com/questions/24482814/json-object-array-inside-array-find-and-replace-in-javascript
-            function findAndReplace(object, value, replacevalue) {
-                for (var x in object) {
-                    if (object.hasOwnProperty(x)) {
-                        if (typeof object[x] == 'object') {
-                            findAndReplace(object[x], value, replacevalue);
-                        }
-                        if (object[x] == value) {
-                            object["name"] = replacevalue;
-                            // break; // uncomment to stop after first replacement
-                        }
+    <script>
+        // https://stackoverflow.com/questions/24482814/json-object-array-inside-array-find-and-replace-in-javascript
+        function findAndReplace(object, value, replacevalue) {
+            for (var x in object) {
+                if (object.hasOwnProperty(x)) {
+                    if (typeof object[x] == 'object') {
+                        findAndReplace(object[x], value, replacevalue);
+                    }
+                    if (object[x] == value) {
+                        object["name"] = replacevalue;
+                        // break; // uncomment to stop after first replacement
                     }
                 }
             }
+        }
 
-            // https://stackoverflow.com/questions/3603242/convert-csv-file-to-json-object-datatable/6991791
-            function generateDivTable(filePath, divId, textAlign)
-            {
-                $.ajax(filePath, {
-                    success: function (data) {
-                        var jsonobject = csvjson.csv2json(data);
-                        // Now use jsonobject to do some charting...
-                        //console.log('Reading from csv');
-                        var data = jsonobject.rows;
-                        //console.log(jsonobject);
-                        //findAndReplace(jsonobject.rows, 0, '--')
-
-                        //console.log(data);
-                        //showDegreeInfo(data);
-
-                        var degreeinfo = data;
-                        for (let i = 0; i < degreeinfo.length; i++) {
-                            Object.keys(degreeinfo[i]).forEach(function (key) {
-                                //console.log(key);
-                                if (degreeinfo[i][key] == 0)
-                                {
-                                    //console.log(key);
-                                    //console.log(degreeinfo[i][key]);
-                                    degreeinfo[i][key] = '--';
-                                }
-                            });
-                        }
-                        var result = $('<div/>', {
-                            'id': 'results',
-                            'class': 'table'
-                        });
-
-                        var headers = $('<div/>', {
-                            'class': 'theader'
-                        });
-
-                        Object.keys(degreeinfo[0]).forEach(function (key) {
-                            //console.log(key);
-                            var table_header = $('<div/>', {
-                                'class': 'table_header'
-                            }).html(key).css('text-align', textAlign);
-
-
-                            //console.log(table_header);
-                            headers.append(table_header);
-                        })
-
-
-                        result.append(headers);
-
-
-
-
-                        for (let i = 0; i < degreeinfo.length; i++) {
-                            var table_row = $('<div/>', {
-                                'class': 'table_row'
-                            });
-
-                            Object.keys(degreeinfo[i]).forEach(function (key) {
-                                //console.log(key);
-                                var table_small = $('<div/>', {
-                                    'class': 'table_small'
-                                });
-
-                                var table_cell1 = $('<div/>', {
-                                    'class': 'table_cell'
-                                }).html(key)
-
-                                var table_cell2 = $('<div/>', {
-                                    'class': 'table_cell'
-                                }).html(degreeinfo[i][key]).css('text-align', textAlign);
-
-
-                                table_small.append(table_cell1).append(table_cell2);
-
-                                table_row.append(table_small);
-                            });
-                            result.append(table_row);
-                        }
-                        //$('body').append(result);
-                        $(divId).append(result);
-
-                    },
-                    error: function () {
-                        // Show some error message, couldn't get the CSV file
-                        console.log("Canot not read the file");
-                    }
-                });
-            }
-
-            generateDivTable("research/interest.csv", '#interest-table', 'left');
-            generateDivTable("education/degree.csv", '#education-table', 'center');
-        </script>
-
-        <script type="text/javascript">
-            $(document).ready(function () {
-                //bibtexify("#bibtex", "pubTable", {'tweet': 'vkaravir'});
-                bibtexify("#bibtex", "pubTable");
-
-                // hide the year
-                $('.sorting_1').hide();
-                // hide the type
-                $('.sorting_2').hide();
-                // remove the th tag texts
-                $('.sorting_desc').hide();
-
-                // this is to have the 1 of 10 in the middle of the browser
-                $('#pubTable_info').css({
-                    'text-align': 'center'
-                });
-
-                // move the filter close to the publication table
-                $('#pubTable_filter').css({
-                    'margin-left': '17vw'
-
-                });
-                $('#pubTable_filter > input').css({
-                    'border': '1px solid #0000007a',
-                    'padding': '1vh 1vw',
-                    'width': '55%'
-                });
-                $('#pubTable > thead').css({
-                    'display': 'none'
-                });
-                $('#pubTable > tbody > tr> td:nth-child(3)').css({
-                    'padding': '2vh 1vw'
-                });
-                $('#pubTable > tbody > tr:last-child').css({
-                    'border-bottom': '1px solid #0000007a'
-                });
-                $('#pubTable > tbody > .odd').css({
-                    'background-color': '#b5bfe770'
-                });
-                $('#pubTable > tbody > .even').css({
-                    'background-color': '#FFF'
-                });
-                // remove the bar chart div
-                $("#pubTablepubchart").remove();
-
-            });
-        </script>
-        <!--News -->
-        <script>
-            function getDateDifference(recordDate)
-            {
-                // get current date
-                // https://phoenixnap.com/kb/how-to-get-the-current-date-and-time-javascript
-                var today = new Date();
-
-                var date = (today.getMonth() + 1) + '/' + today.getDate() + '/' + today.getFullYear();
-                //document.getElementById("p1").innerHTML = date;
-
-                // get differece between two dates
-                // https://stackoverflow.com/questions/3224834/get-difference-between-2-dates-in-javascript
-                //const date1 = new Date('7/13/2010');
-                const date1 = new Date(date);
-                //const date2 = new Date('12/15/2010');
-                //const date2 = new Date(data[i].Date);
-                const date2 = new Date(recordDate);
-                const diffTime = Math.abs(date2 - date1);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                //console.log(diffTime + " milliseconds");
-                //console.log(diffDays + " days");
-                return diffDays;
-
-            }
-
-
-            $.ajax("news/news.csv", {
+        // https://stackoverflow.com/questions/3603242/convert-csv-file-to-json-object-datatable/6991791
+        function generateDivTable(filePath, divId, textAlign) {
+            $.ajax(filePath, {
                 success: function (data) {
                     var jsonobject = csvjson.csv2json(data);
                     // Now use jsonobject to do some charting...
-                    //console.log(jsonobject);
+                    //console.log('Reading from csv');
                     var data = jsonobject.rows;
+                    //console.log(jsonobject);
+                    //findAndReplace(jsonobject.rows, 0, '--')
+
                     //console.log(data);
+                    //showDegreeInfo(data);
 
-                    var ul = $('#ticker').css('id', 'listitem').css('class', 'ulclass');
-
-                    for (let i = 0; i < data.length; i++)
-                    {
-                        var compareDay = parseInt(data[data.length - 1].Keep);
-                        var str = null;
-                        if (getDateDifference(data[i].Date) < compareDay)
-                        {
-                            if (data[i]["URL\r"] !== 0)
-                            {
-                                str = data[i].Event + ", \"" + cleanComma(data[i].Title) + "\", <a href =\"" + data[i]["URL\r"] + "\">" + data[i].Venue + "</a>";
-                            } else
-                            {
-                                str = data[i].Event + ", \"" + cleanComma(data[i].Title) + "\", " + data[i].Venue;
+                    var degreeinfo = data;
+                    for (let i = 0; i < degreeinfo.length; i++) {
+                        Object.keys(degreeinfo[i]).forEach(function (key) {
+                            //console.log(key);
+                            if (degreeinfo[i][key] == 0) {
+                                //console.log(key);
+                                //console.log(degreeinfo[i][key]);
+                                degreeinfo[i][key] = '--';
                             }
-                            var listitem = $('<li/>', {
-                                'class': 'ulclass list'
-                            }).html(str).css('border-bottom', '1px solid #D6CFB8');
-                            ul.append(listitem);
-                        }
-                        //console.log(data[i].Event);
+                        });
                     }
+                    var result = $('<div/>', {
+                        'id': 'results',
+                        'class': 'table'
+                    });
+
+                    var headers = $('<div/>', {
+                        'class': 'theader'
+                    });
+
+                    Object.keys(degreeinfo[0]).forEach(function (key) {
+                        //console.log(key);
+                        var table_header = $('<div/>', {
+                            'class': 'table_header'
+                        }).html(key).css('text-align', textAlign);
+
+
+                        //console.log(table_header);
+                        headers.append(table_header);
+                    })
+
+
+                    result.append(headers);
+
+
+
+
+                    for (let i = 0; i < degreeinfo.length; i++) {
+                        var table_row = $('<div/>', {
+                            'class': 'table_row'
+                        });
+
+                        Object.keys(degreeinfo[i]).forEach(function (key) {
+                            //console.log(key);
+                            var table_small = $('<div/>', {
+                                'class': 'table_small'
+                            });
+
+                            var table_cell1 = $('<div/>', {
+                                'class': 'table_cell'
+                            }).html(key)
+
+                            var table_cell2 = $('<div/>', {
+                                'class': 'table_cell'
+                            }).html(degreeinfo[i][key]).css('text-align', textAlign);
+
+
+                            table_small.append(table_cell1).append(table_cell2);
+
+                            table_row.append(table_small);
+                        });
+                        result.append(table_row);
+                    }
+                    //$('body').append(result);
+                    $(divId).append(result);
+
+                },
+                error: function () {
+                    // Show some error message, couldn't get the CSV file
+                    console.log("Canot not read the file");
                 }
             });
-        </script>
+        }
 
-        <script>
+        generateDivTable("research/interest.csv", '#interest-table', 'left');
+        generateDivTable("education/degree.csv", '#education-table', 'center');
+    </script>
 
-            function aggregate(data) {
-                const courses = {};
-                const result = {
-                    graduate: [],
-                    undergraduate: [],
+    <script type="text/javascript">
+        $(document).ready(function () {
+            //bibtexify("#bibtex", "pubTable", {'tweet': 'vkaravir'});
+            bibtexify("#bibtex", "pubTable");
+
+            // hide the year
+            $('.sorting_1').hide();
+            // hide the type
+            $('.sorting_2').hide();
+            // remove the th tag texts
+            $('.sorting_desc').hide();
+
+            // this is to have the 1 of 10 in the middle of the browser
+            $('#pubTable_info').css({
+                'text-align': 'center'
+            });
+
+            // move the filter close to the publication table
+            $('#pubTable_filter').css({
+                'margin-left': '17vw'
+
+            });
+            $('#pubTable_filter > input').css({
+                'border': '1px solid #0000007a',
+                'padding': '1vh 1vw',
+                'width': '55%'
+            });
+            $('#pubTable > thead').css({
+                'display': 'none'
+            });
+            $('#pubTable > tbody > tr> td:nth-child(3)').css({
+                'padding': '2vh 1vw'
+            });
+            $('#pubTable > tbody > tr:last-child').css({
+                'border-bottom': '1px solid #0000007a'
+            });
+            $('#pubTable > tbody > .odd').css({
+                'background-color': '#b5bfe770'
+            });
+            $('#pubTable > tbody > .even').css({
+                'background-color': '#FFF'
+            });
+            // remove the bar chart div
+            $("#pubTablepubchart").remove();
+
+        });
+    </script>
+    <!--News -->
+    <script>
+        function getDateDifference(recordDate) {
+            // get current date
+            // https://phoenixnap.com/kb/how-to-get-the-current-date-and-time-javascript
+            var today = new Date();
+
+            var date = (today.getMonth() + 1) + '/' + today.getDate() + '/' + today.getFullYear();
+            //document.getElementById("p1").innerHTML = date;
+
+            // get differece between two dates
+            // https://stackoverflow.com/questions/3224834/get-difference-between-2-dates-in-javascript
+            //const date1 = new Date('7/13/2010');
+            const date1 = new Date(date);
+            //const date2 = new Date('12/15/2010');
+            //const date2 = new Date(data[i].Date);
+            const date2 = new Date(recordDate);
+            const diffTime = Math.abs(date2 - date1);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            //console.log(diffTime + " milliseconds");
+            //console.log(diffDays + " days");
+            return diffDays;
+
+        }
+
+
+        $.ajax("news/news.csv", {
+            success: function (data) {
+                var jsonobject = csvjson.csv2json(data);
+                // Now use jsonobject to do some charting...
+                //console.log(jsonobject);
+                var data = jsonobject.rows;
+                //console.log(data);
+
+                var ul = $('#ticker').css('id', 'listitem').css('class', 'ulclass');
+
+                for (let i = 0; i < data.length; i++) {
+                    var compareDay = parseInt(data[data.length - 1].Keep);
+                    var str = null;
+                    if (getDateDifference(data[i].Date) < compareDay) {
+                        if (data[i]["URL\r"] !== 0) {
+                            str = data[i].Event + ", \"" + cleanComma(data[i].Title) + "\", <a href =\"" + data[i]["URL\r"] + "\">" + data[i].Venue + "</a>";
+                        } else {
+                            str = data[i].Event + ", \"" + cleanComma(data[i].Title) + "\", " + data[i].Venue;
+                        }
+                        var listitem = $('<li/>', {
+                            'class': 'ulclass list'
+                        }).html(str).css('border-bottom', '1px solid #D6CFB8');
+                        ul.append(listitem);
+                    }
+                    //console.log(data[i].Event);
+                }
+            }
+        });
+    </script>
+
+    <script>
+
+        function aggregate(data) {
+            const courses = {};
+            const result = {
+                graduate: [],
+                undergraduate: [],
+            };
+
+            for (let row of data.rows) {
+                if (!courses[row.CourseNo]) {
+                    courses[row.CourseNo] = {};
+                    courses[row.CourseNo].Year = [row.Year];
+                    courses[row.CourseNo].CourseName = row.CourseName;
+                    courses[row.CourseNo].Times = 1;
+                    courses[row.CourseNo].University = row.University;
+                    courses[row.CourseNo].Level = row.Level;
+                } else {
+                    if (!courses[row.CourseNo].Year.includes(row.Year)) {
+                        courses[row.CourseNo].Year.push(row.Year);
+                        courses[row.CourseNo].Year.sort();
+                    }
+                    courses[row.CourseNo].Times++;
+                }
+            }
+
+            for (courseNo in courses) {
+                const course = courses[courseNo];
+                const d = {
+                    Year: course.Year,
+                    University: course.University,
+                    "Course No": courseNo,
+                    "Course Name": course.CourseName,
+                    Times: course.Times,
+
                 };
+                if (course.Level === "ugrad") {
+                    result.undergraduate.push(d);
+                } else {
+                    result.graduate.push(d);
+                }
+            }
 
-                for (let row of data.rows) {
-                    if (!courses[row.CourseNo]) {
-                        courses[row.CourseNo] = {};
-                        courses[row.CourseNo].Year = [row.Year];
-                        courses[row.CourseNo].CourseName = row.CourseName;
-                        courses[row.CourseNo].Times = 1;
-                        courses[row.CourseNo].University = row.University;
-                        courses[row.CourseNo].Level = row.Level;
-                    } else {
-                        if (!courses[row.CourseNo].Year.includes(row.Year)) {
-                            courses[row.CourseNo].Year.push(row.Year);
-                            courses[row.CourseNo].Year.sort();
+            return result;
+        }
+
+        // sort json array using key
+        // https://stackoverflow.com/questions/881510/sorting-json-by-values
+        function sortJSON(arr, key, way) {
+            return arr.sort(function (a, b) {
+                var x = a[key];
+                var y = b[key];
+                if (way === '123') {
+                    return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+                }
+                if (way === '321') {
+                    return ((x > y) ? -1 : ((x < y) ? 1 : 0));
+                }
+            });
+        }
+
+        // clean ' from string 
+        // https://stackoverflow.com/questions/44111580/how-to-deal-with-commas-in-csv-using-javascript
+        function cleanComma(str) {
+            const regex = /\'/g
+            return str.replace(regex, "\'");
+        }
+
+        $.ajax("teaching/teaching_ugrad_grad.csv", {
+            success: function (data) {
+                var jsonobject = csvjson.csv2json(data);
+                // Now use jsonobject to do some charting...
+                //console.log(jsonobject);
+                var data = jsonobject.rows;
+                //console.log(data);
+
+                var jsondata = aggregate(jsonobject);
+                //console.log(jsondata);
+
+
+                var ugrad = [];
+                var grad = [];
+
+                // graduate section
+                for (let i = 0; i < jsondata.graduate.length; i++) {
+                    //                        grad.push(jsondata.graduate[i]);
+                    var result_g = $('<div/>', {
+                        'id': 'results_g',
+                        'class': 'table'
+                    });
+
+                    var headers_g = $('<div/>', {
+                        'class': 'theader'
+                    });
+                    Object.keys(jsondata.graduate[0]).forEach(function (key) {
+                        //console.log(key);
+                        var table_header_g = $('<div/>', {
+                            'class': 'table_header'
+                        }).html(key);
+                        headers_g.append(table_header_g);
+
+                    })
+                    result_g.append(headers_g);
+
+                }
+                // end of firt loop graduate
+                //push the data rows
+                jsondata.graduate = sortJSON(jsondata.graduate, 'Year', '321');
+                for (let i = 0; i < jsondata.graduate.length; i++) {
+                    var table_row_g = $('<div/>', {
+                        'class': 'table_row'
+                    });
+
+                    Object.keys(jsondata.graduate[i]).forEach(function (key) {
+                        //console.log(jsondata.graduate[i]);
+                        var table_small_g = $('<div/>', {
+                            'class': 'table_small'
+                        });
+                        var table_cell1_g = $('<div/>', {
+                            'class': 'table_cell'
+                        }).html(key)
+                        if (key === "Year") {
+                            let teaching_info = jsondata.graduate[i][key].toString();
+                            //teaching_info = teaching_info.replaceAll(",", ", ")
+                            //console.log(teaching_info.split(',').join(', '));
+                            var table_cell2_g = $('<div/>', {
+                                'class': 'table_cell'
+                            }).html(teaching_info.split(',').join(', '));
+                            //.html(jsondata.graduate[i][key].toString().replace(",", ", "));
+                            //.css("text-align", "left").css("padding-left", "5px");
+                        } else {
+                            var table_cell2_g = $('<div/>', {
+                                'class': 'table_cell'
+                            }).html(jsondata.graduate[i][key]);
                         }
-                        courses[row.CourseNo].Times++;
-                    }
+                        table_small_g.append(table_cell1_g).append(table_cell2_g);
+                        table_row_g.append(table_small_g);
+                    });
+                    result_g.append(table_row_g);
                 }
+                //console.log(grad);
+                $('#grad').append(result_g);
 
-                for (courseNo in courses) {
-                    const course = courses[courseNo];
-                    const d = {
-                        Year: course.Year,
-                        University: course.University,
-                        "Course No": courseNo,
-                        "Course Name": course.CourseName,
-                        Times: course.Times,
 
-                    };
-                    if (course.Level === "ugrad") {
-                        result.undergraduate.push(d);
-                    } else {
-                        result.graduate.push(d);
-                    }
+                //undergraduate section
+                for (let i = 0; i < jsondata.undergraduate.length; i++) {
+                    //                        grad.push(jsondata.graduate[i]);
+                    var result_u = $('<div/>', {
+                        'id': 'results_u',
+                        'class': 'table'
+                    });
+
+                    var headers_u = $('<div/>', {
+                        'class': 'theader'
+                    });
+                    Object.keys(jsondata.undergraduate[0]).forEach(function (key) {
+                        //console.log(key);
+                        var table_header_u = $('<div/>', {
+                            'class': 'table_header'
+                        }).html(key);
+                        headers_u.append(table_header_u);
+
+                    })
+                    result_u.append(headers_u);
+
                 }
+                //push the data rows
+                jsondata.undergraduate = sortJSON(jsondata.undergraduate, 'Year', '321');
+                for (let i = 0; i < jsondata.undergraduate.length; i++) {
+                    var table_row_u = $('<div/>', {
+                        'class': 'table_row'
+                    });
 
-                return result;
-            }
-
-            // sort json array using key
-            // https://stackoverflow.com/questions/881510/sorting-json-by-values
-            function sortJSON(arr, key, way) {
-                return arr.sort(function (a, b) {
-                    var x = a[key];
-                    var y = b[key];
-                    if (way === '123') {
-                        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-                    }
-                    if (way === '321') {
-                        return ((x > y) ? -1 : ((x < y) ? 1 : 0));
-                    }
-                });
-            }
-
-            // clean ' from string 
-            // https://stackoverflow.com/questions/44111580/how-to-deal-with-commas-in-csv-using-javascript
-            function cleanComma(str) {
-                const regex = /\'/g
-                return str.replace(regex, "\'");
-            }
-
-            $.ajax("teaching/teaching_ugrad_grad.csv", {
-                success: function (data) {
-                    var jsonobject = csvjson.csv2json(data);
-                    // Now use jsonobject to do some charting...
-                    //console.log(jsonobject);
-                    var data = jsonobject.rows;
-                    //console.log(data);
-
-                    var jsondata = aggregate(jsonobject);
-                    //console.log(jsondata);
-
-
-                    var ugrad = [];
-                    var grad = [];
-
-                    // graduate section
-                    for (let i = 0; i < jsondata.graduate.length; i++)
-                    {
-//                        grad.push(jsondata.graduate[i]);
-                        var result_g = $('<div/>', {
-                            'id': 'results_g',
-                            'class': 'table'
+                    Object.keys(jsondata.undergraduate[i]).forEach(function (key) {
+                        //console.log(jsondata.undergraduate[i]);
+                        var table_small_u = $('<div/>', {
+                            'class': 'table_small'
                         });
-
-                        var headers_g = $('<div/>', {
-                            'class': 'theader'
-                        });
-                        Object.keys(jsondata.graduate[0]).forEach(function (key) {
-                            //console.log(key);
-                            var table_header_g = $('<div/>', {
-                                'class': 'table_header'
-                            }).html(key);
-                            headers_g.append(table_header_g);
-
-                        })
-                        result_g.append(headers_g);
-
-                    }
-                    // end of firt loop graduate
-                    //push the data rows
-                    jsondata.graduate = sortJSON(jsondata.graduate, 'Year', '321');
-                    for (let i = 0; i < jsondata.graduate.length; i++)
-                    {
-                        var table_row_g = $('<div/>', {
-                            'class': 'table_row'
-                        });
-
-                        Object.keys(jsondata.graduate[i]).forEach(function (key) {
-                            //console.log(jsondata.graduate[i]);
-                            var table_small_g = $('<div/>', {
-                                'class': 'table_small'
-                            });
-                            var table_cell1_g = $('<div/>', {
+                        var table_cell1_u = $('<div/>', {
+                            'class': 'table_cell'
+                        }).html(key)
+                        if (key === "Year") {
+                            let teaching_info = jsondata.undergraduate[i][key].toString();
+                            //teaching_info = teaching_info.replaceAll(",", ", ")
+                            //console.log(teaching_info.split(',').join('| '));
+                            var table_cell2_u = $('<div/>', {
                                 'class': 'table_cell'
-                            }).html(key)
-                            if (key === "Year") {
-								let teaching_info = jsondata.graduate[i][key].toString();
-								//teaching_info = teaching_info.replaceAll(",", ", ")
-								//console.log(teaching_info.split(',').join(', '));
-                                var table_cell2_g = $('<div/>', {
-                                    'class': 'table_cell'
-                                }).html(teaching_info.split(',').join(', '));
-								//.html(jsondata.graduate[i][key].toString().replace(",", ", "));
-                                //.css("text-align", "left").css("padding-left", "5px");
-                            } else {
-                                var table_cell2_g = $('<div/>', {
-                                    'class': 'table_cell'
-                                }).html(jsondata.graduate[i][key]);
-                            }
-                            table_small_g.append(table_cell1_g).append(table_cell2_g);
-                            table_row_g.append(table_small_g);
-                        });
-                        result_g.append(table_row_g);
-                    }
-                    //console.log(grad);
-                    $('#grad').append(result_g);
-
-
-                    //undergraduate section
-                    for (let i = 0; i < jsondata.undergraduate.length; i++)
-                    {
-//                        grad.push(jsondata.graduate[i]);
-                        var result_u = $('<div/>', {
-                            'id': 'results_u',
-                            'class': 'table'
-                        });
-
-                        var headers_u = $('<div/>', {
-                            'class': 'theader'
-                        });
-                        Object.keys(jsondata.undergraduate[0]).forEach(function (key) {
-                            //console.log(key);
-                            var table_header_u = $('<div/>', {
-                                'class': 'table_header'
-                            }).html(key);
-                            headers_u.append(table_header_u);
-
-                        })
-                        result_u.append(headers_u);
-
-                    }
-                    //push the data rows
-                    jsondata.undergraduate = sortJSON(jsondata.undergraduate, 'Year', '321');
-                    for (let i = 0; i < jsondata.undergraduate.length; i++)
-                    {
-                        var table_row_u = $('<div/>', {
-                            'class': 'table_row'
-                        });
-
-                        Object.keys(jsondata.undergraduate[i]).forEach(function (key) {
-                            //console.log(jsondata.undergraduate[i]);
-                            var table_small_u = $('<div/>', {
-                                'class': 'table_small'
-                            });
-                            var table_cell1_u = $('<div/>', {
+                            }).html(teaching_info.split(',').join(', '));
+                            //.html(jsondata.graduate[i][key].toString().replace(",", ", "));
+                            //.css("text-align", "left").css("padding-left", "5px");
+                        } else {
+                            var table_cell2_u = $('<div/>', {
                                 'class': 'table_cell'
-                            }).html(key)
-                            if (key === "Year") {
-								let teaching_info = jsondata.undergraduate[i][key].toString();
-								//teaching_info = teaching_info.replaceAll(",", ", ")
-								//console.log(teaching_info.split(',').join('| '));
-                                var table_cell2_u = $('<div/>', {
-                                    'class': 'table_cell'
-                                }).html(teaching_info.split(',').join(', '));
-								//.html(jsondata.graduate[i][key].toString().replace(",", ", "));
-                                //.css("text-align", "left").css("padding-left", "5px");
-                            } else {
-                                var table_cell2_u = $('<div/>', {
-                                    'class': 'table_cell'
-                                }).html(jsondata.undergraduate[i][key]);
-                            }
-                            table_small_u.append(table_cell1_u).append(table_cell2_u);
-                            table_row_u.append(table_small_u);
-                        });
-                        result_u.append(table_row_u);
-                    }
-                    //console.log(grad);
-                    $('#ugrad').append(result_u);
-                },
-                error: function () {
-                    // Show some error message, couldn't get the CSV file
+                            }).html(jsondata.undergraduate[i][key]);
+                        }
+                        table_small_u.append(table_cell1_u).append(table_cell2_u);
+                        table_row_u.append(table_small_u);
+                    });
+                    result_u.append(table_row_u);
                 }
-            });
-            function clearConsole() {
-                if (window.console || window.console.firebug) {
-                    console.clear();
-                }
+                //console.log(grad);
+                $('#ugrad').append(result_u);
+            },
+            error: function () {
+                // Show some error message, couldn't get the CSV file
             }
+        });
+        function clearConsole() {
+            if (window.console || window.console.firebug) {
+                console.clear();
+            }
+        }
 
-            $(document).ready(function () {
-                console.log("ready!");
-                clearConsole();
-            });
+        $(document).ready(function () {
+            console.log("ready!");
+            clearConsole();
+        });
 
-            var x = document.lastModified;
-            console.log(x);
-            $('#lastModified').html(x);
-        </script>
+        var x = document.lastModified;
+        console.log(x);
+        $('#lastModified').html(x);
+    </script>
 
-        <script>
-            $.ajax("officehours/officehours.csv", {
-                success: function (data) {
-                    var jsonobject = csvjson.csv2json(data);
-                    // Now use jsonobject to do some charting...
-                    //console.log(jsonobject);
-                    var data = jsonobject.rows;
-                    //console.log(data);
+    <script>
+        $.ajax("officehours/officehours.csv", {
+            success: function (data) {
+                var jsonobject = csvjson.csv2json(data);
+                // Now use jsonobject to do some charting...
+                //console.log(jsonobject);
+                var data = jsonobject.rows;
+                //console.log(data);
 
-                    if (data.length > 0) {
-                        let semester = data[0]['Semester'];
-                        //console.log(semester);
-                        let year = data[0]['Year'];
-                        //console.log(year);
-                        $('#officehours').append("<h5><b>Office Hours (" + semester + " " + year + ")</b></h5>");
-                    }
-                    for (let i = 0; i < data.length; i++) {
-
-                        //console.log(data[i]['Day'] + ': ' + data[i]['From'] + data[i]['am_pm1'] + '-' + data[i]['To'] + data[i]['am_pm2'] + ' (' + data[i]['Type'] + ')');
-                        //console.log(data[i]);
-                        $('#officehours').append('<div>' + data[i]['Day'] + ': ' + data[i]['From'] + data[i]['am_pm1'] + '-' + data[i]['To'] + data[i]['am_pm2'] + ' (' + data[i]['Type'] + ')' + '</div>');
-                    }
-                },
-                error: function () {
-                    // Show some error message, couldn't get the CSV file
+                if (data.length > 0) {
+                    let semester = data[0]['Semester'];
+                    //console.log(semester);
+                    let year = data[0]['Year'];
+                    //console.log(year);
+                    $('#officehours').append("<h5><b>Office Hours (" + semester + " " + year + ")</b></h5>");
                 }
-            });
-			
-			// on load 
-			(function () {
-			/*
-				alert("I am here");
-				
-				//const text = 'bobby hadz tutorial';
-				const text = '[doi]';
+                for (let i = 0; i < data.length; i++) {
 
-				if (document.body.textContent.includes(text)) {
-				  console.log('✅ text exists on page');
-				  var el = document.body.textContent.includes(text)[0]
-				  el.text = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-				} else {
-				  console.log('⛔️ text does not exist on page');
-				}
-			*/
-			})();
-			
+                    //console.log(data[i]['Day'] + ': ' + data[i]['From'] + data[i]['am_pm1'] + '-' + data[i]['To'] + data[i]['am_pm2'] + ' (' + data[i]['Type'] + ')');
+                    //console.log(data[i]);
+                    $('#officehours').append('<div>' + data[i]['Day'] + ': ' + data[i]['From'] + data[i]['am_pm1'] + '-' + data[i]['To'] + data[i]['am_pm2'] + ' (' + data[i]['Type'] + ')' + '</div>');
+                }
+            },
+            error: function () {
+                // Show some error message, couldn't get the CSV file
+            }
+        });
 
-        </script>
+        // on load 
+        (function () {
+            /*
+                alert("I am here");
+            	
+                //const text = 'bobby hadz tutorial';
+                const text = '[doi]';
 
-    </body>
+                if (document.body.textContent.includes(text)) {
+                  console.log('✅ text exists on page');
+                  var el = document.body.textContent.includes(text)[0]
+                  el.text = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+                } else {
+                  console.log('⛔️ text does not exist on page');
+                }
+            */
+        })();
+
+
+    </script>
+
+</body>
+
 </html>
