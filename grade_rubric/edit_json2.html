@@ -27,19 +27,9 @@
         .save-button:hover, .load-button:hover, .add-button:hover {
             background-color: #45a049;
         }
-        .subtotal, .grand-total {
+        .subtotal {
             font-weight: bold;
             background-color: #e0e0e0;
-        }
-        .delete-button {
-            background-color: #ff4d4d;
-            color: white;
-            border: none;
-            cursor: pointer;
-            padding: 5px 10px;
-        }
-        .delete-button:hover {
-            background-color: #cc0000;
         }
     </style>
 </head>
@@ -48,10 +38,10 @@
 <h1>Edit JSON Data</h1>
 <input type="file" id="fileInput" accept=".json" class="load-button" onchange="handleFileLoad()" />
 <div id="table-container"></div>
-<h2 class="grand-total">Grand Total: <span id="grand-total">0</span></h2>
 <br>
 <input type="text" id="filename" placeholder="Enter filename (optional)" />
 <button class="save-button" onclick="saveJson()">Save Changes</button>
+<button class="add-button" onclick="addNewRow()">Add New Row</button>
 
 <script>
     let jsonData = null;
@@ -81,7 +71,7 @@
 
             const table = document.createElement("table");
             const header = document.createElement("tr");
-            header.innerHTML = `<th>Question</th><th>Yes Response</th><th>No Response</th><th>Points</th><th>Action</th>`;
+            header.innerHTML = `<th>Question</th><th>Yes Response</th><th>No Response</th><th>Points</th>`;
             table.appendChild(header);
 
             part.problems[0].forEach((problem, index) => {
@@ -90,19 +80,12 @@
 
             const subtotalRow = document.createElement("tr");
             subtotalRow.classList.add("subtotal");
-            subtotalRow.innerHTML = `<td colspan="3">Subtotal</td><td id="subtotal-${partKey}">0</td><td></td>`;
+            subtotalRow.innerHTML = `<td colspan="3">Subtotal</td><td id="subtotal-${partKey}">0</td>`;
             table.appendChild(subtotalRow);
 
-            const addButton = document.createElement("button");
-            addButton.textContent = "Add New Row";
-            addButton.classList.add("add-button");
-            addButton.onclick = () => addNewRow(partKey);
             container.appendChild(table);
-            container.appendChild(addButton);
-
             updateSubtotal(partKey);
         }
-        updateGrandTotal();
     }
 
     function createRow(problem, index, partKey) {
@@ -125,50 +108,48 @@
         const pointCell = document.createElement("td");
         pointCell.contentEditable = true;
         pointCell.textContent = problem.point;
-        pointCell.oninput = (event) => {
-            jsonData[partKey].problems[0][index].point = parseFloat(event.target.textContent) || 0;
-            updateSubtotal(partKey);
-        };
+        pointCell.oninput = () => updateSubtotal(partKey);
         row.appendChild(pointCell);
-
-        const deleteButton = document.createElement("button");
-        deleteButton.textContent = "Delete";
-        deleteButton.classList.add("delete-button");
-        deleteButton.onclick = () => deleteRow(partKey, index);
-        const actionCell = document.createElement("td");
-        actionCell.appendChild(deleteButton);
-        row.appendChild(actionCell);
 
         return row;
     }
 
-    function addNewRow(partKey) {
-        jsonData[partKey].problems[0].push({ yes: "", no: "", point: "0" });
-        displayTable(jsonData);
-    }
-
-    function deleteRow(partKey, index) {
-        jsonData[partKey].problems[0].splice(index, 1);
+    function addNewRow() {
+        for (let partKey in jsonData) {
+            jsonData[partKey].problems[0].push({ yes: "", no: "", point: "0" });
+        }
         displayTable(jsonData);
     }
 
     function updateSubtotal(partKey) {
-        let total = jsonData[partKey].problems[0].reduce((sum, problem) => sum + (parseFloat(problem.point) || 0), 0);
-        document.getElementById(`subtotal-${partKey}`).textContent = total;
-        updateGrandTotal();
-    }
-
-    function updateGrandTotal() {
-        let grandTotal = 0;
-        for (let partKey in jsonData) {
-            grandTotal += jsonData[partKey].problems[0].reduce((sum, problem) => sum + (parseFloat(problem.point) || 0), 0);
-        }
-        document.getElementById("grand-total").textContent = grandTotal;
+        let total = 0;
+        document.querySelectorAll(`#table-container table`).forEach((table, partIndex) => {
+            if (`Part ${partIndex}` === partKey) {
+                const rows = table.querySelectorAll("tr:not(:first-child, .subtotal)");
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll("td");
+                    total += parseFloat(cells[3].textContent) || 0;
+                });
+                document.getElementById(`subtotal-${partKey}`).textContent = total;
+            }
+        });
     }
 
     function saveJson() {
+        const tables = document.querySelectorAll("table");
+        tables.forEach((table, partIndex) => {
+            const rows = table.querySelectorAll("tr:not(:first-child, .subtotal)");
+            rows.forEach((row, rowIndex) => {
+                const cells = row.querySelectorAll("td");
+                jsonData[`Part ${partIndex}`].problems[0][rowIndex].yes = cells[1].textContent;
+                jsonData[`Part ${partIndex}`].problems[0][rowIndex].no = cells[2].textContent;
+                jsonData[`Part ${partIndex}`].problems[0][rowIndex].point = parseInt(cells[3].textContent);
+            });
+        });
+
         const filenameInput = document.getElementById("filename").value;
         const filename = filenameInput ? filenameInput : "a2fall24.json";
+
         const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: "application/json" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");

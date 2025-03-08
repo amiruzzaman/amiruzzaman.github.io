@@ -27,7 +27,7 @@
         .save-button:hover, .load-button:hover, .add-button:hover {
             background-color: #45a049;
         }
-        .subtotal, .grand-total {
+        .subtotal {
             font-weight: bold;
             background-color: #e0e0e0;
         }
@@ -48,7 +48,6 @@
 <h1>Edit JSON Data</h1>
 <input type="file" id="fileInput" accept=".json" class="load-button" onchange="handleFileLoad()" />
 <div id="table-container"></div>
-<h2 class="grand-total">Grand Total: <span id="grand-total">0</span></h2>
 <br>
 <input type="text" id="filename" placeholder="Enter filename (optional)" />
 <button class="save-button" onclick="saveJson()">Save Changes</button>
@@ -102,7 +101,6 @@
 
             updateSubtotal(partKey);
         }
-        updateGrandTotal();
     }
 
     function createRow(problem, index, partKey) {
@@ -155,15 +153,6 @@
     function updateSubtotal(partKey) {
         let total = jsonData[partKey].problems[0].reduce((sum, problem) => sum + (parseFloat(problem.point) || 0), 0);
         document.getElementById(`subtotal-${partKey}`).textContent = total;
-        updateGrandTotal();
-    }
-
-    function updateGrandTotal() {
-        let grandTotal = 0;
-        for (let partKey in jsonData) {
-            grandTotal += jsonData[partKey].problems[0].reduce((sum, problem) => sum + (parseFloat(problem.point) || 0), 0);
-        }
-        document.getElementById("grand-total").textContent = grandTotal;
     }
 
     function saveJson() {
