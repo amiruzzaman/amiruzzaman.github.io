@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Table Viewer and Editor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        input[type="text"] {
+            padding: 8px;
+            margin-bottom: 15px;
+            width: 100%;
+            max-width: 300px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        input[type="file"], button {
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>CSV Table Viewer and Editor</h1>
+    <input type="file" id="fileInput" accept=".csv" onchange="handleFileUpload(event)">
+    <input type="text" id="searchBox" placeholder="Search..." oninput="filterTable()" disabled>
+    <button onclick="downloadCSV()" disabled id="downloadButton">Download CSV</button>
+    <table id="csvTable">
+        <thead>
+            <tr id="headerRow"></tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+
+    <script>
+        let csvData = [];
+        let filteredData = [];
+        let headers = [];
+        let sortDirections = [];
+        let lastEditedCell = null;
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file && file.type === "text/csv") {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const data = e.target.result;
+                    parseCSV(data);
+                    document.getElementById("downloadButton").disabled = false;
+                };
+                reader.readAsText(file);
+                document.getElementById("searchBox").disabled = false;
+            } else {
+                alert("Please upload a valid CSV file.");
+            }
+        }
+
+        function parseCSV(data) {
+            const rows = data.split("\n").filter(row => row.trim() !== "");
+            headers = rows[0].split(",");
+            sortDirections = Array(headers.length).fill(null);
+            
+            csvData = rows.slice(1).map((row, index) => ({
+                originalIndex: index,
+                values: row.split(",")
+            }));
+            filteredData = [...csvData];
+
+            renderTable(headers, filteredData);
+        }
+
+        function renderTable(headers, data) {
+            const tableHeader = document.getElementById("headerRow");
+            tableHeader.innerHTML = "";
+
+            headers.forEach((header, index) => {
+                const th = document.createElement("th");
+                th.textContent = header;
+                th.addEventListener("click", () => sortTableByColumn(index));
+                tableHeader.appendChild(th);
+            });
+
+            const tableBody = document.getElementById("tableBody");
+            tableBody.innerHTML = "";
+
+            data.forEach((row, rowIndex) => {
+                const tr = document.createElement("tr");
+                row.values.forEach((cell, cellIndex) => {
+                    const td = document.createElement("td");
+                    td.textContent = cell;
+                    td.contentEditable = true;
+
+                    td.addEventListener("focus", () => {
+                        lastEditedCell = { td, row, cellIndex, originalValue: td.textContent };
+                    });
+
+                    td.addEventListener("input", (e) => {
+                        row.values[cellIndex] = e.target.textContent;
+                    });
+
+                    tr.appendChild(td);
+                });
+                tableBody.appendChild(tr);
+            });
+        }
+
+        document.addEventListener("click", (event) => {
+            if (lastEditedCell && document.activeElement !== lastEditedCell.td) {
+                const { td, row, cellIndex, originalValue } = lastEditedCell;
+                const newValue = td.textContent;
+
+                if (newValue !== originalValue) {
+                    row.values[cellIndex] = newValue;
+                    csvData[row.originalIndex].values[cellIndex] = newValue; // Update original data
+                }
+
+                lastEditedCell = null;
+            }
+        });
+
+        function filterTable() {
+            const searchValue = document.getElementById("searchBox").value.toLowerCase();
+            filteredData = csvData.filter(row => {
+                return row.values.some(cell => cell.toLowerCase().includes(searchValue));
+            });
+
+            renderTable(headers, filteredData);
+        }
+
+        function sortTableByColumn(columnIndex) {
+            const currentDirection = sortDirections[columnIndex];
+            const isAscending = currentDirection === "asc";
+
+            filteredData.sort((a, b) => {
+                if (a.values[columnIndex] < b.values[columnIndex]) return isAscending ? -1 : 1;
+                if (a.values[columnIndex] > b.values[columnIndex]) return isAscending ? 1 : -1;
+                return 0;
+            });
+
+            sortDirections[columnIndex] = isAscending ? "desc" : "asc";
+
+            renderTable(headers, filteredData);
+        }
+
+        function downloadCSV() {
+            const csvContent = [headers.join(",")].concat(
+                csvData.map(row => row.values.join(","))
+            ).join("\n");
+
+            const blob = new Blob([csvContent], { type: "text/csv" });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "modified_data.csv";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

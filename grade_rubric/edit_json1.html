@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit JSON Data</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .save-button, .load-button {
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .save-button:hover, .load-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Edit JSON Data</h1>
+<input type="file" id="fileInput" accept=".json" class="load-button" onchange="handleFileLoad()" />
+<div id="table-container"></div>
+<br>
+<input type="text" id="filename" placeholder="Enter filename (optional)" />
+<button class="save-button" onclick="saveJson()">Save Changes</button>
+
+<script>
+    let jsonData = null;
+
+    // Load JSON data from a selected file
+    function handleFileLoad() {
+        const fileInput = document.getElementById("fileInput");
+        const file = fileInput.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                jsonData = JSON.parse(event.target.result);
+                displayTable(jsonData);
+            };
+            reader.readAsText(file);
+        }
+    }
+
+    // Display the JSON data in a table format
+    function displayTable(data) {
+        const container = document.getElementById("table-container");
+        container.innerHTML = ''; // Clear container
+
+        for (let partKey in data) {
+            const part = data[partKey];
+            const title = document.createElement("h2");
+            title.textContent = part.title;
+            container.appendChild(title);
+
+            const table = document.createElement("table");
+            const header = document.createElement("tr");
+            header.innerHTML = `<th>Question</th><th>Yes Response</th><th>No Response</th><th>Points</th>`;
+            table.appendChild(header);
+
+            part.problems[0].forEach((problem, index) => {
+                const row = document.createElement("tr");
+
+                const questionCell = document.createElement("td");
+                questionCell.textContent = `Problem ${index + 1}`;
+                row.appendChild(questionCell);
+
+                const yesCell = document.createElement("td");
+                yesCell.contentEditable = true;
+                yesCell.textContent = problem.yes;
+                row.appendChild(yesCell);
+
+                const noCell = document.createElement("td");
+                noCell.contentEditable = true;
+                noCell.textContent = problem.no;
+                row.appendChild(noCell);
+
+                const pointCell = document.createElement("td");
+                pointCell.contentEditable = true;
+                pointCell.textContent = problem.point;
+                row.appendChild(pointCell);
+
+                table.appendChild(row);
+            });
+
+            container.appendChild(table);
+        }
+    }
+
+    // Save JSON data after editing
+    function saveJson() {
+        const tables = document.querySelectorAll("table");
+        tables.forEach((table, partIndex) => {
+            const rows = table.querySelectorAll("tr:not(:first-child)");
+            rows.forEach((row, rowIndex) => {
+                const cells = row.querySelectorAll("td");
+                jsonData[`Part ${partIndex}`].problems[0][rowIndex].yes = cells[1].textContent;
+                jsonData[`Part ${partIndex}`].problems[0][rowIndex].no = cells[2].textContent;
+                jsonData[`Part ${partIndex}`].problems[0][rowIndex].point = parseInt(cells[3].textContent);
+            });
+        });
+
+        // Set the default filename or use custom filename if provided
+        const filenameInput = document.getElementById("filename").value;
+        const filename = filenameInput ? filenameInput : "a2fall24.json";
+
+        // Convert JSON to blob and download as JSON file
+        const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+</script>
+
+</body>
+</html>
