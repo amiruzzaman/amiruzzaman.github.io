@@ -16,7 +16,7 @@
         th {
             background-color: #f4f4f4;
         }
-        .save-button, .load-button {
+        .save-button, .load-button, .add-button {
             margin-top: 20px;
             padding: 10px 15px;
             background-color: #4CAF50;
@@ -24,8 +24,12 @@
             border: none;
             cursor: pointer;
         }
-        .save-button:hover, .load-button:hover {
+        .save-button:hover, .load-button:hover, .add-button:hover {
             background-color: #45a049;
+        }
+        .subtotal {
+            font-weight: bold;
+            background-color: #e0e0e0;
         }
     </style>
 </head>
@@ -37,11 +41,11 @@
 <br>
 <input type="text" id="filename" placeholder="Enter filename (optional)" />
 <button class="save-button" onclick="saveJson()">Save Changes</button>
+<button class="add-button" onclick="addNewRow()">Add New Row</button>
 
 <script>
     let jsonData = null;
 
-    // Load JSON data from a selected file
     function handleFileLoad() {
         const fileInput = document.getElementById("fileInput");
         const file = fileInput.files[0];
@@ -55,10 +59,9 @@
         }
     }
 
-    // Display the JSON data in a table format
     function displayTable(data) {
         const container = document.getElementById("table-container");
-        container.innerHTML = ''; // Clear container
+        container.innerHTML = ''; 
 
         for (let partKey in data) {
             const part = data[partKey];
@@ -72,39 +75,70 @@
             table.appendChild(header);
 
             part.problems[0].forEach((problem, index) => {
-                const row = document.createElement("tr");
-
-                const questionCell = document.createElement("td");
-                questionCell.textContent = `Problem ${index + 1}`;
-                row.appendChild(questionCell);
-
-                const yesCell = document.createElement("td");
-                yesCell.contentEditable = true;
-                yesCell.textContent = problem.yes;
-                row.appendChild(yesCell);
-
-                const noCell = document.createElement("td");
-                noCell.contentEditable = true;
-                noCell.textContent = problem.no;
-                row.appendChild(noCell);
-
-                const pointCell = document.createElement("td");
-                pointCell.contentEditable = true;
-                pointCell.textContent = problem.point;
-                row.appendChild(pointCell);
-
-                table.appendChild(row);
+                table.appendChild(createRow(problem, index, partKey));
             });
 
+            const subtotalRow = document.createElement("tr");
+            subtotalRow.classList.add("subtotal");
+            subtotalRow.innerHTML = `<td colspan="3">Subtotal</td><td id="subtotal-${partKey}">0</td>`;
+            table.appendChild(subtotalRow);
+
             container.appendChild(table);
+            updateSubtotal(partKey);
         }
     }
 
-    // Save JSON data after editing
+    function createRow(problem, index, partKey) {
+        const row = document.createElement("tr");
+
+        const questionCell = document.createElement("td");
+        questionCell.textContent = `Problem ${index + 1}`;
+        row.appendChild(questionCell);
+
+        const yesCell = document.createElement("td");
+        yesCell.contentEditable = true;
+        yesCell.textContent = problem.yes;
+        row.appendChild(yesCell);
+
+        const noCell = document.createElement("td");
+        noCell.contentEditable = true;
+        noCell.textContent = problem.no;
+        row.appendChild(noCell);
+
+        const pointCell = document.createElement("td");
+        pointCell.contentEditable = true;
+        pointCell.textContent = problem.point;
+        pointCell.oninput = () => updateSubtotal(partKey);
+        row.appendChild(pointCell);
+
+        return row;
+    }
+
+    function addNewRow() {
+        for (let partKey in jsonData) {
+            jsonData[partKey].problems[0].push({ yes: "", no: "", point: "0" });
+        }
+        displayTable(jsonData);
+    }
+
+    function updateSubtotal(partKey) {
+        let total = 0;
+        document.querySelectorAll(`#table-container table`).forEach((table, partIndex) => {
+            if (`Part ${partIndex}` === partKey) {
+                const rows = table.querySelectorAll("tr:not(:first-child, .subtotal)");
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll("td");
+                    total += parseFloat(cells[3].textContent) || 0;
+                });
+                document.getElementById(`subtotal-${partKey}`).textContent = total;
+            }
+        });
+    }
+
     function saveJson() {
         const tables = document.querySelectorAll("table");
         tables.forEach((table, partIndex) => {
-            const rows = table.querySelectorAll("tr:not(:first-child)");
+            const rows = table.querySelectorAll("tr:not(:first-child, .subtotal)");
             rows.forEach((row, rowIndex) => {
                 const cells = row.querySelectorAll("td");
                 jsonData[`Part ${partIndex}`].problems[0][rowIndex].yes = cells[1].textContent;
@@ -113,11 +147,9 @@
             });
         });
 
-        // Set the default filename or use custom filename if provided
         const filenameInput = document.getElementById("filename").value;
         const filename = filenameInput ? filenameInput : "a2fall24.json";
 
-        // Convert JSON to blob and download as JSON file
         const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: "application/json" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
