@@ -6,7 +6,30 @@
     <title>Styled QR Code Generator</title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='10' y='10' width='80' height='80' rx='10' ry='10' fill='white' stroke='black' stroke-width='3'/%3E%3Ccircle cx='50' cy='50' r='6' fill='black'/%3E%3Ccircle cx='25' cy='30' r='5' fill='black'/%3E%3Ccircle cx='50' cy='50' r='5' fill='black'/%3E%3Ccircle cx='25' cy='70' r='5' fill='black'/%3E%3Ccircle cx='75' cy='25' r='5' fill='black'/%3E%3Ccircle cx='75' cy='75' r='5' fill='black'/%3E%3Ccircle cx='50' cy='25' r='5' fill='black'/%3E%3Ccircle cx='50' cy='75' r='5' fill='black'/%3E%3C/svg%3E">
+    <!-- <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='10' y='10' width='80' height='80' rx='10' ry='10' fill='white' stroke='black' stroke-width='3'/%3E%3Ccircle cx='50' cy='50' r='6' fill='black'/%3E%3Ccircle cx='25' cy='30' r='5' fill='black'/%3E%3Ccircle cx='50' cy='50' r='5' fill='black'/%3E%3Ccircle cx='25' cy='70' r='5' fill='black'/%3E%3Ccircle cx='75' cy='25' r='5' fill='black'/%3E%3Ccircle cx='75' cy='75' r='5' fill='black'/%3E%3Ccircle cx='50' cy='25' r='5' fill='black'/%3E%3Ccircle cx='50' cy='75' r='5' fill='black'/%3E%3C/svg%3E"> -->
+      <!-- 3D Dice Favicon -->
+      <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E
+%3C!-- Dice Outline --%3E
+%3Cpolygon points='50,30 150,30 180,70 80,70' fill='%23fff' stroke='%23000' stroke-width='5'/%3E
+%3Cpolygon points='50,30 20,70 20,170 50,140' fill='%23ddd' stroke='%23000' stroke-width='5'/%3E
+%3Cpolygon points='150,30 180,70 180,170 150,140' fill='%23ccc' stroke='%23000' stroke-width='5'/%3E
+
+%3C!-- Face 1 --%3E
+%3Ccircle cx='115' cy='50' r='8' fill='%23000'/%3E
+
+%3C!-- Face 3 --%3E
+%3Ccircle cx='45' cy='90' r='8' fill='%23000'/%3E
+%3Ccircle cx='80' cy='120' r='8' fill='%23000'/%3E
+%3Ccircle cx='35' cy='150' r='8' fill='%23000'/%3E
+
+%3C!-- Face 5 --%3E
+%3Ccircle cx='155' cy='80' r='8' fill='%23000'/%3E
+%3Ccircle cx='125' cy='110' r='8' fill='%23000'/%3E
+%3Ccircle cx='155' cy='140' r='8' fill='%23000'/%3E
+%3Ccircle cx='95' cy='80' r='8' fill='%23000'/%3E
+%3Ccircle cx='95' cy='140' r='8' fill='%23000'/%3E
+%3C/svg%3E">
+
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script> <!-- For capturing full image -->
@@ -139,6 +162,78 @@
             });
         }
     </script>
+<div class="dice-container">
+    <div class="dice">
+        <!-- Face 1 -->
+        <div class="face top"><span class="pip"></span></div>
+
+        <!-- Face 3 -->
+        <div class="face left">
+            <span class="pip"></span>
+            <span class="pip middle"></span>
+            <span class="pip bottom"></span>
+        </div>
+
+        <!-- Face 5 -->
+        <div class="face right">
+            <span class="pip"></span>
+            <span class="pip middle"></span>
+            <span class="pip center"></span>
+            <span class="pip bottom"></span>
+            <span class="pip last"></span>
+        </div>
+    </div>
+</div>
+
+<style>
+    .dice-container {
+        perspective: 600px;
+        width: 100px;
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 50px auto;
+    }
+
+    .dice {
+        width: 100px;
+        height: 100px;
+        position: relative;
+        transform-style: preserve-3d;
+        transform: rotateX(30deg) rotateY(45deg);
+    }
+
+    .face {
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        background: white;
+        border: 4px solid black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    /* Positioning three visible sides */
+    .top { transform: rotateX(-90deg) translateZ(50px); }
+    .left { transform: rotateY(-45deg) translateZ(50px); }
+    .right { transform: rotateY(45deg) translateZ(50px); }
+
+    /* Dots */
+    .pip {
+        width: 15px;
+        height: 15px;
+        background: black;
+        border-radius: 50%;
+        position: absolute;
+    }
+    .middle { top: 45px; left: 45px; }
+    .bottom { bottom: 10px; left: 10px; }
+    .center { top: 25px; left: 50px; }
+    .last { top: 50px; right: 10px; }
+</style>
 
 </body>
 </html>

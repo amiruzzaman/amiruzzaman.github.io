@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Tree Visualization</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .node circle { fill: steelblue; stroke: black; stroke-width: 2px; }
+        .node text { font-size: 14px; fill: white; }
+        .link { fill: none; stroke: #ccc; stroke-width: 2px; }
+        textarea { width: 90%; height: 50px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h2>Binary Tree Visualization</h2>
+    <div>
+        <label><input type="radio" name="traversal" value="preorder" checked> Preorder</label>
+        <label><input type="radio" name="traversal" value="inorder"> Inorder</label>
+        <label><input type="radio" name="traversal" value="postorder"> Postorder</label>
+    </div>
+    <textarea id="treeInput" placeholder='Enter comma-separated values'></textarea>
+    <button onclick="updateTree()">Update Tree</button>
+    <svg width="800" height="500"></svg>
+    <script>
+        function buildTree(values) {
+            if (!values.length) return null;
+            let root = { name: values[0], left: null, right: null };
+            for (let i = 1; i < values.length; i++) {
+                insertNode(root, values[i]);
+            }
+            return root;
+        }
+
+        function insertNode(root, value) {
+            if (value < root.name) {
+                if (!root.left) root.left = { name: value, left: null, right: null };
+                else insertNode(root.left, value);
+            } else {
+                if (!root.right) root.right = { name: value, left: null, right: null };
+                else insertNode(root.right, value);
+            }
+        }
+
+        function updateTree() {
+            const input = document.getElementById("treeInput").value;
+            const values = input.split(',').map(v => parseInt(v.trim())).filter(v => !isNaN(v));
+            if (values.length === 0) {
+                alert("Please enter valid comma-separated values.");
+                return;
+            }
+            const tree = buildTree(values);
+            renderTree(tree);
+        }
+
+        function renderTree(treeData) {
+            d3.select("svg").selectAll("*").remove();
+            const svg = d3.select("svg"),
+                  width = +svg.attr("width"),
+                  height = +svg.attr("height"),
+                  g = svg.append("g").attr("transform", "translate(50,50)");
+
+            const treeLayout = d3.tree().size([width - 100, height - 100]);
+            const root = d3.hierarchy(treeData, d => (d.left || d.right) ? [d.left, d.right].filter(n => n !== null) : []);
+            treeLayout(root);
+
+            g.selectAll(".link")
+                .data(root.links())
+                .enter()
+                .append("line")
+                .attr("class", "link")
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+
+            const nodes = g.selectAll(".node")
+                .data(root.descendants())
+                .enter()
+                .append("g")
+                .attr("class", "node")
+                .attr("transform", d => `translate(${d.x},${d.y})`);
+
+            nodes.append("circle")
+                .attr("r", 20);
+
+            nodes.append("text")
+                .attr("dy", ".35em")
+                .attr("text-anchor", "middle")
+                .text(d => d.data.name);
+        }
+    </script>
+</body>
+</html>
