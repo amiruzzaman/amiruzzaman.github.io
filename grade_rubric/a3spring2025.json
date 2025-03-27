@@ -14,18 +14,23 @@
           "point": 1
         },
         {
-          "yes": "",
-          "no": "",
+          "yes": "You provided final GitHub commit.",
+          "no": "Final GitHub commit is missing.",
           "point": 1
         },
         {
-          "yes": "",
-          "no": "",
+          "yes": "Your report has a reference section.",
+          "no": "You should follow proper reference formatting. APA, MLA or IEEE format should be fine.",
           "point": 1
         },
         {
-          "yes": "",
-          "no": "",
+          "yes": "Figures/graphs/plots are readable.",
+          "no": "Your figures/graphs/plots are not readable. Consider using larger fonts for your plots/figures.",
+          "point": 1
+        },
+        {
+          "yes": "Your report is within the page limit.",
+          "no": "Your report ... pages. You should follow the page limit instruction for your report.",
           "point": 1
         }
       ]
@@ -173,7 +178,7 @@
         {
           "yes": "You provided some discussion and rationale.",
           "no": "You did not provide a detailed discussion and rationale. ",
-          "point": 2
+          "point": 0
         },
         {
           "yes": "You provided supporting results for RP",
@@ -198,6 +203,11 @@
     "problems": [
       [
         {
+          "yes": "Your report includes experimental setup description and rationale for it.",
+          "no": "Your needed to include experimental setup description and rationale for it. For example, you could have added clustering assignments as new features, replace existing features with cluster labels, and use distance to cluster centers.",
+          "point": 2
+        },
+        {
           "yes": "You concluded to show which algorithm performed best, and why. Also, you included wall clock times, trade-offs, discussion of no free lunch theorem, etc.",
           "no": "You did not concluded which algorithm performed best, and why. Also, you included wall clock times, trade-offs, discussion of no free lunch theorem, etc.",
           "point": 8
@@ -210,9 +220,9 @@
     "problems": [
       [
         {
-          "yes": "...",
-          "no": "…",
-          "point": 0
+          "yes": "Your included Non-linear Manifold Learning Algorithm and explained for use and adds significant insights intothe datasets and theoretical implications.  \n",
+          "no": "No implementation of Non-linear Manifold Learning Algorithm.",
+          "point": 5
         }
       ]
     ]
