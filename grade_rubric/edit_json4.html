@@ -41,17 +41,6 @@
         .delete-button:hover {
             background-color: #cc0000;
         }
-        h2[contenteditable="true"] {
-            padding: 5px;
-            border: 1px dashed #ccc;
-            min-width: 200px;
-            display: inline-block;
-        }
-        h2[contenteditable="true"]:focus {
-            outline: none;
-            border: 1px solid #4CAF50;
-            background-color: #f8f8f8;
-        }
     </style>
 </head>
 <body>
@@ -88,10 +77,6 @@
             const part = data[partKey];
             const title = document.createElement("h2");
             title.textContent = part.title;
-            title.contentEditable = true;
-            title.addEventListener('input', (event) => {
-                jsonData[partKey].title = event.target.textContent;
-            });
             container.appendChild(title);
 
             const table = document.createElement("table");
@@ -130,17 +115,11 @@
         const yesCell = document.createElement("td");
         yesCell.contentEditable = true;
         yesCell.textContent = problem.yes;
-        yesCell.addEventListener('input', (event) => {
-            jsonData[partKey].problems[0][index].yes = event.target.textContent;
-        });
         row.appendChild(yesCell);
 
         const noCell = document.createElement("td");
         noCell.contentEditable = true;
         noCell.textContent = problem.no;
-        noCell.addEventListener('input', (event) => {
-            jsonData[partKey].problems[0][index].no = event.target.textContent;
-        });
         row.appendChild(noCell);
 
         const pointCell = document.createElement("td");
