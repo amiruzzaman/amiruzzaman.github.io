@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade using rubric</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="#">
+    <style>
+        table,
+        th,
+        td {
+            border: solid 1px #ddd;
+            border-collapse: collapse;
+            padding: 2px 3px;
+            text-align: center;
+            width: 30px;
+        }
+
+        th {
+            font-weight: bold;
+        }
+
+        #notice {
+            width: 80%;
+            max-width: 1000px;
+            /*height: 100%;*/
+            margin: 0 auto;
+            padding: 5px 5px 5px 5px;
+            background-color: #f0f0f0;
+            border: 1px solid #e0e0e0;
+            overflow: auto;
+            font-family: Arial, sans-serif;
+            color: red;
+            font-weight: normal;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <p id="notice"> Selecting items from "No" will not subtract points. Double click on "No" side and adjust how much
+        you want to take out. For example, if it shows 5, and you want to take out all, then make that 0.</p>
+    <div id="container"></div>
+    <div id="edit-box">
+        <textarea id="edit-text"></textarea>
+        <div id="edit-score-container">
+            <label for="edit-score">Score</label>
+            <input id="edit-score" type="number" />
+        </div>
+        <div id="edit-buttons">
+            <button id="edit-cancel">Cancel</button>
+            <button id="edit-save">Save</button>
+        </div>
+    </div>
+    <div id="overlay"></div>
+    <p id="notice" style="height: 30px;"></p>
+    <script>
+
+        function readTextFile(file, callback) {
+            var rawFile = new XMLHttpRequest();
+            rawFile.overrideMimeType("application/json");
+            rawFile.open("GET", file, true);
+            rawFile.onreadystatechange = function () {
+                if (rawFile.readyState === 4 && rawFile.status == "200") {
+                    callback(rawFile.responseText);
+                }
+            }
+            rawFile.send(null);
+        }
+
+        //usage:
+        /*
+        readTextFile("template.json", function (text) {
+            var data = JSON.parse(text);
+            //console.log(data);
+        });
+        */
+
+        let selectedItem = null;
+
+        let subTotalScoreArr = [];
+        let sarr = [];
+
+        function editItem() {
+            const editBox = document.getElementById('edit-box');
+            const editText = document.getElementById('edit-text');
+            const editScore = document.getElementById('edit-score');
+            const overlay = document.getElementById('overlay');
+
+            editText.value = selectedItem.innerText;
+            editScore.value = selectedItem.getAttribute('score');
+            editBox.style.visibility = 'visible';
+            overlay.style.visibility = 'visible';
+
+
+        }
+
+        function renderProblem(container, problems) {
+            let subTotal = 0;
+            var subScoreArr = [];
+            let subTotalDiv = document.createElement('div');
+            for (let problem of problems) {
+                const yes = problem.yes;
+                const no = problem.no;
+                const score = problem.point;
+
+                const itemContainer = document.createElement('div');
+                itemContainer.classList.add('item-container');
+
+                const itemYes = document.createElement('div');
+                itemYes.classList.add('item-yes');
+                itemYes.classList.add('selected');
+                itemYes.setAttribute('score', score);
+                itemYes.innerText = yes;
+
+                const itemNo = document.createElement('div');
+                itemNo.classList.add('item-no');
+                itemNo.setAttribute('score', score);
+                itemNo.innerText = no;
+
+                const itemScore = document.createElement('div');
+                itemScore.classList.add('item-score');
+                itemScore.innerHTML = score;
+                itemScore.style.color = 'red';
+                //itemScore.innerText = no;
+                subTotal += parseInt(score);
+                subScoreArr.push(score);
+
+                itemYes.addEventListener('click', () => {
+                    itemYes.classList.add('selected');
+                    itemNo.classList.remove('selected');
+                });
+
+                itemYes.addEventListener('dblclick', function () {
+                    selectedItem = this;
+                    editItem();
+                    console.log(selectedItem);
+                });
+
+                itemNo.addEventListener('click', () => {
+                    itemNo.classList.add('selected');
+                    itemYes.classList.remove('selected');
+                });
+
+                itemNo.addEventListener('dblclick', function () {
+                    selectedItem = this;
+                    editItem();
+                });
+
+                itemContainer.appendChild(itemYes);
+                itemContainer.appendChild(itemNo);
+                itemContainer.appendChild(itemScore);
+
+
+                container.appendChild(itemContainer);
+            }
+            subTotalDiv.innerHTML = subTotal;
+            subTotalScoreArr.push(subTotal);
+            //subTotalDiv.style.display = "flex";
+            subTotalDiv.style.color = 'green';
+
+            ////subTotalDiv.style.minHeight = "15px"; 
+            ////subTotalDiv.setAttribute("align", "left");
+
+            //subTotalDiv.setAttribute("text-align", "right");
+
+            ////subTotalDiv.setAttribute("margin", "0 auto");
+            ////subTotalDiv.setAttribute("display", "flex");
+            //subTotalDiv.style.marginBottom = "10px"; 
+            //subTotalDiv.style.float = "right";
+            subTotalDiv.style.fontSize = "12px";
+            //subTotalDiv.style.padding = "5px";
+            ////subTotalDiv.style.position = "relative";
+            ////subTotalDiv.style.right = "0";
+            ////subTotalDiv.align = 'left';
+            subTotalDiv.classList.add('sub-total-score');
+            container.appendChild(subTotalDiv);
+
+            //console.log(subScoreArr, subTotal);
+        }
+
+        fetch('a3spring2025.json').then(response => response.json()).then(data => {
+            // Reder page
+            console.log(data);
+            const container = document.getElementById('container');
+            const parts = Object.keys(data);
+            for (let part of parts) {
+                const partContainer = document.createElement('div');
+                partContainer.classList.add('part-container');
+
+                const partTitle = data[part].title;
+                const partProblems = data[part].problems;
+
+                const h3 = document.createElement('h3');
+                h3.innerText = `${part}: ${partTitle}`;
+                partContainer.appendChild(h3);
+
+                if (partProblems.length > 1) {
+                    for (let i = 0; i < partProblems.length; i++) {
+                        const problemContainer = document.createElement('div');
+                        problemContainer.classList.add('problem-container');
+
+                        const problemTitle = `Problem ${i + 1}`;
+                        const h4 = document.createElement('h4');
+                        h4.innerText = problemTitle;
+                        problemContainer.appendChild(h4);
+
+                        const problemList = partProblems[i];
+                        renderProblem(problemContainer, problemList);
+                        partContainer.appendChild(problemContainer);
+                    }
+                } else {
+                    const problemContainer = document.createElement('div');
+                    problemContainer.classList.add('problem-container');
+                    const problemList = partProblems[0];
+
+                    renderProblem(problemContainer, problemList);
+                    partContainer.appendChild(problemContainer);
+                }
+
+                container.appendChild(partContainer);
+            }
+
+            // Save button convert page to text file
+            const saveButton = document.createElement('button');
+            saveButton.classList.add('save-button');
+            saveButton.innerText = 'Save';
+
+            const commentDiv = document.createElement('div');
+            commentDiv.innerHTML = "Overall";
+            const textAreaDiv = document.createElement('div');
+            var input = document.createElement("textarea");
+            input.name = "post";
+            input.maxLength = "5000";
+            input.cols = "80";
+            input.rows = "5";
+            input.classList.add('item-textareabox');
+            textAreaDiv.classList.add('item-textarea');
+            //input.value = "Overall: Good start with your assignment report. There are some sections needed some more work, for details please see the above comment/feedback. You could have done a better job in managing your empty spaces in your report, which would have allowed you to add more discussions on your results and comparisons.";
+            input.value = "Overall: Your assignment report is off to a good start. There are a few sections that require more attention. Please refer to the comment/feedback above for further details.";
+            textAreaDiv.appendChild(input);
+            var inputTxt = document.createElement("input");
+            inputTxt.type = "text";
+
+            const fileNameLabel = document.createElement('div');
+            fileNameLabel.innerHTML = "Filename";
+
+            const lastDiv = document.createElement('div');
+            //lastDiv.style.width = '500px';
+            lastDiv.style.height = '100px';
+            lastDiv.innerText = 'Final grade by item will appear below';
+            //lastDiv.style.display = 'none';  
+            lastDiv.style.color = "green";
+
+
+            //var para = document.createElement('p');
+            var para = document.createElement('textarea');
+            para.id = "paraID";
+
+
+
+            // Add Checkbox for Additional Comment
+            const checkBoxDiv = document.createElement('div');
+            checkBoxDiv.classList.add('checkbox-container');
+            const checkBox = document.createElement('input');
+            checkBox.type = 'checkbox';
+            checkBox.id = 'additional-comment';
+            const checkBoxLabel = document.createElement('label');
+            checkBoxLabel.innerHTML = 'Include additional comment about page management!';
+            checkBoxLabel.htmlFor = 'additional-comment';
+
+            checkBoxDiv.appendChild(checkBox);
+            checkBoxDiv.appendChild(checkBoxLabel);
+            container.appendChild(checkBoxDiv);
+
+
+            saveButton.addEventListener('click', () => {
+                // Formating document
+                let text = '';
+                let score = 0; var titlearr = []; var jsonData = {}; //var sarr = [];
+                const parts = document.querySelectorAll('.part-container');
+                let s;
+                parts.forEach(part => {
+                    const title = part.querySelector('h3').innerText;
+                    text += `${title}\n`;
+                    titlearr.push(title);
+
+                    const problems = part.querySelectorAll('.problem-container');
+                    problems.forEach(problem => {
+                        const problemTitle = problem.querySelector('h4');
+                        if (problemTitle) {
+                            text += `${problemTitle.innerText}: \n`;
+                        }
+
+                        const items = problem.querySelectorAll('.item-container');
+                        s = 0;
+                        items.forEach(item => {
+
+                            //console.log('item: ', item);
+                            const itemYes = item.querySelector('.item-yes');
+                            const itemNo = item.querySelector('.item-no');
+
+                            // Formating text for each question
+                            if (itemYes.classList.contains('selected')) {
+                                const _score = parseInt(itemYes.getAttribute('score'));
+                                //text += `${_score}\t${itemYes.innerText}\n`;
+                                //text += `\t${itemYes.innerText}\n`;
+                                text += `${itemYes.innerText} `;
+                                score += _score;
+                                s += _score;
+                            } else {
+                                const _score = parseInt(itemNo.getAttribute('score'));
+                                //text += `${_score}\t${itemNo.innerText}\n`;
+                                //text += `\t${itemNo.innerText}\n`;
+                                text += `${itemNo.innerText} `;
+                                score += _score;
+                                s += _score;
+                            }
+
+                        });
+                        if (problemTitle) {
+                            jsonData[title + problemTitle.innerText] = s;
+                        } else {
+                            jsonData[title] = s;
+                        }
+                        sarr.push(s)
+
+                        text += '\n\n';
+                        // Showing the final text
+                        //console.log('Final text\n', text);
+                        //console.log('subTotalScoreArr\n', subTotalScoreArr);
+                    });
+
+
+
+
+
+                });
+                //console.log(parts);
+
+                //text += "" + input.value + '\n\n'; // this is where additional overall comments will be added.
+
+                // Append overall comment and conditional additional comment
+                text += "" + input.value + ' ';
+                if (checkBox.checked) {
+                    text += "You could have done a better job in managing your empty spaces in your report, which would have allowed you to add more discussions on your results and comparisons.\n";
+                }
+
+
+                //para.innerHTML = text;
+                para.maxLength = "50000";
+                para.cols = "80";
+                //para.rows = "50";
+                para.value = text;
+
+                text = text.replace("Part 10: EC\n", "");
+                var lines = para.value.split("\n");
+                console.log("number of lines", lines.length);
+                para.rows = (lines.length).toString();
+                //console.log('paragraph:\n', para.innerHTML);
+
+                text += `Total score: ${score}\n`;
+                //console.log(text);
+                /*
+                if (inputTxt.value == '') {
+                    download('output.txt', text);
+                } else {
+                    download(inputTxt.value + '.txt', text);
+                }
+                */
+                jsonData['total'] = score;
+                //console.log(sarr, jsonData);
+
+                let updatedText = insertScores(text, subTotalScoreArr, sarr);
+                console.log('Updated Text:', updatedText);
+                // for (var key in jsonData) {
+                //     console.log(key);
+                //     console.log(jsonData[key]);
+                // }
+                document.getElementById("paraID").value = "";
+                createTableFromJSON(jsonData);
+                para.value = updatedText;
+            });
+            container.appendChild(commentDiv);
+            container.appendChild(textAreaDiv);
+
+            container.appendChild(fileNameLabel);
+            container.appendChild(inputTxt);
+            container.appendChild(saveButton);
+            container.appendChild(lastDiv);
+            container.appendChild(para);
+
+            //var btn = document.createElement("BUTTON");  //<button> element
+            //var t = document.createTextNode("Copy"); // Create a text node
+            //btn.appendChild(t);   
+
+            //btn.onclick = function(){myFunction(myparameter)};  
+            ////document.getElementById("myView").appendChild(btn);//to show on myView
+            //container.appendChild(btn);
+            para.onclick = function () { myCopyFunction(para.id) };
+            //var span = document.createElement('span');
+            //span.innerHTML = '<button id="but" onclick="callJavascriptFunction('+para.id+')">Copy</button>';
+            //container.appendChild(span);
+
+        })
+
+        function download(filename, text) {
+
+
+
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', filename);
+
+            element.style.display = 'none';
+            document.body.appendChild(element);
+
+            element.click();
+
+            document.body.removeChild(element);
+        }
+
+
+        // https://stackoverflow.com/questions/61755373/create-html-table-using-json-data-in-javascript
+        // Create an HTML table using the JSON data.
+        function createTableFromJSON(jsonData) {
+            var arrBirds = [];
+            //arrBirds = JSON.parse(jsonData); // Convert JSON to array.
+            arrBirds = jsonData; // Convert JSON to array.
+            //console.log(arrBirds);
+            var col = [];
+            for (var key in arrBirds) {
+                if (col.indexOf(key) === -1) {
+                    col.push(key);
+                }
+            }
+            //console.log(col);
+            // Create a dynamic table.
+            var table = document.createElement("table") // Create table header.
+            var tr = table.insertRow(-1); // Table row. (last position)
+
+            for (var i = 0; i < col.length; i++) {
+                var th = document.createElement("th"); // Table header.
+                th.innerHTML = col[i];
+                tr.appendChild(th);
+            }
+
+            tr = table.insertRow(-1); // add new row for the names
+            // Add JSON to the table rows.
+
+            for (var key in jsonData) {
+                //console.log(key);
+                //console.log(jsonData[key]);
+                var tabCell = tr.insertCell(-1);
+                tabCell.innerHTML = jsonData[key];
+                //tabCell.innerHTML = arrBirds[i].Name;
+                //console.log('tabCell', jsonData[key]);
+            }
+            // Finally, add the dynamic table to a container.
+            const container = document.getElementById('container');
+
+            var divContainer = document.createElement('div');
+            divContainer.id = "someID";
+            //document.getElementById("someID").innerHTML = "";
+            var myEle = document.getElementById("someID");
+
+            if (myEle) {
+                document.getElementById("someID").innerHTML = "";
+            }
+            divContainer.style.height = "300px";
+            divContainer.innerHTML = "";
+            divContainer.appendChild(table);
+            container.appendChild(divContainer);
+        };
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('edit-save').addEventListener('click', () => {
+                const editBox = document.getElementById('edit-box');
+                const editText = document.getElementById('edit-text');
+                const editScore = document.getElementById('edit-score');
+                const overlay = document.getElementById('overlay');
+
+                selectedItem.innerText = editText.value;
+                selectedItem.setAttribute('score', editScore.value);
+                editBox.style.visibility = 'hidden';
+                overlay.style.visibility = 'hidden';
+            });
+
+            document.getElementById('edit-cancel').addEventListener('click', () => {
+                const editBox = document.getElementById('edit-box');
+                const overlay = document.getElementById('overlay');
+
+                editBox.style.visibility = 'hidden';
+                overlay.style.visibility = 'hidden';
+            });
+        });
+    </script>
+    <script>
+        function callJavascriptFunction(id) {
+            document.getElementById(id).select();
+            document.execCommand('copy');
+        }
+
+        function myCopyFunction(id) {
+            var para = document.getElementById('paraID');
+
+            navigator.clipboard.writeText(para.value);
+            //console.log(para.value);
+            //var copyText = para.value
+            //alert("Copied: " + copyText);
+        }
+
+        function insertScores(text, subTotalScoreArr, sarr) {
+            return text.replace(/(Part (\d+):)(.*?)(?=\n|$)/g, (match, partPrefix, partNumber, title) => {
+                // Log the captured parts
+                //console.log(`Match: ${match}`);
+                //console.log(`Part Number: ${partNumber}`);
+                //console.log(`Title: ${title}`);
+
+                let index = parseInt(partNumber, 10);
+                if (index >= 0 && index < subTotalScoreArr.length && index < sarr.length) {
+                    // Log the final replacement before return
+                    let replacement = `${title.trim()}: (${sarr[index]}/${subTotalScoreArr[index]})`;
+                    console.log(`Replacement: ${replacement}`);
+                    return replacement;
+                }
+                return match;  // Return the original match if no replacement
+            });
+        }
+
+        let text = `Part 0: Requirements
+You have provided your README file and your implementation is accessible. You have provided a READ ONLY link to Overleaf for your project report. You have provided exact commit hash for your GitHub final commit. Your report is 8 pages. Your graphs/figures are readable. Good job! I see some citation in your report, and you followed a consistent style there. 
+
+Part 1: Problem description
+You have chosen two datasets for your analysis. You described why your datasets structures, and provided some basic information. In addition, you explained why your datasets are interesting in ML's perspective. 
+
+Part 2: Hypothesis
+You have stated your initial hypotheses. You have justified your hypotheses explicitly. You followed up with the hypothesis in your discussion/conclusion. You have provided direct evidence to support whether your hypothesis has been met. 
+
+Part 3: NN
+You provided some error metrics (least square error, type I/II error, confusion matrix, PR AUC, F1, precision recall). You showed valid results for Learning Complexity (LC) curves. Discussed underfitting/overfitting, data sufficiency, optimal model performances. You showed valid results for Model Complexity (MC) curves. 
+
+Part 4: SVM
+You provided some error metrics (least square error, type I/II error, confusion matrix, PR AUC, F1, precision recall). You showed valid results for Learning Complexity (LC) curves. Discussed underfitting/overfitting, data sufficiency, optimal model performances. You showed valid results for Model Complexity (MC) curves. 
+
+Part 5: KNN
+You provided some error metrics (least square error, type I/II error, confusion matrix, PR AUC, F1, precision recall). You showed valid results for Learning Complexity (LC) curves. Discussed underfitting/overfitting, data sufficiency, optimal model performances. You showed valid results for Model Complexity (MC) curves. 
+
+Part 6: Conclusion
+You have provided an overall comparison between your runs on each dataset. You considered Type I and Type II errors. You have provided some discussion on accuracies/performances of different ML algorithms using wall clock times. You also provided some discussion on performances: noise and number of samples needed to learn effectively. You have provided some discussion on different ML algorithms: time and space complexity, and sensitivity to tuning. You also provided some discussion to show a broad understanding. 
+
+Part 7: Extra Credit
+You have implemented Decision Trees with comprehensive analysis, and provided significant insights into the datasets and theoretical implications.`;
+
+        let subTotalScoreArr1 = [15, 4, 14, 21, 21, 21, 5, 5];
+        let sarr1 = [14, 3, 13, 20, 20, 20, 4, 0];
+
+        //let updatedText = insertScores(text, subTotalScoreArr1, sarr1);
+        //console.log('Updated Text:', updatedText);
+
+
+
+    </script>
+
+    <style>
+        table,
+        th,
+        td {
+            border: solid 1px #ddd;
+            border-collapse: collapse;
+            padding: 2px 3px;
+            text-align: center;
+            width: 30px;
+        }
+
+        th {
+            font-weight: bold;
+        }
+
+        #notice {
+            width: 80%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 5px;
+            background-color: #f0f0f0;
+            border: 1px solid #e0e0e0;
+            overflow: auto;
+            font-family: Arial, sans-serif;
+            color: red;
+            font-weight: normal;
+            font-size: 14px;
+        }
+
+        /* Ensures the table and content are always fully visible */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            line-height: 1.5;
+        }
+
+        #container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            overflow: auto;
+            padding-bottom: 50px;
+            /* Prevent content cutoff at the bottom */
+        }
+
+        table {
+            margin: 20px auto;
+            width: 100%;
+            max-width: 100%;
+            border-spacing: 0;
+            overflow-x: auto;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        #edit-box {
+            visibility: hidden;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            background: white;
+            border: 1px solid #ddd;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #overlay {
+            visibility: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        #paraID {
+            width: 100%;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Ensures any content that overflows can be scrolled */
+        html {
+            overflow-y: scroll;
+        }
+    </style>
+
+</body>
+
+</html>

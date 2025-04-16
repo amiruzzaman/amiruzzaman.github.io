@@ -64,36 +64,6 @@
             padding-bottom: 50px;
         }
 
-
-
-        #overlay {
-            visibility: hidden;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-
-
-
-        /* Output textarea */
-        #paraID {
-            width: 100%;
-            max-width: 1000px;
-            margin: 20px auto;
-            padding: 10px;
-            font-size: 14px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            resize: vertical;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-    </style>
-
-    <style>
         /* Edit modal styling */
         #edit-box {
             visibility: hidden;
@@ -106,98 +76,41 @@
             border: 1px solid #ddd;
             padding: 20px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 400px;
-            max-width: 90vw;
-            border-radius: 8px;
         }
 
-        #edit-text {
+        #overlay {
+            visibility: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            min-height: 100px;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            resize: vertical;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            box-sizing: border-box;
-        }
-
-        #edit-score-container {
-            margin-bottom: 15px;
-        }
-
-        #edit-score-container label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        #edit-score {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-            box-sizing: border-box;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
         }
 
         #edit-buttons {
             display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-top: 10px;
         }
 
         #edit-buttons button {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 4px;
+            padding: 5px 10px;
+            margin: 0 2px;
+        }
+
+        /* Output textarea */
+        #paraID {
+            width: 100%;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 10px;
             font-size: 14px;
-            cursor: pointer;
-            flex: 1;
-            min-width: 100px;
-            transition: background-color 0.2s;
-        }
-
-        #edit-clear {
-            background-color: #f8f9fa;
-            color: #212529;
-            border: 1px solid #ced4da;
-        }
-
-        #edit-clear:hover {
-            background-color: #e2e6ea;
-        }
-
-        #edit-zero {
-            background-color: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeeba;
-        }
-
-        #edit-zero:hover {
-            background-color: #ffe8a1;
-        }
-
-        #edit-cancel {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        #edit-cancel:hover {
-            background-color: #f1b0b7;
-        }
-
-        #edit-save {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        #edit-save:hover {
-            background-color: #c1e5c8;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
