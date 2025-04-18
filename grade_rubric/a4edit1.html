@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rubric JSON Editor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        .section {
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+        .subsection {
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-left: 3px solid #2980b9;
+        }
+        .item {
+            margin-bottom: 10px;
+            padding: 8px;
+            background-color: white;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .item:hover {
+            background-color: #f0f8ff;
+        }
+        .item.editing {
+            background-color: #fffacd;
+        }
+        .item label {
+            flex-grow: 1;
+            margin-left: 10px;
+        }
+        .points {
+            font-weight: bold;
+            margin-left: 10px;
+            min-width: 40px;
+            text-align: right;
+        }
+        .summary {
+            background-color: #e8f4fc;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            border-left: 4px solid #3498db;
+        }
+        .summary-item {
+            margin-bottom: 5px;
+        }
+        .total {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #ccc;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button.delete {
+            background-color: #e74c3c;
+        }
+        button.delete:hover {
+            background-color: #c0392b;
+        }
+        button.add {
+            background-color: #2ecc71;
+        }
+        button.add:hover {
+            background-color: #27ae60;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .edit-controls {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+        .json-viewer {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .controls {
+            margin-bottom: 20px;
+        }
+        .tier-points {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <h1>Rubric JSON Editor</h1>
+    
+    <div class="controls">
+        <button id="save-btn">Save JSON</button>
+        <button id="load-btn">Load JSON</button>
+        <input type="file" id="file-input" style="display: none;">
+    </div>
+    
+    <div id="rubric-container"></div>
+    
+    <div class="summary">
+        <h2>Totals</h2>
+        <div id="summary-container"></div>
+        <div class="total" id="total-points">Total Points: 0/100 (Extra Credit: 0/5)</div>
+    </div>
+    
+    <div class="json-viewer" id="json-output"></div>
+
+    <script>
+        // Rubric data
+        let rubricData = {
+            "Rubric": {
+                "TotalPoints": 100,
+                "ExtraCredit": 5,
+                "Requirements": [
+                    {
+                        "Description": "All requirements met, full reproducibility ensured.",
+                        "Points": 5,
+                        "Details": [
+                            "Code or means to reproduce experiments provided.",
+                            "README included in submission (deduct 5 points if missing)."
+                        ]
+                    },
+                    {
+                        "Description": "Overleaf and LaTeX used for report.",
+                        "Points": 1,
+                        "Details": [
+                            "'READ ONLY' link to Overleaf Project provided in report or Canvas comments."
+                        ]
+                    },
+                    {
+                        "Description": "Final Github commit from private GT Github.",
+                        "Points": 1,
+                        "Details": [
+                            "Commit or link to exact commit provided in report or Canvas comments."
+                        ]
+                    },
+                    {
+                        "Description": "Proper References.",
+                        "Points": 1,
+                        "Details": [
+                            "Consistent formatting (APA, MLA, or IEEE).",
+                            "At least one citation outside of course material."
+                        ]
+                    },
+                    {
+                        "Description": "Graphs and text are legible.",
+                        "Points": 1,
+                        "Details": [
+                            "No zooming required at 100% on Canvas.",
+                            "Deduct if 3+ graphs are hard to read."
+                        ]
+                    },
+                    {
+                        "Description": "Report is 8 pages at most.",
+                        "Points": 1,
+                        "Details": [
+                            "Do not read beyond page 8."
+                        ]
+                    }
+                ],
+                "MDPOverviewAndDiscretization": {
+                    "TotalPoints": 15,
+                    "BlackjackMDPDescription": {
+                        "Points": 5,
+                        "Details": [
+                            "State space defined as (player sum, dealer face-up card, usable ace).",
+                            "Actions: hit or stick.",
+                            "Reward structure: +1 for win, 0 for draw, -1 for loss.",
+                            "Episodic task described (ends after terminal state)."
+                        ]
+                    },
+                    "CartPoleMDPDescription": {
+                        "Points": 5,
+                        "Details": [
+                            "State variables: cart position, cart velocity, pole angle, pole tip velocity.",
+                            "Action space: push cart left or right.",
+                            "Reward: +1 per time step until failure.",
+                            "Termination conditions described."
+                        ]
+                    },
+                    "ComparisonAndDiscretizationStrategy": {
+                        "Points": 5,
+                        "Details": [
+                            "Key differences highlighted (Blackjack: small/discrete; CartPole: large/continuous).",
+                            "Implications explained (VI/PI for Blackjack; discretization for CartPole).",
+                            "Discretization approach described (bins, rounding methods).",
+                            "Tradeoffs between fidelity and computational cost justified."
+                        ]
+                    }
+                },
+                "ValueIterationAndPolicyIteration": {
+                    "TotalPoints": 30,
+                    "ExplanationOfVIAndPI": {
+                        "Points": 8,
+                        "Details": [
+                            "VI: Bellman optimality equation described.",
+                            "PI: Policy evaluation and improvement steps explained.",
+                            "Convergence guarantees mentioned.",
+                            "Difference between VI and PI articulated."
+                        ]
+                    },
+                    "ConvergenceVisualizations": {
+                        "Points": 8,
+                        "Details": [
+                            "VI on Blackjack: Line plot of max ∆V per iteration.",
+                            "PI on Blackjack: Bar/line plot of policy changes per iteration.",
+                            "VI on CartPole: Line plot of ∆V per iteration (mention bins).",
+                            "PI on CartPole: Line plot of policy changes per iteration."
+                        ]
+                    },
+                    "ConvergenceAnalysis": {
+                        "Points": 7,
+                        "Details": [
+                            "Hyperparameters tested (theta, gamma).",
+                            "Explanation for PI's faster convergence.",
+                            "Number of iterations reported with convergence criteria.",
+                            "Quantitative and qualitative comparison included."
+                        ]
+                    },
+                    "FinalPolicyComparison": {
+                        "Points": 4,
+                        "Details": [
+                            "States whether VI and PI policies are the same.",
+                            "Reasons for differences explained if applicable.",
+                            "Visualizations encouraged (heatmaps, bar charts)."
+                        ]
+                    },
+                    "StateSpaceImpactOnCartPole": {
+                        "Points": 3,
+                        "Details": [
+                            "Discretization errors discussed.",
+                            "Tradeoffs explored (finer binning vs. runtime/memory)."
+                        ]
+                    }
+                },
+                "SARSAAndQLearning": {
+                    "TotalPoints": 33,
+                    "ExplanationOfSARSAAndQLearning": {
+                        "Points": 6,
+                        "GradingTiers": [
+                            {
+                                "Points": 6,
+                                "Description": "Full Credit: Correct definitions, clear explanation of on/off-policy, exploration implications, behavioral differences."
+                            },
+                            {
+                                "Points": 4,
+                                "Description": "Partial Credit: Mentions on/off-policy, vague differences."
+                            },
+                            {
+                                "Points": 2,
+                                "Description": "Minimal Credit: Acknowledges differences but definitions confused."
+                            }
+                        ]
+                    },
+                    "LearningCurves": {
+                        "Points": 8,
+                        "Details": [
+                            "SARSA on Blackjack: Line plot of cumulative reward per episode.",
+                            "Q-Learning on Blackjack: Same as SARSA.",
+                            "SARSA on CartPole: Line plot of episode length or reward.",
+                            "Q-Learning on CartPole: Same as SARSA."
+                        ]
+                    },
+                    "ExplorationStrategies": {
+                        "Points": 7,
+                        "Details": [
+                            "At least one strategy used (e.g., epsilon-greedy with decay).",
+                            "Values or decay schedules explained.",
+                            "Hyperparameter differences demonstrated (3+ values).",
+                            "Impact on convergence discussed."
+                        ]
+                    },
+                    "SARSAvsQLearningPolicyComparison": {
+                        "Points": 6,
+                        "GradingTiers": [
+                            {
+                                "Points": 6,
+                                "Description": "Full Credit: Explicit comparison, key distinctions highlighted, reasoning rooted in theory."
+                            },
+                            {
+                                "Points": 3,
+                                "Description": "Partial Credit: Notes differences, vague explanation."
+                            },
+                            {
+                                "Points": 0,
+                                "Description": "No comparison made."
+                            }
+                        ]
+                    },
+                    "ComparisonToVIPI": {
+                        "Points": 6,
+                        "GradingTiers": [
+                            {
+                                "Points": 6,
+                                "Description": "Full Credit: Clear comparison, identifies reasons for mismatches, visual comparisons included."
+                            },
+                            {
+                                "Points": 3,
+                                "Description": "Partial Credit: Acknowledges differences, vague explanation."
+                            },
+                            {
+                                "Points": 0,
+                                "Description": "No comparison made."
+                            }
+                        ]
+                    }
+                },
+                "ReflectionAndIntegration": {
+                    "TotalPoints": 12,
+                    "ChallengesAndImprovements": {
+                        "Points": 6,
+                        "GradingTiers": [
+                            {
+                                "Points": 6,
+                                "Description": "Full Credit: Specific challenges, detailed discussion, actionable improvements."
+                            },
+                            {
+                                "Points": 3,
+                                "Description": "Partial Credit: Plausible challenge, generic improvement."
+                            },
+                            {
+                                "Points": 0,
+                                "Description": "Missing or superficial."
+                            }
+                        ]
+                    },
+                    "DataDrivenConclusions": {
+                        "Points": 6,
+                        "GradingTiers": [
+                            {
+                                "Points": 6,
+                                "Description": "Full Credit: Synthesizes findings, references data, interprets plots, connects to theory."
+                            },
+                            {
+                                "Points": 3,
+                                "Description": "Partial Credit: Refers to results, lacks integration."
+                            },
+                            {
+                                "Points": 0,
+                                "Description": "No conclusions drawn."
+                            }
+                        ]
+                    }
+                },
+                "ExtraCredit": {
+                    "DoublePendulum": {
+                        "Points": 5,
+                        "Details": [
+                            "+1 pt: Justifies use of DDPG or SAC.",
+                            "+1 pt: Any attempt at implementation.",
+                            "+3 pts: Includes reward curves, training plots, final results, and comparison."
+                        ]
+                    }
+                }
+            }
+        };
+
+   
+
+let currentEditElement = null;
+let currentEditPath = null;
+let currentEditOriginalValue = null;
+let currentEditType = null;
+
+function escapeSelector(str) {
+    return str.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\$&');
+}
+
+function getValueAtPath(obj, path) {
+    return path.reduce((current, key) =>
+        (current && current[key] !== undefined) ? current[key] : null, obj);
+}
+
+function setValueAtPath(obj, path, value) {
+    const parentPath = path.slice(0, -1);
+    const parent = getValueAtPath(obj, parentPath);
+    const key = path[path.length - 1];
+    
+    console.log("Setting value at path:", path);
+    console.log("Parent path:", parentPath);
+    console.log("Parent object:", parent);
+
+    if (parent && key != null) {
+        parent[key] = value;
+    } else {
+        console.error('Invalid path for setting value:', path);
+    }
+}
+
+
+function editItem(path, currentValue, type) {
+    if (currentEditElement) saveEdit();
+
+    const selector = `[data-path="${escapeSelector(JSON.stringify(path))}"]`;
+    const element = document.querySelector(selector);
+    if (!element) {
+        console.error('Element not found with selector:', selector);
+        return;
+    }
+
+    currentEditElement = element;
+    currentEditPath = path;
+    currentEditOriginalValue = currentValue;
+    currentEditType = type;
+
+    let editForm = document.createElement('div');
+
+    if (type === 'section') {
+        editForm.innerHTML = `
+            <label>Points:</label>
+            <input type="number" id="edit-points" value="${getValueAtPath(rubricData, path.concat('TotalPoints'))}">
+            <div class="edit-controls">
+                <button id="save-edit">Save</button>
+                <button class="delete" id="cancel-edit">Cancel</button>
+            </div>
+        `;
+    } else if (type === 'subsection') {
+        editForm.innerHTML = `
+            <label>Title:</label>
+            <input type="text" id="edit-title" value="${currentValue}">
+            <label>Points:</label>
+            <input type="number" id="edit-points" value="${getValueAtPath(rubricData, path.concat('Points'))}">
+            <div class="edit-controls">
+                <button id="save-edit">Save</button>
+                <button class="delete" id="cancel-edit">Cancel</button>
+            </div>
+        `;
+    } else if (type === 'detail') {
+        editForm.innerHTML = `
+            <label>Detail:</label>
+            <input type="text" id="edit-detail" value="${currentValue}">
+            <div class="edit-controls">
+                <button id="save-edit">Save</button>
+                <button class="delete" id="cancel-edit">Cancel</button>
+            </div>
+        `;
+    } else if (type === 'gradingTier') {
+        editForm.innerHTML = `
+            <label>Points:</label>
+            <input type="number" id="edit-points" value="${getValueAtPath(rubricData, path.concat('Points'))}">
+            <label>Description:</label>
+            <textarea id="edit-description">${currentValue}</textarea>
+            <div class="edit-controls">
+                <button id="save-edit">Save</button>
+                <button class="delete" id="cancel-edit">Cancel</button>
+            </div>
+        `;
+    }
+
+    element.classList.add('editing');
+    element.innerHTML = '';
+    element.appendChild(editForm);
+
+    // Prevent click handlers from blocking typing
+    element.querySelector('#edit-points')?.addEventListener('click', e => e.stopPropagation());
+    element.querySelector('#edit-title')?.addEventListener('click', e => e.stopPropagation());
+    element.querySelector('#edit-detail')?.addEventListener('click', e => e.stopPropagation());
+    element.querySelector('#edit-description')?.addEventListener('click', e => e.stopPropagation());
+
+    element.querySelector('#save-edit').addEventListener('click', saveEdit);
+    element.querySelector('#cancel-edit').addEventListener('click', cancelEdit);
+}
+
+function saveEdit() {
+    if (!currentEditElement || !currentEditPath || !currentEditType) return;
+
+    try {
+        if (currentEditType === 'section') {
+            const newPoints = parseInt(currentEditElement.querySelector('#edit-points').value);
+            setValueAtPath(rubricData, currentEditPath.concat('TotalPoints'), newPoints);
+        } else if (currentEditType === 'subsection') {
+            const newTitle = currentEditElement.querySelector('#edit-title').value;
+            const newPoints = parseInt(currentEditElement.querySelector('#edit-points').value);
+            setValueAtPath(rubricData, currentEditPath.concat('Description'), newTitle);
+            setValueAtPath(rubricData, currentEditPath.concat('Points'), newPoints);
+        } else if (currentEditType === 'detail') {
+            const newDetail = currentEditElement.querySelector('#edit-detail').value;
+            setValueAtPath(rubricData, currentEditPath, newDetail);
+        } else if (currentEditType === 'gradingTier') {
+            const newPoints = parseInt(currentEditElement.querySelector('#edit-points').value);
+            const newDescription = currentEditElement.querySelector('#edit-description').value;
+            setValueAtPath(rubricData, currentEditPath.concat('Points'), newPoints);
+            setValueAtPath(rubricData, currentEditPath.concat('Description'), newDescription);
+        }
+
+        renderRubric();
+        updateTotals();
+    } catch (error) {
+        console.error('Error saving edit:', error);
+        alert('Error saving changes.');
+    } finally {
+        currentEditElement = null;
+        currentEditPath = null;
+        currentEditOriginalValue = null;
+        currentEditType = null;
+    }
+}
+
+function cancelEdit() {
+    renderRubric();
+    updateTotals();
+    currentEditElement = null;
+    currentEditPath = null;
+    currentEditOriginalValue = null;
+    currentEditType = null;
+}
+
+function renderRubric() {
+    const container = document.getElementById('rubric-container');
+    container.innerHTML = '';
+
+    const requirements = rubricData.Rubric.Requirements;
+    requirements.forEach((req, index) => {
+        const subsection = document.createElement('div');
+        subsection.className = 'subsection';
+        subsection.dataset.path = JSON.stringify(['Rubric', 'Requirements', index]);
+
+        const title = document.createElement('h3');
+        title.innerHTML = `<span>${req.Description}</span> <span class="points">${req.Points} pts</span>`;
+        subsection.appendChild(title);
+
+        req.Details.forEach((detail, detailIndex) => {
+            const item = document.createElement('div');
+            item.className = 'item';
+            item.dataset.path = JSON.stringify(['Rubric', 'Requirements', index, 'Details', detailIndex]);
+            item.textContent = detail;
+
+            // Add edit-on-click support
+            item.addEventListener('click', (e) => {
+                if (['INPUT', 'TEXTAREA', 'BUTTON'].includes(e.target.tagName)) return;
+                editItem(['Rubric', 'Requirements', index, 'Details', detailIndex], detail, 'detail');
+            });
+
+            subsection.appendChild(item);
+        });
+
+        container.appendChild(subsection);
+    });
+
+    // Show JSON output
+    document.getElementById('json-output').textContent = JSON.stringify(rubricData, null, 2);
+}
+
+function deleteItem(path) {
+    if (!confirm('Are you sure you want to delete this item?')) return;
+
+    const parentPath = path.slice(0, -1);
+    const parent = getValueAtPath(rubricData, parentPath);
+    const keyToDelete = path[path.length - 1];
+
+    if (Array.isArray(parent)) {
+        parent.splice(keyToDelete, 1);
+    } else if (typeof parent === 'object') {
+        delete parent[keyToDelete];
+    }
+
+    renderRubric();
+    updateTotals();
+}
+
+function updateTotals() {
+    const rubric = rubricData.Rubric;
+    let total = 0;
+    total += rubric.TotalPoints || 0;
+    total += rubric.MDPOverviewAndDiscretization?.TotalPoints || 0;
+    total += rubric.ValueIterationAndPolicyIteration?.TotalPoints || 0;
+    total += rubric.SARSAAndQLearning?.TotalPoints || 0;
+    total += rubric.ReflectionAndIntegration?.TotalPoints || 0;
+
+    const summary = document.getElementById('summary-container');
+    summary.innerHTML = `
+        <div class="summary-item">Main Rubric: ${total} points possible</div>
+        <div class="summary-item">Extra Credit: ${rubric.ExtraCredit?.DoublePendulum?.Points || 0} points possible</div>
+    `;
+
+    document.getElementById('total-points').textContent =
+        `Total Points: ${total}/100 (Extra Credit: ${rubric.ExtraCredit?.DoublePendulum?.Points || 0}/5)`;
+}
+
+function saveJSON() {
+    const blob = new Blob([JSON.stringify(rubricData, null, 2)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'rubric.json';
+    link.click();
+}
+
+function loadJSON(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        try {
+            rubricData = JSON.parse(e.target.result);
+            renderRubric();
+            updateTotals();
+        } catch (err) {
+            alert('Failed to load file.');
+        }
+    };
+    reader.readAsText(file);
+}
+
+window.onload = () => {
+    renderRubric();
+    updateTotals();
+    document.getElementById('save-btn').addEventListener('click', saveJSON);
+    document.getElementById('load-btn').addEventListener('click', () => document.getElementById('file-input').click());
+    document.getElementById('file-input').addEventListener('change', loadJSON);
+};
+
+    </script>
+</body>
+</html>
