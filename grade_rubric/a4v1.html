@@ -12,13 +12,7 @@
             padding: 20px;
             color: #333;
         }
-        h1 {
-            color: #2c3e50;
-        }
-        h2 {
-            color: #8e44ad;
-        }
-        h3 {
+        h1, h2, h3 {
             color: #2c3e50;
         }
         .section {
@@ -100,20 +94,6 @@
         .tier-points {
             font-weight: bold;
             color: #2c3e50;
-        }
-        .section-textarea {
-            width: 100%;
-            min-height: 100px;
-            margin-top: 10px;
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            font-family: Arial, sans-serif;
-        }
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
     </style>
 </head>
@@ -384,24 +364,16 @@
             const rubric = rubricData.Rubric;
 
             // Render Requirements section
-            const requirementsSection = createSection('Requirements', 10); // Changed to 10 points total
+            const requirementsSection = createSection('Requirements', rubric.TotalPoints);
             rubric.Requirements.forEach(req => {
                 const subsection = createSubsection(req.Description, req.Points);
                 if (req.Details) {
                     req.Details.forEach(detail => {
-                        subsection.appendChild(createCheckboxItem(detail, req.Points, true));
+                        subsection.appendChild(createCheckboxItem(detail, req.Points / req.Details.length));
                     });
                 }
                 requirementsSection.appendChild(subsection);
             });
-            
-            // Add textarea for Requirements section
-            const reqTextarea = document.createElement('textarea');
-            reqTextarea.className = 'section-textarea';
-            reqTextarea.placeholder = 'Enter notes for Requirements section...';
-            reqTextarea.dataset.section = 'Requirements';
-            reqTextarea.addEventListener('input', updateSummaryFromTextarea);
-            requirementsSection.appendChild(reqTextarea);
             container.appendChild(requirementsSection);
 
             // Render MDP Overview section
@@ -417,14 +389,6 @@
                     mdpSection.appendChild(subsection);
                 }
             }
-            
-            // Add textarea for MDP section
-            const mdpTextarea = document.createElement('textarea');
-            mdpTextarea.className = 'section-textarea';
-            mdpTextarea.placeholder = 'Enter notes for MDP Overview section...';
-            mdpTextarea.dataset.section = 'MDPOverview';
-            mdpTextarea.addEventListener('input', updateSummaryFromTextarea);
-            mdpSection.appendChild(mdpTextarea);
             container.appendChild(mdpSection);
 
             // Render Value Iteration section
@@ -443,7 +407,6 @@
                             tierDiv.innerHTML = `<span class="tier-points">${tier.Points} points:</span> ${tier.Description}`;
                             tierDiv.onclick = function() {
                                 this.classList.toggle('selected');
-                                updateTextareaContent(this, 'VIPI');
                                 calculateScore();
                             };
                             subsection.appendChild(tierDiv);
@@ -452,14 +415,6 @@
                     viSection.appendChild(subsection);
                 }
             }
-            
-            // Add textarea for VI section
-            const viTextarea = document.createElement('textarea');
-            viTextarea.className = 'section-textarea';
-            viTextarea.placeholder = 'Enter notes for Value Iteration section...';
-            viTextarea.dataset.section = 'VIPI';
-            viTextarea.addEventListener('input', updateSummaryFromTextarea);
-            viSection.appendChild(viTextarea);
             container.appendChild(viSection);
 
             // Render SARSA section
@@ -478,7 +433,6 @@
                             tierDiv.innerHTML = `<span class="tier-points">${tier.Points} points:</span> ${tier.Description}`;
                             tierDiv.onclick = function() {
                                 this.classList.toggle('selected');
-                                updateTextareaContent(this, 'SARSA');
                                 calculateScore();
                             };
                             subsection.appendChild(tierDiv);
@@ -487,14 +441,6 @@
                     sarsaSection.appendChild(subsection);
                 }
             }
-            
-            // Add textarea for SARSA section
-            const sarsaTextarea = document.createElement('textarea');
-            sarsaTextarea.className = 'section-textarea';
-            sarsaTextarea.placeholder = 'Enter notes for SARSA section...';
-            sarsaTextarea.dataset.section = 'SARSA';
-            sarsaTextarea.addEventListener('input', updateSummaryFromTextarea);
-            sarsaSection.appendChild(sarsaTextarea);
             container.appendChild(sarsaSection);
 
             // Render Reflection section
@@ -509,7 +455,6 @@
                             tierDiv.innerHTML = `<span class="tier-points">${tier.Points} points:</span> ${tier.Description}`;
                             tierDiv.onclick = function() {
                                 this.classList.toggle('selected');
-                                updateTextareaContent(this, 'Reflection');
                                 calculateScore();
                             };
                             subsection.appendChild(tierDiv);
@@ -518,14 +463,6 @@
                     reflectionSection.appendChild(subsection);
                 }
             }
-            
-            // Add textarea for Reflection section
-            const reflectionTextarea = document.createElement('textarea');
-            reflectionTextarea.className = 'section-textarea';
-            reflectionTextarea.placeholder = 'Enter notes for Reflection section...';
-            reflectionTextarea.dataset.section = 'Reflection';
-            reflectionTextarea.addEventListener('input', updateSummaryFromTextarea);
-            reflectionSection.appendChild(reflectionTextarea);
             container.appendChild(reflectionSection);
 
             // Render Extra Credit section
@@ -535,14 +472,6 @@
                     detail.startsWith('+1') ? 1 : 
                     detail.startsWith('+3') ? 3 : 0));
             });
-            
-            // Add textarea for Extra Credit section
-            const ecTextarea = document.createElement('textarea');
-            ecTextarea.className = 'section-textarea';
-            ecTextarea.placeholder = 'Enter notes for Extra Credit section...';
-            ecTextarea.dataset.section = 'ExtraCredit';
-            ecTextarea.addEventListener('input', updateSummaryFromTextarea);
-            ecSection.appendChild(ecTextarea);
             container.appendChild(ecSection);
         }
 
@@ -550,12 +479,7 @@
         function createSection(title, totalPoints) {
             const section = document.createElement('div');
             section.className = 'section';
-            
-            const headerDiv = document.createElement('div');
-            headerDiv.className = 'section-header';
-            headerDiv.innerHTML = `<h2>${title}</h2> <span class="points">${totalPoints} points</span>`;
-            
-            section.appendChild(headerDiv);
+            section.innerHTML = `<h2>${title} <span class="points">${totalPoints} points</span></h2>`;
             section.dataset.totalPoints = totalPoints;
             return section;
         }
@@ -570,7 +494,7 @@
         }
 
         // Helper function to create a checkbox item
-        function createCheckboxItem(text, points, isRequirement = false) {
+        function createCheckboxItem(text, points) {
             const item = document.createElement('div');
             item.className = 'item';
             
@@ -578,12 +502,7 @@
             checkbox.type = 'checkbox';
             checkbox.className = 'checkbox';
             checkbox.dataset.points = points;
-            checkbox.dataset.text = text;
-            checkbox.dataset.isRequirement = isRequirement;
-            checkbox.onchange = function() {
-                updateTextareaContent(this, this.closest('.section').querySelector('h2').textContent.split(' points')[0]);
-                calculateScore();
-            };
+            checkbox.onchange = calculateScore;
             
             const label = document.createElement('label');
             label.textContent = text;
@@ -597,118 +516,6 @@
             item.appendChild(pointsSpan);
             
             return item;
-        }
-
-        // Function to update textarea content based on selections
-        function updateTextareaContent(element, sectionName) {
-            const section = element.closest('.section');
-            const textarea = section.querySelector('.section-textarea');
-            
-            // Get all selected items in this section
-            let selectedItems = [];
-            
-            // Special handling for Requirements section
-            if (sectionName === 'Requirements') {
-                const requirements = rubricData.Rubric.Requirements;
-                section.querySelectorAll('.subsection').forEach((subsection, index) => {
-                    const req = requirements[index];
-                    const isChecked = subsection.querySelector('.checkbox:checked') !== null;
-                    if (isChecked) {
-                        selectedItems.push(req.Description);
-                        req.Details.forEach(detail => {
-                            selectedItems.push(`- ${detail}`);
-                        });
-                    }
-                });
-            } 
-            // Normal handling for other sections
-            else {
-                // Checkboxes
-                section.querySelectorAll('.checkbox:checked').forEach(checkbox => {
-                    selectedItems.push(checkbox.dataset.text);
-                });
-                
-                // Grading tiers
-                section.querySelectorAll('.grading-tier.selected').forEach(tier => {
-                    selectedItems.push(tier.textContent.trim());
-                });
-            }
-            
-            // Update the textarea with single line breaks
-            textarea.value = selectedItems.join('\n');
-            
-            // Update the summary immediately
-            updateSummaryFromTextarea({ target: textarea });
-        }
-
-        // Function to update summary when textarea content changes
-        function updateSummaryFromTextarea(event) {
-            const textarea = event.target;
-            const section = textarea.closest('.section');
-            const sectionTitle = section.querySelector('h2').textContent.split(' points')[0];
-            const sectionTotal = parseInt(section.dataset.totalPoints);
-            
-            // Calculate earned points for this section
-            let sectionEarned = 0;
-            
-            // Special handling for Requirements section
-            if (sectionTitle === 'Requirements') {
-                const requirements = rubricData.Rubric.Requirements;
-                section.querySelectorAll('.subsection').forEach((subsection, index) => {
-                    const req = requirements[index];
-                    const isChecked = subsection.querySelector('.checkbox:checked') !== null;
-                    if (isChecked) {
-                        sectionEarned += req.Points;
-                    }
-                });
-            } 
-            // Normal handling for other sections
-            else if (!sectionTitle.includes('Extra Credit')) {
-                // Calculate points from checkboxes
-                section.querySelectorAll('.checkbox:checked').forEach(checkbox => {
-                    sectionEarned += parseFloat(checkbox.dataset.points);
-                });
-                
-                // Calculate points from grading tiers
-                section.querySelectorAll('.grading-tier.selected').forEach(tier => {
-                    const pointsText = tier.querySelector('.tier-points').textContent;
-                    const points = parseInt(pointsText);
-                    sectionEarned += points;
-                });
-            }
-            
-            // Cap the earned points at the section total
-            sectionEarned = Math.min(sectionEarned, sectionTotal);
-            
-            // Find the corresponding summary item
-            const summaryContainer = document.getElementById('summary-container');
-            const summaryItems = summaryContainer.querySelectorAll('.summary-item');
-            let found = false;
-            
-            summaryItems.forEach(item => {
-                if (item.textContent.includes(sectionTitle)) {
-                    const notes = textarea.value.trim();
-                    if (notes) {
-                        item.innerHTML = `<strong>${sectionTitle}: ${sectionEarned}/${sectionTotal} points</strong><br>${notes.replace(/\n/g, '<br>')}`;
-                    } else {
-                        item.textContent = `${sectionTitle}: ${sectionEarned}/${sectionTotal} points`;
-                    }
-                    found = true;
-                }
-            });
-            
-            // If not found, create a new summary item
-            if (!found) {
-                const summaryItem = document.createElement('div');
-                summaryItem.className = 'summary-item';
-                const notes = textarea.value.trim();
-                if (notes) {
-                    summaryItem.innerHTML = `<strong>${sectionTitle}: ${sectionEarned}/${sectionTotal} points</strong><br>${notes.replace(/\n/g, '<br>')}`;
-                } else {
-                    summaryItem.textContent = `${sectionTitle}: ${sectionEarned}/${sectionTotal} points`;
-                }
-                summaryContainer.appendChild(summaryItem);
-            }
         }
 
         // Function to calculate the score
@@ -727,78 +534,42 @@
                 const sectionTotal = parseInt(section.dataset.totalPoints);
                 let sectionEarned = 0;
                 
-                // Handle Requirements section differently
-                if (sectionTitle === 'Requirements') {
-                    const requirements = rubricData.Rubric.Requirements;
-                    section.querySelectorAll('.subsection').forEach((subsection, index) => {
-                        const req = requirements[index];
-                        const isChecked = subsection.querySelector('.checkbox:checked') !== null;
-                        if (isChecked) {
-                            sectionEarned += req.Points;
-                        }
-                    });
-                } 
-                // Handle other sections normally
-                else if (!sectionTitle.includes('Extra Credit')) {
-                    // Calculate points from checkboxes
-                    section.querySelectorAll('.checkbox:checked').forEach(checkbox => {
-                        sectionEarned += parseFloat(checkbox.dataset.points);
-                    });
-                    
-                    // Calculate points from grading tiers
-                    section.querySelectorAll('.grading-tier.selected').forEach(tier => {
-                        const pointsText = tier.querySelector('.tier-points').textContent;
-                        const points = parseInt(pointsText);
-                        sectionEarned += points;
-                    });
+                // Skip the extra credit section for now
+                if (sectionTitle.includes('Extra Credit')) {
+                    return;
                 }
+                
+                totalPossible += sectionTotal;
+                
+                // Calculate points from checkboxes
+                section.querySelectorAll('.checkbox:checked').forEach(checkbox => {
+                    sectionEarned += parseFloat(checkbox.dataset.points);
+                });
+                
+                // Calculate points from grading tiers
+                section.querySelectorAll('.grading-tier.selected').forEach(tier => {
+                    const pointsText = tier.querySelector('.tier-points').textContent;
+                    const points = parseInt(pointsText);
+                    sectionEarned += points;
+                });
                 
                 // Cap the earned points at the section total
                 sectionEarned = Math.min(sectionEarned, sectionTotal);
                 totalEarned += sectionEarned;
                 
-                if (!sectionTitle.includes('Extra Credit')) {
-                    totalPossible += sectionTotal;
-                }
-                
                 // Add to summary
                 const summaryItem = document.createElement('div');
                 summaryItem.className = 'summary-item';
-                
-                // Get the textarea content for this section
-                const textarea = section.querySelector('.section-textarea');
-                const notes = textarea.value.trim();
-                
-                if (notes) {
-                    summaryItem.innerHTML = `<strong>${sectionTitle}: ${sectionEarned}/${sectionTotal} points</strong><br>${notes.replace(/\n/g, '<br>')}`;
-                } else {
-                    summaryItem.textContent = `${sectionTitle}: ${sectionEarned}/${sectionTotal} points`;
-                }
+                summaryItem.textContent = `${sectionTitle}: ${sectionEarned}/${sectionTotal} points`;
                 summaryContainer.appendChild(summaryItem);
             });
             
             // Calculate extra credit
             const ecSection = document.querySelector('.section:last-child');
-            if (ecSection && ecSection.querySelector('h2').textContent.includes('Extra Credit')) {
+            if (ecSection) {
                 ecSection.querySelectorAll('.checkbox:checked').forEach(checkbox => {
                     extraCreditEarned += parseFloat(checkbox.dataset.points);
                 });
-                
-                // Add extra credit to summary if any points earned
-                if (extraCreditEarned > 0) {
-                    const ecTextarea = ecSection.querySelector('.section-textarea');
-                    const ecNotes = ecTextarea.value.trim();
-                    
-                    const ecSummary = document.createElement('div');
-                    ecSummary.className = 'summary-item';
-                    
-                    if (ecNotes) {
-                        ecSummary.innerHTML = `<strong>Extra Credit: ${extraCreditEarned}/${extraCreditPossible} points</strong><br>${ecNotes.replace(/\n/g, '<br>')}`;
-                    } else {
-                        ecSummary.textContent = `Extra Credit: ${extraCreditEarned}/${extraCreditPossible} points`;
-                    }
-                    summaryContainer.appendChild(ecSummary);
-                }
             }
             
             // Update total display
