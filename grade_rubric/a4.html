@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment 4 Grading Rubric</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        .section {
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+        .subsection {
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-left: 3px solid #2980b9;
+        }
+        .item {
+            margin-bottom: 10px;
+            padding: 8px;
+            background-color: white;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+        }
+        .item label {
+            flex-grow: 1;
+            margin-left: 10px;
+        }
+        .points {
+            font-weight: bold;
+            margin-left: 10px;
+            min-width: 40px;
+            text-align: right;
+        }
+        .checkbox {
+            min-width: 20px;
+            height: 20px;
+        }
+        .summary {
+            background-color: #e8f4fc;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            border-left: 4px solid #3498db;
+        }
+        .summary-item {
+            margin-bottom: 5px;
+        }
+        .total {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #ccc;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .grading-tier {
+            background-color: #e8e8e8;
+            border-radius: 3px;
+            padding: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        .grading-tier.selected {
+            background-color: #d4edda;
+        }
+        .tier-points {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <h1>Assignment 4 Grading Rubric</h1>
+    <div id="rubric-container"></div>
+    
+    <div class="summary">
+        <h2>Grading Summary</h2>
+        <div id="summary-container"></div>
+        <div class="total" id="total-points">Total Points: 0/100 (Extra Credit: 0/5)</div>
+        <button id="calculate-btn">Calculate Score</button>
+    </div>
+
+    <script>
+        // Rubric data
+        const rubricData = {
+            "Rubric": {
+                "TotalPoints": 100,
+                "ExtraCredit": 5,
+                "Requirements": [
+                    {
+                        "Description": "All requirements met, full reproducibility ensured.",
+                        "Points": 5,
+                        "Details": [
+                            "Code or means to reproduce experiments provided.",
+                            "README included in submission (deduct 5 points if missing)."
+                        ]
+                    },
+                    {
+                        "Description": "Overleaf and LaTeX used for report.",
+                        "Points": 1,
+                        "Details": [
+                            "'READ ONLY' link to Overleaf Project provided in report or Canvas comments."
+                        ]
+                    },
+                    {
+                        "Description": "Final Github commit from private GT Github.",
+                        "Points": 1,
+                        "Details": [
+                            "Commit or link to exact commit provided in report or Canvas comments."
+                        ]
+                    },
+                    {
+                        "Description": "Proper References.",
+                        "Points": 1,
+                        "Details": [
+                            "Consistent formatting (APA, MLA, or IEEE).",
+                            "At least one citation outside of course material."
+                        ]
+                    },
+                    {
+                        "Description": "Graphs and text are legible.",
+                        "Points": 1,
+                        "Details": [
+                            "No zooming required at 100% on Canvas.",
+                            "Deduct if 3+ graphs are hard to read."
+                        ]
+                    },
+                    {
+                        "Description": "Report is 8 pages at most.",
+                        "Points": 1,
+                        "Details": [
+                            "Do not read beyond page 8."
+                        ]
+                    }
+                ],
+                "MDPOverviewAndDiscretization": {
+                    "TotalPoints": 15,
+                    "BlackjackMDPDescription": {
+                        "Points": 5,
+                        "Details": [
+                            "State space defined as (player sum, dealer face-up card, usable ace).",
+                            "Actions: hit or stick.",
+                            "Reward structure: +1 for win, 0 for draw, -1 for loss.",
+                            "Episodic task described (ends after terminal state)."
+                        ]
+                    },
+                    "CartPoleMDPDescription": {
+                        "Points": 5,
+                        "Details": [
+                            "State variables: cart position, cart velocity, pole angle, pole tip velocity.",
+                            "Action space: push cart left or right.",
+                            "Reward: +1 per time step until failure.",
+                            "Termination conditions described."
+                        ]
+                    },
+                    "ComparisonAndDiscretizationStrategy": {
+                        "Points": 5,
+                        "Details": [
+                            "Key differences highlighted (Blackjack: small/discrete; CartPole: large/continuous).",
+                            "Implications explained (VI/PI for Blackjack; discretization for CartPole).",
+                            "Discretization approach described (bins, rounding methods).",
+                            "Tradeoffs between fidelity and computational cost justified."
+                        ]
+                    }
+                },
+                "ValueIterationAndPolicyIteration": {
+                    "TotalPoints": 30,
+                    "ExplanationOfVIAndPI": {
+                        "Points": 8,
+                        "Details": [
+                            "VI: Bellman optimality equation described.",
+                            "PI: Policy evaluation and improvement steps explained.",
+                            "Convergence guarantees mentioned.",
+                            "Difference between VI and PI articulated."
+                        ]
+                    },
+                    "ConvergenceVisualizations": {
+                        "Points": 8,
+                        "Details": [
+                            "VI on Blackjack: Line plot of max ∆V per iteration.",
+                            "PI on Blackjack: Bar/line plot of policy changes per iteration.",
+                            "VI on CartPole: Line plot of ∆V per iteration (mention bins).",
+                            "PI on CartPole: Line plot of policy changes per iteration."
+                        ]
+                    },
+                    "ConvergenceAnalysis": {
+                        "Points": 7,
+                        "Details": [
+                            "Hyperparameters tested (theta, gamma).",
+                            "Explanation for PI's faster convergence.",
+                            "Number of iterations reported with convergence criteria.",
+                            "Quantitative and qualitative comparison included."
+                        ]
+                    },
+                    "FinalPolicyComparison": {
+                        "Points": 4,
+                        "Details": [
+                            "States whether VI and PI policies are the same.",
+                            "Reasons for differences explained if applicable.",
+                            "Visualizations encouraged (heatmaps, bar charts)."
+                        ]
+                    },
+                    "StateSpaceImpactOnCartPole": {
+                        "Points": 3,
+                        "Details": [
+                            "Discretization errors discussed.",
+                            "Tradeoffs explored (finer binning vs. runtime/memory)."
+                        ]
+                    }
+                },
+                "SARSAAndQLearning": {
+                    "TotalPoints": 33,
+                    "ExplanationOfSARSAAndQLearning": {
+                        "Points": 6,
+                        "GradingTiers": [
+                            {
+                                "Points": 6,
+                                "Description": "Full Credit: Correct definitions, clear explanation of on/off-policy, exploration implications, behavioral differences."
+                            },
+                            {
+                                "Points": 4,
+                                "Description": "Partial Credit: Mentions on/off-policy, vague differences."
+                            },
+                            {
+                                "Points": 2,
+                                "Description": "Minimal Credit: Acknowledges differences but definitions confused."
+                            }
+                        ]
+                    },
+                    "LearningCurves": {
+                        "Points": 8,
+                        "Details": [
+                            "SARSA on Blackjack: Line plot of cumulative reward per episode.",
+                            "Q-Learning on Blackjack: Same as SARSA.",
+                            "SARSA on CartPole: Line plot of episode length or reward.",
+                            "Q-Learning on CartPole: Same as SARSA."
+                        ]
+                    },
+                    "ExplorationStrategies": {
+                        "Points": 7,
+                        "Details": [
+                            "At least one strategy used (e.g., epsilon-greedy with decay).",
+                            "Values or decay schedules explained.",
+                            "Hyperparameter differences demonstrated (3+ values).",
+                            "Impact on convergence discussed."
+                        ]
+                    },
+                    "SARSAvsQLearningPolicyComparison": {
+                        "Points": 6,
+                        "GradingTiers": [
+                            {
+                                "Points": 6,
+                                "Description": "Full Credit: Explicit comparison, key distinctions highlighted, reasoning rooted in theory."
+                            },
+                            {
+                                "Points": 3,
+                                "Description": "Partial Credit: Notes differences, vague explanation."
+                            },
+                            {
+                                "Points": 0,
+                                "Description": "No comparison made."
+                            }
+                        ]
+                    },
+                    "ComparisonToVIPI": {
+                        "Points": 6,
+                        "GradingTiers": [
+                            {
+                                "Points": 6,
+                                "Description": "Full Credit: Clear comparison, identifies reasons for mismatches, visual comparisons included."
+                            },
+                            {
+                                "Points": 3,
+                                "Description": "Partial Credit: Acknowledges differences, vague explanation."
+                            },
+                            {
+                                "Points": 0,
+                                "Description": "No comparison made."
+                            }
+                        ]
+                    }
+                },
+                "ReflectionAndIntegration": {
+                    "TotalPoints": 12,
+                    "ChallengesAndImprovements": {
+                        "Points": 6,
+                        "GradingTiers": [
+                            {
+                                "Points": 6,
+                                "Description": "Full Credit: Specific challenges, detailed discussion, actionable improvements."
+                            },
+                            {
+                                "Points": 3,
+                                "Description": "Partial Credit: Plausible challenge, generic improvement."
+                            },
+                            {
+                                "Points": 0,
+                                "Description": "Missing or superficial."
+                            }
+                        ]
+                    },
+                    "DataDrivenConclusions": {
+                        "Points": 6,
+                        "GradingTiers": [
+                            {
+                                "Points": 6,
+                                "Description": "Full Credit: Synthesizes findings, references data, interprets plots, connects to theory."
+                            },
+                            {
+                                "Points": 3,
+                                "Description": "Partial Credit: Refers to results, lacks integration."
+                            },
+                            {
+                                "Points": 0,
+                                "Description": "No conclusions drawn."
+                            }
+                        ]
+                    }
+                },
+                "ExtraCredit": {
+                    "DoublePendulum": {
+                        "Points": 5,
+                        "Details": [
+                            "+1 pt: Justifies use of DDPG or SAC.",
+                            "+1 pt: Any attempt at implementation.",
+                            "+3 pts: Includes reward curves, training plots, final results, and comparison."
+                        ]
+                    }
+                }
+            }
+        };
+
+        // Function to render the rubric
+        function renderRubric() {
+            const container = document.getElementById('rubric-container');
+            const rubric = rubricData.Rubric;
+
+            // Render Requirements section
+            const requirementsSection = createSection('Requirements', rubric.TotalPoints);
+            rubric.Requirements.forEach(req => {
+                const subsection = createSubsection(req.Description, req.Points);
+                if (req.Details) {
+                    req.Details.forEach(detail => {
+                        subsection.appendChild(createCheckboxItem(detail, req.Points / req.Details.length));
+                    });
+                }
+                requirementsSection.appendChild(subsection);
+            });
+            container.appendChild(requirementsSection);
+
+            // Render MDP Overview section
+            const mdpSection = createSection('MDP Overview and Discretization', rubric.MDPOverviewAndDiscretization.TotalPoints);
+            for (const [key, value] of Object.entries(rubric.MDPOverviewAndDiscretization)) {
+                if (key !== 'TotalPoints') {
+                    const subsection = createSubsection(key.replace(/([A-Z])/g, ' $1'), value.Points);
+                    if (value.Details) {
+                        value.Details.forEach(detail => {
+                            subsection.appendChild(createCheckboxItem(detail, value.Points / value.Details.length));
+                        });
+                    }
+                    mdpSection.appendChild(subsection);
+                }
+            }
+            container.appendChild(mdpSection);
+
+            // Render Value Iteration section
+            const viSection = createSection('Value Iteration and Policy Iteration', rubric.ValueIterationAndPolicyIteration.TotalPoints);
+            for (const [key, value] of Object.entries(rubric.ValueIterationAndPolicyIteration)) {
+                if (key !== 'TotalPoints') {
+                    const subsection = createSubsection(key.replace(/([A-Z])/g, ' $1'), value.Points);
+                    if (value.Details) {
+                        value.Details.forEach(detail => {
+                            subsection.appendChild(createCheckboxItem(detail, value.Points / value.Details.length));
+                        });
+                    } else if (value.GradingTiers) {
+                        value.GradingTiers.forEach(tier => {
+                            const tierDiv = document.createElement('div');
+                            tierDiv.className = 'grading-tier';
+                            tierDiv.innerHTML = `<span class="tier-points">${tier.Points} points:</span> ${tier.Description}`;
+                            tierDiv.onclick = function() {
+                                this.classList.toggle('selected');
+                                calculateScore();
+                            };
+                            subsection.appendChild(tierDiv);
+                        });
+                    }
+                    viSection.appendChild(subsection);
+                }
+            }
+            container.appendChild(viSection);
+
+            // Render SARSA section
+            const sarsaSection = createSection('SARSA and Q-Learning', rubric.SARSAAndQLearning.TotalPoints);
+            for (const [key, value] of Object.entries(rubric.SARSAAndQLearning)) {
+                if (key !== 'TotalPoints') {
+                    const subsection = createSubsection(key.replace(/([A-Z])/g, ' $1'), value.Points);
+                    if (value.Details) {
+                        value.Details.forEach(detail => {
+                            subsection.appendChild(createCheckboxItem(detail, value.Points / value.Details.length));
+                        });
+                    } else if (value.GradingTiers) {
+                        value.GradingTiers.forEach(tier => {
+                            const tierDiv = document.createElement('div');
+                            tierDiv.className = 'grading-tier';
+                            tierDiv.innerHTML = `<span class="tier-points">${tier.Points} points:</span> ${tier.Description}`;
+                            tierDiv.onclick = function() {
+                                this.classList.toggle('selected');
+                                calculateScore();
+                            };
+                            subsection.appendChild(tierDiv);
+                        });
+                    }
+                    sarsaSection.appendChild(subsection);
+                }
+            }
+            container.appendChild(sarsaSection);
+
+            // Render Reflection section
+            const reflectionSection = createSection('Reflection and Integration', rubric.ReflectionAndIntegration.TotalPoints);
+            for (const [key, value] of Object.entries(rubric.ReflectionAndIntegration)) {
+                if (key !== 'TotalPoints') {
+                    const subsection = createSubsection(key.replace(/([A-Z])/g, ' $1'), value.Points);
+                    if (value.GradingTiers) {
+                        value.GradingTiers.forEach(tier => {
+                            const tierDiv = document.createElement('div');
+                            tierDiv.className = 'grading-tier';
+                            tierDiv.innerHTML = `<span class="tier-points">${tier.Points} points:</span> ${tier.Description}`;
+                            tierDiv.onclick = function() {
+                                this.classList.toggle('selected');
+                                calculateScore();
+                            };
+                            subsection.appendChild(tierDiv);
+                        });
+                    }
+                    reflectionSection.appendChild(subsection);
+                }
+            }
+            container.appendChild(reflectionSection);
+
+            // Render Extra Credit section
+            const ecSection = createSection('Extra Credit: Double Pendulum', rubric.ExtraCredit.DoublePendulum.Points);
+            rubric.ExtraCredit.DoublePendulum.Details.forEach(detail => {
+                ecSection.appendChild(createCheckboxItem(detail, 
+                    detail.startsWith('+1') ? 1 : 
+                    detail.startsWith('+3') ? 3 : 0));
+            });
+            container.appendChild(ecSection);
+        }
+
+        // Helper function to create a section div
+        function createSection(title, totalPoints) {
+            const section = document.createElement('div');
+            section.className = 'section';
+            section.innerHTML = `<h2>${title} <span class="points">${totalPoints} points</span></h2>`;
+            section.dataset.totalPoints = totalPoints;
+            return section;
+        }
+
+        // Helper function to create a subsection div
+        function createSubsection(title, points) {
+            const subsection = document.createElement('div');
+            subsection.className = 'subsection';
+            subsection.innerHTML = `<h3>${title} <span class="points">${points} points</span></h3>`;
+            subsection.dataset.points = points;
+            return subsection;
+        }
+
+        // Helper function to create a checkbox item
+        function createCheckboxItem(text, points) {
+            const item = document.createElement('div');
+            item.className = 'item';
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'checkbox';
+            checkbox.dataset.points = points;
+            checkbox.onchange = calculateScore;
+            
+            const label = document.createElement('label');
+            label.textContent = text;
+            
+            const pointsSpan = document.createElement('span');
+            pointsSpan.className = 'points';
+            pointsSpan.textContent = `${points} pts`;
+            
+            item.appendChild(checkbox);
+            item.appendChild(label);
+            item.appendChild(pointsSpan);
+            
+            return item;
+        }
+
+        // Function to calculate the score
+        function calculateScore() {
+            let totalEarned = 0;
+            let totalPossible = 0;
+            let extraCreditEarned = 0;
+            let extraCreditPossible = rubricData.Rubric.ExtraCredit.DoublePendulum.Points;
+            
+            const summaryContainer = document.getElementById('summary-container');
+            summaryContainer.innerHTML = '';
+            
+            // Calculate scores for each section
+            document.querySelectorAll('.section').forEach(section => {
+                const sectionTitle = section.querySelector('h2').textContent.split(' points')[0];
+                const sectionTotal = parseInt(section.dataset.totalPoints);
+                let sectionEarned = 0;
+                
+                // Skip the extra credit section for now
+                if (sectionTitle.includes('Extra Credit')) {
+                    return;
+                }
+                
+                totalPossible += sectionTotal;
+                
+                // Calculate points from checkboxes
+                section.querySelectorAll('.checkbox:checked').forEach(checkbox => {
+                    sectionEarned += parseFloat(checkbox.dataset.points);
+                });
+                
+                // Calculate points from grading tiers
+                section.querySelectorAll('.grading-tier.selected').forEach(tier => {
+                    const pointsText = tier.querySelector('.tier-points').textContent;
+                    const points = parseInt(pointsText);
+                    sectionEarned += points;
+                });
+                
+                // Cap the earned points at the section total
+                sectionEarned = Math.min(sectionEarned, sectionTotal);
+                totalEarned += sectionEarned;
+                
+                // Add to summary
+                const summaryItem = document.createElement('div');
+                summaryItem.className = 'summary-item';
+                summaryItem.textContent = `${sectionTitle}: ${sectionEarned}/${sectionTotal} points`;
+                summaryContainer.appendChild(summaryItem);
+            });
+            
+            // Calculate extra credit
+            const ecSection = document.querySelector('.section:last-child');
+            if (ecSection) {
+                ecSection.querySelectorAll('.checkbox:checked').forEach(checkbox => {
+                    extraCreditEarned += parseFloat(checkbox.dataset.points);
+                });
+            }
+            
+            // Update total display
+            document.getElementById('total-points').textContent = 
+                `Total Points: ${totalEarned}/${totalPossible} (Extra Credit: ${extraCreditEarned}/${extraCreditPossible})`;
+        }
+
+        // Initialize the rubric when the page loads
+        window.onload = function() {
+            renderRubric();
+            
+            // Add event listener to the calculate button
+            document.getElementById('calculate-btn').addEventListener('click', calculateScore);
+        };
+    </script>
+</body>
+</html>
