@@ -169,42 +169,42 @@
                         "Description": "All requirements met, full reproducibility ensured.",
                         "Points": 5,
                         "Details": [
-                            "README included in submission (deduct 5 points if missing)."
+                            "Your submission included a README file."
                         ]
                     },
                     {
                         "Description": "Overleaf and LaTeX used for report.",
                         "Points": 1,
                         "Details": [
-                            "'READ ONLY' link to Overleaf Project provided in report or Canvas comments."
+                            "You provided a 'READ ONLY' link to Overleaf Project."
                         ]
                     },
                     {
                         "Description": "Final Github commit from private GT Github.",
                         "Points": 1,
                         "Details": [
-                            "Commit or link to exact commit provided in report or Canvas comments."
+                            "You provided the final commit or link to exact commit to your GitHub repo as part of your Canvas comments."
                         ]
                     },
                     {
                         "Description": "Proper References.",
                         "Points": 1,
                         "Details": [
-                            "At least one citation outside of course material."
+                            "You used at least one citation outside of course material."
                         ]
                     },
                     {
                         "Description": "Graphs and text are legible.",
                         "Points": 1,
                         "Details": [
-                            "No zooming required at 100% on Canvas."
+                            "Your figures/plots are readable and does not require zooming."
                         ]
                     },
                     {
                         "Description": "Report is 8 pages at most.",
                         "Points": 1,
                         "Details": [
-                            "Do not read beyond page 8."
+                            "Your report is 8 pages long."
                         ]
                     }
                 ],
@@ -626,16 +626,8 @@
 
             // Special handling for Requirements section
             if (sectionName === 'Requirements') {
-                const requirements = rubricData.Rubric.Requirements;
-                section.querySelectorAll('.subsection').forEach((subsection, index) => {
-                    const req = requirements[index];
-                    const isChecked = subsection.querySelector('.checkbox:checked') !== null;
-                    if (isChecked) {
-                        selectedItems.push(req.Description);
-                        req.Details.forEach(detail => {
-                            selectedItems.push(`- ${detail}`);
-                        });
-                    }
+                section.querySelectorAll('.checkbox:checked').forEach(checkbox => {
+                    selectedItems.push(checkbox.dataset.text);
                 });
             }
             // Normal handling for other sections
@@ -647,12 +639,14 @@
 
                 // Grading tiers
                 section.querySelectorAll('.grading-tier.selected').forEach(tier => {
-                    selectedItems.push(tier.textContent.trim());
+                    // Remove the points prefix from the tier text
+                    const tierText = tier.textContent.replace(/^\d+ points:\s*/, '');
+                    selectedItems.push(tierText);
                 });
             }
 
             // Update the textarea with single line breaks
-            textarea.value = selectedItems.join('\n');
+            textarea.value = selectedItems.join(' ');
 
             // Update the summary immediately
             updateSummaryFromTextarea({ target: textarea });
@@ -787,9 +781,9 @@
                 const notes = textarea.value.trim();
 
                 if (notes) {
-                    summaryItem.innerHTML = `<strong>${sectionTitle}: ${sectionEarned}/${sectionTotal} points</strong><br>${notes.replace(/\n/g, '<br>')}`;
+                    summaryItem.innerHTML = `<strong>${sectionTitle}: (${sectionEarned}/${sectionTotal})</strong><br>${notes.replace(/\n/g, '<br>')}`;
                 } else {
-                    summaryItem.textContent = `${sectionTitle}: ${sectionEarned}/${sectionTotal} points`;
+                    summaryItem.textContent = `(${sectionTitle}: ${sectionEarned}/${sectionTotal})`;
                 }
                 summaryContainer.appendChild(summaryItem);
             });
@@ -810,9 +804,9 @@
                     ecSummary.className = 'summary-item';
 
                     if (ecNotes) {
-                        ecSummary.innerHTML = `<strong>Extra Credit: ${extraCreditEarned}/${extraCreditPossible} points</strong><br>${ecNotes.replace(/\n/g, '<br>')}`;
+                        ecSummary.innerHTML = `<strong>Extra Credit: (${extraCreditEarned}/${extraCreditPossible})</strong><br>${ecNotes.replace(/\n/g, '<br>')}`;
                     } else {
-                        ecSummary.textContent = `Extra Credit: ${extraCreditEarned}/${extraCreditPossible} points`;
+                        ecSummary.textContent = `Extra Credit:(${extraCreditEarned}/${extraCreditPossible})`;
                     }
                     summaryContainer.appendChild(ecSummary);
                 }
