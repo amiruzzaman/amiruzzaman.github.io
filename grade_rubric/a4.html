@@ -183,42 +183,42 @@
                         "Description": "All requirements met, full reproducibility ensured.",
                         "Points": 5,
                         "Details": [
-                            "Your submission included a README file."
+                            { "Text": "Your submission included a README file.", "Points": 1 }
                         ]
                     },
                     {
                         "Description": "Overleaf and LaTeX used for report.",
                         "Points": 1,
                         "Details": [
-                            "You provided a 'READ ONLY' link to Overleaf Project."
+                            { "Text": "You provided a 'READ ONLY' link to Overleaf Project.", "Points": 1 }
                         ]
                     },
                     {
                         "Description": "Final Github commit from private GT Github.",
                         "Points": 1,
                         "Details": [
-                            "You provided the final commit or link to exact commit to your GitHub repo as part of your Canvas comments."
+                            { "Text": "You provided the final commit or link to exact commit to your GitHub repo as part of your Canvas comments.", "Points": 1 }
                         ]
                     },
                     {
                         "Description": "Proper References.",
                         "Points": 1,
                         "Details": [
-                            "You used at least one citation outside of course material."
+                            { "Text": "You used at least one citation outside of course material.", "Points": 1 }
                         ]
                     },
                     {
                         "Description": "Graphs and text are legible.",
                         "Points": 1,
                         "Details": [
-                            "Your figures/plots are readable and does not require zooming."
+                            { "Text": "Your figures/plots are readable and does not require zooming.", "Points": 1 }
                         ]
                     },
                     {
                         "Description": "Report is 8 pages at most.",
                         "Points": 1,
                         "Details": [
-                            "Your report is 8 pages long."
+                            { "Text": "Your report is 8 pages long.", "Points": 1 }
                         ]
                     }
                 ],
@@ -227,28 +227,28 @@
                     "BlackjackMDPDescription": {
                         "Points": 5,
                         "Details": [
-                            "State space defined as (player sum, dealer face-up card, usable ace).",
-                            "Actions: hit or stick.",
-                            "Reward structure: +1 for win, 0 for draw, -1 for loss.",
-                            "Episodic task described (ends after terminal state)."
+                            { "Text": "State space defined as (player sum, dealer face-up card, usable ace).", "Points": 1 },
+                            { "Text": "Actions: hit or stick.", "Points": 1 },
+                            { "Text": "Reward structure: +1 for win, 0 for draw, -1 for loss.", "Points": 1 },
+                            { "Text": "Episodic task described (ends after terminal state).", "Points": 2 }
                         ]
                     },
                     "CartPoleMDPDescription": {
                         "Points": 5,
                         "Details": [
-                            "State variables: cart position, cart velocity, pole angle, pole tip velocity.",
-                            "Action space: push cart left or right.",
-                            "Reward: +1 per time step until failure.",
-                            "Termination conditions described."
+                            { "Text": "State variables: cart position, cart velocity, pole angle, pole tip velocity.", "Points": 1 },
+                            { "Text": "Action space: push cart left or right.", "Points": 1 },
+                            { "Text": "Reward: +1 per time step until failure.", "Points": 1 },
+                            { "Text": "Termination conditions described.", "Points": 2 }
                         ]
                     },
                     "ComparisonAndDiscretizationStrategy": {
                         "Points": 5,
                         "Details": [
-                            "Key differences highlighted (Blackjack: small/discrete; CartPole: large/continuous).",
-                            "Implications explained (VI/PI for Blackjack; discretization for CartPole).",
-                            "Discretization approach described (bins, rounding methods).",
-                            "Tradeoffs between fidelity and computational cost justified."
+                            { "Text": "Key differences highlighted (Blackjack: small/discrete; CartPole: large/continuous).", "Points": 1 },
+                            { "Text": "Implications explained (VI/PI for Blackjack; discretization for CartPole).", "Points": 1 },
+                            { "Text": "Discretization approach described (bins, rounding methods).", "Points": 1 },
+                            { "Text": "Tradeoffs between fidelity and computational cost justified.", "Points": 2 }
                         ]
                     }
                 },
@@ -257,43 +257,43 @@
                     "ExplanationOfVIAndPI": {
                         "Points": 8,
                         "Details": [
-                            "VI: Bellman optimality equation described.",
-                            "PI: Policy evaluation and improvement steps explained.",
-                            "Convergence guarantees mentioned.",
-                            "Difference between VI and PI articulated."
+                            { "Text": "VI: Bellman optimality equation described.", "Points": 2 },
+                            { "Text": "PI: Policy evaluation and improvement steps explained.", "Points": 2 },
+                            { "Text": "Convergence guarantees mentioned.", "Points": 2 },
+                            { "Text": "Difference between VI and PI articulated.", "Points": 2 }
                         ]
                     },
                     "ConvergenceVisualizations": {
                         "Points": 8,
                         "Details": [
-                            "VI on Blackjack: Line plot of max ∆V per iteration.",
-                            "PI on Blackjack: Bar/line plot of policy changes per iteration.",
-                            "VI on CartPole: Line plot of ∆V per iteration (mention bins).",
-                            "PI on CartPole: Line plot of policy changes per iteration."
+                            { "Text": "VI on Blackjack: Line plot of max ∆V per iteration.", "Points": 2 },
+                            { "Text": "PI on Blackjack: Bar/line plot of policy changes per iteration.", "Points": 2 },
+                            { "Text": "VI on CartPole: Line plot of ∆V per iteration (mention bins).", "Points": 2 },
+                            { "Text": "PI on CartPole: Line plot of policy changes per iteration.", "Points": 2 }
                         ]
                     },
                     "ConvergenceAnalysis": {
                         "Points": 7,
                         "Details": [
-                            "Hyperparameters tested (theta, gamma).",
-                            "Explanation for PI's faster convergence.",
-                            "Number of iterations reported with convergence criteria.",
-                            "Quantitative and qualitative comparison included."
+                            { "Text": "Hyperparameters tested (theta, gamma).", "Points": 2.00 },
+                            { "Text": "Explanation for PI's faster convergence.", "Points": 2.00 },
+                            { "Text": "Number of iterations reported with convergence criteria.", "Points": 2.00 },
+                            { "Text": "Quantitative and qualitative comparison included.", "Points": 1.00 }
                         ]
                     },
                     "FinalPolicyComparison": {
                         "Points": 4,
                         "Details": [
-                            "States whether VI and PI policies are the same.",
-                            "Reasons for differences explained if applicable.",
-                            "Visualizations encouraged (heatmaps, bar charts)."
+                            { "Text": "States whether VI and PI policies are the same.", "Points": 2 },
+                            { "Text": "Reasons for differences explained if applicable.", "Points": 1 },
+                            { "Text": "Visualizations encouraged (heatmaps, bar charts).", "Points": 1 }
                         ]
                     },
                     "StateSpaceImpactOnCartPole": {
                         "Points": 3,
                         "Details": [
-                            "Discretization errors discussed.",
-                            "Tradeoffs explored (finer binning vs. runtime/memory)."
+                            { "Text": "Discretization errors discussed.", "Points": 1.0 },
+                            { "Text": "Tradeoffs explored (finer binning vs. runtime/memory).", "Points": 2.0 }
                         ]
                     }
                 },
@@ -319,19 +319,19 @@
                     "LearningCurves": {
                         "Points": 8,
                         "Details": [
-                            "SARSA on Blackjack: Line plot of cumulative reward per episode.",
-                            "Q-Learning on Blackjack: Same as SARSA.",
-                            "SARSA on CartPole: Line plot of episode length or reward.",
-                            "Q-Learning on CartPole: Same as SARSA."
+                            { "Text": "SARSA on Blackjack: Line plot of cumulative reward per episode.", "Points": 2 },
+                            { "Text": "Q-Learning on Blackjack: Same as SARSA.", "Points": 2 },
+                            { "Text": "SARSA on CartPole: Line plot of episode length or reward.", "Points": 2 },
+                            { "Text": "Q-Learning on CartPole: Same as SARSA.", "Points": 2 }
                         ]
                     },
                     "ExplorationStrategies": {
                         "Points": 7,
                         "Details": [
-                            "At least one strategy used (e.g., epsilon-greedy with decay).",
-                            "Values or decay schedules explained.",
-                            "Hyperparameter differences demonstrated (3+ values).",
-                            "Impact on convergence discussed."
+                            { "Text": "At least one strategy used (e.g., epsilon-greedy with decay).", "Points": 2.0 },
+                            { "Text": "Values or decay schedules explained.", "Points": 2.0 },
+                            { "Text": "Hyperparameter differences demonstrated (3+ values).", "Points": 1.0 },
+                            { "Text": "Impact on convergence discussed.", "Points": 2.0 }
                         ]
                     },
                     "SARSAvsQLearningPolicyComparison": {
@@ -455,7 +455,8 @@
                 const subsection = createSubsection(req.Description, req.Points);
                 if (req.Details) {
                     req.Details.forEach(detail => {
-                        subsection.appendChild(createCheckboxItem(detail, req.Points, true));
+                        const points = detail.Points || (req.Points / req.Details.length);
+                        subsection.appendChild(createCheckboxItem(detail.Text, points, true));
                     });
                 }
                 requirementsSection.appendChild(subsection);
@@ -477,7 +478,8 @@
                     const subsection = createSubsection(key.replace(/([A-Z])/g, ' $1'), value.Points);
                     if (value.Details) {
                         value.Details.forEach(detail => {
-                            subsection.appendChild(createCheckboxItem(detail, value.Points / value.Details.length));
+                            const points = detail.Points || (value.Points / value.Details.length);
+                            subsection.appendChild(createCheckboxItem(detail.Text, points));
                         });
                     }
                     mdpSection.appendChild(subsection);
@@ -500,7 +502,8 @@
                     const subsection = createSubsection(key.replace(/([A-Z])/g, ' $1'), value.Points);
                     if (value.Details) {
                         value.Details.forEach(detail => {
-                            subsection.appendChild(createCheckboxItem(detail, value.Points / value.Details.length));
+                            const points = detail.Points || (value.Points / value.Details.length);
+                            subsection.appendChild(createCheckboxItem(detail.Text, points));
                         });
                     } else if (value.GradingTiers) {
                         value.GradingTiers.forEach(tier => {
@@ -535,7 +538,8 @@
                     const subsection = createSubsection(key.replace(/([A-Z])/g, ' $1'), value.Points);
                     if (value.Details) {
                         value.Details.forEach(detail => {
-                            subsection.appendChild(createCheckboxItem(detail, value.Points / value.Details.length));
+                            const points = detail.Points || (value.Points / value.Details.length);
+                            subsection.appendChild(createCheckboxItem(detail.Text, points));
                         });
                     } else if (value.GradingTiers) {
                         value.GradingTiers.forEach(tier => {
