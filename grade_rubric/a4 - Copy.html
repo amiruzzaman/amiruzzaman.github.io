@@ -19,7 +19,7 @@
         }
 
         h2 {
-            color: #ad444d;
+            color: #8e44ad;
         }
 
         h3 {
@@ -97,16 +97,10 @@
             cursor: pointer;
             font-size: 16px;
             margin-top: 10px;
-            margin-right: 10px;
         }
 
         button:hover {
             background-color: #2980b9;
-        }
-
-        .button-container {
-            display: flex;
-            gap: 10px;
         }
 
         .grading-tier {
@@ -141,20 +135,6 @@
             justify-content: space-between;
             align-items: center;
         }
-
-        #copy-notification {
-            display: none;
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 10px;
-        }
-
-        .missing-item {
-            color: #d9534f;
-            font-style: italic;
-        }
     </style>
 </head>
 
@@ -166,11 +146,7 @@
         <h2>Grading Summary</h2>
         <div id="summary-container"></div>
         <div class="total" id="total-points">Total Points: 0/100 (Extra Credit: 0/5)</div>
-        <div class="button-container">
-            <button id="calculate-btn">Calculate Score</button>
-            <button id="copy-btn">Copy Summary</button>
-        </div>
-        <div id="copy-notification">Summary copied to clipboard!</div>
+        <button id="calculate-btn">Calculate Score</button>
     </div>
 
     <script>
@@ -178,6 +154,16 @@
         const rubricData = {
             "Rubric": {
                 "TotalPoints": 100,
+                "ExtraCredit": {
+                    "DoublePendulum": {
+                        "Points": 5,
+                        "Details": [
+                            "+1 pt: Justifies use of DDPG or SAC.",
+                            "+1 pt: Any attempt at implementation.",
+                            "+3 pts: Includes reward curves, training plots, final results, and comparison."
+                        ]
+                    }
+                },
                 "Requirements": [
                     {
                         "Description": "All requirements met, full reproducibility ensured.",
@@ -405,44 +391,9 @@
                             }
                         ]
                     }
-                },
-                "ExtraCredit": {
-                    "TotalPoints": 5,
-                    "DoublePendulum": {
-                        "Points": 5,
-                        "GradingTiers": [
-                            {
-                                "Points": 1,
-                                "Description": "Justified use of DDPG or SAC."
-                            },
-                            {
-                                "Points": 1,
-                                "Description": "Attempted implementation."
-                            },
-                            {
-                                "Points": 3,
-                                "Description": "Included reward curves, training plots, final results, and comparison."
-                            }
-                        ]
-                    }
                 }
             }
         };
-
-        // List of subsections that use grading tiers (where we won't show "missing" items)
-        const gradingTierSubsections = [
-            "SARSAvsQLearningPolicyComparison",
-            "ComparisonToVIPI",
-            "ChallengesAndImprovements",
-            "DataDrivenConclusions",
-            "DoublePendulum"
-        ];
-
-        // Function to check if a subsection is a grading tier subsection
-        function isGradingTierSubsection(subsectionTitle) {
-            const cleanTitle = subsectionTitle.replace(/\s+/g, '');
-            return gradingTierSubsections.some(name => cleanTitle.includes(name));
-        }
 
         // Function to render the rubric
         function renderRubric() {
@@ -450,7 +401,7 @@
             const rubric = rubricData.Rubric;
 
             // Render Requirements section
-            const requirementsSection = createSection('Requirements', 10);
+            const requirementsSection = createSection('Requirements', 10); // Changed to 10 points total
             rubric.Requirements.forEach(req => {
                 const subsection = createSubsection(req.Description, req.Points);
                 if (req.Details) {
@@ -595,26 +546,12 @@
             container.appendChild(reflectionSection);
 
             // Render Extra Credit section
-            const ecSection = createSection('Extra Credit', rubric.ExtraCredit.TotalPoints);
-            for (const [key, value] of Object.entries(rubric.ExtraCredit)) {
-                if (key !== 'TotalPoints') {
-                    const subsection = createSubsection(key.replace(/([A-Z])/g, ' $1'), value.Points);
-                    if (value.GradingTiers) {
-                        value.GradingTiers.forEach(tier => {
-                            const tierDiv = document.createElement('div');
-                            tierDiv.className = 'grading-tier';
-                            tierDiv.innerHTML = `<span class="tier-points">${tier.Points} points:</span> ${tier.Description}`;
-                            tierDiv.onclick = function () {
-                                this.classList.toggle('selected');
-                                updateTextareaContent(this, 'ExtraCredit');
-                                calculateScore();
-                            };
-                            subsection.appendChild(tierDiv);
-                        });
-                    }
-                    ecSection.appendChild(subsection);
-                }
-            }
+            const ecSection = createSection('Extra Credit: Double Pendulum', rubric.ExtraCredit.DoublePendulum.Points);
+            rubric.ExtraCredit.DoublePendulum.Details.forEach(detail => {
+                ecSection.appendChild(createCheckboxItem(detail,
+                    detail.startsWith('+1') ? 1 :
+                        detail.startsWith('+3') ? 3 : 0));
+            });
 
             // Add textarea for Extra Credit section
             const ecTextarea = document.createElement('textarea');
@@ -683,53 +620,33 @@
         function updateTextareaContent(element, sectionName) {
             const section = element.closest('.section');
             const textarea = section.querySelector('.section-textarea');
-            const subsection = element.closest('.subsection');
-            const subsectionTitle = subsection ? subsection.querySelector('h3').textContent.split(' points')[0].trim() : '';
 
             // Get all selected items in this section
             let selectedItems = [];
-            let missingItems = [];
 
             // Special handling for Requirements section
             if (sectionName === 'Requirements') {
-                section.querySelectorAll('.item').forEach(item => {
-                    const checkbox = item.querySelector('.checkbox');
-                    if (checkbox.checked) {
-                        selectedItems.push(checkbox.dataset.text);
-                    } else {
-                        missingItems.push(`missing ${checkbox.dataset.text}`);
-                    }
+                section.querySelectorAll('.checkbox:checked').forEach(checkbox => {
+                    selectedItems.push(checkbox.dataset.text);
                 });
             }
             // Normal handling for other sections
             else {
-                // Checkboxes - include missing items only for non-grading-tier subsections
-                section.querySelectorAll('.item').forEach(item => {
-                    const checkbox = item.querySelector('.checkbox');
-                    if (checkbox) {
-                        if (checkbox.checked) {
-                            selectedItems.push(checkbox.dataset.text);
-                        } else if (!isGradingTierSubsection(subsectionTitle)) {
-                            missingItems.push(`missing ${checkbox.dataset.text}`);
-                        }
-                    }
+                // Checkboxes
+                section.querySelectorAll('.checkbox:checked').forEach(checkbox => {
+                    selectedItems.push(checkbox.dataset.text);
                 });
 
-                // Grading tiers - only include selected ones
-                section.querySelectorAll('.grading-tier').forEach(tier => {
-                    if (tier.classList.contains('selected')) {
-                        // Remove the points prefix from the tier text
-                        const tierText = tier.textContent.replace(/^\d+ points:\s*/, '');
-                        selectedItems.push(tierText);
-                    }
+                // Grading tiers
+                section.querySelectorAll('.grading-tier.selected').forEach(tier => {
+                    // Remove the points prefix from the tier text
+                    const tierText = tier.textContent.replace(/^\d+ points:\s*/, '');
+                    selectedItems.push(tierText);
                 });
             }
 
-            // Combine selected and missing items
-            const allItems = [...selectedItems, ...missingItems];
-
             // Update the textarea with single line breaks
-            textarea.value = allItems.join('. ');
+            textarea.value = selectedItems.join(' ');
 
             // Update the summary immediately
             updateSummaryFromTextarea({ target: textarea });
@@ -757,7 +674,7 @@
                 });
             }
             // Normal handling for other sections
-            else {
+            else if (!sectionTitle.includes('Extra Credit')) {
                 // Calculate points from checkboxes
                 section.querySelectorAll('.checkbox:checked').forEach(checkbox => {
                     sectionEarned += parseFloat(checkbox.dataset.points);
@@ -783,10 +700,7 @@
                 if (item.textContent.includes(sectionTitle)) {
                     const notes = textarea.value.trim();
                     if (notes) {
-                        // Format missing items in red and italic
-                        let formattedNotes = notes.replace(/missing (.*?)(\.|$)/g, '<span class="missing-item">missing $1</span>$2');
-                        formattedNotes = formattedNotes.replace(/\n/g, '<br>');
-                        item.innerHTML = `<strong>${sectionTitle}: ${sectionEarned}/${sectionTotal} points</strong><br>${formattedNotes}`;
+                        item.innerHTML = `<strong>${sectionTitle}: ${sectionEarned}/${sectionTotal} points</strong><br>${notes.replace(/\n/g, '<br>')}`;
                     } else {
                         item.textContent = `${sectionTitle}: ${sectionEarned}/${sectionTotal} points`;
                     }
@@ -800,10 +714,7 @@
                 summaryItem.className = 'summary-item';
                 const notes = textarea.value.trim();
                 if (notes) {
-                    // Format missing items in red and italic
-                    let formattedNotes = notes.replace(/missing (.*?)(\.|$)/g, '<span class="missing-item">missing $1</span>$2');
-                    formattedNotes = formattedNotes.replace(/\n/g, '<br>');
-                    summaryItem.innerHTML = `<strong>${sectionTitle}: ${sectionEarned}/${sectionTotal} points</strong><br>${formattedNotes}`;
+                    summaryItem.innerHTML = `<strong>${sectionTitle}: ${sectionEarned}/${sectionTotal} points</strong><br>${notes.replace(/\n/g, '<br>')}`;
                 } else {
                     summaryItem.textContent = `${sectionTitle}: ${sectionEarned}/${sectionTotal} points`;
                 }
@@ -816,21 +727,16 @@
             let totalEarned = 0;
             let totalPossible = 0;
             let extraCreditEarned = 0;
-            let extraCreditPossible = rubricData.Rubric.ExtraCredit.TotalPoints;
+            let extraCreditPossible = rubricData.Rubric.ExtraCredit.DoublePendulum.Points;
 
             const summaryContainer = document.getElementById('summary-container');
             summaryContainer.innerHTML = '';
 
-            // Calculate scores for each section except Extra Credit
+            // Calculate scores for each section
             document.querySelectorAll('.section').forEach(section => {
                 const sectionTitle = section.querySelector('h2').textContent.split(' points')[0];
                 const sectionTotal = parseInt(section.dataset.totalPoints);
                 let sectionEarned = 0;
-
-                // Skip Extra Credit section for now
-                if (sectionTitle.includes('Extra Credit')) {
-                    return;
-                }
 
                 // Handle Requirements section differently
                 if (sectionTitle === 'Requirements') {
@@ -844,7 +750,7 @@
                     });
                 }
                 // Handle other sections normally
-                else {
+                else if (!sectionTitle.includes('Extra Credit')) {
                     // Calculate points from checkboxes
                     section.querySelectorAll('.checkbox:checked').forEach(checkbox => {
                         sectionEarned += parseFloat(checkbox.dataset.points);
@@ -861,7 +767,10 @@
                 // Cap the earned points at the section total
                 sectionEarned = Math.min(sectionEarned, sectionTotal);
                 totalEarned += sectionEarned;
-                totalPossible += sectionTotal;
+
+                if (!sectionTitle.includes('Extra Credit')) {
+                    totalPossible += sectionTotal;
+                }
 
                 // Add to summary
                 const summaryItem = document.createElement('div');
@@ -872,74 +781,40 @@
                 const notes = textarea.value.trim();
 
                 if (notes) {
-                    // Format missing items in red and italic
-                    let formattedNotes = notes.replace(/missing (.*?)(\.|$)/g, '<span class="missing-item">missing $1</span>$2');
-                    formattedNotes = formattedNotes.replace(/\n/g, '<br>');
-                    summaryItem.innerHTML = `<strong>${sectionTitle}: (${sectionEarned}/${sectionTotal})</strong><br>${formattedNotes}`;
+                    summaryItem.innerHTML = `<strong>${sectionTitle}: (${sectionEarned}/${sectionTotal})</strong><br>${notes.replace(/\n/g, '<br>')}`;
                 } else {
-                    summaryItem.textContent = `${sectionTitle}: (${sectionEarned}/${sectionTotal})`;
+                    summaryItem.textContent = `(${sectionTitle}: ${sectionEarned}/${sectionTotal})`;
                 }
                 summaryContainer.appendChild(summaryItem);
             });
 
-            // Calculate extra credit separately
+            // Calculate extra credit
             const ecSection = document.querySelector('.section:last-child');
             if (ecSection && ecSection.querySelector('h2').textContent.includes('Extra Credit')) {
-                ecSection.querySelectorAll('.grading-tier.selected').forEach(tier => {
-                    const pointsText = tier.querySelector('.tier-points').textContent;
-                    const points = parseInt(pointsText);
-                    extraCreditEarned += points;
+                ecSection.querySelectorAll('.checkbox:checked').forEach(checkbox => {
+                    extraCreditEarned += parseFloat(checkbox.dataset.points);
                 });
 
-                // Add extra credit to summary only if any points earned or if the textarea has content
-                const ecTextarea = ecSection.querySelector('.section-textarea');
-                const ecNotes = ecTextarea.value.trim();
+                // Add extra credit to summary if any points earned
+                if (extraCreditEarned > 0) {
+                    const ecTextarea = ecSection.querySelector('.section-textarea');
+                    const ecNotes = ecTextarea.value.trim();
 
-                if (extraCreditEarned > 0 || ecNotes) {
                     const ecSummary = document.createElement('div');
                     ecSummary.className = 'summary-item';
 
                     if (ecNotes) {
-                        // Format missing items in red and italic
-                        let formattedNotes = ecNotes.replace(/missing (.*?)(\.|$)/g, '<span class="missing-item">missing $1</span>$2');
-                        formattedNotes = formattedNotes.replace(/\n/g, '<br>');
-                        ecSummary.innerHTML = `<strong>Extra Credit: (${extraCreditEarned}/${extraCreditPossible})</strong><br>${formattedNotes}`;
+                        ecSummary.innerHTML = `<strong>Extra Credit: (${extraCreditEarned}/${extraCreditPossible})</strong><br>${ecNotes.replace(/\n/g, '<br>')}`;
                     } else {
-                        ecSummary.textContent = `Extra Credit: (${extraCreditEarned}/${extraCreditPossible})`;
+                        ecSummary.textContent = `Extra Credit:(${extraCreditEarned}/${extraCreditPossible})`;
                     }
                     summaryContainer.appendChild(ecSummary);
                 }
             }
 
-            // Update total display - now includes extra credit in total points
+            // Update total display
             document.getElementById('total-points').textContent =
-                `Total Points: ${totalEarned + extraCreditEarned}/${totalPossible} (Base: ${totalEarned}/${totalPossible}, Extra Credit: ${extraCreditEarned}/${extraCreditPossible})`;
-        }
-
-        // Function to copy the summary text to clipboard
-        function copySummaryToClipboard() {
-            const summaryContainer = document.getElementById('summary-container');
-            const totalPoints = document.getElementById('total-points').textContent;
-
-            // Get all summary items
-            const summaryItems = Array.from(summaryContainer.querySelectorAll('.summary-item')).map(item => {
-                // Remove HTML tags and formatting
-                const text = item.textContent.replace(/\s+/g, ' ').trim();
-                return text;
-            });
-
-            // Combine all summary items with the total points
-            const fullSummary = summaryItems.join('\n\n') + '\n\n' + totalPoints;
-
-            // Copy to clipboard
-            navigator.clipboard.writeText(fullSummary).then(() => {
-                // Show notification
-                const notification = document.getElementById('copy-notification');
-                notification.style.display = 'block';
-                setTimeout(() => {
-                    notification.style.display = 'none';
-                }, 2000);
-            });
+                `Total Points: ${totalEarned}/${totalPossible} (Extra Credit: ${extraCreditEarned}/${extraCreditPossible})`;
         }
 
         // Initialize the rubric when the page loads
@@ -948,9 +823,6 @@
 
             // Add event listener to the calculate button
             document.getElementById('calculate-btn').addEventListener('click', calculateScore);
-
-            // Add event listener to the copy button
-            document.getElementById('copy-btn').addEventListener('click', copySummaryToClipboard);
         };
     </script>
 </body>
