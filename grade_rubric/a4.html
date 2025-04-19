@@ -733,7 +733,7 @@
             const allItems = [...selectedItems, ...missingItems];
 
             // Update the textarea with single line breaks
-            textarea.value = allItems.join('. ');
+            textarea.value = allItems.join(' '); //textarea.value = allItems.join('. ');
 
             // Update the summary immediately
             updateSummaryFromTextarea({ target: textarea });
