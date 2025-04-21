@@ -180,19 +180,6 @@
             font-family: Arial, sans-serif;
             font-size: 14px;
         }
-
-        .total-score-display {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            background-color: #007bff;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 4px;
-            font-weight: bold;
-            z-index: 1000;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
     </style>
 
     <style>
@@ -305,9 +292,6 @@
 </head>
 
 <body>
-    <!-- Total score display -->
-    <div class="total-score-display" id="totalScoreDisplay">Total: 0/0</div>
-
     <!-- Instructions notice -->
     <p id="notice">Click to select "Yes" (green) or "No" (red) for each item. "No" selections default to 0 points but
         can be adjusted by double-clicking. Scores update automatically.</p>
@@ -340,7 +324,6 @@
         let subTotalScoreArr = [];        // Array of possible subtotals
         let sarr = [];                    // Array of actual scores
         let allItems = [];                // Array to store all rubric items for score calculation
-        let maxPossibleScore = 0;         // Maximum possible score
 
         /**
          * Opens the edit modal for the selected rubric item
@@ -361,30 +344,12 @@
         }
 
         /**
-         * Checks if all items in a container are selected as Yes or No
-         * @param {HTMLElement} container - The container to check
-         * @returns {Object} - {allYes: boolean, allNo: boolean}
-         */
-        function checkAllSelected(container) {
-            const yesItems = container.querySelectorAll('.item-yes.selected');
-            const noItems = container.querySelectorAll('.item-no.selected');
-            const allItems = container.querySelectorAll('.item-container');
-
-            return {
-                allYes: yesItems.length === allItems.length,
-                allNo: noItems.length === allItems.length
-            };
-        }
-
-        /**
          * Calculates and updates all scores in the rubric
          */
         function updateAllScores() {
             // Reset score arrays
             subTotalScoreArr = [];
             sarr = [];
-            let totalScore = 0;
-            maxPossibleScore = 0;
 
             // Get all part containers
             const partContainers = document.querySelectorAll('.part-container');
@@ -409,9 +374,8 @@
                         const itemScoreElement = item.querySelector('.item-score');
                         const maxScore = parseInt(itemYes.getAttribute('score'));
 
-                        // Add to problem total and max possible score
+                        // Add to problem total
                         problemTotal += maxScore;
-                        maxPossibleScore += maxScore;
 
                         // Calculate actual score based on selection
                         let actualScore = 0;
@@ -424,7 +388,6 @@
                         // Update score display
                         itemScoreElement.textContent = actualScore;
                         problemScore += actualScore;
-                        totalScore += actualScore;
                     });
 
                     // Update problem subtotal if it exists
@@ -441,8 +404,10 @@
                 sarr.push(partScore);
             });
 
-            // Update total score display
-            document.getElementById('totalScoreDisplay').textContent = `Total: ${totalScore}/${maxPossibleScore}`;
+            // Calculate and display grand total
+            const grandTotal = sarr.reduce((a, b) => a + b, 0);
+            const maxTotal = subTotalScoreArr.reduce((a, b) => a + b, 0);
+            document.getElementById('notice').textContent = `Total Score: ${grandTotal}/${maxTotal}`;
         }
 
         /**
@@ -494,15 +459,7 @@
                 });
 
                 // Event listeners for Yes option
-                itemYes.addEventListener('click', (e) => {
-                    const container = e.currentTarget.closest('.problem-container');
-                    const selectionState = checkAllSelected(container);
-
-                    // Don't allow changing if all are already Yes
-                    if (selectionState.allYes) {
-                        return;
-                    }
-
+                itemYes.addEventListener('click', () => {
                     itemYes.classList.add('selected');
                     itemNo.classList.remove('selected');
                     itemNo.setAttribute('score', 0); // Reset No score when Yes is selected
@@ -516,15 +473,7 @@
                 });
 
                 // Event listeners for No option
-                itemNo.addEventListener('click', (e) => {
-                    const container = e.currentTarget.closest('.problem-container');
-                    const selectionState = checkAllSelected(container);
-
-                    // Don't allow changing if all are already No
-                    if (selectionState.allNo) {
-                        return;
-                    }
-
+                itemNo.addEventListener('click', () => {
                     itemNo.classList.add('selected');
                     itemYes.classList.remove('selected');
                     itemScore.textContent = itemNo.getAttribute('score') || '0';
@@ -738,9 +687,6 @@
 
                 // Enable click-to-copy on output textarea
                 para.onclick = function () { myCopyFunction(para.id) };
-
-                // Initialize total score display
-                updateAllScores();
             });
 
         /**
