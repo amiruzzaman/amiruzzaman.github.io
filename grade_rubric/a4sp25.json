@@ -42,12 +42,12 @@
       [
         {
           "yes": "You defined state space, action (hit or stick), reward structure (+1 for win, 0 for tie/draw, and -1 for loss), terminal state.",
-          "no": "You did not include a discussion of the state space, actions (hit or stick), reward structure (+1 for win, 0 for tie/draw, and -1 for loss), or terminal state.",
+          "no": "You needed to define state space, actions (hit or stick), reward structure (+1 for win, 0 for tie/draw, and -1 for loss), and terminal state.",
           "point": 5
         },
         {
-          "yes": "You also defined state variables, action space, reward, and terminal conditions, discretization approach (bins, rounding methods), and justified tradeoffs between fidelity and computational cost.",
-          "no": "You did not define the state variables, action space, reward, or terminal conditions, nor did you describe the discretization approach (bins, rounding methods) or justify tradeoffs between fidelity and computational cost.",
+          "yes": "You also defined state variables, action space, reward, and terminal conditions.",
+          "no": "You did not define the state variables, action space, reward, or terminal conditions.",
           "point": 5
         },
         {
