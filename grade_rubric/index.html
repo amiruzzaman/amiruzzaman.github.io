@@ -408,16 +408,46 @@
         }
 
         /**
-         * Handles selection of an item and moves to next unselected if needed
-         * @param {HTMLElement} selectedElement - The element that was just selected
-         */
+     * Handles selection of an item and moves to next unselected if needed
+     * @param {HTMLElement} selectedElement - The element that was just selected
+     */
         function handleSelection(selectedElement) {
             updateAllScores();
             updateSaveButtonState();
 
+            // Only scroll if not all items are selected yet
             if (!allItemsSelected()) {
                 setTimeout(() => {
-                    findAndScrollToFirstUnselected();
+                    // Find the next unselected item AFTER the current one
+                    const allItems = Array.from(document.querySelectorAll('.item-yes, .item-no'));
+                    const currentIndex = allItems.indexOf(selectedElement);
+                    let nextUnselected = null;
+
+                    // Check items after the current one first
+                    for (let i = currentIndex + 1; i < allItems.length; i++) {
+                        if (!allItems[i].classList.contains('selected')) {
+                            nextUnselected = allItems[i];
+                            break;
+                        }
+                    }
+
+                    // If nothing found after, check from beginning
+                    if (!nextUnselected) {
+                        for (let i = 0; i < currentIndex; i++) {
+                            if (!allItems[i].classList.contains('selected')) {
+                                nextUnselected = allItems[i];
+                                break;
+                            }
+                        }
+                    }
+
+                    if (nextUnselected) {
+                        nextUnselected.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        nextUnselected.classList.add('unselected-highlight');
+                        setTimeout(() => {
+                            nextUnselected.classList.remove('unselected-highlight');
+                        }, 2000);
+                    }
                 }, 300);
             }
         }
