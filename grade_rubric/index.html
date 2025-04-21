@@ -168,8 +168,9 @@
             margin-top: 20px;
         }
 
-        .save-button:hover {
-            background-color: #0069d9;
+        .save-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
         }
 
         .item-textareabox {
@@ -192,6 +193,24 @@
             font-weight: bold;
             z-index: 1000;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .unselected-highlight {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 152, 0, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 152, 0, 0);
+            }
         }
     </style>
 
@@ -336,11 +355,72 @@
 
     <script>
         // Global variables
-        let selectedItem = null;          // Currently selected rubric item
-        let subTotalScoreArr = [];        // Array of possible subtotals
-        let sarr = [];                    // Array of actual scores
-        let allItems = [];                // Array to store all rubric items for score calculation
-        let maxPossibleScore = 0;         // Maximum possible score
+        let selectedItem = null;
+        let subTotalScoreArr = [];
+        let sarr = [];
+        let allItems = [];
+        let maxPossibleScore = 0;
+        let saveButton;
+
+        /**
+         * Checks if all items are selected (either Yes or No)
+         * @returns {boolean} - True if all items are selected, false otherwise
+         */
+        function allItemsSelected() {
+            const allYesNoItems = document.querySelectorAll('.item-yes, .item-no');
+            for (let item of allYesNoItems) {
+                if (!item.classList.contains('selected')) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /**
+         * Finds the first unselected item and scrolls to it
+         * @returns {HTMLElement|null} - The first unselected item or null if all are selected
+         */
+        function findAndScrollToFirstUnselected() {
+            const allYesNoItems = document.querySelectorAll('.item-yes, .item-no');
+            for (let item of allYesNoItems) {
+                if (!item.classList.contains('selected')) {
+                    item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    item.classList.add('unselected-highlight');
+                    setTimeout(() => {
+                        item.classList.remove('unselected-highlight');
+                    }, 2000);
+                    return item;
+                }
+            }
+            return null;
+        }
+
+        /**
+         * Updates the save button state based on selection completeness
+         */
+        function updateSaveButtonState() {
+            if (saveButton) {
+                saveButton.disabled = !allItemsSelected();
+                saveButton.title = saveButton.disabled ?
+                    "Please select all items (Yes or No) before saving" :
+                    "Save your grading results";
+            }
+        }
+
+        /**
+         * Handles selection of an item and moves to next unselected if needed
+         * @param {HTMLElement} selectedElement - The element that was just selected
+         */
+        function handleSelection(selectedElement) {
+            updateAllScores();
+            updateSaveButtonState();
+
+            if (!allItemsSelected()) {
+                setTimeout(() => {
+                    findAndScrollToFirstUnselected();
+                }, 300);
+            }
+        }
 
         /**
          * Opens the edit modal for the selected rubric item
@@ -351,11 +431,9 @@
             const editScore = document.getElementById('edit-score');
             const overlay = document.getElementById('overlay');
 
-            // Populate modal with current values
             editText.value = selectedItem.innerText;
             editScore.value = selectedItem.getAttribute('score');
 
-            // Show modal
             editBox.style.visibility = 'visible';
             overlay.style.visibility = 'visible';
         }
@@ -380,27 +458,23 @@
          * Calculates and updates all scores in the rubric
          */
         function updateAllScores() {
-            // Reset score arrays
             subTotalScoreArr = [];
             sarr = [];
             let totalScore = 0;
             maxPossibleScore = 0;
 
-            // Get all part containers
             const partContainers = document.querySelectorAll('.part-container');
 
             partContainers.forEach(part => {
                 let partTotal = 0;
                 let partScore = 0;
 
-                // Get all problem containers in this part
                 const problemContainers = part.querySelectorAll('.problem-container');
 
                 problemContainers.forEach(problem => {
                     let problemTotal = 0;
                     let problemScore = 0;
 
-                    // Get all items in this problem
                     const items = problem.querySelectorAll('.item-container');
 
                     items.forEach(item => {
@@ -409,11 +483,9 @@
                         const itemScoreElement = item.querySelector('.item-score');
                         const maxScore = parseInt(itemYes.getAttribute('score'));
 
-                        // Add to problem total and max possible score
                         problemTotal += maxScore;
                         maxPossibleScore += maxScore;
 
-                        // Calculate actual score based on selection
                         let actualScore = 0;
                         if (itemYes.classList.contains('selected')) {
                             actualScore = maxScore;
@@ -421,13 +493,11 @@
                             actualScore = parseInt(itemNo.getAttribute('score')) || 0;
                         }
 
-                        // Update score display
                         itemScoreElement.textContent = actualScore;
                         problemScore += actualScore;
                         totalScore += actualScore;
                     });
 
-                    // Update problem subtotal if it exists
                     const subTotalDiv = problem.querySelector('.sub-total-score');
                     if (subTotalDiv) {
                         subTotalDiv.textContent = `Subtotal: ${problemScore}/${problemTotal}`;
@@ -441,7 +511,6 @@
                 sarr.push(partScore);
             });
 
-            // Update total score display
             document.getElementById('totalScoreDisplay').textContent = `Total: ${totalScore}/${maxPossibleScore}`;
         }
 
@@ -455,37 +524,30 @@
             let subScoreArr = [];
             let subTotalDiv = document.createElement('div');
 
-            // Create each problem item
             for (let problem of problems) {
                 const { yes, no, point: score } = problem;
 
-                // Create container for this item
                 const itemContainer = document.createElement('div');
                 itemContainer.classList.add('item-container');
 
-                // Create Yes option
                 const itemYes = document.createElement('div');
                 itemYes.classList.add('item-yes');
                 itemYes.setAttribute('score', score);
                 itemYes.innerText = yes;
 
-                // Create No option
                 const itemNo = document.createElement('div');
                 itemNo.classList.add('item-no');
-                itemNo.setAttribute('score', 0); // Default to 0 for No
+                itemNo.setAttribute('score', 0);
                 itemNo.innerText = no;
 
-                // Create score display
                 const itemScore = document.createElement('div');
                 itemScore.classList.add('item-score');
                 itemScore.innerHTML = '0';
                 itemScore.style.color = 'red';
 
-                // Update totals
                 subTotal += parseInt(score);
-                subScoreArr.push(0); // Start with 0 points
+                subScoreArr.push(0);
 
-                // Store references for score calculation
                 allItems.push({
                     yes: itemYes,
                     no: itemNo,
@@ -493,34 +555,30 @@
                     maxScore: score
                 });
 
-                // Event listeners for Yes option
                 itemYes.addEventListener('click', (e) => {
                     const container = e.currentTarget.closest('.problem-container');
                     const selectionState = checkAllSelected(container);
 
-                    // Don't allow changing if all are already Yes
                     if (selectionState.allYes) {
                         return;
                     }
 
                     itemYes.classList.add('selected');
                     itemNo.classList.remove('selected');
-                    itemNo.setAttribute('score', 0); // Reset No score when Yes is selected
+                    itemNo.setAttribute('score', 0);
                     itemScore.textContent = itemYes.getAttribute('score');
                     itemScore.style.color = 'green';
-                    updateAllScores();
+                    handleSelection(itemYes);
                 });
                 itemYes.addEventListener('dblclick', function () {
                     selectedItem = this;
                     editItem();
                 });
 
-                // Event listeners for No option
                 itemNo.addEventListener('click', (e) => {
                     const container = e.currentTarget.closest('.problem-container');
                     const selectionState = checkAllSelected(container);
 
-                    // Don't allow changing if all are already No
                     if (selectionState.allNo) {
                         return;
                     }
@@ -529,19 +587,17 @@
                     itemYes.classList.remove('selected');
                     itemScore.textContent = itemNo.getAttribute('score') || '0';
                     itemScore.style.color = 'red';
-                    updateAllScores();
+                    handleSelection(itemNo);
                 });
                 itemNo.addEventListener('dblclick', function () {
                     selectedItem = this;
                     editItem();
                 });
 
-                // Append elements
                 itemContainer.append(itemYes, itemNo, itemScore);
                 container.appendChild(itemContainer);
             }
 
-            // Create and append subtotal display
             subTotalDiv.innerHTML = `Subtotal: 0/${subTotal}`;
             subTotalScoreArr.push(subTotal);
             subTotalDiv.style.color = 'green';
@@ -557,7 +613,6 @@
                 const container = document.getElementById('container');
                 const parts = Object.keys(data);
 
-                // Create sections for each part of the rubric
                 for (let part of parts) {
                     const partContainer = document.createElement('div');
                     partContainer.classList.add('part-container');
@@ -565,24 +620,20 @@
                     const partTitle = data[part].title;
                     const partProblems = data[part].problems;
 
-                    // Add part title
                     const h3 = document.createElement('h3');
                     h3.innerText = `${part}: ${partTitle}`;
                     partContainer.appendChild(h3);
 
-                    // Handle multiple problems or single problem
                     if (partProblems.length > 1) {
                         for (let i = 0; i < partProblems.length; i++) {
                             const problemContainer = document.createElement('div');
                             problemContainer.classList.add('problem-container');
 
-                            // Add problem title
                             const problemTitle = `Problem ${i + 1}`;
                             const h4 = document.createElement('h4');
                             h4.innerText = problemTitle;
                             problemContainer.appendChild(h4);
 
-                            // Render problem items
                             const problemList = partProblems[i];
                             renderProblem(problemContainer, problemList);
                             partContainer.appendChild(problemContainer);
@@ -598,12 +649,12 @@
                     container.appendChild(partContainer);
                 }
 
-                // Create save button and output elements
-                const saveButton = document.createElement('button');
+                saveButton = document.createElement('button');
                 saveButton.classList.add('save-button');
                 saveButton.innerText = 'Save';
+                saveButton.disabled = true;
+                saveButton.title = "Please select all items (Yes or No) before saving";
 
-                // Overall comment section
                 const commentDiv = document.createElement('div');
                 commentDiv.innerHTML = "Overall";
                 const textAreaDiv = document.createElement('div');
@@ -617,23 +668,19 @@
                 input.value = "Overall: Your assignment report is off to a good start. There are a few sections that require more attention. Please refer to the comment/feedback above for further details.";
                 textAreaDiv.appendChild(input);
 
-                // Filename input
                 const inputTxt = document.createElement("input");
                 inputTxt.type = "text";
                 const fileNameLabel = document.createElement('div');
                 fileNameLabel.innerHTML = "Filename";
 
-                // Results display area
                 const lastDiv = document.createElement('div');
                 lastDiv.style.height = '100px';
                 lastDiv.innerText = 'Final grade by item will appear below';
                 lastDiv.style.color = "green";
 
-                // Output textarea
                 const para = document.createElement('textarea');
                 para.id = "paraID";
 
-                // Additional comment checkbox
                 const checkBoxDiv = document.createElement('div');
                 checkBoxDiv.classList.add('checkbox-container');
                 const checkBox = document.createElement('input');
@@ -645,21 +692,24 @@
                 checkBoxDiv.append(checkBox, checkBoxLabel);
                 container.appendChild(checkBoxDiv);
 
-                // Save button click handler
                 saveButton.addEventListener('click', () => {
+                    if (!allItemsSelected()) {
+                        alert('Please select all items (Yes or No) before saving.');
+                        findAndScrollToFirstUnselected();
+                        return;
+                    }
+
                     let text = '';
                     let score = 0;
                     let titlearr = [];
                     let jsonData = {};
 
-                    // Process each part of the rubric
                     const parts = document.querySelectorAll('.part-container');
                     parts.forEach(part => {
                         const title = part.querySelector('h3').innerText;
                         text += `${title}\n`;
                         titlearr.push(title);
 
-                        // Process each problem in the part
                         const problems = part.querySelectorAll('.problem-container');
                         problems.forEach(problem => {
                             const problemTitle = problem.querySelector('h4');
@@ -667,7 +717,6 @@
                                 text += `${problemTitle.innerText}: \n`;
                             }
 
-                            // Process each item in the problem
                             let s = 0;
                             const items = problem.querySelectorAll('.item-container');
                             items.forEach(item => {
@@ -675,7 +724,6 @@
                                 const itemNo = item.querySelector('.item-no');
                                 const itemScore = item.querySelector('.item-score');
 
-                                // Add selected item to output
                                 if (itemYes.classList.contains('selected')) {
                                     text += `${itemYes.innerText} `;
                                     s += parseInt(itemScore.textContent);
@@ -685,7 +733,6 @@
                                 }
                             });
 
-                            // Store scores for JSON output
                             if (problemTitle) {
                                 jsonData[title + problemTitle.innerText] = s;
                             } else {
@@ -696,28 +743,23 @@
                         });
                     });
 
-                    // Add overall comment and optional additional comment
                     text += input.value + ' ';
                     if (checkBox.checked) {
                         text += "You could have done a better job in managing your empty spaces in your report, which would have allowed you to add more discussions on your results and comparisons.\n";
                     }
 
-                    // Format output textarea
                     para.maxLength = "50000";
                     para.cols = "80";
                     para.value = text;
                     text = text.replace("Part 10: EC\n", "");
 
-                    // Adjust textarea height based on content
                     const lines = para.value.split("\n");
                     console.log("number of lines", lines.length);
                     para.rows = lines.length.toString();
 
-                    // Add total score and update display
                     text += `Total score: ${score}\n`;
                     jsonData['total'] = score;
 
-                    // Insert scores into text and update UI
                     const updatedText = insertScores(text, subTotalScoreArr, sarr);
                     console.log('Updated Text:', updatedText);
                     document.getElementById("paraID").value = "";
@@ -725,7 +767,6 @@
                     para.value = updatedText;
                 });
 
-                // Append all UI elements
                 container.append(
                     commentDiv,
                     textAreaDiv,
@@ -736,10 +777,7 @@
                     para
                 );
 
-                // Enable click-to-copy on output textarea
                 para.onclick = function () { myCopyFunction(para.id) };
-
-                // Initialize total score display
                 updateAllScores();
             });
 
@@ -765,63 +803,52 @@
         function createTableFromJSON(jsonData) {
             const col = [];
 
-            // Get all column names from the JSON keys
             for (const key in jsonData) {
                 if (col.indexOf(key) === -1) {
                     col.push(key);
                 }
             }
 
-            // Create table element
             const table = document.createElement("table");
-            const tr = table.insertRow(-1); // Header row
+            const tr = table.insertRow(-1);
 
-            // Create header cells
             for (let i = 0; i < col.length; i++) {
                 const th = document.createElement("th");
                 th.innerHTML = col[i];
                 tr.appendChild(th);
             }
 
-            // Create data row
             const dataRow = table.insertRow(-1);
             for (const key in jsonData) {
                 const tabCell = dataRow.insertCell(-1);
                 tabCell.innerHTML = jsonData[key];
             }
 
-            // Add table to container
             const container = document.getElementById('container');
             const divContainer = document.createElement('div');
             divContainer.id = "someID";
 
-            // Clear existing table if present
             const existingTable = document.getElementById("someID");
             if (existingTable) {
                 existingTable.innerHTML = "";
             }
 
-            // Style and append the table
             divContainer.style.height = "300px";
             divContainer.innerHTML = "";
             divContainer.appendChild(table);
             container.appendChild(divContainer);
         }
 
-        // Initialize event listeners when DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
-            // Save button in edit modal
             document.getElementById('edit-save').addEventListener('click', () => {
                 const editBox = document.getElementById('edit-box');
                 const editText = document.getElementById('edit-text');
                 const editScore = document.getElementById('edit-score');
                 const overlay = document.getElementById('overlay');
 
-                // Update selected item with new values
                 selectedItem.innerText = editText.value;
                 selectedItem.setAttribute('score', editScore.value);
 
-                // Update the score display immediately
                 const itemContainer = selectedItem.parentElement;
                 const itemScore = itemContainer.querySelector('.item-score');
                 if (selectedItem.classList.contains('selected')) {
@@ -833,32 +860,33 @@
                     }
                 }
 
-                // Recalculate all scores
                 updateAllScores();
+                updateSaveButtonState();
 
-                // Hide modal
                 editBox.style.visibility = 'hidden';
                 overlay.style.visibility = 'hidden';
             });
 
-            // Cancel button in edit modal
             document.getElementById('edit-cancel').addEventListener('click', () => {
                 const editBox = document.getElementById('edit-box');
                 const overlay = document.getElementById('overlay');
 
-                // Hide modal without saving
                 editBox.style.visibility = 'hidden';
                 overlay.style.visibility = 'hidden';
             });
 
-            // Clear comment button in edit modal
             document.getElementById('edit-clear').addEventListener('click', () => {
                 document.getElementById('edit-text').value = '';
             });
 
-            // Set to zero button in edit modal
             document.getElementById('edit-zero').addEventListener('click', () => {
                 document.getElementById('edit-score').value = '0';
+            });
+
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('item-yes') || e.target.classList.contains('item-no')) {
+                    updateSaveButtonState();
+                }
             });
         });
 
