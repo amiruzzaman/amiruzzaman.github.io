@@ -5,8 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grading Rubric Tool</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="shortcut icon" href="#">
     <style>
         /* Basic table styling */
         table,
@@ -166,11 +164,16 @@
             cursor: pointer;
             font-size: 16px;
             margin-top: 20px;
+            transition: background-color 0.3s;
         }
 
         .save-button:disabled {
             background-color: #cccccc;
             cursor: not-allowed;
+        }
+
+        .save-button.ready {
+            background-color: #28a745;
         }
 
         .item-textareabox {
@@ -212,9 +215,7 @@
                 box-shadow: 0 0 0 0 rgba(255, 152, 0, 0);
             }
         }
-    </style>
 
-    <style>
         /* Edit modal styling */
         #edit-box {
             visibility: hidden;
@@ -367,9 +368,11 @@
          * @returns {boolean} - True if all items are selected, false otherwise
          */
         function allItemsSelected() {
-            const allYesNoItems = document.querySelectorAll('.item-yes, .item-no');
-            for (let item of allYesNoItems) {
-                if (!item.classList.contains('selected')) {
+            const allContainers = document.querySelectorAll('.item-container');
+            for (let container of allContainers) {
+                const yesSelected = container.querySelector('.item-yes.selected');
+                const noSelected = container.querySelector('.item-no.selected');
+                if (!yesSelected && !noSelected) {
                     return false;
                 }
             }
@@ -381,15 +384,17 @@
          * @returns {HTMLElement|null} - The first unselected item or null if all are selected
          */
         function findAndScrollToFirstUnselected() {
-            const allYesNoItems = document.querySelectorAll('.item-yes, .item-no');
-            for (let item of allYesNoItems) {
-                if (!item.classList.contains('selected')) {
-                    item.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    item.classList.add('unselected-highlight');
+            const allContainers = document.querySelectorAll('.item-container');
+            for (let container of allContainers) {
+                const yesSelected = container.querySelector('.item-yes.selected');
+                const noSelected = container.querySelector('.item-no.selected');
+                if (!yesSelected && !noSelected) {
+                    container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    container.classList.add('unselected-highlight');
                     setTimeout(() => {
-                        item.classList.remove('unselected-highlight');
+                        container.classList.remove('unselected-highlight');
                     }, 2000);
-                    return item;
+                    return container;
                 }
             }
             return null;
@@ -400,54 +405,30 @@
          */
         function updateSaveButtonState() {
             if (saveButton) {
-                saveButton.disabled = !allItemsSelected();
-                saveButton.title = saveButton.disabled ?
-                    "Please select all items (Yes or No) before saving" :
-                    "Save your grading results";
+                const allSelected = allItemsSelected();
+                saveButton.disabled = !allSelected;
+                if (allSelected) {
+                    saveButton.classList.add('ready');
+                    saveButton.title = "All items selected - ready to save!";
+                } else {
+                    saveButton.classList.remove('ready');
+                    saveButton.title = "Please select all items (Yes or No) before saving";
+                }
             }
         }
 
         /**
-     * Handles selection of an item and moves to next unselected if needed
-     * @param {HTMLElement} selectedElement - The element that was just selected
-     */
+         * Handles selection of an item
+         * @param {HTMLElement} selectedElement - The element that was just selected
+         */
         function handleSelection(selectedElement) {
             updateAllScores();
             updateSaveButtonState();
 
-            // Only scroll if not all items are selected yet
+            // If not all items are selected, scroll to next unselected
             if (!allItemsSelected()) {
                 setTimeout(() => {
-                    // Find the next unselected item AFTER the current one
-                    const allItems = Array.from(document.querySelectorAll('.item-yes, .item-no'));
-                    const currentIndex = allItems.indexOf(selectedElement);
-                    let nextUnselected = null;
-
-                    // Check items after the current one first
-                    for (let i = currentIndex + 1; i < allItems.length; i++) {
-                        if (!allItems[i].classList.contains('selected')) {
-                            nextUnselected = allItems[i];
-                            break;
-                        }
-                    }
-
-                    // If nothing found after, check from beginning
-                    if (!nextUnselected) {
-                        for (let i = 0; i < currentIndex; i++) {
-                            if (!allItems[i].classList.contains('selected')) {
-                                nextUnselected = allItems[i];
-                                break;
-                            }
-                        }
-                    }
-
-                    if (nextUnselected) {
-                        nextUnselected.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        nextUnselected.classList.add('unselected-highlight');
-                        setTimeout(() => {
-                            nextUnselected.classList.remove('unselected-highlight');
-                        }, 2000);
-                    }
+                    findAndScrollToFirstUnselected();
                 }, 300);
             }
         }
