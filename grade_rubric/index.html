@@ -163,7 +163,7 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
-            margin-top: 20px;
+            margin: 20px 0;
             transition: background-color 0.3s;
         }
 
@@ -326,11 +326,11 @@
 
 <body>
     <!-- Total score display -->
-    <div class="total-score-display" id="totalScoreDisplay">Total: 0/0</div>
+    <div class="total-score-display" id="totalScoreDisplay">Total: 0/105</div>
 
     <!-- Instructions notice -->
-    <p id="notice">Click to select "Yes" (green) or "No" (red) for each item. "No" selections default to 0 points but
-        can be adjusted by double-clicking. Scores update automatically.</p>
+    <p id="notice">Click to select "Yes" (green) or "No" (red) for each item. Double-click any item to edit. "No"
+        selections can be adjusted.</p>
 
     <!-- Main content container -->
     <div id="container"></div>
@@ -339,8 +339,8 @@
     <div id="edit-box">
         <textarea id="edit-text"></textarea>
         <div id="edit-score-container">
-            <label for="edit-score">Score</label>
-            <input id="edit-score" type="number" />
+            <label for="edit-score">Score (Max: <span id="edit-max-score">0</span>)</label>
+            <input id="edit-score" type="number" min="0" />
         </div>
         <div id="edit-buttons">
             <button id="edit-clear">Clear Comment</button>
@@ -357,51 +357,42 @@
     <script>
         // Global variables
         let selectedItem = null;
-        let subTotalScoreArr = [];
-        let sarr = [];
-        let allItems = [];
-        let maxPossibleScore = 0;
+        const maxPossibleScore = 105; // Fixed total points
         let saveButton;
+        let subTotalMaxScores = []; // Array to store max subtotal points
+        let subTotalEarnedScores = []; // Array to store earned subtotal points
+        let allItems = []; // Track all rubric items
 
         /**
          * Checks if all items are selected (either Yes or No)
-         * @returns {boolean} - True if all items are selected, false otherwise
          */
         function allItemsSelected() {
-            const allContainers = document.querySelectorAll('.item-container');
-            for (let container of allContainers) {
-                const yesSelected = container.querySelector('.item-yes.selected');
-                const noSelected = container.querySelector('.item-no.selected');
-                if (!yesSelected && !noSelected) {
-                    return false;
-                }
-            }
-            return true;
+            return allItems.every(item => {
+                return item.yes.classList.contains('selected') ||
+                    item.no.classList.contains('selected');
+            });
         }
 
         /**
-         * Finds the first unselected item and scrolls to it
-         * @returns {HTMLElement|null} - The first unselected item or null if all are selected
+         * Finds and scrolls to first unselected item
          */
         function findAndScrollToFirstUnselected() {
-            const allContainers = document.querySelectorAll('.item-container');
-            for (let container of allContainers) {
-                const yesSelected = container.querySelector('.item-yes.selected');
-                const noSelected = container.querySelector('.item-no.selected');
-                if (!yesSelected && !noSelected) {
-                    container.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    container.classList.add('unselected-highlight');
+            for (let item of allItems) {
+                if (!item.yes.classList.contains('selected') &&
+                    !item.no.classList.contains('selected')) {
+                    item.container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    item.container.classList.add('unselected-highlight');
                     setTimeout(() => {
-                        container.classList.remove('unselected-highlight');
+                        item.container.classList.remove('unselected-highlight');
                     }, 2000);
-                    return container;
+                    return item.container;
                 }
             }
             return null;
         }
 
         /**
-         * Updates the save button state based on selection completeness
+         * Updates the save button state
          */
         function updateSaveButtonState() {
             if (saveButton) {
@@ -418,514 +409,432 @@
         }
 
         /**
-         * Handles selection of an item
-         * @param {HTMLElement} selectedElement - The element that was just selected
+         * Updates all scores while maintaining fixed subtotals
          */
-        function handleSelection(selectedElement) {
-            updateAllScores();
-            updateSaveButtonState();
+        function updateAllScores() {
+            let totalEarned = 0;
+            subTotalEarnedScores.fill(0);
 
-            // If not all items are selected, scroll to next unselected
-            if (!allItemsSelected()) {
-                setTimeout(() => {
-                    findAndScrollToFirstUnselected();
-                }, 300);
-            }
+            // Group items by their problem container
+            const problemContainers = document.querySelectorAll('.problem-container');
+
+            problemContainers.forEach((problem, index) => {
+                let problemEarned = 0;
+                const items = problem.querySelectorAll('.item-container');
+
+                items.forEach(item => {
+                    const score = parseInt(item.querySelector('.item-score').textContent);
+                    problemEarned += score;
+                });
+
+                // Update subtotal display
+                const subTotalDiv = problem.querySelector('.sub-total-score');
+                subTotalDiv.textContent = `Subtotal: ${problemEarned}/${subTotalMaxScores[index]}`;
+
+                // Update arrays
+                subTotalEarnedScores[index] = problemEarned;
+                totalEarned += problemEarned;
+            });
+
+            // Update total display
+            document.getElementById('totalScoreDisplay').textContent = `Total: ${totalEarned}/${maxPossibleScore}`;
         }
 
         /**
-         * Opens the edit modal for the selected rubric item
+         * Opens the edit modal for any selected item
          */
         function editItem() {
             const editBox = document.getElementById('edit-box');
             const editText = document.getElementById('edit-text');
             const editScore = document.getElementById('edit-score');
+            const editMaxScore = document.getElementById('edit-max-score');
             const overlay = document.getElementById('overlay');
 
-            editText.value = selectedItem.innerText;
-            editScore.value = selectedItem.getAttribute('score');
+            // Get max score based on item type
+            const maxScore = selectedItem.classList.contains('item-yes') ?
+                selectedItem.getAttribute('data-max') :
+                selectedItem.closest('.item-container').querySelector('.item-yes').getAttribute('data-max');
 
+            // Populate modal
+            editText.value = selectedItem.textContent;
+            editScore.value = selectedItem.closest('.item-container').querySelector('.item-score').textContent;
+            editScore.max = maxScore;
+            editMaxScore.textContent = maxScore;
+
+            // Show modal
             editBox.style.visibility = 'visible';
             overlay.style.visibility = 'visible';
         }
 
         /**
-         * Checks if all items in a container are selected as Yes or No
-         * @param {HTMLElement} container - The container to check
-         * @returns {Object} - {allYes: boolean, allNo: boolean}
+         * Renders a problem section with full edit capabilities
          */
-        function checkAllSelected(container) {
-            const yesItems = container.querySelectorAll('.item-yes.selected');
-            const noItems = container.querySelectorAll('.item-no.selected');
-            const allItems = container.querySelectorAll('.item-container');
+        function renderProblem(container, problems, groupIndex) {
+            let problemMax = 0;
 
-            return {
-                allYes: yesItems.length === allItems.length,
-                allNo: noItems.length === allItems.length
-            };
-        }
-
-        /**
-         * Calculates and updates all scores in the rubric
-         */
-        function updateAllScores() {
-            subTotalScoreArr = [];
-            sarr = [];
-            let totalScore = 0;
-            maxPossibleScore = 0;
-
-            const partContainers = document.querySelectorAll('.part-container');
-
-            partContainers.forEach(part => {
-                let partTotal = 0;
-                let partScore = 0;
-
-                const problemContainers = part.querySelectorAll('.problem-container');
-
-                problemContainers.forEach(problem => {
-                    let problemTotal = 0;
-                    let problemScore = 0;
-
-                    const items = problem.querySelectorAll('.item-container');
-
-                    items.forEach(item => {
-                        const itemYes = item.querySelector('.item-yes');
-                        const itemNo = item.querySelector('.item-no');
-                        const itemScoreElement = item.querySelector('.item-score');
-                        const maxScore = parseInt(itemYes.getAttribute('score'));
-
-                        problemTotal += maxScore;
-                        maxPossibleScore += maxScore;
-
-                        let actualScore = 0;
-                        if (itemYes.classList.contains('selected')) {
-                            actualScore = maxScore;
-                        } else if (itemNo.classList.contains('selected')) {
-                            actualScore = parseInt(itemNo.getAttribute('score')) || 0;
-                        }
-
-                        itemScoreElement.textContent = actualScore;
-                        problemScore += actualScore;
-                        totalScore += actualScore;
-                    });
-
-                    const subTotalDiv = problem.querySelector('.sub-total-score');
-                    if (subTotalDiv) {
-                        subTotalDiv.textContent = `Subtotal: ${problemScore}/${problemTotal}`;
-                    }
-
-                    partTotal += problemTotal;
-                    partScore += problemScore;
-                });
-
-                subTotalScoreArr.push(partTotal);
-                sarr.push(partScore);
+            // Calculate maximum points for this problem
+            problems.forEach(problem => {
+                problemMax += parseInt(problem.point);
             });
 
-            document.getElementById('totalScoreDisplay').textContent = `Total: ${totalScore}/${maxPossibleScore}`;
-        }
+            // Store in array
+            subTotalMaxScores[groupIndex] = problemMax;
+            subTotalEarnedScores[groupIndex] = 0;
 
-        /**
-         * Renders a problem section with its yes/no options
-         * @param {HTMLElement} container - The parent container
-         * @param {Array} problems - Array of problem objects
-         */
-        function renderProblem(container, problems) {
-            let subTotal = 0;
-            let subScoreArr = [];
-            let subTotalDiv = document.createElement('div');
+            // Create subtotal display
+            const subTotalDiv = document.createElement('div');
+            subTotalDiv.classList.add('sub-total-score');
+            subTotalDiv.setAttribute('data-index', groupIndex);
+            subTotalDiv.textContent = `Subtotal: 0/${problemMax}`;
+            container.appendChild(subTotalDiv);
 
-            for (let problem of problems) {
-                const { yes, no, point: score } = problem;
+            // Create each rubric item
+            problems.forEach(problem => {
+                const { yes, no, point } = problem;
 
                 const itemContainer = document.createElement('div');
                 itemContainer.classList.add('item-container');
 
+                // Yes option
                 const itemYes = document.createElement('div');
                 itemYes.classList.add('item-yes');
-                itemYes.setAttribute('score', score);
-                itemYes.innerText = yes;
+                itemYes.setAttribute('data-max', point);
+                itemYes.textContent = yes;
 
+                // No option
                 const itemNo = document.createElement('div');
                 itemNo.classList.add('item-no');
-                itemNo.setAttribute('score', 0);
-                itemNo.innerText = no;
+                itemNo.setAttribute('data-max', point);
+                itemNo.textContent = no;
 
+                // Score display
                 const itemScore = document.createElement('div');
                 itemScore.classList.add('item-score');
-                itemScore.innerHTML = '0';
-                itemScore.style.color = 'red';
+                itemScore.textContent = '0';
 
-                subTotal += parseInt(score);
-                subScoreArr.push(0);
-
-                allItems.push({
+                // Track this item
+                const itemData = {
+                    container: itemContainer,
                     yes: itemYes,
                     no: itemNo,
                     score: itemScore,
-                    maxScore: score
-                });
+                    maxScore: point
+                };
+                allItems.push(itemData);
 
-                itemYes.addEventListener('click', (e) => {
-                    const container = e.currentTarget.closest('.problem-container');
-                    const selectionState = checkAllSelected(container);
+                // Click handlers for both options
+                [itemYes, itemNo].forEach(item => {
+                    item.addEventListener('click', function () {
+                        if (!this.classList.contains('selected')) {
+                            // Select this option
+                            this.classList.add('selected');
+                            const otherOption = this.classList.contains('item-yes') ? itemNo : itemYes;
+                            otherOption.classList.remove('selected');
 
-                    if (selectionState.allYes) {
-                        return;
-                    }
+                            // Set default score
+                            itemScore.textContent = this.classList.contains('item-yes') ?
+                                this.getAttribute('data-max') :
+                                '0';
 
-                    itemYes.classList.add('selected');
-                    itemNo.classList.remove('selected');
-                    itemNo.setAttribute('score', 0);
-                    itemScore.textContent = itemYes.getAttribute('score');
-                    itemScore.style.color = 'green';
-                    handleSelection(itemYes);
-                });
-                itemYes.addEventListener('dblclick', function () {
-                    selectedItem = this;
-                    editItem();
-                });
+                            // Update colors
+                            itemScore.style.color = this.classList.contains('item-yes') ? 'green' : 'red';
 
-                itemNo.addEventListener('click', (e) => {
-                    const container = e.currentTarget.closest('.problem-container');
-                    const selectionState = checkAllSelected(container);
+                            updateAllScores();
+                            updateSaveButtonState();
+                        }
+                    });
 
-                    if (selectionState.allNo) {
-                        return;
-                    }
-
-                    itemNo.classList.add('selected');
-                    itemYes.classList.remove('selected');
-                    itemScore.textContent = itemNo.getAttribute('score') || '0';
-                    itemScore.style.color = 'red';
-                    handleSelection(itemNo);
-                });
-                itemNo.addEventListener('dblclick', function () {
-                    selectedItem = this;
-                    editItem();
+                    // Double-click to edit any item
+                    item.addEventListener('dblclick', function () {
+                        selectedItem = this;
+                        editItem();
+                    });
                 });
 
                 itemContainer.append(itemYes, itemNo, itemScore);
                 container.appendChild(itemContainer);
-            }
-
-            subTotalDiv.innerHTML = `Subtotal: 0/${subTotal}`;
-            subTotalScoreArr.push(subTotal);
-            subTotalDiv.style.color = 'green';
-            subTotalDiv.style.fontSize = "14px";
-            subTotalDiv.classList.add('sub-total-score');
-            container.appendChild(subTotalDiv);
+            });
         }
 
-        // Load rubric data and initialize the page
-        fetch('a4sp25.json')
-            .then(response => response.json())
-            .then(data => {
-                const container = document.getElementById('container');
-                const parts = Object.keys(data);
+        /**
+ * Creates a table from JSON data
+ */
+        function createTableFromJSON(jsonData) {
+            const container = document.getElementById('container');
+            let tableDiv = document.getElementById('json-table');
 
-                for (let part of parts) {
-                    const partContainer = document.createElement('div');
-                    partContainer.classList.add('part-container');
+            if (!tableDiv) {
+                tableDiv = document.createElement('div');
+                tableDiv.id = 'json-table';
+                container.appendChild(tableDiv);
+            }
 
-                    const partTitle = data[part].title;
-                    const partProblems = data[part].problems;
+            tableDiv.innerHTML = '';
 
-                    const h3 = document.createElement('h3');
-                    h3.innerText = `${part}: ${partTitle}`;
-                    partContainer.appendChild(h3);
+            const table = document.createElement('table');
+            const headerRow = table.insertRow();
 
-                    if (partProblems.length > 1) {
-                        for (let i = 0; i < partProblems.length; i++) {
-                            const problemContainer = document.createElement('div');
-                            problemContainer.classList.add('problem-container');
-
-                            const problemTitle = `Problem ${i + 1}`;
-                            const h4 = document.createElement('h4');
-                            h4.innerText = problemTitle;
-                            problemContainer.appendChild(h4);
-
-                            const problemList = partProblems[i];
-                            renderProblem(problemContainer, problemList);
-                            partContainer.appendChild(problemContainer);
-                        }
-                    } else {
-                        const problemContainer = document.createElement('div');
-                        problemContainer.classList.add('problem-container');
-                        const problemList = partProblems[0];
-                        renderProblem(problemContainer, problemList);
-                        partContainer.appendChild(problemContainer);
-                    }
-
-                    container.appendChild(partContainer);
-                }
-
-                saveButton = document.createElement('button');
-                saveButton.classList.add('save-button');
-                saveButton.innerText = 'Save';
-                saveButton.disabled = true;
-                saveButton.title = "Please select all items (Yes or No) before saving";
-
-                const commentDiv = document.createElement('div');
-                commentDiv.innerHTML = "Overall";
-                const textAreaDiv = document.createElement('div');
-                const input = document.createElement("textarea");
-                input.name = "post";
-                input.maxLength = "5000";
-                input.cols = "80";
-                input.rows = "5";
-                input.classList.add('item-textareabox');
-                textAreaDiv.classList.add('item-textarea');
-                input.value = "Overall: Your assignment report is off to a good start. There are a few sections that require more attention. Please refer to the comment/feedback above for further details.";
-                textAreaDiv.appendChild(input);
-
-                const inputTxt = document.createElement("input");
-                inputTxt.type = "text";
-                const fileNameLabel = document.createElement('div');
-                fileNameLabel.innerHTML = "Filename";
-
-                const lastDiv = document.createElement('div');
-                lastDiv.style.height = '100px';
-                lastDiv.innerText = 'Final grade by item will appear below';
-                lastDiv.style.color = "green";
-
-                const para = document.createElement('textarea');
-                para.id = "paraID";
-
-                const checkBoxDiv = document.createElement('div');
-                checkBoxDiv.classList.add('checkbox-container');
-                const checkBox = document.createElement('input');
-                checkBox.type = 'checkbox';
-                checkBox.id = 'additional-comment';
-                const checkBoxLabel = document.createElement('label');
-                checkBoxLabel.innerHTML = 'Include additional comment about page management!';
-                checkBoxLabel.htmlFor = 'additional-comment';
-                checkBoxDiv.append(checkBox, checkBoxLabel);
-                container.appendChild(checkBoxDiv);
-
-                saveButton.addEventListener('click', () => {
-                    if (!allItemsSelected()) {
-                        alert('Please select all items (Yes or No) before saving.');
-                        findAndScrollToFirstUnselected();
-                        return;
-                    }
-
-                    let text = '';
-                    let score = 0;
-                    let titlearr = [];
-                    let jsonData = {};
-
-                    const parts = document.querySelectorAll('.part-container');
-                    parts.forEach(part => {
-                        const title = part.querySelector('h3').innerText;
-                        text += `${title}\n`;
-                        titlearr.push(title);
-
-                        const problems = part.querySelectorAll('.problem-container');
-                        problems.forEach(problem => {
-                            const problemTitle = problem.querySelector('h4');
-                            if (problemTitle) {
-                                text += `${problemTitle.innerText}: \n`;
-                            }
-
-                            let s = 0;
-                            const items = problem.querySelectorAll('.item-container');
-                            items.forEach(item => {
-                                const itemYes = item.querySelector('.item-yes');
-                                const itemNo = item.querySelector('.item-no');
-                                const itemScore = item.querySelector('.item-score');
-
-                                if (itemYes.classList.contains('selected')) {
-                                    text += `${itemYes.innerText} `;
-                                    s += parseInt(itemScore.textContent);
-                                } else {
-                                    text += `${itemNo.innerText} `;
-                                    s += parseInt(itemScore.textContent);
-                                }
-                            });
-
-                            if (problemTitle) {
-                                jsonData[title + problemTitle.innerText] = s;
-                            } else {
-                                jsonData[title] = s;
-                            }
-                            score += s;
-                            text += '\n\n';
-                        });
-                    });
-
-                    text += input.value + ' ';
-                    if (checkBox.checked) {
-                        text += "You could have done a better job in managing your empty spaces in your report, which would have allowed you to add more discussions on your results and comparisons.\n";
-                    }
-
-                    para.maxLength = "50000";
-                    para.cols = "80";
-                    para.value = text;
-                    text = text.replace("Part 10: EC\n", "");
-
-                    const lines = para.value.split("\n");
-                    console.log("number of lines", lines.length);
-                    para.rows = lines.length.toString();
-
-                    text += `Total score: ${score}\n`;
-                    jsonData['total'] = score;
-
-                    const updatedText = insertScores(text, subTotalScoreArr, sarr);
-                    console.log('Updated Text:', updatedText);
-                    document.getElementById("paraID").value = "";
-                    createTableFromJSON(jsonData);
-                    para.value = updatedText;
-                });
-
-                container.append(
-                    commentDiv,
-                    textAreaDiv,
-                    fileNameLabel,
-                    inputTxt,
-                    saveButton,
-                    lastDiv,
-                    para
-                );
-
-                para.onclick = function () { myCopyFunction(para.id) };
-                updateAllScores();
+            // Create headers
+            const headers = Object.keys(jsonData);
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                headerRow.appendChild(th);
             });
 
-        /**
-         * Creates a download link for a text file
-         * @param {string} filename - Name for the downloaded file
-         * @param {string} text - Content of the file
-         */
-        function download(filename, text) {
-            const element = document.createElement('a');
-            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-            element.setAttribute('download', filename);
-            element.style.display = 'none';
-            document.body.appendChild(element);
-            element.click();
-            document.body.removeChild(element);
-        }
+            // Create data rows
+            const dataRow = table.insertRow();
+            headers.forEach(header => {
+                const td = document.createElement('td');
 
-        /**
-         * Creates an HTML table from JSON data
-         * @param {Object} jsonData - The data to display in the table
-         */
-        function createTableFromJSON(jsonData) {
-            const col = [];
-
-            for (const key in jsonData) {
-                if (col.indexOf(key) === -1) {
-                    col.push(key);
+                if (typeof jsonData[header] === 'object') {
+                    // For parts with multiple problems
+                    let partText = '';
+                    for (const problem in jsonData[header]) {
+                        // Remove "main: " prefix if it exists
+                        const value = jsonData[header][problem];
+                        partText += problem === 'main' ? `${value}\n` : `${problem}: ${value}\n`;
+                    }
+                    td.textContent = partText.trim();
+                } else {
+                    // For simple values
+                    td.textContent = jsonData[header];
                 }
-            }
 
-            const table = document.createElement("table");
-            const tr = table.insertRow(-1);
+                dataRow.appendChild(td);
+            });
 
-            for (let i = 0; i < col.length; i++) {
-                const th = document.createElement("th");
-                th.innerHTML = col[i];
-                tr.appendChild(th);
-            }
-
-            const dataRow = table.insertRow(-1);
-            for (const key in jsonData) {
-                const tabCell = dataRow.insertCell(-1);
-                tabCell.innerHTML = jsonData[key];
-            }
-
-            const container = document.getElementById('container');
-            const divContainer = document.createElement('div');
-            divContainer.id = "someID";
-
-            const existingTable = document.getElementById("someID");
-            if (existingTable) {
-                existingTable.innerHTML = "";
-            }
-
-            divContainer.style.height = "300px";
-            divContainer.innerHTML = "";
-            divContainer.appendChild(table);
-            container.appendChild(divContainer);
+            tableDiv.appendChild(table);
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('edit-save').addEventListener('click', () => {
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function () {
+            // Load rubric data
+            fetch('a4sp25.json')
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('container');
+                    const parts = Object.keys(data);
+                    let groupIndex = 0;
+
+                    // Initialize arrays
+                    subTotalMaxScores = [];
+                    subTotalEarnedScores = [];
+                    allItems = [];
+
+                    // Create each part section
+                    for (let part of parts) {
+                        const partContainer = document.createElement('div');
+                        partContainer.classList.add('part-container');
+
+                        // Part title
+                        const h3 = document.createElement('h3');
+                        h3.textContent = `${part}: ${data[part].title}`;
+                        partContainer.appendChild(h3);
+
+                        // Create problem containers
+                        const problems = data[part].problems;
+                        if (problems.length > 1) {
+                            // Multiple problems in this part
+                            for (let i = 0; i < problems.length; i++) {
+                                const problemContainer = document.createElement('div');
+                                problemContainer.classList.add('problem-container');
+
+                                // Problem title
+                                const h4 = document.createElement('h4');
+                                h4.textContent = `Problem ${i + 1}`;
+                                problemContainer.appendChild(h4);
+
+                                // Render problem items
+                                renderProblem(problemContainer, problems[i], groupIndex++);
+                                partContainer.appendChild(problemContainer);
+                            }
+                        } else {
+                            // Single problem in this part
+                            const problemContainer = document.createElement('div');
+                            problemContainer.classList.add('problem-container');
+                            renderProblem(problemContainer, problems[0], groupIndex++);
+                            partContainer.appendChild(problemContainer);
+                        }
+
+                        container.appendChild(partContainer);
+                    }
+
+                    // Create save button
+                    saveButton = document.createElement('button');
+                    saveButton.classList.add('save-button');
+                    saveButton.textContent = 'Save';
+                    saveButton.disabled = true;
+
+                    // Overall comment
+                    const commentDiv = document.createElement('div');
+                    commentDiv.textContent = "Overall";
+                    const textAreaDiv = document.createElement('div');
+                    const commentInput = document.createElement('textarea');
+                    commentInput.classList.add('item-textareabox');
+                    commentInput.value = "Overall: Your assignment report is off to a good start. There are a few sections that require more attention. Please refer to the comment/feedback above for further details.";
+                    textAreaDiv.appendChild(commentInput);
+
+                    // Filename input
+                    const fileNameLabel = document.createElement('div');
+                    fileNameLabel.textContent = "Filename";
+                    const fileNameInput = document.createElement('input');
+                    fileNameInput.type = "text";
+
+                    // Output area
+                    const outputDiv = document.createElement('div');
+                    outputDiv.style.height = '100px';
+                    outputDiv.textContent = 'Final grade by item will appear below';
+                    outputDiv.style.color = "green";
+
+                    // Results textarea
+                    const resultsTextarea = document.createElement('textarea');
+                    resultsTextarea.id = "paraID";
+
+                    // Additional comment checkbox
+                    const checkboxDiv = document.createElement('div');
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = 'additional-comment';
+                    const checkboxLabel = document.createElement('label');
+                    checkboxLabel.htmlFor = 'additional-comment';
+                    checkboxLabel.textContent = 'Include additional comment about page management!';
+                    checkboxDiv.append(checkbox, checkboxLabel);
+
+                    // Save button handler
+                    saveButton.addEventListener('click', function () {
+                        if (!allItemsSelected()) {
+                            alert('Please select all items before saving.');
+                            findAndScrollToFirstUnselected();
+                            return;
+                        }
+
+                        let outputText = '';
+                        let totalScore = 0;
+                        let jsonData = {};
+
+                        // Process each part
+                        const partContainers = document.querySelectorAll('.part-container');
+                        partContainers.forEach(part => {
+                            const partTitle = part.querySelector('h3').textContent;
+                            outputText += `${partTitle}\n`;
+                            jsonData[partTitle] = {};
+
+                            // Process each problem
+                            const problems = part.querySelectorAll('.problem-container');
+                            problems.forEach(problem => {
+                                const problemTitle = problem.querySelector('h4')?.textContent || '';
+                                outputText += problemTitle ? `${problemTitle}:\n` : '';
+
+                                let problemScore = 0;
+                                const items = problem.querySelectorAll('.item-container');
+                                items.forEach(item => {
+                                    const itemYes = item.querySelector('.item-yes');
+                                    const itemNo = item.querySelector('.item-no');
+                                    const itemScore = item.querySelector('.item-score').textContent;
+
+                                    if (itemYes.classList.contains('selected')) {
+                                        outputText += `${itemYes.textContent} `;
+                                    } else {
+                                        outputText += `${itemNo.textContent} `;
+                                    }
+                                    problemScore += parseInt(itemScore);
+                                });
+
+                                outputText += '\n\n';
+                                totalScore += problemScore;
+                                jsonData[partTitle][problemTitle || 'main'] = problemScore;
+                            });
+                        });
+
+                        // Add overall comment
+                        outputText += `${commentInput.value}\n`;
+                        if (checkbox.checked) {
+                            outputText += "You could have done a better job in managing your empty spaces in your report, which would have allowed you to add more discussions on your results and comparisons.\n";
+                        }
+
+                        // Add total score
+                        //outputText += `Total score: ${totalScore}/${maxPossibleScore}\n`;
+                        outputText += `Total score: ${totalScore}\n`;
+                        //jsonData['Total'] = `${totalScore}/${maxPossibleScore}`;
+                        jsonData['Total'] = `${totalScore}`;
+
+                        // Update output
+                        resultsTextarea.value = outputText;
+                        createTableFromJSON(jsonData);
+                    });
+
+                    // Assemble the UI - FIXED: Now properly includes the save button
+                    container.append(
+                        checkboxDiv,
+                        commentDiv,
+                        textAreaDiv,
+                        fileNameLabel,
+                        fileNameInput,
+                        document.createElement('br'),
+                        saveButton,
+                        document.createElement('br'),
+                        outputDiv,
+                        resultsTextarea
+                    );
+
+                    // Initialize button state
+                    updateSaveButtonState();
+                });
+
+            // Edit modal handlers
+            document.getElementById('edit-save').addEventListener('click', function () {
                 const editBox = document.getElementById('edit-box');
                 const editText = document.getElementById('edit-text');
                 const editScore = document.getElementById('edit-score');
+                const maxScore = parseInt(document.getElementById('edit-score').max);
                 const overlay = document.getElementById('overlay');
 
-                selectedItem.innerText = editText.value;
-                selectedItem.setAttribute('score', editScore.value);
-
-                const itemContainer = selectedItem.parentElement;
-                const itemScore = itemContainer.querySelector('.item-score');
-                if (selectedItem.classList.contains('selected')) {
-                    itemScore.textContent = editScore.value;
-                    if (selectedItem.classList.contains('item-no')) {
-                        itemScore.style.color = 'red';
-                    } else {
-                        itemScore.style.color = 'green';
-                    }
+                // Validate score
+                const score = parseInt(editScore.value);
+                if (isNaN(score) || score < 0 || score > maxScore) {
+                    alert(`Please enter a score between 0 and ${maxScore}`);
+                    return;
                 }
 
+                // Update the selected item
+                selectedItem.textContent = editText.value;
+                const itemContainer = selectedItem.closest('.item-container');
+                const itemScoreElement = itemContainer.querySelector('.item-score');
+                itemScoreElement.textContent = score;
+
+                // Update styling based on selection
+                if (selectedItem.classList.contains('item-yes')) {
+                    selectedItem.classList.add('selected');
+                    itemContainer.querySelector('.item-no').classList.remove('selected');
+                    itemScoreElement.style.color = 'green';
+                } else {
+                    selectedItem.classList.add('selected');
+                    itemContainer.querySelector('.item-yes').classList.remove('selected');
+                    itemScoreElement.style.color = 'red';
+                }
+
+                // Close modal and update
+                editBox.style.visibility = 'hidden';
+                overlay.style.visibility = 'hidden';
                 updateAllScores();
                 updateSaveButtonState();
-
-                editBox.style.visibility = 'hidden';
-                overlay.style.visibility = 'hidden';
             });
 
-            document.getElementById('edit-cancel').addEventListener('click', () => {
-                const editBox = document.getElementById('edit-box');
-                const overlay = document.getElementById('overlay');
-
-                editBox.style.visibility = 'hidden';
-                overlay.style.visibility = 'hidden';
+            document.getElementById('edit-cancel').addEventListener('click', function () {
+                document.getElementById('edit-box').style.visibility = 'hidden';
+                document.getElementById('overlay').style.visibility = 'hidden';
             });
 
-            document.getElementById('edit-clear').addEventListener('click', () => {
+            document.getElementById('edit-clear').addEventListener('click', function () {
                 document.getElementById('edit-text').value = '';
             });
 
-            document.getElementById('edit-zero').addEventListener('click', () => {
+            document.getElementById('edit-zero').addEventListener('click', function () {
                 document.getElementById('edit-score').value = '0';
             });
-
-            document.addEventListener('click', (e) => {
-                if (e.target.classList.contains('item-yes') || e.target.classList.contains('item-no')) {
-                    updateSaveButtonState();
-                }
-            });
         });
-
-        /**
-         * Copies text from the output textarea to clipboard
-         * @param {string} id - ID of the textarea element
-         */
-        function myCopyFunction(id) {
-            const para = document.getElementById(id);
-            navigator.clipboard.writeText(para.value);
-        }
-
-        /**
-         * Inserts scores into the output text
-         * @param {string} text - The original text
-         * @param {Array} subTotalScoreArr - Array of possible scores
-         * @param {Array} sarr - Array of actual scores
-         * @returns {string} The updated text with scores inserted
-         */
-        function insertScores(text, subTotalScoreArr, sarr) {
-            return text.replace(/(Part (\d+):)(.*?)(?=\n|$)/g, (match, partPrefix, partNumber, title) => {
-                const index = parseInt(partNumber, 10);
-                if (index >= 0 && index < subTotalScoreArr.length && index < sarr.length) {
-                    return `${title.trim()}: (${sarr[index]}/${subTotalScoreArr[index]})`;
-                }
-                return match;
-            });
-        }
     </script>
 </body>
 
