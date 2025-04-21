@@ -42,17 +42,17 @@
       [
         {
           "yes": "You defined state space, action (hit or stick), reward structure (+1 for win, 0 for tie/draw, and -1 for loss), terminal state.",
-          "no": "You did not include a discussion of the state space, actions (hit or stick), reward structure (+1 for win, 0 for tie/draw, and -1 for loss), or terminal state.",
+          "no": "You did not provide description of MDP problem 1.",
           "point": 5
         },
         {
           "yes": "You also defined state variables, action space, reward, and terminal conditions, discretization approach (bins, rounding methods), and justified tradeoffs between fidelity and computational cost.",
-          "no": "You did not define the state variables, action space, reward, or terminal conditions, nor did you describe the discretization approach (bins, rounding methods) or justify tradeoffs between fidelity and computational cost.",
+          "no": "You did not provide description of MDP problem 2.",
           "point": 5
         },
         {
           "yes": "You highlighted key differences (Blackjack: small/discrete; CartPole: large/continuous), provided implications, described discretization approach (bins, rounding methods), and justified tradeoffs between fidelity and computational cost.",
-          "no": "You did not highlight key differences (e.g., Blackjack: small/discrete; CartPole: large/continuous), nor did you discuss the implications, describe the discretization approach (bins, rounding methods), or justify tradeoffs between fidelity and computational cost.",
+          "no": "You did not discuss why the problems are interesting and different from each other.",
           "point": 5
         }
       ]
@@ -64,27 +64,27 @@
       [
         {
           "yes": "For VI you described Bellman optimality, for PI explained policy evaluation and improvement steps, mentioned convergence guarantees, and articulated difference between VI and PI.",
-          "no": "You did not describe the Bellman optimality equation for Value Iteration, explain the policy evaluation and improvement steps for Policy Iteration, mention convergence guarantees, or articulate the differences between VI and PI.",
+          "no": "We wanted to see some discussion of whether/how quickly VI converges.",
           "point": 8
         },
         {
           "yes": "Provided vocalization for VI on Blackjack, PI on Blackjack, VI on Cartpole, and PI on Cartpole.",
-          "no": "You did not provide vocalization for Value Iteration on Blackjack, Policy Iteration on Blackjack, Value Iteration on CartPole, or Policy Iteration on CartPole.",
+          "no": "We wanted to see some explanation for VI convergence results.",
           "point": 8
         },
         {
           "yes": "You tested hyperparameters, discussed PI's faster convergence, reported number of iterations with convergence criteria, and included quantitative and qualitative comparison.",
-          "no": "You did not test hyperparameters, discuss Policy Iteration’s faster convergence, report the number of iterations with convergence criteria, or include a quantitative and qualitative comparison.",
+          "no": "You needed to add some discussion of whether/how quickly PI converges.",
           "point": 7
         },
         {
           "yes": "You stated whether VI and PI policies are the same, provided reasons for differences explained (if applicable), and used visualization.",
-          "no": "You did not state whether the policies from Value Iteration and Policy Iteration are the same, did not explain possible reasons for any differences, and did not include visualizations.",
+          "no": "We wanted to see some explanation for PI convergence results.",
           "point": 4
         },
         {
           "yes": "In addition, you discussed discretization errors and explored tradeoffs (finer binning vs. runtime/memory).",
-          "no": "You did not discuss discretization errors or explore tradeoffs between finer binning and runtime/memory usage.",
+          "no": "You needed to show a detailed comparison of final policy found by VI and PI. You could have used this question to guide your discussion, for example, \"are they the same?\"",
           "point": 3
         }
       ]
@@ -96,27 +96,27 @@
       [
         {
           "yes": "You provided correct definitions, clear explanation of on/off-policy, exploration implications, behavioral differences.",
-          "no": "You did not provide correct definitions or a clear explanation of on-policy vs. off-policy methods, their exploration implications, or behavioral differences.",
+          "no": "We wanted to see some discussion of whether/how quickly VI converges.",
           "point": 6
         },
         {
           "yes": "Also, you provided SARSA on Blackjack: Line plot of cumulative reward per episode, provided some discussion on Q-Learning on Blackjack: Same as SARSA, SARSA on CartPole: Line plot of episode length or reward, and Q-Learning on CartPole: Same as SARSA.",
-          "no": "You did not provide SARSA results on Blackjack (e.g., line plot of cumulative reward per episode), did not include discussion or plots for Q-Learning on Blackjack, and did not present SARSA or Q-Learning results on CartPole (e.g., episode length or reward plots).",
+          "no": "We wanted to see some explanation for VI convergence results.",
           "point": 8
         },
         {
           "yes": "Your report included at least one strategy used (e.g., epsilon-greedy with decay), values or decay schedules, hyperparameter differences (3+ values), and impact on convergence.",
-          "no": "Your report did not include at least one strategy used (e.g., epsilon-greedy with decay), values or decay schedules, hyperparameter differences (3+ values), or the impact on convergence.",
+          "no": "You needed to add some discussion of whether/how quickly PI converges.",
           "point": 7
         },
         {
           "yes": "Your report also included explicit comparison, key distinctions highlighted, reasoning rooted in theory.",
-          "no": "Your report did not include an explicit comparison, highlight key distinctions, or provide reasoning rooted in theory.",
+          "no": "We wanted to see some explanation for PI convergence results.",
           "point": 6
         },
         {
           "yes": "Clear comparison, identifies reasons for mismatches, visual comparisons included. ",
-          "no": "Your report did not include a clear comparison, identify reasons for mismatches, or provide visual comparisons.",
+          "no": "You needed to show a detailed comparison of final policy found by VI and PI. You could have used this question to guide your discussion, for example, \"are they the same?\"",
           "point": 6
         }
       ]
@@ -128,12 +128,12 @@
       [
         {
           "yes": "You have some discussion on specific challenges, detailed discussion, actionable improvements.",
-          "no": "We wanted to see some discussion on specific challenges, detailed discussion, actionable improvements.",
+          "no": "Some discussion of how size of the state space impacted performance would have been helpful to improve the quality of your report.",
           "point": 6
         },
         {
           "yes": "Your report also include synthesized findings, reference data, interpretation of plots, connects to theory.",
-          "no": "In addition, your report did not include synthesized findings, reference data, interpretation of plots, connects to theory.",
+          "no": "",
           "point": 6
         }
       ]
