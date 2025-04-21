@@ -64,6 +64,8 @@
             padding-bottom: 50px;
         }
 
+
+
         #overlay {
             visibility: hidden;
             position: fixed;
@@ -74,6 +76,8 @@
             background: rgba(0, 0, 0, 0.5);
             z-index: 999;
         }
+
+
 
         /* Output textarea */
         #paraID {
@@ -86,99 +90,6 @@
             border-radius: 4px;
             resize: vertical;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Rubric item styling */
-        .item-container {
-            display: flex;
-            margin-bottom: 10px;
-            align-items: center;
-        }
-
-        .item-yes,
-        .item-no {
-            padding: 8px;
-            margin: 2px;
-            cursor: pointer;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            flex: 1;
-            transition: all 0.2s;
-        }
-
-        .item-yes {
-            background-color: #f8f8f8;
-        }
-
-        .item-no {
-            background-color: #f8f8f8;
-        }
-
-        .item-yes.selected {
-            background-color: #d4edda;
-            border-color: #c3e6cb;
-            color: #155724;
-        }
-
-        .item-no.selected {
-            background-color: #f8d7da;
-            border-color: #f5c6cb;
-            color: #721c24;
-        }
-
-        .item-score {
-            width: 40px;
-            text-align: center;
-            font-weight: bold;
-            margin-left: 10px;
-        }
-
-        .sub-total-score {
-            font-weight: bold;
-            font-size: 16px;
-            margin-top: 10px;
-            padding: 5px;
-            background-color: #e9ecef;
-            border-radius: 4px;
-            text-align: right;
-        }
-
-        .problem-container {
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid #eee;
-            border-radius: 5px;
-        }
-
-        .part-container {
-            margin-bottom: 30px;
-            padding: 15px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-        }
-
-        .save-button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 20px;
-        }
-
-        .save-button:hover {
-            background-color: #0069d9;
-        }
-
-        .item-textareabox {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
         }
     </style>
 
@@ -293,8 +204,8 @@
 
 <body>
     <!-- Instructions notice -->
-    <p id="notice">Click to select "Yes" (green) or "No" (red) for each item. "No" selections default to 0 points but
-        can be adjusted by double-clicking. Scores update automatically.</p>
+    <p id="notice">Selecting items from "No" will not subtract points. Double click on "No" side and adjust how much
+        you want to take out. For example, if it shows 5, and you want to take out all, then make that 0.</p>
 
     <!-- Main content container -->
     <div id="container"></div>
@@ -323,7 +234,6 @@
         let selectedItem = null;          // Currently selected rubric item
         let subTotalScoreArr = [];        // Array of possible subtotals
         let sarr = [];                    // Array of actual scores
-        let allItems = [];                // Array to store all rubric items for score calculation
 
         /**
          * Opens the edit modal for the selected rubric item
@@ -341,73 +251,6 @@
             // Show modal
             editBox.style.visibility = 'visible';
             overlay.style.visibility = 'visible';
-        }
-
-        /**
-         * Calculates and updates all scores in the rubric
-         */
-        function updateAllScores() {
-            // Reset score arrays
-            subTotalScoreArr = [];
-            sarr = [];
-
-            // Get all part containers
-            const partContainers = document.querySelectorAll('.part-container');
-
-            partContainers.forEach(part => {
-                let partTotal = 0;
-                let partScore = 0;
-
-                // Get all problem containers in this part
-                const problemContainers = part.querySelectorAll('.problem-container');
-
-                problemContainers.forEach(problem => {
-                    let problemTotal = 0;
-                    let problemScore = 0;
-
-                    // Get all items in this problem
-                    const items = problem.querySelectorAll('.item-container');
-
-                    items.forEach(item => {
-                        const itemYes = item.querySelector('.item-yes');
-                        const itemNo = item.querySelector('.item-no');
-                        const itemScoreElement = item.querySelector('.item-score');
-                        const maxScore = parseInt(itemYes.getAttribute('score'));
-
-                        // Add to problem total
-                        problemTotal += maxScore;
-
-                        // Calculate actual score based on selection
-                        let actualScore = 0;
-                        if (itemYes.classList.contains('selected')) {
-                            actualScore = maxScore;
-                        } else if (itemNo.classList.contains('selected')) {
-                            actualScore = parseInt(itemNo.getAttribute('score')) || 0;
-                        }
-
-                        // Update score display
-                        itemScoreElement.textContent = actualScore;
-                        problemScore += actualScore;
-                    });
-
-                    // Update problem subtotal if it exists
-                    const subTotalDiv = problem.querySelector('.sub-total-score');
-                    if (subTotalDiv) {
-                        subTotalDiv.textContent = `Subtotal: ${problemScore}/${problemTotal}`;
-                    }
-
-                    partTotal += problemTotal;
-                    partScore += problemScore;
-                });
-
-                subTotalScoreArr.push(partTotal);
-                sarr.push(partScore);
-            });
-
-            // Calculate and display grand total
-            const grandTotal = sarr.reduce((a, b) => a + b, 0);
-            const maxTotal = subTotalScoreArr.reduce((a, b) => a + b, 0);
-            document.getElementById('notice').textContent = `Total Score: ${grandTotal}/${maxTotal}`;
         }
 
         /**
@@ -430,42 +273,30 @@
 
                 // Create Yes option
                 const itemYes = document.createElement('div');
-                itemYes.classList.add('item-yes');
+                itemYes.classList.add('item-yes', 'selected');
                 itemYes.setAttribute('score', score);
                 itemYes.innerText = yes;
 
                 // Create No option
                 const itemNo = document.createElement('div');
                 itemNo.classList.add('item-no');
-                itemNo.setAttribute('score', 0); // Default to 0 for No
+                itemNo.setAttribute('score', score);
                 itemNo.innerText = no;
 
                 // Create score display
                 const itemScore = document.createElement('div');
                 itemScore.classList.add('item-score');
-                itemScore.innerHTML = '0';
+                itemScore.innerHTML = score;
                 itemScore.style.color = 'red';
 
                 // Update totals
                 subTotal += parseInt(score);
-                subScoreArr.push(0); // Start with 0 points
-
-                // Store references for score calculation
-                allItems.push({
-                    yes: itemYes,
-                    no: itemNo,
-                    score: itemScore,
-                    maxScore: score
-                });
+                subScoreArr.push(score);
 
                 // Event listeners for Yes option
                 itemYes.addEventListener('click', () => {
                     itemYes.classList.add('selected');
                     itemNo.classList.remove('selected');
-                    itemNo.setAttribute('score', 0); // Reset No score when Yes is selected
-                    itemScore.textContent = itemYes.getAttribute('score');
-                    itemScore.style.color = 'green';
-                    updateAllScores();
                 });
                 itemYes.addEventListener('dblclick', function () {
                     selectedItem = this;
@@ -476,9 +307,6 @@
                 itemNo.addEventListener('click', () => {
                     itemNo.classList.add('selected');
                     itemYes.classList.remove('selected');
-                    itemScore.textContent = itemNo.getAttribute('score') || '0';
-                    itemScore.style.color = 'red';
-                    updateAllScores();
                 });
                 itemNo.addEventListener('dblclick', function () {
                     selectedItem = this;
@@ -491,10 +319,10 @@
             }
 
             // Create and append subtotal display
-            subTotalDiv.innerHTML = `Subtotal: 0/${subTotal}`;
+            subTotalDiv.innerHTML = subTotal;
             subTotalScoreArr.push(subTotal);
             subTotalDiv.style.color = 'green';
-            subTotalDiv.style.fontSize = "14px";
+            subTotalDiv.style.fontSize = "12px";
             subTotalDiv.classList.add('sub-total-score');
             container.appendChild(subTotalDiv);
         }
@@ -622,15 +450,18 @@
                             items.forEach(item => {
                                 const itemYes = item.querySelector('.item-yes');
                                 const itemNo = item.querySelector('.item-no');
-                                const itemScore = item.querySelector('.item-score');
 
                                 // Add selected item to output
                                 if (itemYes.classList.contains('selected')) {
+                                    const _score = parseInt(itemYes.getAttribute('score'));
                                     text += `${itemYes.innerText} `;
-                                    s += parseInt(itemScore.textContent);
+                                    score += _score;
+                                    s += _score;
                                 } else {
+                                    const _score = parseInt(itemNo.getAttribute('score'));
                                     text += `${itemNo.innerText} `;
-                                    s += parseInt(itemScore.textContent);
+                                    score += _score;
+                                    s += _score;
                                 }
                             });
 
@@ -640,7 +471,7 @@
                             } else {
                                 jsonData[title] = s;
                             }
-                            score += s;
+                            sarr.push(s);
                             text += '\n\n';
                         });
                     });
@@ -766,21 +597,6 @@
                 // Update selected item with new values
                 selectedItem.innerText = editText.value;
                 selectedItem.setAttribute('score', editScore.value);
-
-                // Update the score display immediately
-                const itemContainer = selectedItem.parentElement;
-                const itemScore = itemContainer.querySelector('.item-score');
-                if (selectedItem.classList.contains('selected')) {
-                    itemScore.textContent = editScore.value;
-                    if (selectedItem.classList.contains('item-no')) {
-                        itemScore.style.color = 'red';
-                    } else {
-                        itemScore.style.color = 'green';
-                    }
-                }
-
-                // Recalculate all scores
-                updateAllScores();
 
                 // Hide modal
                 editBox.style.visibility = 'hidden';
