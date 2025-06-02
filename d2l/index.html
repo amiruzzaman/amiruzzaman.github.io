@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Brightspace Quiz Generator (Enhanced)</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 900px; margin: auto; }
+    textarea, select, input, button { width: 100%; margin-bottom: 12px; padding: 8px; font-size: 1em; }
+    button { width: auto; cursor: pointer; }
+    .error { background-color: #ffdddd; border-left: 4px solid red; padding: 10px; margin-top: 10px; }
+    .success { background-color: #ddffdd; border-left: 4px solid green; padding: 10px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Brightspace Quiz Generator</h1>
+  <label>Quiz Name:</label>
+  <input type="text" id="quizName" placeholder="e.g. Physics Quiz 1">
+
+  <label>Insert Sample Question:</label>
+  <select id="questionType">
+    <option value="">-- Select Sample Type --</option>
+    <option value="mc">Multiple Choice</option>
+    <option value="ma">Multiple Answer</option>
+    <option value="tf">True or False</option>
+    <option value="essay">Essay</option>
+    <option value="sa">Short Answer</option>
+    <option value="match">Matching</option>
+    <option value="order">Ordering</option>
+  </select>
+  <button id="addSample">Add Sample</button>
+
+  <label>Questions (One block per question):</label>
+  <textarea id="questions" rows="15" placeholder="Paste your questions here..."></textarea>
+
+  <button id="generate">Generate Test Questions</button>
+  <button id="download" disabled>Download Questions for Brightspace</button>
+  <a id="downloadLink" style="display:none;"></a>
+
+  <div id="output"></div>
+
+  <script>
+    const sampleQuestions = {
+      mc: `1. What is the capital of France?\n*Paris\nLondon\nBerlin\nRome\n`,
+      ma: `2. Which are programming languages?\n*Python\n*JavaScript\nCSS\nHTML\n`,
+      tf: `3. The earth orbits the sun.\nTrue\n`,
+      essay: `4. Explain the theory of relativity.\n`,
+      sa: `SA 5. What is H2O commonly known as?\n`,
+      match: `match 6. Match countries to capitals.\nFrance / Paris\nGermany / Berlin\nSpain / Madrid\n`,
+      order: `order 7. Arrange in alphabetical order.\nApple\nBanana\nCarrot\n`
+    };
+
+    document.getElementById('addSample').onclick = () => {
+      const type = document.getElementById('questionType').value;
+      if (sampleQuestions[type]) {
+        document.getElementById('questions').value += '\n' + sampleQuestions[type];
+      }
+    };
+
+    function escapeCSV(value) {
+      return '"' + value.replace(/"/g, '""') + '"';
+    }
+
+    document.getElementById('generate').onclick = () => {
+      const quizName = document.getElementById('quizName').value.trim();
+      const text = document.getElementById('questions').value.trim();
+      const output = document.getElementById('output');
+      output.innerHTML = '';
+      const downloadBtn = document.getElementById('download');
+      const downloadLink = document.getElementById('downloadLink');
+
+      if (!quizName || !text) {
+        alert("Please enter a quiz name and at least one question.");
+        return;
+      }
+
+      const blocks = text.split(/\n{2,}/).map(b => b.trim()).filter(b => b);
+      let csv = "Question Type,Question Text,Options,Answer\n";
+      let errors = [];
+
+      for (let i = 0; i < blocks.length; i++) {
+        const block = blocks[i];
+        const lines = block.split('\n').map(l => l.trim()).filter(l => l);
+        if (lines.length < 1) {
+          errors.push(`Question ${i+1}: Empty question block.`);
+          continue;
+        }
+
+        let questionText = lines[0];
+        let qType = '';
+        let options = [];
+        let answer = '';
+
+        if (/^SA\s/i.test(questionText)) {
+          qType = "Short Answer";
+          questionText = questionText.replace(/^SA\s*/i, '');
+        } else if (/^match\s/i.test(questionText)) {
+          qType = "Matching";
+          questionText = questionText.replace(/^match\s*/i, '');
+          if (!lines.slice(1).every(l => l.includes('/'))) {
+            errors.push(`Question ${i+1}: Matching format must use "term / match" pairs.`);
+            continue;
+          }
+          options = lines.slice(1).join('; ');
+        } else if (/^order\s/i.test(questionText)) {
+          qType = "Ordering";
+          questionText = questionText.replace(/^order\s*/i, '');
+          options = lines.slice(1).join('; ');
+        } else if (lines.length === 2 && (lines[1].toLowerCase() === 'true' || lines[1].toLowerCase() === 'false')) {
+          qType = "True or False";
+          answer = lines[1];
+        } else {
+          const answerLines = lines.slice(1);
+          const corrects = answerLines.filter(l => l.startsWith('*'));
+          if (corrects.length === 0) {
+            qType = "Essay";
+          } else if (corrects.length === 1) {
+            qType = "Multiple Choice";
+            options = answerLines.map(l => l.replace(/^\*/, ''));
+            answer = corrects[0].replace(/^\*/, '');
+          } else {
+            qType = "Multiple Answer";
+            options = answerLines.map(l => l.replace(/^\*/, ''));
+            answer = corrects.map(l => l.replace(/^\*/, '')).join('; ');
+          }
+
+          if ((qType === "Multiple Choice" && corrects.length !== 1) ||
+              (qType === "Multiple Answer" && corrects.length < 1)) {
+            errors.push(`Question ${i+1}: Invalid number of correct answers for ${qType}.`);
+            continue;
+          }
+        }
+
+        csv += `${escapeCSV(qType)},${escapeCSV(questionText)},${escapeCSV(options)},${escapeCSV(answer)}\n`;
+      }
+
+      if (errors.length > 0) {
+        output.innerHTML = `<div class="error"><strong>Validation Errors:</strong><ul><li>${errors.join('</li><li>')}</li></ul></div>`;
+        downloadBtn.disabled = true;
+      } else {
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        downloadLink.href = url;
+        downloadLink.download = quizName + '.csv';
+        downloadLink.click();
+        output.innerHTML = `<div class="success">✅ Quiz successfully generated! CSV is downloaded.</div>`;
+        downloadBtn.disabled = false;
+      }
+    };
+
+    document.getElementById('download').onclick = () => {
+      document.getElementById('downloadLink').click();
+    };
+  </script>
+</body>
+</html>
