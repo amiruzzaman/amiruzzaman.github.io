@@ -112,13 +112,6 @@
         #selected-feedback {
             white-space: pre-wrap;
             /* Preserve line breaks */
-            width: 100%;
-            min-height: 150px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            background-color: white;
-            font-family: inherit;
-            font-size: inherit;
         }
 
         .score-correct {
@@ -166,13 +159,12 @@
 
             <!-- Display all selected feedback here -->
             <div id="feedback-container">
-                <h4>All Selected Feedback (Editable):</h4>
-                <textarea id="selected-feedback" class="feedback-area"></textarea>
+                <h4>All Selected Feedback:</h4>
+                <div id="selected-feedback"></div>
             </div>
 
             <button onclick="copyFeedback()" id="copyButton">Copy All Feedback</button>
             <button onclick="copyScores()" id="copyScoresButton">Copy Scores</button>
-            <button onclick="resetFeedbackDisplay()" id="resetFeedbackButton">Reset Feedback Display</button>
         </div>
 
         <button onclick="resetAll()">Reset All</button>
@@ -225,7 +217,6 @@
         let questionsData = [...defaultQuestionsData]; // Copy of default data
         let currentFeedbackTextarea = null;
         let scores = [0, 0, 0, 0, 0]; // Track scores for each question
-        let feedbackEdited = false; // Track if feedback has been manually edited
 
         // Load questions into the DOM
         function loadQuestions(questions) {
@@ -297,16 +288,20 @@
             const selectedFeedback = document.getElementById('selected-feedback');
             const feedbackDisplay = document.getElementById('feedback-display');
 
-            // Clear previous individual scores
+            // Clear previous individual scores and selected feedback
             scoresTable.innerHTML = `
                 <div class="div-table-row div-table-header">
                     <div class="div-table-col">Question</div>
                     <div class="div-table-col">Score</div>
                 </div>
             `;
+            selectedFeedback.innerHTML = ''; // Clear feedback container
 
             // Remove any existing color classes from feedback display
             feedbackDisplay.classList.remove('correct', 'incorrect');
+
+            // Create a Set to avoid duplicate feedback
+            const feedbackSet = new Set();
 
             let hasCorrect = false;
             let hasIncorrect = false;
@@ -334,6 +329,7 @@
                 // Add to feedback content if there's a score
                 if (score > 0) {
                     feedbackContent += feedbackText + '\n';
+                    feedbackSet.add(feedbackText);
                 }
 
                 // Add score row to the table
@@ -369,33 +365,31 @@
             `;
             scoresTable.appendChild(totalRow);
 
-            // Update selected feedback display only if not manually edited
-            if (!feedbackEdited) {
-                selectedFeedback.value = feedbackContent;
-            }
+            // Update selected feedback display
+            feedbackSet.forEach(feedback => {
+                const feedbackDiv = document.createElement('div');
+                feedbackDiv.textContent = feedback;
+                selectedFeedback.appendChild(feedbackDiv);
+            });
 
             // Display total points
             const totalPointsDisplay = document.getElementById('total-points');
             totalPointsDisplay.textContent = `Total Points: ${totalPoints}`;
         }
 
-        // Reset the feedback display to show all selected feedback
-        function resetFeedbackDisplay() {
-            feedbackEdited = false;
-            updateFeedbackDisplay();
-            const resetButton = document.getElementById("resetFeedbackButton");
-            resetButton.innerHTML = "Feedback Reset!";
-            resetButton.style.background = '#4CAF50';
-            setTimeout(() => {
-                resetButton.innerHTML = "Reset Feedback Display";
-                resetButton.style.background = '#4CAF50';
-            }, 2000);
-        }
-
         // Copy all feedback to clipboard
         function copyFeedback() {
-            const selectedFeedback = document.getElementById('selected-feedback');
-            const feedbackContent = selectedFeedback.value;
+            let feedbackContent = '';
+            questionsData.forEach((questionData, index) => {
+                const correctRadio = document.querySelector(`input[name="question-${index}"][value="correct"]`);
+                const incorrectRadio = document.querySelector(`input[name="question-${index}"][value="incorrect"]`);
+
+                if (correctRadio && correctRadio.checked) {
+                    feedbackContent += `Question ${index + 1} (1/1): ${questionData.feedback.correct}\n`;
+                } else if (incorrectRadio && incorrectRadio.checked) {
+                    feedbackContent += `Question ${index + 1} (0.5/1): ${questionData.feedback.incorrect}\n`;
+                }
+            });
 
             const textArea = document.createElement('textarea');
             textArea.value = feedbackContent;
@@ -435,7 +429,6 @@
         function resetAll() {
             questionsData = [...defaultQuestionsData]; // Reset to default data
             scores = [0, 0, 0, 0, 0]; // Reset scores
-            feedbackEdited = false; // Reset edit flag
             loadQuestions(questionsData); // Reload questions
 
             // Reset all question backgrounds
@@ -454,10 +447,6 @@
             copyScoresButton.innerHTML = "Copy Scores";
             copyScoresButton.style.background = '#4CAF50';
 
-            const resetButton = document.getElementById("resetFeedbackButton");
-            resetButton.innerHTML = "Reset Feedback Display";
-            resetButton.style.background = '#4CAF50';
-
             // Clear feedback and scores display
             updateFeedbackDisplay();
         }
@@ -465,11 +454,6 @@
         // Load default questions on page load
         document.addEventListener('DOMContentLoaded', () => {
             loadQuestions(questionsData);
-
-            // Add event listener to track manual edits to feedback
-            document.getElementById('selected-feedback').addEventListener('input', function () {
-                feedbackEdited = true;
-            });
         });
     </script>
 </body>
