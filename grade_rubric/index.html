@@ -557,8 +557,8 @@
         }
 
         /**
- * Creates a table from JSON data
- */
+         * Creates a table from JSON data
+         */
         function createTableFromJSON(jsonData) {
             const container = document.getElementById('container');
             let tableDiv = document.getElementById('json-table');
@@ -606,7 +606,6 @@
 
             tableDiv.appendChild(table);
         }
-
 
         // Initialize the page
         document.addEventListener('DOMContentLoaded', function () {
@@ -713,15 +712,18 @@
                         let outputText = '';
                         let totalScore = 0;
                         let jsonData = {};
+                        let partIndex = 0;
 
                         // Process each part
                         const partContainers = document.querySelectorAll('.part-container');
                         partContainers.forEach(part => {
                             const partTitle = part.querySelector('h3').textContent;
-                            outputText += `${partTitle}\n`;
+                            let partScore = 0;
+
+                            // Initialize jsonData for this part
                             jsonData[partTitle] = {};
 
-                            // Process each problem
+                            // Process each problem in this part
                             const problems = part.querySelectorAll('.problem-container');
                             problems.forEach(problem => {
                                 const problemTitle = problem.querySelector('h4')?.textContent || '';
@@ -742,10 +744,21 @@
                                     problemScore += parseInt(itemScore);
                                 });
 
+                                partScore += problemScore;
                                 outputText += '\n\n';
-                                totalScore += problemScore;
                                 jsonData[partTitle][problemTitle || 'main'] = problemScore;
                             });
+
+                            // Add part score (earned/max)
+                            const partMaxScore = subTotalMaxScores[partIndex];
+                            outputText = outputText.replace(
+                                partTitle,
+                                `${partTitle} (${partScore}/${partMaxScore})`
+                            );
+
+                            totalScore += partScore;
+                            jsonData[partTitle]['Total'] = `${partScore}/${partMaxScore}`;
+                            partIndex++;
                         });
 
                         // Add overall comment
@@ -755,17 +768,15 @@
                         }
 
                         // Add total score
-                        //outputText += `Total score: ${totalScore}/${maxPossibleScore}\n`;
-                        outputText += `Total score: ${totalScore}\n`;
-                        //jsonData['Total'] = `${totalScore}/${maxPossibleScore}`;
-                        jsonData['Total'] = `${totalScore}`;
+                        outputText += `Total score: ${totalScore}/${maxPossibleScore}\n`;
+                        jsonData['Total'] = `${totalScore}/${maxPossibleScore}`;
 
                         // Update output
                         resultsTextarea.value = outputText;
                         createTableFromJSON(jsonData);
                     });
 
-                    // Assemble the UI - FIXED: Now properly includes the save button
+                    // Assemble the UI
                     container.append(
                         checkboxDiv,
                         commentDiv,
