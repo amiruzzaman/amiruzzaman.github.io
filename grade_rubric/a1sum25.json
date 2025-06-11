@@ -4,11 +4,6 @@
     "problems": [
       [
         {
-          "yes": "You have provided your README file and your implementation is accessible.",
-          "no": "Unfortunately, you did not provide a README file but your implementation is not accessible. This was important for us to see to understand how we can replicate your experiments. You needed to upload the README file as part of your canvas submission.",
-          "point": 5
-        },
-        {
           "yes": "You have provided a READ ONLY link to Overleaf for your project report.",
           "no": "You did not provide a READ ONLY link to Overleaf for your project report. A read-only Overleaf link to your overleaf project should be provided.",
           "point": 2
@@ -28,7 +23,7 @@
           "no": "Some of your figures/graphs are not readable. For example, ____. One of the easy way to improve this to increase the font size of legends and other texts in the plot/graph.",
           "point": 2
         },
-		{
+        {
           "yes": "I see some citation in your report, and you followed a consistent style there.",
           "no": "I did not see any citation in your report. You can use either IEEE or APA or MLA citation and reference formatting style for your report.",
           "point": 2
@@ -128,7 +123,7 @@
     "title": "KNN",
     "problems": [
       [
-	    {
+        {
           "yes": "You provided some error metrics.",
           "no": "Keep in mind that for regression least square error is helpful information, and for classification type I/II error, confusion matrix, PR AUC, F1, precision recall are helpful information for insightful discussion.",
           "point": 1
@@ -153,17 +148,17 @@
         {
           "yes": "You have provided an overall comparison between your runs on each data set. You considered Type I and Type II errors.",
           "no": "You did not provided an overall comparison between your runs on each data set. You also did not consider Type I and Type II errors.",
-          "point": 1
+          "point": 3
         },
         {
           "yes": "You have provided some discussion on accuracies/performances of different ML algorithms using wall clock times. You also provided some discussion on performances: noise and number of sample needed to learn effectively.",
           "no": "You have not provide a detailed discussion on accuracies/performances of different ML algorithms using wall clock times. You needed to provide a detailed discussion on performances: noise and number of sample needed to learn effectively.",
-          "point": 2
+          "point": 3
         },
         {
           "yes": "You also provided some discussion to show a broad understanding.",
           "no": "You also needed some discussion to show a broad understanding.",
-          "point": 1
+          "point": 3
         }
       ]
     ]
