@@ -429,8 +429,7 @@
 
                 // Update subtotal display
                 const subTotalDiv = problem.querySelector('.sub-total-score');
-                //subTotalDiv.textContent = `Subtotal: ${problemEarned}/${subTotalMaxScores[index]}`;
-                subTotalDiv.textContent = `${problemEarned}/${subTotalMaxScores[index]}`;
+                subTotalDiv.textContent = `Subtotal: ${problemEarned}/${subTotalMaxScores[index]}`;
 
                 // Update arrays
                 subTotalEarnedScores[index] = problemEarned;
@@ -438,8 +437,7 @@
             });
 
             // Update total display
-            //document.getElementById('totalScoreDisplay').textContent = `Total: ${totalEarned}/${maxPossibleScore}`;
-            document.getElementById('totalScoreDisplay').textContent = ` ${totalEarned}/${maxPossibleScore}`;
+            document.getElementById('totalScoreDisplay').textContent = `Total: ${totalEarned}/${maxPossibleScore}`;
         }
 
         /**
@@ -487,8 +485,7 @@
             const subTotalDiv = document.createElement('div');
             subTotalDiv.classList.add('sub-total-score');
             subTotalDiv.setAttribute('data-index', groupIndex);
-            //subTotalDiv.textContent = `Subtotal: 0/${problemMax}`;
-            subTotalDiv.textContent = `0/${problemMax}`;
+            subTotalDiv.textContent = `Subtotal: 0/${problemMax}`;
             container.appendChild(subTotalDiv);
 
             // Create each rubric item
@@ -560,8 +557,8 @@
         }
 
         /**
- * Creates a table from JSON data showing only earned scores without "Total: " text
- */
+         * Creates a table from JSON data
+         */
         function createTableFromJSON(jsonData) {
             const container = document.getElementById('container');
             let tableDiv = document.getElementById('json-table');
@@ -577,40 +574,35 @@
             const table = document.createElement('table');
             const headerRow = table.insertRow();
 
-            // Create headers (excluding 'Total' from headers)
-            const headers = Object.keys(jsonData).filter(header => header !== 'Total');
+            // Create headers
+            const headers = Object.keys(jsonData);
             headers.forEach(header => {
                 const th = document.createElement('th');
                 th.textContent = header;
                 headerRow.appendChild(th);
             });
 
-            // Add Total header
-            const totalTh = document.createElement('th');
-            totalTh.textContent = 'Total';
-            headerRow.appendChild(totalTh);
-
-            // Create data row
+            // Create data rows
             const dataRow = table.insertRow();
-
-            // Add earned scores for each part
             headers.forEach(header => {
                 const td = document.createElement('td');
-                // Get just the earned score number
-                const scoreValue = typeof jsonData[header] === 'object'
-                    ? jsonData[header]['Total']
-                    : jsonData[header];
-                // Remove any "Total: " text if present
-                const cleanScore = scoreValue.toString().replace('Total: ', '');
-                td.textContent = cleanScore;
+
+                if (typeof jsonData[header] === 'object') {
+                    // For parts with multiple problems
+                    let partText = '';
+                    for (const problem in jsonData[header]) {
+                        // Remove "main: " prefix if it exists
+                        const value = jsonData[header][problem];
+                        partText += problem === 'main' ? `${value}\n` : `${problem}: ${value}\n`;
+                    }
+                    td.textContent = partText.trim();
+                } else {
+                    // For simple values
+                    td.textContent = jsonData[header];
+                }
+
                 dataRow.appendChild(td);
             });
-
-            // Add total score
-            const totalTd = document.createElement('td');
-            const totalScore = jsonData['Total'].toString().replace('Total: ', '');
-            totalTd.textContent = totalScore;
-            dataRow.appendChild(totalTd);
 
             tableDiv.appendChild(table);
         }
@@ -709,7 +701,7 @@
                     checkboxLabel.textContent = 'Include additional comment about page management!';
                     checkboxDiv.append(checkbox, checkboxLabel);
 
-                    // Save button handler
+                    // Save button handler - UPDATED to show scores in feedback
                     saveButton.addEventListener('click', function () {
                         if (!allItemsSelected()) {
                             alert('Please select all items before saving.');
@@ -770,8 +762,7 @@
                             );
 
                             totalScore += partScore;
-                            // Store just the earned score number for the table
-                            jsonData[partTitle]['Total'] = partScore.toString();
+                            jsonData[partTitle]['Total'] = `${partScore}/${partMaxScore}`;
                             partIndex++;
                         });
 
@@ -783,12 +774,13 @@
 
                         // Add total score
                         outputText += `Total score: ${totalScore}/${maxPossibleScore}\n`;
-                        jsonData['Total'] = totalScore.toString();
+                        jsonData['Total'] = `${totalScore}/${maxPossibleScore}`;
 
                         // Update output
                         resultsTextarea.value = outputText;
                         createTableFromJSON(jsonData);
                     });
+
                     // Assemble the UI
                     container.append(
                         checkboxDiv,
