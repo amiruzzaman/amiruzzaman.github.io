@@ -15,17 +15,22 @@
         },
         {
           "yes": "Your report is 8 pages.",
-          "no": "Your report is not __ pages long. Please make sure to follow the page limit instruction for next assignment.",
-          "point": 2
+          "no": "Your report is not 8 pages long. Please make sure to follow the page limit instructions for the next assignment.",
+          "point": 1
         },
         {
           "yes": "Your graphs/figures are readable. Good job!",
           "no": "Some of your figures or graphs require zooming in and are not easily readable. For example, ____. One of the simplest ways to improve readability is to increase the font size of legends and other text elements in the plot or graph.",
-          "point": 2
+          "point": 1
         },
         {
           "yes": "I see some citations in your report, and you followed a consistent style there.",
           "no": "I did not see any citations in your report. Please make sure to include them using a standard formatting style such as IEEE, APA, or MLA.",
+          "point": 2
+        },
+        {
+          "yes": "You provided detailed instructions to run your code.",
+          "no": "You needed to provide detailed instructions to run your code as part of your DOCSTRING submission.",
           "point": 2
         }
       ]
