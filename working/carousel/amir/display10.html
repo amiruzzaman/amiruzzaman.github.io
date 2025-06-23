@@ -141,12 +141,6 @@
             transform: scale(1.1);
         }
 
-        .img-queue-in img.active-thumbnail {
-            border: 3px solid #ffc107;
-            box-shadow: 0 0 10px rgba(255, 193, 7, 0.7);
-            transform: scale(1.1);
-        }
-
         .map-section {
             flex: 1;
             min-width: 400px;
@@ -400,10 +394,9 @@
 
                                 geoJsonLayer = L.geoJSON(geojson, {
                                     style: feature => ({
-                                        color: "#ffc107",
-                                        weight: 3,
-                                        fillOpacity: 0.6,
-                                        fillColor: "red"
+                                        color: "red",
+                                        weight: 2,
+                                        fillOpacity: 0.6
                                     }),
                                     onEachFeature: (feature, layer) => {
                                         const featureName = feature.properties?.name || "Unknown";
@@ -444,17 +437,6 @@
 
                     const updateImage = () => {
                         const { src, note, donor, currency_type } = imageElements[currentIndex];
-                        
-                        // Remove active class from all thumbnails
-                        document.querySelectorAll('.img-queue-in img').forEach(img => {
-                            img.classList.remove('active-thumbnail');
-                        });
-                        
-                        // Add active class to current thumbnail
-                        if (thumbnailContainer.children[currentIndex]) {
-                            thumbnailContainer.children[currentIndex].classList.add('active-thumbnail');
-                        }
-                        
                         fetchCountryInfo(countryName).then(countryInfo => {
                             setCurrentImage(src, note, donor, currency_type, countryInfo);
                         });
