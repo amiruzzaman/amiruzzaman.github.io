@@ -64,16 +64,8 @@
             border: 1px solid #ddd;
             padding: 15px;
             border-radius: 5px;
-            background-color: white;
         }
-        .draggable-part {
-            cursor: move;
-        }
-        .dragging-part {
-            opacity: 0.5;
-            background-color: #f0f0f0;
-        }
-        .delete-part-button, .move-up-button, .move-down-button {
+        .delete-part-button {
             background-color: #ff4d4d;
             color: white;
             border: none;
@@ -81,27 +73,7 @@
             padding: 5px 10px;
             margin-left: 10px;
         }
-        .move-up-button {
-            background-color: #4285f4;
-        }
-        .move-down-button {
-            background-color: #fbbc05;
-        }
-        .move-up-button:hover {
-            background-color: #3367d6;
-        }
-        .move-down-button:hover {
-            background-color: #e6a800;
-        }
-        #table-container {
-            min-height: 50px;
-        }
-        .part-controls {
-            display: inline-block;
-            margin-left: 10px;
-        }
     </style>
-	<link rel="shortcut icon" href="#">
 </head>
 <body>
 
@@ -118,7 +90,6 @@
     let jsonData = null;
     let currentFilename = "a2fall24.json";
     let draggedRow = null;
-    let draggedPart = null;
 
     function handleFileLoad() {
         const fileInput = document.getElementById("fileInput");
@@ -139,64 +110,27 @@
         const container = document.getElementById("table-container");
         container.innerHTML = ''; 
 
-        const partKeys = Object.keys(data);
-        
-        for (let i = 0; i < partKeys.length; i++) {
-            const partKey = partKeys[i];
+        for (let partKey in data) {
             const partContainer = document.createElement("div");
-            partContainer.classList.add("part-container", "draggable-part");
+            partContainer.classList.add("part-container");
             partContainer.dataset.partKey = partKey;
-            partContainer.dataset.partIndex = i;
-
-            // Make part draggable
-            partContainer.draggable = true;
-            partContainer.addEventListener('dragstart', (e) => {
-                draggedPart = partContainer;
-                partContainer.classList.add("dragging-part");
-                e.dataTransfer.setData('text/plain', partKey);
-            });
-            
-            partContainer.addEventListener('dragend', () => {
-                partContainer.classList.remove("dragging-part");
-                draggedPart = null;
-            });
 
             const part = data[partKey];
             const title = document.createElement("h2");
-            title.textContent = `${i + 1}. ${part.title}`;
+            title.textContent = part.title;
             title.contentEditable = true;
             title.addEventListener('input', (event) => {
-                jsonData[partKey].title = event.target.textContent.replace(/^\d+\.\s/, '');
-                title.textContent = `${i + 1}. ${jsonData[partKey].title}`;
+                jsonData[partKey].title = event.target.textContent;
             });
             
-            const controlsContainer = document.createElement("div");
-            controlsContainer.classList.add("part-controls");
-            
             const deletePartButton = document.createElement("button");
-            deletePartButton.textContent = "Delete";
+            deletePartButton.textContent = "Delete Part";
             deletePartButton.classList.add("delete-part-button");
             deletePartButton.onclick = () => deletePart(partKey);
             
-            const moveUpButton = document.createElement("button");
-            moveUpButton.textContent = "↑";
-            moveUpButton.classList.add("move-up-button");
-            moveUpButton.onclick = () => movePartUp(partKey);
-            moveUpButton.disabled = i === 0;
-            
-            const moveDownButton = document.createElement("button");
-            moveDownButton.textContent = "↓";
-            moveDownButton.classList.add("move-down-button");
-            moveDownButton.onclick = () => movePartDown(partKey);
-            moveDownButton.disabled = i === partKeys.length - 1;
-            
-            controlsContainer.appendChild(moveUpButton);
-            controlsContainer.appendChild(moveDownButton);
-            controlsContainer.appendChild(deletePartButton);
-            
             const titleContainer = document.createElement("div");
             titleContainer.appendChild(title);
-            titleContainer.appendChild(controlsContainer);
+            titleContainer.appendChild(deletePartButton);
             partContainer.appendChild(titleContainer);
 
             const table = document.createElement("table");
@@ -280,76 +214,7 @@
 
             updateSubtotal(partKey);
         }
-
-        // Add part reordering functionality
-        container.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            if (!draggedPart) return;
-            
-            const parts = [...container.querySelectorAll('.part-container')];
-            const overPart = parts.find(part => {
-                const rect = part.getBoundingClientRect();
-                return e.clientY <= rect.bottom && e.clientY >= rect.top;
-            });
-            
-            if (overPart && overPart !== draggedPart) {
-                const rect = overPart.getBoundingClientRect();
-                const insertBefore = e.clientY < rect.top + rect.height / 2;
-                
-                if (insertBefore) {
-                    container.insertBefore(draggedPart, overPart);
-                } else {
-                    container.insertBefore(draggedPart, overPart.nextSibling);
-                }
-            }
-        });
-
-        container.addEventListener('drop', (e) => {
-            e.preventDefault();
-            if (!draggedPart) return;
-            
-            const newIndex = [...container.querySelectorAll('.part-container')].indexOf(draggedPart);
-            const oldIndex = parseInt(draggedPart.dataset.partIndex);
-            const partKey = draggedPart.dataset.partKey;
-            
-            if (newIndex !== oldIndex) {
-                swapParts(oldIndex, newIndex);
-            }
-        });
-
         updateGrandTotal();
-    }
-
-    function swapParts(index1, index2) {
-        const partKeys = Object.keys(jsonData);
-        
-        // Swap the parts in the array
-        [partKeys[index1], partKeys[index2]] = [partKeys[index2], partKeys[index1]];
-        
-        // Rebuild the JSON object in the new order
-        const newJsonData = {};
-        partKeys.forEach(key => {
-            newJsonData[key] = jsonData[key];
-        });
-        
-        jsonData = newJsonData;
-        displayTable(jsonData);
-    }
-
-    function movePartUp(partKey) {
-        const partKeys = Object.keys(jsonData);
-        const currentIndex = partKeys.indexOf(partKey);
-        if (currentIndex > 0) {
-            swapParts(currentIndex, currentIndex - 1);
-        }
-    }
-
-    function movePartDown(partKey) {
-        const partKeys = Object.keys(jsonData);
-        const currentIndex = partKeys.indexOf(partKey);
-        if (currentIndex < partKeys.length - 1) {
-            swapParts(currentIndex, currentIndex + 1);
-        }
     }
 
     function createRow(problem, index, partKey) {
@@ -423,15 +288,6 @@
     function deletePart(partKey) {
         if (confirm("Are you sure you want to delete this part?")) {
             delete jsonData[partKey];
-            
-            // Reassign part keys to maintain order
-            const newJsonData = {};
-            const partKeys = Object.keys(jsonData);
-            partKeys.forEach((key, index) => {
-                newJsonData[`part${index + 1}`] = jsonData[key];
-            });
-            
-            jsonData = newJsonData;
             displayTable(jsonData);
         }
     }

@@ -1,0 +1,233 @@
+{
+  "part1": {
+    "title": "Requirements",
+    "problems": [
+      [
+        {
+          "yes": "You have provided your DOCSTRING file, and provided instructions to run your code. ",
+          "no": "You did not provide a DOCSTRING file and instructions to run your code.",
+          "point": 2
+        },
+        {
+          "yes": "You have provided a READ ONLY link to Overleaf for your project report.",
+          "no": "You did not provide a READ ONLY link to Overleaf for your project report.",
+          "point": 2
+        },
+        {
+          "yes": "You have provided the exact commit hash for your GitHub.",
+          "no": "You did not provide commit hash for your GitHub for us to consider. Please make sure to add your GitHub commit hash for your upcoming assignments.",
+          "point": 2
+        },
+        {
+          "yes": "You have used proper reference style in your report.",
+          "no": "You did not follow the proper reference style for your report. You could have consistently follow either APA, MLA or IEEE reference style.",
+          "point": 1
+        },
+        {
+          "yes": "Your graphs/figures are readable. Good job!",
+          "no": "Your figures/graphs are not readable, it requires us to zoom while we are trying to read the graphs/figures.",
+          "point": 1
+        },
+        {
+          "yes": "Great job! Your report met the page limit requirement. Keep up the concise and focused writing.",
+          "no": "Your report exceeded the 8-page limit. For future reports, please aim to keep it within the required length by focusing on key points and being concise.",
+          "point": 1
+        },
+        {
+          "yes": "Your report is a PDF document.",
+          "no": "Your report is not a PDF document.",
+          "point": 1
+        }
+      ]
+    ]
+  },
+  "part2": {
+    "title": "Problem Init",
+    "problems": [
+      [
+        {
+          "yes": "You used two datasets",
+          "no": "You did not use two dataset",
+          "point": 1
+        },
+        {
+          "yes": "Described the underlying structures of each dataset",
+          "no": "You needed to describe how datasets with differing sample sizes, varying length of features, class imbalance, mix of continuous and categorical features, noise, etc. \n",
+          "point": 1
+        },
+        {
+          "yes": "Discussed the motivation for why the datasets may produce different or the same results.",
+          "no": "You could have discussed the motivation for why the datasets may produce different or the same results.",
+          "point": 1
+        },
+        {
+          "yes": "You discussed why the datasets were interesting from ML's perspective. ",
+          "no": "You needed to discuss why the datasets were interesting from ML's perspective. ",
+          "point": 1
+        }
+      ]
+    ]
+  },
+  "part3": {
+    "title": "Hypothesis",
+    "problems": [
+      [
+        {
+          "yes": "You clearly stated an explicit hypothesis, helping to establish a focused narrative for the report.",
+          "no": "You needed to explain how you decided about your hypotheses. In other words, how did you come to derive your hypotheses?",
+          "point": 2
+        },
+        {
+          "yes": "You build your hypothesis using evidence.",
+          "no": "Your hypothesis is not grounded by evidence. You should have provided explicit evidence and ground your hypothesis around those.",
+          "point": 2
+        },
+        {
+          "yes": "You followed up with the hypothesis in your discussion/conclusion.",
+          "no": "You cannot just state a hypothesis since it needs to follow through from a narrative perspective at the end of your report.",
+          "point": 2
+        },
+        {
+          "yes": "You have provided direct evidence to support whether your hypothesis has been met.",
+          "no": "You didn't provide direct evidence to support whether your hypothesis has been met.",
+          "point": 2
+        }
+      ]
+    ]
+  },
+  "part4": {
+    "title": "Clustering",
+    "problems": [
+      [
+        {
+          "yes": "You explained how you chose your hyperparameters for each dataset.",
+          "no": "We did not find a detailed explanation on how you chose your hyperparameters for each dataset.",
+          "point": 8
+        },
+        {
+          "yes": "You described the shape of your cluster and provided a discussion on linking data descriptors to validate data. You also discussed the concessions/limitations of your results for each dataset.",
+          "no": "You needed to describe the shape of your cluster for each dataset. We also wanted to see a discussion on linking data descriptors to validate data. We did not see any discussion on the concessions/limitations of your results.",
+          "point": 12
+        }
+      ]
+    ]
+  },
+  "part5": {
+    "title": "DR (RP, PCA, ICA)",
+    "problems": [
+      [
+        {
+          "yes": "You justified the number of components you chose.",
+          "no": "We wanted to see that you justified the number of components you chose.",
+          "point": 4
+        },
+        {
+          "yes": "You described the reconstruction error for RP.",
+          "no": "We wanted to see that you described the reconstruction error for RP. You could have used distance metrics to accomplish this. ",
+          "point": 4
+        },
+        {
+          "yes": "You justified the number of components you chose.",
+          "no": "We wanted to see that you justified the number of components you chose.",
+          "point": 4
+        },
+        {
+          "yes": "You described the distribution of eigenvalues for PCA. ",
+          "no": "We wanted to see that you described the distribution of eigenvalues for PCA. You could have used the variance here to accomplish this. ",
+          "point": 4
+        },
+        {
+          "yes": "You justified the number of components you chose.",
+          "no": "We wanted to see that you justified the number of components you chose.",
+          "point": 4
+        },
+        {
+          "yes": "You described the kurtosis for ICA.",
+          "no": "We wanted to see that you described the kurtosis for ICA.",
+          "point": 4
+        }
+      ]
+    ]
+  },
+  "part6": {
+    "title": "DR then Clustering (dataset 1-2)",
+    "problems": [
+      [
+        {
+          "yes": "You have provided some visual demonstration of the performance of a combination of methods. ",
+          "no": "You needed to provide some visual demonstration of the performance of a combination of methods. ",
+          "point": 2
+        },
+        {
+          "yes": "You provided some discussion on the comparison of different methods.",
+          "no": "Your report is missing a detailed discussion on the comparison of different methods.",
+          "point": 3
+        },
+        {
+          "yes": "You discussed what combination is the best for the dataset.",
+          "no": "You did not discuss what combination is the best for the dataset.",
+          "point": 1
+        },
+        {
+          "yes": "You provided some justification for the best combination from evidence in experiments.",
+          "no": "You needed to provide some justification for the best combination from evidence in experiments.",
+          "point": 2
+        },
+        {
+          "yes": "You have provided some visual demonstration of the performance of a combination of methods. ",
+          "no": "You needed to provide some visual demonstration of the performance of a combination of methods. ",
+          "point": 2
+        },
+        {
+          "yes": "You provided some discussion on the comparison of different methods.",
+          "no": "Your report is missing a detailed discussion on the comparison of different methods.",
+          "point": 3
+        },
+        {
+          "yes": "You discussed what combination is the best for the dataset.",
+          "no": "You did not discuss what combination is the best for the dataset.",
+          "point": 1
+        },
+        {
+          "yes": "You provided some justification for the best combination from evidence in experiments.",
+          "no": "You needed to provide some justification for the best combination from evidence in experiments.",
+          "point": 2
+        }
+      ]
+    ]
+  },
+  "part7": {
+    "title": "DR on NN",
+    "problems": [
+      [
+        {
+          "yes": "You provided supporting results for RP",
+          "no": "You needed to provide some supporting results for RP. For example, you could have discussed if there was a change in wall clock time/speed? You also could have discussed if there were any alternative ways to judge/measure/evaluate the results. ",
+          "point": 6
+        },
+        {
+          "yes": "You provided supporting results for PCA",
+          "no": "You needed to provide some supporting results for PCA. For example, you could have discussed if there was a change in wall clock time/speed? You also could have discussed if there were any alternative ways to judge/measure/evaluate the results. ",
+          "point": 6
+        },
+        {
+          "yes": "You provided supporting results for ICA",
+          "no": "You needed to provide some supporting results for ICA. For example, you could have discussed if there was a change in wall clock time/speed? You also could have discussed if there were any alternative ways to judge/measure/evaluate the results. ",
+          "point": 6
+        }
+      ]
+    ]
+  },
+  "part8": {
+    "title": "EC",
+    "problems": [
+      [
+        {
+          "yes": "Non-linear Manifold Learning Algorithm ",
+          "no": "Sammon mapping\\Isomap\\Laplacian Eigenmaps\\t-SNE\\UMAP",
+          "point": 5
+        }
+      ]
+    ]
+  }
+}

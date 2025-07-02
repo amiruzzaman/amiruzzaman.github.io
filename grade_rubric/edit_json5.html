@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit JSON Data</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .save-button, .load-button, .add-button {
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .save-button:hover, .load-button:hover, .add-button:hover {
+            background-color: #45a049;
+        }
+        .subtotal, .grand-total {
+            font-weight: bold;
+            background-color: #e0e0e0;
+        }
+        .delete-button {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+        .delete-button:hover {
+            background-color: #cc0000;
+        }
+        h2[contenteditable="true"] {
+            padding: 5px;
+            border: 1px dashed #ccc;
+            min-width: 200px;
+            display: inline-block;
+        }
+        h2[contenteditable="true"]:focus {
+            outline: none;
+            border: 1px solid #4CAF50;
+            background-color: #f8f8f8;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Edit JSON Data</h1>
+<input type="file" id="fileInput" accept=".json" class="load-button" onchange="handleFileLoad()" />
+<div id="table-container"></div>
+<h2 class="grand-total">Grand Total: <span id="grand-total">0</span></h2>
+<br>
+<input type="text" id="filename" placeholder="Enter filename (optional)" />
+<button class="save-button" onclick="saveJson()">Save Changes</button>
+
+<script>
+    let jsonData = null;
+
+    function handleFileLoad() {
+        const fileInput = document.getElementById("fileInput");
+        const file = fileInput.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                jsonData = JSON.parse(event.target.result);
+                displayTable(jsonData);
+            };
+            reader.readAsText(file);
+        }
+    }
+
+    function displayTable(data) {
+        const container = document.getElementById("table-container");
+        container.innerHTML = ''; 
+
+        for (let partKey in data) {
+            const part = data[partKey];
+            const title = document.createElement("h2");
+            title.textContent = part.title;
+            title.contentEditable = true;
+            title.addEventListener('input', (event) => {
+                jsonData[partKey].title = event.target.textContent;
+            });
+            container.appendChild(title);
+
+            const table = document.createElement("table");
+            const header = document.createElement("tr");
+            header.innerHTML = `<th>Question</th><th>Yes Response</th><th>No Response</th><th>Points</th><th>Action</th>`;
+            table.appendChild(header);
+
+            part.problems[0].forEach((problem, index) => {
+                table.appendChild(createRow(problem, index, partKey));
+            });
+
+            const subtotalRow = document.createElement("tr");
+            subtotalRow.classList.add("subtotal");
+            subtotalRow.innerHTML = `<td colspan="3">Subtotal</td><td id="subtotal-${partKey}">0</td><td></td>`;
+            table.appendChild(subtotalRow);
+
+            const addButton = document.createElement("button");
+            addButton.textContent = "Add New Row";
+            addButton.classList.add("add-button");
+            addButton.onclick = () => addNewRow(partKey);
+            container.appendChild(table);
+            container.appendChild(addButton);
+
+            updateSubtotal(partKey);
+        }
+        updateGrandTotal();
+    }
+
+    function createRow(problem, index, partKey) {
+        const row = document.createElement("tr");
+
+        const questionCell = document.createElement("td");
+        questionCell.textContent = `Problem ${index + 1}`;
+        row.appendChild(questionCell);
+
+        const yesCell = document.createElement("td");
+        yesCell.contentEditable = true;
+        yesCell.textContent = problem.yes;
+        yesCell.addEventListener('input', (event) => {
+            jsonData[partKey].problems[0][index].yes = event.target.textContent;
+        });
+        row.appendChild(yesCell);
+
+        const noCell = document.createElement("td");
+        noCell.contentEditable = true;
+        noCell.textContent = problem.no;
+        noCell.addEventListener('input', (event) => {
+            jsonData[partKey].problems[0][index].no = event.target.textContent;
+        });
+        row.appendChild(noCell);
+
+        const pointCell = document.createElement("td");
+        pointCell.contentEditable = true;
+        pointCell.textContent = problem.point;
+        pointCell.oninput = (event) => {
+            jsonData[partKey].problems[0][index].point = parseFloat(event.target.textContent) || 0;
+            updateSubtotal(partKey);
+        };
+        row.appendChild(pointCell);
+
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        deleteButton.classList.add("delete-button");
+        deleteButton.onclick = () => deleteRow(partKey, index);
+        const actionCell = document.createElement("td");
+        actionCell.appendChild(deleteButton);
+        row.appendChild(actionCell);
+
+        return row;
+    }
+
+    function addNewRow(partKey) {
+        jsonData[partKey].problems[0].push({ yes: "", no: "", point: "0" });
+        displayTable(jsonData);
+    }
+
+    function deleteRow(partKey, index) {
+        jsonData[partKey].problems[0].splice(index, 1);
+        displayTable(jsonData);
+    }
+
+    function updateSubtotal(partKey) {
+        let total = jsonData[partKey].problems[0].reduce((sum, problem) => sum + (parseFloat(problem.point) || 0), 0);
+        document.getElementById(`subtotal-${partKey}`).textContent = total;
+        updateGrandTotal();
+    }
+
+    function updateGrandTotal() {
+        let grandTotal = 0;
+        for (let partKey in jsonData) {
+            grandTotal += jsonData[partKey].problems[0].reduce((sum, problem) => sum + (parseFloat(problem.point) || 0), 0);
+        }
+        document.getElementById("grand-total").textContent = grandTotal;
+    }
+
+    function saveJson() {
+        const filenameInput = document.getElementById("filename").value;
+        const filename = filenameInput ? filenameInput : "a2fall24.json";
+        const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+</script>
+</body>
+</html>
