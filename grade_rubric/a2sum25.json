@@ -1,22 +1,22 @@
 {
-  "Part 0": {
+  "part1": {
     "title": "Requirements",
     "problems": [
       [
         {
-          "yes": "You have provided your README file and your implementation is accessible. ",
-          "no": "You did not provide a README file and/but your implementation is not accessible.",
-          "point": 5
+          "yes": "You have provided your DOCSTRING file, and provided instructions to run your code. ",
+          "no": "You did not provide a DOCSTRING file and instructions to run your code.",
+          "point": 2
         },
         {
           "yes": "You have provided a READ ONLY link to Overleaf for your project report.",
           "no": "You did not provide a READ ONLY link to Overleaf for your project report.",
-          "point": 1
+          "point": 2
         },
         {
           "yes": "You have provided the exact commit hash for your GitHub.",
           "no": "You did not provide commit hash for your GitHub for us to consider. Please make sure to add your GitHub commit hash for your upcoming assignments.",
-          "point": 1
+          "point": 2
         },
         {
           "yes": "You have used proper reference style in your report.",
@@ -32,11 +32,43 @@
           "yes": "Great job! Your report met the page limit requirement. Keep up the concise and focused writing.",
           "no": "Your report exceeded the 8-page limit. For future reports, please aim to keep it within the required length by focusing on key points and being concise.",
           "point": 1
+        },
+        {
+          "yes": "Your report is a PDF document.",
+          "no": "Your report is not a PDF document.",
+          "point": 1
         }
       ]
     ]
   },
-  "Part 1": {
+  "part2": {
+    "title": "Problem Init",
+    "problems": [
+      [
+        {
+          "yes": "You used two datasets",
+          "no": "You did not use two dataset",
+          "point": 1
+        },
+        {
+          "yes": "Described the underlying structures of each dataset",
+          "no": "You needed to describe how datasets with differing sample sizes, varying length of features, class imbalance, mix of continuous and categorical features, noise, etc. \n",
+          "point": 1
+        },
+        {
+          "yes": "Discussed the motivation for why the datasets may produce different or the same results.",
+          "no": "You could have discussed the motivation for why the datasets may produce different or the same results.",
+          "point": 1
+        },
+        {
+          "yes": "You discussed why the datasets were interesting from ML's perspective. ",
+          "no": "You needed to discuss why the datasets were interesting from ML's perspective. ",
+          "point": 1
+        }
+      ]
+    ]
+  },
+  "part3": {
     "title": "Hypothesis",
     "problems": [
       [
@@ -63,202 +95,136 @@
       ]
     ]
   },
-  "Part 2": {
-    "title": "DO-RHC",
+  "part4": {
+    "title": "Clustering",
     "problems": [
       [
         {
-          "yes": "You successfully explained how RHC performs relative to problem characteristics and addressed how it handles local optima. Your analysis demonstrates a clear understanding of the topic.",
-          "no": "Your report did not fully explain how RHC performs relative to problem characteristics or how it handles local optima. In future work, please provide a more detailed discussion on these aspects to meet the requirement.",
-          "point": 3
+          "yes": "You explained how you chose your hyperparameters for each dataset.",
+          "no": "We did not find a detailed explanation on how you chose your hyperparameters for each dataset.",
+          "point": 8
         },
         {
-          "yes": "You effectively presented a plot/table of RHC performance over iterations and provided a clear explanation of the observed trends. Your analysis enhances the understanding of RHC's behavior.",
-          "no": "Your report is missing a plot or table of RHC performance over iterations and/or an explanation of observed trends. Please include these elements in future reports to fully meet the requirement.",
-          "point": 3
-        },
-        {
-          "yes": "You successfully presented a plot/table comparing RHC performance at different problem sizes. The comparison is clear and provides valuable insights into how problem size impacts performance.",
-          "no": "Your report is missing a plot or table comparing RHC performance at different problem sizes. Please include this in future reports to provide a complete analysis of how problem size affects performance.",
-          "point": 2
-        },
-        {
-          "yes": "You provided a clear discussion of RHC's stopping criteria and convergence speed, along with an insightful explanation of the risk of getting stuck in local optima. Your analysis effectively covers the required aspects.",
-          "no": "Your report did not fully discuss RHC's stopping criteria, convergence speed, or the risk of getting stuck in local optima. Please ensure these aspects are addressed in future reports for a more complete analysis.",
-          "point": 3
-        },
-        {
-          "yes": "You clearly explained the tuning, modifications, or enhancements made to RHC. Your discussion provides valuable insights into how these changes impact performance.",
-          "no": "Your report does not include a discussion of any tuning, modifications, or enhancements made to RHC. Please address this in future reports to fully meet the requirement.",
-          "point": 2
+          "yes": "You described the shape of your cluster and provided a discussion on linking data descriptors to validate data. You also discussed the concessions/limitations of your results for each dataset.",
+          "no": "You needed to describe the shape of your cluster for each dataset. We also wanted to see a discussion on linking data descriptors to validate data. We did not see any discussion on the concessions/limitations of your results.",
+          "point": 12
         }
       ]
     ]
   },
-  "Part 3": {
-    "title": "DO-SA",
+  "part5": {
+    "title": "DR (RP, PCA, ICA)",
     "problems": [
       [
         {
-          "yes": "You successfully explained how SA performs relative to problem characteristics and addressed how it handles local optima. Your analysis demonstrates a clear understanding of the topic.",
-          "no": "Your report did not fully explain how SA performs relative to problem characteristics or how it handles local optima. In future work, please provide a more detailed discussion on these aspects to meet the requirement.",
-          "point": 3
-        },
-        {
-          "yes": "You effectively presented a plot/table of SA performance over iterations and provided a clear explanation of the observed trends. Your analysis enhances the understanding of SA's behavior.",
-          "no": "Your report is missing a plot or table of SA performance over iterations and/or an explanation of observed trends. Please include these elements in future reports to fully meet the requirement.",
-          "point": 3
-        },
-        {
-          "yes": "You successfully presented a plot/table comparing SA performance at different problem sizes. The comparison is clear and provides valuable insights into how problem size impacts performance.",
-          "no": "Your report is missing a plot or table comparing SA performance at different problem sizes. Please include this in future reports to provide a complete analysis of how problem size affects performance.",
-          "point": 2
-        },
-        {
-          "yes": "You provided a clear discussion of SA's stopping criteria and convergence speed, along with an insightful explanation of the risk of getting stuck in local optima. Your analysis effectively covers the required aspects.",
-          "no": "Your report did not fully discuss SA's stopping criteria, convergence speed, or the risk of getting stuck in local optima. Please ensure these aspects are addressed in future reports for a more complete analysis.",
-          "point": 3
-        },
-        {
-          "yes": "You clearly explained the tuning, modifications, or enhancements made to SA. Your discussion provides valuable insights into how these changes impact performance.",
-          "no": "Your report does not include a discussion of any tuning, modifications, or enhancements made to SA. Please address this in future reports to fully meet the requirement.",
-          "point": 2
-        }
-      ]
-    ]
-  },
-  "Part 4": {
-    "title": "DO-GA",
-    "problems": [
-      [
-        {
-          "yes": "You successfully explained how GA performs relative to problem characteristics and addressed how it handles local optima. Your analysis demonstrates a clear understanding of the topic.",
-          "no": "Your report did not fully explain how GA performs relative to problem characteristics or how it handles local optima. In future work, please provide a more detailed discussion on these aspects to meet the requirement.",
-          "point": 3
-        },
-        {
-          "yes": "You effectively presented a plot/table of GA performance over iterations and provided a clear explanation of the observed trends. Your analysis enhances the understanding of GA's behavior.",
-          "no": "Your report is missing a plot or table of GA performance over iterations and/or an explanation of observed trends. Please include these elements in future reports to fully meet the requirement.",
-          "point": 3
-        },
-        {
-          "yes": "You successfully presented a plot/table comparing GA performance at different problem sizes. The comparison is clear and provides valuable insights into how problem size impacts performance.",
-          "no": "Your report is missing a plot or table comparing GA performance at different problem sizes. Please include this in future reports to provide a complete analysis of how problem size affects performance.",
-          "point": 2
-        },
-        {
-          "yes": "You provided a clear discussion of GA's stopping criteria and convergence speed, along with an insightful explanation of the risk of getting stuck in local optima. Your analysis effectively covers the required aspects.",
-          "no": "Your report did not fully discuss GA's stopping criteria, convergence speed, or the risk of getting stuck in local optima. Please ensure these aspects are addressed in future reports for a more complete analysis.",
-          "point": 3
-        },
-        {
-          "yes": "You clearly explained the tuning, modifications, or enhancements made to GA. Your discussion provides valuable insights into how these changes impact performance.",
-          "no": "Your report does not include a discussion of any tuning, modifications, or enhancements made to GA. Please address this in future reports to fully meet the requirement.",
-          "point": 2
-        }
-      ]
-    ]
-  },
-  "Part 5": {
-    "title": "WOP-RHC",
-    "problems": [
-      [
-        {
-          "yes": "You effectively explained convergence and demonstrated performance vs. iterations. Your analysis connects the results back to the problem structure, including algorithm and data, and provides a solid comparison between RHC and other RO approaches like SA and GA. Well done!",
-          "no": "Your report is missing one or more key aspects: explanation of convergence with performance vs. iterations, connection to the problem structure (algorithm and data), or a comparison of RHC to other RO approaches (e.g., SA, GA). Please ensure these elements are included in future reports for a more comprehensive analysis.",
-          "point": 6
-        },
-        {
-          "yes": "You provided a thorough analysis of hyperparameters and their impact on RHC's behavior. Additionally, your hypotheses for improvements, including further tuning, modifying RHC behavior, or incorporating domain knowledge, were well thought out and insightful.",
-          "no": "Your report lacks a detailed analysis of hyperparameters and their impact on RHC's behavior. Additionally, hypotheses for potential improvements, such as further tuning, modifying RHC, or adjusting the problem structure, are missing or underdeveloped. Please include these aspects in future reports for a more complete evaluation.",
+          "yes": "You justified the number of components you chose.",
+          "no": "We wanted to see that you justified the number of components you chose.",
           "point": 4
         },
         {
-          "yes": "You provided a clear comparison of performance and time between backpropagation and RHC. Additionally, your explanation of why one approach outperformed the other was well-reasoned and supported by analysis.",
-          "no": "Your report is missing a comparison of performance and time between backpropagation and RHC and/or an explanation of why one performed better. Please include these aspects in future reports for a complete evaluation. Your report does not include backpropagation results, which are required for comparison. Please ensure these results are included in future reports to meet the requirement.",
-          "point": 3
-        }
-      ]
-    ]
-  },
-  "Part 6": {
-    "title": "WOP-SA",
-    "problems": [
-      [
-        {
-          "yes": "You effectively explained convergence and demonstrated performance vs. iterations. Your analysis connects the results back to the problem structure, including algorithm and data, and provides a solid comparison between SA and other RO approaches like RHC and GA. Well done!",
-          "no": "Your report is missing one or more key aspects: explanation of convergence with performance vs. iterations, connection to the problem structure (algorithm and data), or a comparison of SA to other RO approaches (e.g., RHC, GA). Please ensure these elements are included in future reports for a more comprehensive analysis.",
-          "point": 6
-        },
-        {
-          "yes": "You provided a thorough analysis of hyperparameters and their impact on SA's behavior. Additionally, your hypotheses for improvements, including further tuning, modifying SA behavior, or incorporating domain knowledge, were well thought out and insightful.",
-          "no": "Your report lacks a detailed analysis of hyperparameters and their impact on SA's behavior. Additionally, hypotheses for potential improvements, such as further tuning, modifying SA, or adjusting the problem structure, are missing or underdeveloped. Please include these aspects in future reports for a more complete evaluation.",
+          "yes": "You described the reconstruction error for RP.",
+          "no": "We wanted to see that you described the reconstruction error for RP. You could have used distance metrics to accomplish this. ",
           "point": 4
         },
         {
-          "yes": "You provided a clear comparison of performance and time between backpropagation and SA. Additionally, your explanation of why one approach outperformed the other was well-reasoned and supported by analysis.",
-          "no": "Your report is missing a comparison of performance and time between backpropagation and SA and/or an explanation of why one performed better. Please include these aspects in future reports for a complete evaluation. Your report does not include backpropagation results, which are required for comparison. Please ensure these results are included in future reports to meet the requirement.",
-          "point": 3
-        }
-      ]
-    ]
-  },
-  "Part 7": {
-    "title": "WOP-GA",
-    "problems": [
-      [
-        {
-          "yes": "You effectively explained convergence and demonstrated performance vs. iterations. Your analysis connects the results back to the problem structure, including algorithm and data, and provides a solid comparison between GA and other RO approaches like SA and RHC. Well done!",
-          "no": "Your report is missing one or more key aspects: explanation of convergence with performance vs. iterations, connection to the problem structure (algorithm and data), or a comparison of GA to other RO approaches (e.g., SA, RHC). Please ensure these elements are included in future reports for a more comprehensive analysis.",
-          "point": 6
-        },
-        {
-          "yes": "You provided a thorough analysis of hyperparameters and their impact on GA's behavior. Additionally, your hypotheses for improvements, including further tuning, modifying GA behavior, or incorporating domain knowledge, were well thought out and insightful.",
-          "no": "Your report lacks a detailed analysis of hyperparameters and their impact on GA's behavior. Additionally, hypotheses for potential improvements, such as further tuning, modifying GA, or adjusting the problem structure, are missing or underdeveloped. Please include these aspects in future reports for a more complete evaluation.",
+          "yes": "You justified the number of components you chose.",
+          "no": "We wanted to see that you justified the number of components you chose.",
           "point": 4
         },
         {
-          "yes": "You provided a clear comparison of performance and time between backpropagation and GA. Additionally, your explanation of why one approach outperformed the other was well-reasoned and supported by analysis.",
-          "no": "Your report is missing a comparison of performance and time between backpropagation and GA and/or an explanation of why one performed better. Please include these aspects in future reports for a complete evaluation. Your report does not include backpropagation results, which are required for comparison. Please ensure these results are included in future reports to meet the requirement.",
-          "point": 3
+          "yes": "You described the distribution of eigenvalues for PCA. ",
+          "no": "We wanted to see that you described the distribution of eigenvalues for PCA. You could have used the variance here to accomplish this. ",
+          "point": 4
+        },
+        {
+          "yes": "You justified the number of components you chose.",
+          "no": "We wanted to see that you justified the number of components you chose.",
+          "point": 4
+        },
+        {
+          "yes": "You described the kurtosis for ICA.",
+          "no": "We wanted to see that you described the kurtosis for ICA.",
+          "point": 4
         }
       ]
     ]
   },
-  "Part 8": {
-    "title": "Conclusion",
+  "part6": {
+    "title": "DR then Clustering (dataset 1-2)",
     "problems": [
       [
         {
-          "yes": "You clearly identified the best-performing algorithm with strong justification. ",
-          "no": "Your report lacks a clear identification of the best-performing algorithm and/or a strong justification for your choice.",
+          "yes": "You have provided some visual demonstration of the performance of a combination of methods. ",
+          "no": "You needed to provide some visual demonstration of the performance of a combination of methods. ",
+          "point": 2
+        },
+        {
+          "yes": "You provided some discussion on the comparison of different methods.",
+          "no": "Your report is missing a detailed discussion on the comparison of different methods.",
+          "point": 3
+        },
+        {
+          "yes": "You discussed what combination is the best for the dataset.",
+          "no": "You did not discuss what combination is the best for the dataset.",
           "point": 1
         },
         {
-          "yes": "Your discussion of computational trade-offs, such as wall clock time and convergence rate, was well-explained.",
-          "no": "Additionally, the discussion of computational trade-offs (e.g., wall clock time, convergence rate) could be expanded.",
+          "yes": "You provided some justification for the best combination from evidence in experiments.",
+          "no": "You needed to provide some justification for the best combination from evidence in experiments.",
+          "point": 2
+        },
+        {
+          "yes": "You have provided some visual demonstration of the performance of a combination of methods. ",
+          "no": "You needed to provide some visual demonstration of the performance of a combination of methods. ",
+          "point": 2
+        },
+        {
+          "yes": "You provided some discussion on the comparison of different methods.",
+          "no": "Your report is missing a detailed discussion on the comparison of different methods.",
+          "point": 3
+        },
+        {
+          "yes": "You discussed what combination is the best for the dataset.",
+          "no": "You did not discuss what combination is the best for the dataset.",
           "point": 1
         },
         {
-          "yes": "You have discussed which algorithm performed best and why. You have shown wall clock times, trade-offs discussion.",
-          "no": "Your discussion on conclusion is good, but you could have also discussed more on Type I and Type II errors.",
-          "point": 1
-        },
-        {
-          "yes": "Additionally, your insights demonstrated a deep understanding of the results, and your mention of theoretical implications added valuable context to your analysis. Well done!",
-          "no": "Consider providing deeper insights into the results, and if possible, incorporating theoretical implications for a more comprehensive analysis.",
-          "point": 1
+          "yes": "You provided some justification for the best combination from evidence in experiments.",
+          "no": "You needed to provide some justification for the best combination from evidence in experiments.",
+          "point": 2
         }
       ]
     ]
   },
-  "Part 9": {
+  "part7": {
+    "title": "DR on NN",
+    "problems": [
+      [
+        {
+          "yes": "You provided supporting results for RP",
+          "no": "You needed to provide some supporting results for RP. For example, you could have discussed if there was a change in wall clock time/speed? You also could have discussed if there were any alternative ways to judge/measure/evaluate the results. ",
+          "point": 6
+        },
+        {
+          "yes": "You provided supporting results for PCA",
+          "no": "You needed to provide some supporting results for PCA. For example, you could have discussed if there was a change in wall clock time/speed? You also could have discussed if there were any alternative ways to judge/measure/evaluate the results. ",
+          "point": 6
+        },
+        {
+          "yes": "You provided supporting results for ICA",
+          "no": "You needed to provide some supporting results for ICA. For example, you could have discussed if there was a change in wall clock time/speed? You also could have discussed if there were any alternative ways to judge/measure/evaluate the results. ",
+          "point": 6
+        }
+      ]
+    ]
+  },
+  "part8": {
     "title": "EC",
     "problems": [
       [
         {
-          "yes": "You have implemented and discussed the results of Evolutionary Strategies (ES).",
-          "no": "Did not implement Evolutionary Strategies (ES).",
+          "yes": "Non-linear Manifold Learning Algorithm ",
+          "no": "Sammon mapping\\Isomap\\Laplacian Eigenmaps\\t-SNE\\UMAP",
           "point": 5
         }
       ]
