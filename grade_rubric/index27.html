@@ -6,137 +6,110 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grading Rubric Tool</title>
     <style>
-        /* Base styles */
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: #f5f7fa;
-            min-height: 100vh;
+        /* Basic table styling */
+        table,
+        th,
+        td {
+            border: solid 1px #ddd;
+            border-collapse: collapse;
+            padding: 2px 3px;
+            text-align: center;
+            width: 30px;
         }
 
-        /* Container layout */
-        #container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        th {
+            font-weight: bold;
         }
 
         /* Notice box styling */
         #notice {
+            width: 80%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 5px;
+            background-color: #f0f0f0;
+            border: 1px solid #e0e0e0;
+            overflow: auto;
+            font-family: Arial, sans-serif;
+            color: red;
+            font-weight: normal;
+            font-size: 14px;
+        }
+
+        /* Page layout */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            line-height: 1.5;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+        html {
+            overflow-y: scroll;
+            height: 100%;
+        }
+
+        /* Main container */
+        #container {
             width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            overflow: auto;
+            padding-bottom: 50px;
+        }
+
+        #overlay {
+            visibility: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* Output textarea */
+        #paraID {
+            width: 100%;
             max-width: 1000px;
             margin: 20px auto;
-            padding: 12px 15px;
-            background-color: #f8f9fa;
-            border-left: 4px solid #6c757d;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
             border-radius: 4px;
-            color: #495057;
-            font-size: 15px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        }
-
-        /* Table styling */
-        table {
-            width: 100%;
-            max-width: 800px;
-            margin: 20px auto;
-            border-collapse: collapse;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        th, td {
-            padding: 12px 15px;
-            text-align: center;
-            border: 1px solid #dee2e6;
-        }
-
-        th {
-            background-color: #343a40;
-            color: white;
-            font-weight: 600;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f8f9fa;
-        }
-
-        tr:hover {
-            background-color: #e9ecef;
-        }
-
-        /* Problem and part containers */
-        .part-container {
-            margin-bottom: 30px;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            border-left: 4px solid #6c757d;
-        }
-
-        .problem-container {
-            margin-bottom: 25px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 6px;
-            border-left: 3px solid #adb5bd;
-        }
-
-        /* Headings */
-        h3 {
-            color: #2c3e50;
-            margin-top: 0;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-            font-size: 1.4em;
-        }
-
-        h4 {
-            color: #495057;
-            margin: 15px 0 10px 0;
-            font-size: 1.2em;
+            resize: vertical;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         /* Rubric item styling */
         .item-container {
             display: flex;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             align-items: center;
-            background: white;
+        }
+
+        .item-yes,
+        .item-no {
             padding: 8px;
-            border-radius: 6px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            transition: all 0.2s ease;
-        }
-
-        .item-container:hover {
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .item-yes, .item-no {
-            padding: 10px 12px;
-            margin: 0 5px;
+            margin: 2px;
             cursor: pointer;
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             flex: 1;
             transition: all 0.2s;
-            font-size: 14px;
         }
 
         .item-yes {
-            background-color: #f8f9fa;
+            background-color: #f8f8f8;
         }
 
         .item-no {
-            background-color: #f8f9fa;
+            background-color: #f8f8f8;
         }
 
         .item-yes.selected {
@@ -152,186 +125,161 @@
         }
 
         .item-score {
-            width: 50px;
+            width: 40px;
             text-align: center;
             font-weight: bold;
             margin-left: 10px;
-            font-size: 15px;
-            padding: 8px;
-            background: #f8f9fa;
-            border-radius: 4px;
         }
 
         .sub-total-score {
             font-weight: bold;
             font-size: 16px;
-            margin-top: 15px;
-            padding: 8px 12px;
+            margin-top: 10px;
+            padding: 5px;
             background-color: #e9ecef;
-            border-radius: 6px;
+            border-radius: 4px;
             text-align: right;
-            color: #495057;
         }
 
-        /* Total score display */
-        .total-score-display {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: #2c3e50;
-            color: white;
-            padding: 12px 18px;
-            border-radius: 6px;
-            font-weight: bold;
-            z-index: 1000;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-            font-size: 16px;
+        .problem-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 5px;
         }
 
-        /* Save button */
+        .part-container {
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+
         .save-button {
-            padding: 12px 24px;
-            background-color: #2c3e50;
+            padding: 10px 20px;
+            background-color: #007bff;
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
-            margin: 25px 0;
-            transition: all 0.3s;
-            font-weight: 600;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+            transition: background-color 0.3s;
         }
 
         .save-button:disabled {
-            background-color: #adb5bd;
+            background-color: #cccccc;
             cursor: not-allowed;
-            opacity: 0.7;
         }
 
         .save-button.ready {
             background-color: #28a745;
         }
 
-        .save-button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Text areas and inputs */
         .item-textareabox {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ced4da;
-            border-radius: 6px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 14px;
-            min-height: 100px;
-            margin: 10px 0;
-            transition: border 0.2s;
-        }
-
-        .item-textareabox:focus {
-            border-color: #80bdff;
-            outline: none;
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-        }
-
-        input[type="text"] {
-            padding: 10px 12px;
-            border: 1px solid #ced4da;
+            padding: 10px;
+            border: 1px solid #ddd;
             border-radius: 4px;
-            width: 100%;
-            max-width: 400px;
-            margin: 5px 0 15px 0;
+            font-family: Arial, sans-serif;
             font-size: 14px;
         }
 
-        /* Checkbox styling */
-        input[type="checkbox"] {
-            margin-right: 8px;
+        .total-score-display {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
-        /* Output area */
-        #paraID {
-            width: 100%;
-            max-width: 1000px;
-            margin: 20px auto;
-            padding: 15px;
-            font-size: 14px;
-            border: 1px solid #ced4da;
-            border-radius: 6px;
-            resize: vertical;
-            min-height: 150px;
-            font-family: 'Consolas', 'Monaco', monospace;
-            background-color: #f8f9fa;
+        .unselected-highlight {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 152, 0, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 152, 0, 0);
+            }
         }
 
         /* Edit modal styling */
         #edit-box {
             visibility: hidden;
-            position: fixed;
+            position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 1000;
             background: white;
             border: 1px solid #ddd;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            width: 450px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 400px;
             max-width: 90vw;
             border-radius: 8px;
         }
 
         #edit-text {
             width: 100%;
-            min-height: 120px;
-            padding: 12px;
+            min-height: 100px;
+            padding: 10px;
             margin-bottom: 15px;
-            border: 1px solid #ced4da;
-            border-radius: 6px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
             resize: vertical;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: Arial, sans-serif;
             font-size: 14px;
+            box-sizing: border-box;
         }
 
         #edit-score-container {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         #edit-score-container label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #495057;
+            margin-bottom: 5px;
+            font-weight: bold;
         }
 
         #edit-score {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ced4da;
+            padding: 8px;
+            border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 14px;
+            box-sizing: border-box;
         }
 
         #edit-buttons {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
-            justify-content: flex-end;
         }
 
         #edit-buttons button {
-            padding: 10px 16px;
+            padding: 8px 12px;
             border: none;
             border-radius: 4px;
             font-size: 14px;
             cursor: pointer;
             flex: 1;
             min-width: 100px;
-            transition: all 0.2s;
-            font-weight: 500;
+            transition: background-color 0.2s;
         }
 
         #edit-clear {
@@ -373,74 +321,8 @@
         #edit-save:hover {
             background-color: #c1e5c8;
         }
-
-        /* Overlay */
-        #overlay {
-            visibility: hidden;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            backdrop-filter: blur(3px);
-        }
-
-        /* Unselected highlight animation */
-        .unselected-highlight {
-            animation: pulse 2s infinite;
-            position: relative;
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7);
-            }
-            70% {
-                box-shadow: 0 0 0 10px rgba(255, 152, 0, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(255, 152, 0, 0);
-            }
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            #container {
-                width: 95%;
-                padding: 15px;
-            }
-            
-            .item-container {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .item-yes, .item-no {
-                margin: 5px 0;
-            }
-            
-            .item-score {
-                margin: 10px 0 0 0;
-                width: auto;
-                text-align: center;
-            }
-            
-            .total-score-display {
-                top: 10px;
-                right: 10px;
-                font-size: 14px;
-                padding: 8px 12px;
-            }
-            
-            #edit-box {
-                width: 90%;
-                padding: 15px;
-            }
-        }
     </style>
-    <link rel="shortcut icon" href="#">
+	<link rel="shortcut icon" href="#">
 </head>
 
 <body>
