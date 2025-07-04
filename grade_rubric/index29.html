@@ -473,45 +473,6 @@
             }
         }
 
-        /* Copy buttons styling */
-        .copy-buttons {
-            display: flex;
-            gap: 10px;
-            margin: 20px auto;
-            max-width: 1000px;
-            justify-content: center;
-        }
-
-        .copy-button {
-            padding: 10px 20px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .copy-button:hover {
-            background-color: #2980b9;
-            transform: translateY(-1px);
-        }
-
-        .copy-button:active {
-            transform: translateY(0);
-        }
-
-        .copy-button svg {
-            width: 16px;
-            height: 16px;
-            fill: currentColor;
-        }
-
         /* Labels and text elements */
         div:not([class]) {
             font-weight: 500;
@@ -563,11 +524,6 @@
             #edit-buttons button {
                 min-width: 80px;
                 padding: 10px 12px;
-            }
-
-            .copy-buttons {
-                flex-direction: column;
-                align-items: center;
             }
         }
 
@@ -629,7 +585,6 @@
         let subTotalMaxScores = []; // Array to store max subtotal points
         let subTotalEarnedScores = []; // Array to store earned subtotal points
         let allItems = []; // Track all rubric items
-        let jsonData = {}; // Store the JSON data for copying
 
         /**
          * Checks if all items are selected (either Yes or No)
@@ -697,6 +652,7 @@
 
                 // Update subtotal display
                 const subTotalDiv = problem.querySelector('.sub-total-score');
+                //subTotalDiv.textContent = `Subtotal: ${problemEarned}/${subTotalMaxScores[index]}`;
                 subTotalDiv.textContent = `${problemEarned}/${subTotalMaxScores[index]}`;
 
                 // Update arrays
@@ -705,6 +661,7 @@
             });
 
             // Update total display
+            //document.getElementById('totalScoreDisplay').textContent = `Total: ${totalEarned}/${maxPossibleScore}`;
             document.getElementById('totalScoreDisplay').textContent = ` ${totalEarned}/${maxPossibleScore}`;
         }
 
@@ -753,6 +710,7 @@
             const subTotalDiv = document.createElement('div');
             subTotalDiv.classList.add('sub-total-score');
             subTotalDiv.setAttribute('data-index', groupIndex);
+            //subTotalDiv.textContent = `Subtotal: 0/${problemMax}`;
             subTotalDiv.textContent = `0/${problemMax}`;
             container.appendChild(subTotalDiv);
 
@@ -825,10 +783,9 @@
         }
 
         /**
-         * Creates a table from JSON data showing only earned scores without "Total: " text
-         */
-        function createTableFromJSON(data) {
-            jsonData = data; // Store the data for copying
+ * Creates a table from JSON data showing only earned scores without "Total: " text
+ */
+        function createTableFromJSON(jsonData) {
             const container = document.getElementById('container');
             let tableDiv = document.getElementById('json-table');
 
@@ -844,7 +801,7 @@
             const headerRow = table.insertRow();
 
             // Create headers (excluding 'Total' from headers)
-            const headers = Object.keys(data).filter(header => header !== 'Total');
+            const headers = Object.keys(jsonData).filter(header => header !== 'Total');
             headers.forEach(header => {
                 const th = document.createElement('th');
                 th.textContent = header;
@@ -863,9 +820,9 @@
             headers.forEach(header => {
                 const td = document.createElement('td');
                 // Get just the earned score number
-                const scoreValue = typeof data[header] === 'object'
-                    ? data[header]['Total']
-                    : data[header];
+                const scoreValue = typeof jsonData[header] === 'object'
+                    ? jsonData[header]['Total']
+                    : jsonData[header];
                 // Remove any "Total: " text if present
                 const cleanScore = scoreValue.toString().replace('Total: ', '');
                 td.textContent = cleanScore;
@@ -874,98 +831,11 @@
 
             // Add total score
             const totalTd = document.createElement('td');
-            const totalScore = data['Total'].toString().replace('Total: ', '');
+            const totalScore = jsonData['Total'].toString().replace('Total: ', '');
             totalTd.textContent = totalScore;
             dataRow.appendChild(totalTd);
 
             tableDiv.appendChild(table);
-        }
-
-        /**
-         * Creates copy buttons for feedback and scores
-         */
-        function createCopyButtons() {
-            const container = document.getElementById('container');
-            const buttonsDiv = document.createElement('div');
-            buttonsDiv.className = 'copy-buttons';
-
-            // Copy feedback button
-            const copyFeedbackButton = document.createElement('button');
-            copyFeedbackButton.className = 'copy-button';
-            copyFeedbackButton.innerHTML = `
-                <svg viewBox="0 0 24 24">
-                    <path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"/>
-                </svg>
-                Copy Feedback
-            `;
-            copyFeedbackButton.addEventListener('click', copyFeedback);
-
-            // Copy scores button
-            const copyScoresButton = document.createElement('button');
-            copyScoresButton.className = 'copy-button';
-            copyScoresButton.innerHTML = `
-                <svg viewBox="0 0 24 24">
-                    <path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"/>
-                </svg>
-                Copy Scores
-            `;
-            copyScoresButton.addEventListener('click', copyScores);
-
-            buttonsDiv.append(copyFeedbackButton, copyScoresButton);
-            container.appendChild(buttonsDiv);
-        }
-
-        /**
-         * Copies the feedback text to clipboard
-         */
-        function copyFeedback() {
-            const feedbackText = document.getElementById('paraID').value;
-            if (!feedbackText) {
-                alert('No feedback to copy. Please save first.');
-                return;
-            }
-            
-            navigator.clipboard.writeText(feedbackText)
-                .then(() => {
-                    alert('Feedback copied to clipboard!');
-                })
-                .catch(err => {
-                    console.error('Failed to copy feedback: ', err);
-                    alert('Failed to copy feedback. Please try again.');
-                });
-        }
-
-        /**
-         * Copies the scores in the requested format to clipboard
-         */
-        function copyScores() {
-            if (!jsonData || Object.keys(jsonData).length === 0) {
-                alert('No scores to copy. Please save first.');
-                return;
-            }
-
-            // Extract scores in order (excluding 'Total')
-            const headers = Object.keys(jsonData).filter(header => header !== 'Total');
-            const scores = headers.map(header => {
-                return typeof jsonData[header] === 'object' 
-                    ? jsonData[header]['Total'] 
-                    : jsonData[header];
-            });
-
-            // Add total score at the end
-            scores.push(jsonData['Total']);
-
-            // Format as space-separated string
-            const scoresText = scores.join('\t');
-
-            navigator.clipboard.writeText(scoresText)
-                .then(() => {
-                    alert('Scores copied to clipboard in the requested format!');
-                })
-                .catch(err => {
-                    console.error('Failed to copy scores: ', err);
-                    alert('Failed to copy scores. Please try again.');
-                });
         }
 
         // Initialize the page
@@ -1072,7 +942,7 @@
 
                         let outputText = '';
                         let totalScore = 0;
-                        jsonData = {};
+                        let jsonData = {};
                         let partIndex = 0;
 
                         // Process each part
@@ -1141,13 +1011,7 @@
                         // Update output
                         resultsTextarea.value = outputText;
                         createTableFromJSON(jsonData);
-                        
-                        // Create copy buttons if they don't exist
-                        if (!document.querySelector('.copy-buttons')) {
-                            createCopyButtons();
-                        }
                     });
-                    
                     // Assemble the UI
                     container.append(
                         checkboxDiv,
