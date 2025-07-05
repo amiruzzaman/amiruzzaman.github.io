@@ -29,44 +29,6 @@
             color: var(--text-color);
             background-color: #f8fafc;
             min-height: 100vh;
-            padding-top: 40px; /* Space for fixed header */
-        }
-
-        /* Progress header styling */
-        .progress-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 40px;
-            background-color: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-        }
-
-        .progress-container {
-            flex-grow: 1;
-            height: 20px;
-            background-color: #f1f1f1;
-            border-radius: 10px;
-            margin: 0 15px;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background-color: var(--primary-color);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        .progress-text {
-            font-weight: bold;
-            min-width: 100px;
-            text-align: right;
         }
 
         /* Container layout */
@@ -257,14 +219,14 @@
         /* Total score display */
         .total-score-display {
             position: fixed;
-            top: 50px;
+            top: 20px;
             right: 20px;
             background-color: var(--secondary-color);
             color: white;
             padding: 14px 22px;
             border-radius: 8px;
             font-weight: bold;
-            z-index: 1001;
+            z-index: 1000;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             font-size: 16px;
             display: flex;
@@ -550,6 +512,30 @@
             fill: currentColor;
         }
 
+        /* Progress bar styling */
+        .progress-container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
         /* Reset button styling */
         .reset-button {
             padding: 14px 28px;
@@ -581,26 +567,6 @@
 
         /* Responsive adjustments */
         @media (max-width: 768px) {
-            body {
-                padding-top: 60px;
-            }
-            
-            .progress-header {
-                height: 60px;
-                flex-direction: column;
-                padding: 10px;
-            }
-            
-            .progress-container {
-                width: 100%;
-                margin: 5px 0;
-            }
-            
-            .progress-text {
-                text-align: center;
-                width: 100%;
-            }
-            
             #container {
                 width: 95%;
                 padding: 20px;
@@ -629,7 +595,7 @@
             }
             
             .total-score-display {
-                top: 65px;
+                top: 10px;
                 right: 10px;
                 font-size: 14px;
                 padding: 10px 15px;
@@ -672,17 +638,13 @@
 </head>
 
 <body>
-    <!-- Progress header -->
-    <div class="progress-header">
-        <div>Grading Progress:</div>
-        <div class="progress-container">
-            <div class="progress-bar" id="progressBar"></div>
-        </div>
-        <div class="progress-text" id="progressText">0% (0/105)</div>
-    </div>
-
     <!-- Total score display -->
     <div class="total-score-display" id="totalScoreDisplay">Total: 0/105</div>
+
+    <!-- Progress bar -->
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar">0%</div>
+    </div>
 
     <!-- Instructions notice -->
     <p id="notice">Click to select "Yes" (green) or "No" (red) for each item. Double-click any item to edit. "No"
@@ -722,44 +684,23 @@
         let jsonData = {}; // Store the JSON data for copying
 
         /**
-         * Updates the progress bar based on points earned
+         * Updates the progress bar based on selected items
          */
-		 /*
         function updateProgressBar() {
-            let totalEarned = 0;
-            
-            // Calculate total earned points
-            allItems.forEach(item => {
-                if (item.yes.classList.contains('selected') || item.no.classList.contains('selected')) {
-                    totalEarned += parseInt(item.score.textContent);
-                }
-            });
-            
-            // Calculate percentage
-            const percentage = Math.round((totalEarned / maxPossibleScore) * 100);
-            
-            // Update progress bar and text
-            document.getElementById("progressBar").style.width = percentage + "%";
-            document.getElementById("progressText").textContent = percentage + "% (" + totalEarned + "/" + maxPossibleScore + ")";
+            const totalItems = allItems.length;
+            if (totalItems === 0) return;
+
+            const selectedCount = allItems.filter(item => {
+                return item.yes.classList.contains('selected') ||
+                    item.no.classList.contains('selected');
+            }).length;
+
+            const progressPercentage = Math.round((selectedCount / totalItems) * 100);
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = `${progressPercentage}%`;
+            progressBar.textContent = `${progressPercentage}%`;
         }
-		*/
-		function updateProgressBar() {
-    let totalConsidered = 0;
 
-    // Add max points for any selected item (Yes or No)
-    allItems.forEach(item => {
-        if (item.yes.classList.contains('selected') || item.no.classList.contains('selected')) {
-            totalConsidered += parseInt(item.maxScore); // always add max score regardless of earned score
-        }
-    });
-
-    // Calculate percentage
-    const percentage = Math.round((totalConsidered / maxPossibleScore) * 100);
-
-    // Update progress bar and text
-    document.getElementById("progressBar").style.width = percentage + "%";
-    document.getElementById("progressText").textContent = `${percentage}% (${totalConsidered}/${maxPossibleScore})`;
-}
         /**
          * Resets all selections and scores
          */
@@ -781,8 +722,9 @@
             document.getElementById('totalScoreDisplay').textContent = `Total: 0/${maxPossibleScore}`;
             
             // Reset progress bar
-            updateProgressBar();
-            
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressBar').textContent = '0%';
+
             // Reset output area
             document.getElementById('paraID').value = '';
             
@@ -977,6 +919,7 @@
 
                             updateAllScores();
                             updateSaveButtonState();
+                            updateProgressBar();
                         }
                     });
 
@@ -1378,6 +1321,7 @@
                 overlay.style.visibility = 'hidden';
                 updateAllScores();
                 updateSaveButtonState();
+                updateProgressBar();
             });
 
             document.getElementById('edit-cancel').addEventListener('click', function () {
