@@ -550,29 +550,6 @@
             fill: currentColor;
         }
 
-        /* Copy feedback message styling */
-        .copy-message {
-            padding: 10px 15px;
-            border-radius: 6px;
-            margin: 5px auto;
-            max-width: 1000px;
-            text-align: center;
-            font-weight: 500;
-            display: none;
-        }
-
-        .copy-feedback-message {
-            background-color: #e3f2fd;
-            color: #0d47a1;
-            border-left: 4px solid #2196f3;
-        }
-
-        .copy-scores-message {
-            background-color: #e8f5e9;
-            color: #1b5e20;
-            border-left: 4px solid #4caf50;
-        }
-
         /* Reset button styling */
         .reset-button {
             padding: 14px 28px;
@@ -743,29 +720,46 @@
         let subTotalEarnedScores = []; // Array to store earned subtotal points
         let allItems = []; // Track all rubric items
         let jsonData = {}; // Store the JSON data for copying
-        let originalItemTexts = {}; // Store original item texts for reset
 
         /**
          * Updates the progress bar based on points earned
          */
+		 /*
         function updateProgressBar() {
-            let totalConsidered = 0;
-
-            // Add max points for any selected item (Yes or No)
+            let totalEarned = 0;
+            
+            // Calculate total earned points
             allItems.forEach(item => {
                 if (item.yes.classList.contains('selected') || item.no.classList.contains('selected')) {
-                    totalConsidered += parseInt(item.maxScore); // always add max score regardless of earned score
+                    totalEarned += parseInt(item.score.textContent);
                 }
             });
-
+            
             // Calculate percentage
-            const percentage = Math.round((totalConsidered / maxPossibleScore) * 100);
-
+            const percentage = Math.round((totalEarned / maxPossibleScore) * 100);
+            
             // Update progress bar and text
             document.getElementById("progressBar").style.width = percentage + "%";
-            document.getElementById("progressText").textContent = `${percentage}% (${totalConsidered}/${maxPossibleScore})`;
+            document.getElementById("progressText").textContent = percentage + "% (" + totalEarned + "/" + maxPossibleScore + ")";
         }
+		*/
+		function updateProgressBar() {
+    let totalConsidered = 0;
 
+    // Add max points for any selected item (Yes or No)
+    allItems.forEach(item => {
+        if (item.yes.classList.contains('selected') || item.no.classList.contains('selected')) {
+            totalConsidered += parseInt(item.maxScore); // always add max score regardless of earned score
+        }
+    });
+
+    // Calculate percentage
+    const percentage = Math.round((totalConsidered / maxPossibleScore) * 100);
+
+    // Update progress bar and text
+    document.getElementById("progressBar").style.width = percentage + "%";
+    document.getElementById("progressText").textContent = `${percentage}% (${totalConsidered}/${maxPossibleScore})`;
+}
         /**
          * Resets all selections and scores
          */
@@ -775,14 +769,6 @@
                 item.no.classList.remove('selected');
                 item.score.textContent = '0';
                 item.score.style.color = '';
-                
-                // Reset to original text
-                if (originalItemTexts[item.yes.id]) {
-                    item.yes.textContent = originalItemTexts[item.yes.id];
-                }
-                if (originalItemTexts[item.no.id]) {
-                    item.no.textContent = originalItemTexts[item.no.id];
-                }
             });
 
             // Reset subtotal displays
@@ -807,29 +793,6 @@
             const tableDiv = document.getElementById('json-table');
             if (tableDiv) {
                 tableDiv.remove();
-            }
-            
-            // Reset copy messages
-            document.querySelectorAll('.copy-message').forEach(msg => {
-                msg.style.display = 'none';
-            });
-            
-            // Reset overall comment
-            const commentInput = document.querySelector('.item-textareabox');
-            if (commentInput) {
-                commentInput.value = "Overall: Your assignment report is off to a good start. There are a few sections that require more attention. Please refer to the comment/feedback above for further details.";
-            }
-            
-            // Reset filename
-            const fileNameInput = document.querySelector('input[type="text"]');
-            if (fileNameInput) {
-                fileNameInput.value = '';
-            }
-            
-            // Reset checkbox
-            const checkbox = document.getElementById('additional-comment');
-            if (checkbox) {
-                checkbox.checked = false;
             }
         }
 
@@ -916,31 +879,7 @@
         /**
          * Opens the edit modal for any selected item
          */
-		 /*
         function editItem() {
-            const editBox = document.getElementById('edit-box');
-            const editText = document.getElementById('edit-text');
-            const editScore = document.getElementById('edit-score');
-            const maxScore = parseInt(document.getElementById('edit-score').max);
-            const overlay = document.getElementById('overlay');
-
-            // Get max score based on item type
-            const maxScore = selectedItem.classList.contains('item-yes') ?
-                selectedItem.getAttribute('data-max') :
-                selectedItem.closest('.item-container').querySelector('.item-yes').getAttribute('data-max');
-
-            // Populate modal
-            editText.value = selectedItem.textContent;
-            editScore.value = selectedItem.closest('.item-container').querySelector('.item-score').textContent;
-            editScore.max = maxScore;
-            editMaxScore.textContent = maxScore;
-
-            // Show modal
-            editBox.style.visibility = 'visible';
-            overlay.style.visibility = 'visible';
-        }
-		*/
-		 function editItem() {
             const editBox = document.getElementById('edit-box');
             const editText = document.getElementById('edit-text');
             const editScore = document.getElementById('edit-score');
@@ -961,31 +900,6 @@
             // Show modal
             editBox.style.visibility = 'visible';
             overlay.style.visibility = 'visible';
-        }
-        /**
-         * Shows a copy message
-         */
-        function showCopyMessage(type, success) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `copy-message copy-${type}-message`;
-            messageDiv.textContent = success ? 
-                `${type === 'feedback' ? 'Feedback' : 'Scores'} copied to clipboard!` : 
-                `Failed to copy ${type === 'feedback' ? 'feedback' : 'scores'}. Please try again.`;
-            messageDiv.style.display = 'block';
-            
-            // Add to container
-            const buttonsDiv = document.querySelector('.copy-buttons');
-            if (buttonsDiv) {
-                buttonsDiv.parentNode.insertBefore(messageDiv, buttonsDiv.nextSibling);
-            }
-            
-            // Remove after 3 seconds
-            setTimeout(() => {
-                messageDiv.style.opacity = '0';
-                setTimeout(() => {
-                    messageDiv.remove();
-                }, 500);
-            }, 3000);
         }
 
         /**
@@ -1011,7 +925,7 @@
             container.appendChild(subTotalDiv);
 
             // Create each rubric item
-            problems.forEach((problem, index) => {
+            problems.forEach(problem => {
                 const { yes, no, point } = problem;
 
                 const itemContainer = document.createElement('div');
@@ -1022,20 +936,12 @@
                 itemYes.classList.add('item-yes');
                 itemYes.setAttribute('data-max', point);
                 itemYes.textContent = yes;
-                itemYes.id = `item-yes-${groupIndex}-${index}`;
-                
-                // Store original text
-                originalItemTexts[itemYes.id] = yes;
 
                 // No option
                 const itemNo = document.createElement('div');
                 itemNo.classList.add('item-no');
                 itemNo.setAttribute('data-max', point);
                 itemNo.textContent = no;
-                itemNo.id = `item-no-${groupIndex}-${index}`;
-                
-                // Store original text
-                originalItemTexts[itemNo.id] = no;
 
                 // Score display
                 const itemScore = document.createElement('div');
@@ -1183,17 +1089,17 @@
         function copyFeedback() {
             const feedbackText = document.getElementById('paraID').value;
             if (!feedbackText) {
-                showCopyMessage('feedback', false);
+                alert('No feedback to copy. Please save first.');
                 return;
             }
             
             navigator.clipboard.writeText(feedbackText)
                 .then(() => {
-                    showCopyMessage('feedback', true);
+                    alert('Feedback copied to clipboard!');
                 })
                 .catch(err => {
                     console.error('Failed to copy feedback: ', err);
-                    showCopyMessage('feedback', false);
+                    alert('Failed to copy feedback. Please try again.');
                 });
         }
 
@@ -1202,7 +1108,7 @@
          */
         function copyScores() {
             if (!jsonData || Object.keys(jsonData).length === 0) {
-                showCopyMessage('scores', false);
+                alert('No scores to copy. Please save first.');
                 return;
             }
 
@@ -1222,11 +1128,11 @@
 
             navigator.clipboard.writeText(scoresText)
                 .then(() => {
-                    showCopyMessage('scores', true);
+                    alert('Scores copied to clipboard in the requested format!');
                 })
                 .catch(err => {
                     console.error('Failed to copy scores: ', err);
-                    showCopyMessage('scores', false);
+                    alert('Failed to copy scores. Please try again.');
                 });
         }
 
@@ -1244,7 +1150,6 @@
                     subTotalMaxScores = [];
                     subTotalEarnedScores = [];
                     allItems = [];
-                    originalItemTexts = {};
 
                     // Create each part section
                     for (let part of parts) {
