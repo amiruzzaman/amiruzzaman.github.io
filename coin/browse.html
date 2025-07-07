@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Collection Viewer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --background-color: #f8f9fa;
+            --text-color: #333;
+            --border-color: #ddd;
+            --hover-color: #e9ecef;
+            --header-bg: #2c3e50;
+            --header-text: #fff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--header-bg);
+            color: var(--header-text);
+            padding: 20px 0;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        h1 i {
+            margin-right: 10px;
+        }
+
+        .file-input-container {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: 500;
+        }
+
+        .file-input-label:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .file-input-label i {
+            margin-right: 8px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .data-container {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 4px 4px 0 0;
+            margin-bottom: -1px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .stat-item i {
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 0 0 4px 4px;
+            overflow: hidden;
+        }
+
+        .data-table th {
+            background-color: var(--header-bg);
+            color: var(--header-text);
+            padding: 12px 15px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+        }
+
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover {
+            background-color: var(--hover-color);
+        }
+
+        .icon-cell {
+            text-align: center;
+        }
+
+        .icon-cell i {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .empty-cell {
+            color: #999;
+            font-style: italic;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #777;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .stats-bar {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .data-table {
+                font-size: 0.9rem;
+            }
+
+            .data-table th, 
+            .data-table td {
+                padding: 8px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><i class="fas fa-coins"></i>Currency Collection Viewer</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="file-input-container">
+            <label for="fileInput" class="file-input-label">
+                <i class="fas fa-folder-open"></i>Browse JSON File
+            </label>
+            <input type="file" id="fileInput" accept=".json">
+            <p id="fileName" style="margin-top: 10px;"></p>
+        </div>
+
+        <div id="dataContainer" class="data-container">
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <i class="fas fa-globe-americas"></i>
+                    <span id="countryCount">0 Countries</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-coins"></i>
+                    <span id="coinCount">0 Coins</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span id="billCount">0 Bills</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-history"></i>
+                    <span id="oldCount">0 Old Items</span>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Country</th>
+                            <th><i class="fas fa-coins"></i> Coins</th>
+                            <th><i class="fas fa-money-bill-wave"></i> Bills</th>
+                            <th><i class="fas fa-history"></i> Type</th>
+                            <th><i class="fas fa-users"></i> Donor</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                        <!-- Data will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Upload your currency collection JSON file to view the data</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('fileInput');
+            const fileNameDisplay = document.getElementById('fileName');
+            const dataContainer = document.getElementById('dataContainer');
+            const dataTableBody = document.getElementById('dataTableBody');
+            const countryCount = document.getElementById('countryCount');
+            const coinCount = document.getElementById('coinCount');
+            const billCount = document.getElementById('billCount');
+            const oldCount = document.getElementById('oldCount');
+
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                fileNameDisplay.textContent = `Selected file: ${file.name}`;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        displayData(data);
+                    } catch (error) {
+                        alert('Error parsing JSON file. Please check the file format.');
+                        console.error(error);
+                    }
+                };
+                reader.readAsText(file);
+            });
+
+            function displayData(data) {
+                // Clear previous data
+                dataTableBody.innerHTML = '';
+                
+                // Filter out the summary object if it exists
+                const countries = data.filter(item => item.Country && typeof item.Coin !== 'number');
+                const summary = data.find(item => !item.Country && typeof item.Coin === 'number');
+                
+                // Update stats
+                countryCount.textContent = `${countries.length} Countries`;
+                coinCount.textContent = `${summary ? summary.Coin : countries.filter(c => c.Coin).length} Coins`;
+                billCount.textContent = `${summary ? summary.PaperBill : countries.filter(c => c.PaperBill).length} Bills`;
+                oldCount.textContent = `${summary ? summary.Type : countries.filter(c => c.Type === 'Old').length} Old Items`;
+                
+                // Populate table
+                countries.forEach(country => {
+                    const row = document.createElement('tr');
+                    
+                    // Country
+                    const countryCell = document.createElement('td');
+                    countryCell.textContent = country.Country || '-';
+                    row.appendChild(countryCell);
+                    
+                    // Coins
+                    const coinCell = document.createElement('td');
+                    coinCell.className = 'icon-cell';
+                    if (country.Coin) {
+                        coinCell.innerHTML = '<i class="fas fa-check"></i>';
+                    } else {
+                        coinCell.textContent = '-';
+                        coinCell.className = 'empty-cell';
+                    }
+                    row.appendChild(coinCell);
+                    
+                    // Paper Bill
+                    const billCell = document.createElement('td');
+                    billCell.className = 'icon-cell';
+                    if (country.PaperBill) {
+                        billCell.innerHTML = '<i class="fas fa-check"></i>';
+                    } else {
+                        billCell.textContent = '-';
+                        billCell.className = 'empty-cell';
+                    }
+                    row.appendChild(billCell);
+                    
+                    // Type
+                    const typeCell = document.createElement('td');
+                    if (country.Type === 'Old') {
+                        typeCell.innerHTML = '<i class="fas fa-history"></i> Old';
+                    } else {
+                        typeCell.textContent = country.Type || '-';
+                        if (!country.Type) typeCell.className = 'empty-cell';
+                    }
+                    row.appendChild(typeCell);
+                    
+                    // Donor
+                    const donorCell = document.createElement('td');
+                    donorCell.textContent = country.Donor || '-';
+                    if (!country.Donor) donorCell.className = 'empty-cell';
+                    row.appendChild(donorCell);
+                    
+                    dataTableBody.appendChild(row);
+                });
+                
+                // Show the data container
+                dataContainer.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
