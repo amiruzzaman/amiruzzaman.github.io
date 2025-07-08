@@ -69,7 +69,7 @@
             font-weight: 700;
             color: var(--secondary-color);
             text-align: center;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
         }
 
         .main-content {
@@ -394,15 +394,8 @@
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .detail-item {
@@ -450,29 +443,29 @@
                 font-size: 16px;
             }
         }
+		
+		 /* Footer */
+    footer {
+      width: 80vw;
+      margin-top: 60px;
+      text-align: center;
+      font-size: 1.1em;
+      color: var(--secondary-color);
+      padding: 20px 40px;
+      margin-left: auto;
+      margin-right: auto;
+    }
 
-        /* Footer */
-        footer {
-            width: 80vw;
-            margin-top: 60px;
-            text-align: center;
-            font-size: 1.1em;
-            color: var(--secondary-color);
-            padding: 20px 40px;
-            margin-left: auto;
-            margin-right: auto;
-        }
+    footer a {
+      color: var(--primary-color);
+      text-decoration: none;
+      transition: var(--transition);
+    }
 
-        footer a {
-            color: var(--primary-color);
-            text-decoration: none;
-            transition: var(--transition);
-        }
-
-        footer a:hover {
-            text-decoration: underline;
-            color: var(--primary-dark);
-        }
+    footer a:hover {
+      text-decoration: underline;
+      color: var(--primary-dark);
+    }
     </style>
 </head>
 
@@ -520,11 +513,11 @@
             </div>
         </div>
     </div>
-    <footer>
-        <p><i class="far fa-copyright"></i> 2025 Amiruzzaman coin collection. All rights reserved. |
-            <a href="privacy.html" target="_blank"><i class="fas fa-lock"></i> Privacy Policy</a>
-        </p>
-    </footer>
+	 <footer>
+    <p><i class="far fa-copyright"></i> 2025 Amiruzzaman coin collection. All rights reserved. | 
+      <a href="privacy.html" target="_blank"><i class="fas fa-lock"></i> Privacy Policy</a>
+    </p>
+  </footer>
 
     <script>
         // Utility Functions
@@ -626,161 +619,83 @@
         }
 
         function initializeMap() {
-            const map = L.map("map").setView([20, 0], 2);
-            // Increased target size to make countries appear smaller
-            const TARGET_VIEW_SIZE = 3000; // Increased from 1500 to show more area
-            const MIN_ZOOM = 3; // Minimum zoom level (lower number = more zoomed out)
-            const MAX_ZOOM = 6; // Maximum zoom level
+        const map = L.map("map").setView([20, 0], 2);
+        // Increased target size to make countries appear smaller
+        const TARGET_VIEW_SIZE = 3000; // Increased from 1500 to show more area
+        const MIN_ZOOM = 3; // Minimum zoom level (lower number = more zoomed out)
+        const MAX_ZOOM = 6; // Maximum zoom level
 
-            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-                maxZoom: 18,
-                attribution: "© OpenStreetMap contributors"
-            }).addTo(map);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 18,
+            attribution: "© OpenStreetMap contributors"
+        }).addTo(map);
 
-            let geoJsonLayer = null;
-            let availableCountriesLayer = null;
+        let geoJsonLayer = null;
 
-            // Function to highlight a specific country
-            function highlightCountry(countryName) {
-                fetch("geojson/country_geojson_mapping.json")
-                    .then(response => response.json())
-                    .then(mapping => {
-                        const countryMapping = mapping.find(
-                            item => item.country_name.toLowerCase() === countryName.toLowerCase()
-                        );
+        function highlightCountry(countryName) {
+            fetch("geojson/country_geojson_mapping.json")
+                .then(response => response.json())
+                .then(mapping => {
+                    const countryMapping = mapping.find(
+                        item => item.country_name.toLowerCase() === countryName.toLowerCase()
+                    );
 
-                        if (!countryMapping) {
-                            console.error(`No GeoJSON mapping found for country: ${countryName}`);
-                            return;
-                        }
+                    if (!countryMapping) {
+                        console.error(`No GeoJSON mapping found for country: ${countryName}`);
+                        return;
+                    }
 
-                        const geojsonFilePath = countryMapping.file_name;
+                    const geojsonFilePath = countryMapping.file_name;
 
-                        fetch(geojsonFilePath)
-                            .then(response => response.json())
-                            .then(geojson => {
-                                if (geoJsonLayer) {
-                                    map.removeLayer(geoJsonLayer);
-                                }
+                    fetch(geojsonFilePath)
+                        .then(response => response.json())
+                        .then(geojson => {
+                            if (geoJsonLayer) {
+                                map.removeLayer(geoJsonLayer);
+                            }
 
-                                geoJsonLayer = L.geoJSON(geojson, {
-                                    style: feature => ({
-                                        color: "#e74c3c",
-                                        weight: 2,
-                                        fillOpacity: 0.2,
-                                        fillColor: "#e74c3c"
-                                    })
-                                }).addTo(map);
-
-                                const bounds = geoJsonLayer.getBounds();
-                                const center = bounds.getCenter();
-
-                                // Calculate country size in kilometers
-                                const latDistance = bounds.getNorth() - bounds.getSouth();
-                                const lngDistance = bounds.getEast() - bounds.getWest();
-                                const avgDistance = (latDistance * 111 + lngDistance * 111 * Math.cos(center.lat * Math.PI / 180)) / 2;
-
-                                // Calculate zoom level with new parameters
-                                const zoomAdjustment = Math.log2(TARGET_VIEW_SIZE / avgDistance);
-                                const targetZoom = Math.min(
-                                    Math.max(MIN_ZOOM, 4 + zoomAdjustment),
-                                    MAX_ZOOM
-                                );
-
-                                // Apply padding based on country size
-                                const paddingFactor = Math.min(1, avgDistance / 500);
-                                const padding = [50 * paddingFactor, 50 * paddingFactor];
-
-                                map.flyToBounds(bounds, {
-                                    padding: padding,
-                                    maxZoom: targetZoom,
-                                    duration: 1
-                                });
-
-                            })
-                            .catch(error => console.error(`Error loading GeoJSON file: ${geojsonFilePath}`, error));
-                    })
-                    .catch(error => console.error("Error loading country_geojson_mapping.json:", error));
-            }
-
-            // Function to show all available countries in light green
-            function showAvailableCountries(availableCountries) {
-                // First remove any existing layer
-                if (availableCountriesLayer) {
-                    map.removeLayer(availableCountriesLayer);
-                }
-
-                // Create a new layer group
-                availableCountriesLayer = L.layerGroup().addTo(map);
-
-                // Load all available countries
-                fetch("geojson/country_geojson_mapping.json")
-                    .then(response => response.json())
-                    .then(mapping => {
-                        // Filter to only include available countries
-                        const availableMappings = mapping.filter(item =>
-                            availableCountries.some(c => c.toLowerCase() === item.country_name.toLowerCase())
-                        );
-
-                        // Load each country's geojson and add to the layer
-                        availableMappings.forEach(countryMapping => {
-                            fetch(countryMapping.file_name)
-                                .then(response => response.json())
-                                .then(geojson => {
-                                    L.geoJSON(geojson, {
-                                        style: {
-                                            color: "#4CAF50", // Light green color
-                                            weight: 1,
-                                            fillOpacity: 0.3,
-                                            fillColor: "#4CAF50"
-                                        },
-                                        onEachFeature: (feature, layer) => {
-                                            layer.on({
-                                                click: () => {
-                                                    // When a country is clicked, update the page
-                                                    const countryName = countryMapping.country_name;
-                                                    history.pushState(null, "", `?country=${countryName.toLowerCase()}`);
-                                                    highlightCountry(countryName.toLowerCase());
-                                                    loadCountryImages(countryName.toLowerCase());
-
-                                                    // Update the selected country in the list
-                                                    document.querySelectorAll('.countries-list a').forEach(el => {
-                                                        el.classList.remove('active');
-                                                        if (el.textContent.toLowerCase() === countryName.toLowerCase()) {
-                                                            el.classList.add('active');
-                                                            document.getElementById('selected-country').textContent = `: ${countryName}`;
-                                                        }
-                                                    });
-                                                },
-                                                mouseover: () => {
-                                                    layer.setStyle({
-                                                        fillOpacity: 0.5
-                                                    });
-                                                },
-                                                mouseout: () => {
-                                                    layer.setStyle({
-                                                        fillOpacity: 0.3
-                                                    });
-                                                }
-                                            });
-                                        }
-                                    }).addTo(availableCountriesLayer);
+                            geoJsonLayer = L.geoJSON(geojson, {
+                                style: feature => ({
+                                    color: "#e74c3c",
+                                    weight: 2,
+                                    fillOpacity: 0.2,
+                                    fillColor: "#e74c3c"
                                 })
-                                .catch(error => console.error(`Error loading GeoJSON for ${countryMapping.country_name}:`, error));
-                        });
-                    })
-                    .catch(error => console.error("Error loading country_geojson_mapping.json:", error));
-            }
+                            }).addTo(map);
 
-            window.highlightCountry = highlightCountry;
+                            const bounds = geoJsonLayer.getBounds();
+                            const center = bounds.getCenter();
+                            
+                            // Calculate country size in kilometers
+                            const latDistance = bounds.getNorth() - bounds.getSouth();
+                            const lngDistance = bounds.getEast() - bounds.getWest();
+                            const avgDistance = (latDistance * 111 + lngDistance * 111 * Math.cos(center.lat * Math.PI/180)) / 2;
+                            
+                            // Calculate zoom level with new parameters
+                            const zoomAdjustment = Math.log2(TARGET_VIEW_SIZE / avgDistance);
+                            const targetZoom = Math.min(
+                                Math.max(MIN_ZOOM, 4 + zoomAdjustment), 
+                                MAX_ZOOM
+                            );
+                            
+                            // Apply padding based on country size
+                            const paddingFactor = Math.min(1, avgDistance / 500);
+                            const padding = [50 * paddingFactor, 50 * paddingFactor];
+                            
+                            map.flyToBounds(bounds, {
+                                padding: padding,
+                                maxZoom: targetZoom,
+                                duration: 1
+                            });
 
-            // Return the map and functions for external use
-            return {
-                map,
-                highlightCountry,
-                showAvailableCountries
-            };
+                        })
+                        .catch(error => console.error(`Error loading GeoJSON file: ${geojsonFilePath}`, error));
+                })
+                .catch(error => console.error("Error loading country_geojson_mapping.json:", error));
         }
+
+        window.highlightCountry = highlightCountry;
+    }
 
         function loadCountryImages(countryName) {
             fetch("images/coins.json")
@@ -799,17 +714,17 @@
 
                     const updateImage = () => {
                         const { src, note, donor, currency_type } = imageElements[currentIndex];
-
+                        
                         // Remove active class from all thumbnails
                         document.querySelectorAll('.img-queue-in img').forEach(img => {
                             img.classList.remove('active-thumbnail');
                         });
-
+                        
                         // Add active class to current thumbnail
                         if (thumbnailContainer.children[currentIndex]) {
                             thumbnailContainer.children[currentIndex].classList.add('active-thumbnail');
                         }
-
+                        
                         fetchCountryInfo(countryName).then(countryInfo => {
                             setCurrentImage(src, note, donor, currency_type, countryInfo);
                         });
@@ -861,7 +776,7 @@
             toggle.addEventListener('click', () => {
                 toggle.classList.toggle('collapsed');
                 content.classList.toggle('show');
-
+                
                 // Update icon based on state
                 const chevronIcon = toggle.querySelector('.fa-chevron-down, .fa-chevron-up');
                 if (content.classList.contains('show')) {
@@ -882,18 +797,13 @@
                     const countries = [...new Set(data.map(coin => toTitleCase(coin.country)))].sort();
                     renderCountries(countries);
 
-                    // Initialize the map and get the map controller
-                    const mapController = initializeMap();
-
-                    // Show all available countries on the map
-                    mapController.showAvailableCountries(countries);
-
                     if (countryQuery !== "default") {
                         highlightCountry(countryQuery.toLowerCase());
                         loadCountryImages(countryQuery.toLowerCase());
                     }
                 });
 
+            initializeMap();
             initDetailsToggle();
         })();
     </script>
@@ -942,5 +852,4 @@
         }
     </script>
 </body>
-
 </html>
