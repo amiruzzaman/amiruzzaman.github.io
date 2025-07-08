@@ -590,12 +590,8 @@
                 .then(countries => countries.find(country => country.name.toLowerCase() === countryName.toLowerCase()));
         }
 
-        function initializeMap() {
+            function initializeMap() {
         const map = L.map("map").setView([20, 0], 2);
-        // Increased target size to make countries appear smaller
-        const TARGET_VIEW_SIZE = 3000; // Increased from 1500 to show more area
-        const MIN_ZOOM = 3; // Minimum zoom level (lower number = more zoomed out)
-        const MAX_ZOOM = 6; // Maximum zoom level
 
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
             maxZoom: 18,
@@ -635,31 +631,11 @@
                                 })
                             }).addTo(map);
 
-                            const bounds = geoJsonLayer.getBounds();
-                            const center = bounds.getCenter();
-                            
-                            // Calculate country size in kilometers
-                            const latDistance = bounds.getNorth() - bounds.getSouth();
-                            const lngDistance = bounds.getEast() - bounds.getWest();
-                            const avgDistance = (latDistance * 111 + lngDistance * 111 * Math.cos(center.lat * Math.PI/180)) / 2;
-                            
-                            // Calculate zoom level with new parameters
-                            const zoomAdjustment = Math.log2(TARGET_VIEW_SIZE / avgDistance);
-                            const targetZoom = Math.min(
-                                Math.max(MIN_ZOOM, 4 + zoomAdjustment), 
-                                MAX_ZOOM
-                            );
-                            
-                            // Apply padding based on country size
-                            const paddingFactor = Math.min(1, avgDistance / 500);
-                            const padding = [50 * paddingFactor, 50 * paddingFactor];
-                            
-                            map.flyToBounds(bounds, {
-                                padding: padding,
-                                maxZoom: targetZoom,
-                                duration: 1
+                            // Fit the map to show the entire country
+                            map.fitBounds(geoJsonLayer.getBounds(), {
+                                padding: [50, 50],
+                                maxZoom: 5
                             });
-
                         })
                         .catch(error => console.error(`Error loading GeoJSON file: ${geojsonFilePath}`, error));
                 })

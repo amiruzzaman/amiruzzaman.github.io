@@ -7,27 +7,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="#">
     <title>..::Amir's Coin Collection::..</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* General Styles */
         :root {
-            --primary-color: #3498db;
-            --primary-dark: #2980b9;
-            --secondary-color: #2c3e50;
-            --accent-color: #e74c3c;
-            --accent-light: #f39c12;
-            --light-color: #f8f9fa;
-            --dark-color: #343a40;
-            --text-color: #2c3e50;
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #e67e22;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --text-color: #333;
             --text-light: #f8f9fa;
-            --border-color: #dfe6e9;
             --border-radius: 8px;
-            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            --gold-color: #FFD700;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
         }
 
         * {
@@ -39,7 +35,7 @@
         }
 
         body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #dfe6e9 100%);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
             line-height: 1.6;
         }
@@ -66,10 +62,10 @@
         .title {
             margin: 20px 0;
             font-size: 28px;
-            font-weight: 700;
-            color: var(--secondary-color);
+            font-weight: 600;
+            color: var(--dark-color);
             text-align: center;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
 
         .main-content {
@@ -89,10 +85,9 @@
             flex-direction: column;
             gap: 20px;
             background: white;
-            padding: 25px;
+            padding: 20px;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
-            border: 1px solid var(--border-color);
         }
 
         .slider-container {
@@ -119,21 +114,20 @@
             padding: 15px;
             gap: 15px;
             border-radius: var(--border-radius);
-            border: 1px solid var(--border-color);
+            border: 1px solid #e0e0e0;
         }
 
         .current-img-container img {
             max-width: 100%;
             height: 300px;
             object-fit: contain;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             transition: var(--transition);
         }
 
         .current-img-container img:hover {
             transform: scale(1.02);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
         }
 
         .img-queue {
@@ -150,7 +144,7 @@
             padding: 10px;
             width: 100%;
             scrollbar-width: thin;
-            scrollbar-color: var(--primary-color) #f1f1f1;
+            scrollbar-color: var(--accent-color) #f1f1f1;
         }
 
         .img-queue-in::-webkit-scrollbar {
@@ -163,7 +157,7 @@
         }
 
         .img-queue-in::-webkit-scrollbar-thumb {
-            background-color: var(--primary-color);
+            background-color: var(--accent-color);
             border-radius: 10px;
         }
 
@@ -171,7 +165,7 @@
             width: 70px;
             height: 70px;
             object-fit: cover;
-            border: 2px solid var(--border-color);
+            border: 2px solid #e0e0e0;
             cursor: pointer;
             transition: var(--transition);
             border-radius: 4px;
@@ -179,12 +173,12 @@
 
         .img-queue-in img:hover {
             transform: scale(1.1);
-            border-color: var(--primary-color);
+            border-color: var(--accent-color);
         }
 
         .img-queue-in img.active-thumbnail {
             border: 3px solid var(--accent-color);
-            box-shadow: 0 0 10px rgba(231, 76, 60, 0.2);
+            box-shadow: 0 0 10px rgba(230, 126, 34, 0.5);
             transform: scale(1.1);
         }
 
@@ -196,10 +190,9 @@
             flex-direction: column;
             gap: 20px;
             background: white;
-            padding: 25px;
+            padding: 20px;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
-            border: 1px solid var(--border-color);
         }
 
         #map {
@@ -207,7 +200,7 @@
             height: 400px;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
-            border: 1px solid var(--border-color);
+            border: 1px solid #e0e0e0;
         }
 
         /* Countries List */
@@ -218,12 +211,11 @@
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
             margin-top: 30px;
-            border: 1px solid var(--border-color);
         }
 
         .countries-list h2 {
             margin-bottom: 20px;
-            color: var(--secondary-color);
+            color: var(--dark-color);
             font-size: 22px;
             display: flex;
             align-items: center;
@@ -260,23 +252,21 @@
             font-weight: 500;
             padding: 0 15px;
             transition: var(--transition);
-            border: 1px solid var(--border-color);
+            border: 1px solid #e0e0e0;
         }
 
         .countries-list a:hover {
-            background: var(--primary-color);
+            background: var(--accent-color);
             color: white;
             transform: translateY(-3px);
-            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.2);
-            border-color: var(--primary-dark);
+            box-shadow: 0 4px 8px rgba(230, 126, 34, 0.2);
         }
 
         .countries-list a.active {
             background: var(--accent-color);
             color: white;
             font-weight: 600;
-            box-shadow: 0 4px 8px rgba(231, 76, 60, 0.2);
-            border-color: var(--accent-color);
+            box-shadow: 0 4px 8px rgba(230, 126, 34, 0.3);
         }
 
         /* Buttons */
@@ -284,24 +274,22 @@
             background: var(--primary-color);
             color: var(--text-light);
             border: none;
-            padding: 12px 20px;
+            padding: 10px 20px;
             border-radius: var(--border-radius);
             cursor: pointer;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 500;
             transition: var(--transition);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             box-shadow: var(--box-shadow);
-            border: 1px solid var(--primary-dark);
         }
 
         .btn:hover {
-            background: var(--primary-dark);
+            background: var(--secondary-color);
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
         }
 
         .btn-nav {
@@ -309,117 +297,70 @@
             height: 50px;
             border-radius: 50%;
             font-size: 20px;
-            padding: 0;
-        }
-
-        .btn-home {
-            margin-bottom: 15px;
-            background: var(--secondary-color);
-            border-color: var(--dark-color);
-            color: white;
-        }
-
-        .btn-home i {
-            color: white;
-        }
-
-        .btn-home:hover {
-            background: var(--dark-color);
         }
 
         /* Details Section */
         .details-section {
             width: 100%;
             margin-top: 15px;
-            border-radius: var(--border-radius);
-            overflow: hidden;
         }
 
         .details-toggle {
-            background: var(--secondary-color);
+            background: var(--primary-color);
             color: white;
             border: none;
-            padding: 14px 20px;
+            padding: 10px 15px;
             border-radius: var(--border-radius);
             cursor: pointer;
-            font-size: 15px;
-            font-weight: 600;
+            font-size: 14px;
+            font-weight: 500;
             width: 100%;
             text-align: left;
             display: flex;
             justify-content: space-between;
             align-items: center;
             transition: var(--transition);
-            box-shadow: var(--box-shadow);
-            border: 1px solid var(--dark-color);
         }
 
         .details-toggle:hover {
-            background: var(--dark-color);
+            background: var(--secondary-color);
         }
 
-        .details-toggle span {
-            color: var(--gold-color);
+        .details-toggle i {
+            transition: transform 0.3s ease;
         }
 
-        .details-toggle i.fa-info-circle {
-            color: var(--gold-color);
-            margin-right: 8px;
-        }
-
-        .details-toggle i.fa-chevron-down {
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 14px;
-            color: white;
-        }
-
-        .details-toggle.collapsed i.fa-chevron-down {
+        .details-toggle.collapsed i {
             transform: rotate(180deg);
         }
 
         .details-content {
-            padding: 20px;
-            background: white;
+            padding: 15px;
+            background: #f9f9f9;
             border-radius: 0 0 var(--border-radius) var(--border-radius);
-            border: 1px solid var(--border-color);
+            border: 1px solid #e0e0e0;
             border-top: none;
-            margin-top: -1px;
+            margin-top: -5px;
             display: none;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .details-content.show {
             display: block;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         .detail-item {
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             display: flex;
-            padding-bottom: 10px;
-            border-bottom: 1px dashed var(--border-color);
-        }
-
-        .detail-item:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
         }
 
         .detail-label {
             font-weight: 600;
-            min-width: 120px;
-            color: var(--secondary-color);
+            min-width: 100px;
+            color: var(--dark-color);
         }
 
         .detail-value {
             flex: 1;
-            color: var(--text-color);
         }
 
         /* Responsive */
@@ -436,12 +377,6 @@
             .current-img-container img {
                 height: 250px;
             }
-
-            .btn-nav {
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
-            }
         }
     </style>
 </head>
@@ -449,7 +384,7 @@
 <body>
     <div class="out-container">
         <div class="inner-container">
-            <a href="index.html" class="btn btn-home"><i class="fas fa-home"></i> Home</a>
+            <a href="index.html" class="btn"><i class="fas fa-home"></i> Home</a>
             <h1 id="image-caption" class="title">Amir's Coin Collection</h1>
 
             <div class="main-content">
@@ -462,8 +397,8 @@
                             </div>
                             <div class="details-section">
                                 <button class="details-toggle">
-                                    <span><i class="fas fa-info-circle"></i> Coin Details</span>
-                                    <i class="fas fa-chevron-down"></i>
+                                    <span>Coin Details</span>
+                                    <i class="fas fa-chevron-up"></i>
                                 </button>
                                 <div class="details-content" id="current-image-note"></div>
                             </div>
@@ -591,83 +526,65 @@
         }
 
         function initializeMap() {
-        const map = L.map("map").setView([20, 0], 2);
-        // Increased target size to make countries appear smaller
-        const TARGET_VIEW_SIZE = 3000; // Increased from 1500 to show more area
-        const MIN_ZOOM = 3; // Minimum zoom level (lower number = more zoomed out)
-        const MAX_ZOOM = 6; // Maximum zoom level
+            const map = L.map("map").setView([20, 0], 2);
 
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            maxZoom: 18,
-            attribution: "© OpenStreetMap contributors"
-        }).addTo(map);
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                maxZoom: 18,
+                attribution: "© OpenStreetMap contributors"
+            }).addTo(map);
 
-        let geoJsonLayer = null;
+            let geoJsonLayer = null;
 
-        function highlightCountry(countryName) {
-            fetch("geojson/country_geojson_mapping.json")
-                .then(response => response.json())
-                .then(mapping => {
-                    const countryMapping = mapping.find(
-                        item => item.country_name.toLowerCase() === countryName.toLowerCase()
-                    );
+            function highlightCountry(countryName) {
+                fetch("geojson/country_geojson_mapping.json")
+                    .then(response => response.json())
+                    .then(mapping => {
+                        const countryMapping = mapping.find(
+                            item => item.country_name.toLowerCase() === countryName.toLowerCase()
+                        );
 
-                    if (!countryMapping) {
-                        console.error(`No GeoJSON mapping found for country: ${countryName}`);
-                        return;
-                    }
+                        if (!countryMapping) {
+                            console.error(`No GeoJSON mapping found for country: ${countryName}`);
+                            return;
+                        }
 
-                    const geojsonFilePath = countryMapping.file_name;
+                        const geojsonFilePath = countryMapping.file_name;
 
-                    fetch(geojsonFilePath)
-                        .then(response => response.json())
-                        .then(geojson => {
-                            if (geoJsonLayer) {
-                                map.removeLayer(geoJsonLayer);
-                            }
+                        fetch(geojsonFilePath)
+                            .then(response => response.json())
+                            .then(geojson => {
+                                if (geoJsonLayer) {
+                                    map.removeLayer(geoJsonLayer);
+                                }
 
-                            geoJsonLayer = L.geoJSON(geojson, {
-                                style: feature => ({
-                                    color: "#e74c3c",
-                                    weight: 2,
-                                    fillOpacity: 0.2,
-                                    fillColor: "#e74c3c"
-                                })
-                            }).addTo(map);
+                                geoJsonLayer = L.geoJSON(geojson, {
+                                    style: feature => ({
+                                        color: "#e67e22",
+                                        weight: 2,
+                                        fillOpacity: 0.3,
+                                        fillColor: "#e67e22"
+                                    }),
+                                    onEachFeature: (feature, layer) => {
+                                        const featureName = feature.properties?.name || "Unknown";
 
-                            const bounds = geoJsonLayer.getBounds();
-                            const center = bounds.getCenter();
-                            
-                            // Calculate country size in kilometers
-                            const latDistance = bounds.getNorth() - bounds.getSouth();
-                            const lngDistance = bounds.getEast() - bounds.getWest();
-                            const avgDistance = (latDistance * 111 + lngDistance * 111 * Math.cos(center.lat * Math.PI/180)) / 2;
-                            
-                            // Calculate zoom level with new parameters
-                            const zoomAdjustment = Math.log2(TARGET_VIEW_SIZE / avgDistance);
-                            const targetZoom = Math.min(
-                                Math.max(MIN_ZOOM, 4 + zoomAdjustment), 
-                                MAX_ZOOM
-                            );
-                            
-                            // Apply padding based on country size
-                            const paddingFactor = Math.min(1, avgDistance / 500);
-                            const padding = [50 * paddingFactor, 50 * paddingFactor];
-                            
-                            map.flyToBounds(bounds, {
-                                padding: padding,
-                                maxZoom: targetZoom,
-                                duration: 1
-                            });
+                                        if (featureName.toLowerCase() === countryName.toLowerCase()) {
+                                            // Center the map on the country with padding
+                                            const bounds = layer.getBounds();
+                                            map.fitBounds(bounds, {
+                                                padding: [50, 50],
+                                                maxZoom: 6
+                                            });
+                                        }
+                                    }
+                                }).addTo(map);
+                            })
+                            .catch(error => console.error(`Error loading GeoJSON file: ${geojsonFilePath}`, error));
+                    })
+                    .catch(error => console.error("Error loading country_geojson_mapping.json:", error));
+            }
 
-                        })
-                        .catch(error => console.error(`Error loading GeoJSON file: ${geojsonFilePath}`, error));
-                })
-                .catch(error => console.error("Error loading country_geojson_mapping.json:", error));
+            window.highlightCountry = highlightCountry;
         }
-
-        window.highlightCountry = highlightCountry;
-    }
 
         function loadCountryImages(countryName) {
             fetch("images/coins.json")
@@ -748,14 +665,6 @@
             toggle.addEventListener('click', () => {
                 toggle.classList.toggle('collapsed');
                 content.classList.toggle('show');
-                
-                // Update icon based on state
-                const chevronIcon = toggle.querySelector('.fa-chevron-down, .fa-chevron-up');
-                if (content.classList.contains('show')) {
-                    chevronIcon.classList.replace('fa-chevron-down', 'fa-chevron-up');
-                } else {
-                    chevronIcon.classList.replace('fa-chevron-up', 'fa-chevron-down');
-                }
             });
         }
 
