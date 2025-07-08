@@ -476,7 +476,7 @@ def merge_images():
             image_io,
             mimetype=mime_type,
             as_attachment=True,
-            attachment_filename=f"{filename}.{format.lower()}"
+            download_name=f"{filename}.{format.lower()}"
         )
     except Exception as e:
         logger.error(f"An error occurred: {str(e)}")
