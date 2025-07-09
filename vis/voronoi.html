@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voronoi & Delaunay Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://d3js.org/d3-delaunay.v6.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        
+        .diagram-container {
+            flex: 1;
+            min-width: 400px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px;
+        }
+        
+        .diagram-title {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #444;
+        }
+        
+        .diagram {
+            width: 100%;
+            height: 400px;
+            border: 1px solid #ddd;
+            background-color: white;
+            cursor: crosshair;
+        }
+        
+        .definition {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-left: 4px solid #4CAF50;
+            border-radius: 4px;
+        }
+        
+        .definition h3 {
+            margin-top: 0;
+            color: #2E7D32;
+        }
+        
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 0 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        .info-text {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Voronoi Diagram & Delaunay Triangulation</h1>
+    
+    <p class="info-text">Click in either diagram to add points. Both visualizations will update simultaneously.</p>
+    
+    <div class="controls">
+        <button id="clear-btn">Clear Points</button>
+        <button id="random-btn">Generate Random Points</button>
+    </div>
+    
+    <div class="container">
+        <div class="diagram-container">
+            <h2 class="diagram-title">Voronoi Diagram</h2>
+            <div id="voronoi" class="diagram"></div>
+            <div class="definition">
+                <h3>Mathematical Definition of Voronoi Diagram</h3>
+                <p>Given a set of points <em>P = {p₁, p₂, ..., pₙ}</em> in a metric space, the Voronoi diagram partitions the space into <em>n</em> cells (one for each point) such that:</p>
+                <p>For each point <em>pᵢ</em>, its corresponding cell <em>V(pᵢ)</em> contains all points <em>x</em> in the space that are closer to <em>pᵢ</em> than to any other point in <em>P</em>:</p>
+                <p><em>V(pᵢ) = {x | d(x, pᵢ) ≤ d(x, pⱼ) for all j ≠ i}</em></p>
+                <p>where <em>d(x, y)</em> is the distance between points <em>x</em> and <em>y</em>.</p>
+            </div>
+        </div>
+        
+        <div class="diagram-container">
+            <h2 class="diagram-title">Delaunay Triangulation</h2>
+            <div id="delaunay" class="diagram"></div>
+            <div class="definition">
+                <h3>Mathematical Definition of Delaunay Triangulation</h3>
+                <p>Given a set of points <em>P = {p₁, p₂, ..., pₙ}</em> in a plane, the Delaunay triangulation is a triangulation <em>DT(P)</em> such that:</p>
+                <p>No point in <em>P</em> is inside the circumcircle of any triangle in <em>DT(P)</em>. This is known as the empty circumcircle condition.</p>
+                <p>Equivalently, among all possible triangulations of <em>P</em>, the Delaunay triangulation maximizes the minimum angle of all the triangles, avoiding "sliver" triangles.</p>
+                <p>The Delaunay triangulation is the dual graph of the Voronoi diagram - vertices of the Voronoi diagram correspond to Delaunay triangles, and edges in one correspond to edges in the other.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Shared points array
+        let points = [];
+        
+        // Dimensions of the diagrams
+        const width = 400;
+        const height = 400;
+        
+        // Create SVG containers
+        const voronoiSvg = d3.select("#voronoi")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+            
+        const delaunaySvg = d3.select("#delaunay")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+        
+        // Add click handlers to both diagrams
+        voronoiSvg.on("click", handleClick);
+        delaunaySvg.on("click", handleClick);
+        
+        // Clear button
+        d3.select("#clear-btn").on("click", function() {
+            points = [];
+            updateDiagrams();
+        });
+        
+        // Random points button
+        d3.select("#random-btn").on("click", function() {
+            points = [];
+            const numPoints = 10 + Math.floor(Math.random() * 15);
+            
+            for (let i = 0; i < numPoints; i++) {
+                points.push([
+                    10 + Math.random() * (width - 20),
+                    10 + Math.random() * (height - 20)
+                ]);
+            }
+            
+            updateDiagrams();
+        });
+        
+        // Handle click to add point
+        function handleClick(event) {
+            const [x, y] = d3.pointer(event, this);
+            points.push([x, y]);
+            updateDiagrams();
+        }
+        
+        // Update both diagrams
+        function updateDiagrams() {
+            updateVoronoi();
+            updateDelaunay();
+        }
+        
+        // Update Voronoi diagram
+        function updateVoronoi() {
+            // Clear previous elements
+            voronoiSvg.selectAll("*").remove();
+            
+            if (points.length === 0) return;
+            
+            // Create Voronoi diagram
+            const delaunay = d3.Delaunay.from(points);
+            const voronoi = delaunay.voronoi([0, 0, width, height]);
+            
+            // Draw Voronoi cells
+            voronoiSvg.append("g")
+                .selectAll("path")
+                .data(points)
+                .enter()
+                .append("path")
+                .attr("d", (_, i) => voronoi.renderCell(i))
+                .attr("fill", (_, i) => d3.interpolateRainbow(i / points.length))
+                .attr("opacity", 0.3)
+                .attr("stroke", "#333")
+                .attr("stroke-width", 1);
+            
+            // Draw points
+            voronoiSvg.append("g")
+                .selectAll("circle")
+                .data(points)
+                .enter()
+                .append("circle")
+                .attr("cx", d => d[0])
+                .attr("cy", d => d[1])
+                .attr("r", 4)
+                .attr("fill", (_, i) => d3.interpolateRainbow(i / points.length))
+                .attr("stroke", "#333")
+                .attr("stroke-width", 1);
+        }
+        
+        // Update Delaunay triangulation
+        function updateDelaunay() {
+            // Clear previous elements
+            delaunaySvg.selectAll("*").remove();
+            
+            if (points.length === 0) return;
+            
+            // Create Delaunay triangulation
+            const delaunay = d3.Delaunay.from(points);
+            const triangles = delaunay.triangles;
+            
+            // Draw triangles
+            delaunaySvg.append("g")
+                .selectAll("path")
+                .data(d3.range(0, triangles.length / 3))
+                .enter()
+                .append("path")
+                .attr("d", i => {
+                    const i0 = triangles[i * 3];
+                    const i1 = triangles[i * 3 + 1];
+                    const i2 = triangles[i * 3 + 2];
+                    return `M${points[i0][0]},${points[i0][1]}L${points[i1][0]},${points[i1][1]}L${points[i2][0]},${points[i2][1]}Z`;
+                })
+                .attr("fill", (_, i) => d3.interpolateRainbow(i / (triangles.length / 3)))
+                .attr("opacity", 0.3)
+                .attr("stroke", "#333")
+                .attr("stroke-width", 1);
+            
+            // Draw circumcircles (for demonstration)
+            if (points.length >= 3) {
+                delaunaySvg.append("g")
+                    .selectAll("circle")
+                    .data(d3.range(0, triangles.length / 3))
+                    .enter()
+                    .append("circle")
+                    .attr("cx", i => {
+                        const i0 = triangles[i * 3];
+                        const i1 = triangles[i * 3 + 1];
+                        const i2 = triangles[i * 3 + 2];
+                        return circumcenter(points[i0], points[i1], points[i2])[0];
+                    })
+                    .attr("cy", i => {
+                        const i0 = triangles[i * 3];
+                        const i1 = triangles[i * 3 + 1];
+                        const i2 = triangles[i * 3 + 2];
+                        return circumcenter(points[i0], points[i1], points[i2])[1];
+                    })
+                    .attr("r", i => {
+                        const i0 = triangles[i * 3];
+                        const i1 = triangles[i * 3 + 1];
+                        const i2 = triangles[i * 3 + 2];
+                        return circumradius(points[i0], points[i1], points[i2]);
+                    })
+                    .attr("fill", "none")
+                    .attr("stroke", "#999")
+                    .attr("stroke-width", 1)
+                    .attr("stroke-dasharray", "3,3");
+            }
+            
+            // Draw points
+            delaunaySvg.append("g")
+                .selectAll("circle")
+                .data(points)
+                .enter()
+                .append("circle")
+                .attr("cx", d => d[0])
+                .attr("cy", d => d[1])
+                .attr("r", 4)
+                .attr("fill", (_, i) => d3.interpolateRainbow(i / points.length))
+                .attr("stroke", "#333")
+                .attr("stroke-width", 1);
+        }
+        
+        // Helper function to calculate circumcenter
+        function circumcenter(a, b, c) {
+            const [ax, ay] = a;
+            const [bx, by] = b;
+            const [cx, cy] = c;
+            
+            const d = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by));
+            const ux = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d;
+            const uy = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d;
+            
+            return [ux, uy];
+        }
+        
+        // Helper function to calculate circumradius
+        function circumradius(a, b, c) {
+            const [ax, ay] = a;
+            const [bx, by] = b;
+            const [cx, cy] = c;
+            
+            const ab = Math.sqrt((ax - bx) ** 2 + (ay - by) ** 2);
+            const bc = Math.sqrt((bx - cx) ** 2 + (by - cy) ** 2);
+            const ca = Math.sqrt((cx - ax) ** 2 + (cy - ay) ** 2);
+            
+            // Area of triangle using Heron's formula
+            const s = (ab + bc + ca) / 2;
+            const area = Math.sqrt(s * (s - ab) * (s - bc) * (s - ca));
+            
+            return (ab * bc * ca) / (4 * area);
+        }
+    </script>
+</body>
+</html>

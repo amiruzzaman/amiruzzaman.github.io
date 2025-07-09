@@ -10,7 +10,18 @@
         .node circle { fill: steelblue; stroke: black; stroke-width: 2px; }
         .node text { font-size: 14px; fill: white; }
         .link { fill: none; stroke: #ccc; stroke-width: 2px; }
-        textarea { width: 90%; height: 50px; margin-bottom: 10px; }
+        textarea { 
+            width: 90%; 
+            height: 50px; 
+            margin-bottom: 10px; 
+            padding: 10px;
+            font-size: 16px;
+        }
+        .example-text {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -20,7 +31,8 @@
         <label><input type="radio" name="traversal" value="inorder"> Inorder</label>
         <label><input type="radio" name="traversal" value="postorder"> Postorder</label>
     </div>
-    <textarea id="treeInput" placeholder='Enter comma-separated values'></textarea>
+    <textarea id="treeInput" placeholder='Enter comma-separated values (e.g., 50,30,70,20,40,60,80)'></textarea>
+    <div class="example-text">Try: 50,30,70,20,40,60,80 or 100,50,150,25,75,125,175</div>
     <button onclick="updateTree()">Update Tree</button>
     <svg width="800" height="500"></svg>
     <script>
@@ -90,6 +102,12 @@
                 .attr("text-anchor", "middle")
                 .text(d => d.data.name);
         }
+
+        // Initialize with a sample tree
+        window.onload = function() {
+            document.getElementById("treeInput").value = "50,30,70,20,40,60,80";
+            updateTree();
+        };
     </script>
 </body>
 </html>
