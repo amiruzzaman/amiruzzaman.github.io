@@ -6,125 +6,279 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="#">
     <title>Donation Form</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #ffc107;
+            --secondary-color: #495057;
+            --background-color: #72787e;
+            --input-bg: #6c757d;
+            --success-color: #198754;
+            --error-color: #dc3545;
+            --text-color: #fff;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #72787e;
-            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
         }
 
         .container {
-            background-color: #495057;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            max-width: 500px;
+            background-color: var(--secondary-color);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            max-width: 600px;
             width: 100%;
-            box-sizing: border-box;
-            overflow: hidden;
+            margin: 20px 0;
+            position: relative;
+            overflow: visible;
         }
 
         h2 {
             text-align: center;
-            color: #ffc107;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-size: 28px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background-color: var(--primary-color);
+            border-radius: 3px;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            position: relative;
         }
 
         label {
-            color: #ffc107;
-            font-weight: bold;
-            margin-bottom: 5px;
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 8px;
             display: block;
+        }
+
+        label i {
+            margin-right: 8px;
+            width: 20px;
+            text-align: center;
         }
 
         input,
         select,
         textarea {
-            width: calc(100% - 22px);
-            padding: 10px;
+            width: 100%;
+            padding: 12px 15px;
             margin-top: 5px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            background-color: #6c757d;
-            color: #fff;
-            box-sizing: border-box;
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(221, 221, 221, 0.3);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.2);
         }
 
         input[type="submit"] {
-            width: 100%;
-            background-color: #198754;
-            color: #fff;
+            background-color: var(--success-color);
+            color: var(--text-color);
+            font-weight: 600;
             cursor: pointer;
+            border: none;
+            padding: 14px;
+            margin-top: 10px;
+            transition: background-color 0.3s;
         }
 
         input[type="submit"]:hover {
-            background-color: #145c41;
+            background-color: #157347;
         }
 
         #image-preview {
             display: none;
-            margin-top: 10px;
+            margin-top: 15px;
             text-align: center;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            padding: 10px;
         }
 
         #image-preview img {
             max-width: 100%;
-            border-radius: 5px;
+            max-height: 200px;
+            border-radius: var(--border-radius);
+            object-fit: contain;
         }
 
         #message-container {
-            margin-top: 20px;
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            background-color: rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .success-message {
+            color: #d4edda;
+            background-color: rgba(25, 135, 84, 0.2);
+            border-left: 4px solid var(--success-color);
+        }
+
+        .error-message {
+            color: #f8d7da;
+            background-color: rgba(220, 53, 69, 0.2);
+            border-left: 4px solid var(--error-color);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-button {
+            border: 1px solid rgba(221, 221, 221, 0.3);
+            border-radius: var(--border-radius);
+            padding: 10px 15px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .file-input-button i {
+            margin-left: 8px;
+        }
+
+        #file-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .preview-placeholder {
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            input,
+            select,
+            textarea {
+                padding: 10px 12px;
+            }
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h2>Donation Form</h2>
+        <h2><i class="fas fa-hand-holding-heart"></i> Donation Form</h2>
         <form id="donation-form">
             <div class="form-group">
-                <label for="donor-name">Donor Name</label>
+                <label for="donor-name"><i class="fas fa-user"></i> Donor Name</label>
                 <input type="text" id="donor-name" name="donor-name" placeholder="Enter your name" required>
             </div>
             <div class="form-group">
-                <label for="country">Country</label>
+                <label for="country"><i class="fas fa-globe"></i> Country</label>
                 <select id="country" name="country" required>
                     <option value="" disabled selected>Select a country</option>
                 </select>
             </div>
             <div class="form-group">
-                <label for="file-input">File</label>
-                <input type="file" id="file-input" name="file">
+                <label><i class="fas fa-file-upload"></i> File Upload</label>
+                <div class="file-input-wrapper">
+                    <div class="file-input-button">
+                        <span id="file-input-label">Choose a file</span>
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <input type="file" id="file-input" name="file">
+                </div>
                 <div id="image-preview">
                     <img id="preview-img" alt="Preview">
                 </div>
             </div>
             <div class="form-group">
-                <label for="file-url">File URL</label>
-                <input type="url" id="file-url" name="file-url" placeholder="Enter file URL">
+                <label for="file-url"><i class="fas fa-link"></i> File URL</label>
+                <input type="url" id="file-url" name="file-url" placeholder="Enter file URL (optional)">
             </div>
             <div class="form-group">
-                <label for="currency-type">Type of Currency</label>
+                <label for="currency-type"><i class="fas fa-money-bill-wave"></i> Type of Currency</label>
                 <select id="currency-type" name="currency-type" required>
                     <option value="" disabled selected>Select currency type</option>
                     <option value="paper-bill">Paper Bill</option>
                     <option value="coin">Coin</option>
-					<option value="coin">Antique</option>
+                    <option value="antique">Antique</option>
                 </select>
             </div>
             <div class="form-group">
-                <label for="note">Note</label>
-                <textarea id="note" name="note" rows="4" required></textarea>
+                <label for="note"><i class="fas fa-comment"></i> Note</label>
+                <textarea id="note" name="note" rows="4" placeholder="Add any additional information..."
+                    required></textarea>
             </div>
-            <input type="submit" value="Submit">
+            <input type="submit" value="Submit Donation">
         </form>
         <div id="message-container"></div>
     </div>
@@ -137,7 +291,7 @@
                 .then(data => {
                     const countrySelect = document.getElementById('country');
                     const currentSelection = countrySelect.value;
-                    countrySelect.innerHTML = '<option value="" disabled>Select a country</option>';
+                    countrySelect.innerHTML = '<option value="" disabled selected>Select a country</option>';
                     data.forEach(country => {
                         const option = document.createElement('option');
                         option.value = country.name;
@@ -160,13 +314,15 @@
             document.getElementById('country').value = selectedCountry;
         });
 
-        // Preview selected image
+        // Preview selected image and update file input label
         document.getElementById('file-input').addEventListener('change', function () {
             const preview = document.getElementById('image-preview');
             const previewImg = document.getElementById('preview-img');
+            const fileLabel = document.getElementById('file-input-label');
 
             const file = this.files[0];
             if (file) {
+                fileLabel.textContent = file.name;
                 const reader = new FileReader();
                 reader.onload = function (e) {
                     previewImg.src = e.target.result;
@@ -174,6 +330,7 @@
                 };
                 reader.readAsDataURL(file);
             } else {
+                fileLabel.textContent = 'Choose a file';
                 preview.style.display = 'none';
             }
         });
@@ -210,7 +367,7 @@
 
             // Ensure at least one file input is provided
             if (!fileInput.files.length && !fileUrlValue) {
-                alert('Please provide either a file or a valid URL.');
+                showMessage('Please provide either a file or a valid URL.', 'error');
                 return;
             }
 
@@ -220,38 +377,45 @@
             })
                 .then((response) => response.json())
                 .then((result) => {
-                    const messageContainer = document.getElementById('message-container');
-                    //console.log(result);
                     if (result.message == 'Error fetching the file from URL!') {
-                        messageContainer.innerHTML = `
-                        <div style="color: red;">
-                            ${result.message}<br>
+                        showMessage(`
+                            ${result.message}<br><br>
                             <strong>Donor Name:</strong> ${result['donor_name']}<br>
                             <strong>Country:</strong> ${result.country}<br>
                             <strong>Currency Type:</strong> ${result['currency_type']}<br>
                             <strong>Note:</strong> ${result.note}<br>
                             <strong>File Path:</strong> ${result.file_path}
-                        </div>`;
+                        `, 'error');
                     } else {
-                        messageContainer.innerHTML = `
-                        <div style="color: green;">
-            <p>${result.message}</p>
-            <p><strong>Donor Name:</strong> ${result.donor_name}</p>
-            <p><strong>Country:</strong> ${result.country}</p>
-            <p><strong>Currency Type:</strong> ${result.currency_type}</p>
-            <p><strong>Note:</strong> ${result.note}</p>
-        </div>
-        <div style="margin-top: 10px; text-align: center;">
-            <img src="${result.file_path}" alt="Uploaded Image" style="max-width: 100%; border-radius: 5px;">
-        </div>`;
+                        showMessage(`
+                            <p>${result.message}</p>
+                            <p><strong>Donor Name:</strong> ${result.donor_name}</p>
+                            <p><strong>Country:</strong> ${result.country}</p>
+                            <p><strong>Currency Type:</strong> ${result.currency_type}</p>
+                            <p><strong>Note:</strong> ${result.note}</p>
+                            <div style="margin-top: 15px; text-align: center;">
+                                <img src="${result.file_path}" alt="Uploaded Image" style="max-width: 100%; border-radius: 8px;">
+                            </div>
+                        `, 'success');
                     }
                 })
                 .catch((error) => {
-                    const messageContainer = document.getElementById('message-container');
-                    messageContainer.innerHTML = `
-                    <div style="color: red;">Error: ${error.message}</div>`;
+                    showMessage(`Error: ${error.message}`, 'error');
                 });
         });
+
+        // Helper function to show messages
+        function showMessage(content, type) {
+            const messageContainer = document.getElementById('message-container');
+            messageContainer.innerHTML = `
+                <div class="${type}-message">
+                    ${content}
+                </div>
+            `;
+
+            // Scroll to the message container smoothly
+            messageContainer.scrollIntoView({ behavior: 'smooth' });
+        }
 
         // Initialize the countries when the page loads
         window.addEventListener('DOMContentLoaded', loadCountries);
