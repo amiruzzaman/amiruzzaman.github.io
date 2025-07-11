@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lorenz Curve and Gini Index Visualizer</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .chart-container {
+            flex: 1;
+            min-width: 500px;
+        }
+        .controls {
+            flex: 1;
+            min-width: 300px;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .slider-container {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="range"] {
+            width: 100%;
+        }
+        .value-display {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .line-of-equality {
+            stroke: #999;
+            stroke-dasharray: 3,3;
+        }
+        .lorenz-curve {
+            stroke: #e74c3c;
+            stroke-width: 2;
+            fill: none;
+        }
+        .area-under-curve {
+            fill: rgba(231, 76, 60, 0.2);
+        }
+        .gini-display {
+            font-size: 1.2em;
+            margin-top: 10px;
+            padding: 10px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .math-definition {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .math {
+            font-family: "Times New Roman", serif;
+            font-style: italic;
+        }
+        .axis-label {
+            font-size: 12px;
+        }
+        .reset-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .reset-btn:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Lorenz Curve and Gini Index Visualizer</h1>
+    
+    <div class="container">
+        <div class="chart-container">
+            <h2>Lorenz Curve</h2>
+            <div id="chart"></div>
+            <div class="gini-display">Gini Index: <span id="gini-value">0.00</span></div>
+        </div>
+        
+        <div class="controls">
+            <h2>Population Distribution</h2>
+            <p>Adjust the sliders to change the income distribution across different population segments.</p>
+            
+            <div id="sliders-container"></div>
+            
+            <button class="reset-btn" id="reset-btn">Reset to Equal Distribution</button>
+            
+            <div class="math-definition">
+                <h3>Mathematical Definitions</h3>
+                <h4>Lorenz Curve</h4>
+                <p class="math">
+                    The Lorenz curve L(F) is a function where F is the cumulative proportion of the population (sorted by income), 
+                    and L(F) is the cumulative proportion of income earned by that portion of the population.
+                </p>
+                <p>
+                    For a population with n income groups sorted in increasing order (y₁ ≤ y₂ ≤ ... ≤ yₙ), the Lorenz curve is the piecewise linear function connecting the points:
+                </p>
+                <p class="math">
+                    (k/n, (∑ᵢ₌₁ᵏ yᵢ)/(∑ᵢ₌₁ⁿ yᵢ)) for k = 0, 1, ..., n
+                </p>
+                
+                <h4>Gini Index</h4>
+                <p class="math">
+                    The Gini index G is defined as the ratio of the area between the line of equality and the Lorenz curve (A) 
+                    to the total area under the line of equality (A + B = 0.5):
+                </p>
+                <p class="math">
+                    G = A / (A + B) = 2A = 1 - 2B
+                </p>
+                <p>
+                    For discrete data, it can be calculated as:
+                </p>
+                <p class="math">
+                    G = (∑ᵢ₌₁ⁿ ∑ⱼ₌₁ⁿ |yᵢ - yⱼ|) / (2n²μ)
+                </p>
+                <p>
+                    where μ is the mean income.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initial data - 5 population segments with equal distribution
+        const initialData = [20, 20, 20, 20, 20];
+        let currentData = [...initialData];
+        
+        // Set up SVG dimensions
+        const margin = {top: 40, right: 40, bottom: 60, left: 60};
+        const width = 500 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
+        
+        // Create SVG
+        const svg = d3.select("#chart")
+            .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+        
+        // Scales
+        const xScale = d3.scaleLinear().domain([0, 1]).range([0, width]);
+        const yScale = d3.scaleLinear().domain([0, 1]).range([height, 0]);
+        
+        // Add axes
+        svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(xScale).ticks(5));
+        
+        svg.append("text")
+            .attr("class", "axis-label")
+            .attr("x", width / 2)
+            .attr("y", height + margin.bottom - 10)
+            .style("text-anchor", "middle")
+            .text("Cumulative proportion of population");
+        
+        svg.append("g")
+            .attr("class", "y axis")
+            .call(d3.axisLeft(yScale).ticks(5));
+        
+        svg.append("text")
+            .attr("class", "axis-label")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -margin.left + 15)
+            .attr("x", -height / 2)
+            .style("text-anchor", "middle")
+            .text("Cumulative proportion of income");
+        
+        // Add line of equality
+        svg.append("line")
+            .attr("class", "line-of-equality")
+            .attr("x1", 0)
+            .attr("y1", height)
+            .attr("x2", width)
+            .attr("y2", 0);
+        
+        svg.append("text")
+            .attr("x", width - 5)
+            .attr("y", 5)
+            .style("text-anchor", "end")
+            .style("fill", "#999")
+            .text("Line of perfect equality");
+        
+        // Create sliders
+        function createSliders(data) {
+            const container = d3.select("#sliders-container");
+            container.html("");
+            
+            data.forEach((value, i) => {
+                const sliderId = `slider-${i}`;
+                const valueId = `value-${i}`;
+                
+                const sliderDiv = container.append("div")
+                    .attr("class", "slider-container");
+                
+                sliderDiv.append("label")
+                    .attr("for", sliderId)
+                    .text(`Segment ${i + 1}`);
+                
+                sliderDiv.append("input")
+                    .attr("type", "range")
+                    .attr("id", sliderId)
+                    .attr("min", 0)
+                    .attr("max", 100)
+                    .attr("value", value)
+                    .attr("step", 1)
+                    .on("input", function() {
+                        const newValue = +this.value;
+                        currentData[i] = newValue;
+                        d3.select(`#${valueId}`).text(newValue);
+                        updateChart();
+                    });
+                
+                sliderDiv.append("div")
+                    .attr("class", "value-display")
+                    .attr("id", valueId)
+                    .text(value);
+            });
+        }
+        
+        // Calculate cumulative proportions for Lorenz curve
+        function calculateLorenzPoints(data) {
+            const sortedData = [...data].sort((a, b) => a - b);
+            const total = d3.sum(sortedData);
+            
+            let cumulativePopulation = 0;
+            let cumulativeIncome = 0;
+            
+            const points = [{x: 0, y: 0}];
+            
+            sortedData.forEach((value, i) => {
+                cumulativePopulation += 1 / data.length;
+                cumulativeIncome += value / total;
+                points.push({x: cumulativePopulation, y: cumulativeIncome});
+            });
+            
+            return points;
+        }
+        
+        // Calculate Gini index
+        function calculateGiniIndex(data) {
+            const sortedData = [...data].sort((a, b) => a - b);
+            const n = sortedData.length;
+            const mean = d3.mean(sortedData);
+            
+            let absoluteDifferencesSum = 0;
+            
+            for (let i = 0; i < n; i++) {
+                for (let j = 0; j < n; j++) {
+                    absoluteDifferencesSum += Math.abs(sortedData[i] - sortedData[j]);
+                }
+            }
+            
+            return absoluteDifferencesSum / (2 * n * n * mean);
+        }
+        
+        // Update chart with current data
+        function updateChart() {
+            const lorenzPoints = calculateLorenzPoints(currentData);
+            const giniIndex = calculateGiniIndex(currentData);
+            
+            // Update Gini display
+            d3.select("#gini-value").text(giniIndex.toFixed(3));
+            
+            // Create line generator
+            const line = d3.line()
+                .x(d => xScale(d.x))
+                .y(d => yScale(d.y));
+            
+            // Create area generator
+            const area = d3.area()
+                .x(d => xScale(d.x))
+                .y0(d => yScale(d.x)) // Line of equality
+                .y1(d => yScale(d.y));
+            
+            // Update or create Lorenz curve
+            const lorenzCurve = svg.selectAll(".lorenz-curve").data([lorenzPoints]);
+            
+            lorenzCurve.enter()
+                .append("path")
+                .attr("class", "lorenz-curve")
+                .merge(lorenzCurve)
+                .attr("d", line);
+            
+            // Update or create area under curve
+            const areaUnderCurve = svg.selectAll(".area-under-curve").data([lorenzPoints]);
+            
+            areaUnderCurve.enter()
+                .append("path")
+                .attr("class", "area-under-curve")
+                .merge(areaUnderCurve)
+                .attr("d", area);
+        }
+        
+        // Reset to equal distribution
+        d3.select("#reset-btn").on("click", function() {
+            currentData = [...initialData];
+            createSliders(currentData);
+            updateChart();
+        });
+        
+        // Initialize
+        createSliders(initialData);
+        updateChart();
+    </script>
+</body>
+</html>
