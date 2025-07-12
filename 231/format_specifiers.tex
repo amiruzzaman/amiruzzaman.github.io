@@ -1,0 +1,216 @@
+\documentclass{beamer}
+
+\usepackage{listings}
+\usepackage{xcolor} % For syntax highlighting colors
+%\usepackage[backend=biber]{biblatex} % For citations and bibliography
+\usepackage[natbib=true,style=authoryear,backend=bibtex,useprefix=true]{biblatex}
+\addbibresource{ref.bib} % Load the bibliography file
+
+% Listings configuration for C language
+\lstset{
+  language=C,
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{blue},
+  stringstyle=\color{red},
+  commentstyle=\color{green!50!black},
+  showstringspaces=false,
+  frame=single,
+  breaklines=true
+}
+
+\title{C Programming: printf Format Specifiers}
+\author{Dr. Amir}
+%\date{\today}
+\date{}
+
+\begin{document}
+
+% Title slide
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% Introduction slide
+\begin{frame}{Introduction}
+  \begin{itemize}
+    \item The `printf` function in C is used for formatted output \citep{kernighan1988c}.
+    \item Format specifiers control how variables are printed.
+    \item Common specifiers:
+    \begin{itemize}
+      \item `\%d` – Integer
+      \item `\%f` – Floating-point
+      \item `\%c` – Character
+      \item `\%s` – String
+      \item `\%o` – Octal
+      \item `\%x` – Hexadecimal
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+% Slide for Integer Format Specifier (%d)
+\begin{frame}[fragile]{Integer Format Specifier: \texttt{\%d}}
+  \begin{itemize}
+    \item Used to print integers.
+    \item Example:
+  \end{itemize}
+  \begin{lstlisting}
+#include <stdio.h>
+
+int main() {
+  int a = 10;
+  printf("Integer: %d\n", a);
+  return 0;
+}
+  \end{lstlisting}
+  \textbf{Output:} \texttt{Integer: 10}
+\vskip 0.5cm
+  \footnotesize{This example is adapted from ( \cite{prata2004c}).}
+\end{frame}
+
+% Slide for Floating-Point Format Specifier (%f)
+\begin{frame}[fragile]{Floating-Point Format Specifier: \texttt{\%f}}
+  \begin{itemize}
+    \item Used to print floating-point numbers.
+    \item Example:
+  \end{itemize}
+  \begin{lstlisting}
+#include <stdio.h>
+
+int main() {
+  float b = 3.14159;
+  printf("Float: %.2f\n", b);
+  return 0;
+}
+  \end{lstlisting}
+  \textbf{Output:} \texttt{Float: 3.14}
+\end{frame}
+
+% Slide for Character Format Specifier (%c)
+\begin{frame}[fragile]{Character Format Specifier: \texttt{\%c}}
+  \begin{itemize}
+    \item Used to print a single character.
+    \item Example:
+  \end{itemize}
+  \begin{lstlisting}
+#include <stdio.h>
+
+int main() {
+  char c = 'A';
+  printf("Character: %c\n", c);
+  return 0;
+}
+  \end{lstlisting}
+  \textbf{Output:} \texttt{Character: A}
+\end{frame}
+
+% Slide for String Format Specifier (%s)
+\begin{frame}[fragile]{String Format Specifier: \texttt{\%s}}
+  \begin{itemize}
+    \item Used to print strings.
+    \item Example:
+  \end{itemize}
+  \begin{lstlisting}
+#include <stdio.h>
+
+int main() {
+  char str[] = "Hello, Class!";
+  printf("String: %s\n", str);
+  return 0;
+}
+  \end{lstlisting}
+  \textbf{Output:} \texttt{String: Hello, Class!}
+\end{frame}
+
+% Slide for Octal Format Specifier (%o)
+\begin{frame}[fragile]{Octal Format Specifier: \texttt{\%o}}
+  \begin{itemize}
+    \item Used to print integers in octal (base 8) format.
+    \item Example:
+  \end{itemize}
+  \begin{lstlisting}
+#include <stdio.h>
+
+int main() {
+  int a = 10;
+  printf("Octal: %o\n", a);
+  return 0;
+}
+  \end{lstlisting}
+  \textbf{Output:} \texttt{Octal: 12}
+\end{frame}
+
+% Slide for Hexadecimal Format Specifier (%x)
+\begin{frame}[fragile]{Hexadecimal Format Specifier: \texttt{\%x}}
+  \begin{itemize}
+    \item Used to print integers in hexadecimal (base 16) format.
+    \item Example:
+  \end{itemize}
+  \begin{lstlisting}
+#include <stdio.h>
+
+int main() {
+  int a = 255;
+  printf("Hexadecimal: %x\n", a);
+  return 0;
+}
+  \end{lstlisting}
+  \textbf{Output:} \texttt{Hexadecimal: ff}
+\end{frame}
+
+% Conclusion slide
+\begin{frame}{Conclusion}
+  \begin{itemize}
+    \item Format specifiers are crucial for formatted output in C.
+    \item Use them correctly to display different data types \citep{kernighan1988c, knuth1973art}.
+    \item Explore more specifiers like \texttt{\%u} (unsigned integer) and \texttt{\%e} (scientific notation).
+  \end{itemize}
+\end{frame}
+
+
+% Unsigned Integer (%u) example
+\begin{frame}[fragile]{Unsigned Integer Format Specifier: \texttt{\%u}}
+  \begin{itemize}
+    \item Used to print unsigned integers (non-negative values).
+    \item Example:
+  \end{itemize}
+  \begin{lstlisting}
+#include <stdio.h>
+
+int main() {
+  unsigned int a = 4294967295;
+  printf("Unsigned Integer: %u\n", a);
+  return 0;
+}
+  \end{lstlisting}
+  \textbf{Output:} \texttt{Unsigned Integer: 4294967295}
+  \vskip 0.5cm
+  \footnotesize{This example illustrates how unsigned integers are represented \citep{prata2004c}.}
+\end{frame}
+
+% Scientific Notation (%e) example
+\begin{frame}[fragile]{Scientific Notation Format Specifier: \texttt{\%e}}
+  \begin{itemize}
+    \item Used to print floating-point numbers in scientific notation (exponential format).
+    \item Example:
+  \end{itemize}
+  \begin{lstlisting}
+#include <stdio.h>
+
+int main() {
+  double b = 1234567.89;
+  printf("Scientific Notation: %e\n", b);
+  return 0;
+}
+  \end{lstlisting}
+  \textbf{Output:} \texttt{Scientific Notation: 1.234568e+06}
+  \vskip 0.5cm
+  \footnotesize{Scientific notation is commonly used for very large or very small numbers \citep{knuth1973art}.}
+\end{frame}
+
+
+% Bibliography slide
+\begin{frame}[allowframebreaks]{References}
+  \printbibliography
+\end{frame}
+
+\end{document}
