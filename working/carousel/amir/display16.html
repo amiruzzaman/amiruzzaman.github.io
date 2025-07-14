@@ -129,7 +129,6 @@
             border: 1px solid var(--border-color);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
             transition: var(--transition);
-            cursor: pointer;
         }
 
         .current-img-container img:hover {
@@ -430,63 +429,6 @@
             color: var(--text-color);
         }
 
-        /* Image Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            overflow: auto;
-            animation: fadeInModal 0.3s;
-        }
-
-        @keyframes fadeInModal {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-content {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            width: 100%;
-            padding: 20px;
-        }
-
-        .modal-image {
-            max-width: 90%;
-            max-height: 80vh;
-            object-fit: contain;
-            animation: zoomIn 0.3s;
-        }
-
-        @keyframes zoomIn {
-            from { transform: scale(0.9); }
-            to { transform: scale(1); }
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            color: white;
-            font-size: 35px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .close-modal:hover {
-            color: var(--accent-color);
-            transform: rotate(90deg);
-        }
-
         /* Responsive */
         @media (max-width: 900px) {
             .main-content {
@@ -506,11 +448,6 @@
                 width: 40px;
                 height: 40px;
                 font-size: 16px;
-            }
-
-            .modal-image {
-                max-width: 95%;
-                max-height: 70vh;
             }
         }
 
@@ -543,10 +480,7 @@
     <div class="out-container">
         <div class="inner-container">
             <a href="index.html" class="btn btn-home"><i class="fas fa-home"></i> Home</a>
-            <h1 id="image-caption" class="title">
-                <span class="title"> Amir's Coin Collection</span>
-                <span id="selected-country-title" class="country-name"></span>
-            </h1>
+            <h1 id="image-caption" class="title">Amir's Coin Collection</h1>
 
             <div class="main-content">
                 <div class="gallery-section">
@@ -586,15 +520,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Image Modal -->
-    <div id="imageModal" class="modal">
-        <span class="close-modal">&times;</span>
-        <div class="modal-content">
-            <img id="modalImage" class="modal-image" src="" alt="Enlarged view">
-        </div>
-    </div>
-
     <footer>
         <p><i class="far fa-copyright"></i> 2025 Amiruzzaman coin collection. All rights reserved. |
             <a href="privacy.html" target="_blank"><i class="fas fa-lock"></i> Privacy Policy</a>
@@ -615,8 +540,6 @@
             const tempImage = new Image();
             tempImage.onload = () => {
                 image.setAttribute("src", src); // Update only after image is loaded
-                // Set the same image source for the modal
-                document.getElementById("modalImage").setAttribute("src", src);
             };
             tempImage.src = src;
 
@@ -671,8 +594,6 @@
                 if (currentCountry && country.toLowerCase() === currentCountry) {
                     link.classList.add("active");
                     document.getElementById('selected-country').textContent = `: ${country}`;
-                    document.getElementById('selected-country-title').textContent = `: ${country}`;
-					document.getElementById('selected-country-title').style.color = "#e74c3c";
                 }
 
                 link.addEventListener("click", event => {
@@ -687,8 +608,6 @@
                     // Add active class to clicked link
                     link.classList.add('active');
                     document.getElementById('selected-country').textContent = `: ${country}`;
-                    document.getElementById('selected-country-title').textContent = `: ${country}`;
-					
 
                     history.pushState(null, "", `?country=${countryName}`);
                     highlightCountry(countryName);
@@ -830,7 +749,6 @@
                                                         if (el.textContent.toLowerCase() === countryName.toLowerCase()) {
                                                             el.classList.add('active');
                                                             document.getElementById('selected-country').textContent = `: ${countryName}`;
-                                                            document.getElementById('selected-country-title').textContent = `: ${countryName}`;
                                                         }
                                                     });
                                                 },
@@ -954,42 +872,6 @@
             });
         }
 
-        // Initialize image modal
-        function initImageModal() {
-            const modal = document.getElementById("imageModal");
-            const modalImg = document.getElementById("modalImage");
-            const closeModal = document.querySelector(".close-modal");
-            const currentImage = document.getElementById("current-image-img");
-
-            // When the current image is clicked, open the modal
-            currentImage.addEventListener("click", function() {
-                modal.style.display = "flex";
-                document.body.style.overflow = "hidden"; // Prevent scrolling
-            });
-
-            // When the close button is clicked, close the modal
-            closeModal.addEventListener("click", function() {
-                modal.style.display = "none";
-                document.body.style.overflow = "auto"; // Re-enable scrolling
-            });
-
-            // When clicking anywhere outside the image, close the modal
-            modal.addEventListener("click", function(event) {
-                if (event.target === modal) {
-                    modal.style.display = "none";
-                    document.body.style.overflow = "auto"; // Re-enable scrolling
-                }
-            });
-
-            // Close modal with ESC key
-            document.addEventListener("keydown", function(event) {
-                if (event.key === "Escape" && modal.style.display === "flex") {
-                    modal.style.display = "none";
-                    document.body.style.overflow = "auto"; // Re-enable scrolling
-                }
-            });
-        }
-
         (() => {
             const queryParams = new URLSearchParams(window.location.search);
             const countryQuery = queryParams.get("country") || "default";
@@ -1013,7 +895,6 @@
                 });
 
             initDetailsToggle();
-            initImageModal();
         })();
     </script>
     <script type="text/javascript">
