@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Collection - Add New</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --primary-hover: #3a56d4;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --text-color: #2b2d42;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e9ecef;
+            --dark-gray: #6c757d;
+            --error-color: #ef233c;
+            --success-text: #155724;
+            --success-bg: #d4edda;
+            --error-text: #721c24;
+            --error-bg: #f8d7da;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 2.5rem;
+            margin-top: 2rem;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            font-size: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        select,
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: var(--light-gray);
+        }
+
+        select:focus,
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+        }
+
+        .radio-option input {
+            margin-right: 0.5rem;
+        }
+
+        .drop-area {
+            border: 2px dashed var(--dark-gray);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            text-align: center;
+            margin: 1.5rem 0;
+            transition: var(--transition);
+            cursor: pointer;
+            background-color: var(--light-gray);
+            position: relative;
+        }
+
+        .drop-area.highlight {
+            border-color: var(--primary-color);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .drop-area p {
+            margin: 0;
+            font-size: 1rem;
+            color: var(--dark-gray);
+        }
+
+        .drop-area .icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        #preview {
+            max-width: 100%;
+            max-height: 200px;
+            margin-top: 1rem;
+            display: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            border: 1px solid var(--medium-gray);
+        }
+
+        .preview-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            width: 100%;
+            transition: var(--transition);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            background-color: var(--dark-gray);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #message {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            display: none;
+        }
+
+        .success {
+            background-color: var(--success-bg);
+            color: var(--success-text);
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            border: 1px solid #f5c6cb;
+        }
+
+        .file-info {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--dark-gray);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .radio-group {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Add New Currency</h1>
+            <form id="currencyForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="country">Country</label>
+                    <select id="country" name="country" required>
+                        <option value="">Select a country</option>
+                        <!-- Countries will be populated by JavaScript -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Currency Type</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="coin" name="currency_type" value="coin" required>
+                            <label for="coin">Coin</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="paper-bill" name="currency_type" value="paper-bill">
+                            <label for="paper-bill">Paper Bill</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="antique" name="currency_type" value="antique">
+                            <label for="antique">Antique</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="donor_name">Donor Name</label>
+                    <input type="text" id="donor_name" name="donor_name" required placeholder="Enter donor's name">
+                </div>
+
+                <div class="form-group">
+                    <label for="note">Notes</label>
+                    <textarea id="note" name="note"
+                        placeholder="Enter any additional information about the currency"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Currency Image</label>
+                    <div id="dropArea" class="drop-area">
+                        <div class="icon">📁</div>
+                        <p>Drag & drop your image here or click to browse</p>
+                        <input type="file" id="fileInput" name="image" accept="image/*" style="display: none;">
+                        <div class="preview-container">
+                            <img id="preview" alt="Image preview">
+                        </div>
+                        <div id="fileInfo" class="file-info"></div>
+                    </div>
+                </div>
+
+                <button type="submit" id="submitButton">Add Currency</button>
+            </form>
+
+            <div id="message"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Elements
+            const countrySelect = document.getElementById('country');
+            const dropArea = document.getElementById('dropArea');
+            const fileInput = document.getElementById('fileInput');
+            const preview = document.getElementById('preview');
+            const fileInfo = document.getElementById('fileInfo');
+            const messageDiv = document.getElementById('message');
+            const form = document.getElementById('currencyForm');
+            const submitButton = document.getElementById('submitButton');
+
+            // Load countries
+            fetch('/get-countries')
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to load countries');
+                    return response.json();
+                })
+                .then(data => {
+                    data.forEach(country => {
+                        const option = document.createElement('option');
+                        option.value = country.name;
+                        option.textContent = country.name;
+                        countrySelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading countries:', error);
+                    showMessage('Error loading countries. Please refresh the page.', 'error');
+                });
+
+            // Drag and drop functionality
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight() {
+                dropArea.classList.add('highlight');
+            }
+
+            function unhighlight() {
+                dropArea.classList.remove('highlight');
+            }
+
+            dropArea.addEventListener('drop', handleDrop, false);
+            dropArea.addEventListener('click', () => fileInput.click());
+
+            fileInput.addEventListener('change', function () {
+                if (this.files.length) handleFiles(this.files);
+            });
+
+            function handleDrop(e) {
+                const files = e.dataTransfer.files;
+                if (files.length) {
+                    fileInput.files = files;
+                    handleFiles(files);
+                }
+            }
+
+            function handleFiles(files) {
+                const file = files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                        fileInfo.textContent = `Selected: ${file.name} (${formatFileSize(file.size)})`;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i];
+            }
+
+            // Form submission
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                clearMessage();
+
+                if (!fileInput.files || fileInput.files.length === 0) {
+                    showMessage('Please select an image', 'error');
+                    return;
+                }
+
+                const formData = new FormData(this);
+                const originalButtonText = submitButton.textContent;
+
+                // Update button state
+                submitButton.textContent = 'Uploading...';
+                submitButton.disabled = true;
+
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            showMessage(`Success! Currency added. Image saved as: ${data.image_path}`, 'success');
+                            form.reset();
+                            preview.style.display = 'none';
+                            fileInfo.textContent = '';
+                        } else {
+                            throw new Error(data.error || 'Unknown error occurred');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showMessage(`Error: ${error.message || 'Failed to submit form'}`, 'error');
+                    })
+                    .finally(() => {
+                        submitButton.textContent = originalButtonText;
+                        submitButton.disabled = false;
+                    });
+            });
+
+            function showMessage(text, type) {
+                messageDiv.textContent = text;
+                messageDiv.className = type;
+                messageDiv.style.display = 'block';
+                messageDiv.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            function clearMessage() {
+                messageDiv.style.display = 'none';
+                messageDiv.className = '';
+                messageDiv.textContent = '';
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Collection - Add New</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #34495e;
+        }
+
+        select,
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .radio-group {
+            margin: 10px 0;
+        }
+
+        .radio-option {
+            display: inline-block;
+            margin-right: 20px;
+        }
+
+        .drop-area {
+            border: 2px dashed #7f8c8d;
+            border-radius: 5px;
+            padding: 30px;
+            text-align: center;
+            margin: 20px 0;
+            transition: all 0.3s;
+            cursor: pointer;
+            background-color: #f9f9f9;
+        }
+
+        .drop-area.highlight {
+            border-color: #3498db;
+            background-color: #eaf2f8;
+        }
+
+        .drop-area p {
+            margin: 0;
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+
+        #preview {
+            max-width: 200px;
+            max-height: 200px;
+            margin-top: 15px;
+            display: none;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        #message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Add New Currency</h1>
+    <form id="currencyForm" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="country">Country:</label>
+            <select id="country" name="country" required>
+                <option value="">Select a country</option>
+                <!-- Countries will be populated by JavaScript -->
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Currency Type:</label>
+            <div class="radio-group">
+                <div class="radio-option">
+                    <input type="radio" id="coin" name="currency_type" value="coin" required>
+                    <label for="coin" style="display: inline;">Coin</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="paper-bill" name="currency_type" value="paper-bill">
+                    <label for="paper-bill" style="display: inline;">Paper Bill</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="donor_name">Donor Name:</label>
+            <input type="text" id="donor_name" name="donor_name" required>
+        </div>
+
+        <div class="form-group">
+            <label for="note">Note:</label>
+            <textarea id="note" name="note" placeholder="Additional information about the currency"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Image Upload:</label>
+            <div id="dropArea" class="drop-area">
+                <p>Drag & drop your image here or click to select</p>
+                <input type="file" id="fileInput" name="image" accept="image/*" style="display: none;">
+                <img id="preview" alt="Image preview">
+            </div>
+        </div>
+
+        <button type="submit">Add Currency</button>
+    </form>
+
+    <div id="message"></div>
+
+    <script>
+        // Fetch countries and populate dropdown
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('/get-countries')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const select = document.getElementById('country');
+                    data.forEach(country => {
+                        const option = document.createElement('option');
+                        option.value = country.name;
+                        option.textContent = country.name;
+                        select.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading countries:', error);
+                    const messageDiv = document.getElementById('message');
+                    messageDiv.textContent = 'Error loading countries. Please refresh the page.';
+                    messageDiv.className = 'error';
+                    messageDiv.style.display = 'block';
+                });
+
+            // Drag and drop functionality
+            const dropArea = document.getElementById('dropArea');
+            const fileInput = document.getElementById('fileInput');
+            const preview = document.getElementById('preview');
+            const messageDiv = document.getElementById('message');
+
+            // Prevent default drag behaviors
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            // Highlight drop area when item is dragged over it
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight() {
+                dropArea.classList.add('highlight');
+            }
+
+            function unhighlight() {
+                dropArea.classList.remove('highlight');
+            }
+
+            // Handle dropped files
+            dropArea.addEventListener('drop', handleDrop, false);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files.length) {
+                    fileInput.files = files;
+                    handleFiles(files);
+                }
+            }
+
+            // Handle click to select files
+            dropArea.addEventListener('click', () => fileInput.click());
+
+            fileInput.addEventListener('change', function () {
+                if (this.files.length) {
+                    handleFiles(this.files);
+                }
+            });
+
+            function handleFiles(files) {
+                const file = files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            // Form submission
+            document.getElementById('currencyForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                // Clear previous messages
+                messageDiv.style.display = 'none';
+                messageDiv.className = '';
+                messageDiv.textContent = '';
+
+                const fileInput = document.getElementById('fileInput');
+                if (!fileInput.files || fileInput.files.length === 0) {
+                    showMessage('Please select an image', 'error');
+                    return;
+                }
+
+                const formData = new FormData(this);
+
+                // Show loading state
+                const submitButton = this.querySelector('button[type="submit"]');
+                const originalButtonText = submitButton.textContent;
+                submitButton.textContent = 'Uploading...';
+                submitButton.disabled = true;
+
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            showMessage(`Successfully added new currency! Image saved as: ${data.image_path}`, 'success');
+                            document.getElementById('currencyForm').reset();
+                            preview.style.display = 'none';
+                        } else {
+                            showMessage(`Error: ${data.error || 'Unknown error'}`, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showMessage(`Error: ${error.message || 'Failed to submit form'}`, 'error');
+                    })
+                    .finally(() => {
+                        submitButton.textContent = originalButtonText;
+                        submitButton.disabled = false;
+                    });
+            });
+
+            function showMessage(text, type) {
+                messageDiv.textContent = text;
+                messageDiv.className = type;
+                messageDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+
+</html>
