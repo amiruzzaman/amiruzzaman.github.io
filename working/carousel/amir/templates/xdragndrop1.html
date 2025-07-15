@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Currency Collection - Add New</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary-color: #4361ee;
@@ -38,16 +37,22 @@
             background-color: #f5f7fa;
             color: var(--text-color);
             line-height: 1.6;
-            padding: 20px;
+            padding: 0;
+            margin: 0;
         }
 
         .container {
             max-width: 800px;
             margin: 0 auto;
-            background: white;
+            padding: 2rem;
+        }
+
+        .card {
+            background-color: white;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
-            padding: 2rem;
+            padding: 2.5rem;
+            margin-top: 2rem;
         }
 
         h1 {
@@ -103,91 +108,10 @@
         .radio-option {
             display: flex;
             align-items: center;
-            position: relative;
-            padding: 10px 15px;
-            cursor: pointer;
-            border-radius: var(--border-radius);
-            border: 2px solid transparent;
-            transition: var(--transition);
-            flex: 1;
-        }
-
-        /* Selected radio button style */
-        .radio-option.selected {
-            border-color: var(--error-color);
-            background-color: rgba(239, 35, 60, 0.05);
         }
 
         .radio-option input {
-            position: absolute;
-            opacity: 0;
-            cursor: pointer;
-            width: 100%;
-            height: 100%;
-            left: 0;
-            top: 0;
-            z-index: 1;
-        }
-
-        .radio-icon {
-            position: relative;
-            height: 20px;
-            width: 20px;
-            background-color: var(--light-gray);
-            border-radius: 50%;
-            border: 2px solid var(--dark-gray);
-            transition: var(--transition);
-            margin-right: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Currency type icons */
-        .radio-option.coin .radio-icon::before {
-            content: "\f51e";
-            /* Font Awesome coin icon */
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            font-size: 12px;
-            color: var(--dark-gray);
-        }
-
-        .radio-option.paper-bill .radio-icon::before {
-            content: "\f53a";
-            /* Font Awesome money-bill icon */
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            font-size: 12px;
-            color: var(--dark-gray);
-        }
-
-        .radio-option.antique .radio-icon::before {
-            content: "\f5d1";
-            /* Font Awesome scroll icon (replaced landmark) */
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            font-size: 12px;
-            color: var(--dark-gray);
-        }
-
-        .radio-option:hover {
-            background-color: rgba(67, 97, 238, 0.05);
-        }
-
-        .radio-option input:checked~.radio-icon {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .radio-option input:checked~.radio-icon::before {
-            color: white;
-        }
-
-        .radio-option label {
-            margin-bottom: 0;
-            cursor: pointer;
-            font-weight: 400;
+            margin-right: 0.5rem;
         }
 
         .drop-area {
@@ -246,28 +170,19 @@
             font-weight: 500;
             width: 100%;
             transition: var(--transition);
-            position: relative;
-            padding-left: 2.5rem;
-        }
-
-        button i {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         button:hover {
             background-color: var(--primary-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
         }
 
         button:disabled {
             background-color: var(--dark-gray);
             cursor: not-allowed;
             transform: none;
-            box-shadow: none;
         }
 
         #message {
@@ -297,6 +212,10 @@
 
         @media (max-width: 768px) {
             .container {
+                padding: 1rem;
+            }
+
+            .card {
                 padding: 1.5rem;
             }
 
@@ -308,136 +227,104 @@
                 flex-direction: column;
                 gap: 0.5rem;
             }
-
-            button {
-                padding-left: 1.5rem;
-            }
-
-            button i {
-                display: none;
-            }
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>Add New Currency</h1>
-        <form id="currencyForm" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="country">Country</label>
-                <select id="country" name="country" required>
-                    <option value="">Select a country</option>
-                    <!-- Countries will be populated by JavaScript -->
-                </select>
-            </div>
+        <div class="card">
+            <h1>Add New Currency</h1>
+            <form id="currencyForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="country">Country</label>
+                    <select id="country" name="country" required>
+                        <option value="">Select a country</option>
+                        <!-- Countries will be populated by JavaScript -->
+                    </select>
+                </div>
 
-            <div class="form-group">
-                <label>Currency Type</label>
-                <div class="radio-group">
-                    <div class="radio-option coin">
-                        <input type="radio" id="coin" name="currency_type" value="coin" required>
-                        <span class="radio-icon"></span>
-                        <label for="coin">Coin</label>
-                    </div>
-                    <div class="radio-option paper-bill">
-                        <input type="radio" id="paper-bill" name="currency_type" value="paper-bill">
-                        <span class="radio-icon"></span>
-                        <label for="paper-bill">Paper Bill</label>
-                    </div>
-                    <div class="radio-option antique">
-                        <input type="radio" id="antique" name="currency_type" value="antique">
-                        <span class="radio-icon"></span>
-                        <label for="antique">Antique</label>
+                <div class="form-group">
+                    <label>Currency Type</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="coin" name="currency_type" value="coin" required>
+                            <label for="coin">Coin</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="paper-bill" name="currency_type" value="paper-bill">
+                            <label for="paper-bill">Paper Bill</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="antique" name="currency_type" value="antique">
+                            <label for="antique">Antique</label>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label for="donor_name">Donor Name</label>
-                <input type="text" id="donor_name" name="donor_name" required placeholder="Enter donor's name">
-            </div>
-
-            <div class="form-group">
-                <label for="note">Notes</label>
-                <textarea id="note" name="note"
-                    placeholder="Enter any additional information about the currency"></textarea>
-            </div>
-
-            <div class="form-group">
-                <label>Currency Image</label>
-                <div id="dropArea" class="drop-area">
-                    <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
-                    <p>Drag & drop your image here or click to browse</p>
-                    <input type="file" id="fileInput" name="image" accept="image/*" style="display: none;">
-                    <div class="preview-container">
-                        <img id="preview" alt="Image preview">
-                    </div>
-                    <div id="fileInfo" class="file-info"></div>
+                <div class="form-group">
+                    <label for="donor_name">Donor Name</label>
+                    <input type="text" id="donor_name" name="donor_name" required placeholder="Enter donor's name">
                 </div>
-            </div>
 
-            <button type="submit" id="submitButton">
-                <i class="fas fa-plus-circle"></i>
-                Add Currency
-            </button>
-        </form>
+                <div class="form-group">
+                    <label for="note">Notes</label>
+                    <textarea id="note" name="note"
+                        placeholder="Enter any additional information about the currency"></textarea>
+                </div>
 
-        <div id="message"></div>
+                <div class="form-group">
+                    <label>Currency Image</label>
+                    <div id="dropArea" class="drop-area">
+                        <div class="icon">📁</div>
+                        <p>Drag & drop your image here or click to browse</p>
+                        <input type="file" id="fileInput" name="image" accept="image/*" style="display: none;">
+                        <div class="preview-container">
+                            <img id="preview" alt="Image preview">
+                        </div>
+                        <div id="fileInfo" class="file-info"></div>
+                    </div>
+                </div>
+
+                <button type="submit" id="submitButton">Add Currency</button>
+            </form>
+
+            <div id="message"></div>
+        </div>
     </div>
 
     <script>
-        // Fetch countries and populate dropdown
         document.addEventListener('DOMContentLoaded', function () {
+            // Elements
+            const countrySelect = document.getElementById('country');
+            const dropArea = document.getElementById('dropArea');
+            const fileInput = document.getElementById('fileInput');
+            const preview = document.getElementById('preview');
+            const fileInfo = document.getElementById('fileInfo');
+            const messageDiv = document.getElementById('message');
+            const form = document.getElementById('currencyForm');
+            const submitButton = document.getElementById('submitButton');
+
+            // Load countries
             fetch('/get-countries')
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
+                    if (!response.ok) throw new Error('Failed to load countries');
                     return response.json();
                 })
                 .then(data => {
-                    const select = document.getElementById('country');
                     data.forEach(country => {
                         const option = document.createElement('option');
                         option.value = country.name;
                         option.textContent = country.name;
-                        select.appendChild(option);
+                        countrySelect.appendChild(option);
                     });
                 })
                 .catch(error => {
                     console.error('Error loading countries:', error);
-                    const messageDiv = document.getElementById('message');
-                    messageDiv.textContent = 'Error loading countries. Please refresh the page.';
-                    messageDiv.className = 'error';
-                    messageDiv.style.display = 'block';
+                    showMessage('Error loading countries. Please refresh the page.', 'error');
                 });
-
-            // Improved radio button selection
-            const radioOptions = document.querySelectorAll('.radio-option');
-            radioOptions.forEach(option => {
-                option.addEventListener('click', function () {
-                    // Remove selected class from all options
-                    radioOptions.forEach(opt => opt.classList.remove('selected'));
-
-                    // Add selected class to clicked option
-                    this.classList.add('selected');
-
-                    // Find the radio input inside and check it
-                    const radioInput = this.querySelector('input[type="radio"]');
-                    if (radioInput) {
-                        radioInput.checked = true;
-                    }
-                });
-            });
 
             // Drag and drop functionality
-            const dropArea = document.getElementById('dropArea');
-            const fileInput = document.getElementById('fileInput');
-            const preview = document.getElementById('preview');
-            const messageDiv = document.getElementById('message');
-
-            // Prevent default drag behaviors
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                 dropArea.addEventListener(eventName, preventDefaults, false);
             });
@@ -447,7 +334,6 @@
                 e.stopPropagation();
             }
 
-            // Highlight drop area when item is dragged over it
             ['dragenter', 'dragover'].forEach(eventName => {
                 dropArea.addEventListener(eventName, highlight, false);
             });
@@ -464,26 +350,20 @@
                 dropArea.classList.remove('highlight');
             }
 
-            // Handle dropped files
             dropArea.addEventListener('drop', handleDrop, false);
+            dropArea.addEventListener('click', () => fileInput.click());
+
+            fileInput.addEventListener('change', function () {
+                if (this.files.length) handleFiles(this.files);
+            });
 
             function handleDrop(e) {
-                const dt = e.dataTransfer;
-                const files = dt.files;
+                const files = e.dataTransfer.files;
                 if (files.length) {
                     fileInput.files = files;
                     handleFiles(files);
                 }
             }
-
-            // Handle click to select files
-            dropArea.addEventListener('click', () => fileInput.click());
-
-            fileInput.addEventListener('change', function () {
-                if (this.files.length) {
-                    handleFiles(this.files);
-                }
-            });
 
             function handleFiles(files) {
                 const file = files[0];
@@ -492,31 +372,34 @@
                     reader.onload = function (e) {
                         preview.src = e.target.result;
                         preview.style.display = 'block';
+                        fileInfo.textContent = `Selected: ${file.name} (${formatFileSize(file.size)})`;
                     };
                     reader.readAsDataURL(file);
                 }
             }
 
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i];
+            }
+
             // Form submission
-            document.getElementById('currencyForm').addEventListener('submit', function (e) {
+            form.addEventListener('submit', function (e) {
                 e.preventDefault();
+                clearMessage();
 
-                // Clear previous messages
-                messageDiv.style.display = 'none';
-                messageDiv.className = '';
-                messageDiv.textContent = '';
-
-                const fileInput = document.getElementById('fileInput');
                 if (!fileInput.files || fileInput.files.length === 0) {
                     showMessage('Please select an image', 'error');
                     return;
                 }
 
                 const formData = new FormData(this);
-
-                // Show loading state
-                const submitButton = this.querySelector('button[type="submit"]');
                 const originalButtonText = submitButton.textContent;
+
+                // Update button state
                 submitButton.textContent = 'Uploading...';
                 submitButton.disabled = true;
 
@@ -525,20 +408,17 @@
                     body: formData
                 })
                     .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
+                        if (!response.ok) throw new Error('Network response was not ok');
                         return response.json();
                     })
                     .then(data => {
                         if (data.success) {
-                            showMessage(`Successfully added new currency! Image saved as: ${data.image_path}`, 'success');
-                            document.getElementById('currencyForm').reset();
+                            showMessage(`Success! Currency added. Image saved as: ${data.image_path}`, 'success');
+                            form.reset();
                             preview.style.display = 'none';
-                            // Also remove selected class from radio buttons
-                            radioOptions.forEach(opt => opt.classList.remove('selected'));
+                            fileInfo.textContent = '';
                         } else {
-                            showMessage(`Error: ${data.error || 'Unknown error'}`, 'error');
+                            throw new Error(data.error || 'Unknown error occurred');
                         }
                     })
                     .catch(error => {
@@ -555,6 +435,13 @@
                 messageDiv.textContent = text;
                 messageDiv.className = type;
                 messageDiv.style.display = 'block';
+                messageDiv.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            function clearMessage() {
+                messageDiv.style.display = 'none';
+                messageDiv.className = '';
+                messageDiv.textContent = '';
             }
         });
     </script>

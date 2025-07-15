@@ -78,7 +78,7 @@ def upload_file():
             }
             
             # Update coins.json
-            coins_path = os.path.join(app.config['UPLOAD_FOLDER'], 'coins3.json')
+            coins_path = os.path.join(app.config['UPLOAD_FOLDER'], 'coins.json')
             try:
                 if os.path.exists(coins_path):
                     with open(coins_path, 'r') as f:
