@@ -81,6 +81,67 @@
             margin-top: 20px;
         }
 
+        /* Search Bar */
+        .search-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 12px 20px;
+            padding-left: 45px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary-color);
+        }
+
+        .search-results {
+            position: absolute;
+            width: 100%;
+            max-height: 300px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            box-shadow: var(--box-shadow);
+            z-index: 100;
+            display: none;
+        }
+
+        .search-results.show {
+            display: block;
+        }
+
+        .search-result-item {
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .search-result-item:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
         /* Gallery Section */
         .gallery-section {
             flex: 1;
@@ -543,6 +604,14 @@
     <div class="out-container">
         <div class="inner-container">
             <a href="index.html" class="btn btn-home"><i class="fas fa-home"></i> Home</a>
+            
+            <!-- Search Bar -->
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="search-input" class="search-bar" placeholder="Search for a country..." autocomplete="off">
+                <div id="search-results" class="search-results"></div>
+            </div>
+            
             <h1 id="image-caption" class="title">
                 <span class="title"> Amir's Coin Collection</span>
                 <span id="selected-country-title" class="country-name"></span>
@@ -672,7 +741,7 @@
                     link.classList.add("active");
                     document.getElementById('selected-country').textContent = `: ${country}`;
                     document.getElementById('selected-country-title').textContent = `: ${country}`;
-					document.getElementById('selected-country-title').style.color = "#e74c3c";
+                    document.getElementById('selected-country-title').style.color = "#e74c3c";
                 }
 
                 link.addEventListener("click", event => {
@@ -688,7 +757,7 @@
                     link.classList.add('active');
                     document.getElementById('selected-country').textContent = `: ${country}`;
                     document.getElementById('selected-country-title').textContent = `: ${country}`;
-					
+                    
 
                     history.pushState(null, "", `?country=${countryName}`);
                     highlightCountry(countryName);
@@ -990,6 +1059,75 @@
             });
         }
 
+        // Initialize search functionality
+        function initSearch() {
+            const searchInput = document.getElementById('search-input');
+            const searchResults = document.getElementById('search-results');
+            let availableCountries = [];
+
+            // Fetch available countries
+            fetch("images/coins.json")
+                .then(response => response.json())
+                .then(data => {
+                    availableCountries = [...new Set(data.map(coin => toTitleCase(coin.country)))].sort();
+                });
+
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                searchResults.innerHTML = '';
+
+                if (query.length < 2) {
+                    searchResults.classList.remove('show');
+                    return;
+                }
+
+                fetch("images/coins.json")
+                    .then(response => response.json())
+                    .then(data => {
+                        const countries = [...new Set(data.map(coin => toTitleCase(coin.country)))].sort();
+                        const filteredCountries = countries.filter(country => 
+                            country.toLowerCase().includes(query)
+                        );
+
+                        if (filteredCountries.length > 0) {
+                            filteredCountries.forEach(country => {
+                                const resultItem = document.createElement('div');
+                                resultItem.classList.add('search-result-item');
+                                resultItem.textContent = country;
+                                resultItem.addEventListener('click', function() {
+                                    // Update the selected country in the list
+                                    document.querySelectorAll('.countries-list a').forEach(el => {
+                                        el.classList.remove('active');
+                                        if (el.textContent.toLowerCase() === country.toLowerCase()) {
+                                            el.classList.add('active');
+                                            document.getElementById('selected-country').textContent = `: ${country}`;
+                                            document.getElementById('selected-country-title').textContent = `: ${country}`;
+                                        }
+                                    });
+
+                                    history.pushState(null, "", `?country=${country.toLowerCase()}`);
+                                    highlightCountry(country.toLowerCase());
+                                    loadCountryImages(country.toLowerCase());
+                                    searchInput.value = country;
+                                    searchResults.classList.remove('show');
+                                });
+                                searchResults.appendChild(resultItem);
+                            });
+                            searchResults.classList.add('show');
+                        } else {
+                            searchResults.classList.remove('show');
+                        }
+                    });
+            });
+
+            // Close search results when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!searchInput.contains(event.target)) {
+                    searchResults.classList.remove('show');
+                }
+            });
+        }
+
         (() => {
             const queryParams = new URLSearchParams(window.location.search);
             const countryQuery = queryParams.get("country") || "default";
@@ -1014,6 +1152,7 @@
 
             initDetailsToggle();
             initImageModal();
+            initSearch();
         })();
     </script>
     <script type="text/javascript">
@@ -1021,11 +1160,35 @@
         document.addEventListener('contextmenu', event => event.preventDefault());
 
         // Disable ctrl, u, F12 keys
+		/*
         function mousehandler(e) {
             var myevent = (isNS) ? e : event;
             var eventbutton = (isNS) ? myevent.which : myevent.button;
             if ((eventbutton == 2) || (eventbutton == 3)) return false;
         }
+		*/
+		function mousehandler(e) {
+      var eventbutton = e.which || e.button;
+      if (eventbutton === 2 || eventbutton === 3) {
+        return false;
+      }
+    }
+		// Disable right-click (mouse right button)
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+// Disable specific keyboard shortcuts (Ctrl+U, F12)
+document.addEventListener("keydown", function (e) {
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+    }
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+    }
+});
         document.oncontextmenu = mousehandler;
         document.onmousedown = mousehandler;
         document.onmouseup = mousehandler;
