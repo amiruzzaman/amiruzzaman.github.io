@@ -138,7 +138,8 @@ def upload_file():
                 "country": country,
                 "currency_type": currency_type,
                 "donor_name": donor_name,
-                "image": f"{safe_country}/{filename}",  # Store relative path
+                #"image": f"{safe_country}/{filename}",  # Store relative path
+                "image": f"{filename}",  # Store relative path
                 "note": note
             }
             
