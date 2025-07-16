@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Image In Place</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --primary-hover: #3a56d4;
+            --secondary-color: #3f37c9;
+            --text-color: #2b2d42;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e9ecef;
+            --dark-gray: #6c757d;
+            --error-color: #ef233c;
+            --success-text: #155724;
+            --success-bg: #d4edda;
+            --error-text: #721c24;
+            --error-bg: #f8d7da;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 2rem;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            font-size: 2rem;
+        }
+
+        .image-selector {
+            margin-bottom: 2rem;
+        }
+
+        .image-selector label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .image-selector select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            background-color: var(--light-gray);
+        }
+
+        .drop-area {
+            border: 2px dashed var(--dark-gray);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            text-align: center;
+            margin: 1.5rem 0;
+            transition: var(--transition);
+            cursor: pointer;
+            background-color: var(--light-gray);
+            position: relative;
+        }
+
+        .drop-area.highlight {
+            border-color: var(--primary-color);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .drop-area p {
+            margin: 0;
+            font-size: 1rem;
+            color: var(--dark-gray);
+        }
+
+        .drop-area .icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .editor-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .image-editor {
+            display: none;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 600px;
+            margin: 0 auto;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .aspect-ratio-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        button:disabled {
+            background-color: var(--dark-gray);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-danger {
+            background-color: var(--error-color);
+        }
+
+        .btn-danger:hover {
+            background-color: #d90429;
+        }
+
+        .btn-success {
+            background-color: #2b9348;
+        }
+
+        .btn-success:hover {
+            background-color: #2a9137;
+        }
+
+        #message {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            display: none;
+        }
+
+        .success {
+            background-color: var(--success-bg);
+            color: var(--success-text);
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            border: 1px solid #f5c6cb;
+        }
+
+        .file-info {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--dark-gray);
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .aspect-ratio-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Edit Image In Place</h1>
+        
+        <div class="image-selector">
+            <label for="imagePath">Select Image to Edit:</label>
+            <select id="imagePath" name="imagePath">
+                <option value="">-- Select an image --</option>
+                <!-- Images will be populated by JavaScript -->
+            </select>
+            <div class="drop-area" id="dropArea">
+                <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                <p>Or drag & drop an image from your file explorer</p>
+                <input type="file" id="fileInput" style="display: none;" accept="image/*">
+            </div>
+            <div id="fileInfo" class="file-info"></div>
+        </div>
+
+        <div class="editor-container">
+            <div id="imageEditor" class="image-editor">
+                <img id="imagePreview" class="image-preview" alt="Image preview">
+                
+                <div class="aspect-ratio-buttons">
+                    <button type="button" data-ratio="1.777"><i class="fas fa-desktop"></i> 16:9</button>
+                    <button type="button" data-ratio="1.333"><i class="fas fa-tablet-alt"></i> 4:3</button>
+                    <button type="button" data-ratio="1"><i class="fas fa-square"></i> 1:1</button>
+                    <button type="button" data-ratio="0"><i class="fas fa-vector-square"></i> Free</button>
+                </div>
+                
+                <div class="controls">
+                    <button type="button" id="saveBtn" class="btn-success" disabled>
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <button type="button" id="resetBtn" class="btn-danger" disabled>
+                        <i class="fas fa-undo"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="message"></div>
+    </div>
+
+    <!-- Cropper.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Variables
+            let cropper = null;
+            let originalImageDataUrl = null;
+            let currentImagePath = '';
+            let currentImageName = '';
+            let currentImageCountry = '';
+            
+            // Elements
+            const imagePathSelect = document.getElementById('imagePath');
+            const imageEditor = document.getElementById('imageEditor');
+            const imagePreview = document.getElementById('imagePreview');
+            const saveBtn = document.getElementById('saveBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const messageDiv = document.getElementById('message');
+            const fileInfo = document.getElementById('fileInfo');
+            const aspectRatioButtons = document.querySelectorAll('.aspect-ratio-buttons button');
+            const dropArea = document.getElementById('dropArea');
+            const fileInput = document.getElementById('fileInput');
+
+            // Fetch available images
+            fetch('/get-images')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.images && data.images.length > 0) {
+                        data.images.forEach(image => {
+                            const option = document.createElement('option');
+                            option.value = image.path;
+                            option.textContent = `${image.country}/${image.name}`;
+                            imagePathSelect.appendChild(option);
+                        });
+                    } else {
+                        const option = document.createElement('option');
+                        option.value = '';
+                        option.textContent = 'No images found';
+                        option.disabled = true;
+                        imagePathSelect.appendChild(option);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading images:', error);
+                    showMessage('Error loading images. Please refresh the page.', 'error');
+                });
+
+            // Image selection handler
+            imagePathSelect.addEventListener('change', function() {
+                const selectedPath = this.value;
+                if (!selectedPath) {
+                    imageEditor.style.display = 'none';
+                    saveBtn.disabled = true;
+                    resetBtn.disabled = true;
+                    fileInfo.textContent = '';
+                    return;
+                }
+
+                currentImagePath = selectedPath;
+                loadImageForEditing(selectedPath);
+            });
+
+            // Drag and drop functionality
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight() {
+                dropArea.classList.add('highlight');
+            }
+
+            function unhighlight() {
+                dropArea.classList.remove('highlight');
+            }
+
+            dropArea.addEventListener('drop', handleDrop, false);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files.length) {
+                    handleDroppedFile(files[0]);
+                }
+            }
+
+            dropArea.addEventListener('click', () => fileInput.click());
+
+            fileInput.addEventListener('change', function() {
+                if (this.files.length) {
+                    handleDroppedFile(this.files[0]);
+                }
+            });
+
+            function handleDroppedFile(file) {
+                if (!file.type.startsWith('image/')) {
+                    showMessage('Please select a valid image file (JPEG, PNG, GIF)', 'error');
+                    return;
+                }
+
+                // Extract country from the file path if available
+                let country = 'unknown';
+                const pathParts = file.path ? file.path.split(/[\\/]/) : [];
+                if (pathParts.length > 1 && pathParts[pathParts.length - 2] === 'images') {
+                    country = pathParts[pathParts.length - 1];
+                }
+
+                currentImageCountry = country;
+                currentImageName = file.name;
+                currentImagePath = `${country}/${file.name}`;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    originalImageDataUrl = e.target.result;
+                    imagePreview.src = originalImageDataUrl;
+                    imageEditor.style.display = 'block';
+                    fileInfo.textContent = `Editing: ${currentImagePath}`;
+
+                    // Initialize cropper
+                    initCropper(0);
+
+                    // Enable buttons
+                    saveBtn.disabled = false;
+                    resetBtn.disabled = false;
+                };
+                reader.readAsDataURL(file);
+            }
+
+            function loadImageForEditing(imagePath) {
+                // Show loading state
+                saveBtn.disabled = true;
+                resetBtn.disabled = true;
+                imagePreview.src = '';
+                fileInfo.textContent = 'Loading image...';
+
+                // Extract country and filename from path
+                const pathParts = imagePath.split('/');
+                currentImageCountry = pathParts[0];
+                currentImageName = pathParts[1];
+                currentImagePath = imagePath;
+
+                // Fetch the image
+                fetch(`/get-image?path=${encodeURIComponent(imagePath)}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to load image');
+                        }
+                        return response.blob();
+                    })
+                    .then(blob => {
+                        return new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onload = () => resolve(reader.result);
+                            reader.onerror = reject;
+                            reader.readAsDataURL(blob);
+                        });
+                    })
+                    .then(dataUrl => {
+                        // Set up the image for editing
+                        originalImageDataUrl = dataUrl;
+                        imagePreview.src = dataUrl;
+                        imageEditor.style.display = 'block';
+
+                        // Initialize cropper with free aspect ratio
+                        initCropper(0);
+
+                        // Enable buttons
+                        saveBtn.disabled = false;
+                        resetBtn.disabled = false;
+
+                        // Show file info
+                        fileInfo.textContent = `Editing: ${currentImagePath}`;
+                    })
+                    .catch(error => {
+                        console.error('Error loading image:', error);
+                        showMessage('Error loading image. Please try another.', 'error');
+                        fileInfo.textContent = '';
+                    });
+            }
+
+            function initCropper(aspectRatio) {
+                // Destroy existing cropper if any
+                if (cropper) {
+                    cropper.destroy();
+                }
+
+                // Initialize new cropper
+                cropper = new Cropper(imagePreview, {
+                    aspectRatio: aspectRatio, // 0 means free ratio
+                    viewMode: 1, // Restrict the crop box to not exceed the size of the canvas
+                    autoCropArea: 0.8, // Define the initial crop area size (80% of the image)
+                    responsive: true,
+                    guides: true,
+                    center: true,
+                    highlight: true,
+                    cropBoxMovable: true,
+                    cropBoxResizable: true,
+                    minCropBoxWidth: 50,
+                    minCropBoxHeight: 50
+                });
+
+                // Highlight the selected aspect ratio button
+                aspectRatioButtons.forEach(btn => {
+                    const btnRatio = parseFloat(btn.dataset.ratio);
+                    if ((aspectRatio === 0 && btnRatio === 0) || 
+                        (aspectRatio !== 0 && Math.abs(btnRatio - aspectRatio) < 0.001)) {
+                        btn.style.backgroundColor = 'rgba(67, 97, 238, 0.2)';
+                    } else {
+                        btn.style.backgroundColor = '';
+                    }
+                });
+            }
+
+            // Aspect ratio button handlers
+            aspectRatioButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    if (cropper) {
+                        const ratio = parseFloat(this.dataset.ratio);
+                        cropper.setAspectRatio(ratio);
+                        
+                        // Highlight the selected button
+                        aspectRatioButtons.forEach(btn => btn.style.backgroundColor = '');
+                        this.style.backgroundColor = 'rgba(67, 97, 238, 0.2)';
+                    }
+                });
+            });
+
+            // Save button handler
+            saveBtn.addEventListener('click', function() {
+                if (!cropper || !currentImagePath) return;
+
+                // Show loading state
+                saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                saveBtn.disabled = true;
+                resetBtn.disabled = true;
+
+                // Get the cropped canvas
+                const canvas = cropper.getCroppedCanvas({
+                    width: 800,
+                    height: 800,
+                    minWidth: 256,
+                    minHeight: 256,
+                    maxWidth: 4096,
+                    maxHeight: 4096,
+                    fillColor: '#fff',
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: 'high',
+                });
+
+                // Convert canvas to Blob
+                canvas.toBlob(blob => {
+                    const formData = new FormData();
+                    formData.append('image', blob);
+                    formData.append('path', currentImagePath);
+                    formData.append('country', currentImageCountry);
+                    formData.append('filename', currentImageName);
+
+                    // Send to server to save
+                    fetch('/save-image', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            showMessage('Image successfully saved!', 'success');
+                            // Update the original image data URL to the new cropped version
+                            originalImageDataUrl = canvas.toDataURL('image/jpeg');
+                        } else {
+                            throw new Error(data.error || 'Failed to save image');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error saving image:', error);
+                        showMessage(`Error: ${error.message || 'Failed to save image'}`, 'error');
+                    })
+                    .finally(() => {
+                        saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+                        saveBtn.disabled = false;
+                        resetBtn.disabled = false;
+                    });
+                }, 'image/jpeg', 0.9);
+            });
+
+            // Reset button handler
+            resetBtn.addEventListener('click', function() {
+                if (cropper && originalImageDataUrl) {
+                    // Restore original image
+                    imagePreview.src = originalImageDataUrl;
+                    
+                    // Reinitialize cropper
+                    cropper.destroy();
+                    initCropper(0);
+                    
+                    showMessage('Changes discarded', 'success');
+                }
+            });
+
+            function showMessage(text, type) {
+                messageDiv.textContent = text;
+                messageDiv.className = type;
+                messageDiv.style.display = 'block';
+                
+                // Hide message after 5 seconds
+                setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>

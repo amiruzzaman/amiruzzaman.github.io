@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, request, jsonify, send_file
 import os
 import uuid
 import json
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
@@ -24,12 +25,77 @@ def get_safe_country_name(country):
 def index():
     return render_template('dragndrop.html')
 
+@app.route('/edit')
+def edit():
+    return render_template('editnplace.html')
+
 @app.route('/get-countries')
 def get_countries():
     try:
         with open('static/countries.json', 'r') as f:
             countries = json.load(f)
         return jsonify(countries)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/get-images')
+def get_images():
+    try:
+        images = []
+        for root, dirs, files in os.walk(app.config['UPLOAD_FOLDER']):
+            for file in files:
+                if file.lower().endswith(tuple(app.config['ALLOWED_EXTENSIONS'])):
+                    rel_path = os.path.relpath(os.path.join(root, file), app.config['UPLOAD_FOLDER'])
+                    country = rel_path.split(os.sep)[0] if os.sep in rel_path else 'unknown'
+                    images.append({
+                        'name': file,
+                        'path': rel_path.replace('\\', '/'),  # Convert Windows paths to Unix-style
+                        'country': country
+                    })
+        return jsonify({"images": images})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/get-image')
+def get_image():
+    path = request.args.get('path')
+    if not path:
+        return jsonify({"error": "No path provided"}), 400
+    
+    safe_path = os.path.join(app.config['UPLOAD_FOLDER'], *path.split('/'))
+    if not os.path.exists(safe_path):
+        return jsonify({"error": "Image not found"}), 404
+    
+    return send_file(safe_path, mimetype='image/jpeg')
+
+@app.route('/save-image', methods=['POST'])
+def save_image():
+    if 'image' not in request.files or 'path' not in request.form or 'filename' not in request.form or 'country' not in request.form:
+        return jsonify({"error": "Missing required fields"}), 400
+    
+    file = request.files['image']
+    path = request.form['path']
+    filename = request.form['filename']
+    country = request.form['country']
+    
+    if not path or not filename or not country:
+        return jsonify({"error": "Invalid parameters"}), 400
+    
+    # Create safe paths
+    safe_country = get_safe_country_name(country)
+    country_folder = os.path.join(app.config['UPLOAD_FOLDER'], safe_country)
+    os.makedirs(country_folder, exist_ok=True)
+    
+    safe_path = os.path.join(country_folder, secure_filename(filename))
+    
+    try:
+        # Save the new image (overwrite the original)
+        file.save(safe_path)
+        return jsonify({
+            "success": True, 
+            "message": "Image saved successfully",
+            "path": f"{safe_country}/{filename}"
+        })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

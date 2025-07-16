@@ -7,8 +7,6 @@
     <title>Currency Collection - Add New</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Cropper.js CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
     <style>
         :root {
             --primary-color: #4361ee;
@@ -114,6 +112,7 @@
             flex: 1;
         }
 
+        /* Selected radio button style */
         .radio-option.selected {
             border-color: var(--error-color);
             background-color: rgba(239, 35, 60, 0.05);
@@ -144,8 +143,10 @@
             justify-content: center;
         }
 
+        /* Currency type icons */
         .radio-option.coin .radio-icon::before {
             content: "\f51e";
+            /* Font Awesome coin icon */
             font-family: "Font Awesome 6 Free";
             font-weight: 900;
             font-size: 12px;
@@ -154,6 +155,7 @@
 
         .radio-option.paper-bill .radio-icon::before {
             content: "\f53a";
+            /* Font Awesome money-bill icon */
             font-family: "Font Awesome 6 Free";
             font-weight: 900;
             font-size: 12px;
@@ -162,6 +164,7 @@
 
         .radio-option.antique .radio-icon::before {
             content: "\f5d1";
+            /* Font Awesome scroll icon (replaced landmark) */
             font-family: "Font Awesome 6 Free";
             font-weight: 900;
             font-size: 12px;
@@ -218,55 +221,18 @@
 
         #preview {
             max-width: 100%;
-            max-height: 400px;
-            display: block;
+            max-height: 200px;
+            margin-top: 1rem;
+            display: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            border: 1px solid var(--medium-gray);
         }
 
         .preview-container {
             display: flex;
             justify-content: center;
             margin-top: 1rem;
-            position: relative;
-        }
-
-        #image-container {
-            width: 100%;
-            display: none;
-        }
-
-        .crop-controls {
-            display: none;
-            margin-top: 1rem;
-            text-align: center;
-        }
-
-        .crop-controls button {
-            margin: 0 0.5rem;
-            padding: 0.5rem 1rem;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            transition: var(--transition);
-            width: auto;
-            padding-left: 1rem;
-        }
-
-        .crop-controls button:hover {
-            background-color: var(--primary-hover);
-        }
-
-        .aspect-ratio-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .aspect-ratio-buttons button {
-            padding: 0.3rem 0.6rem;
-            font-size: 0.9rem;
         }
 
         button {
@@ -350,10 +316,6 @@
             button i {
                 display: none;
             }
-
-            .aspect-ratio-buttons {
-                flex-wrap: wrap;
-            }
         }
     </style>
 </head>
@@ -409,21 +371,9 @@
                     <p>Drag & drop your image here or click to browse</p>
                     <input type="file" id="fileInput" name="image" accept="image/*" style="display: none;">
                     <div class="preview-container">
-                        <div id="image-container">
-                            <img id="preview" alt="Image preview">
-                        </div>
+                        <img id="preview" alt="Image preview">
                     </div>
                     <div id="fileInfo" class="file-info"></div>
-                    <div id="cropControls" class="crop-controls">
-                        <div class="aspect-ratio-buttons">
-                            <button type="button" data-ratio="1.777"><i class="fas fa-desktop"></i> 16:9</button>
-                            <button type="button" data-ratio="1.333"><i class="fas fa-tablet-alt"></i> 4:3</button>
-                            <button type="button" data-ratio="1"><i class="fas fa-square"></i> 1:1</button>
-                            <button type="button" data-ratio="0"><i class="fas fa-vector-square"></i> Free</button>
-                        </div>
-                        <button type="button" id="cropButton"><i class="fas fa-crop"></i> Crop Image</button>
-                        <button type="button" id="cancelCropButton"><i class="fas fa-times"></i> Cancel</button>
-                    </div>
                 </div>
             </div>
 
@@ -436,15 +386,9 @@
         <div id="message"></div>
     </div>
 
-    <!-- Cropper.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
     <script>
+        // Fetch countries and populate dropdown
         document.addEventListener('DOMContentLoaded', function () {
-            // Variables for cropper
-            let cropper = null;
-            let originalImageDataUrl = null;
-            
-            // Fetch countries and populate dropdown
             fetch('/get-countries')
                 .then(response => {
                     if (!response.ok) {
@@ -473,8 +417,13 @@
             const radioOptions = document.querySelectorAll('.radio-option');
             radioOptions.forEach(option => {
                 option.addEventListener('click', function () {
+                    // Remove selected class from all options
                     radioOptions.forEach(opt => opt.classList.remove('selected'));
+
+                    // Add selected class to clicked option
                     this.classList.add('selected');
+
+                    // Find the radio input inside and check it
                     const radioInput = this.querySelector('input[type="radio"]');
                     if (radioInput) {
                         radioInput.checked = true;
@@ -482,17 +431,11 @@
                 });
             });
 
-            // Drag and drop elements
+            // Drag and drop functionality
             const dropArea = document.getElementById('dropArea');
             const fileInput = document.getElementById('fileInput');
             const preview = document.getElementById('preview');
-            const imageContainer = document.getElementById('image-container');
             const messageDiv = document.getElementById('message');
-            const cropControls = document.getElementById('cropControls');
-            const cropButton = document.getElementById('cropButton');
-            const cancelCropButton = document.getElementById('cancelCropButton');
-            const fileInfo = document.getElementById('fileInfo');
-            const aspectRatioButtons = document.querySelectorAll('.aspect-ratio-buttons button');
 
             // Prevent default drag behaviors
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -545,111 +488,14 @@
             function handleFiles(files) {
                 const file = files[0];
                 if (file && file.type.startsWith('image/')) {
-                    // Display file info
-                    fileInfo.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
-                    
-                    // Destroy any existing cropper
-                    if (cropper) {
-                        cropper.destroy();
-                        cropper = null;
-                    }
-                    
                     const reader = new FileReader();
                     reader.onload = function (e) {
                         preview.src = e.target.result;
-                        originalImageDataUrl = e.target.result;
-                        imageContainer.style.display = 'block';
-                        
-                        // Initialize cropper with free aspect ratio
-                        initCropper(0);
-                        
-                        // Show crop controls
-                        cropControls.style.display = 'block';
+                        preview.style.display = 'block';
                     };
                     reader.readAsDataURL(file);
-                } else {
-                    showMessage('Please select a valid image file (JPEG, PNG, GIF)', 'error');
                 }
             }
-
-            function initCropper(aspectRatio) {
-                cropper = new Cropper(preview, {
-                    aspectRatio: aspectRatio, // 0 means free ratio
-                    viewMode: 1, // Restrict the crop box to not exceed the size of the canvas
-                    autoCropArea: 0.8, // Define the initial crop area size (80% of the image)
-                    responsive: true,
-                    guides: true,
-                    center: true,
-                    highlight: true,
-                    cropBoxMovable: true,
-                    cropBoxResizable: true,
-                    minCropBoxWidth: 50,
-                    minCropBoxHeight: 50
-                });
-            }
-
-            // Aspect ratio button handlers
-            aspectRatioButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    if (cropper) {
-                        const ratio = parseFloat(this.dataset.ratio);
-                        cropper.setAspectRatio(ratio);
-                        
-                        // Highlight the selected button
-                        aspectRatioButtons.forEach(btn => btn.style.backgroundColor = '');
-                        this.style.backgroundColor = 'rgba(67, 97, 238, 0.2)';
-                    }
-                });
-            });
-
-            // Crop button handler
-            cropButton.addEventListener('click', function() {
-                if (cropper) {
-                    // Get the cropped canvas
-                    const canvas = cropper.getCroppedCanvas({
-                        width: 800, // Set the desired width
-                        height: 800, // Set the desired height
-                        minWidth: 256,
-                        minHeight: 256,
-                        maxWidth: 4096,
-                        maxHeight: 4096,
-                        fillColor: '#fff',
-                        imageSmoothingEnabled: true,
-                        imageSmoothingQuality: 'high',
-                    });
-                    
-                    // Replace the preview image with the cropped version
-                    preview.src = canvas.toDataURL('image/jpeg');
-                    
-                    // Destroy the cropper
-                    cropper.destroy();
-                    cropper = null;
-                    
-                    // Hide crop controls
-                    cropControls.style.display = 'none';
-                    
-                    // Reset aspect ratio buttons
-                    aspectRatioButtons.forEach(btn => btn.style.backgroundColor = '');
-                }
-            });
-
-            // Cancel crop button handler
-            cancelCropButton.addEventListener('click', function() {
-                if (cropper) {
-                    // Restore original image
-                    preview.src = originalImageDataUrl;
-                    
-                    // Destroy the cropper
-                    cropper.destroy();
-                    cropper = null;
-                    
-                    // Hide crop controls
-                    cropControls.style.display = 'none';
-                    
-                    // Reset aspect ratio buttons
-                    aspectRatioButtons.forEach(btn => btn.style.backgroundColor = '');
-                }
-            });
 
             // Form submission
             document.getElementById('currencyForm').addEventListener('submit', function (e) {
@@ -666,46 +512,14 @@
                     return;
                 }
 
+                const formData = new FormData(this);
+
                 // Show loading state
                 const submitButton = this.querySelector('button[type="submit"]');
                 const originalButtonText = submitButton.textContent;
                 submitButton.textContent = 'Uploading...';
                 submitButton.disabled = true;
 
-                // Create a new FormData object
-                const formData = new FormData(this);
-                
-                // If we have a cropped image, replace the file in the FormData
-                if (preview.src !== originalImageDataUrl && preview.src !== '') {
-                    // Convert the cropped image to a Blob
-                    fetch(preview.src)
-                        .then(res => res.blob())
-                        .then(blob => {
-                            // Create a new file with the cropped image
-                            const croppedFile = new File([blob], fileInput.files[0].name, {
-                                type: 'image/jpeg',
-                                lastModified: Date.now()
-                            });
-                            
-                            // Replace the file in the FormData
-                            formData.set('image', croppedFile);
-                            
-                            // Proceed with the upload
-                            uploadFormData(formData, submitButton, originalButtonText);
-                        })
-                        .catch(error => {
-                            console.error('Error processing cropped image:', error);
-                            showMessage('Error processing image', 'error');
-                            submitButton.textContent = originalButtonText;
-                            submitButton.disabled = false;
-                        });
-                } else {
-                    // No cropping was done, proceed with original file
-                    uploadFormData(formData, submitButton, originalButtonText);
-                }
-            });
-
-            function uploadFormData(formData, submitButton, originalButtonText) {
                 fetch('/upload', {
                     method: 'POST',
                     body: formData
@@ -720,9 +534,8 @@
                         if (data.success) {
                             showMessage(`Successfully added new currency! Image saved as: ${data.image_path}`, 'success');
                             document.getElementById('currencyForm').reset();
-                            imageContainer.style.display = 'none';
-                            fileInfo.textContent = '';
-                            cropControls.style.display = 'none';
+                            preview.style.display = 'none';
+                            // Also remove selected class from radio buttons
                             radioOptions.forEach(opt => opt.classList.remove('selected'));
                         } else {
                             showMessage(`Error: ${data.error || 'Unknown error'}`, 'error');
@@ -736,7 +549,7 @@
                         submitButton.textContent = originalButtonText;
                         submitButton.disabled = false;
                     });
-            }
+            });
 
             function showMessage(text, type) {
                 messageDiv.textContent = text;
