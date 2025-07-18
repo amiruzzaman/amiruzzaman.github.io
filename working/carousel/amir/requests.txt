@@ -1,0 +1,39 @@
+***************************************************
+Keep all the existing features the same. Now add additional features that finds the continent name corresponding to country name in "countries.continents.json", where the json structure is as below
+
+{
+    "countries": {
+        "country": [
+            {
+                "countryCode": "AD",
+                "countryName": "Andorra",
+                "currencyCode": "EUR",
+                "population": "84000",
+                "capital": "Andorra la Vella",
+                "continentName": "Europe"
+            },
+            {
+                "countryCode": "AE",
+                "countryName": "United Arab Emirates",
+                "currencyCode": "AED",
+                "population": "4975593",
+                "capital": "Abu Dhabi",
+                "continentName": "Asia"
+            }
+]}}
+then using the continent name. load the continent map from "continents.geojson", and displays it under the "<div id="map"></div>", but inside the "<div class="map-section">". The continent map only be displayed when user click on the "coin details" to see details about the coin/paper-bill/antique from "coins.json" file. So, as the coin details expands and shows details at the same time the continent should show up along with continent name and country name and capital. Please give me the whole code.
+***************************************************
+
+attached is the code where everything is working except problem with the continent map. The continent map should be loaded from "continents.geojson" file and the structure of the file is as
+
+{
+"type": "FeatureCollection",
+                                                                                
+"features": [
+{ "type": "Feature", "properties": { "CONTINENT": "Asia" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ 93.275543212890625, 80.26361083984375 ], [ 93.148040771484375, 80.313873291015625 ]] ] ] } }
+]
+}
+Please update the code and give the whole code.
+***************************************************
+Attached code has serious performance issues. Sometimes I have seen that continent map load, and most of the time it does not. Also, where the map tiles are that is also not loading properly. We do not need the markers, but as for confirmation those are loading in a right place. The loading is very slow as of now. Please fix the issues and make sure to keep all the features as is, but improve the performance and fix the issues. Please give me the whole code.
+***************************************************

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Country Flag Viewer</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter for a clean look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for better aesthetics and responsiveness */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 32px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .search-input-container {
+            position: relative;
+        }
+
+        .search-results {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            z-index: 10;
+            background-color: white;
+            position: absolute;
+            width: 100%;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .search-result-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .search-result-item:hover {
+            background-color: #eff6ff;
+        }
+
+        .flag-display {
+            min-height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 8px;
+            margin-top: 24px;
+            overflow: hidden; /* Ensure flag doesn't overflow rounded corners */
+        }
+
+        .flag-display img {
+            max-width: 90%;
+            max-height: 140px;
+            object-fit: contain;
+            border-radius: 4px; /* Slightly rounded corners for the flag image itself */
+        }
+
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #3b82f6;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen bg-gray-100 p-4">
+    <div class="container">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Country Flag Viewer</h1>
+
+        <div class="search-input-container mb-4">
+            <input type="text" id="countryInput"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                placeholder="Type a country name (e.g., Andorra)">
+            <div id="searchResults" class="search-results hidden">
+                <!-- Search results will be populated here -->
+            </div>
+        </div>
+
+        <div id="flagDisplay" class="flag-display">
+            <p class="text-gray-500">Enter a country name to see its flag.</p>
+        </div>
+
+        <div id="messageBox" class="mt-4 p-3 rounded-lg text-sm text-center hidden">
+            <!-- Messages (e.g., "Flag not found") will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+        const countryInput = document.getElementById('countryInput');
+        const searchResultsDiv = document.getElementById('searchResults');
+        const flagDisplayDiv = document.getElementById('flagDisplay');
+        const messageBox = document.getElementById('messageBox');
+
+        let countriesData = {}; // To store the fetched JSON data {code: name}
+
+        // Function to fetch the countries_flag.json file
+        async function loadCountriesData() {
+            try {
+                const response = await fetch('countries_flag.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                countriesData = await response.json();
+                console.log('countries_flag.json loaded successfully.');
+            } catch (error) {
+                console.error('Error loading countries_flag.json:', error);
+                displayMessage('Error loading country data. Please check the file path.', 'bg-red-100 text-red-700');
+            }
+        }
+
+        // Function to display the flag based on country code
+        function displayFlag(countryCode, countryName) {
+            // Clear previous content and messages
+            flagDisplayDiv.innerHTML = '';
+            messageBox.classList.add('hidden');
+
+            if (!countryCode) {
+                flagDisplayDiv.innerHTML = '<p class="text-gray-500">Enter a country name to see its flag.</p>';
+                return;
+            }
+
+            // Display loading spinner
+            flagDisplayDiv.innerHTML = '<div class="loading-spinner"></div>';
+
+            // Construct SVG path (assuming SVG files are lowercase)
+            const svgPath = `svg/${countryCode.toLowerCase()}.svg`;
+
+            const img = new Image();
+            img.src = svgPath;
+            img.alt = `${countryName} Flag`;
+            img.className = 'transition-transform duration-300 ease-in-out transform hover:scale-105'; // Tailwind classes for image styling
+
+            img.onload = () => {
+                flagDisplayDiv.innerHTML = ''; // Clear spinner
+                flagDisplayDiv.appendChild(img);
+            };
+
+            img.onerror = () => {
+                flagDisplayDiv.innerHTML = ''; // Clear spinner
+                displayMessage(`Flag for "${countryName}" not found.`, 'bg-yellow-100 text-yellow-700');
+                console.error(`Failed to load flag: ${svgPath}`);
+            };
+        }
+
+        // Function to display messages in the message box
+        function displayMessage(message, classes) {
+            messageBox.textContent = message;
+            messageBox.className = `mt-4 p-3 rounded-lg text-sm text-center ${classes}`;
+            messageBox.classList.remove('hidden');
+        }
+
+        // Handle input in the search field
+        countryInput.addEventListener('input', () => {
+            const query = countryInput.value.trim().toLowerCase();
+            searchResultsDiv.innerHTML = ''; // Clear previous results
+            searchResultsDiv.classList.add('hidden'); // Hide results by default
+            messageBox.classList.add('hidden'); // Hide messages
+
+            if (query.length === 0) {
+                flagDisplayDiv.innerHTML = '<p class="text-gray-500">Enter a country name to see its flag.</p>';
+                return;
+            }
+
+            const matchingCountries = [];
+            for (const code in countriesData) {
+                const name = countriesData[code].toLowerCase();
+                if (name.includes(query)) {
+                    matchingCountries.push({ code: code, name: countriesData[code] });
+                }
+            }
+
+            if (matchingCountries.length > 0) {
+                matchingCountries.forEach(country => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'search-result-item'; // Tailwind classes for result item
+                    resultItem.textContent = country.name;
+                    resultItem.dataset.countryCode = country.code;
+                    resultItem.dataset.countryName = country.name;
+
+                    resultItem.addEventListener('click', (event) => {
+                        const selectedCode = event.target.dataset.countryCode;
+                        const selectedName = event.target.dataset.countryName;
+                        countryInput.value = selectedName; // Set input to selected name
+                        searchResultsDiv.classList.add('hidden'); // Hide results
+                        displayFlag(selectedCode, selectedName);
+                    });
+                    searchResultsDiv.appendChild(resultItem);
+                });
+                searchResultsDiv.classList.remove('hidden'); // Show results
+            } else {
+                flagDisplayDiv.innerHTML = '<p class="text-gray-500">No matching country found.</p>';
+            }
+        });
+
+        // Hide search results when clicking outside the input/results area
+        document.addEventListener('click', (event) => {
+            if (!countryInput.contains(event.target) && !searchResultsDiv.contains(event.target)) {
+                searchResultsDiv.classList.add('hidden');
+            }
+        });
+
+        // Initial load of country data
+        loadCountriesData();
+    </script>
+</body>
+
+</html>
