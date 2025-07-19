@@ -893,6 +893,7 @@
 
                 const countryData = cache.continentData.countries.country.find(c =>
                     c.countryName.toLowerCase() === countryName.toLowerCase()
+					//console.log(c.countryName.toLowerCase(), countryName.toLowerCase());
                 );
 
                 if (countryData) {
@@ -1022,6 +1023,7 @@
                     document.getElementById('selected-country').textContent = `: ${country}`;
                     document.getElementById('selected-country-title').textContent = `: ${country}`;
                     document.getElementById('selected-country-title').style.color = "#e74c3c";
+					updateTitle(`${country}`);
                 }
 
                 // Add click event listener to handle country selection
@@ -1038,6 +1040,7 @@
                     link.classList.add('active');
                     document.getElementById('selected-country').textContent = `: ${country}`;
                     document.getElementById('selected-country-title').textContent = `: ${country}`;
+					updateTitle(`${country}`);
 
                     // Update URL without reloading the page
                     history.pushState(null, "", `?country=${countryName}`);
@@ -1192,6 +1195,7 @@
                                                 el.classList.add('active');
                                                 document.getElementById('selected-country').textContent = `: ${countryName}`;
                                                 document.getElementById('selected-country-title').textContent = `: ${countryName}`;
+												updateTitle(`${country}`);
                                             }
                                         });
                                     },
@@ -1411,6 +1415,7 @@
                                     el.classList.add('active');
                                     document.getElementById('selected-country').textContent = `: ${country}`;
                                     document.getElementById('selected-country-title').textContent = `: ${country}`;
+									updateTitle(`${country}`);
                                 }
                             });
 
@@ -1478,6 +1483,7 @@
                     firstCountryLink.classList.add('active');
                     document.getElementById('selected-country').textContent = `: ${firstCountry}`;
                     document.getElementById('selected-country-title').textContent = `: ${firstCountry}`;
+					updateTitle(`${country}`);
                 }
             }
 
@@ -1570,24 +1576,27 @@
         document.onkeydown = disableCtrlKeyCombination;
 
 
-        // --- Dynamic Document Title Update ---
-        // This script modifies the browser tab title.
+        function updateTitle(countryName){
+			// --- Dynamic Document Title Update ---
+			// This script modifies the browser tab title.
 
-        // Get the current title of the HTML document
-        let currentTitle = document.title;
+			// Get the current title of the HTML document
+			let currentTitle = document.title;
 
-        // Define the text you want to add
-        let textToAdd = " - My Awesome Addition"; // You can change this to whatever you like
+			// Define the text you want to add
+			let textToAdd = " - My Awesome Addition"; // You can change this to whatever you like
 
-        // Combine the current title with the new text
-        let newTitle = currentTitle + textToAdd;
+			// Combine the current title with the new text
+			//let newTitle = currentTitle + textToAdd;
+			let newTitle = currentTitle + countryName;
 
-        // Set the new title to the document
-        document.title = newTitle;
+			// Set the new title to the document
+			document.title = newTitle;
 
-        // You can optionally log the old and new titles to the console to verify
-        console.log("Original Title:", currentTitle);
-        console.log("New Title:", newTitle);
+			// You can optionally log the old and new titles to the console to verify
+			console.log("Original Title:", currentTitle);
+			console.log("New Title:", newTitle);
+		}
     </script>
 </body>
 

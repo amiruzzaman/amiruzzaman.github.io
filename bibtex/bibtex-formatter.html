@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>BibTeX Beautifier & Formatter</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    padding: 40px;
+    color: #333;
+    transition: background 0.3s, color 0.3s;
+  }
+  body.dark-mode {
+    background: #121212;
+    color: #e0e0e0;
+  }
+  .container {
+    max-width: 960px;
+    margin: auto;
+  }
+  h1 {
+    text-align: center;
+  }
+  textarea {
+    width: 100%;
+    height: 240px;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    resize: vertical;
+  }
+  button, select {
+    margin-top: 15px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .btn-primary {
+    background-color: #007bff;
+    color: white;
+  }
+  .btn-primary:hover {
+    background-color: #0056b3;
+  }
+  .btn-success {
+    background-color: #28a745;
+    color: white;
+  }
+  .btn-success:hover {
+    background-color: #1e7e34;
+  }
+  .btn-toggle {
+    float: right;
+    background-color: #6c757d;
+    color: white;
+  }
+  .btn-toggle:hover {
+    background-color: #495057;
+  }
+  .output {
+    margin-top: 30px;
+  }
+  label {
+    font-weight: bold;
+    display: block;
+    margin-top: 15px;
+  }
+  .preview-output {
+    margin-top: 20px;
+    padding: 15px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-family: sans-serif;
+    white-space: pre-wrap;
+    min-height: 80px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>
+    BibTeX Beautifier & Formatter
+    <button class="btn-toggle" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+  </h1>
+
+  <label for="input">Paste your BibTeX entries:</label>
+  <textarea id="input" placeholder="Paste your BibTeX here..." oninput="beautifyBibTeX()"></textarea>
+
+  <button class="btn-primary" onclick="beautifyBibTeX()">Beautify</button>
+  <button class="btn-success" onclick="copyOutput()">Copy</button>
+  <button class="btn-success" onclick="downloadBibFile()">Download .bib</button>
+
+  <div class="output">
+    <label for="output">Formatted Output (Live Preview)</label>
+    <textarea id="output" readonly></textarea>
+
+    <label for="formatSelect">Format preview as:</label>
+    <select id="formatSelect" onchange="renderPreview()">
+      <option value="html">HTML</option>
+      <option value="markdown">Markdown</option>
+      <option value="apa">APA Style</option>
+      <option value="mla">MLA Style</option>
+    </select>
+
+    <div id="preview" class="preview-output">Preview will appear here.</div>
+  </div>
+</div>
+
+<script>
+  // Stack-based BibTeX entry splitter (handles nested braces)
+  function splitEntries(input) {
+    const entries = [];
+    let i = 0;
+    while (i < input.length) {
+      const atIndex = input.indexOf("@", i);
+      if (atIndex === -1) break;
+      const braceIndex = input.indexOf("{", atIndex);
+      if (braceIndex === -1) break;
+
+      let stack = [];
+      let j = braceIndex;
+      while (j < input.length) {
+        if (input[j] === "{") stack.push("{");
+        else if (input[j] === "}") {
+          stack.pop();
+          if (stack.length === 0) break;
+        }
+        j++;
+      }
+
+      if (stack.length !== 0) break;
+
+      const entry = input.substring(atIndex, j + 1);
+      entries.push(entry.trim());
+      i = j + 1;
+    }
+    return entries;
+  }
+
+  // Parse fields with nested braces or quotes correctly
+  function parseFields(body) {
+    const fields = [];
+    let i = 0;
+    while (i < body.length) {
+      while (i < body.length && (body[i] === "," || /\s/.test(body[i]))) i++;
+
+      if (i >= body.length) break;
+
+      let key = "";
+      while (i < body.length && /[^\s=]/.test(body[i])) {
+        key += body[i];
+        i++;
+      }
+      key = key.trim();
+
+      while (i < body.length && body[i] !== "=") i++;
+      if (i >= body.length || body[i] !== "=") break;
+      i++; // skip '='
+
+      while (i < body.length && /\s/.test(body[i])) i++;
+
+      let value = "";
+      if (body[i] === "{") {
+        let stack = [];
+        while (i < body.length) {
+          if (body[i] === "{") stack.push("{");
+          if (body[i] === "}") stack.pop();
+          value += body[i];
+          i++;
+          if (stack.length === 0) break;
+        }
+        value = value.trim();
+      } else if (body[i] === '"') {
+        i++;
+        while (i < body.length && body[i] !== '"') {
+          value += body[i];
+          i++;
+        }
+        i++;
+      } else {
+        while (i < body.length && body[i] !== ",") {
+          value += body[i];
+          i++;
+        }
+        value = value.trim();
+      }
+
+      fields.push({ key: key, value: value });
+    }
+    return fields;
+  }
+
+  function beautifyBibTeX() {
+    const input = document.getElementById("input").value.trim();
+    if (!input) {
+      document.getElementById("output").value = "";
+      document.getElementById("preview").textContent = "Preview will appear here.";
+      return;
+    }
+    const entries = splitEntries(input);
+
+    if (entries.length === 0) {
+      document.getElementById("output").value = "No valid BibTeX entry found.";
+      document.getElementById("preview").textContent = "Preview unavailable (missing key fields).";
+      return;
+    }
+
+    const formattedEntries = entries.map(entry => {
+      const headerMatch = entry.match(/^@(\w+)\s*{\s*([^,]+),/);
+      if (!headerMatch) return entry;
+
+      const type = headerMatch[1];
+      const key = headerMatch[2];
+
+      const bodyStart = entry.indexOf(",") + 1;
+      const bodyEnd = entry.lastIndexOf("}");
+      const body = entry.substring(bodyStart, bodyEnd).trim();
+
+      const fields = parseFields(body);
+      fields.sort((a, b) => a.key.localeCompare(b.key));
+
+      const formattedBody = fields.map(f => `\t${f.key} = ${f.value}`).join(",\n");
+
+      return `@${type}{${key},\n${formattedBody}\n}`;
+    });
+
+    const result = formattedEntries.join("\n\n");
+    document.getElementById("output").value = result;
+
+    renderPreview();
+  }
+
+  function copyOutput() {
+    const output = document.getElementById("output");
+    output.select();
+    output.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+    alert("Copied formatted BibTeX to clipboard!");
+  }
+
+  function downloadBibFile() {
+    const content = document.getElementById("output").value;
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "formatted.bib";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  function toggleDarkMode() {
+    document.body.classList.toggle("dark-mode");
+  }
+
+  function renderPreview() {
+    const bib = document.getElementById("output").value;
+    const style = document.getElementById("formatSelect").value;
+
+    const firstEntryMatch = bib.match(/^@\w+\s*{\s*[^,]+,\s*([\s\S]*?)\n}/m);
+    if (!firstEntryMatch) {
+      document.getElementById("preview").textContent = "Preview unavailable (missing key fields).";
+      return;
+    }
+    const fieldsBlock = firstEntryMatch[1];
+    const fields = parseFields(fieldsBlock);
+
+    const map = {};
+    for (const f of fields) {
+      map[f.key.toLowerCase()] = f.value.replace(/^\{|\}$/g, "").trim();
+    }
+
+    if (!(map.author && map.title && map.journal && map.year)) {
+      document.getElementById("preview").textContent = "Preview unavailable (missing key fields).";
+      return;
+    }
+
+    const author = map.author;
+    const title = map.title;
+    const journal = map.journal;
+    const year = map.year;
+
+    let output = "";
+    switch (style) {
+      case "markdown":
+        output = `**${author}**. (${year}). *${title}*. _${journal}_.`;
+        break;
+      case "apa":
+        output = `${author} (${year}). ${title}. *${journal}*.`;
+        break;
+      case "mla":
+        output = `${author}. "${title}." ${journal}, ${year}.`;
+        break;
+      default:
+        output = `<strong>${author}</strong> (${year}). <em>${title}</em>. <u>${journal}</u>.`;
+    }
+    document.getElementById("preview").innerHTML = output;
+  }
+</script>
+</body>
+</html>
