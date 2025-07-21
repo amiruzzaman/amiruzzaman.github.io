@@ -350,24 +350,15 @@
 
         /* Flag image style */
         .country-flag {
-            width: 70px;
-            /* Same width as thumbnail */
-            height: 70px;
-            /* Same height as thumbnail */
-            object-fit: contain;
-            /* Ensure the flag fits without cropping */
+            width: 70px; /* Same width as thumbnail */
+            height: 70px; /* Same height as thumbnail */
+            object-fit: contain; /* Ensure the flag fits without cropping */
             margin-top: 10px;
             border: 1px solid var(--border-color);
             border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            transition: var(--transition);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        .country-flag:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-        }
 
         /* Countries List */
         .countries-list {
@@ -655,53 +646,6 @@
             transform: rotate(90deg);
         }
 
-        /* Flag Modal */
-        .flag-modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            overflow: auto;
-            animation: fadeInModal 0.3s;
-        }
-
-        .flag-modal-content {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            width: 100%;
-            padding: 20px;
-        }
-
-        .flag-modal-image {
-            max-width: 90%;
-            max-height: 80vh;
-            object-fit: contain;
-            animation: zoomIn 0.3s;
-        }
-
-        .close-flag-modal {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            color: white;
-            font-size: 35px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .close-flag-modal:hover {
-            color: var(--accent-color);
-            transform: rotate(90deg);
-        }
-
         /* Responsive */
         @media (max-width: 900px) {
             .main-content {
@@ -724,11 +668,6 @@
             }
 
             .modal-image {
-                max-width: 95%;
-                max-height: 70vh;
-            }
-
-            .flag-modal-image {
                 max-width: 95%;
                 max-height: 70vh;
             }
@@ -840,14 +779,6 @@
         <span class="close-modal">&times;</span>
         <div class="modal-content">
             <img id="modalImage" class="modal-image" src="" alt="Enlarged view">
-        </div>
-    </div>
-
-    <!-- Flag Modal -->
-    <div id="flagModal" class="flag-modal">
-        <span class="close-flag-modal">&times;</span>
-        <div class="flag-modal-content">
-            <img id="flagModalImage" class="flag-modal-image" src="" alt="Enlarged flag view">
         </div>
     </div>
 
@@ -1005,11 +936,6 @@
                             countryFlagElement.style.display = 'none'; // Hide if flag not found
                             console.warn(`Flag not found for country code: ${countryCode}`);
                         };
-
-                        // Add click event to the flag to open modal
-                        countryFlagElement.onclick = () => {
-                            openFlagModal(flagSrc);
-                        };
                     } else {
                         countryFlagElement.style.display = 'none'; // Hide if no country code
                     }
@@ -1132,7 +1058,7 @@
                     link.classList.add("active");
                     document.getElementById('selected-country').textContent = `: ${country}`;
                     document.getElementById('selected-country-title').textContent = `: ${country}`;
-                    updateTitle(`${country}`);
+					updateTitle(`${country}`);
                 }
 
                 // Add click event listener to handle country selection
@@ -1149,7 +1075,7 @@
                     link.classList.add('active');
                     document.getElementById('selected-country').textContent = `: ${country}`;
                     document.getElementById('selected-country-title').textContent = `: ${country}`;
-                    updateTitle(`${country}`);
+					updateTitle(`${country}`);
 
                     // Update URL without reloading the page
                     history.pushState(null, "", `?country=${countryName}`);
@@ -1304,7 +1230,7 @@
                                                 el.classList.add('active');
                                                 document.getElementById('selected-country').textContent = `: ${countryName}`;
                                                 document.getElementById('selected-country-title').textContent = `: ${countryName}`;
-                                                updateTitle(`${countryName}`);
+												updateTitle(`${countryName}`);
                                             }
                                         });
                                     },
@@ -1486,43 +1412,6 @@
             });
         }
 
-        // Initializes the flag modal for enlarged view
-        function initFlagModal() {
-            const flagModal = document.getElementById("flagModal");
-            const closeFlagModal = document.querySelector(".close-flag-modal");
-
-            closeFlagModal.addEventListener("click", function () {
-                flagModal.style.display = "none";
-                document.body.style.overflow = "auto"; // Restore scrolling
-            });
-
-            // Close modal when clicking outside the image
-            flagModal.addEventListener("click", function (event) {
-                if (event.target === flagModal) {
-                    flagModal.style.display = "none";
-                    document.body.style.overflow = "auto";
-                }
-            });
-
-            // Close modal on Escape key press
-            document.addEventListener("keydown", function (event) {
-                if (event.key === "Escape" && flagModal.style.display === "flex") {
-                    flagModal.style.display = "none";
-                    document.body.style.overflow = "auto";
-                }
-            });
-        }
-
-        // Function to open the flag modal with the specified flag image
-        function openFlagModal(flagSrc) {
-            const flagModal = document.getElementById("flagModal");
-            const flagModalImage = document.getElementById("flagModalImage");
-
-            flagModalImage.src = flagSrc;
-            flagModal.style.display = "flex";
-            document.body.style.overflow = "hidden"; // Prevent scrolling when modal is open
-        }
-
         // Initializes the search functionality for countries
         function initSearch() {
             const searchInput = document.getElementById('search-input');
@@ -1561,7 +1450,7 @@
                                     el.classList.add('active');
                                     document.getElementById('selected-country').textContent = `: ${country}`;
                                     document.getElementById('selected-country-title').textContent = `: ${country}`;
-                                    updateTitle(`${country}`);
+									updateTitle(`${country}`);
                                 }
                             });
 
@@ -1629,7 +1518,7 @@
                     firstCountryLink.classList.add('active');
                     document.getElementById('selected-country').textContent = `: ${firstCountry}`;
                     document.getElementById('selected-country-title').textContent = `: ${firstCountry}`;
-                    updateTitle(`${firstCountry}`);
+					updateTitle(`${firstCountry}`);
                 }
             }
 
@@ -1637,7 +1526,6 @@
             // Initialize various UI components
             initDetailsToggle();
             initImageModal();
-            initFlagModal();
             initSearch();
         };
     </script>
@@ -1724,18 +1612,18 @@
 
 
         function updateTitle(countryName) {
-            // Get the current base title (this should be "..::Amir's Coin Collection::..")
-            let baseTitle = "..::Amir's Coin Collection::..";
-
-            // Combine with the country name and a space
-            let newTitle = baseTitle + " " + countryName;
-
-            // Set the new title
-            document.title = newTitle;
-
-            // Optional logging
-            console.log("Updated Title:", newTitle);
-        }
+			// Get the current base title (this should be "..::Amir's Coin Collection::..")
+			let baseTitle = "..::Amir's Coin Collection::..";
+			
+			// Combine with the country name and a space
+			let newTitle = baseTitle + " " + countryName;
+			
+			// Set the new title
+			document.title = newTitle;
+			
+			// Optional logging
+			console.log("Updated Title:", newTitle);
+		}
     </script>
 </body>
 
