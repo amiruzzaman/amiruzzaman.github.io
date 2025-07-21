@@ -348,17 +348,6 @@
             border: none;
         }
 
-        /* Flag image style */
-        .country-flag {
-            width: 70px; /* Same width as thumbnail */
-            height: 70px; /* Same height as thumbnail */
-            object-fit: contain; /* Ensure the flag fits without cropping */
-            margin-top: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
 
         /* Countries List */
         .countries-list {
@@ -757,8 +746,6 @@
                             </div>
                         </div>
                         <div id="continent-map"></div>
-                        <!-- Flag will be displayed here -->
-                        <img id="country-flag" class="country-flag" src="" alt="Country Flag" style="display:none;">
                     </div>
                 </div>
             </div>
@@ -841,7 +828,6 @@
         async function setCurrentImage(src, note, donor, currency_type, countryInfo) {
             const image = document.getElementById("current-image-img");
             const noteElement = document.getElementById("current-image-note");
-            const countryFlagElement = document.getElementById("country-flag");
 
             // Use a temporary image to preload and ensure smooth transition
             const tempImage = new Image();
@@ -891,13 +877,9 @@
 
             noteElement.innerHTML = countryDetails;
 
-            // Load continent map data and flag if country info is available
+            // Load continent map data if country info is available
             if (countryInfo && countryInfo.name) {
                 await loadContinentData(countryInfo.name);
-            } else {
-                // Hide flag if no country info
-                countryFlagElement.style.display = 'none';
-                countryFlagElement.src = '';
             }
         }
 
@@ -911,42 +893,24 @@
 
                 const countryData = cache.continentData.countries.country.find(c =>
                     c.countryName.toLowerCase() === countryName.toLowerCase()
+					//console.log(c.countryName.toLowerCase(), countryName.toLowerCase());
                 );
-
-                const countryFlagElement = document.getElementById("country-flag");
 
                 if (countryData) {
                     const continentName = countryData.continentName;
                     const countryDisplayName = countryData.countryName;
                     const capital = countryData.capital;
-                    const countryCode = countryData.countryCode; // Get the country code
 
                     document.getElementById('continent-name').textContent = continentName;
                     document.getElementById('continent-country-name').textContent = countryDisplayName;
                     document.getElementById('continent-capital').textContent = capital;
 
                     await loadContinentMap(continentName, countryDisplayName);
-
-                    // Display the country flag
-                    if (countryCode) {
-                        const flagSrc = `flags/svg/${countryCode.toLowerCase()}.svg`;
-                        countryFlagElement.src = flagSrc;
-                        countryFlagElement.style.display = 'block'; // Show the flag
-                        countryFlagElement.onerror = () => {
-                            countryFlagElement.style.display = 'none'; // Hide if flag not found
-                            console.warn(`Flag not found for country code: ${countryCode}`);
-                        };
-                    } else {
-                        countryFlagElement.style.display = 'none'; // Hide if no country code
-                    }
-
                 } else {
                     console.warn(`No continent data found for country: ${countryName}`);
-                    countryFlagElement.style.display = 'none'; // Hide flag if no continent data
                 }
             } catch (error) {
                 console.error("Error loading continent data:", error);
-                document.getElementById("country-flag").style.display = 'none'; // Hide flag on error
             }
         }
 
@@ -1058,6 +1022,7 @@
                     link.classList.add("active");
                     document.getElementById('selected-country').textContent = `: ${country}`;
                     document.getElementById('selected-country-title').textContent = `: ${country}`;
+                    document.getElementById('selected-country-title').style.color = "#e74c3c";
 					updateTitle(`${country}`);
                 }
 
@@ -1230,7 +1195,7 @@
                                                 el.classList.add('active');
                                                 document.getElementById('selected-country').textContent = `: ${countryName}`;
                                                 document.getElementById('selected-country-title').textContent = `: ${countryName}`;
-												updateTitle(`${countryName}`);
+												updateTitle(`${country}`);
                                             }
                                         });
                                     },
@@ -1518,7 +1483,7 @@
                     firstCountryLink.classList.add('active');
                     document.getElementById('selected-country').textContent = `: ${firstCountry}`;
                     document.getElementById('selected-country-title').textContent = `: ${firstCountry}`;
-					updateTitle(`${firstCountry}`);
+					updateTitle(`${country}`);
                 }
             }
 
@@ -1611,18 +1576,26 @@
         document.onkeydown = disableCtrlKeyCombination;
 
 
-        function updateTitle(countryName) {
-			// Get the current base title (this should be "..::Amir's Coin Collection::..")
-			let baseTitle = "..::Amir's Coin Collection::..";
-			
-			// Combine with the country name and a space
-			let newTitle = baseTitle + " " + countryName;
-			
-			// Set the new title
+        function updateTitle(countryName){
+			// --- Dynamic Document Title Update ---
+			// This script modifies the browser tab title.
+
+			// Get the current title of the HTML document
+			let currentTitle = document.title;
+
+			// Define the text you want to add
+			let textToAdd = " - My Awesome Addition"; // You can change this to whatever you like
+
+			// Combine the current title with the new text
+			//let newTitle = currentTitle + textToAdd;
+			let newTitle = currentTitle + countryName;
+
+			// Set the new title to the document
 			document.title = newTitle;
-			
-			// Optional logging
-			console.log("Updated Title:", newTitle);
+
+			// You can optionally log the old and new titles to the console to verify
+			console.log("Original Title:", currentTitle);
+			console.log("New Title:", newTitle);
 		}
     </script>
 </body>
