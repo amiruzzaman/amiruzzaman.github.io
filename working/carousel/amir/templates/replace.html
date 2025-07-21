@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Replacer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1,
+        h3 {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #45a049;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0069d9;
+        }
+
+        #refresh-btn {
+            margin-top: 10px;
+            background-color: #6c757d;
+        }
+
+        #refresh-btn:hover {
+            background-color: #5a6268;
+        }
+
+        #replace-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .status-message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .image-gallery {
+            margin: 20px 0;
+        }
+
+        .image-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .image-card {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .image-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-card.selected {
+            border: 2px solid #007bff;
+            background-color: #f0f8ff;
+        }
+
+        .image-card img {
+            max-width: 100%;
+            height: auto;
+            max-height: 150px;
+            object-fit: contain;
+        }
+
+        .image-card p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            word-break: break-all;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Image Replacer</h1>
+        <p>Select a folder and image to replace from ./images/</p>
+
+        <div class="form-group">
+            <label for="folder-select">Select Folder:</label>
+            <select id="folder-select" class="form-control">
+                <option value="">-- Select a folder --</option>
+            </select>
+            <button id="refresh-btn" class="btn">Refresh Folders</button>
+        </div>
+
+        <div id="image-gallery" class="image-gallery">
+            <h3>Images in selected folder:</h3>
+            <div id="image-container" class="image-container"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="file-input">Select Replacement Image:</label>
+            <input type="file" id="file-input" class="form-control" accept="image/*">
+        </div>
+
+        <button id="replace-btn" class="btn btn-primary" disabled>Replace Selected Image</button>
+
+        <div id="status-message" class="status-message"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // DOM Elements
+            const folderSelect = document.getElementById('folder-select');
+            const fileInput = document.getElementById('file-input');
+            const replaceBtn = document.getElementById('replace-btn');
+            const refreshBtn = document.getElementById('refresh-btn');
+            const statusMessage = document.getElementById('status-message');
+            const imageContainer = document.getElementById('image-container');
+
+            // State variables
+            let selectedImage = null;
+            let currentFolder = '';
+
+            // Initialize the application
+            function init() {
+                loadFolders();
+                setupEventListeners();
+            }
+
+            // Set up all event listeners
+            function setupEventListeners() {
+                folderSelect.addEventListener('change', handleFolderChange);
+                fileInput.addEventListener('change', handleFileSelect);
+                replaceBtn.addEventListener('click', handleImageReplace);
+                refreshBtn.addEventListener('click', loadFolders);
+            }
+
+            // Load available folders from server
+            function loadFolders() {
+                setLoadingState(true);
+                showStatus('Loading folders...');
+
+                fetch('/get_folders')
+                    .then(handleResponse)
+                    .then(data => {
+                        folderSelect.innerHTML = '<option value="">-- Select a folder --</option>';
+
+                        if (data.folders && data.folders.length > 0) {
+                            data.folders.sort().forEach(folder => {
+                                const option = new Option(folder, folder);
+                                folderSelect.add(option);
+                            });
+                            showStatus(`Found ${data.folders.length} folder(s)`, 'success');
+                        } else {
+                            showStatus('No folders found in ./images directory', 'info');
+                        }
+                    })
+                    .catch(error => {
+                        showStatus(`Failed to load folders: ${error.message}`, 'error');
+                        console.error('Error:', error);
+                    })
+                    .finally(() => setLoadingState(false));
+            }
+
+            // Handle folder selection change
+            function handleFolderChange() {
+                currentFolder = folderSelect.value;
+                selectedImage = null;
+                imageContainer.innerHTML = '';
+
+                if (currentFolder) {
+                    loadImages(currentFolder);
+                } else {
+                    updateReplaceButton();
+                }
+            }
+
+            // Load images for selected folder
+            function loadImages(folder) {
+                setLoadingState(true);
+                showStatus(`Loading images from ./images/${folder}...`);
+
+                fetch(`/get_images/${folder}`)
+                    .then(handleResponse)
+                    .then(data => {
+                        imageContainer.innerHTML = '';
+
+                        if (data.images && data.images.length > 0) {
+                            data.images.forEach(image => {
+                                createImageCard(image, folder);
+                            });
+                            showStatus(`Found ${data.images.length} image(s) in ${folder}`, 'success');
+                        } else {
+                            showStatus(`No images found in ./images/${folder}`, 'info');
+                        }
+                    })
+                    .catch(error => {
+                        showStatus(`Error loading images: ${error.message}`, 'error');
+                        console.error('Error:', error);
+                    })
+                    .finally(() => setLoadingState(false));
+            }
+
+            // Create image card for each image
+            function createImageCard(filename, folder) {
+                const card = document.createElement('div');
+                card.className = 'image-card';
+                card.dataset.filename = filename;
+
+                const img = document.createElement('img');
+                img.src = `/images/${folder}/${filename}`;
+                img.alt = filename;
+
+                const p = document.createElement('p');
+                p.textContent = filename;
+
+                card.appendChild(img);
+                card.appendChild(p);
+
+                card.addEventListener('click', function () {
+                    // Deselect all cards
+                    document.querySelectorAll('.image-card').forEach(c => {
+                        c.classList.remove('selected');
+                    });
+
+                    // Select this card
+                    this.classList.add('selected');
+                    selectedImage = filename;
+                    updateReplaceButton();
+                });
+
+                imageContainer.appendChild(card);
+            }
+
+            // Handle file selection
+            function handleFileSelect() {
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    showStatus(`Selected replacement: ${file.name}`, 'info');
+                }
+                updateReplaceButton();
+            }
+
+            // Handle image replacement
+            function handleImageReplace() {
+                if (!validateReplaceConditions()) return;
+
+                const file = fileInput.files[0];
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('folder', currentFolder);
+                formData.append('target_filename', selectedImage);
+
+                setLoadingState(true);
+                showStatus(`Replacing ./images/${currentFolder}/${selectedImage}...`);
+
+                fetch('/replace_image', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(handleResponse)
+                    .then(data => {
+                        showStatus(`Successfully replaced: ${data.filename} in ${data.folder}`, 'success');
+                        fileInput.value = ''; // Clear file input
+                        loadImages(currentFolder); // Refresh images
+                    })
+                    .catch(error => {
+                        showStatus(`Replacement failed: ${error.message}`, 'error');
+                        console.error('Error:', error);
+                    })
+                    .finally(() => setLoadingState(false));
+            }
+
+            // Helper function to handle fetch responses
+            function handleResponse(response) {
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        throw new Error(err.error || `Server error: ${response.status}`);
+                    });
+                }
+                return response.json();
+            }
+
+            // Validate conditions for image replacement
+            function validateReplaceConditions() {
+                if (!currentFolder) {
+                    showStatus('Please select a folder first', 'error');
+                    return false;
+                }
+                if (!selectedImage) {
+                    showStatus('Please select an image to replace', 'error');
+                    return false;
+                }
+                if (fileInput.files.length === 0) {
+                    showStatus('Please select a replacement image', 'error');
+                    return false;
+                }
+                return true;
+            }
+
+            // Update replace button state
+            function updateReplaceButton() {
+                replaceBtn.disabled = !(currentFolder && selectedImage && fileInput.files.length > 0);
+            }
+
+            // Set loading state for UI elements
+            function setLoadingState(isLoading) {
+                folderSelect.disabled = isLoading;
+                fileInput.disabled = isLoading;
+                replaceBtn.disabled = isLoading;
+                refreshBtn.disabled = isLoading;
+            }
+
+            // Show status message
+            function showStatus(message, type = '') {
+                statusMessage.textContent = message;
+                statusMessage.className = `status-message ${type}`;
+
+                // Auto-hide success messages after 5 seconds
+                if (type === 'success') {
+                    setTimeout(() => {
+                        if (statusMessage.textContent === message) {
+                            statusMessage.textContent = '';
+                            statusMessage.className = 'status-message';
+                        }
+                    }, 5000);
+                }
+            }
+
+            // Initialize the application
+            init();
+        });
+    </script>
+</body>
+
+</html>
