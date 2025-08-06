@@ -471,24 +471,11 @@
             padding: 0;
         }
 
-        /* Home Button Wrapper for Summary Pop-up */
-        .home-button-wrapper {
-            position: relative;
-            /* Needed for absolute positioning of summary */
-            display: inline-block;
-            /* To make the wrapper only as wide as its content */
-            margin-bottom: 15px;
-            /* Maintain original spacing */
-        }
-
         .btn-home {
+            margin-bottom: 15px;
             background: var(--secondary-color);
             border-color: var(--dark-color);
             color: white;
-            position: relative;
-            /* Ensure z-index works */
-            z-index: 2;
-            /* Keep button above summary */
         }
 
         .btn-home i {
@@ -745,23 +732,6 @@
                 max-width: 95%;
                 max-height: 70vh;
             }
-
-            /* Adjust summary for smaller screens */
-            .summary {
-                width: 200px;
-                /* Even smaller on mobile */
-                padding: 8px 12px;
-            }
-
-            .summary p {
-                font-size: 11px;
-            }
-
-            .summary i {
-                font-size: 14px;
-                margin-right: 6px;
-                width: 16px;
-            }
         }
 
         /* Footer */
@@ -787,70 +757,30 @@
             color: var(--primary-dark);
         }
 
-        /* Summary Section - Updated for Pop-up */
+        /* Summary Section */
         .summary {
-            position: absolute;
-            top: calc(100% + 10px);
-            /* Position below the home button with a gap */
-            left: 50%;
-            transform: translateX(-50%);
-            width: 250px;
-            /* Fixed smaller width */
-            padding: 10px 15px;
+            width: 80vw;
+            margin-top: 40px;
+            padding: 20px 40px;
             background-color: var(--secondary-color);
             color: var(--text-light);
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
-            z-index: 10;
-            /* Ensure it appears above other elements */
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
-            text-align: left;
-            /* Align text within summary */
-        }
-
-        /* Triangle "arrow" pointing up from the summary to the button */
-        .summary::before {
-            content: '';
-            position: absolute;
-            bottom: 100%;
-            /* Position above the summary box */
-            left: 50%;
-            transform: translateX(-50%);
-            border-width: 8px;
-            border-style: solid;
-            border-color: transparent transparent var(--secondary-color) transparent;
-        }
-
-        /* Show summary on hover of the wrapper */
-        .home-button-wrapper:hover .summary {
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(-50%) translateY(-5px);
-            /* Slight lift effect */
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .summary p {
-            margin: 5px 0;
-            /* Reduced margin */
+            margin: 8px 0;
             display: flex;
             align-items: center;
-            font-size: 13px;
-            /* Smaller font size */
-            color: var(--text-light);
-            /* Ensure text color is light */
         }
 
         .summary i {
-            margin-right: 8px;
-            /* Reduced margin */
+            margin-right: 10px;
             color: var(--gold-color);
-            width: 18px;
-            /* Smaller icon size */
+            width: 20px;
             text-align: center;
-            font-size: 16px;
-            /* Smaller icon font size */
         }
     </style>
 </head>
@@ -858,11 +788,9 @@
 <body>
     <div class="out-container">
         <div class="inner-container">
-            <!-- New wrapper for home button and summary pop-up -->
-            <div class="home-button-wrapper">
-                <a href="index.html" class="btn btn-home"><i class="fas fa-home"></i> Home</a>
-                <div id="summary-container" class="summary"></div>
-            </div>
+            <a href="index.html" class="btn btn-home"><i class="fas fa-home"></i> Home</a>
+
+            <div id="summary-container" class="summary"></div>
 
             <!-- Search Bar -->
             <div class="search-container">
@@ -1026,9 +954,9 @@
             });
 
             summary.innerHTML = `
-        <p><i class="fas fa-globe-americas"></i> Countries: ${numCountries}</p>
-        <p><i class="fas fa-money-bill-alt"></i> Bills: ${numPaperBills}</p>
-        <p><i class="fas fa-coins"></i> Coins: ${numCoins}</p>
+        <p><i class="fas fa-globe-americas"></i> Number of Countries: ${numCountries}</p>
+        <p><i class="fas fa-money-bill-alt"></i> Number of Paper Bills: ${numPaperBills}</p>
+        <p><i class="fas fa-coins"></i> Number of Coins: ${numCoins}</p>
       `;
         }
 
@@ -1176,7 +1104,6 @@
                 document.getElementById("country-flag").style.display = 'none'; // Hide flag on error
             }
         }
-
 
         // Function to load and display the continent map
         async function loadContinentMap(continentName, countryName) {
@@ -1402,7 +1329,7 @@
                     mapInstance.flyToBounds(bounds, {
                         padding: [50, 50], // Add padding around the country
                         maxZoom: 6, // Don't zoom in too close
-                        duration: 1 // Smooth animation
+                        duration: 1 // Smooth animation duration
                     });
                 } else {
                     console.warn("Invalid bounds for country highlight layer. Skipping fitBounds.");
