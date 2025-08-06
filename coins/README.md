@@ -31,6 +31,10 @@
   - Crop and save images
   - Access via `http://localhost:5000/edit`
 
+  - **Json Editing**: `sortcoinsjson.py`
+  - Sort or move around by dragging rows/objects
+  - Access via `http://localhost:5000/`
+
 ### Additional Tools
 - **Drag & Drop**: `dragndrop.py`
   - Add images via drag and drop interface
