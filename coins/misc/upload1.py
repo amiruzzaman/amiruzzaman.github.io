@@ -37,118 +37,281 @@ HTML_TEMPLATE = """
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="#">
     <title>Donation Form</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        :root {
+            --primary-color: #ffc107;
+            --secondary-color: #495057;
+            --background-color: #72787e;
+            --input-bg: #6c757d;
+            --success-color: #198754;
+            --error-color: #dc3545;
+            --text-color: #fff;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #1a202c; /* dark slate */
-            color: #e2e8f0; /* light gray */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
             display: flex;
             justify-content: center;
+            align-items: flex-start;
             min-height: 100vh;
-            padding: 2.5rem;
+            padding: 20px;
+            line-height: 1.6;
         }
 
-        .drop-zone {
-            border: 2px dashed #4a5568; /* dark gray */
-            border-radius: 0.5rem;
-            padding: 2rem;
+        .container {
+            background-color: var(--secondary-color);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            max-width: 600px;
+            width: 100%;
+            margin: 20px 0;
+            position: relative;
+            overflow: visible;
+        }
+
+        h2 {
             text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 1rem;
-            background-color: #2d3748; /* dark gray background */
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-size: 28px;
+            position: relative;
+            padding-bottom: 10px;
         }
 
-        .drop-zone.hover {
-            border-color: #38b2ac; /* teal on hover */
-            background-color: #4a5568; /* darker background */
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background-color: var(--primary-color);
+            border-radius: 3px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        label {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        label i {
+            margin-right: 8px;
+            width: 20px;
+            text-align: center;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 15px;
+            margin-top: 5px;
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(221, 221, 221, 0.3);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.2);
+        }
+
+        input[type="submit"] {
+            background-color: var(--success-color);
+            color: var(--text-color);
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            padding: 14px;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #157347;
+        }
+
+        #image-preview {
+            display: none;
+            margin-top: 15px;
+            text-align: center;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            padding: 10px;
+        }
+
+        #image-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: var(--border-radius);
+            object-fit: contain;
+        }
+
+        #message-container {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            background-color: rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .success-message {
+            color: #d4edda;
+            background-color: rgba(25, 135, 84, 0.2);
+            border-left: 4px solid var(--success-color);
+        }
+
+        .error-message {
+            color: #f8d7da;
+            background-color: rgba(220, 53, 69, 0.2);
+            border-left: 4px solid var(--error-color);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-button {
+            border: 1px solid rgba(221, 221, 221, 0.3);
+            border-radius: var(--border-radius);
+            padding: 10px 15px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .file-input-button i {
+            margin-left: 8px;
+        }
+
+        #file-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .preview-placeholder {
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            input,
+            select,
+            textarea {
+                padding: 10px 12px;
+            }
         }
     </style>
 </head>
 
-<body class="bg-gray-900 text-gray-200">
-    <div class="container mx-auto max-w-xl p-8 bg-gray-800 rounded-2xl shadow-2xl mt-10">
-        <h2 class="text-3xl font-bold text-center mb-6 text-teal-400">
-            <i class="fas fa-hand-holding-heart mr-3"></i> Donation Form
-        </h2>
-        <form id="donation-form" class="space-y-6">
-            <div class="space-y-2">
-                <label for="donor-name" class="block text-sm font-medium text-gray-400">
-                    <i class="fas fa-user mr-2 text-teal-400"></i> Donor Name
-                </label>
-                <input type="text" id="donor-name" name="donor-name" placeholder="Enter your name" required
-                    class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500">
+<body>
+    <div class="container">
+        <h2><i class="fas fa-hand-holding-heart"></i> Donation Form</h2>
+        <form id="donation-form">
+            <div class="form-group">
+                <label for="donor-name"><i class="fas fa-user"></i> Donor Name</label>
+                <input type="text" id="donor-name" name="donor-name" placeholder="Enter your name" required>
             </div>
-
-            <div class="space-y-2">
-                <label for="country" class="block text-sm font-medium text-gray-400">
-                    <i class="fas fa-globe mr-2 text-teal-400"></i> Country
-                </label>
-                <select id="country" name="country" required
-                    class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500">
+            <div class="form-group">
+                <label for="country"><i class="fas fa-globe"></i> Country</label>
+                <select id="country" name="country" required>
                     <option value="" disabled selected>Select a country</option>
                 </select>
             </div>
-
-            <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-400">
-                    <i class="fas fa-file-upload mr-2 text-teal-400"></i> File Upload
-                </label>
-                <div id="drop-zone" class="drop-zone flex flex-col items-center justify-center">
-                    <i class="fas fa-image text-4xl text-gray-500 mb-2"></i>
-                    <p class="text-sm text-gray-400">Drag & drop an image here or</p>
-                    <div class="relative mt-2">
-                        <button type="button" class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-4 rounded-full transition-colors duration-200">
-                            Choose a file
-                        </button>
-                        <input type="file" id="file-input" name="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+            <div class="form-group">
+                <label><i class="fas fa-file-upload"></i> File Upload</label>
+                <div class="file-input-wrapper">
+                    <div class="file-input-button">
+                        <span id="file-input-label">Choose a file</span>
+                        <i class="fas fa-cloud-upload-alt"></i>
                     </div>
+                    <input type="file" id="file-input" name="file">
                 </div>
-                <div id="image-preview" class="hidden mt-4 text-center">
-                    <img id="preview-img" alt="Image Preview" class="max-w-full h-auto rounded-lg shadow-lg max-h-64 object-contain mx-auto">
-                    <p id="file-name" class="mt-2 text-sm text-gray-400 truncate"></p>
+                <div id="image-preview">
+                    <img id="preview-img" alt="Preview">
                 </div>
             </div>
-
-            <div class="space-y-2">
-                <label for="file-url" class="block text-sm font-medium text-gray-400">
-                    <i class="fas fa-link mr-2 text-teal-400"></i> File URL
-                </label>
-                <input type="url" id="file-url" name="file-url" placeholder="Enter file URL (optional)"
-                    class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500">
+            <div class="form-group">
+                <label for="file-url"><i class="fas fa-link"></i> File URL</label>
+                <input type="url" id="file-url" name="file-url" placeholder="Enter file URL (optional)">
             </div>
-
-            <div class="space-y-2">
-                <label for="currency-type" class="block text-sm font-medium text-gray-400">
-                    <i class="fas fa-money-bill-wave mr-2 text-teal-400"></i> Type of Currency
-                </label>
-                <select id="currency-type" name="currency-type" required
-                    class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500">
+            <div class="form-group">
+                <label for="currency-type"><i class="fas fa-money-bill-wave"></i> Type of Currency</label>
+                <select id="currency-type" name="currency-type" required>
                     <option value="" disabled selected>Select currency type</option>
                     <option value="paper-bill">Paper Bill</option>
                     <option value="coin">Coin</option>
                     <option value="antique">Antique</option>
                 </select>
             </div>
-
-            <div class="space-y-2">
-                <label for="note" class="block text-sm font-medium text-gray-400">
-                    <i class="fas fa-comment mr-2 text-teal-400"></i> Note
-                </label>
-                <textarea id="note" name="note" rows="4" placeholder="Add any additional information..." required
-                    class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500"></textarea>
+            <div class="form-group">
+                <label for="note"><i class="fas fa-comment"></i> Note</label>
+                <textarea id="note" name="note" rows="4" placeholder="Add any additional information..."
+                    required></textarea>
             </div>
-
-            <button type="submit"
-                class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-colors duration-200">
-                Submit Donation
-            </button>
+            <input type="submit" value="Submit Donation">
         </form>
-        <div id="message-container" class="mt-8"></div>
+        <div id="message-container"></div>
     </div>
 
     <script>
@@ -177,69 +340,38 @@ HTML_TEMPLATE = """
         document.getElementById('country').addEventListener('change', () => {
             const selectedCountry = document.getElementById('country').value;
             document.getElementById('donation-form').reset();
-            document.getElementById('image-preview').classList.add('hidden');
+            document.getElementById('image-preview').style.display = 'none';
             document.getElementById('message-container').innerHTML = '';
             document.getElementById('country').value = selectedCountry;
         });
 
-        // ===========================================
-        // Drag and Drop & File Preview Logic
-        // ===========================================
-        const dropZone = document.getElementById('drop-zone');
-        const fileInput = document.getElementById('file-input');
-        const previewContainer = document.getElementById('image-preview');
-        const previewImg = document.getElementById('preview-img');
-        const fileNameElement = document.getElementById('file-name');
+        // Preview selected image and update file input label
+        document.getElementById('file-input').addEventListener('change', function () {
+            const preview = document.getElementById('image-preview');
+            const previewImg = document.getElementById('preview-img');
+            const fileLabel = document.getElementById('file-input-label');
 
-        function handleFiles(files) {
-            const file = files[0];
+            const file = this.files[0];
             if (file) {
+                fileLabel.textContent = file.name;
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     previewImg.src = e.target.result;
-                    previewContainer.classList.remove('hidden');
-                    fileNameElement.textContent = file.name;
+                    preview.style.display = 'block';
                 };
                 reader.readAsDataURL(file);
-                // Assign the file to the input element
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(file);
-                fileInput.files = dataTransfer.files;
             } else {
-                previewContainer.classList.add('hidden');
-                fileInput.value = null; // Clear the input
+                fileLabel.textContent = 'Choose a file';
+                preview.style.display = 'none';
             }
-        }
-
-        // Handle file selection from the file input
-        fileInput.addEventListener('change', function () {
-            handleFiles(this.files);
         });
 
-        // Drag and drop event listeners
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('hover');
-        });
-
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('hover');
-        });
-
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('hover');
-            const files = e.dataTransfer.files;
-            handleFiles(files);
-        });
-
-        // ===========================================
-        // Form Submission Logic
-        // ===========================================
+        // Handle form submission
         document.getElementById('donation-form').addEventListener('submit', function (event) {
             event.preventDefault();
 
             const donorName = document.getElementById('donor-name').value;
+            const fileInput = document.getElementById('file-input');
             const fileUrlInput = document.getElementById('file-url');
             const country = document.getElementById('country').value;
             const currencyType = document.getElementById('currency-type').value;
@@ -248,9 +380,8 @@ HTML_TEMPLATE = """
             const formData = new FormData();
 
             // Check if a file is provided via local upload
-            const file = fileInput.files[0];
-            if (file) {
-                formData.append('file', file);
+            if (fileInput.files.length > 0) {
+                formData.append('file', fileInput.files[0]);
             }
 
             // Check if a file is provided via URL
@@ -266,7 +397,7 @@ HTML_TEMPLATE = """
             formData.append('note', note);
 
             // Ensure at least one file input is provided
-            if (!file && !fileUrlValue) {
+            if (!fileInput.files.length && !fileUrlValue) {
                 showMessage('Please provide either a file or a valid URL.', 'error');
                 return;
             }
@@ -277,13 +408,14 @@ HTML_TEMPLATE = """
             })
                 .then((response) => response.json())
                 .then((result) => {
-                    if (result.error) {
+                    if (result.message == 'Error fetching the file from URL!') {
                         showMessage(`
                             ${result.message}<br><br>
-                            <strong>Donor Name:</strong> ${result['donor_name'] || 'N/A'}<br>
-                            <strong>Country:</strong> ${result.country || 'N/A'}<br>
-                            <strong>Currency Type:</strong> ${result['currency_type'] || 'N/A'}<br>
-                            <strong>Note:</strong> ${result.note || 'N/A'}<br>
+                            <strong>Donor Name:</strong> ${result['donor_name']}<br>
+                            <strong>Country:</strong> ${result.country}<br>
+                            <strong>Currency Type:</strong> ${result['currency_type']}<br>
+                            <strong>Note:</strong> ${result.note}<br>
+                            <strong>File Path:</strong> ${result.file_path}
                         `, 'error');
                     } else {
                         showMessage(`
@@ -292,8 +424,8 @@ HTML_TEMPLATE = """
                             <p><strong>Country:</strong> ${result.country}</p>
                             <p><strong>Currency Type:</strong> ${result.currency_type}</p>
                             <p><strong>Note:</strong> ${result.note}</p>
-                            <div class="mt-4 text-center">
-                                <img src="${result.file_path}" alt="Uploaded Image" class="max-w-full h-auto rounded-lg shadow-md max-h-64 object-contain mx-auto">
+                            <div style="margin-top: 15px; text-align: center;">
+                                <img src="${result.file_path}" alt="Uploaded Image" style="max-width: 100%; border-radius: 8px;">
                             </div>
                         `, 'success');
                     }
@@ -306,12 +438,13 @@ HTML_TEMPLATE = """
         // Helper function to show messages
         function showMessage(content, type) {
             const messageContainer = document.getElementById('message-container');
-            const messageClasses = type === 'success' ? 'bg-green-700 text-green-100 p-4 rounded-lg shadow-md' : 'bg-red-700 text-red-100 p-4 rounded-lg shadow-md';
             messageContainer.innerHTML = `
-                <div class="${messageClasses}">
+                <div class="${type}-message">
                     ${content}
                 </div>
             `;
+
+            // Scroll to the message container smoothly
             messageContainer.scrollIntoView({ behavior: 'smooth' });
         }
 
