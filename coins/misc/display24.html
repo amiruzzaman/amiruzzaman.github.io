@@ -852,19 +852,43 @@
             font-size: 16px;
             /* Smaller icon font size */
         }
+
+        /* New styles for the selected country name and count */
+        .title-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .main-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--secondary-color);
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .selected-country-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #4CAF50; /* Green color for the country name */
+            text-align: center;
+            margin-top: 5px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+        }
     </style>
 </head>
 
 <body>
     <div class="out-container">
         <div class="inner-container">
-            <!-- New wrapper for home button and summary pop-up -->
             <div class="home-button-wrapper">
                 <a href="index.html" class="btn btn-home"><i class="fas fa-home"></i> Home</a>
                 <div id="summary-container" class="summary"></div>
             </div>
 
-            <!-- Search Bar -->
             <div class="search-container">
                 <i class="fas fa-search search-icon"></i>
                 <input type="text" id="search-input" class="search-bar" placeholder="Search for a country..."
@@ -872,9 +896,9 @@
                 <div id="search-results" class="search-results"></div>
             </div>
 
-            <h1 id="image-caption" class="title">
-                <span class="title"> Amir's Coin Collection</span>
-                <span id="selected-country-title" class="country-name"></span>
+            <h1 id="image-caption" class="title-container">
+                <span class="main-title">Amir's Coin Collection</span>
+                <span id="selected-country-title" class="selected-country-title"></span>
             </h1>
 
             <div class="main-content">
@@ -918,7 +942,6 @@
                             </div>
                         </div>
                         <div id="continent-map"></div>
-                        <!-- Flag will be displayed here -->
                         <img id="country-flag" class="country-flag" src="" alt="Country Flag" style="display:none;">
                     </div>
                 </div>
@@ -935,7 +958,6 @@
         </div>
     </div>
 
-    <!-- Image Modal -->
     <div id="imageModal" class="modal">
         <span class="close-modal">&times;</span>
         <div class="modal-content">
@@ -943,7 +965,6 @@
         </div>
     </div>
 
-    <!-- Flag Modal -->
     <div id="flagModal" class="flag-modal">
         <span class="close-flag-modal">&times;</span>
         <div class="flag-modal-content">
@@ -1014,14 +1035,17 @@
         // Render the summary
         function renderSummary(data) {
             const summary = document.getElementById('summary-container');
-            const numCountries = data.length;
+            const numCountries = new Set(data.map(item => item.country)).size;
             let numPaperBills = 0;
             let numCoins = 0;
+            let numAntique = 0;
 
             data.forEach(item => {
                 item.currency_type.split(', ').forEach(type => {
-                    if (type.toLowerCase() === 'paper bill' || type.toLowerCase() === 'paper-bill') numPaperBills++;
-                    if (type.toLowerCase() === 'coin') numCoins++;
+                    const normalizedType = type.toLowerCase();
+                    if (normalizedType.includes('paper-bill')) numPaperBills++;
+                    if (normalizedType.includes('coin')) numCoins++;
+                    if (normalizedType.includes('antique')) numAntique++;
                 });
             });
 
@@ -1029,6 +1053,7 @@
         <p><i class="fas fa-globe-americas"></i> Countries: ${numCountries}</p>
         <p><i class="fas fa-money-bill-alt"></i> Bills: ${numPaperBills}</p>
         <p><i class="fas fa-coins"></i> Coins: ${numCoins}</p>
+        <p><i class="fas fa-clock"></i> Antique: ${numAntique}</p>
       `;
         }
 
@@ -1284,8 +1309,10 @@
                 // Set active class and update titles if this is the currently selected country
                 if (currentCountryParam && country.toLowerCase() === currentCountryParam) {
                     link.classList.add("active");
+                    // get the count of items for the selected country
+                    const countryItems = cache.coinsData.filter(coin => coin.country.toLowerCase() === country.toLowerCase()).length;
                     document.getElementById('selected-country').textContent = `: ${country}`;
-                    document.getElementById('selected-country-title').textContent = `: ${country}`;
+                    document.getElementById('selected-country-title').textContent = `${country} (${countryItems})`;
                     updateTitle(`${country}`);
                 }
 
@@ -1301,8 +1328,10 @@
 
                     // Add active class to the clicked link
                     link.classList.add('active');
+                    // get the count of items for the selected country
+                    const countryItems = cache.coinsData.filter(coin => coin.country.toLowerCase() === country.toLowerCase()).length;
                     document.getElementById('selected-country').textContent = `: ${country}`;
-                    document.getElementById('selected-country-title').textContent = `: ${country}`;
+                    document.getElementById('selected-country-title').textContent = `${country} (${countryItems})`;
                     updateTitle(`${country}`);
 
                     // Update URL without reloading the page
@@ -1456,8 +1485,9 @@
                                             el.classList.remove('active');
                                             if (el.textContent.toLowerCase() === countryName.toLowerCase()) {
                                                 el.classList.add('active');
+                                                const countryItems = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName.toLowerCase()).length;
                                                 document.getElementById('selected-country').textContent = `: ${countryName}`;
-                                                document.getElementById('selected-country-title').textContent = `: ${countryName}`;
+                                                document.getElementById('selected-country-title').textContent = `${countryName} (${countryItems})`;
                                                 updateTitle(`${countryName}`);
                                             }
                                         });
@@ -1713,8 +1743,9 @@
                                 el.classList.remove('active');
                                 if (el.textContent.toLowerCase() === country.toLowerCase()) {
                                     el.classList.add('active');
+                                    const countryItems = cache.coinsData.filter(coin => coin.country.toLowerCase() === country.toLowerCase()).length;
                                     document.getElementById('selected-country').textContent = `: ${country}`;
-                                    document.getElementById('selected-country-title').textContent = `: ${country}`;
+                                    document.getElementById('selected-country-title').textContent = `${country} (${countryItems})`;
                                     updateTitle(`${country}`);
                                 }
                             });
@@ -1781,9 +1812,10 @@
                 const firstCountryLink = document.querySelector(`.countries-list a[href="?country=${firstCountry}"]`);
                 if (firstCountryLink) {
                     firstCountryLink.classList.add('active');
-                    document.getElementById('selected-country').textContent = `: ${firstCountry}`;
-                    document.getElementById('selected-country-title').textContent = `: ${firstCountry}`;
-                    updateTitle(`${firstCountry}`);
+                    const countryItems = cache.coinsData.filter(coin => coin.country.toLowerCase() === firstCountry).length;
+                    document.getElementById('selected-country').textContent = `: ${countries[0]}`;
+                    document.getElementById('selected-country-title').textContent = `${countries[0]} (${countryItems})`;
+                    updateTitle(`${countries[0]}`);
                 }
             }
 
