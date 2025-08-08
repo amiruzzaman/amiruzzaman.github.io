@@ -60,9 +60,6 @@ def index():
         ::-webkit-scrollbar-thumb:hover {
             background: #94a3b8; /* slate-400 */
         }
-        .ui-sortable-helper {
-            display: table;
-        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
@@ -100,15 +97,6 @@ def index():
                 </button>
             </div>
             
-            <div class="mb-6">
-                <label for="search-input" class="block text-sm font-medium text-slate-700 mb-2">
-                    Search by Country:
-                </label>
-                <input type="text" id="search-input" placeholder="e.g., United States"
-                    class="block w-full px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                >
-            </div>
-
             <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
                 <table id="coin-table" class="w-full text-sm text-left text-slate-500">
                     <thead class="text-xs text-slate-700 uppercase bg-slate-50">
@@ -122,60 +110,41 @@ def index():
                         </tr>
                     </thead>
                     <tbody id="coin-table-body" class="bg-white divide-y divide-slate-200">
-                        </tbody>
+                        <!-- Data will be inserted here -->
+                    </tbody>
                 </table>
             </div>
         </div>
     </div>
     
+    <!-- Image Modal -->
     <div id="image-modal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-80 flex items-center justify-center p-4">
         <span id="modal-close" class="absolute top-4 right-4 text-white text-5xl font-thin cursor-pointer leading-none">&times;</span>
         <img id="modal-image" class="max-w-full max-h-[90vh] rounded-lg shadow-xl" src="">
     </div>
     
     <script>
-        let fullData = []; // This holds the complete, original dataset.
-        let currentData = []; // This holds the data currently displayed (can be filtered).
+        let currentData = [];
         let saveTimeout = null;
-
+        
         $(document).ready(function() {
             // Make table rows sortable
             $('#coin-table-body').sortable({
                 handle: ".sort-handle",
                 axis: "y",
                 update: function(event, ui) {
-                    // Rebuild the fullData array based on the new visual order of the sorted elements.
+                    // Rebuild the currentData array based on the new visual order of rows
                     const newOrder = [];
-                    const sortedCountryItems = [];
-                    const otherItems = [];
-
-                    // Identify the items in the currentData (visible, filtered) and the items not visible.
-                    const currentCountries = new Set(currentData.map(item => item.country));
-                    fullData.forEach(item => {
-                        if (currentCountries.has(item.country)) {
-                            sortedCountryItems.push(item);
-                        } else {
-                            otherItems.push(item);
-                        }
-                    });
-
-                    // Reorder the sortedCountryItems based on the new visual order.
-                    const newSortedCountryItems = [];
                     $(this).find('tr').each(function() {
-                        const originalIndex = $(this).data('original-index');
-                        newSortedCountryItems.push(fullData[originalIndex]);
+                        const originalIndex = $(this).data('index');
+                        newOrder.push(currentData[originalIndex]);
                     });
-
-                    // Reconstruct the fullData array by combining the reordered items and the rest.
-                    fullData = newSortedCountryItems.concat(otherItems);
-
-                    // Update currentData to reflect the new order and re-render the table.
-                    currentData = [...newSortedCountryItems];
-                    updateTable(currentData);
+                    currentData = newOrder;
+                    updateTable(currentData); // Re-render to update the data-index attributes
                     autoSaveData();
                 }
             }).disableSelection();
-
+            
             // File input change handler (auto-load when file is selected)
             $('#json-file').change(function() {
                 const file = this.files[0];
@@ -186,8 +155,7 @@ def index():
                 reader.onload = function(e) {
                     try {
                         const data = JSON.parse(e.target.result);
-                        fullData = data;
-                        currentData = [...fullData];
+                        currentData = data;
                         updateTable(currentData);
                         
                         $('#file-status').html(`<span class="text-green-600 font-semibold">Loaded: <strong>${file.name}</strong></span>`);
@@ -211,30 +179,17 @@ def index():
             
             // Sort buttons
             $('#sort-country-btn').click(function() {
-                fullData.sort((a, b) => a.country.localeCompare(b.country));
-                currentData = [...fullData];
+                currentData.sort((a, b) => a.country.localeCompare(b.country));
                 updateTable(currentData);
                 $('#file-status').html('<span class="text-indigo-600">Sorted by Country</span>');
                 autoSaveData();
             });
             
             $('#sort-currency-btn').click(function() {
-                fullData.sort((a, b) => a.currency_type.localeCompare(b.currency_type));
-                currentData = [...fullData];
+                currentData.sort((a, b) => a.currency_type.localeCompare(b.currency_type));
                 updateTable(currentData);
                 $('#file-status').html('<span class="text-indigo-600">Sorted by Currency Type</span>');
                 autoSaveData();
-            });
-            
-            // Search input handler
-            $('#search-input').on('keyup', function() {
-                const searchTerm = $(this).val().toLowerCase();
-                if (searchTerm) {
-                    currentData = fullData.filter(item => item.country.toLowerCase().includes(searchTerm));
-                } else {
-                    currentData = [...fullData];
-                }
-                updateTable(currentData);
             });
             
             // Image modal
@@ -255,8 +210,7 @@ def index():
         function fetchData() {
             $.get('/get-initial-data', function(response) {
                 if (response.success) {
-                    fullData = response.data;
-                    currentData = [...fullData];
+                    currentData = response.data;
                     updateTable(currentData);
                     $('#file-status').html(`<span class="text-green-600 font-semibold">Loaded: <strong>${response.path.split('/').pop()}</strong></span>`);
                     $('#file-path').text(`Location: ${response.path}`);
@@ -274,11 +228,8 @@ def index():
                 const countryFolder = item.country.replace(/ /g, '_');
                 const imagePath = `/images/${countryFolder}/${item.image}`;
                 
-                // Find the original index from the fullData array
-                const originalIndex = fullData.findIndex(d => d === item);
-
                 const row = `
-                    <tr data-index="${index}" data-original-index="${originalIndex}" class="bg-white border-b hover:bg-slate-50">
+                    <tr data-index="${index}" class="bg-white border-b hover:bg-slate-50">
                         <td class="px-6 py-4 whitespace-nowrap w-12 cursor-grab text-xl text-slate-400">
                             <span class="sort-handle">☰</span>
                         </td>
@@ -308,7 +259,7 @@ def index():
             // Save after a short delay (to prevent too many rapid saves)
             saveTimeout = setTimeout(() => {
                 $.post('/save-data', { 
-                    data: JSON.stringify(fullData)
+                    data: JSON.stringify(currentData)
                 }, function(response) {
                     if (response.success) {
                         status.html(`<span class="text-green-600">Changes saved at ${new Date().toLocaleTimeString()}</span>`);
@@ -426,3 +377,4 @@ def run():
 
 if __name__ == '__main__':
     run()
+
