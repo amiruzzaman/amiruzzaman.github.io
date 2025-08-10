@@ -633,7 +633,6 @@
             height: 100%;
             width: 100%;
             padding: 20px;
-            position: relative; /* Added for modal navigation buttons */
         }
 
         .modal-image {
@@ -668,44 +667,6 @@
             color: var(--accent-color);
             transform: rotate(90deg);
         }
-
-        /* Modal Nav Buttons */
-        .modal-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            color: white;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 10px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 24px;
-            transition: background 0.3s ease;
-        }
-        .modal-nav:hover {
-            background: rgba(0, 0, 0, 0.8);
-        }
-        #prev-modal-btn { left: 20px; }
-        #next-modal-btn { right: 20px; }
-
-        /* Modal Details */
-        .modal-details {
-            margin-top: 15px;
-            color: white;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px 20px;
-            border-radius: var(--border-radius);
-        }
-        .modal-details p {
-            color: white;
-            margin: 5px 0;
-            font-size: 14px;
-        }
-        .modal-details p strong {
-            color: var(--gold-color);
-        }
-
 
         /* Flag Modal */
         .flag-modal {
@@ -753,25 +714,6 @@
             color: var(--accent-color);
             transform: rotate(90deg);
         }
-        
-        /* Flag Modal Details */
-        .flag-modal-details {
-            margin-top: 15px;
-            color: white;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px 20px;
-            border-radius: var(--border-radius);
-        }
-        .flag-modal-details p {
-            color: white;
-            margin: 5px 0;
-            font-size: 16px;
-        }
-        .flag-modal-details p strong {
-            color: var(--gold-color);
-        }
-
 
         /* Responsive */
         @media (max-width: 900px) {
@@ -937,169 +879,6 @@
             margin-top: 5px;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
         }
-
-        /* --- NEW FEATURES STYLES --- */
-
-        /* Gallery View Section */
-        .gallery-view-section {
-            width: 100%;
-            display: none; /* Initially hidden */
-            flex-direction: column;
-            gap: 20px;
-            background: white;
-            padding: 25px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            border: 1px solid var(--border-color);
-        }
-
-        .gallery-view-section.show {
-            display: flex; /* Show when 'show' class is added */
-        }
-
-        .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-            padding: 10px;
-            justify-content: center;
-        }
-
-        .gallery-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: var(--light-color);
-            border-radius: var(--border-radius);
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            cursor: pointer;
-        }
-        
-        .gallery-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .gallery-item-image {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            object-position: center;
-            transition: transform 0.3s ease;
-        }
-
-        .gallery-item-image:hover {
-            transform: scale(1.05);
-        }
-
-        .gallery-item-info {
-            padding: 10px;
-            text-align: center;
-            width: 100%;
-        }
-
-        .gallery-item-info p {
-            font-size: 12px;
-            color: var(--secondary-color);
-            margin: 0;
-            font-weight: 500;
-        }
-
-        /* Sorting and Filtering */
-        .filter-sort-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .filter-sort-container select,
-        .filter-sort-container label {
-            font-size: 14px;
-            color: var(--secondary-color);
-            font-weight: 500;
-        }
-        
-        .filter-sort-container select {
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            background-color: white;
-            cursor: pointer;
-            transition: border-color 0.3s ease;
-        }
-        
-        .filter-sort-container select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-
-        /* Back to Top Button */
-        #back-to-top {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 50px;
-            height: 50px;
-            background: var(--primary-color);
-            color: white;
-            border-radius: 50%;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: var(--box-shadow);
-            opacity: 0; /* Initially hidden */
-            visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
-            z-index: 999;
-        }
-        
-        #back-to-top.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-        
-        #back-to-top:hover {
-            background: var(--primary-dark);
-            transform: translateY(-5px);
-        }
-
-        /* Gallery/Slider View Toggle */
-        .view-toggle-container {
-            display: flex;
-            justify-content: flex-end;
-            width: 100%;
-            max-width: 1400px;
-            margin: 10px auto;
-        }
-        
-        .view-toggle-container button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: var(--border-radius);
-            font-size: 14px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-        }
-        
-        .view-toggle-container button:hover {
-            background-color: var(--primary-dark);
-            transform: scale(1.05);
-        }
-        
-        .view-toggle-container button.active {
-            background-color: var(--accent-color);
-        }
     </style>
 </head>
 
@@ -1123,12 +902,8 @@
                 <span id="selected-country-title" class="selected-country-title"></span>
             </h1>
 
-            <div class="view-toggle-container">
-                <button id="toggle-view-btn" class="btn"><i class="fas fa-th"></i> Grid View</button>
-            </div>
-            
-            <div class="main-content" id="main-content">
-                <div class="gallery-section" id="slider-view">
+            <div class="main-content">
+                <div class="gallery-section">
                     <div class="slider-container">
                         <button id="prev-btn" class="btn btn-nav"><i class="fas fa-chevron-left"></i></button>
                         <div class="slider">
@@ -1172,30 +947,6 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="gallery-view-section" id="gallery-view">
-                <div class="filter-sort-container">
-                    <div>
-                        <label for="sort-by">Sort by:</label>
-                        <select id="sort-by">
-                            <option value="name-asc">A-Z</option>
-                            <option value="name-desc">Z-A</option>
-                            <option value="type">Type</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="filter-by">Filter by:</label>
-                        <select id="filter-by">
-                            <option value="all">All</option>
-                            <option value="coin">Coins</option>
-                            <option value="paper-bill">Paper Bills</option>
-                            <option value="antique">Antique</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="gallery-grid" id="gallery-grid-container">
-                    </div>
-            </div>
 
             <div class="countries-list" id="countries-list">
                 <h2>
@@ -1212,15 +963,7 @@
     <div id="imageModal" class="modal">
         <span class="close-modal">&times;</span>
         <div class="modal-content">
-            <button id="prev-modal-btn" class="modal-nav"><i class="fas fa-chevron-left"></i></button>
             <img id="modalImage" class="modal-image" src="" alt="Enlarged view">
-            <button id="next-modal-btn" class="modal-nav"><i class="fas fa-chevron-right"></i></button>
-            <div class="modal-details" id="image-modal-details" style="display: none;">
-                <p><strong>Country:</strong> <span id="modal-country-name"></span></p>
-                <p><strong>Capital:</strong> <span id="modal-capital-name"></span></p>
-                <p><strong>Currency:</strong> <span id="modal-currency-name"></span></p>
-                <p><strong>Note:</strong> <span id="modal-note"></span></p>
-            </div>
         </div>
     </div>
 
@@ -1228,14 +971,8 @@
         <span class="close-flag-modal">&times;</span>
         <div class="flag-modal-content">
             <img id="flagModalImage" class="flag-modal-image" src="" alt="Enlarged flag view">
-            <div class="flag-modal-details" id="flag-modal-details" style="display: none;">
-                <p><strong>Country:</strong> <span id="flag-country-name"></span></p>
-                <p><strong>Continent:</strong> <span id="flag-continent-name"></span></p>
-            </div>
         </div>
     </div>
-    
-    <button id="back-to-top" title="Go to top"><i class="fas fa-arrow-up"></i></button>
 
     <footer>
         <p><i class="far fa-copyright"></i> 2025 Amiruzzaman coin collection. All rights reserved. |
@@ -1252,9 +989,6 @@
             countryGeoJsonMapping: null,
             continentGeoJson: null
         };
-        
-        let currentCountryCoins = []; // Store the coins for the currently selected country
-        let currentImageIndex = 0; // To keep track of the current image index for modal navigation
 
         // Global map instances to prevent re-initialization
         let mainMap = null;
@@ -1318,11 +1052,11 @@
             });
 
             summary.innerHTML = `
-                <p><i class="fas fa-globe-americas"></i> Countries: ${numCountries}</p>
-                <p><i class="fas fa-money-bill-alt"></i> Bills: ${numPaperBills}</p>
-                <p><i class="fas fa-coins"></i> Coins: ${numCoins}</p>
-                <p><i class="fas fa-clock"></i> Antique: ${numAntique}</p>
-            `;
+        <p><i class="fas fa-globe-americas"></i> Countries: ${numCountries}</p>
+        <p><i class="fas fa-money-bill-alt"></i> Bills: ${numPaperBills}</p>
+        <p><i class="fas fa-coins"></i> Coins: ${numCoins}</p>
+        <p><i class="fas fa-clock"></i> Antique: ${numAntique}</p>
+      `;
         }
 
 
@@ -1353,12 +1087,10 @@
         }
 
         // Sets the current image in the gallery and updates its details
-        async function setCurrentImage(src, note, donor, currency_type, countryInfo, index) {
+        async function setCurrentImage(src, note, donor, currency_type, countryInfo) {
             const image = document.getElementById("current-image-img");
             const noteElement = document.getElementById("current-image-note");
             const countryFlagElement = document.getElementById("country-flag");
-            
-            currentImageIndex = index;
 
             // Use a temporary image to preload and ensure smooth transition
             const tempImage = new Image();
@@ -1377,34 +1109,34 @@
             // Construct the HTML for coin details
             const countryDetails = countryInfo
                 ? `
-                <div class="detail-item">
-                    <span class="detail-label">Country:</span>
-                    <span class="detail-value">${countryInfo.name || "N/A"}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Capital:</span>
-                    <span class="detail-value">${countryInfo.capital || "N/A"}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Language:</span>
-                    <span class="detail-value">${countryInfo.language?.name || "N/A"}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Currency:</span>
-                    <span class="detail-value">${countryInfo.currency?.name || "N/A"} (${countryInfo.currency?.symbol || ""})</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Note:</span>
-                    <span class="detail-value">${note || "No note available"}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Donor (${currency_type || "--"}):</span>
-                    <span class="detail-value">${donor || "Unknown"}</span>
-                </div>
-                `
+        <div class="detail-item">
+            <span class="detail-label">Country:</span>
+            <span class="detail-value">${countryInfo.name || "N/A"}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Capital:</span>
+            <span class="detail-value">${countryInfo.capital || "N/A"}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Language:</span>
+            <span class="detail-value">${countryInfo.language?.name || "N/A"}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Currency:</span>
+            <span class="detail-value">${countryInfo.currency?.name || "N/A"} (${countryInfo.currency?.symbol || ""})</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Note:</span>
+            <span class="detail-value">${note || "No note available"}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Donor (${currency_type || "--"}):</span>
+            <span class="detail-value">${donor || "Unknown"}</span>
+        </div>
+        `
                 : `<div class="detail-item">
-                    <span class="detail-value">Country information not available.</span>
-                </div>`;
+            <span class="detail-value">Country information not available.</span>
+           </div>`;
 
             noteElement.innerHTML = countryDetails;
 
@@ -1441,10 +1173,6 @@
                     document.getElementById('continent-name').textContent = continentName;
                     document.getElementById('continent-country-name').textContent = countryDisplayName;
                     document.getElementById('continent-capital').textContent = capital;
-                    
-                    // Update Flag Modal details
-                    document.getElementById('flag-country-name').textContent = countryDisplayName;
-                    document.getElementById('flag-continent-name').textContent = continentName;
 
                     await loadContinentMap(continentName, countryDisplayName);
 
@@ -1469,8 +1197,6 @@
                 } else {
                     console.warn(`No continent data found for country: ${countryName}`);
                     countryFlagElement.style.display = 'none'; // Hide flag if no continent data
-                    document.getElementById('flag-country-name').textContent = "N/A";
-                    document.getElementById('flag-continent-name').textContent = "N/A";
                 }
             } catch (error) {
                 console.error("Error loading continent data:", error);
@@ -1618,7 +1344,6 @@
                     // Trigger map highlight and image loading for the selected country
                     highlightCountry(countryName);
                     loadCountryImages(countryName);
-                    loadGalleryView(countryName);
                 });
 
                 li.appendChild(link);
@@ -1759,7 +1484,6 @@
                                         history.pushState(null, "", `?country=${countryName.toLowerCase()}`);
                                         highlightCountry(countryName.toLowerCase());
                                         loadCountryImages(countryName.toLowerCase());
-                                        loadGalleryView(countryName.toLowerCase());
 
                                         // Update active class for country list links
                                         document.querySelectorAll('.countries-list a').forEach(el => {
@@ -1802,15 +1526,15 @@
             };
         }
 
-        // Loads and displays coin images for a selected country in slider view
+        // Loads and displays coin images for a selected country
         function loadCountryImages(countryName) {
             if (!cache.coinsData) {
                 console.error("Coins data not loaded from cache.");
                 return;
             }
 
-            currentCountryCoins = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName);
-            const imageElements = currentCountryCoins.map(coin => ({
+            const countryData = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName);
+            const imageElements = countryData.map(coin => ({
                 src: `images/${toTitleCase(countryName)}/${coin.image}`,
                 note: coin.note,
                 donor: coin.donor_name,
@@ -1819,19 +1543,18 @@
 
             const thumbnailContainer = document.getElementById("thumbnail-container");
             thumbnailContainer.innerHTML = ""; // Clear existing thumbnails
-            currentImageIndex = 0; // Reset index for new country
+            let currentIndex = 0; // Reset index for new country
 
             // Function to update the main image and details
-            const updateImage = async (index) => {
+            const updateImage = async () => {
                 if (imageElements.length === 0) {
                     // Handle case where no images are found for the country
-                    setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null, 0);
+                    setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null);
                     document.getElementById("thumbnail-container").innerHTML = ""; // Clear thumbnails
                     return;
                 }
 
-                currentImageIndex = index;
-                const { src, note, donor, currency_type } = imageElements[index];
+                const { src, note, donor, currency_type } = imageElements[currentIndex];
 
                 // Remove active class from all thumbnails
                 document.querySelectorAll('.img-queue-in img').forEach(img => {
@@ -1839,19 +1562,19 @@
                 });
 
                 // Add active class to the current thumbnail
-                if (thumbnailContainer.children[index]) {
-                    thumbnailContainer.children[index].classList.add('active-thumbnail');
+                if (thumbnailContainer.children[currentIndex]) {
+                    thumbnailContainer.children[currentIndex].classList.add('active-thumbnail');
                 }
 
                 const countryInfo = await fetchCountryInfo(countryName);
-                await setCurrentImage(src, note, donor, currency_type, countryInfo, index);
+                await setCurrentImage(src, note, donor, currency_type, countryInfo);
             };
 
             // Function to change the image based on direction (-1 for prev, 1 for next)
             const changeImage = (direction) => {
                 if (imageElements.length > 0) {
-                    currentImageIndex = (currentImageIndex + direction + imageElements.length) % imageElements.length;
-                    updateImage(currentImageIndex);
+                    currentIndex = (currentIndex + direction + imageElements.length) % imageElements.length;
+                    updateImage();
                 }
             };
 
@@ -1861,24 +1584,10 @@
 
             // Add keyboard navigation
             window.onkeydown = (event) => {
-                const isSliderView = document.getElementById('slider-view').style.display !== 'none';
-                
-                // Handle keyboard navigation for the main slider
-                if (isSliderView) {
-                    if (event.key === "ArrowLeft") {
-                        changeImage(-1);
-                    } else if (event.key === "ArrowRight") {
-                        changeImage(1);
-                    }
-                }
-                
-                // Handle keyboard navigation for the modal
-                if (document.getElementById("imageModal").style.display === "flex") {
-                     if (event.key === "ArrowLeft") {
-                        changeModalImage(-1);
-                    } else if (event.key === "ArrowRight") {
-                        changeModalImage(1);
-                    }
+                if (event.key === "ArrowLeft") {
+                    changeImage(-1);
+                } else if (event.key === "ArrowRight") {
+                    changeImage(1);
                 }
             };
 
@@ -1889,97 +1598,20 @@
                 thumbnail.alt = `Thumbnail ${index + 1}`;
                 thumbnail.loading = "lazy"; // Lazy load thumbnails
                 thumbnail.addEventListener("click", () => {
-                    const countryInfo = fetchCountryInfo(countryName);
-                    openImageModal(img.src, img.note, countryInfo.name, countryInfo.capital, countryInfo.currency?.name, index);
-                    currentCountryCoins = imageElements; // Update current coins for modal navigation
+                    currentIndex = index;
+                    updateImage();
                 });
                 thumbnailContainer.appendChild(thumbnail);
             });
 
             // Display the first image if available
             if (imageElements.length > 0) {
-                updateImage(currentImageIndex);
+                updateImage();
             } else {
                 // Display a default message if no images for the country
-                setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null, 0);
+                setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null);
             }
         }
-
-        // NEW: Load and display images in gallery view
-        function loadGalleryView(countryName) {
-            const galleryGrid = document.getElementById('gallery-grid-container');
-            const sortBySelect = document.getElementById('sort-by');
-            const filterBySelect = document.getElementById('filter-by');
-            galleryGrid.innerHTML = ''; // Clear existing grid
-
-            if (!cache.coinsData) {
-                console.error("Coins data not loaded for gallery view.");
-                return;
-            }
-
-            let filteredCoins = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName);
-            const filterValue = filterBySelect.value;
-            if (filterValue !== 'all') {
-                filteredCoins = filteredCoins.filter(coin => coin.currency_type.toLowerCase().includes(filterValue));
-            }
-
-            const sortValue = sortBySelect.value;
-            if (sortValue === 'name-asc') {
-                filteredCoins.sort((a, b) => a.image.localeCompare(b.image));
-            } else if (sortValue === 'name-desc') {
-                filteredCoins.sort((a, b) => b.image.localeCompare(a.image));
-            } else if (sortValue === 'type') {
-                filteredCoins.sort((a, b) => a.currency_type.localeCompare(b.currency_type));
-            }
-
-            if (filteredCoins.length === 0) {
-                galleryGrid.innerHTML = '<p style="text-align: center; color: var(--secondary-color);">No items found for this filter.</p>';
-                return;
-            }
-
-            filteredCoins.forEach((coin, index) => {
-                const galleryItem = document.createElement('div');
-                galleryItem.classList.add('gallery-item');
-                galleryItem.dataset.imageUrl = `images/${toTitleCase(countryName)}/${coin.image}`;
-                galleryItem.dataset.note = coin.note;
-                galleryItem.dataset.donor = coin.donor_name;
-                galleryItem.dataset.currencyType = coin.currency_type;
-
-                galleryItem.innerHTML = `
-                    <img class="gallery-item-image" src="${galleryItem.dataset.imageUrl}" alt="${coin.note}">
-                    <div class="gallery-item-info">
-                        <p>${coin.image}</p>
-                    </div>
-                `;
-
-                // Add click event listener to open image modal
-                galleryItem.addEventListener('click', function () {
-                    const countryInfo = fetchCountryInfo(countryName);
-                    openImageModal(this.dataset.imageUrl, this.dataset.note, countryInfo.name, countryInfo.capital, countryInfo.currency?.name, index);
-                    currentCountryCoins = filteredCoins; // Update current coins for modal navigation
-                });
-
-                galleryGrid.appendChild(galleryItem);
-            });
-        }
-        
-        // NEW: Event listeners for sorting and filtering
-        document.getElementById('sort-by').addEventListener('change', () => {
-            const queryParams = new URLSearchParams(window.location.search);
-            const countryQuery = queryParams.get("country");
-            if (countryQuery) {
-                loadGalleryView(countryQuery.toLowerCase());
-            }
-        });
-        
-        document.getElementById('filter-by').addEventListener('change', () => {
-            const queryParams = new URLSearchParams(window.location.search);
-            const countryQuery = queryParams.get("country");
-            if (countryQuery) {
-                loadGalleryView(countryQuery.toLowerCase());
-            }
-        });
-
 
         // Initializes the collapsible details section
         function initDetailsToggle() {
@@ -2017,20 +1649,9 @@
             const currentImage = document.getElementById("current-image-img");
 
             currentImage.addEventListener("click", function () {
-                const queryParams = new URLSearchParams(window.location.search);
-                const countryQuery = queryParams.get("country").toLowerCase();
-                const countryInfo = fetchCountryInfo(countryQuery);
-                const currentCoin = currentCountryCoins[currentImageIndex];
-                const imagePath = `images/${toTitleCase(countryQuery)}/${currentCoin.image}`;
-                openImageModal(imagePath, currentCoin.note, countryInfo.name, countryInfo.capital, countryInfo.currency?.name, currentImageIndex);
+                modal.style.display = "flex";
+                document.body.style.overflow = "hidden"; // Prevent scrolling when modal is open
             });
-            
-            const prevModalBtn = document.getElementById('prev-modal-btn');
-            const nextModalBtn = document.getElementById('next-modal-btn');
-
-            prevModalBtn.addEventListener('click', () => changeModalImage(-1));
-            nextModalBtn.addEventListener('click', () => changeModalImage(1));
-
 
             closeModal.addEventListener("click", function () {
                 modal.style.display = "none";
@@ -2053,45 +1674,6 @@
                 }
             });
         }
-        
-        function openImageModal(imageUrl, note, countryName, capital, currencyName, index) {
-            const modal = document.getElementById("imageModal");
-            const modalImage = document.getElementById("modalImage");
-            const modalDetails = document.getElementById("image-modal-details");
-            
-            modalImage.src = imageUrl;
-            modal.style.display = "flex";
-            document.body.style.overflow = "hidden";
-            
-            // Set details
-            document.getElementById('modal-country-name').textContent = countryName;
-            document.getElementById('modal-capital-name').textContent = capital;
-            document.getElementById('modal-currency-name').textContent = currencyName;
-            document.getElementById('modal-note').textContent = note;
-            modalDetails.style.display = 'block';
-            
-            currentImageIndex = index;
-        }
-        
-        function changeModalImage(direction) {
-            if (currentCountryCoins.length > 0) {
-                currentImageIndex = (currentImageIndex + direction + currentCountryCoins.length) % currentCountryCoins.length;
-                const coin = currentCountryCoins[currentImageIndex];
-                
-                const queryParams = new URLSearchParams(window.location.search);
-                const countryQuery = queryParams.get("country").toLowerCase();
-                const countryInfo = fetchCountryInfo(countryQuery);
-                
-                const imageUrl = `images/${toTitleCase(countryQuery)}/${coin.image}`;
-                
-                document.getElementById('modalImage').src = imageUrl;
-                document.getElementById('modal-country-name').textContent = countryInfo.name;
-                document.getElementById('modal-capital-name').textContent = countryInfo.capital;
-                document.getElementById('modal-currency-name').textContent = countryInfo.currency?.name;
-                document.getElementById('modal-note').textContent = coin.note;
-            }
-        }
-
 
         // Initializes the flag modal for enlarged view
         function initFlagModal() {
@@ -2124,14 +1706,10 @@
         function openFlagModal(flagSrc) {
             const flagModal = document.getElementById("flagModal");
             const flagModalImage = document.getElementById("flagModalImage");
-            const flagModalDetails = document.getElementById("flag-modal-details");
 
             flagModalImage.src = flagSrc;
             flagModal.style.display = "flex";
             document.body.style.overflow = "hidden"; // Prevent scrolling when modal is open
-            
-            // Show details container
-            flagModalDetails.style.display = 'block';
         }
 
         // Initializes the search functionality for countries
@@ -2181,7 +1759,6 @@
                             history.pushState(null, "", `?country=${country.toLowerCase()}`);
                             highlightCountry(country.toLowerCase());
                             loadCountryImages(country.toLowerCase());
-                            loadGalleryView(country.toLowerCase());
                             searchInput.value = country; // Set search input to selected country
                             searchResults.classList.remove('show'); // Hide search results
                         });
@@ -2200,58 +1777,6 @@
                 }
             });
         }
-        
-        // NEW: Function to toggle between slider and gallery view
-        function initViewToggle() {
-            const toggleBtn = document.getElementById('toggle-view-btn');
-            const sliderView = document.getElementById('slider-view');
-            const galleryView = document.getElementById('gallery-view');
-            
-            let isSliderView = true;
-
-            toggleBtn.addEventListener('click', () => {
-                isSliderView = !isSliderView;
-                
-                if (isSliderView) {
-                    sliderView.style.display = 'flex';
-                    galleryView.style.display = 'none';
-                    toggleBtn.innerHTML = '<i class="fas fa-th"></i> Grid View';
-                } else {
-                    sliderView.style.display = 'none';
-                    galleryView.style.display = 'flex';
-                    toggleBtn.innerHTML = '<i class="fas fa-images"></i> Slider View';
-                }
-                
-                // Reload content for the current country
-                const queryParams = new URLSearchParams(window.location.search);
-                const countryQuery = queryParams.get("country");
-                if (countryQuery) {
-                    loadCountryImages(countryQuery.toLowerCase());
-                    loadGalleryView(countryQuery.toLowerCase());
-                }
-            });
-        }
-        
-        // NEW: Back to Top functionality
-        function initBackToTop() {
-            const backToTopBtn = document.getElementById('back-to-top');
-
-            window.addEventListener('scroll', () => {
-                if (window.pageYOffset > 300) {
-                    backToTopBtn.classList.add('show');
-                } else {
-                    backToTopBtn.classList.remove('show');
-                }
-            });
-
-            backToTopBtn.addEventListener('click', () => {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            });
-        }
-
 
         // Main initialization function, executed when the DOM is fully loaded
         window.onload = async () => {
@@ -2280,7 +1805,6 @@
             if (countryQuery !== "default") {
                 highlightCountry(countryQuery.toLowerCase());
                 loadCountryImages(countryQuery.toLowerCase());
-                loadGalleryView(countryQuery.toLowerCase());
             } else if (countries.length > 0) {
                 // If no country is specified, load images for the first available country
                 // and highlight it on the map.
@@ -2288,7 +1812,6 @@
                 history.pushState(null, "", `?country=${firstCountry}`); // Update URL
                 highlightCountry(firstCountry);
                 loadCountryImages(firstCountry);
-                loadGalleryView(firstCountry);
 
                 // Also set the first country as active in the list
                 const firstCountryLink = document.querySelector(`.countries-list a[href="?country=${firstCountry}"]`);
@@ -2307,8 +1830,6 @@
             initImageModal();
             initFlagModal();
             initSearch();
-            initViewToggle();
-            initBackToTop();
         };
     </script>
     <script type="text/javascript">
@@ -2406,6 +1927,8 @@
             // Optional logging
             console.log("Updated Title:", newTitle);
         }
+
+
     </script>
 </body>
 
