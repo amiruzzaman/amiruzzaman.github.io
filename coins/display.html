@@ -1906,9 +1906,7 @@
                 thumbnail.alt = `Thumbnail ${index + 1}`;
                 thumbnail.loading = "lazy"; // Lazy load thumbnails
                 thumbnail.addEventListener("click", () => {
-                    const countryInfo = fetchCountryInfo(countryName);
-                    openImageModal(img.src, img.note, countryInfo.name, countryInfo.capital, countryInfo.currency?.name, index);
-                    currentCountryCoins = imageElements; // Update current coins for modal navigation
+                    updateImage(index); // Update the main display when thumbnail is clicked
                 });
                 thumbnailContainer.appendChild(thumbnail);
             });
