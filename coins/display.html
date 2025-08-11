@@ -633,7 +633,8 @@
             height: 100%;
             width: 100%;
             padding: 20px;
-            position: relative; /* Added for modal navigation buttons */
+            position: relative;
+            /* Added for modal navigation buttons */
         }
 
         .modal-image {
@@ -682,11 +683,18 @@
             font-size: 24px;
             transition: background 0.3s ease;
         }
+
         .modal-nav:hover {
             background: rgba(0, 0, 0, 0.8);
         }
-        #prev-modal-btn { left: 20px; }
-        #next-modal-btn { right: 20px; }
+
+        #prev-modal-btn {
+            left: 20px;
+        }
+
+        #next-modal-btn {
+            right: 20px;
+        }
 
         /* Modal Details */
         .modal-details {
@@ -697,11 +705,13 @@
             padding: 10px 20px;
             border-radius: var(--border-radius);
         }
+
         .modal-details p {
             color: white;
             margin: 5px 0;
             font-size: 14px;
         }
+
         .modal-details p strong {
             color: var(--gold-color);
         }
@@ -753,7 +763,7 @@
             color: var(--accent-color);
             transform: rotate(90deg);
         }
-        
+
         /* Flag Modal Details */
         .flag-modal-details {
             margin-top: 15px;
@@ -763,11 +773,13 @@
             padding: 10px 20px;
             border-radius: var(--border-radius);
         }
+
         .flag-modal-details p {
             color: white;
             margin: 5px 0;
             font-size: 16px;
         }
+
         .flag-modal-details p strong {
             color: var(--gold-color);
         }
@@ -943,7 +955,8 @@
         /* Gallery View Section */
         .gallery-view-section {
             width: 100%;
-            display: none; /* Initially hidden */
+            display: none;
+            /* Initially hidden */
             flex-direction: column;
             gap: 20px;
             background: white;
@@ -954,7 +967,8 @@
         }
 
         .gallery-view-section.show {
-            display: flex; /* Show when 'show' class is added */
+            display: flex;
+            /* Show when 'show' class is added */
         }
 
         .gallery-grid {
@@ -977,7 +991,7 @@
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             cursor: pointer;
         }
-        
+
         .gallery-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
@@ -1016,14 +1030,14 @@
             gap: 15px;
             margin-bottom: 20px;
         }
-        
+
         .filter-sort-container select,
         .filter-sort-container label {
             font-size: 14px;
             color: var(--secondary-color);
             font-weight: 500;
         }
-        
+
         .filter-sort-container select {
             padding: 8px 12px;
             border: 1px solid var(--border-color);
@@ -1032,7 +1046,7 @@
             cursor: pointer;
             transition: border-color 0.3s ease;
         }
-        
+
         .filter-sort-container select:focus {
             outline: none;
             border-color: var(--primary-color);
@@ -1055,18 +1069,19 @@
             font-size: 24px;
             cursor: pointer;
             box-shadow: var(--box-shadow);
-            opacity: 0; /* Initially hidden */
+            opacity: 0;
+            /* Initially hidden */
             visibility: hidden;
             transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
             z-index: 999;
         }
-        
+
         #back-to-top.show {
             opacity: 1;
             visibility: visible;
             transform: translateY(0);
         }
-        
+
         #back-to-top:hover {
             background: var(--primary-dark);
             transform: translateY(-5px);
@@ -1080,7 +1095,7 @@
             max-width: 1400px;
             margin: 10px auto;
         }
-        
+
         .view-toggle-container button {
             background-color: var(--primary-color);
             color: white;
@@ -1091,12 +1106,12 @@
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.3s ease;
         }
-        
+
         .view-toggle-container button:hover {
             background-color: var(--primary-dark);
             transform: scale(1.05);
         }
-        
+
         .view-toggle-container button.active {
             background-color: var(--accent-color);
         }
@@ -1126,7 +1141,7 @@
             <div class="view-toggle-container">
                 <button id="toggle-view-btn" class="btn"><i class="fas fa-th"></i> Grid View</button>
             </div>
-            
+
             <div class="main-content" id="main-content">
                 <div class="gallery-section" id="slider-view">
                     <div class="slider-container">
@@ -1172,7 +1187,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="gallery-view-section" id="gallery-view">
                 <div class="filter-sort-container">
                     <div>
@@ -1194,7 +1209,7 @@
                     </div>
                 </div>
                 <div class="gallery-grid" id="gallery-grid-container">
-                    </div>
+                </div>
             </div>
 
             <div class="countries-list" id="countries-list">
@@ -1234,7 +1249,7 @@
             </div>
         </div>
     </div>
-    
+
     <button id="back-to-top" title="Go to top"><i class="fas fa-arrow-up"></i></button>
 
     <footer>
@@ -1252,7 +1267,7 @@
             countryGeoJsonMapping: null,
             continentGeoJson: null
         };
-        
+
         let currentCountryCoins = []; // Store the coins for the currently selected country
         let currentImageIndex = 0; // To keep track of the current image index for modal navigation
 
@@ -1357,7 +1372,7 @@
             const image = document.getElementById("current-image-img");
             const noteElement = document.getElementById("current-image-note");
             const countryFlagElement = document.getElementById("country-flag");
-            
+
             currentImageIndex = index;
 
             // Use a temporary image to preload and ensure smooth transition
@@ -1441,9 +1456,11 @@
                     document.getElementById('continent-name').textContent = continentName;
                     document.getElementById('continent-country-name').textContent = countryDisplayName;
                     document.getElementById('continent-capital').textContent = capital;
-                    
+
                     // Update Flag Modal details
+                    document.getElementById('flag-country-name').style.color = 'white';
                     document.getElementById('flag-country-name').textContent = countryDisplayName;
+                    document.getElementById('flag-continent-name').style.color = 'white';
                     document.getElementById('flag-continent-name').textContent = continentName;
 
                     await loadContinentMap(continentName, countryDisplayName);
@@ -1862,7 +1879,7 @@
             // Add keyboard navigation
             window.onkeydown = (event) => {
                 const isSliderView = document.getElementById('slider-view').style.display !== 'none';
-                
+
                 // Handle keyboard navigation for the main slider
                 if (isSliderView) {
                     if (event.key === "ArrowLeft") {
@@ -1871,10 +1888,10 @@
                         changeImage(1);
                     }
                 }
-                
+
                 // Handle keyboard navigation for the modal
                 if (document.getElementById("imageModal").style.display === "flex") {
-                     if (event.key === "ArrowLeft") {
+                    if (event.key === "ArrowLeft") {
                         changeModalImage(-1);
                     } else if (event.key === "ArrowRight") {
                         changeModalImage(1);
@@ -1962,7 +1979,7 @@
                 galleryGrid.appendChild(galleryItem);
             });
         }
-        
+
         // NEW: Event listeners for sorting and filtering
         document.getElementById('sort-by').addEventListener('change', () => {
             const queryParams = new URLSearchParams(window.location.search);
@@ -1971,7 +1988,7 @@
                 loadGalleryView(countryQuery.toLowerCase());
             }
         });
-        
+
         document.getElementById('filter-by').addEventListener('change', () => {
             const queryParams = new URLSearchParams(window.location.search);
             const countryQuery = queryParams.get("country");
@@ -2012,7 +2029,7 @@
 
         // Initializes the image modal for enlarged view
         function initImageModal() {
-            const modal = document.getElementById("imageModal");
+            const imageModal = document.getElementById("imageModal");
             const closeModal = document.querySelector(".close-modal");
             const currentImage = document.getElementById("current-image-img");
 
@@ -2024,7 +2041,7 @@
                 const imagePath = `images/${toTitleCase(countryQuery)}/${currentCoin.image}`;
                 openImageModal(imagePath, currentCoin.note, countryInfo.name, countryInfo.capital, countryInfo.currency?.name, currentImageIndex);
             });
-            
+
             const prevModalBtn = document.getElementById('prev-modal-btn');
             const nextModalBtn = document.getElementById('next-modal-btn');
 
@@ -2033,57 +2050,62 @@
 
 
             closeModal.addEventListener("click", function () {
-                modal.style.display = "none";
+                imageModal.style.display = "none";
                 document.body.style.overflow = "auto"; // Restore scrolling
             });
 
             // Close modal when clicking outside the image
-            modal.addEventListener("click", function (event) {
-                if (event.target === modal) {
-                    modal.style.display = "none";
+            imageModal.addEventListener("click", function (event) {
+                if (event.target === imageModal) {
+                    imageModal.style.display = "none";
                     document.body.style.overflow = "auto";
                 }
             });
 
+
             // Close modal on Escape key press
             document.addEventListener("keydown", function (event) {
-                if (event.key === "Escape" && modal.style.display === "flex") {
-                    modal.style.display = "none";
+                if (event.key === "Escape" && imageModal.style.display === "flex") {
+                    imageModal.style.display = "none";
                     document.body.style.overflow = "auto";
                 }
             });
         }
-        
+
         function openImageModal(imageUrl, note, countryName, capital, currencyName, index) {
-            const modal = document.getElementById("imageModal");
+            const imageModal = document.getElementById("imageModal");
             const modalImage = document.getElementById("modalImage");
             const modalDetails = document.getElementById("image-modal-details");
-            
+
             modalImage.src = imageUrl;
-            modal.style.display = "flex";
+            imageModal.style.display = "flex";
             document.body.style.overflow = "hidden";
-            
+
             // Set details
+            document.getElementById('modal-country-name').style.color = 'white';
             document.getElementById('modal-country-name').textContent = countryName;
+            document.getElementById('modal-capital-name').style.color = 'white';
             document.getElementById('modal-capital-name').textContent = capital;
+            document.getElementById('modal-currency-name').style.color = 'white';
             document.getElementById('modal-currency-name').textContent = currencyName;
+            document.getElementById('modal-note').style.color = 'white';
             document.getElementById('modal-note').textContent = note;
             modalDetails.style.display = 'block';
-            
+
             currentImageIndex = index;
         }
-        
+
         function changeModalImage(direction) {
             if (currentCountryCoins.length > 0) {
                 currentImageIndex = (currentImageIndex + direction + currentCountryCoins.length) % currentCountryCoins.length;
                 const coin = currentCountryCoins[currentImageIndex];
-                
+
                 const queryParams = new URLSearchParams(window.location.search);
                 const countryQuery = queryParams.get("country").toLowerCase();
                 const countryInfo = fetchCountryInfo(countryQuery);
-                
+
                 const imageUrl = `images/${toTitleCase(countryQuery)}/${coin.image}`;
-                
+
                 document.getElementById('modalImage').src = imageUrl;
                 document.getElementById('modal-country-name').textContent = countryInfo.name;
                 document.getElementById('modal-capital-name').textContent = countryInfo.capital;
@@ -2129,7 +2151,7 @@
             flagModalImage.src = flagSrc;
             flagModal.style.display = "flex";
             document.body.style.overflow = "hidden"; // Prevent scrolling when modal is open
-            
+
             // Show details container
             flagModalDetails.style.display = 'block';
         }
@@ -2200,18 +2222,18 @@
                 }
             });
         }
-        
+
         // NEW: Function to toggle between slider and gallery view
         function initViewToggle() {
             const toggleBtn = document.getElementById('toggle-view-btn');
             const sliderView = document.getElementById('slider-view');
             const galleryView = document.getElementById('gallery-view');
-            
+
             let isSliderView = true;
 
             toggleBtn.addEventListener('click', () => {
                 isSliderView = !isSliderView;
-                
+
                 if (isSliderView) {
                     sliderView.style.display = 'flex';
                     galleryView.style.display = 'none';
@@ -2221,7 +2243,7 @@
                     galleryView.style.display = 'flex';
                     toggleBtn.innerHTML = '<i class="fas fa-images"></i> Slider View';
                 }
-                
+
                 // Reload content for the current country
                 const queryParams = new URLSearchParams(window.location.search);
                 const countryQuery = queryParams.get("country");
@@ -2231,7 +2253,7 @@
                 }
             });
         }
-        
+
         // NEW: Back to Top functionality
         function initBackToTop() {
             const backToTopBtn = document.getElementById('back-to-top');
@@ -2406,6 +2428,7 @@
             // Optional logging
             console.log("Updated Title:", newTitle);
         }
+
     </script>
 </body>
 
