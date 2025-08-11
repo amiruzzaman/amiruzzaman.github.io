@@ -663,6 +663,8 @@
             font-weight: bold;
             cursor: pointer;
             transition: var(--transition);
+            z-index: 1001;
+            /* Ensure it's above other elements */
         }
 
         .close-modal:hover {
@@ -682,6 +684,8 @@
             cursor: pointer;
             font-size: 24px;
             transition: background 0.3s ease;
+            z-index: 1001;
+            /* Ensure it's above other elements */
         }
 
         .modal-nav:hover {
@@ -2046,8 +2050,9 @@
             prevModalBtn.addEventListener('click', () => changeModalImage(-1));
             nextModalBtn.addEventListener('click', () => changeModalImage(1));
 
-
-            closeModal.addEventListener("click", function () {
+            // Fix for close button - prevent event propagation
+            closeModal.addEventListener("click", function (e) {
+                e.stopPropagation(); // Prevent event from bubbling up to modal
                 imageModal.style.display = "none";
                 document.body.style.overflow = "auto"; // Restore scrolling
             });
@@ -2059,7 +2064,6 @@
                     document.body.style.overflow = "auto";
                 }
             });
-
 
             // Close modal on Escape key press
             document.addEventListener("keydown", function (event) {
