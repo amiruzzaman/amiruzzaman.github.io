@@ -63,19 +63,6 @@ def index():
         .ui-sortable-helper {
             display: table;
         }
-        /* Style for the editable input field */
-        .editable-cell-input {
-            width: 100%;
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
-            padding: 0.25rem 0.5rem;
-            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
-        }
-        .editable-cell-input:focus {
-            outline: 2px solid #6366f1;
-            outline-offset: 2px;
-            border-color: transparent;
-        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
@@ -157,10 +144,12 @@ def index():
                 handle: ".sort-handle",
                 axis: "y",
                 update: function(event, ui) {
+                    // Rebuild the fullData array based on the new visual order of the sorted elements.
                     const newOrder = [];
                     const sortedCountryItems = [];
                     const otherItems = [];
 
+                    // Identify the items in the currentData (visible, filtered) and the items not visible.
                     const currentCountries = new Set(currentData.map(item => item.country));
                     fullData.forEach(item => {
                         if (currentCountries.has(item.country)) {
@@ -170,52 +159,22 @@ def index():
                         }
                     });
 
+                    // Reorder the sortedCountryItems based on the new visual order.
                     const newSortedCountryItems = [];
                     $(this).find('tr').each(function() {
                         const originalIndex = $(this).data('original-index');
                         newSortedCountryItems.push(fullData[originalIndex]);
                     });
 
+                    // Reconstruct the fullData array by combining the reordered items and the rest.
                     fullData = newSortedCountryItems.concat(otherItems);
+
+                    // Update currentData to reflect the new order and re-render the table.
                     currentData = [...newSortedCountryItems];
                     updateTable(currentData);
                     autoSaveData();
                 }
             }).disableSelection();
-
-            // Handle making a cell editable when clicked
-            $('#coin-table-body').on('click', '.editable-cell', function() {
-                const cell = $(this);
-                if (cell.find('input').length) {
-                    return; // Already in edit mode
-                }
-                const originalText = cell.text().trim();
-                const field = cell.data('field');
-                
-                // Replace the text with an input field
-                const input = $(`<input type="text" class="editable-cell-input" value="${originalText}">`);
-                cell.html(input);
-                input.focus();
-
-                // Handle saving the data on blur
-                input.on('blur', function() {
-                    const originalIndex = cell.closest('tr').data('original-index');
-                    const newValue = $(this).val().trim();
-                    
-                    if (originalIndex !== undefined && fullData[originalIndex][field] !== newValue) {
-                        fullData[originalIndex][field] = newValue;
-                        console.log(`Updated field '${field}' for item at index ${originalIndex} to: ${newValue}`);
-                        autoSaveData();
-                    }
-                    // Revert back to text
-                    cell.text(newValue);
-                });
-
-                // Prevent the row click event from propagating
-                cell.on('click', function(e) {
-                    e.stopPropagation();
-                });
-            });
 
             // File input change handler (auto-load when file is selected)
             $('#json-file').change(function() {
@@ -323,10 +282,10 @@ def index():
                         <td class="px-6 py-4 whitespace-nowrap w-12 cursor-grab text-xl text-slate-400">
                             <span class="sort-handle">☰</span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap font-medium text-slate-900 editable-cell" data-field="country">${item.country}</td>
-                        <td class="px-6 py-4 whitespace-nowrap editable-cell" data-field="currency_type">${item.currency_type}</td>
-                        <td class="px-6 py-4 whitespace-nowrap editable-cell" data-field="donor_name">${item.donor_name}</td>
-                        <td class="px-6 py-4 editable-cell" data-field="note">${item.note}</td>
+                        <td class="px-6 py-4 whitespace-nowrap font-medium text-slate-900">${item.country}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${item.currency_type}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${item.donor_name}</td>
+                        <td class="px-6 py-4">${item.note}</td>
                         <td class="px-6 py-4">
                             <img src="${imagePath}" onerror="this.onerror=null;this.src='https://placehold.co/100x100/e2e8f0/64748b?text=No+Image';" class="image-preview w-24 h-24 object-cover rounded-lg shadow-sm cursor-pointer" title="Click to enlarge">
                         </td>
