@@ -601,7 +601,7 @@
             color: var(--text-color);
         }
 
-        /* Image Modal - UPDATED FOR CONSISTENT SIZING */
+        /* Image Modal */
         .modal {
             display: none;
             position: fixed;
@@ -634,31 +634,14 @@
             width: 100%;
             padding: 20px;
             position: relative;
+            /* Added for modal navigation buttons */
         }
 
         .modal-image {
             max-width: 90%;
-            max-height: 70vh;
-            width: auto;
-            height: auto;
+            max-height: 80vh;
             object-fit: contain;
-            object-position: center;
             animation: zoomIn 0.3s;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-        }
-
-        /* Ensure consistent sizing for all image types */
-        .modal-image[src*="coin"],
-        .modal-image[src*="bill"],
-        .modal-image[src*="paper"],
-        .modal-image[src*="antique"] {
-            max-width: 500px;
-            max-height: 500px;
-            width: auto;
-            height: auto;
         }
 
         @keyframes zoomIn {
@@ -681,6 +664,7 @@
             cursor: pointer;
             transition: var(--transition);
             z-index: 1001;
+            /* Ensure it's above other elements */
         }
 
         .close-modal:hover {
@@ -701,6 +685,7 @@
             font-size: 24px;
             transition: background 0.3s ease;
             z-index: 1001;
+            /* Ensure it's above other elements */
         }
 
         .modal-nav:hover {
@@ -723,8 +708,6 @@
             background: rgba(0, 0, 0, 0.7);
             padding: 10px 20px;
             border-radius: var(--border-radius);
-            max-width: 80%;
-            width: 100%;
         }
 
         .modal-details p {
@@ -736,6 +719,7 @@
         .modal-details p strong {
             color: var(--gold-color);
         }
+
 
         /* Flag Modal */
         .flag-modal {
@@ -804,6 +788,7 @@
             color: var(--gold-color);
         }
 
+
         /* Responsive */
         @media (max-width: 900px) {
             .main-content {
@@ -825,24 +810,9 @@
                 font-size: 16px;
             }
 
-            /* Updated modal styles for mobile */
             .modal-image {
                 max-width: 95%;
-                max-height: 60vh;
-                padding: 15px;
-            }
-
-            .modal-image[src*="coin"],
-            .modal-image[src*="bill"],
-            .modal-image[src*="paper"],
-            .modal-image[src*="antique"] {
-                max-width: 350px;
-                max-height: 350px;
-            }
-
-            .modal-details {
-                max-width: 95%;
-                font-size: 13px;
+                max-height: 70vh;
             }
 
             .flag-modal-image {
