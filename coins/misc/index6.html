@@ -1,6 +1,5 @@
 <!doctype html>
 <html lang="en">
-
 <head>
   <title>..::Amir's Coin Collection::..</title>
   <meta charset="UTF-8">
@@ -254,11 +253,7 @@
 
     /* Media Queries for Responsiveness */
     @media (max-width: 768px) {
-
-      .table-container,
-      .summary,
-      footer,
-      .top-banner {
+      .table-container, .summary, footer, .top-banner {
         width: 95vw;
       }
 
@@ -273,8 +268,7 @@
         border-bottom: 1px solid var(--border-color);
       }
 
-      .table td,
-      .table th {
+      .table td, .table th {
         display: block;
         width: 100%;
         text-align: left;
@@ -300,7 +294,6 @@
     }
   </style>
 </head>
-
 <body>
 
   <!-- Top Banner -->
@@ -309,9 +302,9 @@
       <!-- Images will be dynamically added here -->
     </div>
   </div>
-
+  
   <h1><i class="fas fa-coins"></i> Coin Collection</h1>
-
+  
   <div>
     <input type="text" id="search-input" class="search-bar" placeholder="Search by country, currency, or donor">
     <div class="table-container">
@@ -328,9 +321,9 @@
     </div>
     <div id="summary-container" class="summary"></div>
   </div>
-
+  
   <footer>
-    <p><i class="far fa-copyright"></i> 2025 Amiruzzaman coin collection. All rights reserved. |
+    <p><i class="far fa-copyright"></i> 2025 Amiruzzaman coin collection. All rights reserved. | 
       <a href="privacy.html" target="_blank"><i class="fas fa-lock"></i> Privacy Policy</a>
     </p>
   </footer>
@@ -400,13 +393,11 @@
       const numCountries = data.length;
       let numPaperBills = 0;
       let numCoins = 0;
-      let numAntiques = 0;
 
       data.forEach(item => {
         item.currency_type.split(', ').forEach(type => {
           if (type.toLowerCase() === 'paper bill' || type.toLowerCase() === 'paper-bill') numPaperBills++;
           if (type.toLowerCase() === 'coin') numCoins++;
-          if (type.toLowerCase() === 'antique') numAntiques++;
         });
       });
 
@@ -414,7 +405,6 @@
         <p><i class="fas fa-globe-americas"></i> Number of Countries: ${numCountries}</p>
         <p><i class="fas fa-money-bill-alt"></i> Number of Paper Bills: ${numPaperBills}</p>
         <p><i class="fas fa-coins"></i> Number of Coins: ${numCoins}</p>
-        <p><i class="fas fa-history"></i> Number of Antiques: ${numAntiques}</p>
       `;
     }
 
@@ -441,7 +431,7 @@
         isAscending = key === lastSortedColumn ? !isAscending : true;
         lastSortedColumn = key;
         renderTable(sortedData);
-
+        
         // Update sort indicator
         document.querySelectorAll('#data-table th i.fa-sort').forEach(icon => {
           icon.className = 'fas fa-sort';
@@ -456,63 +446,62 @@
     document.addEventListener('contextmenu', event => event.preventDefault());
 
     document.addEventListener('DOMContentLoaded', () => {
-      const collageContainer = document.getElementById('collageContainer');
-      const jsonFilePath = 'images/coins.json';
+        const collageContainer = document.getElementById('collageContainer');
+        const jsonFilePath = 'images/coins.json';
+      
+        // Fetch JSON file and generate collage
+        fetch(jsonFilePath)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error('Failed to load JSON file');
+            }
+            return response.json();
+          })
+          .then((data) => {
+            data.forEach((item, index) => {
+              const { country, image } = item;
+      
+              // Create a collage item div
+              const collageItem = document.createElement('div');
+              collageItem.className = 'collage-item';
+      
+              // Random positions within the banner
+              const randomX = Math.random() * 100;
+              const randomY = Math.random() * 100;
+      
+              // Random rotation angle and z-index
+              collageItem.style.setProperty('--rotation', Math.floor(Math.random() * 20) - 10);
+              collageItem.style.setProperty('--z-index', index);
+      
+              // Position the collage item
+              collageItem.style.left = `${randomX}%`;
+              collageItem.style.top = `${randomY}%`;
 
-      // Fetch JSON file and generate collage
-      fetch(jsonFilePath)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error('Failed to load JSON file');
-          }
-          return response.json();
-        })
-        .then((data) => {
-          data.forEach((item, index) => {
-            const { country, image } = item;
+              // Create a link element
+              const linkElement = document.createElement('a');
+              linkElement.href = `display.html?country=${country}`;
+      
+              // Create an image element
+              const imgElement = document.createElement('img');
+              imgElement.src = `images/${country}/${image}`;
+              imgElement.alt = `${country} image`;
+              imgElement.loading = "lazy";
+      
+              // Append the image to the link
+              linkElement.appendChild(imgElement);
 
-            // Create a collage item div
-            const collageItem = document.createElement('div');
-            collageItem.className = 'collage-item';
-
-            // Random positions within the banner
-            const randomX = Math.random() * 100;
-            const randomY = Math.random() * 100;
-
-            // Random rotation angle and z-index
-            collageItem.style.setProperty('--rotation', Math.floor(Math.random() * 20) - 10);
-            collageItem.style.setProperty('--z-index', index);
-
-            // Position the collage item
-            collageItem.style.left = `${randomX}%`;
-            collageItem.style.top = `${randomY}%`;
-
-            // Create a link element
-            const linkElement = document.createElement('a');
-            linkElement.href = `display.html?country=${country}`;
-
-            // Create an image element
-            const imgElement = document.createElement('img');
-            imgElement.src = `images/${country}/${image}`;
-            imgElement.alt = `${country} image`;
-            imgElement.loading = "lazy";
-
-            // Append the image to the link
-            linkElement.appendChild(imgElement);
-
-            // Append the link to the collage item
-            collageItem.appendChild(linkElement);
-
-            // Append the collage item to the collage container
-            collageContainer.appendChild(collageItem);
+              // Append the link to the collage item
+              collageItem.appendChild(linkElement);
+      
+              // Append the collage item to the collage container
+              collageContainer.appendChild(collageItem);
+            });
+          })
+          .catch((error) => {
+            collageContainer.innerHTML = `<div class="error">Error: ${error.message}</div>`;
           });
-        })
-        .catch((error) => {
-          collageContainer.innerHTML = `<div class="error">Error: ${error.message}</div>`;
-        });
-    });
+      });
     /*-------------------end collage---------------------*/
   </script>
 </body>
-
 </html>
