@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WCU CS Tutors</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+      color: #333;
+    }
+
+    /* WCU Website Header Styles */
+    header {
+      background-color: #480048;
+      color: #fff;
+      position: relative;
+    }
+
+    .top-bar {
+      background-color: #480048;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .top-bar .logo-text {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .top-bar .logo-text span {
+      font-weight: bold;
+    }
+
+    .top-bar .top-links {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .top-bar .top-links a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: normal;
+      transition: color 0.3s;
+    }
+
+    .top-bar .top-links a:hover {
+      color: #ffc423;
+    }
+
+    .main-nav-container {
+      background-color: #480048;
+      padding: 1rem;
+    }
+
+    .main-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .nav-logo {
+      width: 150px;
+      height: 60px;
+      background: url("https://www.wcupa.edu/_images/wcu-logo-white.png") no-repeat center left;
+      background-size: contain;
+    }
+
+    .nav-links {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .nav-links a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: #ffc423;
+    }
+
+    .site-title-container {
+      background-color: #ffc423;
+      padding: 1rem;
+    }
+
+    .site-title {
+      max-width: 1200px;
+      margin: auto;
+      text-align: left;
+      color: #000;
+    }
+
+    .site-title h1 {
+      margin: 0;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 1rem;
+    }
+
+    .tutors {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .tutor {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 1rem;
+      width: 250px;
+      text-align: center;
+    }
+
+    .avatar {
+      width: 100px;
+      height: 120px;
+      margin: 0 auto 0.5rem;
+      position: relative;
+    }
+
+    /* Head (common) */
+    .avatar::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30px;
+      height: 30px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Male torso */
+    .avatar.male::after {
+      content: "";
+      position: absolute;
+      top: 38px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30px;
+      height: 60px;
+      background: #4a89dc;
+      border-radius: 6px;
+    }
+
+    .avatar.male .arm-left,
+    .avatar.male .arm-right {
+      position: absolute;
+      top: 40px;
+      width: 10px;
+      height: 40px;
+      background: #4a89dc;
+      border-radius: 5px;
+    }
+
+    .avatar.male .arm-left {
+      left: 10px;
+      transform: rotate(-20deg);
+    }
+
+    .avatar.male .arm-right {
+      right: 10px;
+      transform: rotate(20deg);
+    }
+
+    /* Slimmer female triangle body */
+    .avatar.female::after {
+      content: "";
+      position: absolute;
+      top: 35px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-top: 60px solid #e667af;
+    }
+
+    .avatar.female .arm-left,
+    .avatar.female .arm-right {
+      position: absolute;
+      top: 40px;
+      width: 10px;
+      height: 35px;
+      background: #e667af;
+      border-radius: 5px;
+    }
+
+    .avatar.female .arm-left {
+      left: 5px;
+      transform: rotate(-30deg);
+    }
+
+    .avatar.female .arm-right {
+      right: 5px;
+      transform: rotate(30deg);
+    }
+
+    .tutor h3 {
+      margin: 0.5rem 0 0.2rem;
+    }
+
+    .tutor p {
+      margin: 0.2rem 0;
+    }
+
+    .schedule-table {
+      display: grid;
+      gap: 1px;
+      margin-top: 2rem;
+      background: #ccc;
+    }
+
+    .cell {
+      padding: 0.5rem;
+      background: #fff;
+      text-align: center;
+    }
+
+    .header-cell {
+      font-weight: bold;
+      background-color: #f0f0f0;
+    }
+
+    .time-cell {
+      font-weight: bold;
+      background-color: #f0f0f0;
+    }
+
+    .available {
+      background-color: #e6ffe6;
+    }
+
+    @media (max-width: 768px) {
+      .tutors {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .top-bar,
+      .main-nav {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    .checkmark {
+      width: 8px;
+      height: 14px;
+      border: solid green;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+      display: inline-block;
+      margin: auto;
+      margin-top: 4px;
+    }
+
+    .availability-list {
+      text-align: left;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .availability-list ul {
+      padding-left: 1.2rem;
+      margin: 0.2rem 0;
+    }
+
+    /* WCU Website Footer CSS */
+    .site-footer {
+      background-color: #480048;
+      color: #fff;
+      padding: 2rem 1rem;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .footer-content {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .footer-column {
+      flex: 1 1 200px;
+      text-align: left;
+      padding: 1rem;
+    }
+
+    .footer-column h4 {
+      margin-top: 0;
+      color: #ffc423;
+    }
+
+    .footer-column ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .footer-column ul li a {
+      color: #fff;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .footer-column ul li a:hover {
+      color: #ffc423;
+    }
+
+    .footer-logo {
+      width: 150px;
+      margin-bottom: 1rem;
+    }
+
+    .footer-social-media {
+      margin-top: 1rem;
+    }
+
+    .footer-social-media a {
+      color: #fff;
+      font-size: 1.5rem;
+      margin: 0 0.5rem;
+      transition: color 0.3s;
+    }
+
+    .footer-social-media a:hover {
+      color: #ffc423;
+    }
+
+    .footer-copyright {
+      margin-top: 2rem;
+      border-top: 1px solid #333;
+      padding-top: 1rem;
+    }
+  </style>
+  <!-- Font Awesome for social media icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+
+  <header>
+    <div class="top-bar">
+      <div class="logo-text">
+        <span>WCU</span>
+        WEST CHESTER UNIVERSITY
+      </div>
+      <ul class="top-links">
+        <li><a href="#">Students</a></li>
+        <li><a href="#">Faculty/Staff</a></li>
+        <li><a href="#"><i class="fas fa-search"></i></a></li>
+      </ul>
+    </div>
+    <div class="main-nav-container">
+      <nav class="main-nav">
+        <div class="nav-logo"></div>
+        <ul class="nav-links">
+          <li><a href="#">Academics</a></li>
+          <li><a href="#">Admissions</a></li>
+          <li><a href="#">Student Life</a></li>
+          <li><a href="#">Athletics</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="site-title-container">
+      <div class="site-title">
+        <h1>WCU CS Tutors</h1>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="tutors">
+      <!-- Tutor profiles will be populated by JavaScript -->
+    </section>
+
+    <div class="availability-list">
+      <h2>Availability by Tutor</h2>
+      <!-- Availability lists will be populated by JavaScript -->
+    </div>
+
+    <section class="schedule-section">
+      <h2>Tutor Schedule</h2>
+      <div id="scheduleTable" class="schedule-table">
+        <!-- Schedule table will be populated by JavaScript -->
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-column">
+        <img src="https://www.wcupa.edu/_images/wcu-logo-white.png" alt="WCU Logo" class="footer-logo">
+        <p>
+          West Chester University<br>
+          700 S. High Street<br>
+          West Chester, PA 19383<br>
+          (610) 436-1000
+        </p>
+        <div class="footer-social-media">
+          <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+          <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+      </div>
+      <div class="footer-column">
+        <h4>About WCU</h4>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Leadership</a></li>
+          <li><a href="#">Newsroom</a></li>
+          <li><a href="#">Giving to WCU</a></li>
+          <li><a href="#">Campus Map</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h4>Admissions</h4>
+        <ul>
+          <li><a href="#">Undergraduate</a></li>
+          <li><a href="#">Graduate</a></li>
+          <li><a href="#">Financial Aid</a></li>
+          <li><a href="#">Visit Campus</a></li>
+          <li><a href="#">Request Info</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h4>Student Life</h4>
+        <ul>
+          <li><a href="#">Student Services</a></li>
+          <li><a href="#">Campus Activities</a></li>
+          <li><a href="#">Housing & Dining</a></li>
+          <li><a href="#">Health & Wellness</a></li>
+          <li><a href="#">Athletics</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-copyright">
+      <p>&copy; 2024 West Chester University of Pennsylvania. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Tutor data
+    const tutors = [
+      {
+        name: "Alex Pham",
+        email: "alex@wcupa.edu",
+        gender: "male",
+        availability: {
+          "Monday": ["12pm-6pm"],
+          "Wednesday": ["12pm-6pm"],
+          "Friday": ["12pm-6pm"]
+        }
+      },
+      {
+        name: "Sebastian Tran",
+        email: "sebastian@wcupa.edu",
+        gender: "male",
+        availability: {
+          "Monday": ["10am-11am", "2pm-3pm"],
+          "Wednesday": ["9am-11am", "4pm-6pm"],
+          "Friday": ["12pm-6pm"]
+        }
+      },
+    ];
+
+    // Time slots and days of the week
+    const timeSlots = ['9am', '10am', '11am', '12pm', '1pm', '2pm', '3pm', '4pm', '5pm'];
+    const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+
+    // DOM Elements
+    const tutorsContainer = document.querySelector('.tutors');
+    const scheduleTable = document.getElementById('scheduleTable');
+
+    // Function to populate tutor profiles
+    function populateTutors() {
+      tutorsContainer.innerHTML = ''; // Clear previous content
+      tutors.forEach(tutor => {
+        const tutorDiv = document.createElement('div');
+        tutorDiv.className = 'tutor';
+        // Convert availability to a list for display
+        const availabilityListHTML = Object.entries(tutor.availability)
+          .map(([day, times]) => `<li>${day}: ${times.join(', ')}</li>`)
+          .join('');
+
+        tutorDiv.innerHTML = `
+          <div class="avatar ${tutor.gender}">
+            <div class="arm-left"></div>
+            <div class="arm-right"></div>
+          </div>
+          <h3>${tutor.name}</h3>
+          <div class="availability-list">
+            <h4>Available:</h4>
+            <ul>
+              ${availabilityListHTML}
+            </ul>
+          </div>
+        `;
+        tutorsContainer.appendChild(tutorDiv);
+      });
+    }
+
+    // Function to populate the schedule table
+    function populateScheduleTable() {
+      scheduleTable.innerHTML = ''; // Clear previous content
+
+      // Create a 2D map for quick lookup
+      const availabilityMap = {};
+      daysOfWeek.forEach(day => {
+        availabilityMap[day] = {};
+        timeSlots.forEach(time => {
+          availabilityMap[day][time] = [];
+        });
+      });
+
+      // Parse the time ranges and populate the availability map
+      tutors.forEach(tutor => {
+        for (const [day, timeRanges] of Object.entries(tutor.availability)) {
+          timeRanges.forEach(range => {
+            const [startStr, endStr] = range.split('-');
+            const startHour = convertTo24Hour(startStr);
+            const endHour = convertTo24Hour(endStr);
+
+            // Iterate through all time slots to see if they fall within the range
+            timeSlots.forEach(slot => {
+              const slotHour = convertTo24Hour(slot);
+              // The condition checks if the slot's hour is within the start and end hours
+              // It also handles cases where the end time is 'am' of the next day (not relevant for this data)
+              if (slotHour >= startHour && slotHour < endHour) {
+                availabilityMap[day][slot].push(tutor.name);
+              }
+            });
+          });
+        }
+      });
+
+      // Set up the grid layout based on the number of days
+      scheduleTable.style.gridTemplateColumns = `100px repeat(${daysOfWeek.length}, 1fr)`;
+
+      // Add header row
+      scheduleTable.appendChild(createCell('', 'header-cell')); // Empty top-left cell
+      daysOfWeek.forEach(day => {
+        scheduleTable.appendChild(createCell(day, 'header-cell'));
+      });
+
+      // Add time slots
+      timeSlots.forEach(time => {
+        scheduleTable.appendChild(createCell(time, 'time-cell'));
+
+        daysOfWeek.forEach(day => {
+          const availableTutors = availabilityMap[day][time];
+          const cell = createCell('', availableTutors.length > 0 ? 'cell available' : 'cell');
+
+          if (availableTutors.length > 0) {
+            cell.innerHTML = `<div class="checkmark"></div>`;
+            cell.title = `Available tutors: ${availableTutors.join(', ')}`;
+          }
+
+          scheduleTable.appendChild(cell);
+        });
+      });
+
+      // Helper function to create a cell
+      function createCell(content, className) {
+        const cell = document.createElement('div');
+        cell.className = className;
+        cell.textContent = content;
+        return cell;
+      }
+    }
+
+    // Helper function to convert time (e.g., '12pm') to 24-hour format
+    function convertTo24Hour(timeStr) {
+      const [time, period] = timeStr.match(/(\d+)([ap]m)/i).slice(1);
+      let hour = parseInt(time, 10);
+      if (period.toLowerCase() === 'pm' && hour !== 12) {
+        hour += 12;
+      }
+      if (period.toLowerCase() === 'am' && hour === 12) {
+        hour = 0;
+      }
+      return hour;
+    }
+
+    // Initialize the page
+    window.onload = function () {
+      populateTutors();
+      populateScheduleTable();
+    };
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WCU CS Tutors</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+      color: #333;
+    }
+
+    header {
+      background-color: #800000;
+      color: #fff;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 1rem;
+    }
+
+    .tutors {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .tutor {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      padding: 1rem;
+      width: 250px;
+      text-align: center;
+    }
+
+    .avatar {
+      width: 100px;
+      height: 120px;
+      margin: 0 auto 0.5rem;
+      position: relative;
+    }
+
+    /* Head (common) */
+    .avatar::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30px;
+      height: 30px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Male torso */
+    .avatar.male::after {
+      content: "";
+      position: absolute;
+      top: 38px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30px;
+      height: 60px;
+      background: #4a89dc;
+      border-radius: 6px;
+    }
+
+    .avatar.male .arm-left,
+    .avatar.male .arm-right {
+      position: absolute;
+      top: 40px;
+      width: 10px;
+      height: 40px;
+      background: #4a89dc;
+      border-radius: 5px;
+    }
+
+    .avatar.male .arm-left {
+      left: 10px;
+      transform: rotate(-20deg);
+    }
+
+    .avatar.male .arm-right {
+      right: 10px;
+      transform: rotate(20deg);
+    }
+
+    /* Slimmer female triangle body */
+    .avatar.female::after {
+      content: "";
+      position: absolute;
+      top: 35px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-top: 60px solid #e667af;
+    }
+
+    .avatar.female .arm-left,
+    .avatar.female .arm-right {
+      position: absolute;
+      top: 40px;
+      width: 10px;
+      height: 35px;
+      background: #e667af;
+      border-radius: 5px;
+    }
+
+    .avatar.female .arm-left {
+      left: 5px;
+      transform: rotate(-30deg);
+    }
+
+    .avatar.female .arm-right {
+      right: 5px;
+      transform: rotate(30deg);
+    }
+
+    .tutor h3 {
+      margin: 0.5rem 0 0.2rem;
+    }
+
+    .tutor p {
+      margin: 0.2rem 0;
+    }
+
+    .schedule-table {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr); /* Fixed 6 columns: Time + 5 days */
+  gap: 1px;
+  margin-top: 2rem;
+  background: #ccc;
+}
+
+
+    .cell {
+      padding: 0.5rem;
+      background: #fff;
+      text-align: center;
+    }
+
+    .header-cell {
+      font-weight: bold;
+      background-color: #f0f0f0;
+    }
+
+    @media (max-width: 768px) {
+      .tutors {
+        flex-direction: column;
+        align-items: center;
+      }
+      .schedule-table {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+	
+	/* Replaces emoji checkmark */
+	/*
+.checkmark {
+  width: 14px;
+  height: 28px;
+  border: solid green;
+  border-width: 0 4px 4px 0;
+  transform: rotate(45deg);
+  display: inline-block;
+  margin: auto;
+  margin-top: 6px;
+}
+*/
+.checkmark {
+  width: 8px;
+  height: 14px;
+  border: solid green;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  display: inline-block;
+  margin: auto;
+  margin-top: 4px;
+}
+
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Computer Science Tutors</h1>
+  </header>
+
+  <div class="container">
+    <div class="tutors" id="tutors"></div>
+
+    <h2 style="text-align:center; margin-top:2rem">Weekly Availability Summary</h2>
+    <div class="schedule-table" id="summary"></div>
+  </div>
+
+  <script>
+    const tutors = [
+      {
+        name: "Alex Pham",
+        email: "alice@wcupa.edu",
+        gender: "female",
+        times: ["Monday 10am", "Wednesday 2pm"]
+      },
+      {
+        name: "Bob Smith",
+        email: "bob@wcupa.edu",
+        gender: "male",
+        times: ["Tuesday 11am", "Thursday 3pm"]
+      },
+      {
+        name: "Clara Zhang",
+        email: "clara@wcupa.edu",
+        gender: "female",
+        times: ["Monday 1pm", "Friday 10am"]
+      },
+      {
+        name: "David Lee",
+        email: "david@wcupa.edu",
+        gender: "male",
+        times: ["Wednesday 10am", "Thursday 1pm"]
+      }
+    ];
+
+    const tutorContainer = document.getElementById('tutors');
+
+    tutors.forEach(tutor => {
+      const div = document.createElement('div');
+      div.className = 'tutor';
+
+      const avatar = document.createElement('div');
+      avatar.className = `avatar ${tutor.gender}`;
+      avatar.title = tutor.name;
+
+      const armLeft = document.createElement('div');
+      armLeft.className = 'arm-left';
+      const armRight = document.createElement('div');
+      armRight.className = 'arm-right';
+
+      avatar.appendChild(armLeft);
+      avatar.appendChild(armRight);
+      div.appendChild(avatar);
+
+      div.innerHTML += `
+        <h3>${tutor.name}</h3>
+        <p>${tutor.email}</p>
+        <p><strong>Available:</strong><br>${tutor.times.join('<br>')}</p>
+      `;
+
+      tutorContainer.appendChild(div);
+    });
+
+    // Generate dynamic days and times
+    const timeSet = new Set();
+    const daySet = new Set();
+    tutors.forEach(tutor => {
+      tutor.times.forEach(slot => {
+        const [day, time] = slot.split(' ');
+        daySet.add(day);
+        timeSet.add(time);
+      });
+    });
+
+    const week = ["Day/Time", ...Array.from(daySet)];
+    const timeSlots = Array.from(timeSet);
+
+    const allTimes = {};
+    week.slice(1).forEach(day => {
+      timeSlots.forEach(time => {
+        const slot = `${day} ${time}`;
+        //allTimes[slot] = tutors.some(t => t.times.includes(slot)) ? "✔️" : "";
+		allTimes[slot] = tutors.some(t => t.times.includes(slot)) ? "<div class='checkmark'></div>" : "";
+
+      });
+    });
+
+    const table = document.getElementById('summary');
+    table.innerHTML += week.map(day => `<div class='cell header-cell'>${day}</div>`).join('');
+
+    timeSlots.forEach(time => {
+      table.innerHTML += `<div class='cell header-cell'>${time}</div>`;
+      week.slice(1).forEach(day => {
+        const slot = `${day} ${time}`;
+        table.innerHTML += `<div class='cell'>${allTimes[slot]}</div>`;
+      });
+    });
+	table.style.gridTemplateColumns = `repeat(${week.length}, 1fr)`;
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WCU CS Tutors</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+      color: #333;
+    }
+    header {
+      background-color: #800000;
+      color: #fff;
+      padding: 1rem;
+      text-align: center;
+    }
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 1rem;
+    }
+    .tutors {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+    .tutor {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      padding: 1rem;
+      width: 250px;
+      text-align: center;
+    }
+    .tutor img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-bottom: 0.5rem;
+    }
+    .tutor h3 {
+      margin: 0.5rem 0 0.2rem;
+    }
+    .tutor p {
+      margin: 0.2rem 0;
+    }
+    .schedule-table {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 1px;
+      margin-top: 2rem;
+      background: #ccc;
+    }
+    .cell {
+      padding: 0.5rem;
+      background: #fff;
+      text-align: center;
+    }
+    .header-cell {
+      font-weight: bold;
+      background-color: #f0f0f0;
+    }
+    @media (max-width: 768px) {
+      .tutors {
+        flex-direction: column;
+        align-items: center;
+      }
+      .schedule-table {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Computer Science Tutors</h1>
+  </header>
+
+  <div class="container">
+    <div class="tutors" id="tutors"></div>
+
+    <h2 style="text-align:center; margin-top:2rem">Weekly Availability Summary</h2>
+    <div class="schedule-table" id="summary"></div>
+  </div>
+
+  <script>
+    const tutors = [
+      {
+        name: "Alice Johnson",
+        email: "alice@wcupa.edu",
+        gender: "female",
+        times: ["Monday 10am", "Wednesday 2pm"]
+      },
+      {
+        name: "Bob Smith",
+        email: "bob@wcupa.edu",
+        gender: "male",
+        times: ["Tuesday 11am", "Thursday 3pm"]
+      },
+      {
+        name: "Clara Zhang",
+        email: "clara@wcupa.edu",
+        gender: "female",
+        times: ["Monday 1pm", "Friday 10am"]
+      },
+      {
+        name: "David Lee",
+        email: "david@wcupa.edu",
+        gender: "male",
+        times: ["Wednesday 10am", "Thursday 1pm"]
+      }
+    ];
+
+    const avatar = {
+      male: "https://via.placeholder.com/100x100.png?text=Male",
+      female: "https://via.placeholder.com/100x100.png?text=Female"
+    };
+
+    const tutorContainer = document.getElementById('tutors');
+    tutors.forEach(tutor => {
+      const div = document.createElement('div');
+      div.className = 'tutor';
+      div.innerHTML = `
+        <img src="${avatar[tutor.gender] || avatar.male}" alt="${tutor.name}">
+        <h3>${tutor.name}</h3>
+        <p>${tutor.email}</p>
+        <p><strong>Available:</strong><br>${tutor.times.join('<br>')}</p>
+      `;
+      tutorContainer.appendChild(div);
+    });
+
+    const week = ["Day/Time", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+    const timeSlots = ["10am", "11am", "1pm", "2pm", "3pm"];
+
+    const allTimes = {};
+    week.slice(1).forEach(day => {
+      timeSlots.forEach(time => {
+        const slot = `${day} ${time}`;
+        allTimes[slot] = tutors.some(t => t.times.includes(slot)) ? "✔️" : "";
+      });
+    });
+
+    const table = document.getElementById('summary');
+
+    table.innerHTML += week.map(day => `<div class='cell header-cell'>${day}</div>`).join('');
+
+    timeSlots.forEach(time => {
+      table.innerHTML += `<div class='cell header-cell'>${time}</div>`;
+      week.slice(1).forEach(day => {
+        const slot = `${day} ${time}`;
+        table.innerHTML += `<div class='cell'>${allTimes[slot]}</div>`;
+      });
+    });
+  </script>
+</body>
+</html>
