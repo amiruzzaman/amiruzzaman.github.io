@@ -1,10 +1,9 @@
-from flask import Flask, request, jsonify, render_template_string, send_from_directory, session, redirect, url_for
+from flask import Flask, request, jsonify, render_template_string, send_from_directory
 import os
 import uuid
 import json
 import requests
 from werkzeug.utils import secure_filename
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import CORS
 from PIL import Image
 import io
@@ -28,115 +27,7 @@ if not os.path.exists(JSON_FILE_PATH):
     with open(JSON_FILE_PATH, 'w') as f:
         json.dump([], f)
 
-# --- USER MANAGEMENT ---
-# Hash the password "coins" for secure storage
-hashed_password = generate_password_hash("coins")
-print(hashed_password);
-
-def is_authenticated():
-    """Checks if the user is authenticated."""
-    return 'logged_in' in session and session['logged_in']
-
-# --- HTML Templates ---
-LOGIN_TEMPLATE = """
-<!doctype html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #1a202c;
-            color: #e2e8f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        .container {
-            background-color: #2d3748;
-            border-radius: 1rem;
-            padding: 2.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-        }
-        .input-field {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background-color: #4a5568;
-            border: 1px solid #718096;
-            border-radius: 0.5rem;
-            color: #e2e8f0;
-            outline: none;
-            transition: all 0.2s ease-in-out;
-        }
-        .input-field:focus {
-            border-color: #63b3ed;
-            box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.5);
-        }
-        .submit-btn {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background-color: #38b2ac;
-            color: white;
-            font-weight: 600;
-            border-radius: 0.5rem;
-            transition: background-color 0.2s;
-        }
-        .submit-btn:hover {
-            background-color: #319795;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="container">
-        <h2 class="text-3xl font-bold mb-6 text-teal-300">Login</h2>
-        <form id="login-form" class="space-y-4">
-            <input type="text" id="username" name="username" placeholder="Username" class="input-field" required>
-            <input type="password" id="password" name="password" placeholder="Password" class="input-field" required>
-            <button type="submit" class="submit-btn">Login</button>
-        </form>
-        <div id="message" class="mt-4 text-sm font-semibold text-red-400"></div>
-    </div>
-
-    <script>
-        document.getElementById('login-form').addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const messageElement = document.getElementById('message');
-
-            try {
-                const response = await fetch('/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                const result = await response.json();
-                if (response.ok) {
-                    window.location.href = '/upload_form';
-                } else {
-                    messageElement.textContent = result.message;
-                }
-            } catch (error) {
-                messageElement.textContent = 'An error occurred. Please try again.';
-            }
-        });
-    </script>
-</body>
-
-</html>
-"""
-
+# HTML Template
 HTML_TEMPLATE = """
 <!doctype html>
 <html lang="en">
@@ -181,15 +72,9 @@ HTML_TEMPLATE = """
 
 <body class="bg-gray-900 text-gray-200">
     <div class="container mx-auto max-w-xl p-8 bg-gray-800 rounded-2xl shadow-2xl mt-10">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-3xl font-bold text-teal-400">
-                <i class="fas fa-hand-holding-heart mr-3"></i> Donation Form
-            </h2>
-            <button id="logout-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-colors duration-200">
-                Logout
-            </button>
-        </div>
-        
+        <h2 class="text-3xl font-bold text-center mb-6 text-teal-400">
+            <i class="fas fa-hand-holding-heart mr-3"></i> Donation Form
+        </h2>
         <form id="donation-form" class="space-y-6">
             <div class="space-y-2">
                 <label for="donor-name" class="block text-sm font-medium text-gray-400">
@@ -429,12 +314,6 @@ HTML_TEMPLATE = """
             `;
             messageContainer.scrollIntoView({ behavior: 'smooth' });
         }
-        
-        // Logout functionality
-        document.getElementById('logout-btn').addEventListener('click', async () => {
-            await fetch('/logout', { method: 'POST' });
-            window.location.href = '/';
-        });
 
         // Initialize the countries when the page loads
         window.addEventListener('DOMContentLoaded', loadCountries);
@@ -500,49 +379,11 @@ def update_json_file(country, image, note, donor_name, currency_type):
         json.dump(data, f, indent=4)
 
 @app.route('/')
-def home():
-    """Redirects to the login page."""
-    if not is_authenticated():
-        return redirect(url_for('login'))
-    return redirect(url_for('upload_form'))
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    """Handles user login."""
-    if request.method == 'POST':
-        data = request.json
-        username = data.get('username')
-        password = data.get('password')
-
-        # Check credentials
-        # For security, we compare the hashed password, not the plaintext
-        if username == 'coin' and check_password_hash(hashed_password, password):
-            session['logged_in'] = True
-            return jsonify({"message": "Login successful!"}), 200
-        else:
-            return jsonify({"message": "Invalid username or password."}), 401
-
-    return render_template_string(LOGIN_TEMPLATE)
-
-@app.route('/logout', methods=['POST'])
-def logout():
-    """Logs out the user."""
-    session.pop('logged_in', None)
-    return jsonify({"message": "Logged out successfully!"}), 200
-
-@app.route('/upload_form')
 def upload_form():
-    """Serves the upload form page, requires authentication."""
-    if not is_authenticated():
-        return redirect(url_for('login'))
     return render_template_string(HTML_TEMPLATE)
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    """Handles file uploads, requires authentication."""
-    if not is_authenticated():
-        return jsonify({"message": "Unauthorized. Please log in."}), 401
-
     country = request.form.get('country')
     note = request.form.get('note')
     donor_name = request.form.get('donor-name')
@@ -595,12 +436,7 @@ def upload_file():
 
 @app.route('/images/<path:filename>')
 def serve_images(filename):
-    """Serves images, requires authentication."""
-    if not is_authenticated():
-        return redirect(url_for('login'))
     return send_from_directory('images', filename)
 
 if __name__ == "__main__":
-    # In a real application, you would not use a hardcoded password like this.
-    # It is used here for demonstration purposes only.
     app.run(host='127.0.0.1', port=5000, debug=True)
