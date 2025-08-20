@@ -65,9 +65,52 @@ please see the attached file. Please keep all the existing features, and add add
 upload.py
 Use the attached code as base. Keep all the features, and add login screen if username and password are correct (username: coin password: coins, make sure to check the hash code instead of the actual text), then allow to see the upload screen, otherwise no. Also, add logout option to the upload screen too. Please give me the complete code.
 ***************************************************
+upload.py
+Use the attached code as base. Keep all the features, if just localhost:5000, then show index.html, and user can also go to display.html?country={country name} both of these files are in the ./folder. if upload, then require login, if logout then should go back to index.html, only way to go to upload is successful login. Update the code and provide the whole code. I already have index.html and display.html file.
+index.html is having trouble fetch('images/coins.json')
+
+/images/coins.json
+/countries.continents.json
+/countries.json
+/geojson/country_geojson_mapping.json
+/continents.geojson
+
+display.html should be allowed to load /countries.continents.json
+
+/countries.json
+
+/geojson/country_geojson_mapping.json
+
+/continents.geojson
+
+files, plus images from /images and some geojson files from /geojson
 ***************************************************
+index is having trouble loading images from /images/{image file name}
+
+and display.html is failing 
+
+
+
+fetch("images/coins.json").then(res => res.json()),
+
+                    fetch("countries.json").then(res => res.json()),
+
+                    fetch("countries.continents.json").then(res => res.json()),
+
+                    fetch("geojson/country_geojson_mapping.json").then(res => res.json()),
+
+                    fetch("continents.geojson").then(res => res.json())
 ***************************************************
+upload.py
+index.html is good now. But, display.html is having trouble with following the
+fetch("images/coins.json").then(res => res.json()),
+                    fetch("countries.json").then(res => res.json()),
+                    fetch("countries.continents.json").then(res => res.json()),
+                    fetch("geojson/country_geojson_mapping.json").then(res => res.json()),
+                    fetch("continents.geojson").then(res => res.json())
 ***************************************************
+upload.py
+for display.html also allow continents.geojson
 ***************************************************
 ***************************************************
 ***************************************************

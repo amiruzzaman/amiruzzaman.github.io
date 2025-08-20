@@ -1,4 +1,3 @@
-import webbrowser
 from flask import Flask, request, jsonify, render_template_string, send_from_directory, session, redirect, url_for
 import os
 import uuid
@@ -12,7 +11,6 @@ import io
 import logging
 from threading import Lock
 
-# Create a Flask application instance
 app = Flask(__name__)
 CORS(app)
 
@@ -503,8 +501,10 @@ def update_json_file(country, image, note, donor_name, currency_type):
 
 @app.route('/')
 def home():
-    """Serves the index.html page from the base directory."""
-    return send_from_directory('.', 'index.html')
+    """Redirects to the login page."""
+    if not is_authenticated():
+        return redirect(url_for('login'))
+    return redirect(url_for('upload_form'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -515,6 +515,7 @@ def login():
         password = data.get('password')
 
         # Check credentials
+        # For security, we compare the hashed password, not the plaintext
         if username == 'coin' and check_password_hash(hashed_password, password):
             session['logged_in'] = True
             return jsonify({"message": "Login successful!"}), 200
@@ -527,7 +528,7 @@ def login():
 def logout():
     """Logs out the user."""
     session.pop('logged_in', None)
-    return redirect(url_for('home'))
+    return jsonify({"message": "Logged out successfully!"}), 200
 
 @app.route('/upload_form')
 def upload_form():
@@ -592,65 +593,14 @@ def upload_file():
 
     return jsonify({"message": "No file or URL provided!"}), 400
 
-@app.route('/display.html')
-def display_coins():
-    """
-    Serves the display.html page.
-    """
-    return send_from_directory('.', 'display.html')
-
-@app.route('/api/coins')
-def api_coins():
-    """
-    Returns coin data as JSON for a given country.
-    """
-    country_name = request.args.get('country')
-    if not country_name:
-        return jsonify({"error": "Country parameter is missing"}), 400
-
-    try:
-        with open(JSON_FILE_PATH, 'r') as f:
-            all_coins = json.load(f)
-        
-        country_coins = [
-            coin for coin in all_coins if coin.get('country') == country_name
-        ]
-        return jsonify(country_coins)
-    except FileNotFoundError:
-        return jsonify({"error": "Coin data file not found"}), 404
-    except Exception as e:
-        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
-
 @app.route('/images/<path:filename>')
 def serve_images(filename):
-    """Serves images from the 'images' folder."""
+    """Serves images, requires authentication."""
+    if not is_authenticated():
+        return redirect(url_for('login'))
     return send_from_directory('images', filename)
 
-@app.route('/static/<path:filename>')
-def serve_static(filename):
-    """Serves static files, like countries.json, from a 'static' folder."""
-    return send_from_directory('static', filename)
-
-@app.route('/geojson/<path:filename>')
-def serve_geojson(filename):
-    """Serves GeoJSON files from the 'geojson' folder."""
-    return send_from_directory('geojson', filename)
-
-@app.route('/countries.json')
-def serve_countries_json():
-    """Serves the countries.json file from the root directory."""
-    return send_from_directory('.', 'countries.json')
-
-@app.route('/countries.continents.json')
-def serve_countries_continents_json():
-    """Serves the countries.continents.json file from the root directory."""
-    return send_from_directory('.', 'countries.continents.json')
-    
-@app.route('/<path:filename>')
-def serve_root_files(filename):
-    """Serves files from the root directory, like continents.geojson."""
-    return send_from_directory('.', filename)
-
 if __name__ == "__main__":
-    webbrowser.open('http://127.0.0.1:5000')
-    app.run(debug=True)
+    # In a real application, you would not use a hardcoded password like this.
+    # It is used here for demonstration purposes only.
+    app.run(host='127.0.0.1', port=5000, debug=True)
