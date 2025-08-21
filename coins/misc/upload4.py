@@ -11,7 +11,6 @@ from PIL import Image
 import io
 import logging
 from threading import Lock
-import shutil
 
 # Create a Flask application instance
 app = Flask(__name__)
@@ -30,9 +29,6 @@ os.makedirs(BASE_UPLOAD_FOLDER, exist_ok=True)
 if not os.path.exists(JSON_FILE_PATH):
     with open(JSON_FILE_PATH, 'w') as f:
         json.dump([], f)
-
-# Create a lock for thread-safe file operations
-file_lock = Lock()
 
 # --- USER MANAGEMENT ---
 # Hash the password "coins" for secure storage
@@ -182,10 +178,6 @@ HTML_TEMPLATE = """
             border-color: #38b2ac; /* teal on hover */
             background-color: #4a5568; /* darker background */
         }
-        
-        .tab-button.active {
-            border-bottom: 2px solid #38b2ac;
-        }
     </style>
 </head>
 
@@ -200,172 +192,105 @@ HTML_TEMPLATE = """
             </button>
         </div>
         
-        <!-- Tab Navigation -->
-        <div class="flex border-b border-gray-600 mb-6">
-            <button id="tab-upload" class="tab-button flex-1 py-2 px-4 text-center font-semibold text-gray-400 hover:text-white transition-colors duration-200 active">
-                Upload
-            </button>
-            <button id="tab-replace" class="tab-button flex-1 py-2 px-4 text-center font-semibold text-gray-400 hover:text-white transition-colors duration-200">
-                Replace
-            </button>
-        </div>
+        <form id="donation-form" class="space-y-6">
+            <div class="space-y-2">
+                <label for="donor-name" class="block text-sm font-medium text-gray-400">
+                    <i class="fas fa-user mr-2 text-teal-400"></i> Donor Name
+                </label>
+                <input type="text" id="donor-name" name="donor-name" placeholder="Enter your name" required
+                    class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500">
+            </div>
 
-        <!-- Tab Content - Upload -->
-        <div id="content-upload" class="tab-content space-y-6">
-            <form id="donation-form" class="space-y-6">
-                <div class="space-y-2">
-                    <label for="donor-name" class="block text-sm font-medium text-gray-400">
-                        <i class="fas fa-user mr-2 text-teal-400"></i> Donor Name
-                    </label>
-                    <input type="text" id="donor-name" name="donor-name" placeholder="Enter your name" required
-                        class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500">
-                </div>
+            <div class="space-y-2">
+                <label for="country" class="block text-sm font-medium text-gray-400">
+                    <i class="fas fa-globe mr-2 text-teal-400"></i> Country
+                </label>
+                <select id="country" name="country" required
+                    class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500">
+                    <option value="" disabled selected>Select a country</option>
+                </select>
+            </div>
 
-                <div class="space-y-2">
-                    <label for="country" class="block text-sm font-medium text-gray-400">
-                        <i class="fas fa-globe mr-2 text-teal-400"></i> Country
-                    </label>
-                    <select id="country" name="country" required
-                        class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500">
-                        <option value="" disabled selected>Select a country</option>
-                    </select>
-                </div>
-
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium text-gray-400">
-                        <i class="fas fa-file-upload mr-2 text-teal-400"></i> File Upload
-                    </label>
-                    <div id="drop-zone" class="drop-zone flex flex-col items-center justify-center">
-                        <i class="fas fa-image text-4xl text-gray-500 mb-2"></i>
-                        <p class="text-sm text-gray-400">Drag & drop an image here or</p>
-                        <div class="relative mt-2">
-                            <button type="button" class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-4 rounded-full transition-colors duration-200">
-                                Choose a file
-                            </button>
-                            <input type="file" id="file-input" name="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                        </div>
-                    </div>
-                    <div id="image-preview" class="hidden mt-4 text-center">
-                        <img id="preview-img" alt="Image Preview" class="max-w-full h-auto rounded-lg shadow-lg max-h-64 object-contain mx-auto">
-                        <p id="file-name" class="mt-2 text-sm text-gray-400 truncate"></p>
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-400">
+                    <i class="fas fa-file-upload mr-2 text-teal-400"></i> File Upload
+                </label>
+                <div id="drop-zone" class="drop-zone flex flex-col items-center justify-center">
+                    <i class="fas fa-image text-4xl text-gray-500 mb-2"></i>
+                    <p class="text-sm text-gray-400">Drag & drop an image here or</p>
+                    <div class="relative mt-2">
+                        <button type="button" class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-4 rounded-full transition-colors duration-200">
+                            Choose a file
+                        </button>
+                        <input type="file" id="file-input" name="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                     </div>
                 </div>
-
-                <div class="space-y-2">
-                    <label for="file-url" class="block text-sm font-medium text-gray-400">
-                        <i class="fas fa-link mr-2 text-teal-400"></i> File URL
-                    </label>
-                    <input type="url" id="file-url" name="file-url" placeholder="Enter file URL (optional)"
-                        class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500">
+                <div id="image-preview" class="hidden mt-4 text-center">
+                    <img id="preview-img" alt="Image Preview" class="max-w-full h-auto rounded-lg shadow-lg max-h-64 object-contain mx-auto">
+                    <p id="file-name" class="mt-2 text-sm text-gray-400 truncate"></p>
                 </div>
+            </div>
 
-                <div class="space-y-2">
-                    <label for="currency-type" class="block text-sm font-medium text-gray-400">
-                        <i class="fas fa-money-bill-wave mr-2 text-teal-400"></i> Type of Currency
-                    </label>
-                    <select id="currency-type" name="currency-type" required
-                        class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500">
-                        <option value="" disabled selected>Select currency type</option>
-                        <option value="paper-bill">Paper Bill</option>
-                        <option value="coin">Coin</option>
-                        <option value="antique">Antique</option>
-                    </select>
-                </div>
+            <div class="space-y-2">
+                <label for="file-url" class="block text-sm font-medium text-gray-400">
+                    <i class="fas fa-link mr-2 text-teal-400"></i> File URL
+                </label>
+                <input type="url" id="file-url" name="file-url" placeholder="Enter file URL (optional)"
+                    class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500">
+            </div>
 
-                <div class="space-y-2">
-                    <label for="note" class="block text-sm font-medium text-gray-400">
-                        <i class="fas fa-comment mr-2 text-teal-400"></i> Note
-                    </label>
-                    <textarea id="note" name="note" rows="4" placeholder="Add any additional information..." required
-                        class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500"></textarea>
-                </div>
+            <div class="space-y-2">
+                <label for="currency-type" class="block text-sm font-medium text-gray-400">
+                    <i class="fas fa-money-bill-wave mr-2 text-teal-400"></i> Type of Currency
+                </label>
+                <select id="currency-type" name="currency-type" required
+                    class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500">
+                    <option value="" disabled selected>Select currency type</option>
+                    <option value="paper-bill">Paper Bill</option>
+                    <option value="coin">Coin</option>
+                    <option value="antique">Antique</option>
+                </select>
+            </div>
 
-                <button type="submit"
-                    class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-colors duration-200">
-                    Submit Donation
-                </button>
-            </form>
-        </div>
+            <div class="space-y-2">
+                <label for="note" class="block text-sm font-medium text-gray-400">
+                    <i class="fas fa-comment mr-2 text-teal-400"></i> Note
+                </label>
+                <textarea id="note" name="note" rows="4" placeholder="Add any additional information..." required
+                    class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500"></textarea>
+            </div>
 
-        <!-- Tab Content - Replace -->
-        <div id="content-replace" class="tab-content hidden space-y-6">
-            <form id="replace-form" class="space-y-6">
-                <div class="space-y-2">
-                    <label for="old-country" class="block text-sm font-medium text-gray-400">
-                        <i class="fas fa-flag mr-2 text-teal-400"></i> Existing Country Name
-                    </label>
-                    <select id="old-country" name="old-country" required
-                        class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500">
-                        <option value="" disabled selected>Select an existing country</option>
-                    </select>
-                </div>
-
-                <div class="space-y-2">
-                    <label for="new-country" class="block text-sm font-medium text-gray-400">
-                        <i class="fas fa-flag mr-2 text-teal-400"></i> New Country Name
-                    </label>
-                    <select id="new-country" name="new-country" required
-                        class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500">
-                        <option value="" disabled selected>Select a new country</option>
-                    </select>
-                </div>
-
-                <button type="submit"
-                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-colors duration-200">
-                    Replace
-                </button>
-            </form>
-        </div>
-
+            <button type="submit"
+                class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-colors duration-200">
+                Submit Donation
+            </button>
+        </form>
         <div id="message-container" class="mt-8"></div>
     </div>
 
     <script>
-        // Load country options dynamically for both forms
+        // Load country options dynamically
         function loadCountries() {
             fetch('/static/countries.json')
                 .then(response => response.json())
                 .then(data => {
-                    const countrySelects = document.querySelectorAll('#country, #new-country');
-                    countrySelects.forEach(select => {
-                        const currentSelection = select.value;
-                        select.innerHTML = '<option value="" disabled selected>Select a country</option>';
-                        data.forEach(country => {
-                            const option = document.createElement('option');
-                            option.value = country.name;
-                            option.textContent = country.name;
-                            if (country.name === currentSelection) {
-                                option.selected = true;
-                            }
-                            select.appendChild(option);
-                        });
+                    const countrySelect = document.getElementById('country');
+                    const currentSelection = countrySelect.value;
+                    countrySelect.innerHTML = '<option value="" disabled selected>Select a country</option>';
+                    data.forEach(country => {
+                        const option = document.createElement('option');
+                        option.value = country.name;
+                        option.textContent = country.name;
+                        if (country.name === currentSelection) {
+                            option.selected = true;
+                        }
+                        countrySelect.appendChild(option);
                     });
                 })
                 .catch(error => console.error('Error loading countries:', error));
         }
 
-        // Load existing countries for the replace form
-        function loadExistingCountries() {
-            fetch('/api/countries_with_data')
-                .then(response => response.json())
-                .then(data => {
-                    const oldCountrySelect = document.getElementById('old-country');
-                    const currentSelection = oldCountrySelect.value;
-                    oldCountrySelect.innerHTML = '<option value="" disabled selected>Select an existing country</option>';
-                    data.forEach(country => {
-                        const option = document.createElement('option');
-                        option.value = country;
-                        option.textContent = country;
-                        if (country === currentSelection) {
-                            option.selected = true;
-                        }
-                        oldCountrySelect.appendChild(option);
-                    });
-                })
-                .catch(error => console.error('Error loading existing countries:', error));
-        }
-        
-        // Clear information when a new country is selected in upload form
+        // Clear information when a new country is selected
         document.getElementById('country').addEventListener('change', () => {
             const selectedCountry = document.getElementById('country').value;
             document.getElementById('donation-form').reset();
@@ -424,40 +349,6 @@ HTML_TEMPLATE = """
             const files = e.dataTransfer.files;
             handleFiles(files);
         });
-
-        // ===========================================
-        // Tab Functionality
-        // ===========================================
-        const tabUpload = document.getElementById('tab-upload');
-        const tabReplace = document.getElementById('tab-replace');
-        const contentUpload = document.getElementById('content-upload');
-        const contentReplace = document.getElementById('content-replace');
-
-        tabUpload.addEventListener('click', () => {
-            switchTab('upload');
-        });
-        tabReplace.addEventListener('click', () => {
-            switchTab('replace');
-        });
-
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
-            
-            if (tab === 'upload') {
-                tabUpload.classList.add('active');
-                contentUpload.classList.remove('hidden');
-                document.getElementById('message-container').innerHTML = '';
-                loadCountries(); // Reload countries for upload form
-            } else {
-                tabReplace.classList.add('active');
-                contentReplace.classList.remove('hidden');
-                document.getElementById('message-container').innerHTML = '';
-                loadCountries(); // Reload for new country dropdown
-                loadExistingCountries(); // Load countries with data for old country dropdown
-            }
-        }
-
 
         // ===========================================
         // Form Submission Logic
@@ -529,46 +420,6 @@ HTML_TEMPLATE = """
                 });
         });
 
-        document.getElementById('replace-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            const oldCountry = document.getElementById('old-country').value;
-            const newCountry = document.getElementById('new-country').value;
-
-            if (!oldCountry || !newCountry) {
-                showMessage('Please select both existing and new country names.', 'error');
-                return;
-            }
-
-            if (oldCountry === newCountry) {
-                showMessage('The new country must be different from the existing country.', 'error');
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('old_country', oldCountry);
-            formData.append('new_country', newCountry);
-
-            fetch('/replace', {
-                method: 'POST',
-                body: formData,
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.error) {
-                    showMessage(result.message, 'error');
-                } else {
-                    showMessage(result.message, 'success');
-                    // Reload the existing countries dropdown after a successful replacement
-                    loadExistingCountries();
-                }
-            })
-            .catch(error => {
-                showMessage(`Error: ${error.message}`, 'error');
-            });
-        });
-
-
         // Helper function to show messages
         function showMessage(content, type) {
             const messageContainer = document.getElementById('message-container');
@@ -588,9 +439,7 @@ HTML_TEMPLATE = """
         });
 
         // Initialize the countries when the page loads
-        window.addEventListener('DOMContentLoaded', () => {
-            switchTab('upload');
-        });
+        window.addEventListener('DOMContentLoaded', loadCountries);
     </script>
 </body>
 
@@ -637,21 +486,20 @@ def update_json_file(country, image, note, donor_name, currency_type):
     """
     Update the coins.json file with the new entry.
     """
-    with file_lock:
-        with open(JSON_FILE_PATH, 'r') as f:
-            data = json.load(f)
+    with open(JSON_FILE_PATH, 'r') as f:
+        data = json.load(f)
 
-        # Add the new entry
-        data.append({
-            "country": country,
-            "image": image,
-            "note": note,
-            "donor_name": donor_name,
-            "currency_type": currency_type
-        })
+    # Add the new entry
+    data.append({
+        "country": country,
+        "image": image,
+        "note": note,
+        "donor_name": donor_name,
+        "currency_type": currency_type
+    })
 
-        with open(JSON_FILE_PATH, 'w') as f:
-            json.dump(data, f, indent=4)
+    with open(JSON_FILE_PATH, 'w') as f:
+        json.dump(data, f, indent=4)
 
 @app.route('/')
 def home():
@@ -743,78 +591,6 @@ def upload_file():
             return jsonify({"message": "Error fetching the file from URL!", "error": str(e)}), 400
 
     return jsonify({"message": "No file or URL provided!"}), 400
-
-@app.route('/replace', methods=['POST'])
-def replace_country():
-    """
-    Handles the replacement of a country name.
-    It renames the directory and updates the coins.json file.
-    """
-    if not is_authenticated():
-        return jsonify({"message": "Unauthorized. Please log in."}), 401
-
-    old_country = request.form.get('old_country')
-    new_country = request.form.get('new_country')
-
-    if not old_country or not new_country:
-        return jsonify({"message": "Both existing and new country names are required."}), 400
-
-    old_folder_path = os.path.join(BASE_UPLOAD_FOLDER, old_country)
-    new_folder_path = os.path.join(BASE_UPLOAD_FOLDER, new_country)
-
-    if not os.path.isdir(old_folder_path):
-        return jsonify({"message": f"Country folder '{old_country}' not found."}), 404
-
-    # Check if the new folder already exists
-    if os.path.isdir(new_folder_path):
-        return jsonify({"message": f"A folder for '{new_country}' already exists. Please choose a different name."}), 409
-
-    try:
-        # Step 1: Rename the folder
-        shutil.move(old_folder_path, new_folder_path)
-
-        # Step 2: Update the JSON file
-        with file_lock:
-            with open(JSON_FILE_PATH, 'r') as f:
-                data = json.load(f)
-            
-            # Update all entries with the old country name
-            for entry in data:
-                if entry.get('country') == old_country:
-                    entry['country'] = new_country
-                    # The image path also needs to be updated to the new directory
-                    image_name = entry.get('image')
-                    if image_name:
-                         #entry['image'] = os.path.join(new_country, os.path.basename(image_name))
-                         entry['image'] = os.path.basename(image_name)
-                    
-            with open(JSON_FILE_PATH, 'w') as f:
-                json.dump(data, f, indent=4)
-        
-        return jsonify({"message": f"Successfully replaced '{old_country}' with '{new_country}'."})
-
-    except Exception as e:
-        return jsonify({"message": f"An error occurred: {str(e)}", "error": True}), 500
-
-@app.route('/api/countries_with_data')
-def api_countries_with_data():
-    """
-    Returns a list of unique country names that have at least one coin entry.
-    """
-    if not is_authenticated():
-        return jsonify({"message": "Unauthorized. Please log in."}), 401
-
-    try:
-        with open(JSON_FILE_PATH, 'r') as f:
-            all_coins = json.load(f)
-        
-        # Get unique country names from the JSON data
-        countries = sorted(list(set(coin.get('country') for coin in all_coins if 'country' in coin)))
-        return jsonify(countries)
-    except FileNotFoundError:
-        return jsonify({"error": "Coin data file not found"}), 404
-    except Exception as e:
-        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
 
 @app.route('/display.html')
 def display_coins():
