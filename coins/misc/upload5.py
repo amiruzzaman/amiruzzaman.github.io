@@ -232,22 +232,6 @@ HTML_TEMPLATE = """
                 </div>
 
                 <div class="space-y-2">
-                    <label for="year" class="block text-sm font-medium text-gray-400">
-                        <i class="fas fa-calendar mr-2 text-teal-400"></i> Year
-                    </label>
-                    <input type="text" id="year" name="year" placeholder="Enter year (e.g., 2023)"
-                        class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500">
-                </div>
-
-                <div class="space-y-2">
-                    <label for="size" class="block text-sm font-medium text-gray-400">
-                        <i class="fas fa-ruler mr-2 text-teal-400"></i> Size (mm)
-                    </label>
-                    <input type="text" id="size" name="size" placeholder="Enter size in millimeters (e.g., 25)"
-                        class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500">
-                </div>
-
-                <div class="space-y-2">
                     <label class="block text-sm font-medium text-gray-400">
                         <i class="fas fa-file-upload mr-2 text-teal-400"></i> File Upload
                     </label>
@@ -327,7 +311,7 @@ HTML_TEMPLATE = """
                 </div>
 
                 <button type="submit"
-                    class="w-full bg-blue-600 hover:blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-colors duration-200">
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-colors duration-200">
                     Replace
                 </button>
             </form>
@@ -484,8 +468,6 @@ HTML_TEMPLATE = """
             const donorName = document.getElementById('donor-name').value;
             const fileUrlInput = document.getElementById('file-url');
             const country = document.getElementById('country').value;
-            const year = document.getElementById('year').value;
-            const size = document.getElementById('size').value;
             const currencyType = document.getElementById('currency-type').value;
             const note = document.getElementById('note').value;
 
@@ -506,8 +488,6 @@ HTML_TEMPLATE = """
             // Add other form fields
             formData.append('donor-name', donorName);
             formData.append('country', country);
-            formData.append('year', year);
-            formData.append('size', size);
             formData.append('currency-type', currencyType);
             formData.append('note', note);
 
@@ -528,8 +508,6 @@ HTML_TEMPLATE = """
                             ${result.message}<br><br>
                             <strong>Donor Name:</strong> ${result['donor_name'] || 'N/A'}<br>
                             <strong>Country:</strong> ${result.country || 'N/A'}<br>
-                            <strong>Year:</strong> ${result.year || 'N/A'}<br>
-                            <strong>Size:</strong> ${result.size || 'N/A'}<br>
                             <strong>Currency Type:</strong> ${result['currency_type'] || 'N/A'}<br>
                             <strong>Note:</strong> ${result.note || 'N/A'}<br>
                         `, 'error');
@@ -538,8 +516,6 @@ HTML_TEMPLATE = """
                             <p>${result.message}</p>
                             <p><strong>Donor Name:</strong> ${result.donor_name}</p>
                             <p><strong>Country:</strong> ${result.country}</p>
-                            <p><strong>Year:</strong> ${result.year}</p>
-                            <p><strong>Size:</strong> ${result.size}</p>
                             <p><strong>Currency Type:</strong> ${result.currency_type}</p>
                             <p><strong>Note:</strong> ${result.note}</p>
                             <div class="mt-4 text-center">
@@ -657,7 +633,7 @@ def download_file_from_url(url, country):
         f.write(response.content)
     return file_path, f"{file_uuid}.{file_ext}"
 
-def update_json_file(country, image, note, donor_name, currency_type, year, size):
+def update_json_file(country, image, note, donor_name, currency_type):
     """
     Update the coins.json file with the new entry.
     """
@@ -671,9 +647,7 @@ def update_json_file(country, image, note, donor_name, currency_type, year, size
             "image": image,
             "note": note,
             "donor_name": donor_name,
-            "currency_type": currency_type,
-            "year": year,
-            "size": size
+            "currency_type": currency_type
         })
 
         with open(JSON_FILE_PATH, 'w') as f:
@@ -724,8 +698,6 @@ def upload_file():
     note = request.form.get('note')
     donor_name = request.form.get('donor-name')
     currency_type = request.form.get('currency-type')
-    year = request.form.get('year', '0000')  # Default to '0000' if not provided
-    size = request.form.get('size', '00')    # Default to '00' if not provided
 
     # Validate required fields
     if not country:
@@ -742,15 +714,13 @@ def upload_file():
     if file:
         try:
             file_path, file_name = save_file(file, country)
-            update_json_file(country, file_name, note, donor_name, currency_type, year, size)  # Update the JSON file
+            update_json_file(country, file_name, note, donor_name, currency_type)  # Update the JSON file
             return jsonify({
                 "message": "File uploaded successfully!",
                 "country": country,
                 "note": note,
                 "donor_name": donor_name,
                 "currency_type": currency_type,
-                "year": year,
-                "size": size,
                 "file_path": file_path
             })
         except Exception as e:
@@ -760,15 +730,13 @@ def upload_file():
     if file_url:
         try:
             file_path, file_name = download_file_from_url(file_url, country)
-            update_json_file(country, file_name, note, donor_name, currency_type, year, size)  # Update the JSON file
+            update_json_file(country, file_name, note, donor_name, currency_type)  # Update the JSON file
             return jsonify({
                 "message": "File fetched and saved successfully!",
                 "country": country,
                 "note": note,
                 "donor_name": donor_name,
                 "currency_type": currency_type,
-                "year": year,
-                "size": size,
                 "file_path": file_path
             })
         except requests.RequestException as e:
