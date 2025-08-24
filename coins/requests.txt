@@ -121,7 +121,11 @@ use the attached code. In the coin details section there is a note section. If t
 display.html
 use the attached code. In the "coin details" section, there is a note section. If the note section has any URL in it, then allow user to click on it and show the information from the URL in a modal. So, the modal will open and show the URL page on it, and user should be able to close it. Also, make sure to fit the Note text in the "coin details" Please keep all existing features the same (unaltered). Please give me the complete code.
 ***************************************************
+display.html
+Please check the attached file. Please do not change any existing features. The "coin details" section shows information from the images/coins.json file. In the JSON file, I now have two additional fields: "year" and "size". Please display the values of these fields next to the "note" field. Please make sure that everything looks pleasing when it is displayed. Please give me the complete code.
 ***************************************************
+mass_edit_year_coins_json.py
+please give me python code that reads the ./images/coins.json file, and checks each json object for the note field. If the note section has a four-digit number in (), for example, (1945), then using that information update the year field for that particular object year field as year = 1945, if not found, then leave it as is, and check the next json object.
 ***************************************************
 ***************************************************
 ***************************************************
