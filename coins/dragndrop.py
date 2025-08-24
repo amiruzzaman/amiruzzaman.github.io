@@ -1,7 +1,10 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template_string, request, jsonify
 import os
 import uuid
 import json
+import webbrowser
+import threading
+import time
 
 app = Flask(__name__)
 
@@ -20,15 +23,805 @@ def get_safe_country_name(country):
     """Convert country name to a safe folder name"""
     return "".join(c for c in country if c.isalnum() or c in (' ', '-', '_')).rstrip()
 
+# HTML template with embedded CSS and JavaScript
+HTML_TEMPLATE = """
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Collection - Add New</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Cropper.js CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --primary-hover: #3a56d4;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --text-color: #2b2d42;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e9ecef;
+            --dark-gray: #6c757d;
+            --error-color: #ef233c;
+            --success-text: #155724;
+            --success-bg: #d4edda;
+            --error-text: #721c24;
+            --error-bg: #f8d7da;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 2rem;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            font-size: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        select,
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: var(--light-gray);
+        }
+
+        select:focus,
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            position: relative;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: var(--border-radius);
+            border: 2px solid transparent;
+            transition: var(--transition);
+            flex: 1;
+        }
+
+        .radio-option.selected {
+            border-color: var(--error-color);
+            background-color: rgba(239, 35, 60, 0.05);
+        }
+
+        .radio-option input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            z-index: 1;
+        }
+
+        .radio-icon {
+            position: relative;
+            height: 20px;
+            width: 20px;
+            background-color: var(--light-gray);
+            border-radius: 50%;
+            border: 2px solid var(--dark-gray);
+            transition: var(--transition);
+            margin-right: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .radio-option.coin .radio-icon::before {
+            content: "\\f51e";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            font-size: 12px;
+            color: var(--dark-gray);
+        }
+
+        .radio-option.paper-bill .radio-icon::before {
+            content: "\\f53a";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            font-size: 12px;
+            color: var(--dark-gray);
+        }
+
+        .radio-option.antique .radio-icon::before {
+            content: "\\f5d1";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            font-size: 12px;
+            color: var(--dark-gray);
+        }
+
+        .radio-option:hover {
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .radio-option input:checked~.radio-icon {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .radio-option input:checked~.radio-icon::before {
+            color: white;
+        }
+
+        .radio-option label {
+            margin-bottom: 0;
+            cursor: pointer;
+            font-weight: 400;
+        }
+
+        .drop-area {
+            border: 2px dashed var(--dark-gray);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            text-align: center;
+            margin: 1.5rem 0;
+            transition: var(--transition);
+            cursor: pointer;
+            background-color: var(--light-gray);
+            position: relative;
+        }
+
+        .drop-area.highlight {
+            border-color: var(--primary-color);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .drop-area p {
+            margin: 0;
+            font-size: 1rem;
+            color: var(--dark-gray);
+        }
+
+        .drop-area .icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        #preview {
+            max-width: 100%;
+            max-height: 400px;
+            display: block;
+        }
+
+        .preview-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+            position: relative;
+        }
+
+        #image-container {
+            width: 100%;
+            display: none;
+        }
+
+        .crop-controls {
+            display: none;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .crop-controls button {
+            margin: 0 0.5rem;
+            padding: 0.5rem 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            width: auto;
+            padding-left: 1rem;
+        }
+
+        .crop-controls button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .aspect-ratio-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .aspect-ratio-buttons button {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.9rem;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            width: 100%;
+            transition: var(--transition);
+            position: relative;
+            padding-left: 2.5rem;
+        }
+
+        button i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        button:disabled {
+            background-color: var(--dark-gray);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #message {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            display: none;
+        }
+
+        .success {
+            background-color: var(--success-bg);
+            color: var(--success-text);
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            border: 1px solid #f5c6cb;
+        }
+
+        .file-info {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--dark-gray);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .radio-group {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            button {
+                padding-left: 1.5rem;
+            }
+
+            button i {
+                display: none;
+            }
+
+            .aspect-ratio-buttons {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Add New Currency</h1>
+        <form id="currencyForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="country">Country</label>
+                <select id="country" name="country" required>
+                    <option value="">Select a country</option>
+                    <!-- Countries will be populated by JavaScript -->
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Currency Type</label>
+                <div class="radio-group">
+                    <div class="radio-option coin">
+                        <input type="radio" id="coin" name="currency_type" value="coin" required>
+                        <span class="radio-icon"></span>
+                        <label for="coin">Coin</label>
+                    </div>
+                    <div class="radio-option paper-bill">
+                        <input type="radio" id="paper-bill" name="currency_type" value="paper-bill">
+                        <span class="radio-icon"></span>
+                        <label for="paper-bill">Paper Bill</label>
+                    </div>
+                    <div class="radio-option antique">
+                        <input type="radio" id="antique" name="currency_type" value="antique">
+                        <span class="radio-icon"></span>
+                        <label for="antique">Antique</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="donor_name">Donor Name</label>
+                <input type="text" id="donor_name" name="donor_name" required placeholder="Enter donor's name">
+            </div>
+
+            <div class="form-group">
+                <label for="year">Year</label>
+                <input type="text" id="year" name="year" placeholder="Enter year (e.g., 1999)">
+            </div>
+
+            <div class="form-group">
+                <label for="size">Size (mm)</label>
+                <input type="text" id="size" name="size" placeholder="Enter size in millimeters">
+            </div>
+
+            <div class="form-group">
+                <label for="note">Notes</label>
+                <textarea id="note" name="note"
+                    placeholder="Enter any additional information about the currency"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Currency Image</label>
+                <div id="dropArea" class="drop-area">
+                    <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                    <p>Drag & drop your image here or click to browse</p>
+                    <input type="file" id="fileInput" name="image" accept="image/*" style="display: none;">
+                    <div class="preview-container">
+                        <div id="image-container">
+                            <img id="preview" alt="Image preview">
+                        </div>
+                    </div>
+                    <div id="fileInfo" class="file-info"></div>
+                    <div id="cropControls" class="crop-controls">
+                        <div class="aspect-ratio-buttons">
+                            <button type="button" data-ratio="1.777"><i class="fas fa-desktop"></i> 16:9</button>
+                            <button type="button" data-ratio="1.333"><i class="fas fa-tablet-alt"></i> 4:3</button>
+                            <button type="button" data-ratio="1"><i class="fas fa-square"></i> 1:1</button>
+                            <button type="button" data-ratio="0"><i class="fas fa-vector-square"></i> Free</button>
+                        </div>
+                        <button type="button" id="cropButton"><i class="fas fa-crop"></i> Crop Image</button>
+                        <button type="button" id="cancelCropButton"><i class="fas fa-times"></i> Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" id="submitButton">
+                <i class="fas fa-plus-circle"></i>
+                Add Currency
+            </button>
+        </form>
+
+        <div id="message"></div>
+    </div>
+
+    <!-- Cropper.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Variables for cropper
+            let cropper = null;
+            let originalImageDataUrl = null;
+            
+            // Fetch countries and populate dropdown
+            fetch('/get-countries')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(countries => {
+                    const select = document.getElementById('country');
+                    countries.forEach(country => {
+                        const option = document.createElement('option');
+                        option.value = country;
+                        option.textContent = country;
+                        select.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading countries:', error);
+                    const messageDiv = document.getElementById('message');
+                    messageDiv.textContent = 'Error loading countries. Please refresh the page.';
+                    messageDiv.className = 'error';
+                    messageDiv.style.display = 'block';
+                });
+
+            // Improved radio button selection
+            const radioOptions = document.querySelectorAll('.radio-option');
+            radioOptions.forEach(option => {
+                option.addEventListener('click', function () {
+                    radioOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    const radioInput = this.querySelector('input[type="radio"]');
+                    if (radioInput) {
+                        radioInput.checked = true;
+                    }
+                });
+            });
+
+            // Drag and drop elements
+            const dropArea = document.getElementById('dropArea');
+            const fileInput = document.getElementById('fileInput');
+            const preview = document.getElementById('preview');
+            const imageContainer = document.getElementById('image-container');
+            const messageDiv = document.getElementById('message');
+            const cropControls = document.getElementById('cropControls');
+            const cropButton = document.getElementById('cropButton');
+            const cancelCropButton = document.getElementById('cancelCropButton');
+            const fileInfo = document.getElementById('fileInfo');
+            const aspectRatioButtons = document.querySelectorAll('.aspect-ratio-buttons button');
+
+            // Prevent default drag behaviors
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            // Highlight drop area when item is dragged over it
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight() {
+                dropArea.classList.add('highlight');
+            }
+
+            function unhighlight() {
+                dropArea.classList.remove('highlight');
+            }
+
+            // Handle dropped files
+            dropArea.addEventListener('drop', handleDrop, false);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files.length) {
+                    fileInput.files = files;
+                    handleFiles(files);
+                }
+            }
+
+            // Handle click to select files
+            dropArea.addEventListener('click', () => fileInput.click());
+
+            fileInput.addEventListener('change', function () {
+                if (this.files.length) {
+                    handleFiles(this.files);
+                }
+            });
+
+            function handleFiles(files) {
+                const file = files[0];
+                if (file && file.type.startsWith('image/')) {
+                    // Display file info
+                    fileInfo.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+                    
+                    // Destroy any existing cropper
+                    if (cropper) {
+                        cropper.destroy();
+                        cropper = null;
+                    }
+                    
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        preview.src = e.target.result;
+                        originalImageDataUrl = e.target.result;
+                        imageContainer.style.display = 'block';
+                        
+                        // Initialize cropper with free aspect ratio
+                        initCropper(0);
+                        
+                        // Show crop controls
+                        cropControls.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    showMessage('Please select a valid image file (JPEG, PNG, GIF)', 'error');
+                }
+            }
+
+            function initCropper(aspectRatio) {
+                cropper = new Cropper(preview, {
+                    aspectRatio: aspectRatio, // 0 means free ratio
+                    viewMode: 1, // Restrict the crop box to not exceed the size of the canvas
+                    autoCropArea: 0.8, // Define the initial crop area size (80% of the image)
+                    responsive: true,
+                    guides: true,
+                    center: true,
+                    highlight: true,
+                    cropBoxMovable: true,
+                    cropBoxResizable: true,
+                    minCropBoxWidth: 50,
+                    minCropBoxHeight: 50
+                });
+            }
+
+            // Aspect ratio button handlers
+            aspectRatioButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    if (cropper) {
+                        const ratio = parseFloat(this.dataset.ratio);
+                        cropper.setAspectRatio(ratio);
+                        
+                        // Highlight the selected button
+                        aspectRatioButtons.forEach(btn => btn.style.backgroundColor = '');
+                        this.style.backgroundColor = 'rgba(67, 97, 238, 0.2)';
+                    }
+                });
+            });
+
+            // Crop button handler
+            cropButton.addEventListener('click', function() {
+                if (cropper) {
+                    // Get the cropped canvas
+                    const canvas = cropper.getCroppedCanvas({
+                        width: 800, // Set the desired width
+                        height: 800, // Set the desired height
+                        minWidth: 256,
+                        minHeight: 256,
+                        maxWidth: 4096,
+                        maxHeight: 4096,
+                        fillColor: '#fff',
+                        imageSmoothingEnabled: true,
+                        imageSmoothingQuality: 'high',
+                    });
+                    
+                    // Replace the preview image with the cropped version
+                    preview.src = canvas.toDataURL('image/jpeg');
+                    
+                    // Destroy the cropper
+                    cropper.destroy();
+                    cropper = null;
+                    
+                    // Hide crop controls
+                    cropControls.style.display = 'none';
+                    
+                    // Reset aspect ratio buttons
+                    aspectRatioButtons.forEach(btn => btn.style.backgroundColor = '');
+                }
+            });
+
+            // Cancel crop button handler
+            cancelCropButton.addEventListener('click', function() {
+                if (cropper) {
+                    // Restore original image
+                    preview.src = originalImageDataUrl;
+                    
+                    // Destroy the cropper
+                    cropper.destroy();
+                    cropper = null;
+                    
+                    // Hide crop controls
+                    cropControls.style.display = 'none';
+                    
+                    // Reset aspect ratio buttons
+                    aspectRatioButtons.forEach(btn => btn.style.backgroundColor = '');
+                }
+            });
+
+            // Form submission
+            document.getElementById('currencyForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                // Clear previous messages
+                messageDiv.style.display = 'none';
+                messageDiv.className = '';
+                messageDiv.textContent = '';
+
+                const fileInput = document.getElementById('fileInput');
+                if (!fileInput.files || fileInput.files.length === 0) {
+                    showMessage('Please select an image', 'error');
+                    return;
+                }
+
+                // Show loading state
+                const submitButton = this.querySelector('button[type="submit"]');
+                const originalButtonText = submitButton.textContent;
+                submitButton.textContent = 'Uploading...';
+                submitButton.disabled = true;
+
+                // Create a new FormData object
+                const formData = new FormData(this);
+                
+                // Set default values for year and size if empty
+                if (!formData.get('year')) formData.set('year', '0000');
+                if (!formData.get('size')) formData.set('size', '00');
+                
+                // If we have a cropped image, replace the file in the FormData
+                if (preview.src !== originalImageDataUrl && preview.src !== '') {
+                    // Convert the cropped image to a Blob
+                    fetch(preview.src)
+                        .then(res => res.blob())
+                        .then(blob => {
+                            // Create a new file with the cropped image
+                            const croppedFile = new File([blob], fileInput.files[0].name, {
+                                type: 'image/jpeg',
+                                lastModified: Date.now()
+                            });
+                            
+                            // Replace the file in the FormData
+                            formData.set('image', croppedFile);
+                            
+                            // Proceed with the upload
+                            uploadFormData(formData, submitButton, originalButtonText);
+                        })
+                        .catch(error => {
+                            console.error('Error processing cropped image:', error);
+                            showMessage('Error processing image', 'error');
+                            submitButton.textContent = originalButtonText;
+                            submitButton.disabled = false;
+                        });
+                } else {
+                    // No cropping was done, proceed with original file
+                    uploadFormData(formData, submitButton, originalButtonText);
+                }
+            });
+
+            function uploadFormData(formData, submitButton, originalButtonText) {
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            showMessage(`Successfully added new currency! Image saved as: ${data.image_path}`, 'success');
+                            document.getElementById('currencyForm').reset();
+                            imageContainer.style.display = 'none';
+                            fileInfo.textContent = '';
+                            cropControls.style.display = 'none';
+                            radioOptions.forEach(opt => opt.classList.remove('selected'));
+                        } else {
+                            showMessage(`Error: ${data.error || 'Unknown error'}`, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showMessage(`Error: ${error.message || 'Failed to submit form'}`, 'error');
+                    })
+                    .finally(() => {
+                        submitButton.textContent = originalButtonText;
+                        submitButton.disabled = false;
+                    });
+            }
+
+            function showMessage(text, type) {
+                messageDiv.textContent = text;
+                messageDiv.className = type;
+                messageDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+
+</html>
+"""
+
 @app.route('/')
 def index():
-    return render_template('dragndrop.html')
+    return render_template_string(HTML_TEMPLATE)
 
 @app.route('/get-countries')
 def get_countries():
     try:
-        with open('static/countries.json', 'r') as f:
-            countries = json.load(f)
+        # Create a default list of countries if the file doesn't exist
+        countries = [
+            "United States", "United Kingdom", "Canada", "Australia", "Germany",
+            "France", "Japan", "China", "India", "Brazil", "Mexico", "Russia",
+            "Italy", "Spain", "South Korea", "South Africa", "Egypt", "Nigeria",
+            "Argentina", "Chile", "Sweden", "Norway", "Switzerland", "Netherlands",
+            "Belgium", "Portugal", "Greece", "Turkey", "Israel", "Saudi Arabia",
+            "United Arab Emirates", "Singapore", "Malaysia", "Thailand", "Vietnam",
+            "Philippines", "Indonesia", "New Zealand", "Ireland", "Denmark", "Finland"
+        ]
+        
+        # Try to load from file if it exists
+        if os.path.exists('static/countries.json'):
+            with open('static/countries.json', 'r') as f:
+                countries_data = json.load(f)
+                # Extract country names if the data is a list of objects
+                if isinstance(countries_data, list) and len(countries_data) > 0:
+                    if isinstance(countries_data[0], dict) and 'name' in countries_data[0]:
+                        # Data is in format [{"name": "Country1"}, {"name": "Country2"}]
+                        countries = [country['name'] for country in countries_data]
+                    else:
+                        # Data is already a list of country names
+                        countries = countries_data
+        
         return jsonify(countries)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -41,6 +834,8 @@ def upload_file():
         currency_type = request.form.get('currency_type')
         donor_name = request.form.get('donor_name')
         note = request.form.get('note')
+        year = request.form.get('year', '0000')  # Default to '0000' if not provided
+        size = request.form.get('size', '00')    # Default to '00' if not provided
         
         if not all([country, currency_type, donor_name]):
             return jsonify({"error": "Missing required fields"}), 400
@@ -72,7 +867,8 @@ def upload_file():
                 "country": country,
                 "currency_type": currency_type,
                 "donor_name": donor_name,
-                #"image": f"{safe_country}/{filename}",  # Store relative path
+                "year": year,
+                "size": size,
                 "image": f"{filename}",  # Store relative path
                 "note": note
             }
@@ -104,5 +900,11 @@ def upload_file():
         else:
             return jsonify({"error": "File type not allowed"}), 400
 
+def open_browser():
+    time.sleep(1.5)  # Wait a bit for the server to start
+    webbrowser.open('http://127.0.0.1:5000')
+
 if __name__ == '__main__':
+    # Start the browser opening in a separate thread
+    threading.Thread(target=open_browser).start()
     app.run(debug=True)

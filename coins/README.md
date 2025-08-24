@@ -21,6 +21,13 @@
   - Upload images to country-specific folders
   - Access at `http://localhost:5000`
 
+  - **Rename {country} folder**: `upload.py`
+  - Go to `http://localhost:5000/login`
+  - Click on the replace tab
+  - Rename folder and move exiting imagess to country-specific folder
+  - Update the `coins.json` file accordingly
+  
+
 ### Editing Features
 - **Edit/Delete Entries**: `server.py`
   - Access at `http://localhost:5000/edit_json`
@@ -52,6 +59,9 @@
 - `dragndrop.py` - Drag and drop functionality
 - `editnplace.py` - Image cropping tool
 - `upload.py` - Dedicated upload handler
+- `mass_update_coins_json.py` - Update `coins.json` files key(s) and set values of an existing key
+- `add_new_tag_to_coins_json.py` - Add new key to `coins.json` file using an interface
+- `mass_edit_year_coins_json.py` - Copy year which is in the `note` as (1945), and extract the year text as 1945, then save it to `year` key
 
 ## Notes
 - Check `main.py` for additional implementation details
