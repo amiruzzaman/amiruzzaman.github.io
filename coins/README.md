@@ -66,3 +66,6 @@
 ## Notes
 - Check `main.py` for additional implementation details
 - All image uploads are organized into country-specific subfolders within `images/`
+
+## Online
+- Merge images `https://pinetools.com/merge-images`
