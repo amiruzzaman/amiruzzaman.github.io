@@ -303,16 +303,17 @@
 
 <body>
 
+  <!-- Top Banner -->
   <div class="top-banner">
     <div class="collage-container" id="collageContainer">
+      <!-- Images will be dynamically added here -->
     </div>
   </div>
 
   <h1><i class="fas fa-coins"></i> Coin Collection</h1>
 
   <div>
-    <input type="text" id="search-input" class="search-bar"
-      placeholder="Search by country, currency, donor, year, note, or size">
+    <input type="text" id="search-input" class="search-bar" placeholder="Search by country, currency, or donor">
     <div class="table-container">
       <table class="table" id="data-table">
         <thead>
@@ -336,7 +337,6 @@
 
   <script>
     let originalData = [];
-    let combinedData = [];
     let isAscending = true;
     let lastSortedColumn = null;
 
@@ -344,43 +344,30 @@
     fetch('images/coins.json')
       .then(response => response.json())
       .then(data => {
-        originalData = data;
-        combinedData = combineData(originalData);
-        renderTable(combinedData);
-        renderSummary(originalData); // Render summary from original data to get all counts
+        originalData = combineData(data);
+        renderTable(originalData);
+        renderSummary(originalData);
       })
       .catch(error => console.error('Error fetching JSON:', error));
 
     // Combine duplicate countries
     function combineData(data) {
       const result = [];
-      const countryMap = new Map();
-
       data.forEach(item => {
-        if (!countryMap.has(item.country)) {
-          // If country doesn't exist, add it to the map and result array
-          const newItem = {
-            ...item
-          };
-          newItem.currency_type = [item.currency_type];
-          newItem.donor_name = [item.donor_name];
-          countryMap.set(item.country, newItem);
-          result.push(newItem);
+        // Check if the country already exists in the result
+        let existing = result.find(entry => entry.country === item.country);
+        if (existing) {
+          // Merge unique donor names
+          const donorNames = new Set(existing.donor_name.split(', ').concat(item.donor_name.split(', ')));
+          existing.donor_name = Array.from(donorNames).join(', ');
+
+          // Merge unique currency types
+          const currencyTypes = new Set(existing.currency_type.split(', ').concat(item.currency_type.split(', ')));
+          existing.currency_type = Array.from(currencyTypes).join(', ');
         } else {
-          // If country exists, update the merged data
-          const existing = countryMap.get(item.country);
-          if (existing.currency_type.indexOf(item.currency_type) === -1) {
-            existing.currency_type.push(item.currency_type);
-          }
-          if (existing.donor_name.indexOf(item.donor_name) === -1) {
-            existing.donor_name.push(item.donor_name);
-          }
+          // Add new country entry
+          result.push({ ...item });
         }
-      });
-      // Format the combined data back into strings for rendering
-      result.forEach(item => {
-        item.currency_type = item.currency_type.join(', ');
-        item.donor_name = item.donor_name.join(', ');
       });
       return result;
     }
@@ -410,15 +397,17 @@
     // Render the summary
     function renderSummary(data) {
       const summary = document.getElementById('summary-container');
-      const numCountries = new Set(data.map(item => item.country)).size;
+      const numCountries = data.length;
       let numPaperBills = 0;
       let numCoins = 0;
       let numAntiques = 0;
 
       data.forEach(item => {
-        if (item.currency_type.toLowerCase().includes('paper bill') || item.currency_type.toLowerCase().includes('paper-bill')) numPaperBills++;
-        if (item.currency_type.toLowerCase().includes('coin')) numCoins++;
-        if (item.currency_type.toLowerCase().includes('antique')) numAntiques++;
+        item.currency_type.split(', ').forEach(type => {
+          if (type.toLowerCase() === 'paper bill' || type.toLowerCase() === 'paper-bill') numPaperBills++;
+          if (type.toLowerCase() === 'coin') numCoins++;
+          if (type.toLowerCase() === 'antique') numAntiques++;
+        });
       });
 
       summary.innerHTML = `
@@ -432,24 +421,19 @@
     // Add search functionality
     document.getElementById('search-input').addEventListener('input', event => {
       const query = event.target.value.toLowerCase();
-      const filteredData = originalData.filter(item => {
-        return (
-          item.country.toLowerCase().includes(query) ||
-          item.currency_type.toLowerCase().includes(query) ||
-          item.donor_name.toLowerCase().includes(query) ||
-          (item.note && item.note.toLowerCase().includes(query)) ||
-          (item.size && item.size.toLowerCase().includes(query)) ||
-          (item.year && item.year.toString().includes(query))
-        );
-      });
-      renderTable(combineData(filteredData));
+      const filteredData = originalData.filter(item =>
+        item.country.toLowerCase().includes(query) ||
+        item.currency_type.toLowerCase().includes(query) ||
+        item.donor_name.toLowerCase().includes(query)
+      );
+      renderTable(filteredData);
     });
 
     // Add sorting functionality
     document.querySelectorAll('#data-table th').forEach(th => {
       th.addEventListener('click', () => {
         const key = th.dataset.key;
-        const sortedData = [...combinedData].sort((a, b) => {
+        const sortedData = [...originalData].sort((a, b) => {
           if (a[key] < b[key]) return isAscending ? -1 : 1;
           if (a[key] > b[key]) return isAscending ? 1 : -1;
           return 0;
