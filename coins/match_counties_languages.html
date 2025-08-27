@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Country Data Comparison Tool</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .upload-section {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .file-upload {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+        
+        .file-upload h2 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .file-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px dashed #6a11cb;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .file-input:hover {
+            background-color: #e8eaf6;
+        }
+        
+        .file-name {
+            margin-top: 10px;
+            font-style: italic;
+            color: #7f8c8d;
+        }
+        
+        .results-section {
+            margin-top: 30px;
+        }
+        
+        .results-tabs {
+            display: flex;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            background: #f1f2f6;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: #6a11cb;
+            color: white;
+        }
+        
+        .results-content {
+            display: none;
+        }
+        
+        .results-content.active {
+            display: block;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        th {
+            background-color: #6a11cb;
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: #f5f7fa;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 30px;
+            font-style: italic;
+            color: #7f8c8d;
+        }
+        
+        .instructions {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 5px solid #2196f3;
+        }
+        
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: #0d47a1;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .upload-section {
+                flex-direction: column;
+            }
+            
+            .file-upload {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Country Data Comparison Tool</h1>
+            <p class="description">Upload two JSON files with country data to compare and find matching records based on country names and codes.</p>
+        </header>
+        
+        <div class="instructions">
+            <h3>How to use this tool:</h3>
+            <ol>
+                <li>Upload the first JSON file with country data (e.g., country information with name, code, capital, etc.)</li>
+                <li>Upload the second JSON file with additional country data (e.g., calling codes and language details)</li>
+                <li>The tool will automatically compare the data and show matches in the "Matching Countries" tab</li>
+                <li>Countries that don't match will be shown in the "Non-Matching Countries" tab</li>
+            </ol>
+        </div>
+        
+        <div class="upload-section">
+            <div class="file-upload">
+                <h2>First JSON File</h2>
+                <input type="file" id="file1" class="file-input" accept=".json">
+                <div id="file1-name" class="file-name">No file selected</div>
+            </div>
+            
+            <div class="file-upload">
+                <h2>Second JSON File</h2>
+                <input type="file" id="file2" class="file-input" accept=".json">
+                <div id="file2-name" class="file-name">No file selected</div>
+            </div>
+        </div>
+        
+        <div class="results-section">
+            <div class="results-tabs">
+                <div class="tab active" data-tab="matching">Matching Countries</div>
+                <div class="tab" data-tab="non-matching">Non-Matching Countries</div>
+            </div>
+            
+            <div id="matching-results" class="results-content active">
+                <table id="matching-table">
+                    <thead>
+                        <tr>
+                            <th>Country Name</th>
+                            <th>Code</th>
+                            <th>Language</th>
+                            <th>Alphabet Example</th>
+                            <th>Capital</th>
+                            <th>Calling Code</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="6" class="no-data">Upload files to see matching countries</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="non-matching-results" class="results-content">
+                <table id="non-matching-table">
+                    <thead>
+                        <tr>
+                            <th>Country Name</th>
+                            <th>Code</th>
+                            <th>Source</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="3" class="no-data">Upload files to see non-matching countries</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput1 = document.getElementById('file1');
+            const fileInput2 = document.getElementById('file2');
+            const fileName1 = document.getElementById('file1-name');
+            const fileName2 = document.getElementById('file2-name');
+            const tabs = document.querySelectorAll('.tab');
+            const resultsContents = document.querySelectorAll('.results-content');
+            
+            let file1Data = null;
+            let file2Data = null;
+            
+            // Tab switching functionality
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    
+                    // Update active tab
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Show corresponding content
+                    resultsContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === `${tabId}-results`) {
+                            content.classList.add('active');
+                        }
+                    });
+                });
+            });
+            
+            // Handle file upload for first file
+            fileInput1.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    fileName1.textContent = file.name;
+                    readFile(file, 1);
+                }
+            });
+            
+            // Handle file upload for second file
+            fileInput2.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    fileName2.textContent = file.name;
+                    readFile(file, 2);
+                }
+            });
+            
+            // Read uploaded JSON file
+            function readFile(file, fileNumber) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    try {
+                        const jsonData = JSON.parse(e.target.result);
+                        
+                        if (fileNumber === 1) {
+                            file1Data = jsonData;
+                        } else {
+                            file2Data = jsonData;
+                        }
+                        
+                        // If both files are loaded, process the data
+                        if (file1Data && file2Data) {
+                            processData();
+                        }
+                    } catch (error) {
+                        alert('Error parsing JSON file: ' + error.message);
+                    }
+                };
+                
+                reader.readAsText(file);
+            }
+            
+            // Process and compare the data from both files
+            function processData() {
+                const matches = [];
+                const nonMatches = [];
+                
+                // Create a map for the second file data for easier lookup
+                const file2Map = new Map();
+                file2Data.forEach(item => {
+                    const key = (item.country_name || '').toLowerCase() + '|' + (item.country_code_alpha_2 || '').toLowerCase();
+                    file2Map.set(key, item);
+                });
+                
+                // Process first file and find matches
+                file1Data.forEach(item1 => {
+                    const key = (item1.name || '').toLowerCase() + '|' + (item1.code || '').toLowerCase();
+                    const item2 = file2Map.get(key);
+                    
+                    if (item2) {
+                        // We have a match
+                        matches.push({
+                            name: item1.name,
+                            code: item1.code,
+                            capital: item1.capital,
+                            language: item1.language ? item1.language.name : 'N/A',
+                            callingCode: item2.calling_code,
+                            alphabetExample: item2.languages && item2.languages.length > 0 ? 
+                                item2.languages[0].alphabet_example : 'N/A'
+                        });
+                    } else {
+                        // No match found
+                        nonMatches.push({
+                            name: item1.name,
+                            code: item1.code,
+                            source: 'File 1'
+                        });
+                    }
+                });
+                
+                // Check for items in file2 that didn't match with file1
+                file2Data.forEach(item2 => {
+                    const key = (item2.country_name || '').toLowerCase() + '|' + (item2.country_code_alpha_2 || '').toLowerCase();
+                    let found = false;
+                    
+                    for (const item1 of file1Data) {
+                        const item1Key = (item1.name || '').toLowerCase() + '|' + (item1.code || '').toLowerCase();
+                        if (key === item1Key) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!found) {
+                        nonMatches.push({
+                            name: item2.country_name,
+                            code: item2.country_code_alpha_2,
+                            source: 'File 2'
+                        });
+                    }
+                });
+                
+                // Display the results
+                displayResults(matches, nonMatches);
+            }
+            
+            // Display the results in tables
+            function displayResults(matches, nonMatches) {
+                const matchingTable = document.getElementById('matching-table');
+                const nonMatchingTable = document.getElementById('non-matching-table');
+                
+                // Clear previous results
+                matchingTable.querySelector('tbody').innerHTML = '';
+                nonMatchingTable.querySelector('tbody').innerHTML = '';
+                
+                // Display matching countries
+                if (matches.length > 0) {
+                    matches.forEach(match => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${match.name || 'N/A'}</td>
+                            <td>${match.code || 'N/A'}</td>
+                            <td>${match.language || 'N/A'}</td>
+                            <td>${match.alphabetExample || 'N/A'}</td>
+                            <td>${match.capital || 'N/A'}</td>
+                            <td>${match.callingCode || 'N/A'}</td>
+                        `;
+                        matchingTable.querySelector('tbody').appendChild(row);
+                    });
+                } else {
+                    matchingTable.querySelector('tbody').innerHTML = `
+                        <tr>
+                            <td colspan="6" class="no-data">No matching countries found</td>
+                        </tr>
+                    `;
+                }
+                
+                // Display non-matching countries
+                if (nonMatches.length > 0) {
+                    nonMatches.forEach(nonMatch => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${nonMatch.name || 'N/A'}</td>
+                            <td>${nonMatch.code || 'N/A'}</td>
+                            <td>${nonMatch.source}</td>
+                        `;
+                        nonMatchingTable.querySelector('tbody').appendChild(row);
+                    });
+                } else {
+                    nonMatchingTable.querySelector('tbody').innerHTML = `
+                        <tr>
+                            <td colspan="3" class="no-data">All countries matched successfully</td>
+                        </tr>
+                    `;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
