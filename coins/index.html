@@ -509,7 +509,14 @@
 
             // Create an image element
             const imgElement = document.createElement('img');
-            imgElement.src = `images/${country}/${image}`;
+            //imgElement.src = `images/${country}/${image}`;
+            const formattedCountry = country
+              .toLowerCase()
+              .split(" ")
+              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(" ");
+
+            imgElement.src = `images/${formattedCountry}/${image}`;
             imgElement.alt = `${country} image`;
             imgElement.loading = "lazy";
 

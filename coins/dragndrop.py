@@ -13,7 +13,7 @@ app.config['UPLOAD_FOLDER'] = 'images'
 app.config['ALLOWED_EXTENSIONS'] = {'jpg', 'jpeg', 'png', 'gif'}
 
 # Ensure the upload folder exists
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+os.makedirs(app.config['UPLOAD_FOLDER'].title(), exist_ok=True)
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -856,10 +856,10 @@ def upload_file():
             # Create country folder if it doesn't exist
             safe_country = get_safe_country_name(country)
             country_folder = os.path.join(app.config['UPLOAD_FOLDER'], safe_country)
-            os.makedirs(country_folder, exist_ok=True)
+            os.makedirs(country_folder.title(), exist_ok=True)
             
             # Save file
-            filepath = os.path.join(country_folder, filename)
+            filepath = os.path.join(country_folder.title(), filename)
             file.save(filepath)
             
             # Create new entry with relative path
