@@ -1384,6 +1384,7 @@
             .then(response => response.json())
             .then(data => {
                 originalData = combineData(data);
+				//console.log(originalData);
                 renderSummary(originalData);
             })
             .catch(error => console.error('Error fetching JSON:', error));
@@ -1435,7 +1436,20 @@
             `;
         }
 
+        // helper to clean values
+function cleanValue(val) {
+  if (!val || val.toString().trim().toLowerCase() === "none") {
+    return "N/A";
+  }
+  return val;
+}
 
+// helper function
+function safeVal(val) {
+    if (!val) return "N/A";
+    if (typeof val === "string" && val.trim().toLowerCase() === "none") return "N/A";
+    return val;
+}
         // Preload all necessary JSON data at application startup
         async function preloadData() {
             try {
@@ -1452,6 +1466,9 @@
                 cache.continentData = continentData;
                 cache.countryGeoJsonMapping = countryGeoJsonMapping;
                 cache.continentGeoJson = continentGeoJson;
+				
+				// Uncomment this to see what each object is showing
+                //console.log(coinsData[0]);
 
                 console.log("All data preloaded successfully.");
                 return true;
@@ -1463,7 +1480,7 @@
         }
 
         // Sets the current image in the gallery and updates its details
-        async function setCurrentImage(src, note, donor, currency_type, countryInfo, index) {
+        async function setCurrentImage(src, note, donor, currency_type, countryInfo, year, size, index) {
             const image = document.getElementById("current-image-img");
             const noteElement = document.getElementById("current-image-note");
             const countryFlagElement = document.getElementById("country-flag");
@@ -1484,37 +1501,46 @@
             };
             tempImage.src = src; // Start loading the image
 
-            // Construct the HTML for coin details
-            const countryDetails = countryInfo
-                ? `
-                <div class="detail-item">
-                    <span class="detail-label">Country:</span>
-                    <span class="detail-value">${countryInfo.name || "N/A"}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Capital:</span>
-                    <span class="detail-value">${countryInfo.capital || "N/A"}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Language:</span>
-                    <span class="detail-value">${countryInfo.language?.name || "N/A"}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Currency:</span>
-                    <span class="detail-value">${countryInfo.currency?.name || "N/A"} (${countryInfo.currency?.symbol || ""})</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Note:</span>
-                    <span class="detail-value">${formatNoteWithURLs(note || "No note available")}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Donor (${currency_type || "--"}):</span>
-                    <span class="detail-value">${donor || "Unknown"}</span>
-                </div>
-                `
-                : `<div class="detail-item">
-                    <span class="detail-value">Country information not available.</span>
-                </div>`;
+// Construct the HTML for coin details
+const countryDetails = countryInfo
+    ? `
+    <div class="detail-item">
+        <span class="detail-label">Country:</span>
+        <span class="detail-value">${safeVal(countryInfo.name)}</span>
+    </div>
+    <div class="detail-item">
+        <span class="detail-label">Capital:</span>
+        <span class="detail-value">${safeVal(countryInfo.capital)}</span>
+    </div>
+    <div class="detail-item">
+        <span class="detail-label">Language:</span>
+        <span class="detail-value">${safeVal(countryInfo.language?.name)}</span>
+    </div>
+    <div class="detail-item">
+        <span class="detail-label">Currency:</span>
+        <span class="detail-value">${safeVal(countryInfo.currency?.name)} (${safeVal(countryInfo.currency?.symbol)})</span>
+    </div>
+    <div class="detail-item">
+        <span class="detail-label">Note:</span>
+        <span class="detail-value">${formatNoteWithURLs(safeVal(note) || "No note available")}</span>
+    </div>
+    <div class="detail-item">
+        <span class="detail-label">Year:</span>
+        <span class="detail-value">${safeVal(year)}</span>
+    </div>
+    <div class="detail-item">
+        <span class="detail-label">Size:</span>
+        <span class="detail-value">${safeVal(size)}</span>
+    </div>
+    <div class="detail-item">
+        <span class="detail-label">Donor (${safeVal(currency_type) || "--"}):</span>
+        <span class="detail-value">${safeVal(donor) || "Unknown"}</span>
+    </div>
+    `
+    : `<div class="detail-item">
+        <span class="detail-value">Country information not available.</span>
+    </div>`;
+
 
             noteElement.innerHTML = countryDetails;
 
@@ -1926,7 +1952,9 @@
                 src: `images/${toTitleCase(countryName)}/${coin.image}`,
                 note: coin.note,
                 donor: coin.donor_name,
-                currency_type: coin.currency_type
+                currency_type: coin.currency_type,
+				year: coin.year,
+				size: coin.size
             }));
 
             const thumbnailContainer = document.getElementById("thumbnail-container");
@@ -1937,13 +1965,13 @@
             const updateImage = async (index) => {
                 if (imageElements.length === 0) {
                     // Handle case where no images are found for the country
-                    setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null, 0);
+                    setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null, null, null, 0);
                     document.getElementById("thumbnail-container").innerHTML = ""; // Clear thumbnails
                     return;
                 }
 
                 currentImageIndex = index;
-                const { src, note, donor, currency_type } = imageElements[index];
+                const { src, note, donor, currency_type, year, size } = imageElements[index];
 
                 // Remove active class from all thumbnails
                 document.querySelectorAll('.img-queue-in img').forEach(img => {
@@ -1956,7 +1984,8 @@
                 }
 
                 const countryInfo = await fetchCountryInfo(countryName);
-                await setCurrentImage(src, note, donor, currency_type, countryInfo, index);
+				//setCurrentImage(src, note, donor, currency_type, countryInfo, year, size, index)
+                await setCurrentImage(src, note, donor, currency_type, countryInfo, year, size, index);
             };
 
             // Function to change the image based on direction (-1 for prev, 1 for next)
@@ -2011,7 +2040,7 @@
                 updateImage(currentImageIndex);
             } else {
                 // Display a default message if no images for the country
-                setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null, 0);
+                setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null, null, null, 0);
             }
         }
 

@@ -599,9 +599,9 @@
         .detail-value {
             flex: 1;
             color: var(--text-color);
-
-            overflow-wrap: anywhere;
-            word-break: break-word;
+            /* FIXED: Removed problematic properties that caused text to break on mobile */
+            word-break: normal;
+            overflow-wrap: normal;
         }
 
         /* Image Modal - UPDATED FOR CONSISTENT SIZING */
@@ -868,6 +868,22 @@
                 font-size: 14px;
                 margin-right: 6px;
                 width: 16px;
+            }
+
+            /* FIXED: Improved mobile text display for detail items */
+            .detail-item {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .detail-label {
+                min-width: auto;
+                font-size: 14px;
+            }
+
+            .detail-value {
+                font-size: 16px;
+                line-height: 1.4;
             }
         }
 
@@ -1384,7 +1400,7 @@
             .then(response => response.json())
             .then(data => {
                 originalData = combineData(data);
-				//console.log(originalData);
+                //console.log(originalData);
                 renderSummary(originalData);
             })
             .catch(error => console.error('Error fetching JSON:', error));
@@ -1437,19 +1453,19 @@
         }
 
         // helper to clean values
-function cleanValue(val) {
-  if (!val || val.toString().trim().toLowerCase() === "none") {
-    return "N/A";
-  }
-  return val;
-}
+        function cleanValue(val) {
+            if (!val || val.toString().trim().toLowerCase() === "none") {
+                return "N/A";
+            }
+            return val;
+        }
 
-// helper function
-function safeVal(val) {
-    if (!val) return "N/A";
-    if (typeof val === "string" && val.trim().toLowerCase() === "none") return "N/A";
-    return val;
-}
+        // helper function
+        function safeVal(val) {
+            if (!val) return "N/A";
+            if (typeof val === "string" && val.trim().toLowerCase() === "none") return "N/A";
+            return val;
+        }
         // Preload all necessary JSON data at application startup
         async function preloadData() {
             try {
@@ -1466,8 +1482,8 @@ function safeVal(val) {
                 cache.continentData = continentData;
                 cache.countryGeoJsonMapping = countryGeoJsonMapping;
                 cache.continentGeoJson = continentGeoJson;
-				
-				// Uncomment this to see what each object is showing
+
+                // Uncomment this to see what each object is showing
                 //console.log(coinsData[0]);
 
                 console.log("All data preloaded successfully.");
@@ -1501,9 +1517,9 @@ function safeVal(val) {
             };
             tempImage.src = src; // Start loading the image
 
-// Construct the HTML for coin details
-const countryDetails = countryInfo
-    ? `
+            // Construct the HTML for coin details
+            const countryDetails = countryInfo
+                ? `
     <div class="detail-item">
         <span class="detail-label">Country:</span>
         <span class="detail-value">${safeVal(countryInfo.name)}</span>
@@ -1537,7 +1553,7 @@ const countryDetails = countryInfo
         <span class="detail-value">${safeVal(donor) || "Unknown"}</span>
     </div>
     `
-    : `<div class="detail-item">
+                : `<div class="detail-item">
         <span class="detail-value">Country information not available.</span>
     </div>`;
 
@@ -1953,8 +1969,8 @@ const countryDetails = countryInfo
                 note: coin.note,
                 donor: coin.donor_name,
                 currency_type: coin.currency_type,
-				year: coin.year,
-				size: coin.size
+                year: coin.year,
+                size: coin.size
             }));
 
             const thumbnailContainer = document.getElementById("thumbnail-container");
@@ -1984,7 +2000,7 @@ const countryDetails = countryInfo
                 }
 
                 const countryInfo = await fetchCountryInfo(countryName);
-				//setCurrentImage(src, note, donor, currency_type, countryInfo, year, size, index)
+                //setCurrentImage(src, note, donor, currency_type, countryInfo, year, size, index)
                 await setCurrentImage(src, note, donor, currency_type, countryInfo, year, size, index);
             };
 
