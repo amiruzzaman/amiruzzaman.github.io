@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MCQ Formatter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f4f4f4;
+    }
+    textarea, pre {
+      width: 100%;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    textarea {
+      height: 250px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    pre {
+      background: #fff;
+      padding: 15px;
+      border: 1px solid #ccc;
+      white-space: pre-wrap;
+      min-height: 150px;
+    }
+    button {
+      padding: 10px 20px;
+      margin-right: 10px;
+      background-color: #007acc;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #copyStatus {
+      font-size: 14px;
+      color: green;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>MCQ Formatter</h2>
+<textarea id="inputText" placeholder="Paste questions here..."></textarea>
+<div>
+  <button onclick="formatQuestions()">Format</button>
+  <button onclick="copyOutput()">Copy Output</button>
+  <span id="copyStatus"></span>
+</div>
+<a href ="https://tls.carleton.ca/brightspace/quiz/generator/">https://tls.carleton.ca/brightspace/quiz/generator/</a>
+<h3>Formatted Output:</h3>
+<pre id="outputText"></pre>
+
+<script>
+function formatQuestions() {
+  const input = document.getElementById("inputText").value;
+  const lines = input.split(/\r?\n/);
+  const result = [];
+  let questionBlocks = [];
+  let block = [];
+
+  // Split into question blocks (each ending with ANS:)
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.trim().startsWith("ANS:")) {
+      block.push(line);
+      questionBlocks.push(block);
+      block = [];
+    } else if (line.trim() !== "") {
+      block.push(line);
+    }
+  }
+
+  if (block.length > 0) {
+    questionBlocks.push(block); // if last block has no ANS line
+  }
+
+  let questionNumber = 1;
+
+  for (let qb of questionBlocks) {
+    let ansLineIndex = qb.findIndex(l => l.trim().startsWith("ANS:"));
+    let correctLetter = "";
+    if (ansLineIndex !== -1) {
+      correctLetter = qb[ansLineIndex].split(":")[1].trim().toLowerCase();
+      qb.splice(ansLineIndex, 1); // remove the ANS line
+    }
+
+    for (let i = 0; i < qb.length; i++) {
+      let line = qb[i];
+
+      if (i === 0) {
+        // First line (question line): replace any number prefix with sequential numbering
+        // This now handles both spaces and tabs before the number
+        line = line.replace(/^(\s*)\d+\.(\s*)/, `$1${questionNumber}.$2`);
+        result.push(line);
+      } else {
+        const trimmed = line.trimStart();
+        const indent = line.substring(0, line.indexOf(trimmed));
+        if (correctLetter && trimmed.toLowerCase().startsWith(correctLetter + ".")) {
+          result.push(indent + "*" + trimmed);
+        } else {
+          result.push(line);
+        }
+      }
+    }
+
+    result.push("", "", ""); // 3 blank lines between questions
+    questionNumber++;
+  }
+
+  document.getElementById("outputText").textContent = result.join('\n');
+  document.getElementById("copyStatus").textContent = '';
+}
+
+function copyOutput() {
+  const output = document.getElementById("outputText").textContent;
+  navigator.clipboard.writeText(output).then(() => {
+    document.getElementById("copyStatus").textContent = "Copied!";
+    setTimeout(() => {
+      document.getElementById("copyStatus").textContent = "";
+    }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>

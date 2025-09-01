@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MCQ Formatter</title>
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3f37c9;
+      --accent-color: #4cc9f0;
+      --light-color: #f8f9fa;
+      --dark-color: #212529;
+      --success-color: #4bb543;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      color: var(--dark-color);
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+    }
+    
+    h2 {
+      color: var(--primary-color);
+      text-align: center;
+      margin-bottom: 25px;
+      font-weight: 600;
+    }
+    
+    h3 {
+      color: var(--secondary-color);
+      margin-top: 30px;
+      border-bottom: 2px solid var(--accent-color);
+      padding-bottom: 8px;
+    }
+    
+    textarea, pre {
+      width: 100%;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 15px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+    
+    textarea {
+      height: 250px;
+      padding: 15px;
+      margin-bottom: 15px;
+      border: 2px solid #e9ecef;
+      resize: vertical;
+    }
+    
+    textarea:focus {
+      border-color: var(--accent-color);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(76, 201, 240, 0.2);
+    }
+    
+    pre {
+      background: #f8f9fa;
+      padding: 20px;
+      border: 2px solid #e9ecef;
+      white-space: pre-wrap;
+      min-height: 150px;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+    
+    button {
+      padding: 12px 24px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    button:hover {
+      background-color: var(--secondary-color);
+      transform: translateY(-1px);
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    #copyStatus {
+      font-size: 14px;
+      color: var(--success-color);
+      margin-left: 10px;
+      font-weight: 500;
+    }
+    
+    .link {
+      display: inline-block;
+      margin: 15px 0;
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    
+    .link:hover {
+      color: var(--secondary-color);
+      text-decoration: underline;
+    }
+    
+    .link i {
+      margin-right: 5px;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px;
+      }
+      
+      .button-group {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <h2>MCQ Formatter</h2>
+    <textarea id="inputText" placeholder="Paste your questions here in the format:
+    
+    1. Question text
+    a. Option 1  (or a) or (a) or a:)
+    b. Option 2
+    c. Option 3
+    d. Option 4
+    e. None of these
+    
+    ANS: B
+    
+    2. Next question...
+    "></textarea>
+    
+    <div class="button-group">
+      <button onclick="formatQuestions()">
+        <i class="fas fa-magic"></i> Format
+      </button>
+      <button onclick="copyOutput()">
+        <i class="far fa-copy"></i> Copy Output
+      </button>
+      <span id="copyStatus"></span>
+    </div>
+    
+    <a href="https://tls.carleton.ca/brightspace/quiz/generator/" class="link">
+      <i class="fas fa-external-link-alt"></i> Brightspace Quiz Generator
+    </a>
+    
+    <h3>Formatted Output:</h3>
+    <pre id="outputText"></pre>
+  </div>
+
+  <script>
+    function formatQuestions() {
+      const input = document.getElementById("inputText").value;
+      const lines = input.split(/\r?\n/);
+      const result = [];
+      let questionBlocks = [];
+      let block = [];
+
+      // Split into question blocks (each ending with ANS:)
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (line.trim().startsWith("ANS:")) {
+          block.push(line);
+          questionBlocks.push(block);
+          block = [];
+        } else if (line.trim() !== "") {
+          block.push(line);
+        }
+      }
+
+      if (block.length > 0) {
+        questionBlocks.push(block); // if last block has no ANS line
+      }
+
+      let questionNumber = 1;
+
+      for (let qb of questionBlocks) {
+        let ansLineIndex = qb.findIndex(l => l.trim().startsWith("ANS:"));
+        let correctLetter = "";
+        if (ansLineIndex !== -1) {
+          correctLetter = qb[ansLineIndex].split(":")[1].trim().toLowerCase();
+          qb.splice(ansLineIndex, 1); // remove the ANS line
+        }
+
+        for (let i = 0; i < qb.length; i++) {
+          let line = qb[i];
+
+          if (i === 0) {
+            // First line (question line): replace any number prefix with sequential numbering
+            line = line.replace(/^(\s*)\d+\.(\s*)/, `$1${questionNumber}.$2`);
+            result.push(line);
+          } else {
+            const trimmed = line.trimStart();
+            const indent = line.substring(0, line.indexOf(trimmed));
+            
+            // Change option markers from various formats to a)
+            let optionLine = trimmed.replace(/^([a-e])[\.\:\)]|\(([a-e])\)/, function(match, p1, p2) {
+              return (p1 || p2) + ")";
+            });
+            
+            if (correctLetter && optionLine.toLowerCase().startsWith(correctLetter + ")")) {
+              result.push(indent + "*" + optionLine);
+            } else {
+              result.push(indent + optionLine);
+            }
+          }
+        }
+
+        if (questionNumber < questionBlocks.length) {
+          result.push(""); // Only one blank line between questions
+        }
+        questionNumber++;
+      }
+
+      document.getElementById("outputText").textContent = result.join('\n');
+      document.getElementById("copyStatus").textContent = '';
+    }
+
+    function copyOutput() {
+      const output = document.getElementById("outputText").textContent;
+      navigator.clipboard.writeText(output).then(() => {
+        document.getElementById("copyStatus").textContent = "Copied!";
+        setTimeout(() => {
+          document.getElementById("copyStatus").textContent = "";
+        }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>
