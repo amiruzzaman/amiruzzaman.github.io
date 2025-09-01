@@ -42,6 +42,10 @@
   - Sort or move around by dragging rows/objects
   - Access via `http://localhost:5000/`
 
+  - **Json Editing**: `editjson.py`
+  - Edit json objects in place
+  - Access via `http://localhost:5000/edit_json`
+
 ### Additional Tools
 - **Drag & Drop**: `dragndrop.py`
   - Add images via drag and drop interface
