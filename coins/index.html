@@ -407,27 +407,48 @@
       });
     }
 
-    // Render the summary
-    function renderSummary(data) {
-      const summary = document.getElementById('summary-container');
-      const numCountries = new Set(data.map(item => item.country)).size;
-      let numPaperBills = 0;
-      let numCoins = 0;
-      let numAntiques = 0;
+// Replace the existing renderSummary with this one
+  function renderSummary(data) {
+    const summary = document.getElementById('summary-container');
 
-      data.forEach(item => {
-        if (item.currency_type.toLowerCase().includes('paper bill') || item.currency_type.toLowerCase().includes('paper-bill')) numPaperBills++;
-        if (item.currency_type.toLowerCase().includes('coin')) numCoins++;
-        if (item.currency_type.toLowerCase().includes('antique')) numAntiques++;
-      });
+    // Unique countries overall
+    const countries = new Set(data.map(item => item.country));
 
-      summary.innerHTML = `
-        <p><i class="fas fa-globe-americas"></i> Number of Countries: ${numCountries}</p>
-        <p><i class="fas fa-money-bill-alt"></i> Number of Paper Bills: ${numPaperBills}</p>
-        <p><i class="fas fa-coins"></i> Number of Coins: ${numCoins}</p>
-        <p><i class="fas fa-history"></i> Number of Antiques: ${numAntiques}</p>
-      `;
-    }
+    // Per-category: count each country at most once
+    const paperBillCountries = new Set();
+    const coinCountries = new Set();
+    const antiqueCountries = new Set();
+
+    data.forEach(item => {
+      const country = item.country;
+      if (!country) return;
+
+      // normalize currency_type -> array of tokens
+      const types = String(item.currency_type || '')
+        .toLowerCase()
+        .replace(/[-_]/g, ' ')       // "paper-bill" -> "paper bill"
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      const hasPaperBill = types.some(t =>
+        t === 'paper bill' || t === 'banknote' || t === 'bank note' || t === 'paper note' || t === 'paper bills'
+      );
+      const hasCoin = types.some(t => t === 'coin' || t === 'coins');
+      const hasAntique = types.some(t => t === 'antique' || t === 'antiques');
+
+      if (hasPaperBill) paperBillCountries.add(country);
+      if (hasCoin) coinCountries.add(country);
+      if (hasAntique) antiqueCountries.add(country);
+    });
+
+    summary.innerHTML = `
+      <p><i class="fas fa-globe-americas"></i> Number of Countries: ${countries.size}</p>
+      <p><i class="fas fa-money-bill-alt"></i> Number of Paper Bills: ${paperBillCountries.size}</p>
+      <p><i class="fas fa-coins"></i> Number of Coins: ${coinCountries.size}</p>
+      <p><i class="fas fa-history"></i> Number of Antiques: ${antiqueCountries.size}</p>
+    `;
+  }
 
     // Add search functionality
     document.getElementById('search-input').addEventListener('input', event => {
