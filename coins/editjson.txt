@@ -1,0 +1,81 @@
+See the attached file. Keep all the existing features. Now, when I click `http://localhost:5000/edit_json`, and "Add New Row", it creates a new row with some default value. This is good, but I want to add some additional features to it. for example, when user click on the "New Country", then user should be able to select a country name from a dropdown which should be populated by using a json file name countries.json which is located in "./" directory, and the format of the file is as below
+
+[
+  {
+    "name": "Afghanistan",
+    "code": "AF",
+    "capital": "Kabul",
+    "region": "AS",
+    "currency": {
+      "code": "AFN",
+      "name": "Afghan afghani",
+      "symbol": "؋"
+    },
+    "language": {
+      "code": "ps",
+      "name": "Pashto"
+    },
+    "flag": "https://restcountries.eu/data/afg.svg",
+    "full_name": "Afghanistan"
+  },
+  {
+    "name": "Åland Islands",
+    "code": "AX",
+    "capital": "Mariehamn",
+    "region": "EU",
+    "currency": {
+      "code": "EUR",
+      "name": "Euro",
+      "symbol": "€"
+    },
+    "language": {
+      "code": "sv",
+      "name": "Swedish"
+    },
+    "flag": "https://restcountries.eu/data/ala.svg",
+    "full_name": "Åland Islands"
+  }
+]
+so, once the user selects a country name from the drop down menu then create a directory with in the same name inside the "images" folder only if it does not already exists. Also, allow user to drag and drop an image, which then should be moved to the respective country's directory and save their using a {UUID}.{file extension}. Of course all these information should be updated for the json object of the respective row. Please give me the whole code. See the attached file. Keep all the existing features. Now, when I click `http://localhost:5000/edit_json`, and "Add New Row", it creates a new row with some default value. This is good, but I want to add some additional features to it. for example, when user click on the "New Country", then user should be able to select a country name from a dropdown which should be populated by using a json file name countries.json which is located in "./" directory, and the format of the file is as below
+
+[
+  {
+    "name": "Afghanistan",
+    "code": "AF",
+    "capital": "Kabul",
+    "region": "AS",
+    "currency": {
+      "code": "AFN",
+      "name": "Afghan afghani",
+      "symbol": "؋"
+    },
+    "language": {
+      "code": "ps",
+      "name": "Pashto"
+    },
+    "flag": "https://restcountries.eu/data/afg.svg",
+    "full_name": "Afghanistan"
+  },
+  {
+    "name": "Åland Islands",
+    "code": "AX",
+    "capital": "Mariehamn",
+    "region": "EU",
+    "currency": {
+      "code": "EUR",
+      "name": "Euro",
+      "symbol": "€"
+    },
+    "language": {
+      "code": "sv",
+      "name": "Swedish"
+    },
+    "flag": "https://restcountries.eu/data/ala.svg",
+    "full_name": "Åland Islands"
+  }
+]
+so, once the user selects a country name from the drop down menu then create a directory with in the same name inside the "images" folder only if it does not already exists. Also, allow user to drag and drop an image, which then should be moved to the respective country's directory and save their using a {UUID}.{file extension}. Of course all these information should be updated for the json object of the respective row. Please give me the whole code.
+Also, when click on "New Currency type" to edit, provide a dropdown with three predefined values: "coin", "paper-bill", and "antique".
+
+
+good work. on the "edit_json" page, changing the country name from drop down does not work. Also, when changing the country name using the modal updates the coins.json, but does not move or create the directory if does not exists and move the image file.

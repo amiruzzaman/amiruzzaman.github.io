@@ -182,52 +182,9 @@ def load_json():
     return []
 
 def save_json(data):
-    """Save JSON and handle image moves when country changes"""
     with file_lock:  # Ensure thread-safe access
-
-        # Load existing JSON to compare old vs new
-        if os.path.exists(current_json_file_path):
-            with open(current_json_file_path, 'r') as f:
-                old_data = json.load(f)
-        else:
-            old_data = []
-
-        # Map old entries by image filename
-        old_map = {entry["image"]: entry for entry in old_data}
-
-        for entry in data:
-            image = entry.get("image")
-            country = entry.get("country")
-
-            if not image or not country:
-                continue
-
-            old_entry = old_map.get(image)
-            if old_entry:
-                old_country = old_entry.get("country")
-
-                # Country has changed
-                if old_country and old_country != country:
-                    old_path = os.path.join(BASE_UPLOAD_FOLDER, old_country, image)
-                    new_folder = os.path.join(BASE_UPLOAD_FOLDER, country)
-                    new_path = os.path.join(new_folder, image)
-
-                    try:
-                        os.makedirs(new_folder, exist_ok=True)
-
-                        if os.path.exists(old_path):
-                            os.rename(old_path, new_path)  # move file
-                            print(f"Moved {image} from {old_country} to {country}")
-                        else:
-                            print(f"Old file {old_path} not found, skipping move.")
-
-                    except Exception as e:
-                        print(f"Error moving file {image}: {e}")
-
-        # Finally, save updated JSON
-        with open(current_json_file_path, 'w') as f:
-            json.dump(data, f, indent=2)
-
+        with open(current_json_file_path, 'w') as file:
+            json.dump(data, file, indent=2)
 
 # Routes
 @app.route('/')
@@ -610,31 +567,28 @@ def edit_json():
         }
 
         .modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    overflow-y: auto;  /* ✅ allow scrolling when needed */
-}
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
 
-.modal-content {
-    position: relative;
-    width: 90%;
-    max-width: 800px;
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 20px;
-    text-align: center;
-    color: #333;
-    max-height: 90vh;   /* ✅ prevent it from going off screen */
-    overflow-y: auto;   /* ✅ scroll inside modal if content too tall */
-}
+        .modal-content {
+            position: relative;
+            width: 80%;
+            max-width: 800px;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            color: #333;
+        }
 
         .modal img {
             max-width: 100%;
@@ -676,8 +630,7 @@ def edit_json():
         }
 
         .form-group input,
-        .form-group textarea,
-        .form-group select {
+        .form-group textarea {
             width: 100%;
             padding: 8px;
             border: 1px solid #ddd;
@@ -831,44 +784,6 @@ def edit_json():
             border-color: #007bff;
             background-color: #e9f0ff;
         }
-        
-        /* Currency type dropdown */
-        .currency-dropdown {
-            width: 100%;
-            padding: 5px;
-            font-size: 14px;
-            text-align: center;
-            background-color: #fff;
-            color: #333;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        
-        /* Image drop area in table */
-        .image-drop-area {
-            border: 2px dashed #ccc;
-            border-radius: 4px;
-            padding: 10px;
-            text-align: center;
-            background-color: #f8f9fa;
-            color: #333;
-            margin: 5px 0;
-            cursor: pointer;
-            min-height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .image-drop-area.highlight {
-            border-color: #007bff;
-            background-color: #e9f0ff;
-        }
-
-        .image-drop-area p {
-            margin: 0;
-            font-size: 12px;
-        }
     </style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
@@ -907,11 +822,7 @@ def edit_json():
                 </div>
                 <div class="form-group">
                     <label for="editCurrencyType">Currency Type:</label>
-                    <select id="editCurrencyType" name="currency_type" class="currency-dropdown">
-                        <option value="coin">Coin</option>
-                        <option value="paper-bill">Paper Bill</option>
-                        <option value="antique">Antique</option>
-                    </select>
+                    <input type="text" id="editCurrencyType" name="currency_type">
                 </div>
                 <div class="form-group">
                     <label for="editDonorName">Donor Name:</label>
@@ -1091,291 +1002,47 @@ def edit_json():
                 rowDiv.addEventListener('dragover', handleDragOver);
                 rowDiv.addEventListener('drop', handleDrop);
         
-                // Country dropdown
-                const countryColumn = document.createElement('div');
-                countryColumn.classList.add('column');
-                const countrySelect = document.createElement('select');
-                countrySelect.classList.add('country-dropdown');
-
-                //countrySelect.addEventListener('change', function() {
-                //    row.country = this.value;
-                //    saveUpdates();
-                //});
-
-                countrySelect.addEventListener('change', function() {
-    const oldCountry = row.country;
-    const newCountry = this.value;
-    const image = row.image;
-
-    if (!image || image === "placeholder.jpg") {
-        // Just update JSON if no real image
-        row.country = newCountry;
-        saveUpdates();
-        return;
-    }
-
-    fetch('/update-country', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            image: image,
-            old_country: oldCountry,
-            new_country: newCountry
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.error) {
-            alert("Error: " + data.error);
-            this.value = oldCountry; // revert if failed
-        } else {
-            console.log(data.message);
-            row.country = newCountry;
-            renderTable(jsonData);
-        }
-    })
-    .catch(error => {
-        console.error("Error updating country:", error);
-        this.value = oldCountry; // revert if error
-    });
-});
-
-                
-                // Add default option
-                const defaultOption = document.createElement('option');
-                defaultOption.value = '';
-                defaultOption.textContent = 'Select country';
-                countrySelect.appendChild(defaultOption);
-                
-                // Add countries
-                countriesData.forEach(country => {
-                    const option = document.createElement('option');
-                    option.value = country.name;
-                    option.textContent = country.name;
-                    if (row.country === country.name) {
-                        option.selected = true;
+                const columns = [
+                    { content: row.country || "No Country", key: 'country' },
+                    { content: row.currency_type || "No Currency Type", key: 'currency_type' },
+                    { content: row.donor_name || "No Donor Name", key: 'donor_name' },
+                    { content: `<img src="images/${row.country}/${row.image}" alt="Image" class="thumbnail" onerror="this.src='images/placeholder.jpg';" data-index="${index}" />`, key: 'image', isHTML: true },
+                    { content: row.note || "No Note", key: 'note' },
+                    { content: row.size || "No Size", key: 'size' },
+                    { content: row.year || "No Year", key: 'year' }
+                ];
+        
+                columns.forEach(col => {
+                    const columnDiv = document.createElement('div');
+                    columnDiv.classList.add('column', 'editable');
+                    if (col.isHTML) {
+                        columnDiv.innerHTML = col.content;
+                    } else {
+                        columnDiv.contentEditable = true;
+                        columnDiv.textContent = col.content;
+                        columnDiv.addEventListener('blur', () => {
+                            row[col.key] = columnDiv.textContent;
+                            saveUpdates();
+                        });
                     }
-                    countrySelect.appendChild(option);
+                    rowDiv.appendChild(columnDiv);
                 });
-                
-                // If country is not in the list, add it as an option
-                if (row.country && !countriesData.some(c => c.name === row.country)) {
-                    const option = document.createElement('option');
-                    option.value = row.country;
-                    option.textContent = row.country;
-                    option.selected = true;
-                    countrySelect.appendChild(option);
-                }
-                
-                countryColumn.appendChild(countrySelect);
-                rowDiv.appendChild(countryColumn);
-                
-                // Currency type dropdown
-                const currencyColumn = document.createElement('div');
-                currencyColumn.classList.add('column');
-                const currencySelect = document.createElement('select');
-                currencySelect.classList.add('currency-dropdown');
-                currencySelect.addEventListener('change', function() {
-                    row.currency_type = this.value;
-                    saveUpdates();
-                });
-                
-                const currencyOptions = ['coin', 'paper-bill', 'antique'];
-                currencyOptions.forEach(optionValue => {
-                    const option = document.createElement('option');
-                    option.value = optionValue;
-                    option.textContent = optionValue.charAt(0).toUpperCase() + optionValue.slice(1);
-                    if (row.currency_type === optionValue) {
-                        option.selected = true;
-                    }
-                    currencySelect.appendChild(option);
-                });
-                
-                currencyColumn.appendChild(currencySelect);
-                rowDiv.appendChild(currencyColumn);
-                
-                // Donor name (editable)
-                const donorColumn = document.createElement('div');
-                donorColumn.classList.add('column', 'editable');
-                donorColumn.textContent = row.donor_name || "No Donor Name";
-                donorColumn.contentEditable = true;
-                donorColumn.addEventListener('blur', function() {
-                    row.donor_name = this.textContent;
-                    saveUpdates();
-                });
-                rowDiv.appendChild(donorColumn);
-                
-                // Image column with drag and drop
-                const imageColumn = document.createElement('div');
-                imageColumn.classList.add('column');
-                
-                if (row.image && row.image !== 'placeholder.jpg') {
-                    const image = document.createElement('img');
-                    image.src = `images/${row.country}/${row.image}`;
-                    image.alt = "Image";
-                    image.classList.add('thumbnail');
-                    image.setAttribute('data-index', index);
-                    image.onerror = function() {
-                        this.src = 'images/placeholder.jpg';
-                    };
-                    imageColumn.appendChild(image);
-                } else {
-                    const dropArea = document.createElement('div');
-                    dropArea.classList.add('image-drop-area');
-                    dropArea.setAttribute('data-index', index);
-                    dropArea.innerHTML = '<p>Drag & drop image here</p>';
-                    
-                    // Add drag and drop functionality
-                    setupImageDropArea(dropArea, row, index);
-                    
-                    imageColumn.appendChild(dropArea);
-                }
-                rowDiv.appendChild(imageColumn);
-                
-                // Note (editable)
-                const noteColumn = document.createElement('div');
-                noteColumn.classList.add('column', 'editable');
-                noteColumn.textContent = row.note || "No Note";
-                noteColumn.contentEditable = true;
-                noteColumn.addEventListener('blur', function() {
-                    row.note = this.textContent;
-                    saveUpdates();
-                });
-                rowDiv.appendChild(noteColumn);
-                
-                // Size (editable)
-                const sizeColumn = document.createElement('div');
-                sizeColumn.classList.add('column', 'editable');
-                sizeColumn.textContent = row.size || "No Size";
-                sizeColumn.contentEditable = true;
-                sizeColumn.addEventListener('blur', function() {
-                    row.size = this.textContent;
-                    saveUpdates();
-                });
-                rowDiv.appendChild(sizeColumn);
-                
-                // Year (editable)
-                const yearColumn = document.createElement('div');
-                yearColumn.classList.add('column', 'editable');
-                yearColumn.textContent = row.year || "No Year";
-                yearColumn.contentEditable = true;
-                yearColumn.addEventListener('blur', function() {
-                    row.year = this.textContent;
-                    saveUpdates();
-                });
-                rowDiv.appendChild(yearColumn);
-                
-                // Actions (delete button)
-                const actionColumn = document.createElement('div');
-                actionColumn.classList.add('column');
+        
+                const actionDiv = document.createElement('div');
+                actionDiv.classList.add('column');
                 const deleteBtn = document.createElement('span');
                 deleteBtn.classList.add('delete-btn');
                 deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-                deleteBtn.addEventListener('click', function() {
-                    if (confirm('Are you sure you want to delete this entry?')) {
-                        jsonData.splice(index, 1);
-                        renderTable(jsonData);
-                        saveUpdates();
-                    }
+                deleteBtn.addEventListener('click', () => {
+                    jsonData.splice(index, 1);
+                    renderTable(jsonData);
+                    saveUpdates();
                 });
-                actionColumn.appendChild(deleteBtn);
-                rowDiv.appendChild(actionColumn);
+                actionDiv.appendChild(deleteBtn);
+                rowDiv.appendChild(actionDiv);
         
                 tableContainer.appendChild(rowDiv);
             });
-        }
-        
-        // Setup image drop area functionality
-        function setupImageDropArea(dropArea, row, index) {
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.accept = 'image/*';
-            fileInput.style.display = 'none';
-            document.body.appendChild(fileInput);
-            
-            // Click to select file
-            dropArea.addEventListener('click', () => {
-                fileInput.click();
-            });
-            
-            // Drag and drop events
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, preventDefaults, false);
-            });
-            
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropArea.addEventListener(eventName, highlight, false);
-            });
-            
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, unhighlight, false);
-            });
-            
-            function highlight() {
-                dropArea.classList.add('highlight');
-            }
-            
-            function unhighlight() {
-                dropArea.classList.remove('highlight');
-            }
-            
-            // Handle file drop
-            dropArea.addEventListener('drop', handleDropFile, false);
-            
-            // Handle file selection
-            fileInput.addEventListener('change', handleFileSelect, false);
-            
-            function handleDropFile(e) {
-                const dt = e.dataTransfer;
-                const files = dt.files;
-                handleFiles(files, row, index);
-            }
-            
-            function handleFileSelect(e) {
-                const files = e.target.files;
-                handleFiles(files, row, index);
-            }
-            
-            function handleFiles(files, row, index) {
-                if (files.length === 0) return;
-                
-                const file = files[0];
-                const country = row.country;
-                
-                if (!country) {
-                    alert('Please select a country first');
-                    return;
-                }
-                
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('country', country);
-                
-                fetch('/upload-image', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        alert('Error uploading image: ' + data.error);
-                    } else {
-                        // Update the image in the current row
-                        jsonData[index].image = data.filename;
-                        renderTable(jsonData);
-                        saveUpdates();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error uploading image');
-                });
-            }
         }
         
         function sortTable(key) {
@@ -1449,8 +1116,8 @@ def edit_json():
                 });
         }
 
-        // Handle image upload via drag and drop in modal
-        function setupModalImageUpload() {
+        // Handle image upload via drag and drop
+        function setupImageUpload() {
             const dropArea = document.getElementById('imageDropArea');
             const fileInput = document.getElementById('editImageInput');
             
@@ -1557,12 +1224,12 @@ def edit_json():
             loadCountries();
             
             // Setup image upload functionality
-            setupModalImageUpload();
+            setupImageUpload();
 
             document.getElementById("addRowBtn").addEventListener("click", function () {
                 const newRow = {
-                    country: "",
-                    currency_type: "coin",
+                    country: "New Country",
+                    currency_type: "New Currency Type",
                     donor_name: "New Donor Name",
                     image: "placeholder.jpg",
                     note: "New Note",
@@ -1646,40 +1313,6 @@ def update_json():
         return jsonify({"message": "JSON file updated successfully!"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-@app.route('/update-country', methods=['POST'])
-def update_country():
-    try:
-        data = request.get_json()
-        image = data.get("image")
-        old_country = data.get("old_country")
-        new_country = data.get("new_country")
-
-        if not image or not old_country or not new_country:
-            return jsonify({"error": "Missing parameters"}), 400
-
-        old_path = os.path.join(BASE_UPLOAD_FOLDER, old_country, image)
-        new_folder = os.path.join(BASE_UPLOAD_FOLDER, new_country)
-        new_path = os.path.join(new_folder, image)
-
-        os.makedirs(new_folder, exist_ok=True)
-
-        if os.path.exists(old_path):
-            os.rename(old_path, new_path)
-
-        # Update JSON
-        coins = load_json()
-        for entry in coins:
-            if entry["image"] == image and entry["country"] == old_country:
-                entry["country"] = new_country
-                break
-        save_json(coins)
-
-        return jsonify({"message": f"Country updated to {new_country} and file moved."}), 200
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
 
 @app.route('/upload-json', methods=['POST'])
 def upload_json():
