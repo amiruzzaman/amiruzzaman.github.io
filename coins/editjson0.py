@@ -178,50 +178,17 @@ def save_json(data):
         with open(current_json_file_path, 'w') as file:
             json.dump(data, file, indent=2)
 
-def get_countries():
-    """Load countries from the countries.json file"""
-    countries_file = './countries.json'
-    if os.path.exists(countries_file):
-        with open(countries_file, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    return []
-
-def handle_image_upload(file, country):
-    """Handle image upload and move to country directory"""
-    if not file or not allowed_file(file.filename):
-        return None, "Invalid file type"
-    
-    # Create country directory if it doesn't exist
-    country_dir = os.path.join(BASE_UPLOAD_FOLDER, country)
-    os.makedirs(country_dir, exist_ok=True)
-    
-    # Generate UUID filename
-    file_ext = file.filename.rsplit('.', 1)[-1].lower()
-    file_uuid = str(uuid.uuid4())
-    filename = f"{file_uuid}.{file_ext}"
-    file_path = os.path.join(country_dir, filename)
-    
-    # Save the file
-    file.save(file_path)
-    return filename, None
-
-def allowed_image_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_IMAGE_EXTENSIONS
-
 # Routes
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route("/upload", methods=["GET", "POST"])
+@app.route('/upload')
+@app.route("/", methods=["GET", "POST"])
 def upload_form():
-    if request.method == 'GET':
-        return render_template('upload.html')
-    
-    # POST handling moved to the upload_file function
-    return upload_file()
+    return render_template('upload.html')
 
-@app.route('/upload_file', methods=['POST'])
+@app.route('/upload', methods=['POST'])
 def upload_file():
     country = request.form.get('country')
     note = request.form.get('note')
@@ -293,13 +260,13 @@ def edit():
 def test():
     data = request.get_json()
     update_entry(data)
-    return jsonify({"status": "success"})
+    return render_template('edit_table.html')
 
 @app.route('/testdelete', methods=['POST'])
 def testdelete():
     data = request.get_json()
     delete_entry(data)
-    return jsonify({"status": "success"})
+    return render_template('edit_table.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -315,7 +282,11 @@ def login():
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('login'))
+    return render_template('login.html')
+
+# Check if the uploaded file has an allowed extension
+def allowed_image_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_IMAGE_EXTENSIONS
 
 # Route to render the crop image page
 @app.route('/crop-image')
@@ -336,7 +307,7 @@ def upload_cropped_image():
     file = request.files['image']
 
     if file and allowed_image_file(file.filename):
-        filename = secure_filename(file.filename)
+        filename = file.filename
         file_path = os.path.join(IMAGE_FOLDER, filename)
         file.save(file_path)  # Save the uploaded image
         return jsonify({'message': f'Cropped image saved as {filename}', 'file_path': file_path}), 200
@@ -398,13 +369,8 @@ def edit_json():
     global current_json_file_path
     current_json_file_path = DEFAULT_JSON_FILE_PATH  # Reset to default file
     
-    # Load countries data
-    countries = get_countries()
-    country_names = [country['name'] for country in countries] if countries else []
-    country_options = "".join([f'<option value="{country}">{country}</option>' for country in country_names])
-    
     # Return the embedded HTML content directly
-    return f'''
+    return '''
 <!DOCTYPE html>
 <html lang="en">
 
@@ -414,89 +380,89 @@ def edit_json():
     <link rel="shortcut icon" href="#">
     <title>..::Amir's edit json::..</title>
     <style>
-        * {{
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: Arial, sans-serif;
-        }}
+        }
 
-        body {{
+        body {
             background-color: #72787e;
             color: #fff;
             padding: 20px;
-        }}
+        }
 
-        h1 {{
+        h1 {
             text-align: center;
             margin-bottom: 20px;
             color: #ffc107;
-        }}
+        }
 
-        .container {{
+        .container {
             width: 80%;
             margin: 0 auto;
             padding: 20px;
             background-color: #495057;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
             border-radius: 8px;
-        }}
+        }
 
-        #jsonTableContainer {{
+        #jsonTableContainer {
             border: 2px solid #198754;
             padding: 10px;
             background-color: #6c757d;
             min-height: 100px;
             border-radius: 4px;
-        }}
+        }
 
-        .row {{
+        .row {
             display: flex;
             align-items: center;
             border-bottom: 1px solid #ddd;
             padding: 10px 0;
             transition: background-color 0.3s ease;
-        }}
+        }
 
-        .row:nth-child(odd) {{
+        .row:nth-child(odd) {
             background-color: #6c757d;
-        }}
+        }
 
-        .row:hover {{
+        .row:hover {
             background-color: #495057;
-        }}
+        }
 
-        .column {{
+        .column {
             flex: 1;
             text-align: center;
             padding: 5px;
             color: #fff;
-        }}
+        }
 
-        .thumbnail {{
+        .thumbnail {
             max-width: 50px;
             max-height: 50px;
             border-radius: 4px;
             cursor: pointer;
-        }}
+        }
 
-        .delete-btn {{
+        .delete-btn {
             color: #ff4d4d;
             cursor: pointer;
             font-weight: bold;
-        }}
+        }
 
-        a {{
+        a {
             color: #ffc107;
             text-decoration: none;
-        }}
+        }
 
-        a:hover {{
+        a:hover {
             color: #fff;
             text-decoration: underline;
-        }}
+        }
 
-        .download-btn {{
+        .download-btn {
             width: 100%;
             padding: 10px;
             background-color: #198754;
@@ -506,13 +472,13 @@ def edit_json():
             font-size: 16px;
             cursor: pointer;
             transition: background 0.3s ease;
-        }}
+        }
 
-        .download-btn:hover {{
+        .download-btn:hover {
             background-color: #145d37;
-        }}
+        }
 
-        .file-input {{
+        .file-input {
             margin-bottom: 20px;
             display: block;
             padding: 10px;
@@ -521,15 +487,15 @@ def edit_json():
             border-radius: 4px;
             background-color: #fff;
             color: #333;
-        }}
+        }
 
-        .header {{
+        .header {
             font-weight: bold;
             background-color: #198754;
             color: #fff;
-        }}
+        }
 
-        .add-row-btn {{
+        .add-row-btn {
             width: 100%;
             padding: 10px;
             background-color: #ffc107;
@@ -540,20 +506,20 @@ def edit_json():
             cursor: pointer;
             margin-top: 10px;
             transition: background 0.3s ease;
-        }}
+        }
 
-        .add-row-btn:hover {{
+        .add-row-btn:hover {
             background-color: #e0a800;
-        }}
+        }
 
-        .image-input {{
+        .image-input {
             width: 100%;
             padding: 5px;
             font-size: 14px;
             text-align: center;
-        }}
+        }
 
-        .modal {{
+        .modal {
             display: none;
             position: fixed;
             top: 0;
@@ -564,9 +530,9 @@ def edit_json():
             justify-content: center;
             align-items: center;
             z-index: 1000;
-        }}
+        }
 
-        .modal-content {{
+        .modal-content {
             position: relative;
             width: 80%;
             max-width: 800px;
@@ -575,63 +541,62 @@ def edit_json():
             padding: 20px;
             text-align: center;
             color: #333;
-        }}
+        }
 
-        .modal img {{
+        .modal img {
             max-width: 100%;
             max-height: 400px;
             border-radius: 8px;
             margin-bottom: 20px;
-        }}
+        }
 
-        .modal-close {{
+        .modal-close {
             position: absolute;
             top: 10px;
             right: 10px;
             font-size: 20px;
             color: black;
             cursor: pointer;
-        }}
+        }
 
         .modal h2,
-        .modal p {{
+        .modal p {
             margin: 10px 0;
-        }}
+        }
 
         /* Form styling */
-        .edit-form {{
+        .edit-form {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
             text-align: left;
-        }}
+        }
 
-        .form-group {{
+        .form-group {
             margin-bottom: 15px;
-        }}
+        }
 
-        .form-group label {{
+        .form-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
-        }}
+        }
 
         .form-group input,
-        .form-group textarea,
-        .form-group select {{
+        .form-group textarea {
             width: 100%;
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 14px;
-        }}
+        }
 
-        .form-group textarea {{
+        .form-group textarea {
             height: 80px;
             resize: vertical;
-        }}
+        }
 
-        .save-btn {{
+        .save-btn {
             grid-column: span 2;
             padding: 10px;
             background-color: #28a745;
@@ -641,51 +606,51 @@ def edit_json():
             font-size: 16px;
             cursor: pointer;
             margin-top: 10px;
-        }}
+        }
 
-        .save-btn:hover {{
+        .save-btn:hover {
             background-color: #218838;
-        }}
+        }
 
         /* Drag-and-drop effects */
-        .row.draggable {{
+        .row.draggable {
             cursor: move;
-        }}
+        }
 
-        .row.drag-over {{
+        .row.drag-over {
             background-color: #495057;
-        }}
+        }
 
         /* imageModal */
-        .image-filename {{
+        .image-filename {
             margin-top: 10px;
             font-size: 14px;
             color: #333;
             text-align: center;
             font-weight: bold;
-        }}
+        }
 
         /*sorting*/
-        .sortable {{
+        .sortable {
             cursor: pointer;
             position: relative;
-        }}
+        }
         
-        .sortable:after {{
+        .sortable:after {
             content: ' ⇅';
             font-size: 0.8em;
             color: #ccc;
             position: absolute;
             right: 5px;
-        }}
+        }
         
         /* Hide the default file input */
-        #uploadFileInput {{
+        #uploadFileInput {
             display: none;
-        }}
+        }
 
         /* Style the file input trigger (the label) */
-        label {{
+        label {
             display: inline-flex;
             align-items: center;
             padding: 10px 20px;
@@ -695,18 +660,18 @@ def edit_json():
             border-radius: 5px;
             cursor: pointer;
             text-decoration: none;
-        }}
+        }
 
-        label i {{
+        label i {
             margin-right: 8px;
-        }}
+        }
 
-        label:hover {{
+        label:hover {
             background-color: #0056b3;
-        }}
+        }
 
         /* Style the upload button with an icon */
-        #uploadFileBtn {{
+        #uploadFileBtn {
             display: inline-flex;
             align-items: center;
             padding: 10px 20px;
@@ -717,78 +682,32 @@ def edit_json():
             cursor: pointer;
             border: none;
             margin-top: 10px;
-        }}
+        }
 
-        #uploadFileBtn i {{
+        #uploadFileBtn i {
             margin-right: 8px;
-        }}
+        }
 
-        #uploadFileBtn:hover {{
+        #uploadFileBtn:hover {
             background-color: #218838;
-        }}
+        }
 
         /* css for delete buttons*/
-        .delete-btn {{
+        .delete-btn {
             display: inline-flex;
             align-items: center;
             color: yellow;
             cursor: pointer;
             font-weight: bold;
-        }}
+        }
 
-        .delete-btn i {{
+        .delete-btn i {
             margin-right: 8px;
-        }}
+        }
 
-        .delete-btn:hover {{
+        .delete-btn:hover {
             color: red;
-        }}
-
-        /* Drop zone styling */
-        .drop-zone {{
-            border: 2px dashed #ccc;
-            border-radius: 5px;
-            padding: 20px;
-            text-align: center;
-            margin: 10px 0;
-            background-color: #f8f9fa;
-            color: #333;
-            cursor: pointer;
-        }}
-
-        .drop-zone.active {{
-            border-color: #007bff;
-            background-color: #e9f0ff;
-        }}
-
-        .drop-zone p {{
-            margin: 0;
-        }}
-
-        .country-select {{
-            width: 100%;
-            padding: 5px;
-            font-size: 14px;
-            text-align: center;
-        }}
-
-        .currency-type-select {{
-            width: 100%;
-            padding: 5px;
-            font-size: 14px;
-            text-align: center;
-        }}
-
-        .editable-select {{
-            width: 100%;
-            padding: 5px;
-            font-size: 14px;
-            text-align: center;
-            background-color: transparent;
-            border: 1px solid #ddd;
-            color: #fff;
-            border-radius: 4px;
-        }}
+        }
     </style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
@@ -823,18 +742,11 @@ def edit_json():
             <div class="edit-form" id="editForm">
                 <div class="form-group">
                     <label for="editCountry">Country:</label>
-                    <select id="editCountry" name="country" class="country-select">
-                        <option value="">Select a country</option>
-                        {country_options}
-                    </select>
+                    <input type="text" id="editCountry" name="country">
                 </div>
                 <div class="form-group">
                     <label for="editCurrencyType">Currency Type:</label>
-                    <select id="editCurrencyType" name="currency_type" class="currency-type-select">
-                        <option value="coin">Coin</option>
-                        <option value="paper-bill">Paper Bill</option>
-                        <option value="antique">Antique</option>
-                    </select>
+                    <input type="text" id="editCurrencyType" name="currency_type">
                 </div>
                 <div class="form-group">
                     <label for="editDonorName">Donor Name:</label>
@@ -851,13 +763,6 @@ def edit_json():
                 <div class="form-group">
                     <label for="editYear">Year:</label>
                     <input type="text" id="editYear" name="year">
-                </div>
-                <div class="form-group" style="grid-column: span 2;">
-                    <label for="editImage">Image:</label>
-                    <div class="drop-zone" id="imageDropZone">
-                        <p>Drag & drop an image here or click to browse</p>
-                        <input type="file" id="editImageInput" accept="image/*" style="display: none;">
-                    </div>
                 </div>
                 <button type="button" class="save-btn" id="saveChangesBtn">Save Changes</button>
             </div>
@@ -877,99 +782,98 @@ def edit_json():
             const formData = new FormData();
             formData.append("file", file);
 
-            fetch('/upload-json', {{
+            fetch('/upload-json', {
                 method: 'POST',
                 body: formData
-            }})
+            })
                 .then(response => response.json())
-                .then(data => {{
-                    if (data.message) {{
+                .then(data => {
+                    if (data.message) {
                         alert(data.message);
                         fetch('/get-json')
                             .then(response => response.json())
-                            .then(newData => {{
+                            .then(newData => {
                                 jsonData = newData;
                                 renderTable(jsonData);
-                            }});
-                    }} else {{
+                            });
+                    } else {
                         alert(data.error || "An error occurred.");
-                    }}
-                }})
-                .catch(error => {{
+                    }
+                })
+                .catch(error => {
                     console.error("Error:", error);
                     alert("An error occurred while uploading the file.");
-                }});
-        }});
+                });
+        });
 
-        document.getElementById("jsonFileInput").addEventListener("change", function (event) {{
+        document.getElementById("jsonFileInput").addEventListener("change", function (event) {
             const file = event.target.files[0];
 
-            if (!file) {{
+            if (!file) {
                 alert("No file selected. Please select a JSON file.");
                 return;
-            }}
+            }
 
-            if (file.type !== "application/json") {{
+            if (file.type !== "application/json") {
                 alert("Invalid file type. Please upload a valid JSON file.");
                 return;
-            }}
+            }
 
             const reader = new FileReader();
-            reader.onload = function (e) {{
-                try {{
+            reader.onload = function (e) {
+                try {
                     jsonData = JSON.parse(e.target.result);
                     renderTable(jsonData);
-                }} catch (error) {{
+                } catch (error) {
                     alert("Error parsing JSON file. Please check the file format.");
                     console.error("JSON Parsing Error:", error);
-                }}
-            }};
+                }
+            };
 
-            reader.onerror = function () {{
+            reader.onerror = function () {
                 alert("Error reading the file. Please try again.");
-            }};
+            };
 
             reader.readAsText(file);
-        }});
+        });
 
         let jsonData = [];
         let sortOrder = 1;
         let currentEditingIndex = -1;
-        let currentEditingImageFile = null;
 
-        function renderTable(data) {{
+        function renderTable(data) {
             const tableContainer = document.getElementById("jsonTableContainer");
             tableContainer.innerHTML = '';
         
             const headerRow = document.createElement('div');
             headerRow.classList.add('row', 'header');
             const headers = [
-                {{ text: 'Country', key: 'country' }},
-                {{ text: 'Currency Type', key: 'currency_type' }},
-                {{ text: 'Donor Name', key: 'donor_name' }},
-                {{ text: 'Image', key: 'image' }},
-                {{ text: 'Note', key: 'note' }},
-                {{ text: 'Size', key: 'size' }},
-                {{ text: 'Year', key: 'year' }},
-                {{ text: 'Actions', key: null }}
+                { text: 'Country', key: 'country' },
+                { text: 'Currency Type', key: 'currency_type' },
+                { text: 'Donor Name', key: 'donor_name' },
+                { text: 'Image', key: 'image' },
+                { text: 'Note', key: 'note' },
+                { text: 'Size', key: 'size' },
+                { text: 'Year', key: 'year' },
+                { text: 'Actions', key: null }
             ];
             
-            headers.forEach(header => {{
+            headers.forEach(header => {
                 const column = document.createElement('div');
                 column.classList.add('column');
                 column.textContent = header.text;
-                if (header.key) {{
+                if (header.key) {
                     column.dataset.key = header.key;
                     column.classList.add('sortable');
-                    column.addEventListener('click', () => {{
+                    column.addEventListener('click', () => {
                         sortTable(header.key);
-                    }});
-                }}
+                    });
+                }
                 headerRow.appendChild(column);
-            }});
+            });
             tableContainer.appendChild(headerRow);
         
-            data.forEach((row, index) => {{
+            data.forEach((row, index) => {
                 const rowDiv = document.createElement('div');
                 rowDiv.classList.add('row');
                 rowDiv.draggable = true;
@@ -979,384 +883,326 @@ def edit_json():
                 rowDiv.addEventListener('dragover', handleDragOver);
                 rowDiv.addEventListener('drop', handleDrop);
         
-                // Country column with dropdown
-                const countryDiv = document.createElement('div');
-                countryDiv.classList.add('column', 'editable');
-                const countrySelect = document.createElement('select');
-                countrySelect.classList.add('editable-select');
-                countrySelect.innerHTML = '<option value="">Select a country</option>' + 
-                    '{country_options}';
-                countrySelect.value = row.country || "";
-                countrySelect.addEventListener('change', () => {{
-                    row.country = countrySelect.value;
-                    saveUpdates();
-                }});
-                countryDiv.appendChild(countrySelect);
-                rowDiv.appendChild(countryDiv);
-                
-                // Currency Type column with dropdown
-                const currencyTypeDiv = document.createElement('div');
-                currencyTypeDiv.classList.add('column', 'editable');
-                const currencyTypeSelect = document.createElement('select');
-                currencyTypeSelect.classList.add('editable-select');
-                currencyTypeSelect.innerHTML = '<option value="coin">Coin</option><option value="paper-bill">Paper Bill</option><option value="antique">Antique</option>';
-                currencyTypeSelect.value = row.currency_type || "coin";
-                currencyTypeSelect.addEventListener('change', () => {{
-                    row.currency_type = currencyTypeSelect.value;
-                    saveUpdates();
-                }});
-                currencyTypeDiv.appendChild(currencyTypeSelect);
-                rowDiv.appendChild(currencyTypeDiv);
-                
-                // Donor Name column (editable)
-                const donorNameDiv = document.createElement('div');
-                donorNameDiv.classList.add('column', 'editable');
-                donorNameDiv.contentEditable = true;
-                donorNameDiv.textContent = row.donor_name || "No Donor Name";
-                donorNameDiv.addEventListener('blur', () => {{
-                    row.donor_name = donorNameDiv.textContent;
-                    saveUpdates();
-                }});
-                rowDiv.appendChild(donorNameDiv);
-                
-                // Image column
-                const imageDiv = document.createElement('div');
-                imageDiv.classList.add('column');
-                const image = document.createElement('img');
-                image.src = "images/" + (row.country || "") + "/" + (row.image || "");
-                image.alt = "Image";
-                image.classList.add('thumbnail');
-                image.onerror = function() {{ this.src='images/placeholder.jpg'; }};
-                image.setAttribute('data-index', index);
-                imageDiv.appendChild(image);
-                rowDiv.appendChild(imageDiv);
-                
-                // Note column (editable)
-                const noteDiv = document.createElement('div');
-                noteDiv.classList.add('column', 'editable');
-                noteDiv.contentEditable = true;
-                noteDiv.textContent = row.note || "No Note";
-                noteDiv.addEventListener('blur', () => {{
-                    row.note = noteDiv.textContent;
-                    saveUpdates();
-                }});
-                rowDiv.appendChild(noteDiv);
-                
-                // Size column (editable)
-                const sizeDiv = document.createElement('div');
-                sizeDiv.classList.add('column', 'editable');
-                sizeDiv.contentEditable = true;
-                sizeDiv.textContent = row.size || "No Size";
-                sizeDiv.addEventListener('blur', () => {{
-                    row.size = sizeDiv.textContent;
-                    saveUpdates();
-                }});
-                rowDiv.appendChild(sizeDiv);
-                
-                // Year column (editable)
-                const yearDiv = document.createElement('div');
-                yearDiv.classList.add('column', 'editable');
-                yearDiv.contentEditable = true;
-                yearDiv.textContent = row.year || "No Year";
-                yearDiv.addEventListener('blur', () => {{
-                    row.year = yearDiv.textContent;
-                    saveUpdates();
-                }});
-                rowDiv.appendChild(yearDiv);
+                const columns = [
+                    { content: row.country || "No Country", key: 'country' },
+                    { content: row.currency_type || "No Currency Type", key: 'currency_type' },
+                    { content: row.donor_name || "No Donor Name", key: 'donor_name' },
+                    { content: `<img src="images/${row.country}/${row.image}" alt="Image" class="thumbnail" onerror="this.src='images/placeholder.jpg';" data-index="${index}" />`, key: 'image', isHTML: true },
+                    { content: row.note || "No Note", key: 'note' },
+                    { content: row.size || "No Size", key: 'size' },
+                    { content: row.year || "No Year", key: 'year' }
+                ];
         
-                // Actions column
+                columns.forEach(col => {
+                    const columnDiv = document.createElement('div');
+                    columnDiv.classList.add('column', 'editable');
+                    if (col.isHTML) {
+                        columnDiv.innerHTML = col.content;
+                    } else {
+                        columnDiv.contentEditable = true;
+                        columnDiv.textContent = col.content;
+                        columnDiv.addEventListener('blur', () => {
+                            row[col.key] = columnDiv.textContent;
+                            saveUpdates();
+                        });
+                    }
+                    rowDiv.appendChild(columnDiv);
+                });
+        
                 const actionDiv = document.createElement('div');
                 actionDiv.classList.add('column');
                 const deleteBtn = document.createElement('span');
                 deleteBtn.classList.add('delete-btn');
                 deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-                deleteBtn.addEventListener('click', () => {{
+                deleteBtn.addEventListener('click', () => {
                     jsonData.splice(index, 1);
                     renderTable(jsonData);
                     saveUpdates();
-                }});
+                });
                 actionDiv.appendChild(deleteBtn);
                 rowDiv.appendChild(actionDiv);
         
                 tableContainer.appendChild(rowDiv);
-            }});
-        }}
+            });
+        }
         
-        function sortTable(key) {{
-            sortOrder = -sortOrder;
-            jsonData.sort((a, b) => {{
+        function sortTable(key) {
+            jsonData.sort((a, b) => {
                 if (a[key] < b[key]) return -1 * sortOrder;
                 if (a[key] > b[key]) return 1 * sortOrder;
                 return 0;
-            }});
+            });
+            sortOrder *= -1;
             renderTable(jsonData);
-        }}
-
-        function saveUpdates() {{
-            fetch('/save-json', {{
+            
+            fetch('/update-json', {
                 method: 'POST',
-                headers: {{
-                    'Content-Type': 'application/json'
-                }},
+                headers: {
+                    'Content-Type': 'application/json',
+                },
                 body: JSON.stringify(jsonData)
-            }})
+            })
             .then(response => response.json())
-            .then(data => {{
-                if (data.message) {{
-                    console.log(data.message);
-                }} else {{
-                    console.error(data.error || "Error saving JSON");
-                }}
-            }})
-            .catch(error => {{
-                console.error("Error:", error);
-            }});
-        }}
+            .then(data => {
+                if (data.message) {
+                    console.log('Backend JSON updated successfully:', data.message);
+                } else {
+                    console.error('Error updating JSON:', data.error);
+                    alert(`Error updating JSON: ${data.error}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error with fetch request:', error);
+                alert('An error occurred while updating the JSON file.');
+            });
+        }
+        
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.getAttribute('data-index'));
+        }
 
-        document.getElementById("downloadBtn").addEventListener("click", function () {{
-            const jsonString = JSON.stringify(jsonData, null, 2);
-            const blob = new Blob([jsonString], {{ type: "application/json" }});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "coins.json";
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }});
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
 
-        document.getElementById("addRowBtn").addEventListener("click", function () {{
-            const newRow = {{
-                country: "",
-                currency_type: "coin",
+        function handleDrop(e) {
+            e.preventDefault();
+            const draggedIndex = e.dataTransfer.getData('text/plain');
+            const targetIndex = e.target.closest('.row').getAttribute('data-index');
+
+            if (draggedIndex !== targetIndex) {
+                const draggedItem = jsonData.splice(draggedIndex, 1)[0];
+                jsonData.splice(targetIndex, 0, draggedItem);
+                renderTable(jsonData);
+                saveUpdates();
+            }
+        }
+
+        function saveUpdates() {
+            fetch('/update-json', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(jsonData),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data.message || "File updated.");
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("An error occurred while updating the file.");
+                });
+        }
+
+        fetch('/get-json')
+            .then(response => response.json())
+            .then(data => {
+                jsonData = data;
+                renderTable(jsonData);
+            });
+
+        document.getElementById("addRowBtn").addEventListener("click", function () {
+            const newRow = {
+                country: "New Country",
+                currency_type: "New Currency Type",
                 donor_name: "New Donor",
                 image: "placeholder.jpg",
-                note: "New Note",
+                note: "Add a note",
                 size: "",
                 year: ""
-            }};
+            };
             jsonData.push(newRow);
             renderTable(jsonData);
             saveUpdates();
-        }});
+        });
 
-        // Drag and drop functionality
-        let draggedRow = null;
+        document.getElementById("downloadBtn").addEventListener('click', () => {
+            const dataStr = JSON.stringify(jsonData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'data.json';
+            link.click();
+        });
 
-        function handleDragStart(e) {{
-            draggedRow = this;
-            this.style.opacity = '0.4';
-            e.dataTransfer.effectAllowed = 'move';
-        }}
+        const modal = document.getElementById("imageModal");
+        const modalImage = document.getElementById("modalImage");
+        const closeModal = document.getElementById("closeModal");
+        const imageFileName = document.getElementById("imageFileName");
+        const saveChangesBtn = document.getElementById("saveChangesBtn");
 
-        function handleDragOver(e) {{
-            e.preventDefault();
-            this.classList.add('drag-over');
-            return false;
-        }}
-
-        function handleDrop(e) {{
-            e.preventDefault();
-            this.classList.remove('drag-over');
-            if (draggedRow !== this) {{
-                const fromIndex = parseInt(draggedRow.getAttribute('data-index'));
-                const toIndex = parseInt(this.getAttribute('data-index'));
-                const item = jsonData.splice(fromIndex, 1)[0];
-                jsonData.splice(toIndex, 0, item);
-                renderTable(jsonData);
-                saveUpdates();
-            }}
-            return false;
-        }}
-
-        // Image modal functionality
-        document.addEventListener('click', function (e) {{
-            if (e.target.classList.contains('thumbnail')) {{
-                const index = e.target.getAttribute('data-index');
-                const row = jsonData[index];
-                const imagePath = "images/" + (row.country || "") + "/" + (row.image || "");
-                document.getElementById('modalImage').src = imagePath;
-                document.getElementById('imageFileName').textContent = row.image || "No filename";
-                document.getElementById('editCountry').value = row.country || "";
-                document.getElementById('editCurrencyType').value = row.currency_type || "coin";
-                document.getElementById('editDonorName').value = row.donor_name || "";
-                document.getElementById('editNote').value = row.note || "";
-                document.getElementById('editSize').value = row.size || "";
-                document.getElementById('editYear').value = row.year || "";
-                currentEditingIndex = index;
-                currentEditingImageFile = null;
-                document.getElementById('imageModal').style.display = 'flex';
-            }}
-        }});
-
-        document.getElementById('closeModal').addEventListener('click', function () {{
-            document.getElementById('imageModal').style.display = 'none';
-        }});
-
-        document.getElementById('saveChangesBtn').addEventListener('click', function () {{
-            if (currentEditingIndex !== -1) {{
-                const row = jsonData[currentEditingIndex];
-                row.country = document.getElementById('editCountry').value;
-                row.currency_type = document.getElementById('editCurrencyType').value;
-                row.donor_name = document.getElementById('editDonorName').value;
-                row.note = document.getElementById('editNote').value;
-                row.size = document.getElementById('editSize').value;
-                row.year = document.getElementById('editYear').value;
+        document.addEventListener("click", (e) => {
+            if (e.target.classList.contains("thumbnail")) {
+                const imageSrc = e.target.src;
+                const fileName = imageSrc.split('/').pop();
+                const index = parseInt(e.target.getAttribute('data-index'));
                 
-                if (currentEditingImageFile) {{
-                    // Handle image file upload
-                    const formData = new FormData();
-                    formData.append('image', currentEditingImageFile);
-                    formData.append('country', row.country);
-                    formData.append('index', currentEditingIndex);
-                    
-                    fetch('/update-image', {{
-                        method: 'POST',
-                        body: formData
-                    }})
-                    .then(response => response.json())
-                    .then(data => {{
-                        if (data.success) {{
-                            row.image = data.filename;
-                            renderTable(jsonData);
-                            saveUpdates();
-                            document.getElementById('imageModal').style.display = 'none';
-                        }} else {{
-                            alert('Error updating image: ' + data.message);
-                        }}
-                    }})
-                    .catch(error => {{
-                        console.error('Error:', error);
-                        alert('Error updating image');
-                    }});
-                }} else {{
-                    renderTable(jsonData);
-                    saveUpdates();
-                    document.getElementById('imageModal').style.display = 'none';
-                }}
-            }}
-        }});
+                currentEditingIndex = index;
+                const rowData = jsonData[index];
 
-        // Image drop zone functionality
-        const dropZone = document.getElementById('imageDropZone');
-        const fileInput = document.getElementById('editImageInput');
+                // Set the image source and file name in the modal
+                modalImage.src = imageSrc;
+                imageFileName.textContent = fileName;
 
-        dropZone.addEventListener('click', () => {{
-            fileInput.click();
-        }});
+                // Fill the form with current data
+                document.getElementById("editCountry").value = rowData.country || "";
+                document.getElementById("editCurrencyType").value = rowData.currency_type || "";
+                document.getElementById("editDonorName").value = rowData.donor_name || "";
+                document.getElementById("editNote").value = rowData.note || "";
+                document.getElementById("editSize").value = rowData.size || "";
+                document.getElementById("editYear").value = rowData.year || "";
 
-        fileInput.addEventListener('change', (e) => {{
-            if (e.target.files.length) {{
-                currentEditingImageFile = e.target.files[0];
-                dropZone.innerHTML = `<p>Selected: ${{currentEditingImageFile.name}}</p>`;
-            }}
-        }});
+                modal.style.display = "flex";
+            }
+        });
 
-        dropZone.addEventListener('dragover', (e) => {{
-            e.preventDefault();
-            dropZone.classList.add('active');
-        }});
+        saveChangesBtn.addEventListener("click", function() {
+            if (currentEditingIndex >= 0) {
+                // Update the data with form values
+                jsonData[currentEditingIndex].country = document.getElementById("editCountry").value;
+                jsonData[currentEditingIndex].currency_type = document.getElementById("editCurrencyType").value;
+                jsonData[currentEditingIndex].donor_name = document.getElementById("editDonorName").value;
+                jsonData[currentEditingIndex].note = document.getElementById("editNote").value;
+                jsonData[currentEditingIndex].size = document.getElementById("editSize").value;
+                jsonData[currentEditingIndex].year = document.getElementById("editYear").value;
 
-        dropZone.addEventListener('dragleave', () => {{
-            dropZone.classList.remove('active');
-        }});
-
-        dropZone.addEventListener('drop', (e) => {{
-            e.preventDefault();
-            dropZone.classList.remove('active');
-            
-            if (e.dataTransfer.files.length) {{
-                currentEditingImageFile = e.dataTransfer.files[0];
-                dropZone.innerHTML = `<p>Selected: ${{currentEditingImageFile.name}}</p>`;
-            }}
-        }});
-
-        // Initialize with default data
-        fetch('/get-json')
-            .then(response => response.json())
-            .then(data => {{
-                jsonData = data;
+                // Save updates
+                saveUpdates();
+                
+                // Refresh the table
                 renderTable(jsonData);
-            }})
-            .catch(error => {{
-                console.error("Error loading JSON:", error);
-            }});
+                
+                // Close the modal
+                modal.style.display = "none";
+                
+                alert("Changes saved successfully!");
+            }
+        });
+
+        closeModal.addEventListener("click", () => {
+            modal.style.display = "none";
+        });
+
+        modal.addEventListener("click", (e) => {
+            if (e.target === modal) {
+                modal.style.display = "none";
+            }
+        });
     </script>
 </body>
-
 </html>
 '''
 
-# Route to serve the current JSON data
-@app.route('/get-json')
+# API to get JSON data
+@app.route('/get-json', methods=['GET'])
 def get_json():
-    data = load_json()
-    return jsonify(data)
+    return jsonify(load_json())
 
-# Route to save updated JSON data
-@app.route('/save-json', methods=['POST'])
-def save_json_route():
+# API to update JSON data
+@app.route('/update-json', methods=['POST'])
+def update_json():
     try:
-        data = request.get_json()
-        save_json(data)
-        return jsonify({"message": "JSON saved successfully!"})
+        updated_data = request.json
+        if not isinstance(updated_data, list):  # Ensure it's a list of items
+            return jsonify({"error": "Invalid JSON structure. Must be a list."}), 400
+        save_json(updated_data)
+        return jsonify({"message": "JSON updated successfully!"}), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": f"Failed to update JSON: {str(e)}"}), 500
 
-# Route to upload a new JSON file
+# Upload and set a new JSON file
 @app.route('/upload-json', methods=['POST'])
 def upload_json():
+    global current_json_file_path
     if 'file' not in request.files:
-        return jsonify({"error": "No file provided"}), 400
-    
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({"error": "No file selected"}), 400
-    
-    if file and file.filename.endswith('.json'):
-        try:
-            data = json.load(file)
-            save_json(data)
-            return jsonify({"message": "File uploaded successfully!"})
-        except Exception as e:
-            return jsonify({"error": f"Invalid JSON file: {str(e)}"}), 400
-    else:
-        return jsonify({"error": "Invalid file type. Please upload a JSON file."}), 400
+        return jsonify({"error": "No file provided!"}), 400
 
-# Route to update an image
-@app.route('/update-image', methods=['POST'])
-def update_image():
+    file = request.files['file']
+
+    if not file.filename.endswith('.json'):
+        return jsonify({"error": "Invalid file format. Only JSON files are allowed."}), 400
+
+    upload_folder = 'uploads'
+    os.makedirs(upload_folder, exist_ok=True)
+    upload_path = os.path.join(upload_folder, file.filename)
     try:
-        if 'image' not in request.files:
-            return jsonify({"success": False, "message": "No image file provided"})
-        
-        image_file = request.files['image']
-        country = request.form.get('country')
-        index = request.form.get('index')
-        
-        if not country:
-            return jsonify({"success": False, "message": "Country is required"})
-        
-        if image_file and allowed_file(image_file.filename):
-            # Create country directory if it doesn't exist
-            country_dir = os.path.join(BASE_UPLOAD_FOLDER, country)
-            os.makedirs(country_dir, exist_ok=True)
-            
-            # Generate UUID filename
-            file_ext = image_file.filename.rsplit('.', 1)[-1].lower()
-            file_uuid = str(uuid.uuid4())
-            filename = f"{file_uuid}.{file_ext}"
-            file_path = os.path.join(country_dir, filename)
-            
-            # Save the file
-            image_file.save(file_path)
-            
-            return jsonify({"success": True, "filename": filename})
-        else:
-            return jsonify({"success": False, "message": "Invalid file type"})
+        file.save(upload_path)
+        current_json_file_path = upload_path  # Update the current file path
+        return jsonify({"message": f"File uploaded and set to: {current_json_file_path}"}), 200
     except Exception as e:
-        return jsonify({"success": False, "message": str(e)})
+        return jsonify({"error": f"Failed to upload file: {str(e)}"}), 500
+
+# Merge images functionality
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+@app.route('/merge-images', methods=['GET', 'POST'])
+def merge_images():
+    if request.method == 'GET':
+        logger.info("Rendering the merge images page.")
+        return render_template('merge_images.html')
+
+    try:
+        logger.info("Processing image merge request.")
+        
+        # Retrieve the uploaded files
+        image1_file = request.files['image1']
+        image2_file = request.files['image2']
+        merge_type = request.form['mergeType']
+        format = request.form['format']  # JPG, PNG, BMP, WebP, etc.
+        filename = request.form.get('filename', 'merged_image')
+
+        logger.info(f"Received images: {image1_file.filename}, {image2_file.filename}")
+        logger.info(f"Merge type: {merge_type}, Output format: {format}, Filename: {filename}")
+
+        # Open images using PIL
+        image1 = Image.open(image1_file)
+        image2 = Image.open(image2_file)
+
+        # Ensure the images are compatible for WebP or other formats
+        image1 = image1.convert('RGBA') if format.upper() == 'WEBP' else image1.convert('RGB')
+        image2 = image2.convert('RGBA') if format.upper() == 'WEBP' else image2.convert('RGB')
+
+        # Resize images to the same width or height for merging
+        if merge_type == 'vertical':
+            new_width = max(image1.width, image2.width)
+            total_height = image1.height + image2.height
+            merged_image = Image.new('RGBA' if format.upper() == 'WEBP' else 'RGB', 
+                                     (new_width, total_height), (255, 255, 255, 0))
+            merged_image.paste(image1, (0, 0))
+            merged_image.paste(image2, (0, image1.height))
+        elif merge_type == 'horizontal':
+            total_width = image1.width + image2.width
+            new_height = max(image1.height, image2.height)
+            merged_image = Image.new('RGBA' if format.upper() == 'WEBP' else 'RGB', 
+                                     (total_width, new_height), (255, 255, 255, 0))
+            merged_image.paste(image1, (0, 0))
+            merged_image.paste(image2, (image1.width, 0))
+
+        # Handle JPG format conversion for PIL compatibility
+        if format.upper() == 'JPG':
+            format = 'JPEG'
+
+        # Save the image to a BytesIO buffer in the requested format
+        image_io = io.BytesIO()
+        merged_image.save(image_io, format=format.upper())
+        image_io.seek(0)
+
+        # Set the correct content type for the response
+        mime_type = f'image/{format.lower()}'
+        logger.info(f"Image merged successfully. Returning image in {mime_type} format.")
+        return send_file(
+            image_io,
+            mimetype=mime_type,
+            as_attachment=True,
+            download_name=f"{filename}.{format.lower()}"
+        )
+    except Exception as e:
+        logger.error(f"An error occurred: {str(e)}")
+        return {"error": str(e)}, 400
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host='127.0.0.1', port=5000, debug=True)
