@@ -229,52 +229,6 @@ def save_json(data):
             json.dump(data, f, indent=2)
 
 
-# Route to serve the ./index.html located in project root
-@app.route('/root-index')
-def root_index():
-    return send_from_directory('.', 'index.html')
-
-# Serve ./display.html
-@app.route('/display.html')
-def display_html():
-    return send_from_directory('.', 'display.html')
-
-
-# Serve ./countries.continents.json
-@app.route('/countries.continents.json')
-def countries_continents_json():
-    return send_from_directory('.', 'countries.continents.json')
-
-# Serve ./images/coins.json
-@app.route('/images/coins.json')
-def coins_json():
-    return send_from_directory('images', 'coins.json')
-
-# Serve ./countries.json
-@app.route('/countries.json')
-def countries_json():
-    return send_from_directory('.', 'countries.json')
-
-# Serve ./geojson/country_geojson_mapping.json
-@app.route('/geojson/country_geojson_mapping.json')
-def country_geojson_mapping():
-    return send_from_directory('geojson', 'country_geojson_mapping.json')
-
-# Serve ./continents.geojson
-@app.route('/continents.geojson')
-def continents_geojson():
-    return send_from_directory('.', 'continents.geojson')
-
-@app.route('/images/<path:filename>')
-def serve_images_new(filename):
-    return send_from_directory('images', filename)
-
-@app.route('/geojson/<path:filename>')
-def serve_geojson_new(filename):
-    return send_from_directory('geojson', filename)
-
-
-
 # Routes
 @app.route('/')
 def index():
