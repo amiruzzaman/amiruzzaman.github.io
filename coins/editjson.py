@@ -926,6 +926,47 @@ def edit_json():
             margin: 0;
             font-size: 12px;
         }
+        
+        /* Search box styling */
+.search-container {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.search-box {
+    width: 300px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #333;
+}
+
+.search-box:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.clear-search-btn {
+    padding: 10px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.clear-search-btn:hover {
+    background-color: #c82333;
+}
     </style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
@@ -933,6 +974,13 @@ def edit_json():
 <body>
     <div class="container">
         <h1>JSON Viewer & Editor</h1>
+
+<div class="search-container">
+    <input type="text" id="countrySearch" class="search-box" placeholder="Search by country...">
+    <button id="clearSearch" class="clear-search-btn" title="Clear search">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
 
         <input type="file" id="jsonFileInput" class="file-input" accept=".json" />
 
@@ -1723,6 +1771,40 @@ def edit_json():
                 }
             });
         });
+        
+        // Search functionality
+document.getElementById("countrySearch").addEventListener("input", function() {
+    filterTableByCountry(this.value);
+});
+
+document.getElementById("clearSearch").addEventListener("click", function() {
+    document.getElementById("countrySearch").value = "";
+    filterTableByCountry("");
+});
+
+function filterTableByCountry(searchTerm) {
+    const searchTermLower = searchTerm.toLowerCase();
+    
+    if (!searchTermLower) {
+        // If search is empty, show all rows
+        document.querySelectorAll('.row:not(.header)').forEach(row => {
+            row.style.display = 'flex';
+        });
+        return;
+    }
+    
+    // Filter rows based on country
+    document.querySelectorAll('.row:not(.header)').forEach(row => {
+        const countrySelect = row.querySelector('.country-dropdown');
+        const countryValue = countrySelect ? countrySelect.value.toLowerCase() : '';
+        
+        if (countryValue.includes(searchTermLower)) {
+            row.style.display = 'flex';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
     </script>
 </body>
 
