@@ -7,19 +7,25 @@
     <link rel="shortcut icon" href="#">
     <title>Amir's Python Functions Index</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto:wght@300;400;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
-            --primary-color: #ffc107;
-            --secondary-color: #495057;
-            --background-color: #2c3e50;
+            --primary-color: #007bff;
+            --secondary-color: #343a40;
+            --background-color: #f0f2f5;
             --card-bg: #ffffff;
-            --text-color: #333;
+            --text-color: #495057;
             --light-text: #f8f9fa;
             --dark-text: #212529;
             --success-color: #28a745;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            --transition: all 0.3s ease;
+            --border-radius: 12px;
+            --box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            --hover-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
         * {
@@ -29,48 +35,65 @@
         }
 
         body {
-            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            font-family: 'Roboto', sans-serif;
             background-color: var(--background-color);
-            color: var(--light-text);
+            color: var(--text-color);
             display: flex;
             flex-direction: column;
             min-height: 100vh;
             line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .header {
-            background: linear-gradient(135deg, var(--secondary-color), #343a40);
-            padding: 2rem 0;
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            padding: 4rem 0;
             text-align: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
+            color: var(--light-text);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 3rem;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            clip-path: polygon(0 0, 100% 0, 80% 100%, 0% 100%);
+            opacity: 0.5;
         }
 
         h1 {
-            font-size: 2.5rem;
+            font-family: 'Poppins', sans-serif;
+            font-size: 3rem;
             margin-bottom: 0.5rem;
-            color: var(--primary-color);
-            font-weight: 600;
+            font-weight: 700;
         }
 
         .subtitle {
-            font-size: 1.1rem;
-            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.3rem;
             font-weight: 300;
+            color: rgba(255, 255, 255, 0.9);
         }
 
         .container {
             flex: 1;
             width: 100%;
-            max-width: 1200px;
+            max-width: 1100px;
             margin: 0 auto;
             padding: 0 20px;
         }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
             margin-bottom: 3rem;
         }
 
@@ -80,31 +103,33 @@
             box-shadow: var(--box-shadow);
             overflow: hidden;
             transition: var(--transition);
-            border: none;
+            border: 1px solid #e9ecef;
         }
 
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-10px);
+            box-shadow: var(--hover-shadow);
         }
 
         .card-header {
-            background: linear-gradient(135deg, var(--primary-color), #ffab00);
-            color: var(--dark-text);
-            padding: 1.2rem;
+            background: linear-gradient(90deg, var(--secondary-color), #495057);
+            color: var(--light-text);
+            padding: 1.5rem;
+            font-family: 'Poppins', sans-serif;
             font-size: 1.4rem;
             font-weight: 600;
             display: flex;
             align-items: center;
+            border-bottom: 4px solid var(--primary-color);
         }
 
         .card-header i {
-            margin-right: 12px;
-            font-size: 1.6rem;
+            margin-right: 15px;
+            font-size: 1.8rem;
         }
 
         .card-body {
-            padding: 1.5rem;
+            padding: 2rem;
         }
 
         .function-list {
@@ -112,9 +137,8 @@
         }
 
         .function-item {
-            margin-bottom: 0.8rem;
+            margin-bottom: 1.2rem;
             position: relative;
-            padding-left: 30px;
         }
 
         .function-item:last-child {
@@ -123,103 +147,121 @@
 
         .function-link {
             display: block;
-            color: var(--secondary-color);
+            color: var(--text-color);
             text-decoration: none;
             font-weight: 500;
-            padding: 0.6rem 0;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
             transition: var(--transition);
+            background-color: var(--background-color);
             position: relative;
-        }
-
-        .function-link:hover {
-            color: var(--primary-color);
-            transform: translateX(5px);
+            z-index: 1;
         }
 
         .function-link::before {
-            content: '\f054';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
+            content: '';
             position: absolute;
-            left: -25px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--primary-color);
-            font-size: 0.8rem;
-            transition: var(--transition);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-color);
+            border-radius: 8px;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+            z-index: -1;
         }
 
         .function-link:hover::before {
-            left: -20px;
+            transform: scaleX(1);
+        }
+
+        .function-link:hover {
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .function-link i {
+            margin-right: 10px;
+            color: var(--primary-color);
+            transition: color 0.4s ease;
+        }
+
+        .function-link:hover i {
+            color: white;
         }
 
         .footer {
-            background: linear-gradient(135deg, var(--secondary-color), #343a40);
+            background: var(--secondary-color);
             color: var(--light-text);
-            padding: 1.5rem 0;
+            padding: 2.5rem 0;
             text-align: center;
             margin-top: auto;
         }
 
         .footer-content {
-            max-width: 1200px;
+            max-width: 1100px;
             margin: 0 auto;
             padding: 0 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            gap: 20px;
         }
 
         .copyright {
-            margin-bottom: 0.5rem;
             font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
         }
 
         .social-links {
             display: flex;
-            gap: 15px;
+            gap: 25px;
         }
 
         .social-link {
-            color: var(--light-text);
-            font-size: 1.2rem;
-            transition: var(--transition);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.5rem;
+            transition: color 0.3s ease, transform 0.3s ease;
         }
 
         .social-link:hover {
             color: var(--primary-color);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
         }
 
-        /* Responsive adjustments */
         @media (max-width: 768px) {
             .grid {
                 grid-template-columns: 1fr;
             }
 
             h1 {
-                font-size: 2rem;
+                font-size: 2.5rem;
+            }
+
+            .subtitle {
+                font-size: 1.1rem;
             }
 
             .card-header {
                 font-size: 1.2rem;
-                padding: 1rem;
+                padding: 1.2rem;
             }
 
             .card-header i {
-                font-size: 1.3rem;
+                font-size: 1.5rem;
             }
 
             .card-body {
-                padding: 1rem;
+                padding: 1.5rem;
             }
         }
 
-        /* Animation for cards */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(30px);
             }
 
             to {
@@ -229,7 +271,7 @@
         }
 
         .card {
-            animation: fadeInUp 0.5s ease forwards;
+            animation: fadeInUp 0.7s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
             opacity: 0;
         }
 
@@ -244,17 +286,13 @@
         .card:nth-child(3) {
             animation-delay: 0.3s;
         }
-
-        .card:nth-child(4) {
-            animation-delay: 0.4s;
-        }
     </style>
 </head>
 
 <body>
     <header class="header">
         <h1>Python Functions Dashboard</h1>
-        <p class="subtitle">A collection of utility functions and tools</p>
+        <p class="subtitle">A curated collection of robust utilities and tools</p>
     </header>
 
     <div class="container">
@@ -268,17 +306,17 @@
                     <ul class="function-list">
                         <li class="function-item">
                             <a href="/edit_json" target="_blank" class="function-link">
-                                Edit JSON Data
+                                <i class="fas fa-edit"></i> Edit JSON Data
                             </a>
                         </li>
                         <li class="function-item">
                             <a href="/get-json" target="_blank" class="function-link">
-                                View JSON Data (Raw)
+                                <i class="fas fa-eye"></i> View JSON Data (Raw)
                             </a>
                         </li>
                         <li class="function-item">
                             <a href="/upload" target="_blank" class="function-link">
-                                Add/Upload images file for coins and update JSON
+                                <i class="fas fa-upload"></i> Add/Upload Images & Update JSON
                             </a>
                         </li>
                     </ul>
@@ -294,44 +332,38 @@
                     <ul class="function-list">
                         <li class="function-item">
                             <a href="/manage_image" target="_blank" class="function-link">
-                                Manage Uploaded Images
+                                <i class="fas fa-folder-open"></i> Manage Uploaded Images
                             </a>
                         </li>
                         <li class="function-item">
                             <a href="/merge-images" target="_blank" class="function-link">
-                                Merge Images
+                                <i class="fas fa-compress"></i> Merge Images
                             </a>
                         </li>
                         <li class="function-item">
                             <a href="/crop-image" target="_blank" class="function-link">
-                                Crop Image
+                                <i class="fas fa-crop-alt"></i> Crop Image
                             </a>
                         </li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Uncomment when needed -->
-            <!-- <div class="card">
+            <div class="card">
                 <div class="card-header">
-                    <i class="fas fa-user-shield"></i>
-                    Authentication
+                    <i class="fas fa-home"></i>
+                    Root Index Page
                 </div>
                 <div class="card-body">
                     <ul class="function-list">
                         <li class="function-item">
-                            <a href="/login" target="_blank" class="function-link">
-                                Login
-                            </a>
-                        </li>
-                        <li class="function-item">
-                            <a href="/logout" target="_blank" class="function-link">
-                                Logout
+                            <a href="/root-index" target="_blank" class="function-link">
+                                <i class="fas fa-external-link-alt"></i> Open Root Index
                             </a>
                         </li>
                     </ul>
                 </div>
-            </div> -->
+            </div>
         </div>
     </div>
 

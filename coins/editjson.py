@@ -229,6 +229,52 @@ def save_json(data):
             json.dump(data, f, indent=2)
 
 
+# Route to serve the ./index.html located in project root
+@app.route('/root-index')
+def root_index():
+    return send_from_directory('.', 'index.html')
+
+# Serve ./display.html
+@app.route('/display.html')
+def display_html():
+    return send_from_directory('.', 'display.html')
+
+
+# Serve ./countries.continents.json
+@app.route('/countries.continents.json')
+def countries_continents_json():
+    return send_from_directory('.', 'countries.continents.json')
+
+# Serve ./images/coins.json
+@app.route('/images/coins.json')
+def coins_json():
+    return send_from_directory('images', 'coins.json')
+
+# Serve ./countries.json
+@app.route('/countries.json')
+def countries_json():
+    return send_from_directory('.', 'countries.json')
+
+# Serve ./geojson/country_geojson_mapping.json
+@app.route('/geojson/country_geojson_mapping.json')
+def country_geojson_mapping():
+    return send_from_directory('geojson', 'country_geojson_mapping.json')
+
+# Serve ./continents.geojson
+@app.route('/continents.geojson')
+def continents_geojson():
+    return send_from_directory('.', 'continents.geojson')
+
+@app.route('/images/<path:filename>')
+def serve_images_new(filename):
+    return send_from_directory('images', filename)
+
+@app.route('/geojson/<path:filename>')
+def serve_geojson_new(filename):
+    return send_from_directory('geojson', filename)
+
+
+
 # Routes
 @app.route('/')
 def index():
@@ -426,32 +472,43 @@ def upload_image():
     try:
         country = request.form.get('country')
         file = request.files.get('file')
-        
+        existing_image = request.form.get('existing_image')  # 👈 pass current filename from frontend if editing
+
         if not country:
             return jsonify({"error": "Country is required"}), 400
-        
+
         if not file:
             return jsonify({"error": "No file provided"}), 400
-        
-        # Create country directory if it doesn't exist
+
         country_folder = os.path.join(BASE_UPLOAD_FOLDER, country)
         os.makedirs(country_folder, exist_ok=True)
-        
-        # Save the file with UUID
+
         file_ext = file.filename.rsplit('.', 1)[-1].lower()
-        file_uuid = str(uuid.uuid4())
-        filename = f"{file_uuid}.{file_ext}"
+
+        if existing_image:
+            old_ext = existing_image.rsplit('.', 1)[-1].lower()
+            if file_ext == old_ext:
+                # ✅ Replace old file, keep same name
+                filename = existing_image
+            else:
+                # ✅ Different extension → generate new UUID
+                filename = f"{uuid.uuid4()}.{file_ext}"
+        else:
+            # ✅ No existing image → new UUID
+            filename = f"{uuid.uuid4()}.{file_ext}"
+
         file_path = os.path.join(country_folder, filename)
         file.save(file_path)
-        
+
         return jsonify({
             "message": "File uploaded successfully",
             "filename": filename,
             "filepath": file_path
         }), 200
-        
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 # Edit JSON page - now with embedded HTML
 @app.route('/edit_json')
@@ -869,6 +926,47 @@ def edit_json():
             margin: 0;
             font-size: 12px;
         }
+        
+        /* Search box styling */
+.search-container {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.search-box {
+    width: 300px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #333;
+}
+
+.search-box:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.clear-search-btn {
+    padding: 10px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.clear-search-btn:hover {
+    background-color: #c82333;
+}
     </style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
@@ -876,6 +974,13 @@ def edit_json():
 <body>
     <div class="container">
         <h1>JSON Viewer & Editor</h1>
+
+<div class="search-container">
+    <input type="text" id="countrySearch" class="search-box" placeholder="Search by country...">
+    <button id="clearSearch" class="clear-search-btn" title="Clear search">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
 
         <input type="file" id="jsonFileInput" class="file-input" accept=".json" />
 
@@ -1140,6 +1245,7 @@ def edit_json():
     });
 });
 
+
                 
                 // Add default option
                 const defaultOption = document.createElement('option');
@@ -1355,6 +1461,12 @@ def edit_json():
                 const formData = new FormData();
                 formData.append('file', file);
                 formData.append('country', country);
+                //formData.append('existing_image', row.image);
+                // ✅ Add existing image filename if row already has one
+                if (row.image && row.image !== "placeholder.jpg") {
+                    formData.append('existing_image', row.image);
+                }
+
                 
                 fetch('/upload-image', {
                     method: 'POST',
@@ -1517,6 +1629,11 @@ def edit_json():
                 formData.append('file', file);
                 formData.append('country', country);
                 
+                // ✅ Add existing image filename if editing an existing row
+                if (currentEditingIndex !== -1 && jsonData[currentEditingIndex].image && jsonData[currentEditingIndex].image !== "placeholder.jpg") {
+                    formData.append('existing_image', jsonData[currentEditingIndex].image);
+                }
+                
                 fetch('/upload-image', {
                     method: 'POST',
                     body: formData
@@ -1558,6 +1675,10 @@ def edit_json():
             
             // Setup image upload functionality
             setupModalImageUpload();
+            
+            // Setup auto-save for modal fields
+            setupModalAutoSave();
+
 
             document.getElementById("addRowBtn").addEventListener("click", function () {
                 const newRow = {
@@ -1591,21 +1712,43 @@ def edit_json():
                 document.getElementById("imageModal").style.display = "none";
             });
 
-            document.getElementById("saveChangesBtn").addEventListener("click", function () {
-                if (currentEditingIndex !== -1) {
-                    const row = jsonData[currentEditingIndex];
-                    row.country = document.getElementById("editCountry").value;
-                    row.currency_type = document.getElementById("editCurrencyType").value;
-                    row.donor_name = document.getElementById("editDonorName").value;
-                    row.note = document.getElementById("editNote").value;
-                    row.size = document.getElementById("editSize").value;
-                    row.year = document.getElementById("editYear").value;
-                    
-                    renderTable(jsonData);
-                    saveUpdates();
-                    document.getElementById("imageModal").style.display = "none";
-                }
-            });
+            function setupModalAutoSave() {
+                const fields = [
+                    { id: "editCountry", key: "country" },
+                    { id: "editCurrencyType", key: "currency_type" },
+                    { id: "editDonorName", key: "donor_name" },
+                    { id: "editNote", key: "note" },
+                    { id: "editSize", key: "size" },
+                    { id: "editYear", key: "year" }
+                ];
+
+                fields.forEach(field => {
+                    const el = document.getElementById(field.id);
+
+                    // For text inputs & textarea → blur event
+                    if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
+                        el.addEventListener("blur", function () {
+                            if (currentEditingIndex !== -1) {
+                                jsonData[currentEditingIndex][field.key] = this.value;
+                                renderTable(jsonData);
+                                saveUpdates();
+                            }
+                        });
+                    }
+
+                    // For dropdowns → change event
+                    if (el.tagName === "SELECT") {
+                        el.addEventListener("change", function () {
+                            if (currentEditingIndex !== -1) {
+                                jsonData[currentEditingIndex][field.key] = this.value;
+                                renderTable(jsonData);
+                                saveUpdates();
+                            }
+                        });
+                    }
+                });
+            }
+
 
             document.addEventListener("click", function (event) {
                 if (event.target.classList.contains("thumbnail")) {
@@ -1628,6 +1771,40 @@ def edit_json():
                 }
             });
         });
+        
+        // Search functionality
+document.getElementById("countrySearch").addEventListener("input", function() {
+    filterTableByCountry(this.value);
+});
+
+document.getElementById("clearSearch").addEventListener("click", function() {
+    document.getElementById("countrySearch").value = "";
+    filterTableByCountry("");
+});
+
+function filterTableByCountry(searchTerm) {
+    const searchTermLower = searchTerm.toLowerCase();
+    
+    if (!searchTermLower) {
+        // If search is empty, show all rows
+        document.querySelectorAll('.row:not(.header)').forEach(row => {
+            row.style.display = 'flex';
+        });
+        return;
+    }
+    
+    // Filter rows based on country
+    document.querySelectorAll('.row:not(.header)').forEach(row => {
+        const countrySelect = row.querySelector('.country-dropdown');
+        const countryValue = countrySelect ? countrySelect.value.toLowerCase() : '';
+        
+        if (countryValue.includes(searchTermLower)) {
+            row.style.display = 'flex';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
     </script>
 </body>
 
