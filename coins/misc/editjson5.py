@@ -667,31 +667,31 @@ def edit_json():
         }
 
         .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            overflow-y: auto;  /* ✅ allow scrolling when needed */
-        }
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    overflow-y: auto;  /* ✅ allow scrolling when needed */
+}
 
-        .modal-content {
-            position: relative;
-            width: 90%;
-            max-width: 800px;
-            background-color: #fff;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            color: #333;
-            max-height: 90vh;   /* ✅ prevent it from going off screen */
-            overflow-y: auto;   /* ✅ scroll inside modal if content too tall */
-        }
+.modal-content {
+    position: relative;
+    width: 90%;
+    max-width: 800px;
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    color: #333;
+    max-height: 90vh;   /* ✅ prevent it from going off screen */
+    overflow-y: auto;   /* ✅ scroll inside modal if content too tall */
+}
 
         .modal img {
             max-width: 100%;
@@ -928,80 +928,59 @@ def edit_json():
         }
         
         /* Search box styling */
-    .search-container {
-        margin-bottom: 20px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-    }
+.search-container {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
 
-    .search-box {
-        width: 300px;
-        padding: 10px;
-        font-size: 16px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        background-color: #fff;
-        color: #333;
-    }
+.search-box {
+    width: 300px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #333;
+}
 
-    .search-box:focus {
-        outline: none;
-        border-color: #007bff;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-    }
+.search-box:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
 
-    .clear-search-btn {
-        padding: 10px;
-        background-color: #dc3545;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+.clear-search-btn {
+    padding: 10px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-    .clear-search-btn:hover {
-        background-color: #c82333;
-    }
-    
-    .toast-message {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;                     /* full screen width */
-        background-color: rgba(40, 167, 69, 0.5); /* ✅ more transparent */
-        color: white;
-        padding: 15px;
-        text-align: center;
-        font-size: 16px;
-        font-weight: bold;
-        z-index: 3000;
-        opacity: 0;
-        display: none;
-        transition: opacity 0.5s ease;
-    }
-
-
+.clear-search-btn:hover {
+    background-color: #c82333;
+}
     </style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 
 <body>
-    <div id="toastMessage" class="toast-message">✅ Changes saved successfully!</div>
-
     <div class="container">
         <h1>JSON Viewer & Editor</h1>
 
-        <div class="search-container">
-            <input type="text" id="countrySearch" class="search-box" placeholder="Search by country...">
-            <button id="clearSearch" class="clear-search-btn" title="Clear search">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
+<div class="search-container">
+    <input type="text" id="countrySearch" class="search-box" placeholder="Search by country...">
+    <button id="clearSearch" class="clear-search-btn" title="Clear search">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
 
         <input type="file" id="jsonFileInput" class="file-input" accept=".json" />
 
@@ -1027,7 +1006,6 @@ def edit_json():
             <div id="imageFileName" class="image-filename"></div>
             
             <div class="edit-form" id="editForm">
-                
                 <div class="form-group">
                     <label for="editCountry">Country:</label>
                     <select id="editCountry" name="country" class="country-dropdown"></select>
@@ -1230,42 +1208,42 @@ def edit_json():
                 //});
 
                 countrySelect.addEventListener('change', function() {
-                const oldCountry = row.country;
-                const newCountry = this.value;
-                const image = row.image;
+    const oldCountry = row.country;
+    const newCountry = this.value;
+    const image = row.image;
 
-                if (!image || image === "placeholder.jpg") {
-                    // Just update JSON if no real image
-                    row.country = newCountry;
-                    saveUpdates();
-                    return;
-                }
+    if (!image || image === "placeholder.jpg") {
+        // Just update JSON if no real image
+        row.country = newCountry;
+        saveUpdates();
+        return;
+    }
 
-                fetch('/update-country', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        image: image,
-                        old_country: oldCountry,
-                        new_country: newCountry
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        alert("Error: " + data.error);
-                        this.value = oldCountry; // revert if failed
-                    } else {
-                        console.log(data.message);
-                        row.country = newCountry;
-                        renderTable(jsonData);
-                    }
-                })
-                .catch(error => {
-                    console.error("Error updating country:", error);
-                    this.value = oldCountry; // revert if error
-                });
-            });
+    fetch('/update-country', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            image: image,
+            old_country: oldCountry,
+            new_country: newCountry
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert("Error: " + data.error);
+            this.value = oldCountry; // revert if failed
+        } else {
+            console.log(data.message);
+            row.country = newCountry;
+            renderTable(jsonData);
+        }
+    })
+    .catch(error => {
+        console.error("Error updating country:", error);
+        this.value = oldCountry; // revert if error
+    });
+});
 
 
                 
@@ -1337,26 +1315,27 @@ def edit_json():
                 const imageColumn = document.createElement('div');
                 imageColumn.classList.add('column');
                 
-                // ✅ Always show drop area (whether image exists or not)
-                const dropArea = document.createElement('div');
-                dropArea.classList.add('image-drop-area');
-                dropArea.setAttribute('data-index', index);
-
                 if (row.image && row.image !== 'placeholder.jpg') {
-                    dropArea.innerHTML = `<img src="images/${row.country}/${row.image}" 
-                                        class="thumbnail" 
-                                        data-index="${index}" 
-                                        onerror="this.src='images/placeholder.jpg'">`;
+                    const image = document.createElement('img');
+                    image.src = `images/${row.country}/${row.image}`;
+                    image.alt = "Image";
+                    image.classList.add('thumbnail');
+                    image.setAttribute('data-index', index);
+                    image.onerror = function() {
+                        this.src = 'images/placeholder.jpg';
+                    };
+                    imageColumn.appendChild(image);
                 } else {
+                    const dropArea = document.createElement('div');
+                    dropArea.classList.add('image-drop-area');
+                    dropArea.setAttribute('data-index', index);
                     dropArea.innerHTML = '<p>Drag & drop image here</p>';
+                    
+                    // Add drag and drop functionality
+                    setupImageDropArea(dropArea, row, index);
+                    
+                    imageColumn.appendChild(dropArea);
                 }
-
-                // Enable drag & drop on this area
-                setupImageDropArea(dropArea, row, index);
-
-                imageColumn.appendChild(dropArea);
-
-                
                 rowDiv.appendChild(imageColumn);
                 
                 // Note (editable)
@@ -1414,7 +1393,6 @@ def edit_json():
         
         // Setup image drop area functionality
         function setupImageDropArea(dropArea, row, index) {
-                      
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
             fileInput.accept = 'image/*';
@@ -1471,24 +1449,25 @@ def edit_json():
             
             function handleFiles(files, row, index) {
                 if (files.length === 0) return;
-                            
+                
                 const file = files[0];
                 const country = row.country;
-                            
+                
                 if (!country) {
                     alert('Please select a country first');
                     return;
                 }
-                            
+                
                 const formData = new FormData();
                 formData.append('file', file);
                 formData.append('country', country);
-
-                // ✅ If this row already has an image, tell backend to replace it
+                //formData.append('existing_image', row.image);
+                // ✅ Add existing image filename if row already has one
                 if (row.image && row.image !== "placeholder.jpg") {
                     formData.append('existing_image', row.image);
                 }
 
+                
                 fetch('/upload-image', {
                     method: 'POST',
                     body: formData
@@ -1498,7 +1477,7 @@ def edit_json():
                     if (data.error) {
                         alert('Error uploading image: ' + data.error);
                     } else {
-                        // Update JSON with new filename
+                        // Update the image in the current row
                         jsonData[index].image = data.filename;
                         renderTable(jsonData);
                         saveUpdates();
@@ -1509,7 +1488,6 @@ def edit_json():
                     alert('Error uploading image');
                 });
             }
-
         }
         
         function sortTable(key) {
@@ -1565,41 +1543,23 @@ def edit_json():
             }
         }
 
-        function showToast(message) {
-            const toast = document.getElementById("toastMessage");
-            toast.textContent = "✅ " + message;
-            toast.style.display = "block";
-            toast.style.opacity = "1";
-
-            // Fade out after 3 seconds
-            setTimeout(() => {
-                toast.style.opacity = "0";
-            }, 3000);
-
-            // Fully hide after fade
-            setTimeout(() => {
-                toast.style.display = "none";
-            }, 4000);
-        }
-
         function saveUpdates() {
             fetch('/update-json', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                },
                 body: JSON.stringify(jsonData),
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data.message || "File updated.");
-                showToast(data.message || "Changes saved!");
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                showToast("❌ Error saving changes!");
-            });
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data.message || "File updated.");
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("An error occurred while updating the file.");
+                });
         }
-
-
 
         // Handle image upload via drag and drop in modal
         function setupModalImageUpload() {
