@@ -1589,11 +1589,20 @@
     </div>
     <div class="detail-item">
         <span class="detail-label">Year:</span>
-        <span class="detail-value">${safeVal(year)}</span>
+        <span class="detail-value">
+        ${safeVal(year)} 
+        ${year && !isNaN(year)
+                    ? `<span style="color: #3498db;">(${new Date().getFullYear() - parseInt(year)} years old)</span>`
+                    : ""}
+        </span>
     </div>
     <div class="detail-item">
         <span class="detail-label">Size:</span>
-        <span class="detail-value">${size ? size + " mm" : "N/A"}</span>
+        <span class="detail-value">
+        ${size
+                    ? `${size} <span style="color: #3498db;">mm</span>`
+                    : "N/A"}
+        </span>
     </div>
     <div class="detail-item">
         <span class="detail-label">Donor (${safeVal(currency_type) || "--"}):</span>
