@@ -1216,6 +1216,17 @@
             text-decoration: underline;
             cursor: pointer;
         }
+
+        .country-tooltip {
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            font-weight: 600;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 13px;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
     </style>
 </head>
 
@@ -1881,12 +1892,21 @@
 
                 mainMapGeoJsonLayer = L.geoJSON(geojson, {
                     style: {
-                        color: "#e74c3c", // Red highlight color
+                        color: "#e74c3c",
                         weight: 2,
                         fillOpacity: 0.2,
                         fillColor: "#e74c3c"
+                    },
+                    onEachFeature: function (feature, layer) {
+                        const name = feature.properties?.name || feature.properties?.ADMIN || "Unknown";
+                        layer.bindTooltip(name, {
+                            permanent: false,
+                            direction: "center",
+                            className: "country-tooltip"
+                        });
                     }
                 }).addTo(mapInstance);
+
 
                 const bounds = mainMapGeoJsonLayer.getBounds();
                 if (bounds.isValid()) {
