@@ -599,9 +599,9 @@
         .detail-value {
             flex: 1;
             color: var(--text-color);
-            /* FIXED: Removed problematic properties that caused text to break on mobile */
-            word-break: normal;
-            overflow-wrap: normal;
+
+            overflow-wrap: anywhere;
+            word-break: break-word;
         }
 
         /* Image Modal - UPDATED FOR CONSISTENT SIZING */
@@ -868,22 +868,6 @@
                 font-size: 14px;
                 margin-right: 6px;
                 width: 16px;
-            }
-
-            /* FIXED: Improved mobile text display for detail items */
-            .detail-item {
-                flex-direction: column;
-                gap: 5px;
-            }
-
-            .detail-label {
-                min-width: auto;
-                font-size: 14px;
-            }
-
-            .detail-value {
-                font-size: 16px;
-                line-height: 1.4;
             }
         }
 
@@ -1400,7 +1384,7 @@
             .then(response => response.json())
             .then(data => {
                 originalData = combineData(data);
-                //console.log(originalData);
+				//console.log(originalData);
                 renderSummary(originalData);
             })
             .catch(error => console.error('Error fetching JSON:', error));
@@ -1453,29 +1437,28 @@
         }
 
         // helper to clean values
-        function cleanValue(val) {
-            if (!val || val.toString().trim().toLowerCase() === "none") {
-                return "N/A";
-            }
-            return val;
-        }
+function cleanValue(val) {
+  if (!val || val.toString().trim().toLowerCase() === "none") {
+    return "N/A";
+  }
+  return val;
+}
 
-        // helper function
-        function safeVal(val) {
-            if (!val) return "N/A";
-            if (typeof val === "string" && val.trim().toLowerCase() === "none") return "N/A";
-            return val;
-        }
+// helper function
+function safeVal(val) {
+    if (!val) return "N/A";
+    if (typeof val === "string" && val.trim().toLowerCase() === "none") return "N/A";
+    return val;
+}
         // Preload all necessary JSON data at application startup
         async function preloadData() {
             try {
-                const [coinsData, countriesData, continentData, countryGeoJsonMapping, continentGeoJson, languagesData] = await Promise.all([
+                const [coinsData, countriesData, continentData, countryGeoJsonMapping, continentGeoJson] = await Promise.all([
                     fetch("images/coins.json").then(res => res.json()),
                     fetch("countries.json").then(res => res.json()),
                     fetch("countries.continents.json").then(res => res.json()),
                     fetch("geojson/country_geojson_mapping.json").then(res => res.json()),
-                    fetch("continents.geojson").then(res => res.json()),
-                    fetch("countries.languages.json").then(res => res.json())   // 👈 NEW
+                    fetch("continents.geojson").then(res => res.json())
                 ]);
 
                 cache.coinsData = coinsData;
@@ -1483,16 +1466,18 @@
                 cache.continentData = continentData;
                 cache.countryGeoJsonMapping = countryGeoJsonMapping;
                 cache.continentGeoJson = continentGeoJson;
-                cache.languagesData = languagesData;   // 👈 NEW
+				
+				// Uncomment this to see what each object is showing
+                //console.log(coinsData[0]);
 
                 console.log("All data preloaded successfully.");
                 return true;
             } catch (error) {
                 console.error("Error preloading data:", error);
+                // Return false to indicate preload failure
                 return false;
             }
         }
-
 
         // Sets the current image in the gallery and updates its details
         async function setCurrentImage(src, note, donor, currency_type, countryInfo, year, size, index) {
@@ -1516,35 +1501,9 @@
             };
             tempImage.src = src; // Start loading the image
 
-            // Get alphabet example from countries.languages.json
-            let alphabetExample = "N/A";
-            if (cache.languagesData) {
-                //console.log("✅ languagesData loaded:", cache.languagesData);
-
-                //console.log("🔍 Looking for:", countryInfo?.name);
-
-                const langMatch = cache.languagesData.find(c => {
-                    //console.log("➡️ Checking:", c.country_name);
-                    return c.country_name.toLowerCase() === countryInfo.name.toLowerCase();
-                });
-
-                if (langMatch) {
-                    //console.log("🎯 Match found:", langMatch);
-                    //console.log(langMatch.alphabet_example);
-                    if (langMatch.languages[0].alphabet_example) {
-                        //alphabetExample = langMatch.alphabet_example;
-                        alphabetExample = langMatch.languages[0].alphabet_example;
-                    }
-                } else {
-                    console.warn("⚠️ No match found for:", countryInfo?.name);
-                }
-            } else {
-                console.error("❌ cache.languagesData is missing!");
-            }
-
-
-            // Construct the HTML for coin details
-            const countryDetails = countryInfo ? `
+// Construct the HTML for coin details
+const countryDetails = countryInfo
+    ? `
     <div class="detail-item">
         <span class="detail-label">Country:</span>
         <span class="detail-value">${safeVal(countryInfo.name)}</span>
@@ -1556,10 +1515,6 @@
     <div class="detail-item">
         <span class="detail-label">Language:</span>
         <span class="detail-value">${safeVal(countryInfo.language?.name)}</span>
-    </div>
-    <div class="detail-item">
-        <span class="detail-label">Hello:</span>
-        <span class="detail-value">${alphabetExample}</span>
     </div>
     <div class="detail-item">
         <span class="detail-label">Currency:</span>
@@ -1575,13 +1530,14 @@
     </div>
     <div class="detail-item">
         <span class="detail-label">Size:</span>
-        <span class="detail-value">${size ? size + " mm" : "N/A"}</span>
+        <span class="detail-value">${safeVal(size)}</span>
     </div>
     <div class="detail-item">
         <span class="detail-label">Donor (${safeVal(currency_type) || "--"}):</span>
         <span class="detail-value">${safeVal(donor) || "Unknown"}</span>
     </div>
-` : `<div class="detail-item">
+    `
+    : `<div class="detail-item">
         <span class="detail-value">Country information not available.</span>
     </div>`;
 
@@ -1935,15 +1891,6 @@
                                 fillColor: "#4CAF50"
                             },
                             onEachFeature: (feature, layer) => {
-                                const name = feature.properties?.name || feature.properties?.ADMIN || countryMapping.country_name;
-
-                                // Show tooltip on hover
-                                layer.bindTooltip(name, {
-                                    permanent: false,   // show only on hover
-                                    direction: "center",
-                                    className: "country-tooltip"
-                                });
-
                                 layer.on({
                                     click: () => {
                                         const countryName = countryMapping.country_name;
@@ -1952,14 +1899,12 @@
                                         loadCountryImages(countryName.toLowerCase());
                                         loadGalleryView(countryName.toLowerCase());
 
-                                        // update country list active state
+                                        // Update active class for country list links
                                         document.querySelectorAll('.countries-list a').forEach(el => {
                                             el.classList.remove('active');
                                             if (el.textContent.toLowerCase() === countryName.toLowerCase()) {
                                                 el.classList.add('active');
-                                                const countryItems = cache.coinsData.filter(
-                                                    coin => coin.country.toLowerCase() === countryName.toLowerCase()
-                                                ).length;
+                                                const countryItems = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName.toLowerCase()).length;
                                                 document.getElementById('selected-country').textContent = `: ${countryName}`;
                                                 document.getElementById('selected-country-title').textContent = `${countryName} (${countryItems})`;
                                                 updateTitle(`${countryName}`);
@@ -1967,14 +1912,17 @@
                                         });
                                     },
                                     mouseover: () => {
-                                        layer.setStyle({ fillOpacity: 0.5 });
+                                        layer.setStyle({
+                                            fillOpacity: 0.5
+                                        });
                                     },
                                     mouseout: () => {
-                                        layer.setStyle({ fillOpacity: 0.3 });
+                                        layer.setStyle({
+                                            fillOpacity: 0.3
+                                        });
                                     }
                                 });
                             }
-
                         }).addTo(availableCountriesLayer);
                     } catch (error) {
                         console.error(`Error loading GeoJSON for ${countryMapping.country_name}:`, error);
@@ -2005,8 +1953,8 @@
                 note: coin.note,
                 donor: coin.donor_name,
                 currency_type: coin.currency_type,
-                year: coin.year,
-                size: coin.size
+				year: coin.year,
+				size: coin.size
             }));
 
             const thumbnailContainer = document.getElementById("thumbnail-container");
@@ -2036,7 +1984,7 @@
                 }
 
                 const countryInfo = await fetchCountryInfo(countryName);
-                //setCurrentImage(src, note, donor, currency_type, countryInfo, year, size, index)
+				//setCurrentImage(src, note, donor, currency_type, countryInfo, year, size, index)
                 await setCurrentImage(src, note, donor, currency_type, countryInfo, year, size, index);
             };
 
