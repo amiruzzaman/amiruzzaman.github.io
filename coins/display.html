@@ -599,10 +599,14 @@
         .detail-value {
             flex: 1;
             color: var(--text-color);
-            /* FIXED: Removed problematic properties that caused text to break on mobile */
-            word-break: normal;
-            overflow-wrap: normal;
+            white-space: normal;
+            /* allow wrapping on spaces */
+            word-break: keep-all;
+            /* don't break normal words */
+            overflow-wrap: anywhere;
+            /* but do break very long strings (like URLs) */
         }
+
 
         /* Image Modal - UPDATED FOR CONSISTENT SIZING */
         .modal {
@@ -1213,8 +1217,11 @@
         }
 
         .note-url-link {
-            text-decoration: underline;
-            cursor: pointer;
+            word-break: break-word;
+            /* break URLs if too long */
+            overflow-wrap: anywhere;
+            display: inline-block;
+            max-width: 100%;
         }
 
         .country-tooltip {
