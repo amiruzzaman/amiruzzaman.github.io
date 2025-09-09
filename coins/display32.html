@@ -1286,86 +1286,6 @@
                 width: 100%;
             }
         }
-
-        /* Add these styles to your CSS section */
-        .area-comparison {
-            margin-top: 15px;
-            padding: 12px;
-            background-color: #f8f9fa;
-            border-radius: var(--border-radius);
-            border: 1px solid var(--border-color);
-        }
-
-        .comparison-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .comparison-label {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--secondary-color);
-        }
-
-        .comparison-value {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--primary-dark);
-        }
-
-        .comparison-bar {
-            width: 100%;
-        }
-
-        .comparison-bar-background {
-            width: 100%;
-            height: 20px;
-            background-color: #e9ecef;
-            border-radius: 10px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .comparison-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary-color), var(--accent-light));
-            border-radius: 10px;
-            width: 0%;
-            transition: width 0.5s ease-in-out;
-        }
-
-        .comparison-labels {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 5px;
-            font-size: 11px;
-            color: var(--secondary-color);
-        }
-
-        .comparison-labels span:nth-child(2) {
-            font-weight: 600;
-            color: var(--primary-dark);
-        }
-
-        /* Responsive adjustments for comparison */
-        @media (max-width: 900px) {
-            .comparison-info {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 5px;
-            }
-
-            .comparison-labels {
-                flex-direction: column;
-                gap: 3px;
-            }
-
-            .comparison-labels span {
-                text-align: center;
-            }
-        }
     </style>
 </head>
 
@@ -1436,7 +1356,6 @@
                         <div id="continent-map"></div>
                         <img id="country-flag" class="country-flag" src="" alt="Country Flag" style="display:none;">
                         <!-- Add this after the flag image in the continent-map-container -->
-                        <!-- Replace the country-details section with this updated version -->
                         <div class="country-details" id="country-details" style="display: none;">
                             <div class="continent-info">
                                 <div class="continent-info-item">
@@ -1450,23 +1369,6 @@
                                 <div class="continent-info-item">
                                     <span class="continent-info-label">Region</span>
                                     <span class="continent-info-value" id="country-region">--</span>
-                                </div>
-                            </div>
-                            <!-- Add this comparison section -->
-                            <div class="area-comparison" id="area-comparison" style="display: none;">
-                                <div class="comparison-info">
-                                    <span class="comparison-label">Size compared to USA:</span>
-                                    <span class="comparison-value" id="usa-comparison">--</span>
-                                </div>
-                                <div class="comparison-bar">
-                                    <div class="comparison-bar-background">
-                                        <div class="comparison-bar-fill" id="comparison-bar-fill"></div>
-                                    </div>
-                                    <div class="comparison-labels">
-                                        <span>0%</span>
-                                        <span>USA Size</span>
-                                        <span>100%</span>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1796,12 +1698,8 @@
 
         // Loads continent-specific data and updates the continent info display
         // Update the loadContinentData function to include country details
-        // Update the loadContinentData function to include USA comparison
-        // Add debug logging to loadContinentData
         async function loadContinentData(countryName) {
             try {
-                console.log("Loading continent data for:", countryName);
-
                 if (!cache.continentData) {
                     console.error("Continent data not loaded from cache.");
                     return;
@@ -1811,11 +1709,8 @@
                     c.countryName.toLowerCase() === countryName.toLowerCase()
                 );
 
-                console.log("Found country data:", countryData);
-
                 const countryFlagElement = document.getElementById("country-flag");
                 const countryDetailsElement = document.getElementById("country-details");
-                const areaComparisonElement = document.getElementById("area-comparison");
 
                 if (countryData) {
                     const continentName = countryData.continentName;
@@ -1823,14 +1718,14 @@
                     const capital = countryData.capital;
                     const countryCode = countryData.countryCode;
 
-                    console.log("Setting continent info:", continentName, countryDisplayName, capital);
-
                     document.getElementById('continent-name').textContent = continentName;
                     document.getElementById('continent-country-name').textContent = countryDisplayName;
                     document.getElementById('continent-capital').textContent = capital;
 
                     // Update Flag Modal details
+                    document.getElementById('flag-country-name').style.color = 'white';
                     document.getElementById('flag-country-name').textContent = countryDisplayName;
+                    document.getElementById('flag-continent-name').style.color = 'white';
                     document.getElementById('flag-continent-name').textContent = continentName;
 
                     await loadContinentMap(continentName, countryDisplayName);
@@ -1855,13 +1750,9 @@
 
                     // NEW: Load and display additional country details
                     if (cache.countriesDetails) {
-                        console.log("Countries details available:", cache.countriesDetails.length, "countries");
-
                         const countryDetails = cache.countriesDetails.find(c =>
                             c.name.toLowerCase() === countryDisplayName.toLowerCase()
                         );
-
-                        console.log("Found country details:", countryDetails);
 
                         if (countryDetails) {
                             // Format area with commas and add unit
@@ -1879,63 +1770,19 @@
 
                             // Show the details container
                             countryDetailsElement.style.display = 'block';
-
-                            // Calculate and display USA comparison
-                            if (countryDetails.area) {
-                                // Find USA area for comparison
-                                const usaDetails = cache.countriesDetails.find(c =>
-                                    c.name.toLowerCase() === "united states of america"
-                                );
-
-                                if (usaDetails && usaDetails.area) {
-                                    const usaArea = usaDetails.area;
-                                    const countryArea = countryDetails.area;
-                                    const comparisonPercentage = (countryArea / usaArea) * 100;
-
-                                    let comparisonText;
-                                    if (comparisonPercentage < 1) {
-                                        comparisonText = `${comparisonPercentage.toFixed(1)}% of USA`;
-                                    } else if (comparisonPercentage < 100) {
-                                        comparisonText = `${comparisonPercentage.toFixed(1)}% of USA`;
-                                    } else {
-                                        comparisonText = `${(comparisonPercentage / 100).toFixed(1)}× USA`;
-                                    }
-
-                                    document.getElementById('usa-comparison').textContent = comparisonText;
-
-                                    // Animate the comparison bar
-                                    setTimeout(() => {
-                                        const barFill = document.getElementById('comparison-bar-fill');
-                                        // Cap at 100% for visualization
-                                        const displayPercentage = Math.min(comparisonPercentage, 100);
-                                        barFill.style.width = `${displayPercentage}%`;
-                                    }, 100);
-
-                                    areaComparisonElement.style.display = 'block';
-                                } else {
-                                    console.warn("USA details not found");
-                                    areaComparisonElement.style.display = 'none';
-                                }
-                            } else {
-                                console.warn("Country area not available");
-                                areaComparisonElement.style.display = 'none';
-                            }
                         } else {
                             console.warn(`No additional details found for country: ${countryDisplayName}`);
                             countryDetailsElement.style.display = 'none';
-                            areaComparisonElement.style.display = 'none';
                         }
                     } else {
                         console.warn("Countries details data not available");
                         countryDetailsElement.style.display = 'none';
-                        areaComparisonElement.style.display = 'none';
                     }
 
                 } else {
                     console.warn(`No continent data found for country: ${countryName}`);
                     countryFlagElement.style.display = 'none';
                     countryDetailsElement.style.display = 'none';
-                    areaComparisonElement.style.display = 'none';
                     document.getElementById('flag-country-name').textContent = "N/A";
                     document.getElementById('flag-continent-name').textContent = "N/A";
                 }
@@ -1943,39 +1790,35 @@
                 console.error("Error loading continent data:", error);
                 document.getElementById("country-flag").style.display = 'none';
                 document.getElementById("country-details").style.display = 'none';
-                document.getElementById("area-comparison").style.display = 'none';
             }
         }
 
         // Function to load and display the continent map
-        // Fix the loadContinentMap function
         async function loadContinentMap(continentName, countryName) {
             try {
                 // Initialize the map only once
                 if (!continentMap) {
                     continentMap = L.map('continent-map', {
-                        preferCanvas: true,
-                        zoomControl: false,
-                        attributionControl: false
-                    }).setView([20, 0], 2);
+                        preferCanvas: true, // Use Canvas renderer for better performance
+                        zoomControl: false, // Disable default zoom control
+                        attributionControl: false // Disable attribution for cleaner look
+                    }).setView([20, 0], 2); // Initial view
 
                     // Add tile layer only once
                     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
                         maxZoom: 18,
                         attribution: "© OpenStreetMap contributors",
+                        retry: 3, // Retry loading tiles 3 times
+                        detectRetina: true // Better rendering on retina displays
                     }).addTo(continentMap);
-                } else {
-                    // Clear existing layers if map already exists
-                    continentMap.eachLayer(function (layer) {
-                        if (layer instanceof L.TileLayer) return; // Keep the tile layer
-                        continentMap.removeLayer(layer);
-                    });
                 }
 
-                // Clear existing marker
+                // Clear existing continent layer and marker before adding new ones
+                if (continentMapGeoJsonLayer) {
+                    continentMap.removeLayer(continentMapGeoJsonLayer);
+                }
                 if (continentMapMarker) {
                     continentMap.removeLayer(continentMapMarker);
-                    continentMapMarker = null;
                 }
 
                 // Filter GeoJSON for the specific continent
@@ -2004,13 +1847,13 @@
                 const bounds = continentMapGeoJsonLayer.getBounds();
                 if (bounds.isValid()) {
                     continentMap.flyToBounds(bounds, {
-                        maxZoom: 3,
-                        padding: [20, 20],
-                        duration: 0.5
+                        maxZoom: 3, // Prevent zooming in too far on small continents
+                        padding: [20, 20], // Add some padding
+                        duration: 0.5 // Smooth animation
                     });
                 } else {
                     console.warn("Invalid bounds for continent map layer. Resetting view.");
-                    continentMap.setView([20, 0], 2);
+                    continentMap.setView([20, 0], 2); // Reset to a default view if bounds are invalid
                 }
 
                 // If we have country data, try to show a marker for the country's capital/center
@@ -2033,11 +1876,6 @@
                         console.warn(`No center coordinates found for country: ${countryName} on continent map.`);
                     }
                 }
-
-                // Invalidate size to ensure proper rendering
-                setTimeout(() => {
-                    continentMap.invalidateSize();
-                }, 100);
             } catch (error) {
                 console.error("Error loading continent map:", error);
             }
@@ -2476,7 +2314,6 @@
 
 
         // Initializes the collapsible details section
-        // Fix the initDetailsToggle function
         function initDetailsToggle() {
             const toggle = document.querySelector('.details-toggle');
             const content = document.querySelector('.details-content');
@@ -2487,7 +2324,7 @@
                 content.classList.toggle('show');
                 const isContinentMapVisible = continentMapContainer.classList.toggle('show');
 
-                const chevronIcon = toggle.querySelector('.fa-chevron-down');
+                const chevronIcon = toggle.querySelector('.fa-chevron-down, .fa-chevron-up');
                 if (content.classList.contains('show')) {
                     chevronIcon.classList.replace('fa-chevron-down', 'fa-chevron-up');
                 } else {
@@ -2497,9 +2334,10 @@
                 // Invalidate size of the continent map when its container becomes visible
                 if (isContinentMapVisible && continentMap) {
                     // Use a small timeout to ensure the CSS transition completes
+                    // and the container has its final dimensions before invalidating size.
                     setTimeout(() => {
                         continentMap.invalidateSize();
-                    }, 300);
+                    }, 100);
                 }
             });
         }
@@ -3041,17 +2879,6 @@
             });
         }
 
-        // Helper function to get USA area for comparison
-        function getUSAArea() {
-            if (!cache.countriesDetails) return null;
-
-            const usa = cache.countriesDetails.find(c =>
-                c.name.toLowerCase().includes("united states") ||
-                c.alpha3Code === "USA"
-            );
-
-            return usa ? usa.area : 9833517; // Default USA area in km² if not found
-        }
     </script>
 </body>
 
