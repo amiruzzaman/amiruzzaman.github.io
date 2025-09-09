@@ -168,62 +168,70 @@
     </div>
 
     <script>
-        const defaultQuestionsData = [
+         const defaultQuestionsData = [
             {
                 question: "Q 1: Authors and contribution to the field",
                 feedback: {
-                    correct: "You have correctly identified the authors...",
-                    incorrect: "You could have Googled the name of the authors..."
-                }
+                    correct: "You have correctly identified the authors and provided some brief background of each and connected at least one to them with their notable work, such as Google DeepMind. You also tied their background to why the team is credible for this topic. ",
+                    incorrect: "You could have Googled the name of the authors to find more meaningful information."
+                },
+                points: 0
             },
             {
                 question: "Q 2: ICCV scope and positioning",
                 feedback: {
-                    correct: "You have correctly defined ICCV...",
-                    incorrect: "Your definition for ICCV is incorrect..."
-                }
+                    correct: "You have correctly defined ICCV and situated it among major venues in computer vision and machine learning. Also, you provided meaningful distinctions relative to CVPR ECCV NeurIPS ICML ICLR.",
+                    incorrect: "Your definition for ICCV is incorrect. You also needed to provide a detailed and meaningful distinctions relative to CVPR ECCV NeurIPS ICML ICLR."
+                },
+                points: 0
             },
             {
                 question: "Q 3: The gap Rule 6 lens",
                 feedback: {
-                    correct: "You provided a concise and testable claim...",
-                    incorrect: "The gaps you listed is very vague..."
-                }
+                    correct: "You provided a concise and testable claim tied to inputs mechanism and expected outcome. You wrote, \"...\" ",
+                    incorrect: "The gaps you listed is very vague. To strengthen your answer, you could have refer to the paper and taken some direct quotes from the authors."
+                },
+                points: 0
             },
             {
                 question: "Q 4: Paper hypothesis",
                 feedback: {
-                    correct: "You provided a concise and testable claim...",
-                    incorrect: "Your have included vague or unfalsifiable statements..."
-                }
+                    correct: "You provided a concise and testable claim tied to inputs mechanism and expected outcome. You wrote \"...\"",
+                    incorrect: "Your have included vague or unfalsifiable statements that do not map to metrics or experiments. You needed to specify the measurable outcome and where it will be tested, and explain how the mechanism links to the expected effect. "
+                },
+                points: 0
             },
             {
                 question: "Q 5: Lookups with at least two peer reviewed citations",
                 feedback: {
-                    correct: "You named couple specific concepts...",
-                    incorrect: "You needed to cite at least two peer-reviewed articles..."
-                }
+                    correct: "You named couple specific concepts you needed to study and cited peer reviewed sources",
+                    incorrect: "You needed to cite at least two peer-reviewed articles for this. Arxiv is not peer-reviewed venue."
+                },
+                points: 0
             },
             {
                 question: "Q 6: Limitations with reasoning",
                 feedback: {
-                    correct: "You identified at least one limitation...",
-                    incorrect: "You have listed limitations without providing rationale..."
-                }
+                    correct: "You identified at least one limitation and explained why it matters and under what conditions it appears.",
+                    incorrect: "You have listed limitations without providing rationale or supporting evidence."
+                },
+                points: 0
             },
             {
-                question: "Q 7: Next steps concise options grounded in reasoning",
+                question: "Q 7: Next steps concise options grounded in reasoning ",
                 feedback: {
-                    correct: "You proposed at least two specific follow-up actions...",
-                    incorrect: "Your suggestions were too generic..."
-                }
+                    correct: "You proposed at least two specific follow-up actions that directly address the findings or limitations.",
+                    incorrect: "Your suggestions were too generic and not tied to evidence or mechanisms. You should include evaluations on domain-shifted data or harder benchmarks, propose architectural or training changes for identified failure modes, and consider data curation, higher-frequency modeling, and robustness interventions. You also need to state the expected effect and how it will be tested."
+                },
+                points: 0
             },
             {
                 question: "Q 8: Your single hypothesis to investigate",
                 feedback: {
-                    correct: "You stated one testable hypothesis...",
-                    incorrect: "Your work needs a clear goal statement..."
-                }
+                    correct: "You stated one testable hypothesis and provided a measurable outcome along with an evaluation plan.",
+                    incorrect: "Your work needs a clear goal statement, a baseline with an evaluation protocol, a motivating mechanism, and a defined threshold for support."
+                },
+                points: 0
             }
         ];
 
