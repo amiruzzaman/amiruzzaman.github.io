@@ -599,10 +599,14 @@
         .detail-value {
             flex: 1;
             color: var(--text-color);
-            /* FIXED: Removed problematic properties that caused text to break on mobile */
-            word-break: normal;
-            overflow-wrap: normal;
+            white-space: normal;
+            /* allow wrapping on spaces */
+            word-break: keep-all;
+            /* don't break normal words */
+            overflow-wrap: anywhere;
+            /* but do break very long strings (like URLs) */
         }
+
 
         /* Image Modal - UPDATED FOR CONSISTENT SIZING */
         .modal {
@@ -1213,10 +1217,323 @@
         }
 
         .note-url-link {
-            text-decoration: underline;
-            cursor: pointer;
+            word-break: break-word;
+            /* break URLs if too long */
+            overflow-wrap: anywhere;
+            display: inline-block;
+            max-width: 100%;
+        }
+
+        .country-tooltip {
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            font-weight: 600;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 13px;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Style for country details section */
+        .country-details {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: var(--light-color);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+        }
+
+        .country-details .continent-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0;
+            background-color: transparent;
+            border: none;
+        }
+
+        .country-details .continent-info-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .country-details .continent-info-label {
+            font-size: 12px;
+            color: var(--secondary-color);
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .country-details .continent-info-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        /* Responsive adjustments for country details */
+        @media (max-width: 900px) {
+            .country-details .continent-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .country-details .continent-info-item {
+                flex-direction: row;
+                justify-content: space-between;
+                width: 100%;
+            }
+        }
+
+        /* Add these styles to your CSS section */
+        .area-comparison {
+            margin-top: 15px;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+        }
+
+        .comparison-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .comparison-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
+        .comparison-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .comparison-bar {
+            width: 100%;
+        }
+
+        .comparison-bar-background {
+            width: 100%;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .comparison-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-light));
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s ease-in-out;
+        }
+
+        .comparison-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 11px;
+            color: var(--secondary-color);
+        }
+
+        .comparison-labels span:nth-child(2) {
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        /* Responsive adjustments for comparison */
+        @media (max-width: 900px) {
+            .comparison-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+
+            .comparison-labels {
+                flex-direction: column;
+                gap: 3px;
+            }
+
+            .comparison-labels span {
+                text-align: center;
+            }
         }
     </style>
+    <style>
+        /* Add these styles to your CSS section */
+
+        .size-scale-container {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .size-scale {
+            height: 30px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            position: relative;
+            margin-bottom: 15px;
+            overflow: visible;
+            width: 100%;
+        }
+
+        .scale-item {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-light));
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: width 0.5s ease;
+            min-width: 40px;
+        }
+
+        .two-dimensional-scale {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .scale-rectangle {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-light));
+            border: 2px solid var(--primary-dark);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            max-width: 100%;
+        }
+
+        .scale-dimensions {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 12px;
+            color: var(--secondary-color);
+            text-align: center;
+        }
+
+        .dimension.width::before {
+            content: "→ ";
+            color: var(--primary-color);
+        }
+
+        .dimension.height::before {
+            content: "↓ ";
+            color: var(--accent-color);
+        }
+
+        .scale-label {
+            color: white;
+            font-weight: 600;
+            font-size: 12px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            white-space: nowrap;
+            padding: 0 4px;
+        }
+
+        .scale-reference {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .reference-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .reference-line {
+            height: 4px;
+            border-radius: 2px;
+            flex-shrink: 0;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .reference-rectangle {
+            border: 1px solid var(--secondary-color);
+            border-radius: 2px;
+            flex-shrink: 0;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        /* Different colors for each reference line */
+        .reference-line.penny {
+            background-color: #e74c3c;
+        }
+
+        .reference-line.quarter {
+            background-color: #3498db;
+        }
+
+        .reference-line.dollar-coin {
+            background-color: #f39c12;
+        }
+
+        .reference-rectangle.dollar-bill {
+            background-color: #27ae60;
+            height: 12px;
+        }
+
+        .reference-label {
+            font-size: 12px;
+            color: var(--secondary-color);
+            white-space: nowrap;
+            min-width: 140px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 900px) {
+            .size-scale-container {
+                max-width: 100%;
+            }
+
+            .size-scale {
+                height: 25px;
+            }
+
+            .scale-label {
+                font-size: 10px;
+            }
+
+            .reference-label {
+                font-size: 10px;
+                min-width: 120px;
+            }
+
+            .reference-rectangle.dollar-bill {
+                height: 10px;
+            }
+
+            .scale-dimensions {
+                font-size: 10px;
+            }
+        }
+    </style>
+
 </head>
 
 <body>
@@ -1285,6 +1602,41 @@
                         </div>
                         <div id="continent-map"></div>
                         <img id="country-flag" class="country-flag" src="" alt="Country Flag" style="display:none;">
+                        <!-- Add this after the flag image in the continent-map-container -->
+                        <!-- Replace the country-details section with this updated version -->
+                        <div class="country-details" id="country-details" style="display: none;">
+                            <div class="continent-info">
+                                <div class="continent-info-item">
+                                    <span class="continent-info-label">Area</span>
+                                    <span class="continent-info-value" id="country-area">--</span>
+                                </div>
+                                <div class="continent-info-item">
+                                    <span class="continent-info-label">Population</span>
+                                    <span class="continent-info-value" id="country-population">--</span>
+                                </div>
+                                <div class="continent-info-item">
+                                    <span class="continent-info-label">Region</span>
+                                    <span class="continent-info-value" id="country-region">--</span>
+                                </div>
+                            </div>
+                            <!-- Add this comparison section -->
+                            <div class="area-comparison" id="area-comparison" style="display: none;">
+                                <div class="comparison-info">
+                                    <span class="comparison-label">Size compared to USA:</span>
+                                    <span class="comparison-value" id="usa-comparison">--</span>
+                                </div>
+                                <div class="comparison-bar">
+                                    <div class="comparison-bar-background">
+                                        <div class="comparison-bar-fill" id="comparison-bar-fill"></div>
+                                    </div>
+                                    <div class="comparison-labels">
+                                        <span>0%</span>
+                                        <span>USA Size</span>
+                                        <span>100%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1466,15 +1818,17 @@
             if (typeof val === "string" && val.trim().toLowerCase() === "none") return "N/A";
             return val;
         }
-        // Preload all necessary JSON data at application startup
+        // Update the preloadData function to include the new countries.details.json
         async function preloadData() {
             try {
-                const [coinsData, countriesData, continentData, countryGeoJsonMapping, continentGeoJson] = await Promise.all([
+                const [coinsData, countriesData, continentData, countryGeoJsonMapping, continentGeoJson, languagesData, countriesDetails] = await Promise.all([
                     fetch("images/coins.json").then(res => res.json()),
                     fetch("countries.json").then(res => res.json()),
                     fetch("countries.continents.json").then(res => res.json()),
                     fetch("geojson/country_geojson_mapping.json").then(res => res.json()),
-                    fetch("continents.geojson").then(res => res.json())
+                    fetch("continents.geojson").then(res => res.json()),
+                    fetch("countries.languages.json").then(res => res.json()),
+                    fetch("countries.details.json").then(res => res.json()) // NEW: Load country details https://www.apicountries.com/countries
                 ]);
 
                 cache.coinsData = coinsData;
@@ -1482,18 +1836,17 @@
                 cache.continentData = continentData;
                 cache.countryGeoJsonMapping = countryGeoJsonMapping;
                 cache.continentGeoJson = continentGeoJson;
-
-                // Uncomment this to see what each object is showing
-                //console.log(coinsData[0]);
+                cache.languagesData = languagesData;
+                cache.countriesDetails = countriesDetails; // NEW: Store country details
 
                 console.log("All data preloaded successfully.");
                 return true;
             } catch (error) {
                 console.error("Error preloading data:", error);
-                // Return false to indicate preload failure
                 return false;
             }
         }
+
 
         // Sets the current image in the gallery and updates its details
         async function setCurrentImage(src, note, donor, currency_type, countryInfo, year, size, index) {
@@ -1517,9 +1870,74 @@
             };
             tempImage.src = src; // Start loading the image
 
-            // Construct the HTML for coin details
-            const countryDetails = countryInfo
-                ? `
+            // Get alphabet example from countries.languages.json
+            let alphabetExample = "N/A";
+            if (cache.languagesData) {
+                //console.log("✅ languagesData loaded:", cache.languagesData);
+
+                //console.log("🔍 Looking for:", countryInfo?.name);
+
+                const langMatch = cache.languagesData.find(c => {
+                    //console.log("➡️ Checking:", c.country_name);
+                    return c.country_name.toLowerCase() === countryInfo.name.toLowerCase();
+                });
+
+                if (langMatch) {
+                    //console.log("🎯 Match found:", langMatch);
+                    //console.log(langMatch.alphabet_example);
+                    if (langMatch.languages[0].alphabet_example) {
+                        //alphabetExample = langMatch.alphabet_example;
+                        alphabetExample = langMatch.languages[0].alphabet_example;
+                    }
+                } else {
+                    console.warn("⚠️ No match found for:", countryInfo?.name);
+                }
+            } else {
+                console.error("❌ cache.languagesData is missing!");
+            }
+
+            // Use percentage-based scaling instead of fixed pixels
+            const maxVisualWidth = 280; // Maximum width for visual elements in pixels
+
+            // Parse size correctly, handling both single values and width x height formats
+            let sizeValue1 = 0;
+            let sizeValue2 = 0;
+            let isTwoDimensional = false;
+            let displaySize = "N/A";
+
+            if (size) {
+                // Check if size contains "x" for two-dimensional items
+                if (size.includes('x')) {
+                    const sizeParts = size.split('x').map(part => parseFloat(part.trim()));
+                    if (sizeParts.length === 2 && !isNaN(sizeParts[0]) && !isNaN(sizeParts[1])) {
+                        sizeValue1 = sizeParts[0];
+                        sizeValue2 = sizeParts[1];
+                        isTwoDimensional = true;
+                        displaySize = `${sizeValue1 % 1 === 0 ? sizeValue1 : sizeValue1.toFixed(1)} × ${sizeValue2 % 1 === 0 ? sizeValue2 : sizeValue2.toFixed(1)}`;
+                    }
+                } else {
+                    // Single value size
+                    sizeValue1 = parseFloat(size);
+                    if (!isNaN(sizeValue1)) {
+                        displaySize = sizeValue1 % 1 === 0 ? sizeValue1 : sizeValue1.toFixed(1);
+                    }
+                }
+            }
+
+            // Calculate relative sizes as percentages of max width
+            const maxItemSize = Math.max(sizeValue1, sizeValue2, 30.6); // 30.6mm is the largest reference item
+            const scalePercentage1 = !isNaN(sizeValue1) ? (sizeValue1 / maxItemSize) * 100 : 0;
+            const scalePercentage2 = !isNaN(sizeValue2) ? (sizeValue2 / maxItemSize) * 100 : 0;
+
+            // Reference sizes as percentages
+            const pennyPercentage = (19 / maxItemSize) * 100;
+            const quarterPercentage = (24.3 / maxItemSize) * 100;
+            const dollarCoinPercentage = (30.6 / maxItemSize) * 100;
+            const dollarBillWidthPercentage = (66.3 / maxItemSize) * 100;
+            const dollarBillHeightPercentage = (156 / maxItemSize) * 100;
+
+            // Construct the HTML for coin details with visual scale
+            const countryDetails = countryInfo ? `
     <div class="detail-item">
         <span class="detail-label">Country:</span>
         <span class="detail-value">${safeVal(countryInfo.name)}</span>
@@ -1533,6 +1951,10 @@
         <span class="detail-value">${safeVal(countryInfo.language?.name)}</span>
     </div>
     <div class="detail-item">
+        <span class="detail-label">Hello:</span>
+        <span class="detail-value">${alphabetExample}</span>
+    </div>
+    <div class="detail-item">
         <span class="detail-label">Currency:</span>
         <span class="detail-value">${safeVal(countryInfo.currency?.name)} (${safeVal(countryInfo.currency?.symbol)})</span>
     </div>
@@ -1542,23 +1964,75 @@
     </div>
     <div class="detail-item">
         <span class="detail-label">Year:</span>
-        <span class="detail-value">${safeVal(year)}</span>
+        <span class="detail-value">
+        ${safeVal(year)} 
+        ${year && !isNaN(parseFloat(year))
+                    ? `<span style="color: #3498db;">(${new Date().getFullYear() - parseInt(year)} years old)</span>`
+                    : ""}
+        </span>
     </div>
     <div class="detail-item">
         <span class="detail-label">Size:</span>
-        <span class="detail-value">${safeVal(size)}</span>
+        <span class="detail-value">
+        ${size
+                    ? `${displaySize} <span style="color: #3498db;"> mm${isTwoDimensional ? ' (W × H)' : ''}</span>`
+                    : "N/A"}
+        </span>
     </div>
+    ${size && !isNaN(sizeValue1) ? `
+    <div class="detail-item">
+        <span class="detail-label">Visual Scale:</span>
+        <span class="detail-value">
+            <div class="size-scale-container">
+                ${isTwoDimensional ? `
+                <div class="two-dimensional-scale">
+                    <div class="scale-rectangle" style="width: ${scalePercentage1}%; height: ${scalePercentage2 / 2}%;">
+                        <span class="scale-label">${displaySize} mm</span>
+                    </div>
+                    <div class="scale-dimensions">
+                        <span class="dimension width">${sizeValue1 % 1 === 0 ? sizeValue1 : sizeValue1.toFixed(1)} mm width</span>
+                        <span class="dimension height">${sizeValue2 % 1 === 0 ? sizeValue2 : sizeValue2.toFixed(1)} mm height</span>
+                    </div>
+                </div>
+                ` : `
+                <div class="size-scale">
+                    <div class="scale-item" style="width: ${scalePercentage1}%;">
+                        <span class="scale-label">${displaySize} mm</span>
+                    </div>
+                </div>
+                `}
+                <div class="scale-reference">
+                    <div class="reference-item">
+                        <div class="reference-line penny" style="width: ${pennyPercentage}%;"></div>
+                        <span class="reference-label">US Penny (19 mm)</span>
+                    </div>
+                    <div class="reference-item">
+                        <div class="reference-line quarter" style="width: ${quarterPercentage}%;"></div>
+                        <span class="reference-label">US Quarter (24.3 mm)</span>
+                    </div>
+                    <div class="reference-item">
+                        <div class="reference-line dollar-coin" style="width: ${dollarCoinPercentage}%;"></div>
+                        <span class="reference-label">US Dollar Coin (30.6 mm)</span>
+                    </div>
+                    <div class="reference-item">
+                        <div class="reference-rectangle dollar-bill" style="width: ${dollarBillHeightPercentage / 3}%; height: ${dollarBillWidthPercentage}%;"></div>
+                        <span class="reference-label">US Dollar Bill (156 × 66.3 mm)</span>
+                    </div>
+                </div>
+            </div>
+        </span>
+    </div>
+    ` : ''}
     <div class="detail-item">
         <span class="detail-label">Donor (${safeVal(currency_type) || "--"}):</span>
         <span class="detail-value">${safeVal(donor) || "Unknown"}</span>
     </div>
-    `
-                : `<div class="detail-item">
+` : `<div class="detail-item">
         <span class="detail-value">Country information not available.</span>
     </div>`;
 
-
             noteElement.innerHTML = countryDetails;
+
 
             // Load continent map data and flag if country info is available
             if (countryInfo && countryInfo.name) {
@@ -1571,8 +2045,13 @@
         }
 
         // Loads continent-specific data and updates the continent info display
+        // Update the loadContinentData function to include country details
+        // Update the loadContinentData function to include USA comparison
+        // Add debug logging to loadContinentData
         async function loadContinentData(countryName) {
             try {
+                console.log("Loading continent data for:", countryName);
+
                 if (!cache.continentData) {
                     console.error("Continent data not loaded from cache.");
                     return;
@@ -1582,22 +2061,26 @@
                     c.countryName.toLowerCase() === countryName.toLowerCase()
                 );
 
+                console.log("Found country data:", countryData);
+
                 const countryFlagElement = document.getElementById("country-flag");
+                const countryDetailsElement = document.getElementById("country-details");
+                const areaComparisonElement = document.getElementById("area-comparison");
 
                 if (countryData) {
                     const continentName = countryData.continentName;
                     const countryDisplayName = countryData.countryName;
                     const capital = countryData.capital;
-                    const countryCode = countryData.countryCode; // Get the country code
+                    const countryCode = countryData.countryCode;
+
+                    console.log("Setting continent info:", continentName, countryDisplayName, capital);
 
                     document.getElementById('continent-name').textContent = continentName;
                     document.getElementById('continent-country-name').textContent = countryDisplayName;
                     document.getElementById('continent-capital').textContent = capital;
 
                     // Update Flag Modal details
-                    document.getElementById('flag-country-name').style.color = 'white';
                     document.getElementById('flag-country-name').textContent = countryDisplayName;
-                    document.getElementById('flag-continent-name').style.color = 'white';
                     document.getElementById('flag-continent-name').textContent = continentName;
 
                     await loadContinentMap(continentName, countryDisplayName);
@@ -1606,9 +2089,9 @@
                     if (countryCode) {
                         const flagSrc = `flags/svg/${countryCode.toLowerCase()}.svg`;
                         countryFlagElement.src = flagSrc;
-                        countryFlagElement.style.display = 'block'; // Show the flag
+                        countryFlagElement.style.display = 'block';
                         countryFlagElement.onerror = () => {
-                            countryFlagElement.style.display = 'none'; // Hide if flag not found
+                            countryFlagElement.style.display = 'none';
                             console.warn(`Flag not found for country code: ${countryCode}`);
                         };
 
@@ -1617,48 +2100,132 @@
                             openFlagModal(flagSrc);
                         };
                     } else {
-                        countryFlagElement.style.display = 'none'; // Hide if no country code
+                        countryFlagElement.style.display = 'none';
+                    }
+
+                    // NEW: Load and display additional country details
+                    if (cache.countriesDetails) {
+                        console.log("Countries details available:", cache.countriesDetails.length, "countries");
+
+                        const countryDetails = cache.countriesDetails.find(c =>
+                            c.name.toLowerCase() === countryDisplayName.toLowerCase()
+                        );
+
+                        console.log("Found country details:", countryDetails);
+
+                        if (countryDetails) {
+                            // Format area with commas and add unit
+                            const areaFormatted = countryDetails.area ?
+                                countryDetails.area.toLocaleString() + ' km²' : 'N/A';
+
+                            // Format population with commas
+                            const populationFormatted = countryDetails.population ?
+                                countryDetails.population.toLocaleString() : 'N/A';
+
+                            document.getElementById('country-area').textContent = areaFormatted;
+                            document.getElementById('country-population').textContent = populationFormatted;
+                            document.getElementById('country-region').textContent =
+                                countryDetails.region || 'N/A';
+
+                            // Show the details container
+                            countryDetailsElement.style.display = 'block';
+
+                            // Calculate and display USA comparison
+                            if (countryDetails.area) {
+                                // Find USA area for comparison
+                                const usaDetails = cache.countriesDetails.find(c =>
+                                    c.name.toLowerCase() === "united states of america"
+                                );
+
+                                if (usaDetails && usaDetails.area) {
+                                    const usaArea = usaDetails.area;
+                                    const countryArea = countryDetails.area;
+                                    const comparisonPercentage = (countryArea / usaArea) * 100;
+
+                                    let comparisonText;
+                                    if (comparisonPercentage < 1) {
+                                        comparisonText = `${comparisonPercentage.toFixed(1)}% of USA`;
+                                    } else if (comparisonPercentage < 100) {
+                                        comparisonText = `${comparisonPercentage.toFixed(1)}% of USA`;
+                                    } else {
+                                        comparisonText = `${(comparisonPercentage / 100).toFixed(1)}× USA`;
+                                    }
+
+                                    document.getElementById('usa-comparison').textContent = comparisonText;
+
+                                    // Animate the comparison bar
+                                    setTimeout(() => {
+                                        const barFill = document.getElementById('comparison-bar-fill');
+                                        // Cap at 100% for visualization
+                                        const displayPercentage = Math.min(comparisonPercentage, 100);
+                                        barFill.style.width = `${displayPercentage}%`;
+                                    }, 100);
+
+                                    areaComparisonElement.style.display = 'block';
+                                } else {
+                                    console.warn("USA details not found");
+                                    areaComparisonElement.style.display = 'none';
+                                }
+                            } else {
+                                console.warn("Country area not available");
+                                areaComparisonElement.style.display = 'none';
+                            }
+                        } else {
+                            console.warn(`No additional details found for country: ${countryDisplayName}`);
+                            countryDetailsElement.style.display = 'none';
+                            areaComparisonElement.style.display = 'none';
+                        }
+                    } else {
+                        console.warn("Countries details data not available");
+                        countryDetailsElement.style.display = 'none';
+                        areaComparisonElement.style.display = 'none';
                     }
 
                 } else {
                     console.warn(`No continent data found for country: ${countryName}`);
-                    countryFlagElement.style.display = 'none'; // Hide flag if no continent data
+                    countryFlagElement.style.display = 'none';
+                    countryDetailsElement.style.display = 'none';
+                    areaComparisonElement.style.display = 'none';
                     document.getElementById('flag-country-name').textContent = "N/A";
                     document.getElementById('flag-continent-name').textContent = "N/A";
                 }
             } catch (error) {
                 console.error("Error loading continent data:", error);
-                document.getElementById("country-flag").style.display = 'none'; // Hide flag on error
+                document.getElementById("country-flag").style.display = 'none';
+                document.getElementById("country-details").style.display = 'none';
+                document.getElementById("area-comparison").style.display = 'none';
             }
         }
 
-
         // Function to load and display the continent map
+        // Fix the loadContinentMap function
         async function loadContinentMap(continentName, countryName) {
             try {
                 // Initialize the map only once
                 if (!continentMap) {
                     continentMap = L.map('continent-map', {
-                        preferCanvas: true, // Use Canvas renderer for better performance
-                        zoomControl: false, // Disable default zoom control
-                        attributionControl: false // Disable attribution for cleaner look
-                    }).setView([20, 0], 2); // Initial view
+                        preferCanvas: true,
+                        zoomControl: false,
+                        attributionControl: false
+                    }).setView([20, 0], 2);
 
                     // Add tile layer only once
                     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
                         maxZoom: 18,
                         attribution: "© OpenStreetMap contributors",
-                        retry: 3, // Retry loading tiles 3 times
-                        detectRetina: true // Better rendering on retina displays
                     }).addTo(continentMap);
+                } else {
+                    // Clear existing layers if map already exists
+                    continentMap.eachLayer(function (layer) {
+                        if (layer instanceof L.TileLayer) return; // Keep the tile layer
+                        continentMap.removeLayer(layer);
+                    });
                 }
 
-                // Clear existing continent layer and marker before adding new ones
-                if (continentMapGeoJsonLayer) {
-                    continentMap.removeLayer(continentMapGeoJsonLayer);
-                }
+                // Clear existing marker
                 if (continentMapMarker) {
                     continentMap.removeLayer(continentMapMarker);
+                    continentMapMarker = null;
                 }
 
                 // Filter GeoJSON for the specific continent
@@ -1687,13 +2254,13 @@
                 const bounds = continentMapGeoJsonLayer.getBounds();
                 if (bounds.isValid()) {
                     continentMap.flyToBounds(bounds, {
-                        maxZoom: 3, // Prevent zooming in too far on small continents
-                        padding: [20, 20], // Add some padding
-                        duration: 0.5 // Smooth animation
+                        maxZoom: 3,
+                        padding: [20, 20],
+                        duration: 0.5
                     });
                 } else {
                     console.warn("Invalid bounds for continent map layer. Resetting view.");
-                    continentMap.setView([20, 0], 2); // Reset to a default view if bounds are invalid
+                    continentMap.setView([20, 0], 2);
                 }
 
                 // If we have country data, try to show a marker for the country's capital/center
@@ -1716,6 +2283,11 @@
                         console.warn(`No center coordinates found for country: ${countryName} on continent map.`);
                     }
                 }
+
+                // Invalidate size to ensure proper rendering
+                setTimeout(() => {
+                    continentMap.invalidateSize();
+                }, 100);
             } catch (error) {
                 console.error("Error loading continent map:", error);
             }
@@ -1853,12 +2425,21 @@
 
                 mainMapGeoJsonLayer = L.geoJSON(geojson, {
                     style: {
-                        color: "#e74c3c", // Red highlight color
+                        color: "#e74c3c",
                         weight: 2,
                         fillOpacity: 0.2,
                         fillColor: "#e74c3c"
+                    },
+                    onEachFeature: function (feature, layer) {
+                        const name = feature.properties?.name || feature.properties?.ADMIN || "Unknown";
+                        layer.bindTooltip(name, {
+                            permanent: false,
+                            direction: "center",
+                            className: "country-tooltip"
+                        });
                     }
                 }).addTo(mapInstance);
+
 
                 const bounds = mainMapGeoJsonLayer.getBounds();
                 if (bounds.isValid()) {
@@ -1907,6 +2488,15 @@
                                 fillColor: "#4CAF50"
                             },
                             onEachFeature: (feature, layer) => {
+                                const name = feature.properties?.name || feature.properties?.ADMIN || countryMapping.country_name;
+
+                                // Show tooltip on hover
+                                layer.bindTooltip(name, {
+                                    permanent: false,   // show only on hover
+                                    direction: "center",
+                                    className: "country-tooltip"
+                                });
+
                                 layer.on({
                                     click: () => {
                                         const countryName = countryMapping.country_name;
@@ -1915,12 +2505,14 @@
                                         loadCountryImages(countryName.toLowerCase());
                                         loadGalleryView(countryName.toLowerCase());
 
-                                        // Update active class for country list links
+                                        // update country list active state
                                         document.querySelectorAll('.countries-list a').forEach(el => {
                                             el.classList.remove('active');
                                             if (el.textContent.toLowerCase() === countryName.toLowerCase()) {
                                                 el.classList.add('active');
-                                                const countryItems = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName.toLowerCase()).length;
+                                                const countryItems = cache.coinsData.filter(
+                                                    coin => coin.country.toLowerCase() === countryName.toLowerCase()
+                                                ).length;
                                                 document.getElementById('selected-country').textContent = `: ${countryName}`;
                                                 document.getElementById('selected-country-title').textContent = `${countryName} (${countryItems})`;
                                                 updateTitle(`${countryName}`);
@@ -1928,17 +2520,14 @@
                                         });
                                     },
                                     mouseover: () => {
-                                        layer.setStyle({
-                                            fillOpacity: 0.5
-                                        });
+                                        layer.setStyle({ fillOpacity: 0.5 });
                                     },
                                     mouseout: () => {
-                                        layer.setStyle({
-                                            fillOpacity: 0.3
-                                        });
+                                        layer.setStyle({ fillOpacity: 0.3 });
                                     }
                                 });
                             }
+
                         }).addTo(availableCountriesLayer);
                     } catch (error) {
                         console.error(`Error loading GeoJSON for ${countryMapping.country_name}:`, error);
@@ -2137,6 +2726,7 @@
 
 
         // Initializes the collapsible details section
+        // Fix the initDetailsToggle function
         function initDetailsToggle() {
             const toggle = document.querySelector('.details-toggle');
             const content = document.querySelector('.details-content');
@@ -2147,7 +2737,7 @@
                 content.classList.toggle('show');
                 const isContinentMapVisible = continentMapContainer.classList.toggle('show');
 
-                const chevronIcon = toggle.querySelector('.fa-chevron-down, .fa-chevron-up');
+                const chevronIcon = toggle.querySelector('.fa-chevron-down');
                 if (content.classList.contains('show')) {
                     chevronIcon.classList.replace('fa-chevron-down', 'fa-chevron-up');
                 } else {
@@ -2157,10 +2747,9 @@
                 // Invalidate size of the continent map when its container becomes visible
                 if (isContinentMapVisible && continentMap) {
                     // Use a small timeout to ensure the CSS transition completes
-                    // and the container has its final dimensions before invalidating size.
                     setTimeout(() => {
                         continentMap.invalidateSize();
-                    }, 100);
+                    }, 300);
                 }
             });
         }
@@ -2702,6 +3291,17 @@
             });
         }
 
+        // Helper function to get USA area for comparison
+        function getUSAArea() {
+            if (!cache.countriesDetails) return null;
+
+            const usa = cache.countriesDetails.find(c =>
+                c.name.toLowerCase().includes("united states") ||
+                c.alpha3Code === "USA"
+            );
+
+            return usa ? usa.area : 9833517; // Default USA area in km² if not found
+        }
     </script>
 </body>
 

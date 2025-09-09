@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Feedback System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .feedback-area {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .question-item {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            transition: background-color 0.3s;
+        }
+
+        .question-item.correct {
+            background-color: #e8f5e9;
+        }
+
+        .question-item.incorrect {
+            background-color: #ffebee;
+        }
+
+        .question-label {
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        #total-points {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .div-table {
+            display: table;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .div-table-row {
+            display: table-row;
+        }
+
+        .div-table-col {
+            display: table-cell;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .div-table-header {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #feedback-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+        }
+
+        #selected-feedback {
+            white-space: pre-wrap;
+            width: 100%;
+            min-height: 150px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: white;
+            font-family: inherit;
+            font-size: inherit;
+        }
+
+        .score-correct {
+            background-color: #e8f5e9;
+        }
+
+        .score-incorrect {
+            background-color: #ffebee;
+        }
+
+        #feedback-display.correct {
+            background-color: #e8f5e9;
+        }
+
+        #feedback-display.incorrect {
+            background-color: #ffebee;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Quiz Feedback System</h1>
+
+        <div id="questions-container"></div>
+
+        <div id="feedback-display" class="feedback-display">
+            <h3>Saved Feedback:</h3>
+
+            <div class="div-table" id="scores-table">
+                <div class="div-table-row div-table-header">
+                    <div class="div-table-col">Question</div>
+                    <div class="div-table-col">Score</div>
+                </div>
+            </div>
+
+            <p id="total-points"></p>
+
+            <div id="feedback-container">
+                <h4>All Selected Feedback (Editable):</h4>
+                <textarea id="selected-feedback" class="feedback-area"></textarea>
+            </div>
+
+            <button onclick="copyFeedback()" id="copyButton">Copy All Feedback</button>
+            <button onclick="copyScores()" id="copyScoresButton">Copy Scores</button>
+            <button onclick="resetFeedbackDisplay()" id="resetFeedbackButton">Reset Feedback Display</button>
+        </div>
+
+        <button onclick="resetAll()">Reset All</button>
+    </div>
+
+    <script>
+         const defaultQuestionsData = [
+            {
+                question: "Q 1: Authors and contribution to the field",
+                feedback: {
+                    correct: "You have correctly identified the authors and provided some brief background of each and connected at least one to them with their notable work, such as Google DeepMind. You also tied their background to why the team is credible for this topic. ",
+                    incorrect: "You could have Googled the name of the authors to find more meaningful information."
+                },
+                points: 0
+            },
+            {
+                question: "Q 2: ICCV scope and positioning",
+                feedback: {
+                    correct: "You have correctly defined ICCV and situated it among major venues in computer vision and machine learning. Also, you provided meaningful distinctions relative to CVPR ECCV NeurIPS ICML ICLR.",
+                    incorrect: "Your definition for ICCV is incorrect. You also needed to provide a detailed and meaningful distinctions relative to CVPR ECCV NeurIPS ICML ICLR."
+                },
+                points: 0
+            },
+            {
+                question: "Q 3: The gap Rule 6 lens",
+                feedback: {
+                    correct: "You provided a concise and testable claim tied to inputs mechanism and expected outcome. You wrote, \"...\" ",
+                    incorrect: "The gaps you listed is very vague. To strengthen your answer, you could have refer to the paper and taken some direct quotes from the authors."
+                },
+                points: 0
+            },
+            {
+                question: "Q 4: Paper hypothesis",
+                feedback: {
+                    correct: "You provided a concise and testable claim tied to inputs mechanism and expected outcome. You wrote \"...\"",
+                    incorrect: "Your have included vague or unfalsifiable statements that do not map to metrics or experiments. You needed to specify the measurable outcome and where it will be tested, and explain how the mechanism links to the expected effect. "
+                },
+                points: 0
+            },
+            {
+                question: "Q 5: Lookups with at least two peer reviewed citations",
+                feedback: {
+                    correct: "You named couple specific concepts you needed to study and cited peer reviewed sources",
+                    incorrect: "You needed to cite at least two peer-reviewed articles for this. Arxiv is not peer-reviewed venue."
+                },
+                points: 0
+            },
+            {
+                question: "Q 6: Limitations with reasoning",
+                feedback: {
+                    correct: "You identified at least one limitation and explained why it matters and under what conditions it appears.",
+                    incorrect: "You have listed limitations without providing rationale or supporting evidence."
+                },
+                points: 0
+            },
+            {
+                question: "Q 7: Next steps concise options grounded in reasoning ",
+                feedback: {
+                    correct: "You proposed at least two specific follow-up actions that directly address the findings or limitations.",
+                    incorrect: "Your suggestions were too generic and not tied to evidence or mechanisms. You should include evaluations on domain-shifted data or harder benchmarks, propose architectural or training changes for identified failure modes, and consider data curation, higher-frequency modeling, and robustness interventions. You also need to state the expected effect and how it will be tested."
+                },
+                points: 0
+            },
+            {
+                question: "Q 8: Your single hypothesis to investigate",
+                feedback: {
+                    correct: "You stated one testable hypothesis and provided a measurable outcome along with an evaluation plan.",
+                    incorrect: "Your work needs a clear goal statement, a baseline with an evaluation protocol, a motivating mechanism, and a defined threshold for support."
+                },
+                points: 0
+            }
+        ];
+
+        let questionsData = [...defaultQuestionsData];
+        let scores = Array(questionsData.length).fill(0);
+        let feedbackEdited = false;
+
+        function loadQuestions(questions) {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            questions.forEach((questionData, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-item';
+
+                questionDiv.innerHTML = `
+                    <label class="question-label">${questionData.question}</label>
+                    <input type="checkbox" id="correct-${index}" onclick="toggleFeedback(${index}, 'correct')"> Correct
+                    <textarea id="feedback-correct-${index}" class="feedback-area hidden"
+                        onblur="saveFeedback(${index}, 'correct')">${questionData.feedback.correct}</textarea>
+
+                    <input type="checkbox" id="incorrect-${index}" onclick="toggleFeedback(${index}, 'incorrect')"> Incorrect
+                    <textarea id="feedback-incorrect-${index}" class="feedback-area hidden"
+                        onblur="saveFeedback(${index}, 'incorrect')">${questionData.feedback.incorrect}</textarea>
+                `;
+
+                container.appendChild(questionDiv);
+            });
+        }
+
+        function toggleFeedback(index, feedbackType) {
+            const checkbox = document.getElementById(`${feedbackType}-${index}`);
+            const textarea = document.getElementById(`feedback-${feedbackType}-${index}`);
+            const questionDiv = textarea.closest('.question-item');
+
+            if (checkbox.checked) {
+                textarea.classList.remove('hidden');
+                questionDiv.classList.add(feedbackType);
+            } else {
+                textarea.classList.add('hidden');
+                questionDiv.classList.remove(feedbackType);
+            }
+
+            updateFeedbackDisplay();
+        }
+
+        function saveFeedback(index, feedbackType) {
+            const feedbackTextarea = document.getElementById(`feedback-${feedbackType}-${index}`);
+            const feedback = feedbackTextarea.value;
+            questionsData[index].feedback[feedbackType] = feedback;
+            updateFeedbackDisplay();
+        }
+
+        function updateFeedbackDisplay() {
+            let totalPoints = 0;
+            let feedbackContent = '';
+            const scoresTable = document.getElementById('scores-table');
+            const selectedFeedback = document.getElementById('selected-feedback');
+            const feedbackDisplay = document.getElementById('feedback-display');
+
+            scoresTable.innerHTML = `
+                <div class="div-table-row div-table-header">
+                    <div class="div-table-col">Question</div>
+                    <div class="div-table-col">Score</div>
+                </div>
+            `;
+
+            feedbackDisplay.classList.remove('correct', 'incorrect');
+
+            let hasCorrect = false;
+            let hasIncorrect = false;
+
+            questionsData.forEach((questionData, index) => {
+                let score = 0;
+                let feedbackText = '';
+                const questionText = questionData.question.split(':').slice(1).join(':').trim();
+
+                const correctChecked = document.getElementById(`correct-${index}`).checked;
+                const incorrectChecked = document.getElementById(`incorrect-${index}`).checked;
+
+                if (correctChecked && incorrectChecked) {
+                    score = 0.5;
+                    hasCorrect = true;
+                    hasIncorrect = true;
+                    feedbackText += `Q${index + 1} ${questionText} (0.5/1):\nWhat you did well\n${questionData.feedback.correct}\nWhat needs improvement\n${questionData.feedback.incorrect}\n\n`;
+                } else if (correctChecked) {
+                    score = 1;
+                    hasCorrect = true;
+                    feedbackText += `Q${index + 1} ${questionText} (1/1):\nWhat you did well\n${questionData.feedback.correct}\n\n`;
+                } else if (incorrectChecked) {
+                    score = 0.5;
+                    hasIncorrect = true;
+                    feedbackText += `Q${index + 1} ${questionText} (0.5/1):\nWhat needs improvement\n${questionData.feedback.incorrect}\n\n`;
+                }
+
+                scores[index] = score;
+                totalPoints += score;
+                if (feedbackText) feedbackContent += feedbackText;
+
+                const scoreRow = document.createElement('div');
+                scoreRow.className = 'div-table-row';
+                if (score === 1) {
+                    scoreRow.classList.add('score-correct');
+                } else if (score === 0.5) {
+                    scoreRow.classList.add('score-incorrect');
+                }
+                scoreRow.innerHTML = `
+                    <div class="div-table-col">Question ${index + 1}</div>
+                    <div class="div-table-col">${score}</div>
+                `;
+                scoresTable.appendChild(scoreRow);
+            });
+
+            if (hasCorrect && hasIncorrect) {
+                // mixed → no color
+            } else if (hasCorrect) {
+                feedbackDisplay.classList.add('correct');
+            } else if (hasIncorrect) {
+                feedbackDisplay.classList.add('incorrect');
+            }
+
+            const totalRow = document.createElement('div');
+            totalRow.className = 'div-table-row';
+            totalRow.innerHTML = `
+                <div class="div-table-col">Total</div>
+                <div class="div-table-col">${totalPoints}</div>
+            `;
+            scoresTable.appendChild(totalRow);
+
+            if (!feedbackEdited) {
+                selectedFeedback.value = feedbackContent;
+            }
+
+            document.getElementById('total-points').textContent = `Total Points: ${totalPoints}`;
+        }
+
+        function resetFeedbackDisplay() {
+            feedbackEdited = false;
+            updateFeedbackDisplay();
+        }
+
+        function copyFeedback() {
+            const selectedFeedback = document.getElementById('selected-feedback');
+            navigator.clipboard.writeText(selectedFeedback.value);
+        }
+
+        function copyScores() {
+            let scoresContent = scores.join('\t');
+            navigator.clipboard.writeText(scoresContent);
+        }
+
+        function resetAll() {
+            questionsData = [...defaultQuestionsData];
+            scores = Array(questionsData.length).fill(0);
+            feedbackEdited = false;
+            loadQuestions(questionsData);
+            document.querySelectorAll('.question-item').forEach(item => {
+                item.classList.remove('correct', 'incorrect');
+            });
+            document.getElementById('feedback-display').classList.remove('correct', 'incorrect');
+            updateFeedbackDisplay();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadQuestions(questionsData);
+            document.getElementById('selected-feedback').addEventListener('input', () => {
+                feedbackEdited = true;
+            });
+        });
+    </script>
+</body>
+
+</html>

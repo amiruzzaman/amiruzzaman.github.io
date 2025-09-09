@@ -1,0 +1,2780 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="#">
+    <title>..::Amir's Coin Collection::..</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* General Styles */
+        :root {
+            --primary-color: #3498db;
+            --primary-dark: #2980b9;
+            --secondary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --accent-light: #f39c12;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --text-color: #2c3e50;
+            --text-light: #f8f9fa;
+            --border-color: #dfe6e9;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --gold-color: #FFD700;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #dfe6e9 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .out-container {
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px;
+        }
+
+        .inner-container {
+            width: 90%;
+            max-width: 1400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            margin: 20px 0;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--secondary-color);
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .main-content {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        /* Search Bar */
+        .search-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 12px 20px;
+            padding-left: 45px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary-color);
+        }
+
+        .search-results {
+            position: absolute;
+            width: 100%;
+            max-height: 300px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            box-shadow: var(--box-shadow);
+            z-index: 100;
+            display: none;
+        }
+
+        .search-results.show {
+            display: block;
+        }
+
+        .search-result-item {
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .search-result-item:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Gallery Section */
+        .gallery-section {
+            flex: 1;
+            min-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: white;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .slider {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .current-img-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            background: white;
+            position: relative;
+            padding: 15px;
+            gap: 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+        }
+
+        .current-img-container img {
+            max-width: 100%;
+            height: 300px;
+            object-fit: contain;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .current-img-container img:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .img-queue {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .img-queue-in {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px;
+            width: 100%;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-color) #f1f1f1;
+        }
+
+        .img-queue-in::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .img-queue-in::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .img-queue-in::-webkit-scrollbar-thumb {
+            background-color: var(--primary-color);
+            border-radius: 10px;
+        }
+
+        .img-queue-in img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+            transition: var(--transition);
+            border-radius: 4px;
+        }
+
+        .img-queue-in img:hover {
+            transform: scale(1.1);
+            border-color: var(--primary-color);
+        }
+
+        .img-queue-in img.active-thumbnail {
+            border: 3px solid var(--accent-color);
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.2);
+            transform: scale(1.1);
+        }
+
+        /* Map Section */
+        .map-section {
+            flex: 1;
+            min-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: white;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        #map {
+            width: 100%;
+            height: 400px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Continent Map Section */
+        .continent-map-container {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .continent-map-container.show {
+            display: flex;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .continent-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: var(--light-color);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+        }
+
+        .continent-info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .continent-info-label {
+            font-size: 12px;
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        .continent-info-value {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        #continent-map {
+            width: 100%;
+            height: 200px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Continent highlight styles */
+        .continent-highlight {
+            fill-opacity: 0.7;
+            stroke-width: 2;
+            stroke: #e74c3c;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                fill-opacity: 0.7;
+            }
+
+            50% {
+                fill-opacity: 0.4;
+            }
+
+            100% {
+                fill-opacity: 0.7;
+            }
+        }
+
+        /* Marker icon for country location */
+        .continent-country-marker {
+            background: transparent;
+            border: none;
+        }
+
+        /* Flag image style */
+        .country-flag {
+            width: 70px;
+            /* Same width as thumbnail */
+            height: 70px;
+            /* Same height as thumbnail */
+            object-fit: contain;
+            /* Ensure the flag fits without cropping */
+            margin-top: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .country-flag:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Countries List */
+        .countries-list {
+            width: 100%;
+            padding: 25px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-top: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        .countries-list h2 {
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .countries-list h2 .country-name {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .countries-list ul {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            padding: 0;
+            list-style: none;
+        }
+
+        .countries-list a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 120px;
+            height: 40px;
+            background: var(--light-color);
+            border-radius: var(--border-radius);
+            color: var(--text-color);
+            text-decoration: none;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 0 15px;
+            transition: var(--transition);
+            border: 1px solid var(--border-color);
+        }
+
+        .countries-list a:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.2);
+            border-color: var(--primary-dark);
+        }
+
+        .countries-list a.active {
+            background: var(--accent-color);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(231, 76, 60, 0.2);
+            border-color: var(--accent-color);
+        }
+
+        /* Buttons */
+        .btn {
+            background: var(--primary-color);
+            color: var(--text-light);
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: var(--box-shadow);
+            border: 1px solid var(--primary-dark);
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-nav {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 20px;
+            padding: 0;
+        }
+
+        /* Home Button Wrapper for Summary Pop-up */
+        .home-button-wrapper {
+            position: relative;
+            /* Needed for absolute positioning of summary */
+            display: inline-block;
+            /* To make the wrapper only as wide as its content */
+            margin-bottom: 15px;
+            /* Maintain original spacing */
+        }
+
+        .btn-home {
+            background: var(--secondary-color);
+            border-color: var(--dark-color);
+            color: white;
+            position: relative;
+            /* Ensure z-index works */
+            z-index: 2;
+            /* Keep button above summary */
+        }
+
+        .btn-home i {
+            color: white;
+        }
+
+        .btn-home:hover {
+            background: var(--dark-color);
+        }
+
+        /* Details Section */
+        .details-section {
+            width: 100%;
+            margin-top: 15px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .details-toggle {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            width: 100%;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+            box-shadow: var(--box-shadow);
+            border: 1px solid var(--dark-color);
+        }
+
+        .details-toggle:hover {
+            background: var(--dark-color);
+        }
+
+        .details-toggle span {
+            color: var(--gold-color);
+        }
+
+        .details-toggle i.fa-info-circle {
+            color: var(--gold-color);
+            margin-right: 8px;
+        }
+
+        .details-toggle i.fa-chevron-down {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 14px;
+            color: white;
+        }
+
+        .details-toggle.collapsed i.fa-chevron-down {
+            transform: rotate(180deg);
+        }
+
+        .details-content {
+            padding: 20px;
+            background: white;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            border: 1px solid var(--border-color);
+            border-top: none;
+            margin-top: -1px;
+            display: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .details-content.show {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .detail-item {
+            margin-bottom: 12px;
+            display: flex;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            min-width: 120px;
+            color: var(--secondary-color);
+        }
+
+        .detail-value {
+            flex: 1;
+            color: var(--text-color);
+            white-space: normal;
+            /* allow wrapping on spaces */
+            word-break: keep-all;
+            /* don't break normal words */
+            overflow-wrap: anywhere;
+            /* but do break very long strings (like URLs) */
+        }
+
+
+        /* Image Modal - UPDATED FOR CONSISTENT SIZING */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            overflow: auto;
+            animation: fadeInModal 0.3s;
+        }
+
+        @keyframes fadeInModal {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+            padding: 20px;
+            position: relative;
+        }
+
+        .modal-image {
+            max-width: 90%;
+            max-height: 70vh;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            object-position: center;
+            animation: zoomIn 0.3s;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Ensure consistent sizing for all image types */
+        .modal-image[src*="coin"],
+        .modal-image[src*="bill"],
+        .modal-image[src*="paper"],
+        .modal-image[src*="antique"] {
+            max-width: 500px;
+            max-height: 500px;
+            width: auto;
+            height: auto;
+        }
+
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.9);
+            }
+
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            z-index: 1001;
+        }
+
+        .close-modal:hover {
+            color: var(--accent-color);
+            transform: rotate(90deg);
+        }
+
+        /* Modal Nav Buttons */
+        .modal-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            transition: background 0.3s ease;
+            z-index: 1001;
+        }
+
+        .modal-nav:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        #prev-modal-btn {
+            left: 20px;
+        }
+
+        #next-modal-btn {
+            right: 20px;
+        }
+
+        /* Modal Details */
+        .modal-details {
+            margin-top: 15px;
+            color: white;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            max-width: 80%;
+            width: 100%;
+        }
+
+        .modal-details p {
+            color: white;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .modal-details p strong {
+            color: var(--gold-color);
+        }
+
+        /* Flag Modal */
+        .flag-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            overflow: auto;
+            animation: fadeInModal 0.3s;
+        }
+
+        .flag-modal-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .flag-modal-image {
+            max-width: 90%;
+            max-height: 80vh;
+            object-fit: contain;
+            animation: zoomIn 0.3s;
+        }
+
+        .close-flag-modal {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .close-flag-modal:hover {
+            color: var(--accent-color);
+            transform: rotate(90deg);
+        }
+
+        /* Flag Modal Details */
+        .flag-modal-details {
+            margin-top: 15px;
+            color: white;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+        }
+
+        .flag-modal-details p {
+            color: white;
+            margin: 5px 0;
+            font-size: 16px;
+        }
+
+        .flag-modal-details p strong {
+            color: var(--gold-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .gallery-section,
+            .map-section {
+                min-width: 100%;
+            }
+
+            .current-img-container img {
+                height: 250px;
+            }
+
+            .btn-nav {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+            /* Updated modal styles for mobile */
+            .modal-image {
+                max-width: 95%;
+                max-height: 60vh;
+                padding: 15px;
+            }
+
+            .modal-image[src*="coin"],
+            .modal-image[src*="bill"],
+            .modal-image[src*="paper"],
+            .modal-image[src*="antique"] {
+                max-width: 350px;
+                max-height: 350px;
+            }
+
+            .modal-details {
+                max-width: 95%;
+                font-size: 13px;
+            }
+
+            .flag-modal-image {
+                max-width: 95%;
+                max-height: 70vh;
+            }
+
+            /* Adjust summary for smaller screens */
+            .summary {
+                width: 200px;
+                /* Even smaller on mobile */
+                padding: 8px 12px;
+            }
+
+            .summary p {
+                font-size: 11px;
+            }
+
+            .summary i {
+                font-size: 14px;
+                margin-right: 6px;
+                width: 16px;
+            }
+
+            /* FIXED: Improved mobile text display for detail items */
+            .detail-item {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .detail-label {
+                min-width: auto;
+                font-size: 14px;
+            }
+
+            .detail-value {
+                font-size: 16px;
+                line-height: 1.4;
+            }
+        }
+
+        /* Footer */
+        footer {
+            width: 80vw;
+            margin-top: 60px;
+            text-align: center;
+            font-size: 1.1em;
+            color: var(--secondary-color);
+            padding: 20px 40px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+            color: var(--primary-dark);
+        }
+
+        /* Summary Section - Updated for Pop-up */
+        .summary {
+            position: absolute;
+            top: calc(100% + 10px);
+            /* Position below the home button with a gap */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 250px;
+            /* Fixed smaller width */
+            padding: 10px 15px;
+            background-color: var(--secondary-color);
+            color: var(--text-light);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            z-index: 10;
+            /* Ensure it appears above other elements */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+            text-align: left;
+            /* Align text within summary */
+        }
+
+        /* Triangle "arrow" pointing up from the summary to the button */
+        .summary::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            /* Position above the summary box */
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 8px;
+            border-style: solid;
+            border-color: transparent transparent var(--secondary-color) transparent;
+        }
+
+        /* Show summary on hover of the wrapper */
+        .home-button-wrapper:hover .summary {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(-5px);
+            /* Slight lift effect */
+        }
+
+        .summary p {
+            margin: 5px 0;
+            /* Reduced margin */
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            /* Smaller font size */
+            color: var(--text-light);
+            /* Ensure text color is light */
+        }
+
+        .summary i {
+            margin-right: 8px;
+            /* Reduced margin */
+            color: var(--gold-color);
+            width: 18px;
+            /* Smaller icon size */
+            text-align: center;
+            font-size: 16px;
+            /* Smaller icon font size */
+        }
+
+        /* New styles for the selected country name and count */
+        .title-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .main-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--secondary-color);
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .selected-country-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #4CAF50;
+            /* Green color for the country name */
+            text-align: center;
+            margin-top: 5px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* --- NEW FEATURES STYLES --- */
+
+        /* Gallery View Section */
+        .gallery-view-section {
+            width: 100%;
+            display: none;
+            /* Initially hidden */
+            flex-direction: column;
+            gap: 20px;
+            background: white;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .gallery-view-section.show {
+            display: flex;
+            /* Show when 'show' class is added */
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 10px;
+            justify-content: center;
+        }
+
+        .gallery-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--light-color);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .gallery-item-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            object-position: center;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item-image:hover {
+            transform: scale(1.05);
+        }
+
+        .gallery-item-info {
+            padding: 10px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .gallery-item-info p {
+            font-size: 12px;
+            color: var(--secondary-color);
+            margin: 0;
+            font-weight: 500;
+        }
+
+        /* Sorting and Filtering */
+        .filter-sort-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-sort-container select,
+        .filter-sort-container label {
+            font-size: 14px;
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        .filter-sort-container select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background-color: white;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .filter-sort-container select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        /* Back to Top Button */
+        #back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: var(--box-shadow);
+            opacity: 0;
+            /* Initially hidden */
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
+            z-index: 999;
+        }
+
+        #back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        #back-to-top:hover {
+            background: var(--primary-dark);
+            transform: translateY(-5px);
+        }
+
+        /* Gallery/Slider View Toggle */
+        .view-toggle-container {
+            display: flex;
+            justify-content: flex-end;
+            width: 100%;
+            max-width: 1400px;
+            margin: 10px auto;
+        }
+
+        .view-toggle-container button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .view-toggle-container button:hover {
+            background-color: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        .view-toggle-container button.active {
+            background-color: var(--accent-color);
+        }
+
+        /* URL Modal for Note links */
+        #url-modal {
+            display: none;
+            position: fixed;
+            z-index: 2500;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        #url-modal .url-modal-content {
+            background: #fff;
+            margin: 4% auto;
+            padding: 0;
+            border-radius: 10px;
+            width: min(1000px, 92%);
+            height: 84%;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        #url-modal iframe {
+            flex: 1;
+            border: none;
+            width: 100%;
+        }
+
+        #url-modal .close-url-modal {
+            align-self: flex-end;
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            padding: 6px 14px;
+            cursor: pointer;
+        }
+
+        #url-modal .close-url-modal:hover {
+            color: #c00;
+        }
+
+        .note-url-link {
+            word-break: break-word;
+            /* break URLs if too long */
+            overflow-wrap: anywhere;
+            display: inline-block;
+            max-width: 100%;
+        }
+
+        .country-tooltip {
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            font-weight: 600;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 13px;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="out-container">
+        <div class="inner-container">
+            <div class="home-button-wrapper">
+                <a href="index.html" class="btn btn-home"><i class="fas fa-home"></i> Home</a>
+                <div id="summary-container" class="summary"></div>
+            </div>
+
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="search-input" class="search-bar" placeholder="Search for a country..."
+                    autocomplete="off">
+                <div id="search-results" class="search-results"></div>
+            </div>
+
+            <h1 id="image-caption" class="title-container">
+                <span class="main-title">Amir's Coin Collection</span>
+                <span id="selected-country-title" class="selected-country-title"></span>
+            </h1>
+
+            <div class="view-toggle-container">
+                <button id="toggle-view-btn" class="btn"><i class="fas fa-th"></i> Grid View</button>
+            </div>
+
+            <div class="main-content" id="main-content">
+                <div class="gallery-section" id="slider-view">
+                    <div class="slider-container">
+                        <button id="prev-btn" class="btn btn-nav"><i class="fas fa-chevron-left"></i></button>
+                        <div class="slider">
+                            <div class="current-img-container">
+                                <img id="current-image-img" src="placeholder.jpg" alt="Loading..." />
+                            </div>
+                            <div class="details-section">
+                                <button class="details-toggle">
+                                    <span><i class="fas fa-info-circle"></i> Coin Details</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                                <div class="details-content" id="current-image-note"></div>
+                            </div>
+                        </div>
+                        <button id="next-btn" class="btn btn-nav"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="img-queue">
+                        <div class="img-queue-in" id="thumbnail-container"></div>
+                    </div>
+                </div>
+
+                <div class="map-section">
+                    <div id="map"></div>
+                    <div class="continent-map-container" id="continent-map-container">
+                        <div class="continent-info">
+                            <div class="continent-info-item">
+                                <span class="continent-info-label">Continent</span>
+                                <span class="continent-info-value" id="continent-name">--</span>
+                            </div>
+                            <div class="continent-info-item">
+                                <span class="continent-info-label">Country</span>
+                                <span class="continent-info-value" id="continent-country-name">--</span>
+                            </div>
+                            <div class="continent-info-item">
+                                <span class="continent-info-label">Capital</span>
+                                <span class="continent-info-value" id="continent-capital">--</span>
+                            </div>
+                        </div>
+                        <div id="continent-map"></div>
+                        <img id="country-flag" class="country-flag" src="" alt="Country Flag" style="display:none;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="gallery-view-section" id="gallery-view">
+                <div class="filter-sort-container">
+                    <div>
+                        <label for="sort-by">Sort by:</label>
+                        <select id="sort-by">
+                            <option value="name-asc">A-Z</option>
+                            <option value="name-desc">Z-A</option>
+                            <option value="type">Type</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="filter-by">Filter by:</label>
+                        <select id="filter-by">
+                            <option value="all">All</option>
+                            <option value="coin">Coins</option>
+                            <option value="paper-bill">Paper Bills</option>
+                            <option value="antique">Antique</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="gallery-grid" id="gallery-grid-container">
+                </div>
+            </div>
+
+            <div class="countries-list" id="countries-list">
+                <h2>
+                    <i class="fas fa-globe-americas"></i>
+                    <span>Available Countries</span>
+                    <span id="total-countries-count"></span>
+                    <span id="selected-country" class="country-name"></span>
+                </h2>
+                <ul id="countries-ul"></ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="imageModal" class="modal">
+        <span class="close-modal">&times;</span>
+        <div class="modal-content">
+            <button id="prev-modal-btn" class="modal-nav"><i class="fas fa-chevron-left"></i></button>
+            <img id="modalImage" class="modal-image" src="" alt="Enlarged view">
+            <button id="next-modal-btn" class="modal-nav"><i class="fas fa-chevron-right"></i></button>
+            <div class="modal-details" id="image-modal-details" style="display: none;">
+                <p><strong>Country:</strong> <span id="modal-country-name"></span></p>
+                <p><strong>Capital:</strong> <span id="modal-capital-name"></span></p>
+                <p><strong>Currency:</strong> <span id="modal-currency-name"></span></p>
+                <p><strong>Note:</strong> <span id="modal-note"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="flagModal" class="flag-modal">
+        <span class="close-flag-modal">&times;</span>
+        <div class="flag-modal-content">
+            <img id="flagModalImage" class="flag-modal-image" src="" alt="Enlarged flag view">
+            <div class="flag-modal-details" id="flag-modal-details" style="display: none;">
+                <p><strong>Country:</strong> <span id="flag-country-name"></span></p>
+                <p><strong>Continent:</strong> <span id="flag-continent-name"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- URL Modal -->
+    <div id="url-modal">
+        <div class="url-modal-content">
+            <span class="close-url-modal">&times;</span>
+            <iframe id="url-modal-iframe" src="about:blank"></iframe>
+        </div>
+    </div>
+
+
+
+    <button id="back-to-top" title="Go to top"><i class="fas fa-arrow-up"></i></button>
+
+    <footer>
+        <p><i class="far fa-copyright"></i> 2025 Amiruzzaman coin collection. All rights reserved. |
+            <a href="privacy.html" target="_blank"><i class="fas fa-lock"></i> Privacy Policy</a>
+        </p>
+    </footer>
+
+    <script>
+        // Global variables for caching fetched data to improve performance
+        const cache = {
+            coinsData: null,
+            countriesData: null,
+            continentData: null,
+            countryGeoJsonMapping: null,
+            continentGeoJson: null
+        };
+
+        let currentCountryCoins = []; // Store the coins for the currently selected country
+        let currentImageIndex = 0; // To keep track of the current image index for modal navigation
+
+        // Global map instances to prevent re-initialization
+        let mainMap = null;
+        let continentMap = null;
+        let mainMapGeoJsonLayer = null; // Layer for highlighted country on main map
+        let availableCountriesLayer = null; // Layer for all available countries on main map
+        let continentMapGeoJsonLayer = null; // Layer for highlighted continent on continent map
+        let continentMapMarker = null; // Marker for country on continent map
+
+        // Utility function to convert string to Title Case
+        function toTitleCase(str) {
+            return str.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+        }
+
+        // Fetch and process data
+        fetch('images/coins.json')
+            .then(response => response.json())
+            .then(data => {
+                originalData = combineData(data);
+                //console.log(originalData);
+                renderSummary(originalData);
+            })
+            .catch(error => console.error('Error fetching JSON:', error));
+
+        // Combine duplicate countries
+        function combineData(data) {
+            const result = [];
+            data.forEach(item => {
+                // Check if the country already exists in the result
+                let existing = result.find(entry => entry.country === item.country);
+                if (existing) {
+                    // Merge unique donor names
+                    const donorNames = new Set(existing.donor_name.split(', ').concat(item.donor_name.split(', ')));
+                    existing.donor_name = Array.from(donorNames).join(', ');
+
+                    // Merge unique currency types
+                    const currencyTypes = new Set(existing.currency_type.split(', ').concat(item.currency_type.split(', ')));
+                    existing.currency_type = Array.from(currencyTypes).join(', ');
+                } else {
+                    // Add new country entry
+                    result.push({ ...item });
+                }
+            });
+            return result;
+        }
+
+        // Render the summary
+        function renderSummary(data) {
+            const summary = document.getElementById('summary-container');
+            const numCountries = new Set(data.map(item => item.country)).size;
+            let numPaperBills = 0;
+            let numCoins = 0;
+            let numAntique = 0;
+
+            data.forEach(item => {
+                item.currency_type.split(', ').forEach(type => {
+                    const normalizedType = type.toLowerCase();
+                    if (normalizedType.includes('paper-bill')) numPaperBills++;
+                    if (normalizedType.includes('coin')) numCoins++;
+                    if (normalizedType.includes('antique')) numAntique++;
+                });
+            });
+
+            summary.innerHTML = `
+                <p><i class="fas fa-globe-americas"></i> Countries: ${numCountries}</p>
+                <p><i class="fas fa-money-bill-alt"></i> Bills: ${numPaperBills}</p>
+                <p><i class="fas fa-coins"></i> Coins: ${numCoins}</p>
+                <p><i class="fas fa-clock"></i> Antique: ${numAntique}</p>
+            `;
+        }
+
+        // helper to clean values
+        function cleanValue(val) {
+            if (!val || val.toString().trim().toLowerCase() === "none") {
+                return "N/A";
+            }
+            return val;
+        }
+
+        // helper function
+        function safeVal(val) {
+            if (!val) return "N/A";
+            if (typeof val === "string" && val.trim().toLowerCase() === "none") return "N/A";
+            return val;
+        }
+        // Preload all necessary JSON data at application startup
+        async function preloadData() {
+            try {
+                const [coinsData, countriesData, continentData, countryGeoJsonMapping, continentGeoJson, languagesData] = await Promise.all([
+                    fetch("images/coins.json").then(res => res.json()),
+                    fetch("countries.json").then(res => res.json()),
+                    fetch("countries.continents.json").then(res => res.json()),
+                    fetch("geojson/country_geojson_mapping.json").then(res => res.json()),
+                    fetch("continents.geojson").then(res => res.json()),
+                    fetch("countries.languages.json").then(res => res.json())   // 👈 NEW
+                ]);
+
+                cache.coinsData = coinsData;
+                cache.countriesData = countriesData;
+                cache.continentData = continentData;
+                cache.countryGeoJsonMapping = countryGeoJsonMapping;
+                cache.continentGeoJson = continentGeoJson;
+                cache.languagesData = languagesData;   // 👈 NEW
+
+                console.log("All data preloaded successfully.");
+                return true;
+            } catch (error) {
+                console.error("Error preloading data:", error);
+                return false;
+            }
+        }
+
+
+        // Sets the current image in the gallery and updates its details
+        async function setCurrentImage(src, note, donor, currency_type, countryInfo, year, size, index) {
+            const image = document.getElementById("current-image-img");
+            const noteElement = document.getElementById("current-image-note");
+            const countryFlagElement = document.getElementById("country-flag");
+
+            currentImageIndex = index;
+
+            // Use a temporary image to preload and ensure smooth transition
+            const tempImage = new Image();
+            tempImage.onload = () => {
+                image.setAttribute("src", src);
+                document.getElementById("modalImage").setAttribute("src", src);
+            };
+            tempImage.onerror = () => {
+                // Fallback to a placeholder if image fails to load
+                image.setAttribute("src", "https://placehold.co/300x200/cccccc/333333?text=Image+Not+Found");
+                document.getElementById("modalImage").setAttribute("src", "https://placehold.co/600x400/cccccc/333333?text=Image+Not+Found");
+                console.error(`Failed to load image: ${src}`);
+            };
+            tempImage.src = src; // Start loading the image
+
+            // Get alphabet example from countries.languages.json
+            let alphabetExample = "N/A";
+            if (cache.languagesData) {
+                //console.log("✅ languagesData loaded:", cache.languagesData);
+
+                //console.log("🔍 Looking for:", countryInfo?.name);
+
+                const langMatch = cache.languagesData.find(c => {
+                    //console.log("➡️ Checking:", c.country_name);
+                    return c.country_name.toLowerCase() === countryInfo.name.toLowerCase();
+                });
+
+                if (langMatch) {
+                    //console.log("🎯 Match found:", langMatch);
+                    //console.log(langMatch.alphabet_example);
+                    if (langMatch.languages[0].alphabet_example) {
+                        //alphabetExample = langMatch.alphabet_example;
+                        alphabetExample = langMatch.languages[0].alphabet_example;
+                    }
+                } else {
+                    console.warn("⚠️ No match found for:", countryInfo?.name);
+                }
+            } else {
+                console.error("❌ cache.languagesData is missing!");
+            }
+
+
+            // Construct the HTML for coin details
+            const countryDetails = countryInfo ? `
+    <div class="detail-item">
+        <span class="detail-label">Country:</span>
+        <span class="detail-value">${safeVal(countryInfo.name)}</span>
+    </div>
+    <div class="detail-item">
+        <span class="detail-label">Capital:</span>
+        <span class="detail-value">${safeVal(countryInfo.capital)}</span>
+    </div>
+    <div class="detail-item">
+        <span class="detail-label">Language:</span>
+        <span class="detail-value">${safeVal(countryInfo.language?.name)}</span>
+    </div>
+    <div class="detail-item">
+        <span class="detail-label">Hello:</span>
+        <span class="detail-value">${alphabetExample}</span>
+    </div>
+    <div class="detail-item">
+        <span class="detail-label">Currency:</span>
+        <span class="detail-value">${safeVal(countryInfo.currency?.name)} (${safeVal(countryInfo.currency?.symbol)})</span>
+    </div>
+    <div class="detail-item">
+        <span class="detail-label">Note:</span>
+        <span class="detail-value">${formatNoteWithURLs(safeVal(note) || "No note available")}</span>
+    </div>
+    <div class="detail-item">
+        <span class="detail-label">Year:</span>
+        <span class="detail-value">
+        ${safeVal(year)} 
+        ${year && !isNaN(year)
+                    ? `<span style="color: #3498db;">(${new Date().getFullYear() - parseInt(year)} years old)</span>`
+                    : ""}
+        </span>
+    </div>
+    <div class="detail-item">
+        <span class="detail-label">Size:</span>
+        <span class="detail-value">
+        ${size
+                    ? `${size} <span style="color: #3498db;">mm</span>`
+                    : "N/A"}
+        </span>
+    </div>
+    <div class="detail-item">
+        <span class="detail-label">Donor (${safeVal(currency_type) || "--"}):</span>
+        <span class="detail-value">${safeVal(donor) || "Unknown"}</span>
+    </div>
+` : `<div class="detail-item">
+        <span class="detail-value">Country information not available.</span>
+    </div>`;
+
+
+            noteElement.innerHTML = countryDetails;
+
+            // Load continent map data and flag if country info is available
+            if (countryInfo && countryInfo.name) {
+                await loadContinentData(countryInfo.name);
+            } else {
+                // Hide flag if no country info
+                countryFlagElement.style.display = 'none';
+                countryFlagElement.src = '';
+            }
+        }
+
+        // Loads continent-specific data and updates the continent info display
+        async function loadContinentData(countryName) {
+            try {
+                if (!cache.continentData) {
+                    console.error("Continent data not loaded from cache.");
+                    return;
+                }
+
+                const countryData = cache.continentData.countries.country.find(c =>
+                    c.countryName.toLowerCase() === countryName.toLowerCase()
+                );
+
+                const countryFlagElement = document.getElementById("country-flag");
+
+                if (countryData) {
+                    const continentName = countryData.continentName;
+                    const countryDisplayName = countryData.countryName;
+                    const capital = countryData.capital;
+                    const countryCode = countryData.countryCode; // Get the country code
+
+                    document.getElementById('continent-name').textContent = continentName;
+                    document.getElementById('continent-country-name').textContent = countryDisplayName;
+                    document.getElementById('continent-capital').textContent = capital;
+
+                    // Update Flag Modal details
+                    document.getElementById('flag-country-name').style.color = 'white';
+                    document.getElementById('flag-country-name').textContent = countryDisplayName;
+                    document.getElementById('flag-continent-name').style.color = 'white';
+                    document.getElementById('flag-continent-name').textContent = continentName;
+
+                    await loadContinentMap(continentName, countryDisplayName);
+
+                    // Display the country flag
+                    if (countryCode) {
+                        const flagSrc = `flags/svg/${countryCode.toLowerCase()}.svg`;
+                        countryFlagElement.src = flagSrc;
+                        countryFlagElement.style.display = 'block'; // Show the flag
+                        countryFlagElement.onerror = () => {
+                            countryFlagElement.style.display = 'none'; // Hide if flag not found
+                            console.warn(`Flag not found for country code: ${countryCode}`);
+                        };
+
+                        // Add click event to the flag to open modal
+                        countryFlagElement.onclick = () => {
+                            openFlagModal(flagSrc);
+                        };
+                    } else {
+                        countryFlagElement.style.display = 'none'; // Hide if no country code
+                    }
+
+                } else {
+                    console.warn(`No continent data found for country: ${countryName}`);
+                    countryFlagElement.style.display = 'none'; // Hide flag if no continent data
+                    document.getElementById('flag-country-name').textContent = "N/A";
+                    document.getElementById('flag-continent-name').textContent = "N/A";
+                }
+            } catch (error) {
+                console.error("Error loading continent data:", error);
+                document.getElementById("country-flag").style.display = 'none'; // Hide flag on error
+            }
+        }
+
+
+        // Function to load and display the continent map
+        async function loadContinentMap(continentName, countryName) {
+            try {
+                // Initialize the map only once
+                if (!continentMap) {
+                    continentMap = L.map('continent-map', {
+                        preferCanvas: true, // Use Canvas renderer for better performance
+                        zoomControl: false, // Disable default zoom control
+                        attributionControl: false // Disable attribution for cleaner look
+                    }).setView([20, 0], 2); // Initial view
+
+                    // Add tile layer only once
+                    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                        maxZoom: 18,
+                        attribution: "© OpenStreetMap contributors",
+                        retry: 3, // Retry loading tiles 3 times
+                        detectRetina: true // Better rendering on retina displays
+                    }).addTo(continentMap);
+                }
+
+                // Clear existing continent layer and marker before adding new ones
+                if (continentMapGeoJsonLayer) {
+                    continentMap.removeLayer(continentMapGeoJsonLayer);
+                }
+                if (continentMapMarker) {
+                    continentMap.removeLayer(continentMapMarker);
+                }
+
+                // Filter GeoJSON for the specific continent
+                const filteredContinentGeoJson = {
+                    type: "FeatureCollection",
+                    features: cache.continentGeoJson.features.filter(feature => {
+                        const featureContinent = feature.properties.CONTINENT;
+                        if (continentName === "Australia" || continentName === "Oceania") {
+                            return featureContinent === "Australia" || featureContinent === "Oceania";
+                        }
+                        return featureContinent === continentName;
+                    })
+                };
+
+                // Add the new continent layer
+                continentMapGeoJsonLayer = L.geoJSON(filteredContinentGeoJson, {
+                    style: {
+                        color: "#e74c3c",
+                        weight: 2,
+                        fillOpacity: 0.7,
+                        fillColor: "#e74c3c"
+                    }
+                }).addTo(continentMap);
+
+                // Fit map bounds to the continent layer, if valid
+                const bounds = continentMapGeoJsonLayer.getBounds();
+                if (bounds.isValid()) {
+                    continentMap.flyToBounds(bounds, {
+                        maxZoom: 3, // Prevent zooming in too far on small continents
+                        padding: [20, 20], // Add some padding
+                        duration: 0.5 // Smooth animation
+                    });
+                } else {
+                    console.warn("Invalid bounds for continent map layer. Resetting view.");
+                    continentMap.setView([20, 0], 2); // Reset to a default view if bounds are invalid
+                }
+
+                // If we have country data, try to show a marker for the country's capital/center
+                if (countryName) {
+                    const countryMapping = cache.countryGeoJsonMapping.find(
+                        item => item.country_name.toLowerCase() === countryName.toLowerCase()
+                    );
+
+                    if (countryMapping && countryMapping.center) {
+                        const [lat, lng] = countryMapping.center;
+                        continentMapMarker = L.marker([lat, lng], {
+                            icon: L.divIcon({
+                                className: 'continent-country-marker',
+                                html: '<i class="fas fa-map-marker-alt" style="color: #e74c3c; font-size: 24px;"></i>',
+                                iconSize: [24, 24],
+                                iconAnchor: [12, 24]
+                            })
+                        }).addTo(continentMap);
+                    } else {
+                        console.warn(`No center coordinates found for country: ${countryName} on continent map.`);
+                    }
+                }
+            } catch (error) {
+                console.error("Error loading continent map:", error);
+            }
+        }
+
+
+        // Renders the list of available countries in the UI
+        function renderCountries(countries) {
+            const countriesListUl = document.getElementById("countries-ul");
+            countriesListUl.innerHTML = ""; // Clear existing list
+
+            // Update the total count of unique countries
+            document.getElementById('total-countries-count').textContent = `(${countries.length})`;
+
+            const queryParams = new URLSearchParams(window.location.search);
+            const currentCountryParam = queryParams.get("country") ? queryParams.get("country").toLowerCase() : null;
+
+            countries.forEach(country => {
+                const li = document.createElement("li");
+                const link = document.createElement("a");
+                link.textContent = country;
+                link.href = `?country=${country.toLowerCase()}`;
+
+                // Set active class and update titles if this is the currently selected country
+                if (currentCountryParam && country.toLowerCase() === currentCountryParam) {
+                    link.classList.add("active");
+                    // get the count of items for the selected country
+                    const countryItems = cache.coinsData.filter(coin => coin.country.toLowerCase() === country.toLowerCase()).length;
+                    document.getElementById('selected-country').textContent = `: ${country}`;
+                    document.getElementById('selected-country-title').textContent = `${country} (${countryItems})`;
+                    updateTitle(`${country}`);
+                }
+
+                // Add click event listener to handle country selection
+                link.addEventListener("click", event => {
+                    event.preventDefault(); // Prevent default link behavior
+                    const countryName = country.toLowerCase();
+
+                    // Remove active class from all country links
+                    document.querySelectorAll('.countries-list a').forEach(el => {
+                        el.classList.remove('active');
+                    });
+
+                    // Add active class to the clicked link
+                    link.classList.add('active');
+                    // get the count of items for the selected country
+                    const countryItems = cache.coinsData.filter(coin => coin.country.toLowerCase() === country.toLowerCase()).length;
+                    document.getElementById('selected-country').textContent = `: ${country}`;
+                    document.getElementById('selected-country-title').textContent = `${country} (${countryItems})`;
+                    updateTitle(`${country}`);
+
+                    // Update URL without reloading the page
+                    history.pushState(null, "", `?country=${countryName}`);
+                    // Trigger map highlight and image loading for the selected country
+                    highlightCountry(countryName);
+                    loadCountryImages(countryName);
+                    loadGalleryView(countryName);
+                });
+
+                li.appendChild(link);
+                countriesListUl.appendChild(li);
+            });
+        }
+
+        // Fetches country-specific information from cached data
+        function fetchCountryInfo(countryName) {
+            if (!cache.countriesData) {
+                console.error("Countries data not loaded from cache.");
+                return null;
+            }
+            return cache.countriesData.find(country => country.name.toLowerCase() === countryName.toLowerCase());
+        }
+
+        // Initializes the main Leaflet map
+        function initializeMap() {
+            // Initialize the map only once
+            if (!mainMap) {
+                mainMap = L.map("map", {
+                    preferCanvas: true, // Use Canvas renderer for better performance
+                    zoomControl: false, // We'll add our own control
+                    attributionControl: false // Disable attribution for cleaner look
+                }).setView([20, 0], 2); // Initial view
+
+                // Add tile layer only once
+                L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                    maxZoom: 18,
+                    attribution: "© OpenStreetMap contributors",
+                    retry: 3, // Retry loading tiles 3 times
+                    detectRetina: true // Better rendering on retina displays
+                }).addTo(mainMap);
+
+                // Add custom zoom control with home button
+                L.control.zoom({
+                    position: 'topright'
+                }).addTo(mainMap);
+            }
+
+            // Function to highlight a specific country on the main map
+            async function highlightCountry(countryName) {
+                try {
+                    const countryMapping = cache.countryGeoJsonMapping.find(
+                        item => item.country_name.toLowerCase() === countryName.toLowerCase()
+                    );
+
+                    if (!countryMapping) {
+                        console.warn(`No GeoJSON mapping found for country: ${countryName}. Cannot highlight.`);
+                        // Optionally, clear any existing highlight if no mapping is found
+                        if (mainMapGeoJsonLayer) {
+                            mainMap.removeLayer(mainMapGeoJsonLayer);
+                            mainMapGeoJsonLayer = null;
+                        }
+                        return;
+                    }
+
+                    let geojson = countryMapping.geojson;
+                    // If GeoJSON is not cached, fetch it
+                    if (!geojson) {
+                        const response = await fetch(countryMapping.file_name);
+                        geojson = await response.json();
+                        countryMapping.geojson = geojson; // Cache the GeoJSON for future use
+                    }
+
+                    displayCountryHighlight(mainMap, geojson);
+                } catch (error) {
+                    console.error(`Error highlighting country ${countryName}:`, error);
+                }
+            }
+
+            // Displays the GeoJSON highlight on the map
+            function displayCountryHighlight(mapInstance, geojson) {
+                // Remove existing highlight layer if it exists
+                if (mainMapGeoJsonLayer) {
+                    mapInstance.removeLayer(mainMapGeoJsonLayer);
+                }
+
+                mainMapGeoJsonLayer = L.geoJSON(geojson, {
+                    style: {
+                        color: "#e74c3c",
+                        weight: 2,
+                        fillOpacity: 0.2,
+                        fillColor: "#e74c3c"
+                    },
+                    onEachFeature: function (feature, layer) {
+                        const name = feature.properties?.name || feature.properties?.ADMIN || "Unknown";
+                        layer.bindTooltip(name, {
+                            permanent: false,
+                            direction: "center",
+                            className: "country-tooltip"
+                        });
+                    }
+                }).addTo(mapInstance);
+
+
+                const bounds = mainMapGeoJsonLayer.getBounds();
+                if (bounds.isValid()) {
+                    mapInstance.flyToBounds(bounds, {
+                        padding: [50, 50], // Add padding around the country
+                        maxZoom: 6, // Don't zoom in too close
+                        duration: 1 // Smooth animation
+                    });
+                } else {
+                    console.warn("Invalid bounds for country highlight layer. Skipping fitBounds.");
+                }
+            }
+
+            // Function to show all available countries in a light green color
+            async function showAvailableCountries(availableCountries) {
+                // Remove existing layer if it exists
+                if (availableCountriesLayer) {
+                    mainMap.removeLayer(availableCountriesLayer);
+                }
+
+                // Create a new layer group for available countries
+                availableCountriesLayer = L.layerGroup().addTo(mainMap);
+
+                // Filter to only include mappings for countries that have coin data
+                const availableMappings = cache.countryGeoJsonMapping.filter(item =>
+                    availableCountries.some(c => c.toLowerCase() === item.country_name.toLowerCase())
+                );
+
+                // Process each available country mapping
+                for (const countryMapping of availableMappings) {
+                    try {
+                        let geojson = countryMapping.geojson;
+                        // If GeoJSON is not cached, fetch and cache it
+                        if (!geojson) {
+                            const response = await fetch(countryMapping.file_name);
+                            geojson = await response.json();
+                            countryMapping.geojson = geojson; // Cache it
+                        }
+
+                        // Add GeoJSON to the map with styling and interaction
+                        L.geoJSON(geojson, {
+                            style: {
+                                color: "#4CAF50", // Light green color
+                                weight: 1,
+                                fillOpacity: 0.3,
+                                fillColor: "#4CAF50"
+                            },
+                            onEachFeature: (feature, layer) => {
+                                const name = feature.properties?.name || feature.properties?.ADMIN || countryMapping.country_name;
+
+                                // Show tooltip on hover
+                                layer.bindTooltip(name, {
+                                    permanent: false,   // show only on hover
+                                    direction: "center",
+                                    className: "country-tooltip"
+                                });
+
+                                layer.on({
+                                    click: () => {
+                                        const countryName = countryMapping.country_name;
+                                        history.pushState(null, "", `?country=${countryName.toLowerCase()}`);
+                                        highlightCountry(countryName.toLowerCase());
+                                        loadCountryImages(countryName.toLowerCase());
+                                        loadGalleryView(countryName.toLowerCase());
+
+                                        // update country list active state
+                                        document.querySelectorAll('.countries-list a').forEach(el => {
+                                            el.classList.remove('active');
+                                            if (el.textContent.toLowerCase() === countryName.toLowerCase()) {
+                                                el.classList.add('active');
+                                                const countryItems = cache.coinsData.filter(
+                                                    coin => coin.country.toLowerCase() === countryName.toLowerCase()
+                                                ).length;
+                                                document.getElementById('selected-country').textContent = `: ${countryName}`;
+                                                document.getElementById('selected-country-title').textContent = `${countryName} (${countryItems})`;
+                                                updateTitle(`${countryName}`);
+                                            }
+                                        });
+                                    },
+                                    mouseover: () => {
+                                        layer.setStyle({ fillOpacity: 0.5 });
+                                    },
+                                    mouseout: () => {
+                                        layer.setStyle({ fillOpacity: 0.3 });
+                                    }
+                                });
+                            }
+
+                        }).addTo(availableCountriesLayer);
+                    } catch (error) {
+                        console.error(`Error loading GeoJSON for ${countryMapping.country_name}:`, error);
+                    }
+                }
+            }
+
+            // Expose highlightCountry globally for external calls (e.g., from search)
+            window.highlightCountry = highlightCountry;
+
+            return {
+                map: mainMap, // Return the map instance
+                highlightCountry,
+                showAvailableCountries
+            };
+        }
+
+        // Loads and displays coin images for a selected country in slider view
+        function loadCountryImages(countryName) {
+            if (!cache.coinsData) {
+                console.error("Coins data not loaded from cache.");
+                return;
+            }
+
+            currentCountryCoins = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName);
+            const imageElements = currentCountryCoins.map(coin => ({
+                src: `images/${toTitleCase(countryName)}/${coin.image}`,
+                note: coin.note,
+                donor: coin.donor_name,
+                currency_type: coin.currency_type,
+                year: coin.year,
+                size: coin.size
+            }));
+
+            const thumbnailContainer = document.getElementById("thumbnail-container");
+            thumbnailContainer.innerHTML = ""; // Clear existing thumbnails
+            currentImageIndex = 0; // Reset index for new country
+
+            // Function to update the main image and details
+            const updateImage = async (index) => {
+                if (imageElements.length === 0) {
+                    // Handle case where no images are found for the country
+                    setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null, null, null, 0);
+                    document.getElementById("thumbnail-container").innerHTML = ""; // Clear thumbnails
+                    return;
+                }
+
+                currentImageIndex = index;
+                const { src, note, donor, currency_type, year, size } = imageElements[index];
+
+                // Remove active class from all thumbnails
+                document.querySelectorAll('.img-queue-in img').forEach(img => {
+                    img.classList.remove('active-thumbnail');
+                });
+
+                // Add active class to the current thumbnail
+                if (thumbnailContainer.children[index]) {
+                    thumbnailContainer.children[index].classList.add('active-thumbnail');
+                }
+
+                const countryInfo = await fetchCountryInfo(countryName);
+                //setCurrentImage(src, note, donor, currency_type, countryInfo, year, size, index)
+                await setCurrentImage(src, note, donor, currency_type, countryInfo, year, size, index);
+            };
+
+            // Function to change the image based on direction (-1 for prev, 1 for next)
+            const changeImage = (direction) => {
+                if (imageElements.length > 0) {
+                    currentImageIndex = (currentImageIndex + direction + imageElements.length) % imageElements.length;
+                    updateImage(currentImageIndex);
+                }
+            };
+
+            // Add event listeners for navigation buttons
+            document.getElementById("prev-btn").onclick = () => changeImage(-1);
+            document.getElementById("next-btn").onclick = () => changeImage(1);
+
+            // Add keyboard navigation
+            window.onkeydown = (event) => {
+                const isSliderView = document.getElementById('slider-view').style.display !== 'none';
+
+                // Handle keyboard navigation for the main slider
+                if (isSliderView) {
+                    if (event.key === "ArrowLeft") {
+                        changeImage(-1);
+                    } else if (event.key === "ArrowRight") {
+                        changeImage(1);
+                    }
+                }
+
+                // Handle keyboard navigation for the modal
+                if (document.getElementById("imageModal").style.display === "flex") {
+                    if (event.key === "ArrowLeft") {
+                        changeModalImage(-1);
+                    } else if (event.key === "ArrowRight") {
+                        changeModalImage(1);
+                    }
+                }
+            };
+
+            // Populate thumbnail container
+            imageElements.forEach((img, index) => {
+                const thumbnail = document.createElement("img");
+                thumbnail.src = img.src;
+                thumbnail.alt = `Thumbnail ${index + 1}`;
+                thumbnail.loading = "lazy"; // Lazy load thumbnails
+                thumbnail.addEventListener("click", () => {
+                    updateImage(index); // Update the main display when thumbnail is clicked
+                });
+                thumbnailContainer.appendChild(thumbnail);
+            });
+
+            // Display the first image if available
+            if (imageElements.length > 0) {
+                updateImage(currentImageIndex);
+            } else {
+                // Display a default message if no images for the country
+                setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null, null, null, 0);
+            }
+        }
+
+        // NEW: Load and display images in gallery view
+        function loadGalleryView(countryName) {
+            const galleryGrid = document.getElementById('gallery-grid-container');
+            const sortBySelect = document.getElementById('sort-by');
+            const filterBySelect = document.getElementById('filter-by');
+            galleryGrid.innerHTML = ''; // Clear existing grid
+
+            if (!cache.coinsData) {
+                console.error("Coins data not loaded for gallery view.");
+                return;
+            }
+
+            let filteredCoins = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName);
+            const filterValue = filterBySelect.value;
+            if (filterValue !== 'all') {
+                filteredCoins = filteredCoins.filter(coin => coin.currency_type.toLowerCase().includes(filterValue));
+            }
+
+            const sortValue = sortBySelect.value;
+            if (sortValue === 'name-asc') {
+                filteredCoins.sort((a, b) => a.image.localeCompare(b.image));
+            } else if (sortValue === 'name-desc') {
+                filteredCoins.sort((a, b) => b.image.localeCompare(a.image));
+            } else if (sortValue === 'type') {
+                filteredCoins.sort((a, b) => a.currency_type.localeCompare(b.currency_type));
+            }
+
+            if (filteredCoins.length === 0) {
+                galleryGrid.innerHTML = '<p style="text-align: center; color: var(--secondary-color);">No items found for this filter.</p>';
+                return;
+            }
+
+            filteredCoins.forEach((coin, index) => {
+                const galleryItem = document.createElement('div');
+                galleryItem.classList.add('gallery-item');
+                galleryItem.dataset.imageUrl = `images/${toTitleCase(countryName)}/${coin.image}`;
+                galleryItem.dataset.note = coin.note;
+                galleryItem.dataset.donor = coin.donor_name;
+                galleryItem.dataset.currencyType = coin.currency_type;
+
+                galleryItem.innerHTML = `
+                    <img class="gallery-item-image" src="${galleryItem.dataset.imageUrl}" alt="${coin.note}">
+                    <div class="gallery-item-info">
+                        <p>${coin.image}</p>
+                    </div>
+                `;
+
+                // Add click event listener to open image modal
+                galleryItem.addEventListener('click', function () {
+                    const countryInfo = fetchCountryInfo(countryName);
+                    openImageModal(this.dataset.imageUrl, this.dataset.note, countryInfo.name, countryInfo.capital, countryInfo.currency?.name, index);
+                    currentCountryCoins = filteredCoins; // Update current coins for modal navigation
+                });
+
+                galleryGrid.appendChild(galleryItem);
+            });
+        }
+
+        // NEW: Event listeners for sorting and filtering
+        document.getElementById('sort-by').addEventListener('change', () => {
+            const queryParams = new URLSearchParams(window.location.search);
+            const countryQuery = queryParams.get("country");
+            if (countryQuery) {
+                loadGalleryView(countryQuery.toLowerCase());
+            }
+        });
+
+        document.getElementById('filter-by').addEventListener('change', () => {
+            const queryParams = new URLSearchParams(window.location.search);
+            const countryQuery = queryParams.get("country");
+            if (countryQuery) {
+                loadGalleryView(countryQuery.toLowerCase());
+            }
+        });
+
+
+        // Initializes the collapsible details section
+        function initDetailsToggle() {
+            const toggle = document.querySelector('.details-toggle');
+            const content = document.querySelector('.details-content');
+            const continentMapContainer = document.getElementById('continent-map-container');
+
+            toggle.addEventListener('click', () => {
+                toggle.classList.toggle('collapsed');
+                content.classList.toggle('show');
+                const isContinentMapVisible = continentMapContainer.classList.toggle('show');
+
+                const chevronIcon = toggle.querySelector('.fa-chevron-down, .fa-chevron-up');
+                if (content.classList.contains('show')) {
+                    chevronIcon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+                } else {
+                    chevronIcon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+                }
+
+                // Invalidate size of the continent map when its container becomes visible
+                if (isContinentMapVisible && continentMap) {
+                    // Use a small timeout to ensure the CSS transition completes
+                    // and the container has its final dimensions before invalidating size.
+                    setTimeout(() => {
+                        continentMap.invalidateSize();
+                    }, 100);
+                }
+            });
+        }
+
+        // Initializes the image modal for enlarged view
+        function initImageModal() {
+            const imageModal = document.getElementById("imageModal");
+            const closeModal = document.querySelector(".close-modal");
+            const currentImage = document.getElementById("current-image-img");
+
+            currentImage.addEventListener("click", function () {
+                const queryParams = new URLSearchParams(window.location.search);
+                const countryQuery = queryParams.get("country").toLowerCase();
+                const countryInfo = fetchCountryInfo(countryQuery);
+                const currentCoin = currentCountryCoins[currentImageIndex];
+                const imagePath = `images/${toTitleCase(countryQuery)}/${currentCoin.image}`;
+                openImageModal(imagePath, currentCoin.note, countryInfo.name, countryInfo.capital, countryInfo.currency?.name, currentImageIndex);
+            });
+
+            const prevModalBtn = document.getElementById('prev-modal-btn');
+            const nextModalBtn = document.getElementById('next-modal-btn');
+
+            prevModalBtn.addEventListener('click', () => changeModalImage(-1));
+            nextModalBtn.addEventListener('click', () => changeModalImage(1));
+
+            // Fix for close button - prevent event propagation
+            closeModal.addEventListener("click", function (e) {
+                e.stopPropagation(); // Prevent event from bubbling up to modal
+                imageModal.style.display = "none";
+                document.body.style.overflow = "auto"; // Restore scrolling
+            });
+
+            // Close modal when clicking outside the image
+            imageModal.addEventListener("click", function (event) {
+                if (event.target === imageModal) {
+                    imageModal.style.display = "none";
+                    document.body.style.overflow = "auto";
+                }
+            });
+
+            // Close modal on Escape key press
+            document.addEventListener("keydown", function (event) {
+                if (event.key === "Escape" && imageModal.style.display === "flex") {
+                    imageModal.style.display = "none";
+                    document.body.style.overflow = "auto";
+                }
+            });
+        }
+
+        function openImageModal(imageUrl, note, countryName, capital, currencyName, index) {
+            const imageModal = document.getElementById("imageModal");
+            const modalImage = document.getElementById("modalImage");
+            const modalDetails = document.getElementById("image-modal-details");
+
+            modalImage.src = imageUrl;
+            imageModal.style.display = "flex";
+            document.body.style.overflow = "hidden";
+
+            // Set details
+            document.getElementById('modal-country-name').style.color = 'white';
+            document.getElementById('modal-country-name').textContent = countryName;
+            document.getElementById('modal-capital-name').style.color = 'white';
+            document.getElementById('modal-capital-name').textContent = capital;
+            document.getElementById('modal-currency-name').style.color = 'white';
+            document.getElementById('modal-currency-name').textContent = currencyName;
+            document.getElementById('modal-note').style.color = 'white';
+            document.getElementById('modal-note').textContent = note;
+            modalDetails.style.display = 'block';
+
+            currentImageIndex = index;
+        }
+
+        function changeModalImage(direction) {
+            if (currentCountryCoins.length > 0) {
+                currentImageIndex = (currentImageIndex + direction + currentCountryCoins.length) % currentCountryCoins.length;
+                const coin = currentCountryCoins[currentImageIndex];
+
+                const queryParams = new URLSearchParams(window.location.search);
+                const countryQuery = queryParams.get("country").toLowerCase();
+                const countryInfo = fetchCountryInfo(countryQuery);
+
+                const imageUrl = `images/${toTitleCase(countryQuery)}/${coin.image}`;
+
+                document.getElementById('modalImage').src = imageUrl;
+                document.getElementById('modal-country-name').textContent = countryInfo.name;
+                document.getElementById('modal-capital-name').textContent = countryInfo.capital;
+                document.getElementById('modal-currency-name').textContent = countryInfo.currency?.name;
+                document.getElementById('modal-note').textContent = coin.note;
+            }
+        }
+
+
+        // Initializes the flag modal for enlarged view
+        function initFlagModal() {
+            const flagModal = document.getElementById("flagModal");
+            const closeFlagModal = document.querySelector(".close-flag-modal");
+
+            closeFlagModal.addEventListener("click", function () {
+                flagModal.style.display = "none";
+                document.body.style.overflow = "auto"; // Restore scrolling
+            });
+
+            // Close modal when clicking outside the image
+            flagModal.addEventListener("click", function (event) {
+                if (event.target === flagModal) {
+                    flagModal.style.display = "none";
+                    document.body.style.overflow = "auto";
+                }
+            });
+
+            // Close modal on Escape key press
+            document.addEventListener("keydown", function (event) {
+                if (event.key === "Escape" && flagModal.style.display === "flex") {
+                    flagModal.style.display = "none";
+                    document.body.style.overflow = "auto";
+                }
+            });
+        }
+
+        // Function to open the flag modal with the specified flag image
+        function openFlagModal(flagSrc) {
+            const flagModal = document.getElementById("flagModal");
+            const flagModalImage = document.getElementById("flagModalImage");
+            const flagModalDetails = document.getElementById("flag-modal-details");
+
+            flagModalImage.src = flagSrc;
+            flagModal.style.display = "flex";
+            document.body.style.overflow = "hidden"; // Prevent scrolling when modal is open
+
+            // Show details container
+            flagModalDetails.style.display = 'block';
+        }
+
+        // Initializes the search functionality for countries
+        function initSearch() {
+            const searchInput = document.getElementById('search-input');
+            const searchResults = document.getElementById('search-results');
+
+            searchInput.addEventListener('input', function () {
+                const query = this.value.toLowerCase().trim();
+                searchResults.innerHTML = ''; // Clear previous results
+
+                if (query.length < 2) {
+                    searchResults.classList.remove('show');
+                    return;
+                }
+
+                if (!cache.coinsData) {
+                    console.error("Coins data not loaded for search.");
+                    return;
+                }
+
+                // Get unique countries from cached coin data and sort them
+                const countries = [...new Set(cache.coinsData.map(coin => toTitleCase(coin.country)))].sort();
+                const filteredCountries = countries.filter(country =>
+                    country.toLowerCase().includes(query)
+                );
+
+                if (filteredCountries.length > 0) {
+                    filteredCountries.forEach(country => {
+                        const resultItem = document.createElement('div');
+                        resultItem.classList.add('search-result-item');
+                        resultItem.textContent = country;
+                        resultItem.addEventListener('click', function () {
+                            // Update active country link in the list
+                            document.querySelectorAll('.countries-list a').forEach(el => {
+                                el.classList.remove('active');
+                                if (el.textContent.toLowerCase() === country.toLowerCase()) {
+                                    el.classList.add('active');
+                                    const countryItems = cache.coinsData.filter(coin => coin.country.toLowerCase() === country.toLowerCase()).length;
+                                    document.getElementById('selected-country').textContent = `: ${country}`;
+                                    document.getElementById('selected-country-title').textContent = `${country} (${countryItems})`;
+                                    updateTitle(`${country}`);
+                                }
+                            });
+
+                            // Update URL, highlight map, and load images for selected country
+                            history.pushState(null, "", `?country=${country.toLowerCase()}`);
+                            highlightCountry(country.toLowerCase());
+                            loadCountryImages(country.toLowerCase());
+                            loadGalleryView(country.toLowerCase());
+                            searchInput.value = country; // Set search input to selected country
+                            searchResults.classList.remove('show'); // Hide search results
+                        });
+                        searchResults.appendChild(resultItem);
+                    });
+                    searchResults.classList.add('show'); // Show search results
+                } else {
+                    searchResults.classList.remove('show'); // Hide if no results
+                }
+            });
+
+            // Hide search results when clicking outside the search input/results
+            document.addEventListener('click', function (event) {
+                if (!searchInput.contains(event.target) && !searchResults.contains(event.target)) {
+                    searchResults.classList.remove('show');
+                }
+            });
+        }
+
+        // NEW: Function to toggle between slider and gallery view
+        function initViewToggle() {
+            const toggleBtn = document.getElementById('toggle-view-btn');
+            const sliderView = document.getElementById('slider-view');
+            const galleryView = document.getElementById('gallery-view');
+
+            let isSliderView = true;
+
+            toggleBtn.addEventListener('click', () => {
+                isSliderView = !isSliderView;
+
+                if (isSliderView) {
+                    sliderView.style.display = 'flex';
+                    galleryView.style.display = 'none';
+                    toggleBtn.innerHTML = '<i class="fas fa-th"></i> Grid View';
+                } else {
+                    sliderView.style.display = 'none';
+                    galleryView.style.display = 'flex';
+                    toggleBtn.innerHTML = '<i class="fas fa-images"></i> Slider View';
+                }
+
+                // Reload content for the current country
+                const queryParams = new URLSearchParams(window.location.search);
+                const countryQuery = queryParams.get("country");
+                if (countryQuery) {
+                    loadCountryImages(countryQuery.toLowerCase());
+                    loadGalleryView(countryQuery.toLowerCase());
+                }
+            });
+        }
+
+        // NEW: Back to Top functionality
+        function initBackToTop() {
+            const backToTopBtn = document.getElementById('back-to-top');
+
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.classList.add('show');
+                } else {
+                    backToTopBtn.classList.remove('show');
+                }
+            });
+
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        }
+
+
+        // Main initialization function, executed when the DOM is fully loaded
+        window.onload = async () => {
+            // Preload all data first. If it fails, log error and stop initialization.
+            const preloadSuccess = await preloadData();
+            if (!preloadSuccess) {
+                console.error("Application failed to load necessary data. Please check network and file paths.");
+                return; // Stop execution if data preload fails
+            }
+
+            // Get country from URL query parameters, default to "default" if not present
+            const queryParams = new URLSearchParams(window.location.search);
+            const countryQuery = queryParams.get("country") || "default";
+
+            // Get unique countries from cached coin data and sort them alphabetically
+            const countries = [...new Set(cache.coinsData.map(coin => toTitleCase(coin.country)))].sort();
+            renderCountries(countries); // Render the list of countries
+
+            // Initialize the main map and get its controller functions
+            const mapController = initializeMap();
+
+            // Show all available countries on the main map
+            mapController.showAvailableCountries(countries);
+
+            // If a country is specified in the URL, load its images and highlight it
+            if (countryQuery !== "default") {
+                highlightCountry(countryQuery.toLowerCase());
+                loadCountryImages(countryQuery.toLowerCase());
+                loadGalleryView(countryQuery.toLowerCase());
+            } else if (countries.length > 0) {
+                // If no country is specified, load images for the first available country
+                // and highlight it on the map.
+                const firstCountry = countries[0].toLowerCase();
+                history.pushState(null, "", `?country=${firstCountry}`); // Update URL
+                highlightCountry(firstCountry);
+                loadCountryImages(firstCountry);
+                loadGalleryView(firstCountry);
+
+                // Also set the first country as active in the list
+                const firstCountryLink = document.querySelector(`.countries-list a[href="?country=${firstCountry}"]`);
+                if (firstCountryLink) {
+                    firstCountryLink.classList.add('active');
+                    const countryItems = cache.coinsData.filter(coin => coin.country.toLowerCase() === firstCountry).length;
+                    document.getElementById('selected-country').textContent = `: ${countries[0]}`;
+                    document.getElementById('selected-country-title').textContent = `${countries[0]} (${countryItems})`;
+                    updateTitle(`${countries[0]}`);
+                }
+            }
+
+
+            // Initialize various UI components
+            initDetailsToggle();
+            initImageModal();
+            initFlagModal();
+            initSearch();
+            initViewToggle();
+            initBackToTop();
+        };
+    </script>
+    <script type="text/javascript">
+        // --- Security and Browser Feature Disabling ---
+        // These scripts are intended to disable certain browser features for specific purposes.
+        // Be aware that such measures can sometimes be circumvented by advanced users.
+
+        // Disable right-click context menu
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
+        // Function to handle mouse button events (primarily to disable middle/right click)
+        function mousehandler(e) {
+            var eventbutton = e.which || e.button;
+            if (eventbutton === 2 || eventbutton === 3) { // 2 for middle, 3 for right
+                return false;
+            }
+            return true; // Allow left click
+        }
+
+        // Apply mouse handler to various mouse events
+        document.oncontextmenu = mousehandler; // Redundant with the first line, but kept for robustness
+        document.onmousedown = mousehandler;
+        document.onmouseup = mousehandler;
+
+        // Disable specific keyboard shortcuts (F12 for DevTools, Ctrl+U for View Source)
+        document.addEventListener("keydown", function (e) {
+            // F12 key
+            if (e.key === "F12") {
+                e.preventDefault();
+            }
+            // Ctrl+U combination
+            if (e.ctrlKey && e.key.toLowerCase() === "u") {
+                e.preventDefault();
+            }
+            // Ctrl+Shift+I (for Chrome/Edge DevTools)
+            if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+                e.preventDefault();
+            }
+            // Ctrl+Shift+J (for Chrome/Edge Console)
+            if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+                e.preventDefault();
+            }
+            // Ctrl+Shift+C (for Chrome/Edge Element Inspector)
+            if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+                e.preventDefault();
+            }
+            // Ctrl+S (Save Page)
+            if (e.ctrlKey && e.key.toLowerCase() === "s") {
+                e.preventDefault();
+            }
+        });
+
+        // Disable other Ctrl key combinations (Ctrl+A, Ctrl+S, Ctrl+C, Ctrl+X, Ctrl+U)
+        // This function is less robust than the direct keydown listener above but is kept
+        // for compatibility with older implementations or specific browser quirks.
+        function disableCtrlKeyCombination(e) {
+            var forbiddenKeys = new Array("a", "s", "c", "x", "u");
+            var key;
+            var isCtrl;
+
+            // Determine key and if Ctrl is pressed, cross-browser
+            if (window.event) { // IE
+                key = window.event.keyCode;
+                isCtrl = window.event.ctrlKey;
+            } else { // Firefox, Chrome, etc.
+                key = e.which;
+                isCtrl = e.ctrlKey;
+            }
+
+            if (isCtrl) {
+                for (let i = 0; i < forbiddenKeys.length; i++) {
+                    // Case-insensitive comparison of the character code
+                    if (forbiddenKeys[i].toLowerCase() === String.fromCharCode(key).toLowerCase()) {
+                        e.preventDefault(); // Prevent default action
+                        return false; // Stop event propagation
+                    }
+                }
+            }
+            return true; // Allow other key combinations
+        }
+        // Attach the function to keydown event
+        document.onkeydown = disableCtrlKeyCombination;
+
+
+        function updateTitle(countryName) {
+            // Get the current base title (this should be "..::Amir's Coin Collection::..")
+            let baseTitle = "..::Amir's Coin Collection::..";
+
+            // Combine with the country name and a space
+            let newTitle = baseTitle + " " + countryName;
+
+            // Set the new title
+            document.title = newTitle;
+
+            // Optional logging
+            console.log("Updated Title:", newTitle);
+        }
+
+
+        // --- URL-in-Note support ---
+        function formatNoteWithURLs(text) {
+            if (!text) return "";
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            return String(text).replace(urlRegex, function (url) {
+                const display = url.length > 60 ? url.slice(0, 60) + "…" : url;
+                return '<a href="#" class="note-url-link" data-url="' + url + '">' + display + '</a>';
+            });
+        }
+
+        (function initNoteURLModal() {
+            const urlModal = document.getElementById('url-modal');
+            const urlModalIframe = document.getElementById('url-modal-iframe');
+            const closeBtn = document.getElementById('close-url-modal');
+
+            function openUrlModal(url) {
+                urlModalIframe.src = url;
+                urlModal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
+            function closeUrlModal() {
+                urlModal.style.display = 'none';
+                urlModalIframe.src = 'about:blank';
+                document.body.style.overflow = 'auto';
+            }
+
+            // Close actions
+            if (closeBtn) closeBtn.addEventListener('click', closeUrlModal);
+            if (urlModal) urlModal.addEventListener('click', function (e) {
+                if (e.target === urlModal) closeUrlModal();
+            });
+
+            // Event delegation for dynamically-inserted links in the Note
+            document.addEventListener('click', function (e) {
+                const t = e.target;
+                if (t && t.classList && t.classList.contains('note-url-link')) {
+                    e.preventDefault();
+                    const url = t.getAttribute('data-url');
+                    if (url) openUrlModal(url);
+                }
+            });
+        })();
+
+    </script>
+    <script>
+        // URL helpers
+        function hasURL(text) {
+            return /(https?:\/\/[^\s]+)/g.test(text);
+        }
+        function formatNoteWithURLs(text) {
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            return text.replace(urlRegex, url =>
+                `<a href="#" class="url-link" data-url="${url}">${url}</a>`
+            );
+        }
+        function setupURLLinkListeners() {
+            document.querySelectorAll(".url-link").forEach(link => {
+                link.onclick = e => {
+                    e.preventDefault();
+                    openUrlModal(link.dataset.url);
+                };
+            });
+        }
+
+        // URL modal controls
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlModal = document.getElementById("url-modal");
+            const urlModalIframe = document.getElementById("url-modal-iframe");
+            const closeUrlModal = document.querySelector("#url-modal .close-modal");
+
+            function openUrlModal(url) {
+                urlModalIframe.src = url;
+                urlModal.style.display = "block";
+                document.body.style.overflow = "hidden";
+            }
+            function closeUrlModalHandler() {
+                urlModal.style.display = "none";
+                urlModalIframe.src = "about:blank";
+                document.body.style.overflow = "auto";
+            }
+
+            closeUrlModal.addEventListener("click", closeUrlModalHandler);
+            urlModal.addEventListener("click", e => {
+                if (e.target === urlModal) closeUrlModalHandler();
+            });
+
+            // Expose globally so setupURLLinkListeners can call it
+            window.openUrlModal = openUrlModal;
+        });
+
+        // Initialize URL modal behavior
+        function initUrlModal() {
+            const urlModal = document.getElementById("url-modal");
+            const closeUrlModal = document.querySelector(".close-url-modal");
+            const iframe = document.getElementById("url-modal-iframe");
+
+            // Open when clicking note links
+            document.body.addEventListener("click", function (e) {
+                if (e.target.classList.contains("note-url-link")) {
+                    e.preventDefault();
+                    const url = e.target.getAttribute("data-url") || e.target.href;
+                    iframe.src = url;
+                    urlModal.style.display = "block";
+                    document.body.style.overflow = "hidden";
+                }
+            });
+
+            // Close modal
+            closeUrlModal.addEventListener("click", function () {
+                urlModal.style.display = "none";
+                iframe.src = "about:blank"; // reset
+                document.body.style.overflow = "auto";
+            });
+
+            // Close when clicking outside
+            urlModal.addEventListener("click", function (e) {
+                if (e.target === urlModal) {
+                    urlModal.style.display = "none";
+                    iframe.src = "about:blank";
+                    document.body.style.overflow = "auto";
+                }
+            });
+        }
+
+        // Call after DOM is ready
+        document.addEventListener("DOMContentLoaded", initUrlModal);
+
+        function formatNoteWithURLs(note) {
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            return note.replace(urlRegex, function (url) {
+                return `<a href="${url}" class="note-url-link" target="_blank">${url}</a>`;
+            });
+        }
+
+    </script>
+</body>
+
+</html>
