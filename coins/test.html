@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Visual Scale</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --primary-dark: #2980b9;
+            --secondary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --accent-light: #f39c12;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --text-color: #2c3e50;
+            --text-light: #f8f9fa;
+            --border-color: #dfe6e9;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --gold-color: #FFD700;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #dfe6e9 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        h1 {
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .slider-container {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #e9ecef;
+            outline: none;
+            border-radius: 4px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: var(--primary-dark);
+            transform: scale(1.1);
+        }
+
+        .value-display {
+            background: var(--light-color);
+            padding: 8px 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            font-weight: 600;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .size-scale-container {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            width: 100%;
+            overflow: visible;
+        }
+
+        .size-scale {
+            height: 40px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            position: relative;
+            margin-bottom: 25px;
+            overflow: hidden;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .scale-item {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-light));
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: width 0.5s ease;
+            min-width: 40px;
+        }
+
+        .scale-label {
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            white-space: nowrap;
+            padding: 0 8px;
+        }
+
+        .scale-reference {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 25px;
+            width: 100%;
+        }
+
+        .reference-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .reference-visual {
+            flex-shrink: 0;
+            width: 120px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .reference-line {
+            height: 8px;
+            border-radius: 4px;
+        }
+
+        .reference-rectangle {
+            border: 1px solid var(--secondary-color);
+            border-radius: 3px;
+        }
+
+        .reference-label {
+            font-size: 15px;
+            color: var(--secondary-color);
+            white-space: nowrap;
+            min-width: 200px;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        /* Different colors for each reference line */
+        .reference-line.penny {
+            background-color: #e74c3c;
+            width: 23.8%;
+        }
+
+        .reference-line.quarter {
+            background-color: #3498db;
+            width: 30.4%;
+        }
+
+        .reference-line.dollar-coin {
+            background-color: #f39c12;
+            width: 38.3%;
+        }
+
+        .reference-rectangle.dollar-bill {
+            background-color: #27ae60;
+            height: 25px;
+            width: 60px;
+        }
+
+        .comparison-text {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f4fc;
+            border-radius: var(--border-radius);
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .comparison-value {
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        @media (max-width: 650px) {
+            .reference-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .reference-visual {
+                justify-content: flex-start;
+                width: 100%;
+            }
+            
+            .reference-line {
+                width: 100% !important;
+                max-width: 300px;
+            }
+            
+            .reference-label {
+                min-width: 100%;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-ruler-combined"></i> Interactive Visual Scale</h1>
+        
+        <div class="controls">
+            <div class="slider-container">
+                <div class="slider-label">
+                    <span>Adjust Sample Size:</span>
+                    <span id="size-value">24 mm</span>
+                </div>
+                <input type="range" id="size-slider" min="5" max="80" value="24" step="0.1">
+            </div>
+            <div class="value-display">
+                <i class="fas fa-arrows-alt-h"></i> <span id="display-value">24.0 mm</span>
+            </div>
+        </div>
+        
+        <div class="size-scale-container">
+            <div class="size-scale">
+                <div class="scale-item" id="sample-item">
+                    <span class="scale-label" id="sample-label">Sample Item (24.0 mm)</span>
+                </div>
+            </div>
+            
+            <div class="scale-reference">
+                <div class="reference-item">
+                    <div class="reference-visual">
+                        <div class="reference-line penny"></div>
+                    </div>
+                    <div class="reference-label">US Penny (19 mm)</div>
+                </div>
+                
+                <div class="reference-item">
+                    <div class="reference-visual">
+                        <div class="reference-line quarter"></div>
+                    </div>
+                    <div class="reference-label">US Quarter (24.3 mm)</div>
+                </div>
+                
+                <div class="reference-item">
+                    <div class="reference-visual">
+                        <div class="reference-line dollar-coin"></div>
+                    </div>
+                    <div class="reference-label">US Dollar Coin (30.6 mm)</div>
+                </div>
+                
+                <div class="reference-item">
+                    <div class="reference-visual">
+                        <div class="reference-rectangle dollar-bill"></div>
+                    </div>
+                    <div class="reference-label">US Dollar Bill (66.3 × 156 mm)</div>
+                </div>
+            </div>
+            
+            <div class="comparison-text">
+                <p>Your sample is <span id="comparison-result" class="comparison-value">approximately the same size as a US Quarter</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sizeSlider = document.getElementById('size-slider');
+            const sizeValue = document.getElementById('size-value');
+            const displayValue = document.getElementById('display-value');
+            const sampleItem = document.getElementById('sample-item');
+            const sampleLabel = document.getElementById('sample-label');
+            const comparisonResult = document.getElementById('comparison-result');
+            
+            // Reference sizes in mm
+            const referenceSizes = {
+                penny: 19,
+                quarter: 24.3,
+                dollarCoin: 30.6,
+                dollarBill: 156 // Using length for comparison
+            };
+            
+            // Update the visual scale based on slider value
+            function updateScale() {
+                const value = parseFloat(sizeSlider.value);
+                const percentage = (value / 80) * 100; // 80 is our max value
+                
+                // Update display values
+                sizeValue.textContent = value.toFixed(1) + ' mm';
+                displayValue.textContent = value.toFixed(1) + ' mm';
+                sampleLabel.textContent = `Sample Item (${value.toFixed(1)} mm)`;
+                
+                // Update visual scale
+                sampleItem.style.width = percentage + '%';
+                
+                // Update comparison text
+                updateComparison(value);
+            }
+            
+            // Update the comparison text
+            function updateComparison(value) {
+                if (value < referenceSizes.penny - 2) {
+                    comparisonResult.textContent = 'smaller than a US Penny';
+                    comparisonResult.style.color = '#e74c3c';
+                } else if (value >= referenceSizes.penny - 2 && value < referenceSizes.penny + 2) {
+                    comparisonResult.textContent = 'approximately the same size as a US Penny';
+                    comparisonResult.style.color = '#3498db';
+                } else if (value > referenceSizes.penny + 2 && value < referenceSizes.quarter - 2) {
+                    comparisonResult.textContent = 'between a US Penny and Quarter';
+                    comparisonResult.style.color = '#3498db';
+                } else if (value >= referenceSizes.quarter - 2 && value < referenceSizes.quarter + 2) {
+                    comparisonResult.textContent = 'approximately the same size as a US Quarter';
+                    comparisonResult.style.color = '#3498db';
+                } else if (value > referenceSizes.quarter + 2 && value < referenceSizes.dollarCoin - 2) {
+                    comparisonResult.textContent = 'between a US Quarter and Dollar Coin';
+                    comparisonResult.style.color = '#3498db';
+                } else if (value >= referenceSizes.dollarCoin - 2 && value < referenceSizes.dollarCoin + 2) {
+                    comparisonResult.textContent = 'approximately the same size as a US Dollar Coin';
+                    comparisonResult.style.color = '#3498db';
+                } else if (value > referenceSizes.dollarCoin + 2 && value < referenceSizes.dollarBill - 10) {
+                    comparisonResult.textContent = 'larger than a US Dollar Coin but smaller than a Dollar Bill';
+                    comparisonResult.style.color = '#3498db';
+                } else if (value >= referenceSizes.dollarBill - 10 && value < referenceSizes.dollarBill + 10) {
+                    comparisonResult.textContent = 'approximately the same length as a US Dollar Bill';
+                    comparisonResult.style.color = '#3498db';
+                } else {
+                    comparisonResult.textContent = 'larger than a US Dollar Bill';
+                    comparisonResult.style.color = '#e74c3c';
+                }
+            }
+            
+            // Initialize the scale
+            updateScale();
+            
+            // Add event listener for slider changes
+            sizeSlider.addEventListener('input', updateScale);
+        });
+    </script>
+</body>
+</html>
