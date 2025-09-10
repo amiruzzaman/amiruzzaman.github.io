@@ -1818,7 +1818,7 @@
             .then(data => {
                 originalData = combineData(data);
                 //console.log(originalData);
-                renderSummary(originalData, data.length);
+                renderSummary(originalData);
             })
             .catch(error => console.error('Error fetching JSON:', error));
 
@@ -1844,32 +1844,30 @@
             return result;
         }
 
-// Render the summary
-function renderSummary(data, n) {
-    const summary = document.getElementById('summary-container');
-    const numCountries = new Set(data.map(item => item.country)).size;
-    const totalVariations = n; // Total number of JSON objects
-    let numPaperBills = 0;
-    let numCoins = 0;
-    let numAntique = 0;
+        // Render the summary
+        function renderSummary(data) {
+            const summary = document.getElementById('summary-container');
+            const numCountries = new Set(data.map(item => item.country)).size;
+            let numPaperBills = 0;
+            let numCoins = 0;
+            let numAntique = 0;
 
-    data.forEach(item => {
-        item.currency_type.split(', ').forEach(type => {
-            const normalizedType = type.toLowerCase();
-            if (normalizedType.includes('paper-bill')) numPaperBills++;
-            if (normalizedType.includes('coin')) numCoins++;
-            if (normalizedType.includes('antique')) numAntique++;
-        });
-    });
+            data.forEach(item => {
+                item.currency_type.split(', ').forEach(type => {
+                    const normalizedType = type.toLowerCase();
+                    if (normalizedType.includes('paper-bill')) numPaperBills++;
+                    if (normalizedType.includes('coin')) numCoins++;
+                    if (normalizedType.includes('antique')) numAntique++;
+                });
+            });
 
-    summary.innerHTML = `
-        <p><i class="fas fa-globe-americas"></i> Countries: ${numCountries}</p>
-        <p><i class="fas fa-cubes"></i> Variations: ${totalVariations}</p>
-        <p><i class="fas fa-money-bill-alt"></i> Bills: ${numPaperBills}</p>
-        <p><i class="fas fa-coins"></i> Coins: ${numCoins}</p>
-        <p><i class="fas fa-clock"></i> Antique: ${numAntique}</p>
-    `;
-}
+            summary.innerHTML = `
+                <p><i class="fas fa-globe-americas"></i> Countries: ${numCountries}</p>
+                <p><i class="fas fa-money-bill-alt"></i> Bills: ${numPaperBills}</p>
+                <p><i class="fas fa-coins"></i> Coins: ${numCoins}</p>
+                <p><i class="fas fa-clock"></i> Antique: ${numAntique}</p>
+            `;
+        }
 
         // helper to clean values
         function cleanValue(val) {
@@ -2006,84 +2004,56 @@ function renderSummary(data, n) {
 // Construct the HTML for coin details with visual scale
 const countryDetails = countryInfo ? `
     <div class="detail-item">
-        <span class="detail-label"><strong>Country:</strong></span>
+        <span class="detail-label">Country:</span>
         <span class="detail-value">${safeVal(countryInfo.name)}</span>
     </div>
-    <div class="detail-item">
-        <span class="detail-label"><strong>Capital:</strong></span>
-        <span class="detail-value">${safeVal(countryInfo.capital)}</span>
-    </div>
-    <div class="detail-item">
-        <span class="detail-label"><strong>Language:</strong></span>
-        <span class="detail-value">${safeVal(countryInfo.language?.name)}</span>
-    </div>
-    <div class="detail-item">
-        <span class="detail-label"><strong>Hello:</strong></span>
-        <span class="detail-value">${alphabetExample}</span>
-    </div>
-    <div class="detail-item">
-        <span class="detail-label"><strong>Currency:</strong></span>
-        <span class="detail-value">${safeVal(countryInfo.currency?.name)} (${safeVal(countryInfo.currency?.symbol)})</span>
-    </div>
-    <div class="detail-item">
-        <span class="detail-label"><strong>Note:</strong></span>
-        <span class="detail-value">${formatNoteWithURLs(safeVal(note) || "No note available")}</span>
-    </div>
-    <div class="detail-item">
-        <span class="detail-label"><strong>Year:</strong></span>
-        <span class="detail-value">
-        ${safeVal(year)} 
-        ${year && !isNaN(parseFloat(year))
-                    ? `<span style="color: #3498db;">(${new Date().getFullYear() - parseInt(year)} years old)</span>`
-                    : ""}
-        </span>
-    </div>
-    <div class="detail-item">
-        <span class="detail-label"><strong>Size:</strong></span>
-        <span class="detail-value">
-        ${size
-                    ? `${displaySize} <span style="color: #3498db;"> mm${isTwoDimensional ? ' (W × H)' : ''}</span>`
-                    : "N/A"}
-        </span>
-    </div>
+    <!-- Other detail items -->
     ${size && !isNaN(sizeValue1) ? `
     <div class="detail-item">
-        <span class="detail-label"><strong>Visual Scale:</strong></span>
+        <span class="detail-label">Visual Scale:</span>
         <span class="detail-value">
             <div class="size-scale-container">
                 ${isTwoDimensional ? `
                 <div class="two-dimensional-scale">
                     <div class="scale-rectangle" style="width: ${scalePercentage1}%; height: ${scalePercentage2 / 2}%;">
-                        <span class="scale-label"><strong>${displaySize} mm</strong></span>
+                        <span class="scale-label">${displaySize} mm</span>
                     </div>
                     <div class="scale-dimensions">
-                        <span class="dimension width"><strong>${sizeValue1 % 1 === 0 ? sizeValue1 : sizeValue1.toFixed(1)} mm width</strong></span>
-                        <span class="dimension height"><strong>${sizeValue2 % 1 === 0 ? sizeValue2 : sizeValue2.toFixed(1)} mm height</strong></span>
+                        <span class="dimension width">${sizeValue1 % 1 === 0 ? sizeValue1 : sizeValue1.toFixed(1)} mm width</span>
+                        <span class="dimension height">${sizeValue2 % 1 === 0 ? sizeValue2 : sizeValue2.toFixed(1)} mm height</span>
                     </div>
                 </div>
                 ` : `
                 <div class="size-scale">
                     <div class="scale-item" style="width: ${scalePercentage1}%;">
-                        <span class="scale-label"><strong>${displaySize} mm</strong></span>
+                        <span class="scale-label">${displaySize} mm</span>
                     </div>
                 </div>
                 `}
                 <div class="scale-reference">
                     <div class="reference-item">
-                        <div class="reference-line penny" style="width: ${pennyPercentage}%;"></div>
-                        <span class="reference-label"><strong>US Penny (19 mm)</strong></span>
+                        <div class="reference-line-container">
+                            <div class="reference-line penny" style="width: ${pennyPercentage}%;"></div>
+                        </div>
+                        <span class="reference-label">US Penny (19 mm)</span>
                     </div>
                     <div class="reference-item">
-                        <div class="reference-line quarter" style="width: ${quarterPercentage}%;"></div>
-                        <span class="reference-label"><strong>US Quarter (24.3 mm)</strong></span>
+                        <div class="reference-line-container">
+                            <div class="reference-line quarter" style="width: ${quarterPercentage}%;"></div>
+                        </div>
+                        <span class="reference-label">US Quarter (24.3 mm)</span>
                     </div>
                     <div class="reference-item">
-                        <div class="reference-line dollar-coin" style="width: ${dollarCoinPercentage}%;"></div>
-                        <span class="reference-label"><strong>US Dollar Coin (30.6 mm)</strong></span>
+                        <div class="reference-line-container">
+                            <div class="reference-line dollar-coin" style="width: ${dollarCoinPercentage}%;"></div>
+                        </div>
+                        <span class="reference-label">US Dollar Coin (30.6 mm)</span>
                     </div>
                     <div class="reference-item">
-                        <div class="reference-rectangle dollar-bill" style="width: ${dollarBillHeightPercentage / 3}%; height: ${dollarBillWidthPercentage}%;"></div>
-                        <span class="reference-label"><strong>US Dollar Bill (156 × 66.3 mm)</strong></span>
+                        <div class="reference-line-container">
+                            <div class="reference-rectangle dollar-bill" style="width: ${dollarBillHeightPercentage / 3}%; height: ${dollarBillWidthPercentage}%;"></div>
+                        </div>
+                        <span class="reference-label">US Dollar Bill (156 × 66.3 mm)</span>
                     </div>
                 </div>
             </div>
@@ -2091,13 +2061,12 @@ const countryDetails = countryInfo ? `
     </div>
     ` : ''}
     <div class="detail-item">
-        <span class="detail-label"><strong>Donor (${safeVal(currency_type) || "--"}):</strong></span>
+        <span class="detail-label">Donor (${safeVal(currency_type) || "--"}):</span>
         <span class="detail-value">${safeVal(donor) || "Unknown"}</span>
     </div>
 ` : `<div class="detail-item">
         <span class="detail-value">Country information not available.</span>
     </div>`;
-
 
             noteElement.innerHTML = countryDetails;
 
