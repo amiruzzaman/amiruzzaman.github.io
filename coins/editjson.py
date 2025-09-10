@@ -272,6 +272,16 @@ def serve_images_new(filename):
 @app.route('/geojson/<path:filename>')
 def serve_geojson_new(filename):
     return send_from_directory('geojson', filename)
+    
+# Serve ./countries.languages.jso
+@app.route('/countries.languages.json')
+def countries_languages_json():
+    return send_from_directory('.', 'countries.languages.json')
+    
+# Serve ./countries.details.json
+@app.route('/countries.details.json')
+def countries_details_json():
+    return send_from_directory('.', 'countries.details.json')
 
 
 
