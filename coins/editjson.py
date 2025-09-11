@@ -283,6 +283,9 @@ def countries_languages_json():
 def countries_details_json():
     return send_from_directory('.', 'countries.details.json')
 
+@app.route('/flags/svg/<path:filename>')
+def serve_flags_svg(filename):
+    return send_from_directory('flags/svg', filename)
 
 
 # Routes

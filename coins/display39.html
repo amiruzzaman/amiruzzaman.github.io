@@ -2129,7 +2129,7 @@ const countryDetails = countryInfo ? `
                     c.countryName.toLowerCase() === countryName.toLowerCase()
                 );
 
-                //console.log("Found country data:", countryData);
+                console.log("Found country data:", countryData);
 
                 const countryFlagElement = document.getElementById("country-flag");
                 const countryDetailsElement = document.getElementById("country-details");
@@ -2179,7 +2179,7 @@ const countryDetails = countryInfo ? `
                             c.name.toLowerCase() === countryDisplayName.toLowerCase()
                         );
 
-                        //console.log("Found country details:", countryDetails);
+                        console.log("Found country details:", countryDetails);
 
                         if (countryDetails) {
                             // Format area with commas and add unit
@@ -2267,100 +2267,99 @@ const countryDetails = countryInfo ? `
 
         // Function to load and display the continent map
         // Fix the loadContinentMap function
-       // Function to load and display the continent map
-async function loadContinentMap(continentName, countryName) {
-    try {
-        // Initialize the map only once
-        if (!continentMap) {
-            continentMap = L.map('continent-map', {
-                preferCanvas: true,
-                zoomControl: false,
-                attributionControl: false
-            }).setView([20, 0], 2);
+        async function loadContinentMap(continentName, countryName) {
+            try {
+                // Initialize the map only once
+                if (!continentMap) {
+                    continentMap = L.map('continent-map', {
+                        preferCanvas: true,
+                        zoomControl: false,
+                        attributionControl: false
+                    }).setView([20, 0], 2);
 
-            // Add tile layer only once
-            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-                maxZoom: 18,
-                attribution: "© OpenStreetMap contributors",
-            }).addTo(continentMap);
-        } else {
-            // Clear existing layers if map already exists
-            continentMap.eachLayer(function (layer) {
-                if (layer instanceof L.TileLayer) return; // Keep the tile layer
-                continentMap.removeLayer(layer);
-            });
-        }
-
-        // Clear existing marker
-        if (continentMapMarker) {
-            continentMap.removeLayer(continentMapMarker);
-            continentMapMarker = null;
-        }
-
-        // Filter GeoJSON for the specific continent
-        const filteredContinentGeoJson = {
-            type: "FeatureCollection",
-            features: cache.continentGeoJson.features.filter(feature => {
-                const featureContinent = feature.properties.CONTINENT;
-                if (continentName === "Australia" || continentName === "Oceania") {
-                    return featureContinent === "Australia" || featureContinent === "Oceania";
+                    // Add tile layer only once
+                    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                        maxZoom: 18,
+                        attribution: "© OpenStreetMap contributors",
+                    }).addTo(continentMap);
+                } else {
+                    // Clear existing layers if map already exists
+                    continentMap.eachLayer(function (layer) {
+                        if (layer instanceof L.TileLayer) return; // Keep the tile layer
+                        continentMap.removeLayer(layer);
+                    });
                 }
-                return featureContinent === continentName;
-            })
-        };
 
-        // Add the new continent layer
-        continentMapGeoJsonLayer = L.geoJSON(filteredContinentGeoJson, {
-            style: {
-                color: "#e74c3c",
-                weight: 2,
-                fillOpacity: 0.7,
-                fillColor: "#e74c3c"
-            }
-        }).addTo(continentMap);
+                // Clear existing marker
+                if (continentMapMarker) {
+                    continentMap.removeLayer(continentMapMarker);
+                    continentMapMarker = null;
+                }
 
-        // FIXED: Proper bounds validation before calling flyToBounds
-        const bounds = continentMapGeoJsonLayer.getBounds();
-        if (bounds && bounds.isValid && bounds.isValid()) {
-            continentMap.flyToBounds(bounds, {
-                maxZoom: 3,
-                padding: [20, 20],
-                duration: 0.5
-            });
-        } else {
-            console.warn("Invalid bounds for continent map layer. Resetting view.");
-            continentMap.setView([20, 0], 2);
-        }
-
-        // If we have country data, try to show a marker for the country's capital/center
-        if (countryName) {
-            const countryMapping = cache.countryGeoJsonMapping.find(
-                item => item.country_name.toLowerCase() === countryName.toLowerCase()
-            );
-
-            if (countryMapping && countryMapping.center) {
-                const [lat, lng] = countryMapping.center;
-                continentMapMarker = L.marker([lat, lng], {
-                    icon: L.divIcon({
-                        className: 'continent-country-marker',
-                        html: '<i class="fas fa-map-marker-alt" style="color: #e74c3c; font-size: 24px;"></i>',
-                        iconSize: [24, 24],
-                        iconAnchor: [12, 24]
+                // Filter GeoJSON for the specific continent
+                const filteredContinentGeoJson = {
+                    type: "FeatureCollection",
+                    features: cache.continentGeoJson.features.filter(feature => {
+                        const featureContinent = feature.properties.CONTINENT;
+                        if (continentName === "Australia" || continentName === "Oceania") {
+                            return featureContinent === "Australia" || featureContinent === "Oceania";
+                        }
+                        return featureContinent === continentName;
                     })
+                };
+
+                // Add the new continent layer
+                continentMapGeoJsonLayer = L.geoJSON(filteredContinentGeoJson, {
+                    style: {
+                        color: "#e74c3c",
+                        weight: 2,
+                        fillOpacity: 0.7,
+                        fillColor: "#e74c3c"
+                    }
                 }).addTo(continentMap);
-            } else {
-                console.warn(`No center coordinates found for country: ${countryName} on continent map.`);
+
+                // Fit map bounds to the continent layer, if valid
+                const bounds = continentMapGeoJsonLayer.getBounds();
+                if (bounds.isValid()) {
+                    continentMap.flyToBounds(bounds, {
+                        maxZoom: 3,
+                        padding: [20, 20],
+                        duration: 0.5
+                    });
+                } else {
+                    console.warn("Invalid bounds for continent map layer. Resetting view.");
+                    continentMap.setView([20, 0], 2);
+                }
+
+                // If we have country data, try to show a marker for the country's capital/center
+                if (countryName) {
+                    const countryMapping = cache.countryGeoJsonMapping.find(
+                        item => item.country_name.toLowerCase() === countryName.toLowerCase()
+                    );
+
+                    if (countryMapping && countryMapping.center) {
+                        const [lat, lng] = countryMapping.center;
+                        continentMapMarker = L.marker([lat, lng], {
+                            icon: L.divIcon({
+                                className: 'continent-country-marker',
+                                html: '<i class="fas fa-map-marker-alt" style="color: #e74c3c; font-size: 24px;"></i>',
+                                iconSize: [24, 24],
+                                iconAnchor: [12, 24]
+                            })
+                        }).addTo(continentMap);
+                    } else {
+                        console.warn(`No center coordinates found for country: ${countryName} on continent map.`);
+                    }
+                }
+
+                // Invalidate size to ensure proper rendering
+                setTimeout(() => {
+                    continentMap.invalidateSize();
+                }, 100);
+            } catch (error) {
+                console.error("Error loading continent map:", error);
             }
         }
-
-        // Invalidate size to ensure proper rendering
-        setTimeout(() => {
-            continentMap.invalidateSize();
-        }, 100);
-    } catch (error) {
-        console.error("Error loading continent map:", error);
-    }
-}
 
 
         // Renders the list of available countries in the UI
