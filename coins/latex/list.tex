@@ -1,0 +1,119 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{multicol}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\setlength{\parindent}{0pt}
+
+\begin{document}
+
+\section*{All countries (tabular view)}
+
+% This longtable will span pages as needed. It uses three columns.
+\begin{longtable}{@{}p{0.31\textwidth} p{0.31\textwidth} p{0.31\textwidth}@{}}
+\toprule
+\textbf{Country} & \textbf{Country} & \textbf{Country} \\
+\midrule
+\endfirsthead
+
+\multicolumn{3}{@{}l}{\textit{(continued)}}\\
+\toprule
+\textbf{Country} & \textbf{Country} & \textbf{Country} \\
+\midrule
+\endhead
+
+\bottomrule
+\multicolumn{3}{r}{\textit{continued on next page}}
+\endfoot
+
+\endlastfoot
+
+Afghanistan & Iraq & Montenegro \\
+Albania & Ireland & Morocco \\
+Algeria & Israel & Mozambique \\
+Andorra & Italy & Myanmar \\
+Angola & Jamaica & Namibia \\
+Antigua and Barbuda & Japan & Nauru \\
+Argentina & Jordan & Nepal \\
+Armenia & Kazakhstan & Netherlands \\
+Australia & Kenya & New Zealand \\
+Austria & Kiribati & Nicaragua \\
+Azerbaijan & Kuwait & Niger \\
+Bahamas & Kyrgyzstan & Nigeria \\
+Bahrain & Lao People's Democratic Republic (Laos) & North Korea (DPRK) \\
+Bangladesh & Latvia & North Macedonia \\
+Barbados & Lebanon & Norway \\
+Belarus & Lesotho & Oman \\
+Belgium & Liberia & Pakistan \\
+Belize & Libya & Palau \\
+Benin & Liechtenstein & Panama \\
+Bhutan & Lithuania & Papua New Guinea \\
+Bolivia & Luxembourg & Paraguay \\
+Bosnia and Herzegovina & Madagascar & Peru \\
+Botswana & Malawi & Philippines \\
+Brazil & Malaysia & Poland \\
+Brunei Darussalam & Maldives & Portugal \\
+Bulgaria & Mali & Qatar \\
+Burkina Faso & Malta & Romania \\
+Burundi & Marshall Islands & Russia \\
+Cabo Verde (Cape Verde) & Mauritania & Rwanda \\
+Cambodia & Mauritius & Saint Kitts and Nevis \\
+Cameroon & Mexico & Saint Lucia \\
+Canada & Micronesia (Federated States of) & Saint Vincent and the Grenadines \\
+Central African Republic & Moldova & Samoa \\
+Chad & Monaco & San Marino \\
+Chile & Mongolia & Sao Tome and Principe \\
+China (People's Republic of China) & Montenegro & Saudi Arabia \\
+Colombia & Morocco & Senegal \\
+Comoros & Mozambique & Serbia \\
+Congo (Republic of the Congo) & Myanmar & Seychelles \\
+Congo, Democratic Republic of the & Namibia & Sierra Leone \\
+Costa Rica & Nauru & Singapore \\
+Côte d'Ivoire (Ivory Coast) & Nepal & Slovakia \\
+Croatia & Netherlands & Slovenia \\
+Cuba & New Zealand & Solomon Islands \\
+Cyprus & Nicaragua & Somalia \\
+Czech Republic (Czechia) & Niger & South Africa \\
+Denmark & Nigeria & South Korea (Republic of Korea) \\
+Djibouti & North Korea (DPRK) & South Sudan \\
+Dominica & North Macedonia & Spain \\
+Dominican Republic & Norway & Sri Lanka \\
+Ecuador & Oman & Sudan \\
+Egypt & Pakistan & Suriname \\
+El Salvador & Palau & Sweden \\
+Equatorial Guinea & Panama & Switzerland \\
+Eritrea & Papua New Guinea & Syria \\
+Estonia & Paraguay & Tajikistan \\
+Eswatini (Swaziland) & Peru & Tanzania \\
+Ethiopia & Philippines & Thailand \\
+Fiji & Poland & Timor-Leste (East Timor) \\
+Finland & Portugal & Togo \\
+France & Qatar & Tonga \\
+Gabon & Romania & Trinidad and Tobago \\
+Gambia & Russia & Tunisia \\
+Georgia & Rwanda & Turkey \\
+Germany & Saint Kitts and Nevis & Turkmenistan \\
+Ghana & Saint Lucia & Tuvalu \\
+Greece & Saint Vincent and the Grenadines & Uganda \\
+Grenada & Samoa & Ukraine \\
+Guatemala & San Marino & United Arab Emirates \\
+Guinea & Sao Tome and Principe & United Kingdom \\
+Guinea-Bissau & Saudi Arabia & United States of America \\
+Guyana & Senegal & Uruguay \\
+Haiti & Serbia & Uzbekistan \\
+Honduras & Seychelles & Vanuatu \\
+Hungary & Sierra Leone & Venezuela \\
+Iceland & Singapore & Vietnam \\
+India & Slovakia & Yemen \\
+Indonesia & Slovenia & Zambia \\
+Iran (Islamic Republic of) & Solomon Islands & Zimbabwe \\
+\addlinespace
+\multicolumn{3}{@{}l}{\small Note: the two UN General Assembly observer states are \textbf{Holy See (Vatican City)} and \textbf{Palestine}.} \\
+\end{longtable}
+
+\bigskip
+\textbf{Sources:} United Nations member states list; Wikipedia (Member states of the United Nations). :contentReference[oaicite:1]{index=1}
+
+\end{document}
