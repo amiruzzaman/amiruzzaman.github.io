@@ -690,7 +690,7 @@ def edit_json():
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            overflow-y: auto;
+            overflow-y: auto;  /* ✅ allow scrolling when needed */
         }
 
         .modal-content {
@@ -702,8 +702,8 @@ def edit_json():
             padding: 20px;
             text-align: center;
             color: #333;
-            max-height: 90vh;
-            overflow-y: auto;
+            max-height: 90vh;   /* ✅ prevent it from going off screen */
+            overflow-y: auto;   /* ✅ scroll inside modal if content too tall */
         }
 
         .modal img {
@@ -941,229 +941,64 @@ def edit_json():
         }
         
         /* Search box styling */
-        .search-container {
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+    .search-container {
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
 
-        .search-box {
-            width: 250px;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #fff;
-            color: #333;
-        }
+    .search-box {
+        width: 300px;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #fff;
+        color: #333;
+    }
 
-        .search-box:focus {
-            outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-        }
+    .search-box:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
 
-        .clear-search-btn {
-            padding: 10px 15px;
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    .clear-search-btn {
+        padding: 10px;
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-        .clear-search-btn:hover {
-            background-color: #c82333;
-        }
-        
-        .toast-message {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: rgba(40, 167, 69, 0.5);
-            color: white;
-            padding: 15px;
-            text-align: center;
-            font-size: 16px;
-            font-weight: bold;
-            z-index: 3000;
-            opacity: 0;
-            display: none;
-            transition: opacity 0.5s ease;
-        }
+    .clear-search-btn:hover {
+        background-color: #c82333;
+    }
+    
+    .toast-message {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;                     /* full screen width */
+        background-color: rgba(40, 167, 69, 0.5); /* ✅ more transparent */
+        color: white;
+        padding: 15px;
+        text-align: center;
+        font-size: 16px;
+        font-weight: bold;
+        z-index: 3000;
+        opacity: 0;
+        display: none;
+        transition: opacity 0.5s ease;
+    }
 
-        .search-options {
-            margin-left: 10px;
-        }
 
-        .search-options label {
-            color: #fff;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-        }
-
-        .search-options input[type="checkbox"] {
-            margin-right: 5px;
-        }
-
-        .advanced-search-container {
-            margin-bottom: 20px;
-            padding: 15px;
-            background-color: #5a6268;
-            border-radius: 4px;
-            width: 100%;
-        }
-
-        .advanced-search-container h3 {
-            color: #ffc107;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-
-        .advanced-search-fields {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-            align-items: end;
-        }
-
-        .search-field {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .search-field label {
-            color: #fff;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-
-        .search-select {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #fff;
-            color: #333;
-        }
-
-        .search-btn {
-            padding: 8px 15px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .search-btn.clear {
-            background-color: #dc3545;
-        }
-
-        .search-btn:hover {
-            opacity: 0.9;
-        }
-
-        .filter-indicator {
-            margin-top: 10px;
-            padding: 8px;
-            background-color: #17a2b8;
-            border-radius: 4px;
-            color: white;
-            font-size: 14px;
-            width: 100%;
-        }
-
-        .filter-tag {
-            display: inline-block;
-            background-color: #6c757d;
-            padding: 3px 8px;
-            border-radius: 12px;
-            margin: 0 5px;
-            font-size: 12px;
-        }
-
-        .filter-tag .close {
-            margin-left: 5px;
-            cursor: pointer;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #ffc107;
-            font-size: 18px;
-        }
-
-        /* File upload section styling */
-        .file-upload-section {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        /* Editable cells */
-        .editable {
-            cursor: text;
-            min-height: 20px;
-        }
-
-        .editable:focus {
-            outline: 2px solid #007bff;
-            background-color: #f8f9fa;
-            color: #333;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 992px) {
-            .container {
-                width: 95%;
-                padding: 15px;
-            }
-            
-            .search-container {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .search-box {
-                width: 100%;
-            }
-            
-            .advanced-search-fields {
-                grid-template-columns: 1fr;
-            }
-            
-            .file-upload-section {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .row {
-                flex-wrap: wrap;
-            }
-            
-            .column {
-                flex: 1 0 33.333%;
-                min-width: 120px;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .column {
-                flex: 1 0 50%;
-            }
-        }
     </style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
@@ -1179,56 +1014,20 @@ def edit_json():
             <button id="clearSearch" class="clear-search-btn" title="Clear search">
                 <i class="fas fa-times"></i>
             </button>
-            <div class="search-options">
-                <label>
-                    <input type="checkbox" id="keepFilteredView"> Keep Filtered View
-                </label>
-            </div>
         </div>
 
-        <div class="advanced-search-container">
-            <h3>Advanced Search</h3>
-            <div class="advanced-search-fields">
-                <div class="search-field">
-                    <label for="sizeSearch">Size:</label>
-                    <input type="text" id="sizeSearch" class="search-box" placeholder="e.g., 25 or 25x30">
-                </div>
-                <div class="search-field">
-                    <label for="yearSearch">Year:</label>
-                    <input type="text" id="yearSearch" class="search-box" placeholder="e.g., 1999 or 2000-2010">
-                </div>
-                <div class="search-field">
-                    <label for="currencyTypeSearch">Currency Type:</label>
-                    <select id="currencyTypeSearch" class="search-select">
-                        <option value="">All Types</option>
-                        <option value="coin">Coin</option>
-                        <option value="paper-bill">Paper Bill</option>
-                        <option value="antique">Antique</option>
-                    </select>
-                </div>
-                <button id="applyAdvancedSearch" class="search-btn">Apply Advanced Filters</button>
-                <button id="clearAdvancedSearch" class="search-btn clear">Clear All Filters</button>
-            </div>
-        </div>
-        
-        <div id="filterIndicator" class="filter-indicator" style="display: none;"></div>
+        <input type="file" id="jsonFileInput" class="file-input" accept=".json" />
 
-        <div class="file-upload-section">
-            <input type="file" id="jsonFileInput" class="file-input" accept=".json" />
-            <label for="uploadFileInput">
-                <i class="fas fa-file-upload"></i> Choose File
-            </label>
-            <input type="file" id="uploadFileInput" accept=".json" />
-            <button id="uploadFileBtn">
-                <i class="fas fa-upload"></i> Upload File
-            </button>
-        </div>
+        <label for="uploadFileInput">
+            <i class="fas fa-file-upload"></i> Choose File
+        </label>
+        <input type="file" id="uploadFileInput" accept=".json" />
 
-        <div id="jsonTableContainer">
-            <div class="loading">
-                <i class="fas fa-spinner fa-spin"></i> Loading coins data...
-            </div>
-        </div>
+        <button id="uploadFileBtn">
+            <i class="fas fa-upload"></i> Upload File
+        </button>
+
+        <div id="jsonTableContainer">Container is here</div>
 
         <button class="add-row-btn" id="addRowBtn">Add New Row</button>
         <button class="download-btn" id="downloadBtn">Download Updated JSON</button>
@@ -1283,546 +1082,782 @@ def edit_json():
     </div>
 
     <script>
-        let jsonData = [];
-        let currentEditIndex = -1;
-        let isFiltered = false;
-        let activeFilters = {};
+        document.getElementById("uploadFileBtn").addEventListener("click", function () {
+            const fileInput = document.getElementById("uploadFileInput");
+            const file = fileInput.files[0];
 
-        // Function to load the default JSON file
-        function loadDefaultJSON() {
-            fetch('./images/coins.json')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Failed to load coins.json');
-                    }
-                    return response.json();
-                })
+            if (!file) {
+                alert("Please select a file to upload.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            fetch('/upload-json', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
                 .then(data => {
-                    jsonData = data;
-                    populateTable(jsonData);
-                    showToast('Data loaded successfully!');
+                    if (data.message) {
+                        alert(data.message);
+                        fetch('/get-json')
+                            .then(response => response.json())
+                            .then(newData => {
+                                jsonData = newData;
+                                renderTable(jsonData);
+                            });
+                    } else {
+                        alert(data.error || "An error occurred.");
+                    }
                 })
                 .catch(error => {
-                    console.error('Error loading coins.json:', error);
-                    document.getElementById('jsonTableContainer').innerHTML = `
-                        <div style="text-align: center; padding: 20px; color: #ff6b6b;">
-                            <i class="fas fa-exclamation-triangle"></i> Error loading coins.json: ${error.message}
-                            <p>Please upload a JSON file manually</p>
-                        </div>
-                    `;
+                    console.error("Error:", error);
+                    alert("An error occurred while uploading the file.");
                 });
-        }
+        });
 
-        // Function to populate the table with JSON data
-        function populateTable(data) {
-            const container = document.getElementById('jsonTableContainer');
-            
-            if (!data || data.length === 0) {
-                container.innerHTML = '<p>No data available</p>';
+        document.getElementById("jsonFileInput").addEventListener("change", function (event) {
+            const file = event.target.files[0];
+
+            if (!file) {
+                alert("No file selected. Please select a JSON file.");
                 return;
             }
 
-            // Create table with headers
-            let tableHTML = `
-                <div class="row header">
-                    <div class="column sortable" data-sort="country">Country</div>
-                    <div class="column sortable" data-sort="currency_type">Type</div>
-                    <div class="column sortable" data-sort="donor_name">Donor</div>
-                    <div class="column">Image</div>
-                    <div class="column sortable" data-sort="note">Note</div>
-                    <div class="column sortable" data-sort="size">Size</div>
-                    <div class="column sortable" data-sort="year">Year</div>
-                    <div class="column">Actions</div>
-                </div>
-            `;
+            if (file.type !== "application/json") {
+                alert("Invalid file type. Please upload a valid JSON file.");
+                return;
+            }
 
-            // Add rows for each data item
-            data.forEach((item, index) => {
-                // Use relative path for images if they're in the images folder
-                const imagePath = item.image && item.image !== 'placeholder.jpg' ? 
-                    `images/${item.country}/${item.image}` : 
-                    'https://via.placeholder.com/50?text=No+Image';
-                
-                tableHTML += `
-                    <div class="row draggable" draggable="true" data-index="${index}">
-                        <div class="column editable" contenteditable="true" onblur="updateField(${index}, 'country', this.innerText)">${item.country || ''}</div>
-                        <div class="column editable" contenteditable="true" onblur="updateField(${index}, 'currency_type', this.innerText)">${item.currency_type || ''}</div>
-                        <div class="column editable" contenteditable="true" onblur="updateField(${index}, 'donor_name', this.innerText)">${item.donor_name || ''}</div>
-                        <div class="column">
-                            <img src="${imagePath}" 
-                                 alt="Thumbnail" class="thumbnail" 
-                                 onerror="this.src='https://via.placeholder.com/50?text=Error'"
-                                 onclick="openModal('${imagePath}', ${index})">
-                        </div>
-                        <div class="column editable" contenteditable="true" onblur="updateField(${index}, 'note', this.innerText)">${item.note || ''}</div>
-                        <div class="column editable" contenteditable="true" onblur="updateField(${index}, 'size', this.innerText)">${item.size || ''}</div>
-                        <div class="column editable" contenteditable="true" onblur="updateField(${index}, 'year', this.innerText)">${item.year || ''}</div>
-                        <div class="column">
-                            <span class="delete-btn" onclick="deleteRow(${index})">
-                                <i class="fas fa-trash"></i> Delete
-                            </span>
-                        </div>
-                    </div>
-                `;
-            });
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    jsonData = JSON.parse(e.target.result);
+                    renderTable(jsonData);
+                } catch (error) {
+                    alert("Error parsing JSON file. Please check the file format.");
+                    console.error("JSON Parsing Error:", error);
+                }
+            };
 
-            container.innerHTML = tableHTML;
+            reader.onerror = function () {
+                alert("Error reading the file. Please try again.");
+            };
+
+            reader.readAsText(file);
+        });
+
+        let jsonData = [];
+        let sortOrder = 1;
+        let currentEditingIndex = -1;
+        let countriesData = [];
+
+        // Load countries data
+        function loadCountries() {
+            fetch('/get-countries')
+                .then(response => response.json())
+                .then(data => {
+                    countriesData = data;
+                    populateCountryDropdowns();
+                })
+                .catch(error => {
+                    console.error("Error loading countries:", error);
+                });
+        }
+
+        // Populate country dropdowns
+        function populateCountryDropdowns() {
+            const editCountryDropdown = document.getElementById('editCountry');
             
-            // Add sorting functionality
-            document.querySelectorAll('.sortable').forEach(header => {
-                header.addEventListener('click', () => {
-                    const field = header.getAttribute('data-sort');
-                    sortTable(field);
+            // Clear existing options
+            editCountryDropdown.innerHTML = '';
+            
+            // Add default option
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Select a country';
+            editCountryDropdown.appendChild(defaultOption);
+            
+            // Add countries
+            countriesData.forEach(country => {
+                const option = document.createElement('option');
+                option.value = country.name;
+                option.textContent = country.name;
+                editCountryDropdown.appendChild(option);
+            });
+        }
+
+        function renderTable(data) {
+            const tableContainer = document.getElementById("jsonTableContainer");
+            tableContainer.innerHTML = '';
+        
+            const headerRow = document.createElement('div');
+            headerRow.classList.add('row', 'header');
+            const headers = [
+                { text: 'Country', key: 'country' },
+                { text: 'Currency Type', key: 'currency_type' },
+                { text: 'Donor Name', key: 'donor_name' },
+                { text: 'Image', key: 'image' },
+                { text: 'Note', key: 'note' },
+                { text: 'Size', key: 'size' },
+                { text: 'Year', key: 'year' },
+                { text: 'Actions', key: null }
+            ];
+            
+            headers.forEach(header => {
+                const column = document.createElement('div');
+                column.classList.add('column');
+                column.textContent = header.text;
+                if (header.key) {
+                    column.dataset.key = header.key;
+                    column.classList.add('sortable');
+                    column.addEventListener('click', () => {
+                        sortTable(header.key);
+                    });
+                }
+                headerRow.appendChild(column);
+            });
+            tableContainer.appendChild(headerRow);
+        
+            data.forEach((row, index) => {
+                const rowDiv = document.createElement('div');
+                rowDiv.classList.add('row');
+                rowDiv.draggable = true;
+                rowDiv.setAttribute('data-index', index);
+        
+                rowDiv.addEventListener('dragstart', handleDragStart);
+                rowDiv.addEventListener('dragover', handleDragOver);
+                rowDiv.addEventListener('drop', handleDrop);
+        
+                // Country dropdown
+                const countryColumn = document.createElement('div');
+                countryColumn.classList.add('column');
+                const countrySelect = document.createElement('select');
+                countrySelect.classList.add('country-dropdown');
+
+                //countrySelect.addEventListener('change', function() {
+                //    row.country = this.value;
+                //    saveUpdates();
+                //});
+
+                countrySelect.addEventListener('change', function() {
+                const oldCountry = row.country;
+                const newCountry = this.value;
+                const image = row.image;
+
+                if (!image || image === "placeholder.jpg") {
+                    // Just update JSON if no real image
+                    row.country = newCountry;
+                    saveUpdates();
+                    return;
+                }
+
+                fetch('/update-country', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        image: image,
+                        old_country: oldCountry,
+                        new_country: newCountry
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert("Error: " + data.error);
+                        this.value = oldCountry; // revert if failed
+                    } else {
+                        console.log(data.message);
+                        row.country = newCountry;
+                        renderTable(jsonData);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error updating country:", error);
+                    this.value = oldCountry; // revert if error
                 });
             });
+
+
+                
+                // Add default option
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Select country';
+                countrySelect.appendChild(defaultOption);
+                
+                // Add countries
+                countriesData.forEach(country => {
+                    const option = document.createElement('option');
+                    option.value = country.name;
+                    option.textContent = country.name;
+                    if (row.country === country.name) {
+                        option.selected = true;
+                    }
+                    countrySelect.appendChild(option);
+                });
+                
+                // If country is not in the list, add it as an option
+                if (row.country && !countriesData.some(c => c.name === row.country)) {
+                    const option = document.createElement('option');
+                    option.value = row.country;
+                    option.textContent = row.country;
+                    option.selected = true;
+                    countrySelect.appendChild(option);
+                }
+                
+                countryColumn.appendChild(countrySelect);
+                rowDiv.appendChild(countryColumn);
+                
+                // Currency type dropdown
+                const currencyColumn = document.createElement('div');
+                currencyColumn.classList.add('column');
+                const currencySelect = document.createElement('select');
+                currencySelect.classList.add('currency-dropdown');
+                currencySelect.addEventListener('change', function() {
+                    row.currency_type = this.value;
+                    saveUpdates();
+                });
+                
+                const currencyOptions = ['coin', 'paper-bill', 'antique'];
+                currencyOptions.forEach(optionValue => {
+                    const option = document.createElement('option');
+                    option.value = optionValue;
+                    option.textContent = optionValue.charAt(0).toUpperCase() + optionValue.slice(1);
+                    if (row.currency_type === optionValue) {
+                        option.selected = true;
+                    }
+                    currencySelect.appendChild(option);
+                });
+                
+                currencyColumn.appendChild(currencySelect);
+                rowDiv.appendChild(currencyColumn);
+                
+                // Donor name (editable)
+                const donorColumn = document.createElement('div');
+                donorColumn.classList.add('column', 'editable');
+                donorColumn.textContent = row.donor_name || "No Donor Name";
+                donorColumn.contentEditable = true;
+                donorColumn.addEventListener('blur', function() {
+                    row.donor_name = this.textContent;
+                    saveUpdates();
+                });
+                rowDiv.appendChild(donorColumn);
+                
+                // Image column with drag and drop
+                const imageColumn = document.createElement('div');
+                imageColumn.classList.add('column');
+                
+                // ✅ Always show drop area (whether image exists or not)
+                const dropArea = document.createElement('div');
+                dropArea.classList.add('image-drop-area');
+                dropArea.setAttribute('data-index', index);
+
+                if (row.image && row.image !== 'placeholder.jpg') {
+                    dropArea.innerHTML = `<img src="images/${row.country}/${row.image}" 
+                                        class="thumbnail" 
+                                        data-index="${index}" 
+                                        onerror="this.src='images/placeholder.jpg'">`;
+                } else {
+                    dropArea.innerHTML = '<p>Drag & drop image here</p>';
+                }
+
+                // Enable drag & drop on this area
+                setupImageDropArea(dropArea, row, index);
+
+                imageColumn.appendChild(dropArea);
+
+                
+                rowDiv.appendChild(imageColumn);
+                
+                // Note (editable)
+                const noteColumn = document.createElement('div');
+                noteColumn.classList.add('column', 'editable');
+                noteColumn.textContent = row.note || "No Note";
+                noteColumn.contentEditable = true;
+                noteColumn.addEventListener('blur', function() {
+                    row.note = this.textContent;
+                    saveUpdates();
+                });
+                rowDiv.appendChild(noteColumn);
+                
+                // Size (editable)
+                const sizeColumn = document.createElement('div');
+                sizeColumn.classList.add('column', 'editable');
+                sizeColumn.textContent = row.size || "No Size";
+                sizeColumn.contentEditable = true;
+                sizeColumn.addEventListener('blur', function() {
+                    row.size = this.textContent;
+                    saveUpdates();
+                });
+                rowDiv.appendChild(sizeColumn);
+                
+                // Year (editable)
+                const yearColumn = document.createElement('div');
+                yearColumn.classList.add('column', 'editable');
+                yearColumn.textContent = row.year || "No Year";
+                yearColumn.contentEditable = true;
+                yearColumn.addEventListener('blur', function() {
+                    row.year = this.textContent;
+                    saveUpdates();
+                });
+                rowDiv.appendChild(yearColumn);
+                
+                // Actions (delete button)
+                const actionColumn = document.createElement('div');
+                actionColumn.classList.add('column');
+                const deleteBtn = document.createElement('span');
+                deleteBtn.classList.add('delete-btn');
+                deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                deleteBtn.addEventListener('click', function() {
+                    if (confirm('Are you sure you want to delete this entry?')) {
+                        jsonData.splice(index, 1);
+                        renderTable(jsonData);
+                        saveUpdates();
+                    }
+                });
+                actionColumn.appendChild(deleteBtn);
+                rowDiv.appendChild(actionColumn);
+        
+                tableContainer.appendChild(rowDiv);
+            });
+        }
+        
+        // Setup image drop area functionality
+        function setupImageDropArea(dropArea, row, index) {
+                      
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.style.display = 'none';
+            document.body.appendChild(fileInput);
             
-            // Add drag and drop functionality
-            setupDragAndDrop();
-        }
-
-        // Function to update field when editing inline
-        function updateField(index, field, value) {
-            if (index >= 0 && index < jsonData.length) {
-                jsonData[index][field] = value;
-                showToast('Field updated!');
+            // Click to select file
+            dropArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            // Drag and drop events
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
             }
-        }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                dropArea.classList.add('highlight');
+            }
+            
+            function unhighlight() {
+                dropArea.classList.remove('highlight');
+            }
+            
+            // Handle file drop
+            dropArea.addEventListener('drop', handleDropFile, false);
+            
+            // Handle file selection
+            fileInput.addEventListener('change', handleFileSelect, false);
+            
+            function handleDropFile(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles(files, row, index);
+            }
+            
+            function handleFileSelect(e) {
+                const files = e.target.files;
+                handleFiles(files, row, index);
+            }
+            
+            function handleFiles(files, row, index) {
+                if (files.length === 0) return;
+                            
+                const file = files[0];
+                const country = row.country;
+                            
+                if (!country) {
+                    alert('Please select a country first');
+                    return;
+                }
+                            
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('country', country);
 
-        // Function to sort the table
-        function sortTable(field) {
+                // ✅ If this row already has an image, tell backend to replace it
+                if (row.image && row.image !== "placeholder.jpg") {
+                    formData.append('existing_image', row.image);
+                }
+
+                fetch('/upload-image', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('Error uploading image: ' + data.error);
+                    } else {
+                        // Update JSON with new filename
+                        jsonData[index].image = data.filename;
+                        renderTable(jsonData);
+                        saveUpdates();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error uploading image');
+                });
+            }
+
+        }
+        
+        function sortTable(key) {
             jsonData.sort((a, b) => {
-                if (a[field] < b[field]) return -1;
-                if (a[field] > b[field]) return 1;
+                if (a[key] < b[key]) return -1 * sortOrder;
+                if (a[key] > b[key]) return 1 * sortOrder;
                 return 0;
             });
+            sortOrder *= -1;
+            renderTable(jsonData);
             
-            // Check if we're in filtered view
-            if (isFiltered && document.getElementById('keepFilteredView').checked) {
-                // Apply the same filter again after sorting
-                applyFilters();
-            } else {
-                populateTable(jsonData);
-            }
-        }
-
-        // Function to setup drag and drop
-        function setupDragAndDrop() {
-            const rows = document.querySelectorAll('.row.draggable');
-            const container = document.getElementById('jsonTableContainer');
-            
-            let draggedItem = null;
-            
-            rows.forEach(row => {
-                // Drag start event
-                row.addEventListener('dragstart', function(e) {
-                    draggedItem = row;
-                    setTimeout(() => {
-                        row.style.opacity = '0.5';
-                    }, 0);
-                });
-                
-                // Drag end event
-                row.addEventListener('dragend', function() {
-                    draggedItem = null;
-                    setTimeout(() => {
-                        row.style.opacity = '1';
-                    }, 0);
-                });
-                
-                // Drag over event
-                row.addEventListener('dragover', function(e) {
-                    e.preventDefault();
-                });
-                
-                // Drag enter event
-                row.addEventListener('dragenter', function(e) {
-                    e.preventDefault();
-                    this.style.backgroundColor = '#495057';
-                });
-                
-                // Drag leave event
-                row.addEventListener('dragleave', function() {
-                    this.style.backgroundColor = '';
-                });
-                
-                // Drop event
-                row.addEventListener('drop', function(e) {
-                    e.preventDefault();
-                    this.style.backgroundColor = '';
-                    
-                    if (draggedItem && draggedItem !== this) {
-                        // Get the indices of the dragged item and the drop target
-                        const fromIndex = parseInt(draggedItem.getAttribute('data-index'));
-                        const toIndex = parseInt(this.getAttribute('data-index'));
-                        
-                        // Rearrange the data array
-                        const [movedItem] = jsonData.splice(fromIndex, 1);
-                        jsonData.splice(toIndex, 0, movedItem);
-                        
-                        // Repopulate the table
-                        populateTable(jsonData);
-                        showToast('Row moved successfully!');
-                    }
-                });
-            });
-        }
-
-        // Function to open modal with image and form
-        function openModal(imageUrl, index) {
-            const modal = document.getElementById('imageModal');
-            const modalImage = document.getElementById('modalImage');
-            const imageFileName = document.getElementById('imageFileName');
-            currentEditIndex = index;
-            
-            // Set image and filename
-            modalImage.src = imageUrl || 'https://via.placeholder.com/400?text=No+Image';
-            imageFileName.textContent = `Image: ${imageUrl ? imageUrl.split('/').pop() : 'No image available'}`;
-            
-            // Populate form with current data
-            const item = jsonData[index];
-            document.getElementById('editCountry').value = item.country || '';
-            document.getElementById('editCurrencyType').value = item.currency_type || 'coin';
-            document.getElementById('editDonorName').value = item.donor_name || '';
-            document.getElementById('editNote').value = item.note || '';
-            document.getElementById('editSize').value = item.size || '';
-            document.getElementById('editYear').value = item.year || '';
-            
-            // Show modal
-            modal.style.display = 'flex';
-        }
-
-        // Function to close modal
-        function closeModal() {
-            const modal = document.getElementById('imageModal');
-            modal.style.display = 'none';
-        }
-
-        // Function to save changes from the modal form
-        function saveChanges() {
-            if (currentEditIndex === -1) return;
-            
-            // Get form values
-            jsonData[currentEditIndex] = {
-                country: document.getElementById('editCountry').value,
-                currency_type: document.getElementById('editCurrencyType').value,
-                donor_name: document.getElementById('editDonorName').value,
-                note: document.getElementById('editNote').value,
-                size: document.getElementById('editSize').value,
-                year: document.getElementById('editYear').value,
-                image: jsonData[currentEditIndex].image // Keep the existing image
-            };
-            
-            // Repopulate table
-            if (isFiltered && document.getElementById('keepFilteredView').checked) {
-                applyFilters();
-            } else {
-                populateTable(jsonData);
-            }
-            
-            // Show success message
-            showToast('Changes saved successfully!');
-            
-            // Close modal
-            closeModal();
-        }
-
-        // Function to delete a row
-        function deleteRow(index) {
-            if (confirm('Are you sure you want to delete this item?')) {
-                jsonData.splice(index, 1);
-                
-                // Repopulate table
-                if (isFiltered && document.getElementById('keepFilteredView').checked) {
-                    applyFilters();
+            fetch('/update-json', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(jsonData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    console.log('Backend JSON updated successfully:', data.message);
                 } else {
-                    populateTable(jsonData);
+                    console.error('Error updating JSON:', data.error);
+                    alert(`Error updating JSON: ${data.error}`);
                 }
-                
-                showToast('Item deleted successfully!');
+            })
+            .catch(error => {
+                console.error('Error with fetch request:', error);
+                alert('An error occurred while updating the JSON file.');
+            });
+        }
+        
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.getAttribute('data-index'));
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const draggedIndex = e.dataTransfer.getData('text/plain');
+            const targetIndex = e.target.closest('.row').getAttribute('data-index');
+
+            if (draggedIndex !== targetIndex) {
+                const draggedItem = jsonData.splice(draggedIndex, 1)[0];
+                jsonData.splice(targetIndex, 0, draggedItem);
+                renderTable(jsonData);
+                saveUpdates();
             }
         }
 
-        // Function to add a new row
-        function addNewRow() {
-            const newItem = {
-                country: "New Country",
-                currency_type: "coin",
-                donor_name: "New Donor",
-                note: "New note",
-                size: "0mm",
-                year: "2023",
-                image: "placeholder.jpg"
-            };
-            
-            jsonData.push(newItem);
-            
-            // Repopulate table
-            if (isFiltered && document.getElementById('keepFilteredView').checked) {
-                applyFilters();
-            } else {
-                populateTable(jsonData);
-            }
-            
-            // Open modal to edit the new item
-            openModal('', jsonData.length - 1);
-        }
-
-        // Function to download updated JSON
-        function downloadJSON() {
-            const dataStr = JSON.stringify(jsonData, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-            
-            const exportFileDefaultName = 'coins.json';
-            
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
-            linkElement.click();
-            
-            showToast('JSON file downloaded successfully!');
-        }
-
-        // Function to handle file upload
-        function handleFileUpload(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                try {
-                    const parsedData = JSON.parse(event.target.result);
-                    jsonData = parsedData;
-                    isFiltered = false;
-                    activeFilters = {};
-                    updateFilterIndicator();
-                    populateTable(jsonData);
-                    showToast('File uploaded successfully!');
-                } catch (error) {
-                    alert('Error parsing JSON file: ' + error.message);
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        // Function to show toast message
         function showToast(message) {
-            const toast = document.getElementById('toastMessage');
-            toast.textContent = message;
-            toast.style.display = 'block';
-            toast.style.opacity = '1';
-            
+            const toast = document.getElementById("toastMessage");
+            toast.textContent = "✅ " + message;
+            toast.style.display = "block";
+            toast.style.opacity = "1";
+
+            // Fade out after 3 seconds
             setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(() => {
-                    toast.style.display = 'none';
-                }, 500);
+                toast.style.opacity = "0";
             }, 3000);
+
+            // Fully hide after fade
+            setTimeout(() => {
+                toast.style.display = "none";
+            }, 4000);
         }
 
-        // Function to apply search filters
-        function applySearch() {
-            const searchTerm = document.getElementById('countrySearch').value.toLowerCase();
+        function saveUpdates() {
+            fetch('/update-json', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(jsonData),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.message || "File updated.");
+                showToast(data.message || "Changes saved!");
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                showToast("❌ Error saving changes!");
+            });
+        }
+
+
+
+        // Handle image upload via drag and drop in modal
+        function setupModalImageUpload() {
+            const dropArea = document.getElementById('imageDropArea');
+            const fileInput = document.getElementById('editImageInput');
             
-            if (!searchTerm) {
-                // If search term is empty, show all data
-                isFiltered = false;
-                activeFilters = {};
-                updateFilterIndicator();
-                populateTable(jsonData);
-                return;
-            }
-            
-            const filteredData = jsonData.filter(item => {
-                return item.country && item.country.toLowerCase().includes(searchTerm);
+            // Click to select file
+            dropArea.addEventListener('click', () => {
+                fileInput.click();
             });
             
-            isFiltered = true;
-            activeFilters.country = searchTerm;
-            updateFilterIndicator();
-            populateTable(filteredData);
-        }
-
-        // Function to apply advanced filters
-        function applyAdvancedFilters() {
-            const sizeTerm = document.getElementById('sizeSearch').value.toLowerCase();
-            const yearTerm = document.getElementById('yearSearch').value.toLowerCase();
-            const currencyTypeTerm = document.getElementById('currencyTypeSearch').value;
+            // Drag and drop events
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
             
-            // If all filters are empty, show all data
-            if (!sizeTerm && !yearTerm && !currencyTypeTerm) {
-                isFiltered = false;
-                activeFilters = {};
-                updateFilterIndicator();
-                populateTable(jsonData);
-                return;
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
             }
             
-            const filteredData = jsonData.filter(item => {
-                let match = true;
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                dropArea.classList.add('highlight');
+            }
+            
+            function unhighlight() {
+                dropArea.classList.remove('highlight');
+            }
+            
+            // Handle file drop
+            dropArea.addEventListener('drop', handleDropFile, false);
+            
+            // Handle file selection
+            fileInput.addEventListener('change', handleFileSelect, false);
+            
+            function handleDropFile(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles(files);
+            }
+            
+            function handleFileSelect(e) {
+                const files = e.target.files;
+                handleFiles(files);
+            }
+            
+            function handleFiles(files) {
+                if (files.length === 0) return;
                 
-                // Size filter
-                if (sizeTerm) {
-                    if (item.size) {
-                        // Check if it's a range search (e.g., "25x30" or "25-30")
-                        if (sizeTerm.includes('x') || sizeTerm.includes('-')) {
-                            const sizeParts = item.size.toLowerCase().split(/x|-/);
-                            const searchParts = sizeTerm.split(/x|-/);
-                            
-                            // Check if any part matches
-                            match = match && searchParts.some(part => 
-                                sizeParts.some(sp => sp.includes(part))
-                            );
-                        } else {
-                            match = match && item.size.toLowerCase().includes(sizeTerm);
-                        }
-                    } else {
-                        match = false;
-                    }
+                const file = files[0];
+                const country = document.getElementById('editCountry').value;
+                
+                if (!country) {
+                    alert('Please select a country first');
+                    return;
                 }
                 
-                // Year filter
-                if (yearTerm) {
-                    if (item.year) {
-                        // Check if it's a range search (e.g., "1990-2000")
-                        if (yearTerm.includes('-')) {
-                            const [start, end] = yearTerm.split('-').map(y => parseInt(y.trim()));
-                            const itemYear = parseInt(item.year);
-                            
-                            if (!isNaN(start) && !isNaN(end) && !isNaN(itemYear)) {
-                                match = match && (itemYear >= start && itemYear <= end);
-                            } else {
-                                match = match && item.year.toLowerCase().includes(yearTerm);
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('country', country);
+                
+                // ✅ Add existing image filename if editing an existing row
+                if (currentEditingIndex !== -1 && jsonData[currentEditingIndex].image && jsonData[currentEditingIndex].image !== "placeholder.jpg") {
+                    formData.append('existing_image', jsonData[currentEditingIndex].image);
+                }
+                
+                fetch('/upload-image', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('Error uploading image: ' + data.error);
+                    } else {
+                        alert('Image uploaded successfully: ' + data.filename);
+                        // Update the image in the current editing row
+                        if (currentEditingIndex !== -1) {
+                            jsonData[currentEditingIndex].image = data.filename;
+                            renderTable(jsonData);
+                            saveUpdates();
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error uploading image');
+                });
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('/get-json')
+                .then(response => response.json())
+                .then(data => {
+                    jsonData = data;
+                    renderTable(jsonData);
+                })
+                .catch(error => {
+                    console.error("Error fetching JSON data:", error);
+                });
+
+            // Load countries data
+            loadCountries();
+            
+            // Setup image upload functionality
+            setupModalImageUpload();
+            
+            // Setup auto-save for modal fields
+            setupModalAutoSave();
+
+
+            document.getElementById("addRowBtn").addEventListener("click", function () {
+                const newRow = {
+                    country: "",
+                    currency_type: "coin",
+                    donor_name: "New Donor Name",
+                    image: "placeholder.jpg",
+                    note: "New Note",
+                    size: "",
+                    year: ""
+                };
+                jsonData.push(newRow);
+                renderTable(jsonData);
+                saveUpdates();
+            });
+
+            document.getElementById("downloadBtn").addEventListener("click", function () {
+                const jsonString = JSON.stringify(jsonData, null, 2);
+                const blob = new Blob([jsonString], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "coins.json";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+
+            document.getElementById("closeModal").addEventListener("click", function () {
+                document.getElementById("imageModal").style.display = "none";
+            });
+
+            function setupModalAutoSave() {
+                const fields = [
+                    { id: "editCountry", key: "country" },
+                    { id: "editCurrencyType", key: "currency_type" },
+                    { id: "editDonorName", key: "donor_name" },
+                    { id: "editNote", key: "note" },
+                    { id: "editSize", key: "size" },
+                    { id: "editYear", key: "year" }
+                ];
+
+                fields.forEach(field => {
+                    const el = document.getElementById(field.id);
+
+                    // For text inputs & textarea → blur event
+                    if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
+                        el.addEventListener("blur", function () {
+                            if (currentEditingIndex !== -1) {
+                                jsonData[currentEditingIndex][field.key] = this.value;
+                                renderTable(jsonData);
+                                saveUpdates();
                             }
-                        } else {
-                            match = match && item.year.toLowerCase().includes(yearTerm);
-                        }
-                    } else {
-                        match = false;
+                        });
                     }
-                }
-                
-                // Currency type filter
-                if (currencyTypeTerm) {
-                    match = match && item.currency_type === currencyTypeTerm;
-                }
-                
-                return match;
-            });
-            
-            isFiltered = true;
-            activeFilters = {};
-            if (sizeTerm) activeFilters.size = sizeTerm;
-            if (yearTerm) activeFilters.year = yearTerm;
-            if (currencyTypeTerm) activeFilters.currency_type = currencyTypeTerm;
-            
-            updateFilterIndicator();
-            populateTable(filteredData);
-        }
 
-        // Function to update filter indicator
-        function updateFilterIndicator() {
-            const indicator = document.getElementById('filterIndicator');
-            
-            if (Object.keys(activeFilters).length === 0) {
-                indicator.style.display = 'none';
-                return;
+                    // For dropdowns → change event
+                    if (el.tagName === "SELECT") {
+                        el.addEventListener("change", function () {
+                            if (currentEditingIndex !== -1) {
+                                jsonData[currentEditingIndex][field.key] = this.value;
+                                renderTable(jsonData);
+                                saveUpdates();
+                            }
+                        });
+                    }
+                });
             }
-            
-            let html = 'Active filters: ';
-            const filterTags = [];
-            
-            for (const [key, value] of Object.entries(activeFilters)) {
-                filterTags.push(`
-                    <span class="filter-tag">
-                        ${key}: ${value}
-                        <span class="close" onclick="removeFilter('${key}')">&times;</span>
-                    </span>
-                `);
-            }
-            
-            indicator.innerHTML = html + filterTags.join('');
-            indicator.style.display = 'block';
-        }
 
-        // Function to remove a specific filter
-        function removeFilter(filterKey) {
-            delete activeFilters[filterKey];
-            
-            if (Object.keys(activeFilters).length === 0) {
-                // No filters left, show all data
-                isFiltered = false;
-                populateTable(jsonData);
-            } else {
-                // Reapply remaining filters
-                applyAdvancedFilters();
-            }
-            
-            updateFilterIndicator();
-        }
 
-        // Function to clear all filters
-        function clearAllFilters() {
-            document.getElementById('countrySearch').value = '';
-            document.getElementById('sizeSearch').value = '';
-            document.getElementById('yearSearch').value = '';
-            document.getElementById('currencyTypeSearch').value = '';
-            
-            isFiltered = false;
-            activeFilters = {};
-            updateFilterIndicator();
-            populateTable(jsonData);
-        }
-
-        // Initialize the page
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load the default JSON file
-            loadDefaultJSON();
-            
-            // Populate country dropdown
-            const countries = ["USA", "Canada", "UK", "Australia", "Japan", "Germany", "France", "Italy", "China", "India"];
-            const countryDropdown = document.getElementById('editCountry');
-            countries.forEach(country => {
-                const option = document.createElement('option');
-                option.value = country;
-                option.textContent = country;
-                countryDropdown.appendChild(option);
-            });
-            
-            // Set up event listeners
-            document.getElementById('closeModal').addEventListener('click', closeModal);
-            document.getElementById('saveChangesBtn').addEventListener('click', saveChanges);
-            document.getElementById('addRowBtn').addEventListener('click', addNewRow);
-            document.getElementById('downloadBtn').addEventListener('click', downloadJSON);
-            document.getElementById('uploadFileBtn').addEventListener('click', function() {
-                document.getElementById('uploadFileInput').click();
-            });
-            document.getElementById('uploadFileInput').addEventListener('change', handleFileUpload);
-            document.getElementById('jsonFileInput').addEventListener('change', handleFileUpload);
-            
-            // Search functionality
-            document.getElementById('countrySearch').addEventListener('input', applySearch);
-            document.getElementById('clearSearch').addEventListener('click', function() {
-                document.getElementById('countrySearch').value = '';
-                applySearch();
-            });
-            
-            // Advanced search functionality
-            document.getElementById('applyAdvancedSearch').addEventListener('click', applyAdvancedFilters);
-            document.getElementById('clearAdvancedSearch').addEventListener('click', clearAllFilters);
-            
-            // Close modal when clicking outside
-            window.addEventListener('click', function(event) {
-                const modal = document.getElementById('imageModal');
-                if (event.target === modal) {
-                    closeModal();
+            document.addEventListener("click", function (event) {
+                if (event.target.classList.contains("thumbnail")) {
+                    const index = event.target.getAttribute("data-index");
+                    const row = jsonData[index];
+                    
+                    document.getElementById("modalImage").src = `images/${row.country}/${row.image}`;
+                    document.getElementById("imageFileName").textContent = row.image;
+                    
+                    // Populate form fields
+                    document.getElementById("editCountry").value = row.country || "";
+                    document.getElementById("editCurrencyType").value = row.currency_type || "";
+                    document.getElementById("editDonorName").value = row.donor_name || "";
+                    document.getElementById("editNote").value = row.note || "";
+                    document.getElementById("editSize").value = row.size || "";
+                    document.getElementById("editYear").value = row.year || "";
+                    
+                    currentEditingIndex = index;
+                    document.getElementById("imageModal").style.display = "flex";
                 }
-            });
-            
-            // Save data before page unload
-            window.addEventListener('beforeunload', function() {
-                localStorage.setItem('currencyData', JSON.stringify(jsonData));
             });
         });
+        
+        // Search functionality
+document.getElementById("countrySearch").addEventListener("input", function() {
+    filterTableByCountry(this.value);
+});
+
+document.getElementById("clearSearch").addEventListener("click", function() {
+    document.getElementById("countrySearch").value = "";
+    filterTableByCountry("");
+});
+
+function filterTableByCountry(searchTerm) {
+    const searchTermLower = searchTerm.toLowerCase();
+    
+    if (!searchTermLower) {
+        // If search is empty, show all rows
+        document.querySelectorAll('.row:not(.header)').forEach(row => {
+            row.style.display = 'flex';
+        });
+        return;
+    }
+    
+    // Filter rows based on country
+    document.querySelectorAll('.row:not(.header)').forEach(row => {
+        const countrySelect = row.querySelector('.country-dropdown');
+        const countryValue = countrySelect ? countrySelect.value.toLowerCase() : '';
+        
+        if (countryValue.includes(searchTermLower)) {
+            row.style.display = 'flex';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
     </script>
 </body>
 
@@ -1839,56 +1874,6 @@ def update_json():
         data = request.get_json()
         save_json(data)
         return jsonify({"message": "JSON file updated successfully!"})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/search-json', methods=['POST'])
-def search_json():
-    try:
-        search_criteria = request.get_json()
-        data = load_json()
-        
-        filtered_data = []
-        for item in data:
-            match = True
-            
-            # Country search
-            if search_criteria.get('country'):
-                if search_criteria['country'].lower() not in item.get('country', '').lower():
-                    match = False
-            
-            # Size search
-            if match and search_criteria.get('size'):
-                if search_criteria['size'].lower() not in item.get('size', '').lower():
-                    match = False
-            
-            # Year search (supports ranges like "2000-2010")
-            if match and search_criteria.get('year'):
-                year_value = item.get('year', '')
-                if search_criteria['year'].find('-') != -1:
-                    # Handle year range
-                    try:
-                        start_year, end_year = map(int, search_criteria['year'].split('-'))
-                        item_year = int(year_value) if year_value.isdigit() else None
-                        if not item_year or not (start_year <= item_year <= end_year):
-                            match = False
-                    except:
-                        match = False
-                else:
-                    # Exact year match
-                    if search_criteria['year'] not in year_value:
-                        match = False
-            
-            # Currency type search
-            if match and search_criteria.get('currency_type'):
-                if search_criteria['currency_type'].lower() != item.get('currency_type', '').lower():
-                    match = False
-            
-            if match:
-                filtered_data.append(item)
-                
-        return jsonify(filtered_data)
-        
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

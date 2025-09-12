@@ -690,7 +690,7 @@ def edit_json():
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            overflow-y: auto;
+            overflow-y: auto;  /* ✅ allow scrolling when needed */
         }
 
         .modal-content {
@@ -702,8 +702,8 @@ def edit_json():
             padding: 20px;
             text-align: center;
             color: #333;
-            max-height: 90vh;
-            overflow-y: auto;
+            max-height: 90vh;   /* ✅ prevent it from going off screen */
+            overflow-y: auto;   /* ✅ scroll inside modal if content too tall */
         }
 
         .modal img {
@@ -941,230 +941,161 @@ def edit_json():
         }
         
         /* Search box styling */
-        .search-container {
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+    .search-container {
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
 
-        .search-box {
-            width: 250px;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #fff;
-            color: #333;
-        }
+    .search-box {
+        width: 300px;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #fff;
+        color: #333;
+    }
 
-        .search-box:focus {
-            outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-        }
+    .search-box:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
 
-        .clear-search-btn {
-            padding: 10px 15px;
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    .clear-search-btn {
+        padding: 10px;
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-        .clear-search-btn:hover {
-            background-color: #c82333;
-        }
-        
-        .toast-message {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: rgba(40, 167, 69, 0.5);
-            color: white;
-            padding: 15px;
-            text-align: center;
-            font-size: 16px;
-            font-weight: bold;
-            z-index: 3000;
-            opacity: 0;
-            display: none;
-            transition: opacity 0.5s ease;
-        }
+    .clear-search-btn:hover {
+        background-color: #c82333;
+    }
+    
+    .toast-message {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;                     /* full screen width */
+        background-color: rgba(40, 167, 69, 0.5); /* ✅ more transparent */
+        color: white;
+        padding: 15px;
+        text-align: center;
+        font-size: 16px;
+        font-weight: bold;
+        z-index: 3000;
+        opacity: 0;
+        display: none;
+        transition: opacity 0.5s ease;
+    }
 
-        .search-options {
-            margin-left: 10px;
-        }
-
-        .search-options label {
-            color: #fff;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-        }
-
-        .search-options input[type="checkbox"] {
-            margin-right: 5px;
-        }
-
-        .advanced-search-container {
-            margin-bottom: 20px;
-            padding: 15px;
-            background-color: #5a6268;
-            border-radius: 4px;
-            width: 100%;
-        }
-
-        .advanced-search-container h3 {
-            color: #ffc107;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-
-        .advanced-search-fields {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-            align-items: end;
-        }
-
-        .search-field {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .search-field label {
-            color: #fff;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-
-        .search-select {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #fff;
-            color: #333;
-        }
-
-        .search-btn {
-            padding: 8px 15px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .search-btn.clear {
-            background-color: #dc3545;
-        }
-
-        .search-btn:hover {
-            opacity: 0.9;
-        }
-
-        .filter-indicator {
-            margin-top: 10px;
-            padding: 8px;
-            background-color: #17a2b8;
-            border-radius: 4px;
-            color: white;
-            font-size: 14px;
-            width: 100%;
-        }
-
-        .filter-tag {
-            display: inline-block;
-            background-color: #6c757d;
-            padding: 3px 8px;
-            border-radius: 12px;
-            margin: 0 5px;
-            font-size: 12px;
-        }
-
-        .filter-tag .close {
-            margin-left: 5px;
-            cursor: pointer;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #ffc107;
-            font-size: 18px;
-        }
-
-        /* File upload section styling */
-        .file-upload-section {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        /* Editable cells */
-        .editable {
-            cursor: text;
-            min-height: 20px;
-        }
-
-        .editable:focus {
-            outline: 2px solid #007bff;
-            background-color: #f8f9fa;
-            color: #333;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 992px) {
-            .container {
-                width: 95%;
-                padding: 15px;
-            }
-            
-            .search-container {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .search-box {
-                width: 100%;
-            }
-            
-            .advanced-search-fields {
-                grid-template-columns: 1fr;
-            }
-            
-            .file-upload-section {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .row {
-                flex-wrap: wrap;
-            }
-            
-            .column {
-                flex: 1 0 33.333%;
-                min-width: 120px;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .column {
-                flex: 1 0 50%;
-            }
-        }
     </style>
+    
+    <style>
+.search-options {
+    margin-left: 10px;
+}
+
+.search-options label {
+    color: #fff;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+
+.search-options input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+.advanced-search-container {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #5a6268;
+    border-radius: 4px;
+}
+
+.advanced-search-container h3 {
+    color: #ffc107;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.advanced-search-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    align-items: end;
+}
+
+.search-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.search-field label {
+    color: #fff;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.search-select {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #333;
+}
+
+.search-btn {
+    padding: 8px 15px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.search-btn.clear {
+    background-color: #dc3545;
+}
+
+.search-btn:hover {
+    opacity: 0.9;
+}
+
+.filter-indicator {
+    margin-top: 10px;
+    padding: 8px;
+    background-color: #17a2b8;
+    border-radius: 4px;
+    color: white;
+    font-size: 14px;
+}
+
+.filter-tag {
+    display: inline-block;
+    background-color: #6c757d;
+    padding: 3px 8px;
+    border-radius: 12px;
+    margin: 0 5px;
+    font-size: 12px;
+}
+
+.filter-tag .close {
+    margin-left: 5px;
+    cursor: pointer;
+}
+</style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 
@@ -1213,22 +1144,18 @@ def edit_json():
         
         <div id="filterIndicator" class="filter-indicator" style="display: none;"></div>
 
-        <div class="file-upload-section">
-            <input type="file" id="jsonFileInput" class="file-input" accept=".json" />
-            <label for="uploadFileInput">
-                <i class="fas fa-file-upload"></i> Choose File
-            </label>
-            <input type="file" id="uploadFileInput" accept=".json" />
-            <button id="uploadFileBtn">
-                <i class="fas fa-upload"></i> Upload File
-            </button>
-        </div>
+        <input type="file" id="jsonFileInput" class="file-input" accept=".json" />
 
-        <div id="jsonTableContainer">
-            <div class="loading">
-                <i class="fas fa-spinner fa-spin"></i> Loading coins data...
-            </div>
-        </div>
+        <label for="uploadFileInput">
+            <i class="fas fa-file-upload"></i> Choose File
+        </label>
+        <input type="file" id="uploadFileInput" accept=".json" />
+
+        <button id="uploadFileBtn">
+            <i class="fas fa-upload"></i> Upload File
+        </button>
+
+        <div id="jsonTableContainer">Container is here</div>
 
         <button class="add-row-btn" id="addRowBtn">Add New Row</button>
         <button class="download-btn" id="downloadBtn">Download Updated JSON</button>
@@ -1255,63 +1182,93 @@ def edit_json():
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="editDonorName">Donor Name:</label>
-                    <input type="text" id="editDonorName" name="donor_name">
-                </div>
-                <div class="form-group">
-                    <label for="editNote">Note:</label>
-                    <textarea id="editNote" name="note"></textarea>
+                    <label for="editYear">Year:</label>
+                    <input type="text" id="editYear" name="year">
                 </div>
                 <div class="form-group">
                     <label for="editSize">Size:</label>
                     <input type="text" id="editSize" name="size">
                 </div>
                 <div class="form-group">
-                    <label for="editYear">Year:</label>
-                    <input type="text" id="editYear" name="year">
+                    <label for="editDenomination">Denomination:</label>
+                    <input type="text" id="editDenomination" name="denomination">
                 </div>
-                <div class="form-group" style="grid-column: span 2;">
-                    <label for="editImage">Image:</label>
-                    <div class="drop-area" id="imageDropArea">
-                        <p>Drag & drop an image here or click to select</p>
-                        <input type="file" id="editImageInput" accept="image/*" style="display: none;">
-                    </div>
+                <div class="form-group">
+                    <label for="editComposition">Composition:</label>
+                    <input type="text" id="editComposition" name="composition">
                 </div>
-                <button type="button" class="save-btn" id="saveChangesBtn">Save Changes</button>
+                <div class="form-group">
+                    <label for="editDescription">Description:</label>
+                    <textarea id="editDescription" name="description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editImageUrl">Image URL:</label>
+                    <input type="text" id="editImageUrl" name="image_url">
+                </div>
+                <button type="button" id="saveChangesBtn" class="save-btn">Save Changes</button>
             </div>
         </div>
     </div>
 
     <script>
-        let jsonData = [];
+        // Sample data to populate the table
+        const sampleData = [
+            {
+                country: "USA",
+                currency_type: "coin",
+                year: "2020",
+                size: "25mm",
+                denomination: "1 Dollar",
+                composition: "Silver",
+                description: "American Silver Eagle",
+                image_url: "https://via.placeholder.com/50?text=USA"
+            },
+            {
+                country: "Canada",
+                currency_type: "coin",
+                year: "2019",
+                size: "28mm",
+                denomination: "1 Dollar",
+                composition: "Silver",
+                description: "Canadian Maple Leaf",
+                image_url: "https://via.placeholder.com/50?text=Canada"
+            },
+            {
+                country: "UK",
+                currency_type: "paper-bill",
+                year: "2018",
+                size: "150x75mm",
+                denomination: "10 Pounds",
+                composition: "Polymer",
+                description: "Bank of England Note",
+                image_url: "https://via.placeholder.com/50?text=UK"
+            },
+            {
+                country: "Australia",
+                currency_type: "coin",
+                year: "2021",
+                size: "25mm",
+                denomination: "1 Dollar",
+                composition: "Silver",
+                description: "Australian Kangaroo",
+                image_url: "https://via.placeholder.com/50?text=Australia"
+            },
+            {
+                country: "Japan",
+                currency_type: "coin",
+                year: "2017",
+                size: "23mm",
+                denomination: "100 Yen",
+                composition: "Copper-Nickel",
+                description: "Japanese Cherry Blossom",
+                image_url: "https://via.placeholder.com/50?text=Japan"
+            }
+        ];
+
+        let jsonData = [...sampleData];
         let currentEditIndex = -1;
         let isFiltered = false;
         let activeFilters = {};
-
-        // Function to load the default JSON file
-        function loadDefaultJSON() {
-            fetch('./images/coins.json')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Failed to load coins.json');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    jsonData = data;
-                    populateTable(jsonData);
-                    showToast('Data loaded successfully!');
-                })
-                .catch(error => {
-                    console.error('Error loading coins.json:', error);
-                    document.getElementById('jsonTableContainer').innerHTML = `
-                        <div style="text-align: center; padding: 20px; color: #ff6b6b;">
-                            <i class="fas fa-exclamation-triangle"></i> Error loading coins.json: ${error.message}
-                            <p>Please upload a JSON file manually</p>
-                        </div>
-                    `;
-                });
-        }
 
         // Function to populate the table with JSON data
         function populateTable(data) {
@@ -1327,36 +1284,30 @@ def edit_json():
                 <div class="row header">
                     <div class="column sortable" data-sort="country">Country</div>
                     <div class="column sortable" data-sort="currency_type">Type</div>
-                    <div class="column sortable" data-sort="donor_name">Donor</div>
-                    <div class="column">Image</div>
-                    <div class="column sortable" data-sort="note">Note</div>
-                    <div class="column sortable" data-sort="size">Size</div>
                     <div class="column sortable" data-sort="year">Year</div>
+                    <div class="column sortable" data-sort="size">Size</div>
+                    <div class="column sortable" data-sort="denomination">Denomination</div>
+                    <div class="column sortable" data-sort="composition">Composition</div>
+                    <div class="column">Image</div>
                     <div class="column">Actions</div>
                 </div>
             `;
 
             // Add rows for each data item
             data.forEach((item, index) => {
-                // Use relative path for images if they're in the images folder
-                const imagePath = item.image && item.image !== 'placeholder.jpg' ? 
-                    `images/${item.country}/${item.image}` : 
-                    'https://via.placeholder.com/50?text=No+Image';
-                
                 tableHTML += `
                     <div class="row draggable" draggable="true" data-index="${index}">
-                        <div class="column editable" contenteditable="true" onblur="updateField(${index}, 'country', this.innerText)">${item.country || ''}</div>
-                        <div class="column editable" contenteditable="true" onblur="updateField(${index}, 'currency_type', this.innerText)">${item.currency_type || ''}</div>
-                        <div class="column editable" contenteditable="true" onblur="updateField(${index}, 'donor_name', this.innerText)">${item.donor_name || ''}</div>
+                        <div class="column">${item.country || ''}</div>
+                        <div class="column">${item.currency_type || ''}</div>
+                        <div class="column">${item.year || ''}</div>
+                        <div class="column">${item.size || ''}</div>
+                        <div class="column">${item.denomination || ''}</div>
+                        <div class="column">${item.composition || ''}</div>
                         <div class="column">
-                            <img src="${imagePath}" 
+                            <img src="${item.image_url || 'https://via.placeholder.com/50?text=No+Image'}" 
                                  alt="Thumbnail" class="thumbnail" 
-                                 onerror="this.src='https://via.placeholder.com/50?text=Error'"
-                                 onclick="openModal('${imagePath}', ${index})">
+                                 onclick="openModal('${item.image_url || ''}', ${index})">
                         </div>
-                        <div class="column editable" contenteditable="true" onblur="updateField(${index}, 'note', this.innerText)">${item.note || ''}</div>
-                        <div class="column editable" contenteditable="true" onblur="updateField(${index}, 'size', this.innerText)">${item.size || ''}</div>
-                        <div class="column editable" contenteditable="true" onblur="updateField(${index}, 'year', this.innerText)">${item.year || ''}</div>
                         <div class="column">
                             <span class="delete-btn" onclick="deleteRow(${index})">
                                 <i class="fas fa-trash"></i> Delete
@@ -1378,14 +1329,6 @@ def edit_json():
             
             // Add drag and drop functionality
             setupDragAndDrop();
-        }
-
-        // Function to update field when editing inline
-        function updateField(index, field, value) {
-            if (index >= 0 && index < jsonData.length) {
-                jsonData[index][field] = value;
-                showToast('Field updated!');
-            }
         }
 
         // Function to sort the table
@@ -1461,7 +1404,6 @@ def edit_json():
                         
                         // Repopulate the table
                         populateTable(jsonData);
-                        showToast('Row moved successfully!');
                     }
                 });
             });
@@ -1482,10 +1424,12 @@ def edit_json():
             const item = jsonData[index];
             document.getElementById('editCountry').value = item.country || '';
             document.getElementById('editCurrencyType').value = item.currency_type || 'coin';
-            document.getElementById('editDonorName').value = item.donor_name || '';
-            document.getElementById('editNote').value = item.note || '';
-            document.getElementById('editSize').value = item.size || '';
             document.getElementById('editYear').value = item.year || '';
+            document.getElementById('editSize').value = item.size || '';
+            document.getElementById('editDenomination').value = item.denomination || '';
+            document.getElementById('editComposition').value = item.composition || '';
+            document.getElementById('editDescription').value = item.description || '';
+            document.getElementById('editImageUrl').value = item.image_url || '';
             
             // Show modal
             modal.style.display = 'flex';
@@ -1505,11 +1449,12 @@ def edit_json():
             jsonData[currentEditIndex] = {
                 country: document.getElementById('editCountry').value,
                 currency_type: document.getElementById('editCurrencyType').value,
-                donor_name: document.getElementById('editDonorName').value,
-                note: document.getElementById('editNote').value,
-                size: document.getElementById('editSize').value,
                 year: document.getElementById('editYear').value,
-                image: jsonData[currentEditIndex].image // Keep the existing image
+                size: document.getElementById('editSize').value,
+                denomination: document.getElementById('editDenomination').value,
+                composition: document.getElementById('editComposition').value,
+                description: document.getElementById('editDescription').value,
+                image_url: document.getElementById('editImageUrl').value
             };
             
             // Repopulate table
@@ -1547,11 +1492,12 @@ def edit_json():
             const newItem = {
                 country: "New Country",
                 currency_type: "coin",
-                donor_name: "New Donor",
-                note: "New note",
-                size: "0mm",
                 year: "2023",
-                image: "placeholder.jpg"
+                size: "0mm",
+                denomination: "0",
+                composition: "",
+                description: "New item",
+                image_url: "https://via.placeholder.com/50?text=New"
             };
             
             jsonData.push(newItem);
@@ -1572,7 +1518,7 @@ def edit_json():
             const dataStr = JSON.stringify(jsonData, null, 2);
             const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
             
-            const exportFileDefaultName = 'coins.json';
+            const exportFileDefaultName = 'data.json';
             
             const linkElement = document.createElement('a');
             linkElement.setAttribute('href', dataUri);
@@ -1775,8 +1721,8 @@ def edit_json():
 
         // Initialize the page
         document.addEventListener('DOMContentLoaded', function() {
-            // Load the default JSON file
-            loadDefaultJSON();
+            // Populate the table with sample data
+            populateTable(jsonData);
             
             // Populate country dropdown
             const countries = ["USA", "Canada", "UK", "Australia", "Japan", "Germany", "France", "Italy", "China", "India"];
@@ -1797,7 +1743,6 @@ def edit_json():
                 document.getElementById('uploadFileInput').click();
             });
             document.getElementById('uploadFileInput').addEventListener('change', handleFileUpload);
-            document.getElementById('jsonFileInput').addEventListener('change', handleFileUpload);
             
             // Search functionality
             document.getElementById('countrySearch').addEventListener('input', applySearch);
@@ -1816,11 +1761,6 @@ def edit_json():
                 if (event.target === modal) {
                     closeModal();
                 }
-            });
-            
-            // Save data before page unload
-            window.addEventListener('beforeunload', function() {
-                localStorage.setItem('currencyData', JSON.stringify(jsonData));
             });
         });
     </script>

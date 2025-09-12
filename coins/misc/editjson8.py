@@ -941,230 +941,168 @@ def edit_json():
         }
         
         /* Search box styling */
-        .search-container {
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+    .search-container {
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
 
-        .search-box {
-            width: 250px;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #fff;
-            color: #333;
-        }
+    .search-box {
+        width: 300px;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #fff;
+        color: #333;
+    }
 
-        .search-box:focus {
-            outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-        }
+    .search-box:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
 
-        .clear-search-btn {
-            padding: 10px 15px;
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    .clear-search-btn {
+        padding: 10px;
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-        .clear-search-btn:hover {
-            background-color: #c82333;
-        }
-        
-        .toast-message {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: rgba(40, 167, 69, 0.5);
-            color: white;
-            padding: 15px;
-            text-align: center;
-            font-size: 16px;
-            font-weight: bold;
-            z-index: 3000;
-            opacity: 0;
-            display: none;
-            transition: opacity 0.5s ease;
-        }
+    .clear-search-btn:hover {
+        background-color: #c82333;
+    }
+    
+    .toast-message {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: rgba(40, 167, 69, 0.5);
+        color: white;
+        padding: 15px;
+        text-align: center;
+        font-size: 16px;
+        font-weight: bold;
+        z-index: 3000;
+        opacity: 0;
+        display: none;
+        transition: opacity 0.5s ease;
+    }
 
-        .search-options {
-            margin-left: 10px;
-        }
-
-        .search-options label {
-            color: #fff;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-        }
-
-        .search-options input[type="checkbox"] {
-            margin-right: 5px;
-        }
-
-        .advanced-search-container {
-            margin-bottom: 20px;
-            padding: 15px;
-            background-color: #5a6268;
-            border-radius: 4px;
-            width: 100%;
-        }
-
-        .advanced-search-container h3 {
-            color: #ffc107;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-
-        .advanced-search-fields {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-            align-items: end;
-        }
-
-        .search-field {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .search-field label {
-            color: #fff;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-
-        .search-select {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #fff;
-            color: #333;
-        }
-
-        .search-btn {
-            padding: 8px 15px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .search-btn.clear {
-            background-color: #dc3545;
-        }
-
-        .search-btn:hover {
-            opacity: 0.9;
-        }
-
-        .filter-indicator {
-            margin-top: 10px;
-            padding: 8px;
-            background-color: #17a2b8;
-            border-radius: 4px;
-            color: white;
-            font-size: 14px;
-            width: 100%;
-        }
-
-        .filter-tag {
-            display: inline-block;
-            background-color: #6c757d;
-            padding: 3px 8px;
-            border-radius: 12px;
-            margin: 0 5px;
-            font-size: 12px;
-        }
-
-        .filter-tag .close {
-            margin-left: 5px;
-            cursor: pointer;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #ffc107;
-            font-size: 18px;
-        }
-
-        /* File upload section styling */
-        .file-upload-section {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        /* Editable cells */
-        .editable {
-            cursor: text;
-            min-height: 20px;
-        }
-
-        .editable:focus {
-            outline: 2px solid #007bff;
-            background-color: #f8f9fa;
-            color: #333;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 992px) {
-            .container {
-                width: 95%;
-                padding: 15px;
-            }
-            
-            .search-container {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .search-box {
-                width: 100%;
-            }
-            
-            .advanced-search-fields {
-                grid-template-columns: 1fr;
-            }
-            
-            .file-upload-section {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .row {
-                flex-wrap: wrap;
-            }
-            
-            .column {
-                flex: 1 0 33.333%;
-                min-width: 120px;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .column {
-                flex: 1 0 50%;
-            }
-        }
     </style>
+    
+    <style>
+.search-options {
+    margin-left: 10px;
+}
+
+.search-options label {
+    color: #fff;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+
+.search-options input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+.advanced-search-container {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #5a6268;
+    border-radius: 4px;
+}
+
+.advanced-search-container h3 {
+    color: #ffc107;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.advanced-search-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    align-items: end;
+}
+
+.search-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.search-field label {
+    color: #fff;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.search-select {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #333;
+}
+
+.search-btn {
+    padding: 8px 15px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.search-btn.clear {
+    background-color: #dc3545;
+}
+
+.search-btn:hover {
+    opacity: 0.9;
+}
+
+.filter-indicator {
+    margin-top: 10px;
+    padding: 8px;
+    background-color: #17a2b8;
+    border-radius: 4px;
+    color: white;
+    font-size: 14px;
+}
+
+.filter-tag {
+    display: inline-block;
+    background-color: #6c757d;
+    padding: 3px 8px;
+    border-radius: 12px;
+    margin: 0 5px;
+    font-size: 12px;
+}
+
+.filter-tag .close {
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #ffc107;
+    font-size: 18px;
+}
+</style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 
@@ -1213,16 +1151,16 @@ def edit_json():
         
         <div id="filterIndicator" class="filter-indicator" style="display: none;"></div>
 
-        <div class="file-upload-section">
-            <input type="file" id="jsonFileInput" class="file-input" accept=".json" />
-            <label for="uploadFileInput">
-                <i class="fas fa-file-upload"></i> Choose File
-            </label>
-            <input type="file" id="uploadFileInput" accept=".json" />
-            <button id="uploadFileBtn">
-                <i class="fas fa-upload"></i> Upload File
-            </button>
-        </div>
+        <input type="file" id="jsonFileInput" class="file-input" accept=".json" />
+
+        <label for="uploadFileInput">
+            <i class="fas fa-file-upload"></i> Choose File
+        </label>
+        <input type="file" id="uploadFileInput" accept=".json" />
+
+        <button id="uploadFileBtn">
+            <i class="fas fa-upload"></i> Upload File
+        </button>
 
         <div id="jsonTableContainer">
             <div class="loading">
@@ -1345,18 +1283,18 @@ def edit_json():
                 
                 tableHTML += `
                     <div class="row draggable" draggable="true" data-index="${index}">
-                        <div class="column editable" contenteditable="true" onblur="updateField(${index}, 'country', this.innerText)">${item.country || ''}</div>
-                        <div class="column editable" contenteditable="true" onblur="updateField(${index}, 'currency_type', this.innerText)">${item.currency_type || ''}</div>
-                        <div class="column editable" contenteditable="true" onblur="updateField(${index}, 'donor_name', this.innerText)">${item.donor_name || ''}</div>
+                        <div class="column">${item.country || ''}</div>
+                        <div class="column">${item.currency_type || ''}</div>
+                        <div class="column">${item.donor_name || ''}</div>
                         <div class="column">
                             <img src="${imagePath}" 
                                  alt="Thumbnail" class="thumbnail" 
                                  onerror="this.src='https://via.placeholder.com/50?text=Error'"
                                  onclick="openModal('${imagePath}', ${index})">
                         </div>
-                        <div class="column editable" contenteditable="true" onblur="updateField(${index}, 'note', this.innerText)">${item.note || ''}</div>
-                        <div class="column editable" contenteditable="true" onblur="updateField(${index}, 'size', this.innerText)">${item.size || ''}</div>
-                        <div class="column editable" contenteditable="true" onblur="updateField(${index}, 'year', this.innerText)">${item.year || ''}</div>
+                        <div class="column">${item.note || ''}</div>
+                        <div class="column">${item.size || ''}</div>
+                        <div class="column">${item.year || ''}</div>
                         <div class="column">
                             <span class="delete-btn" onclick="deleteRow(${index})">
                                 <i class="fas fa-trash"></i> Delete
@@ -1378,14 +1316,6 @@ def edit_json():
             
             // Add drag and drop functionality
             setupDragAndDrop();
-        }
-
-        // Function to update field when editing inline
-        function updateField(index, field, value) {
-            if (index >= 0 && index < jsonData.length) {
-                jsonData[index][field] = value;
-                showToast('Field updated!');
-            }
         }
 
         // Function to sort the table
@@ -1461,7 +1391,6 @@ def edit_json():
                         
                         // Repopulate the table
                         populateTable(jsonData);
-                        showToast('Row moved successfully!');
                     }
                 });
             });
