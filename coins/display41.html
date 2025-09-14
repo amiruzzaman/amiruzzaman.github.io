@@ -2159,18 +2159,14 @@
         function toTitleCase(str) {
             return str.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
         }
+
         // Fetch and process data
         fetch('images/coins.json')
             .then(response => response.json())
             .then(data => {
-                // First filter out entries with invalid images
-                const validData = data.filter(coin =>
-                    coin.image && coin.image.trim() !== "" && coin.image.toLowerCase() !== "none"
-                );
-
-                originalData = combineData(validData);
+                originalData = combineData(data);
                 //console.log(originalData);
-                renderSummary(originalData, validData.length);
+                renderSummary(originalData, data.length);
             })
             .catch(error => console.error('Error fetching JSON:', error));
 
@@ -2195,7 +2191,6 @@
             });
             return result;
         }
-
 
         // Render the summary
         function renderSummary(data, n) {
@@ -2715,30 +2710,19 @@
             }
         }
 
+
         // Renders the list of available countries in the UI
         function renderCountries(countries) {
             const countriesListUl = document.getElementById("countries-ul");
             countriesListUl.innerHTML = ""; // Clear existing list
 
-            // Filter out countries that don't have any valid images
-            const countriesWithImages = countries.filter(country => {
-                const countryCoins = cache.coinsData.filter(coin =>
-                    coin.country.toLowerCase() === country.toLowerCase()
-                );
-
-                // Check if any coin for this country has a valid image
-                return countryCoins.some(coin =>
-                    coin.image && coin.image.trim() !== "" && coin.image.toLowerCase() !== "none"
-                );
-            });
-
-            // Update the total count of unique countries with images
-            document.getElementById('total-countries-count').textContent = `(${countriesWithImages.length})`;
+            // Update the total count of unique countries
+            document.getElementById('total-countries-count').textContent = `(${countries.length})`;
 
             const queryParams = new URLSearchParams(window.location.search);
             const currentCountryParam = queryParams.get("country") ? queryParams.get("country").toLowerCase() : null;
 
-            countriesWithImages.forEach(country => {
+            countries.forEach(country => {
                 const li = document.createElement("li");
                 const link = document.createElement("a");
                 link.textContent = country;
@@ -2748,10 +2732,7 @@
                 if (currentCountryParam && country.toLowerCase() === currentCountryParam) {
                     link.classList.add("active");
                     // get the count of items for the selected country
-                    const countryItems = cache.coinsData.filter(coin =>
-                        coin.country.toLowerCase() === country.toLowerCase() &&
-                        coin.image && coin.image.trim() !== "" && coin.image.toLowerCase() !== "none"
-                    ).length;
+                    const countryItems = cache.coinsData.filter(coin => coin.country.toLowerCase() === country.toLowerCase()).length;
                     document.getElementById('selected-country').textContent = `: ${country}`;
                     document.getElementById('selected-country-title').textContent = `${country} (${countryItems})`;
                     updateTitle(`${country}`);
@@ -2770,10 +2751,7 @@
                     // Add active class to the clicked link
                     link.classList.add('active');
                     // get the count of items for the selected country
-                    const countryItems = cache.coinsData.filter(coin =>
-                        coin.country.toLowerCase() === country.toLowerCase() &&
-                        coin.image && coin.image.trim() !== "" && coin.image.toLowerCase() !== "none"
-                    ).length;
+                    const countryItems = cache.coinsData.filter(coin => coin.country.toLowerCase() === country.toLowerCase()).length;
                     document.getElementById('selected-country').textContent = `: ${country}`;
                     document.getElementById('selected-country-title').textContent = `${country} (${countryItems})`;
                     updateTitle(`${country}`);
@@ -2790,7 +2768,6 @@
                 countriesListUl.appendChild(li);
             });
         }
-
 
         // Fetches country-specific information from cached data
         function fetchCountryInfo(countryName) {

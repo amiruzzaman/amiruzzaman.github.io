@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bora Bora Island - GeoJSON Viewer</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(90deg, #1a2a6c, #2a4ba0);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        
+        @media (min-width: 900px) {
+            .content {
+                flex-direction: row;
+            }
+        }
+        
+        .map-container {
+            flex: 1;
+            height: 450px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+        
+        @media (min-width: 900px) {
+            .map-container {
+                margin-right: 20px;
+                margin-bottom: 0;
+            }
+        }
+        
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .info-panel {
+            flex: 1;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .info-title {
+            color: #1a2a6c;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #2a4ba0;
+        }
+        
+        .info-details {
+            margin-bottom: 20px;
+        }
+        
+        .info-item {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            min-width: 120px;
+            color: #1a2a6c;
+        }
+        
+        .info-value {
+            flex: 1;
+        }
+        
+        .geojson-code {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            overflow: auto;
+            max-height: 300px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            background: #2a4ba0;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:hover {
+            background: #1a2a6c;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: white;
+            margin-top: 30px;
+        }
+        
+        .legend {
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            line-height: 1.5;
+        }
+        
+        .legend i {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+            opacity: 0.7;
+            vertical-align: middle;
+        }
+        
+        /* Fix for Leaflet map tiles */
+        .leaflet-container {
+            background: #d4d4d4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bora Bora Island</h1>
+            <p class="subtitle">GeoJSON Data Visualization</p>
+        </header>
+        
+        <div class="content">
+            <div class="map-container">
+                <div id="map"></div>
+            </div>
+            
+            <div class="info-panel">
+                <h2 class="info-title">Island Information</h2>
+                <div class="info-details">
+                    <div class="info-item">
+                        <span class="info-label">Name:</span>
+                        <span class="info-value">Bora Bora</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Country:</span>
+                        <span class="info-value">French Polynesia</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Continent:</span>
+                        <span class="info-value">Oceania</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Area:</span>
+                        <span class="info-value">30.55 km²</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Population:</span>
+                        <span class="info-value">10,400</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Description:</span>
+                        <span class="info-value">Bora Bora is a volcanic island in the Society Islands archipelago of French Polynesia. It is famous for its stunning turquoise lagoon and luxury resorts.</span>
+                    </div>
+                </div>
+                
+                <h2 class="info-title">GeoJSON Data</h2>
+                <pre class="geojson-code" id="geojson-output"></pre>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn" id="zoom-in">Zoom In</button>
+            <button class="btn" id="zoom-out">Zoom Out</button>
+            <button class="btn" id="reset-view">Reset View</button>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Bora Bora Island GeoJSON Viewer | Created with Leaflet.js</p>
+    </footer>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+    function initMap() {
+        const map = L.map('map').setView([-16.5, -151.75], 12);
+
+        // Base layers
+        const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        const satelliteLayer = L.tileLayer(
+            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri'
+        });
+
+        L.control.layers({
+            "OpenStreetMap": osmLayer,
+            "Satellite": satelliteLayer
+        }).addTo(map);
+
+        // Custom style
+        function styleFeature(feature) {
+            return {
+                fillColor: '#1a2a6c',
+                weight: 2,
+                opacity: 1,
+                color: '#2a4ba0',
+                dashArray: '3',
+                fillOpacity: 0.5
+            };
+        }
+
+        // Load external GeoJSON
+        fetch('bora_bora.geojson')
+            .then(response => response.json())
+            .then(data => {
+                const geoJsonLayer = L.geoJSON(data, {
+                    style: styleFeature,
+                    onEachFeature: function (feature, layer) {
+                        if (feature.properties) {
+                            let popupContent = `<h3>${feature.properties.name || "Unknown"}</h3>`;
+                            if (feature.properties.country) popupContent += `<p><strong>Country:</strong> ${feature.properties.country}</p>`;
+                            if (feature.properties.area_sq_km) popupContent += `<p><strong>Area:</strong> ${feature.properties.area_sq_km} km²</p>`;
+                            if (feature.properties.population) popupContent += `<p><strong>Population:</strong> ${feature.properties.population.toLocaleString()}</p>`;
+                            if (feature.properties.description) popupContent += `<p>${feature.properties.description}</p>`;
+                            layer.bindPopup(popupContent);
+                            layer.bindTooltip(feature.properties.name || "Feature");
+                        }
+                    }
+                }).addTo(map);
+
+                map.fitBounds(geoJsonLayer.getBounds());
+                document.getElementById('geojson-output').textContent =
+                    JSON.stringify(data, null, 2);
+
+                // Button controls
+                document.getElementById('zoom-in').addEventListener('click', () => map.zoomIn());
+                document.getElementById('zoom-out').addEventListener('click', () => map.zoomOut());
+                document.getElementById('reset-view').addEventListener('click', () => map.fitBounds(geoJsonLayer.getBounds()));
+            })
+            .catch(err => console.error("Failed to load GeoJSON:", err));
+
+        // Scale and legend
+        L.control.scale({imperial: false}).addTo(map);
+        const legend = L.control({position: 'bottomright'});
+        legend.onAdd = function(map) {
+            const div = L.DomUtil.create('div', 'legend');
+            div.innerHTML = `
+                <h4>Bora Bora Island</h4>
+                <div><i style="background:#1a2a6c; width:18px; height:18px; display:inline-block; opacity:0.5"></i> Land Area</div>
+                <div><i style="background:#2a4ba0; width:2px; height:18px; display:inline-block;"></i> Coastline</div>
+            `;
+            return div;
+        };
+        legend.addTo(map);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => setTimeout(initMap, 100));
+</script>
+
+
+</body>
+</html>
