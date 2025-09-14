@@ -1,0 +1,143 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage[table]{xcolor}
+\usepackage{array}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+
+% Define light gray for alternating rows
+\definecolor{lightgray}{gray}{0.9}
+
+% Alternate row colors
+\rowcolors{2}{lightgray}{white}
+
+% Counter for numbering countries
+\newcounter{country}
+
+\begin{document}
+
+\section*{Countries List with Serial Numbers and Box Columns}
+
+\begin{longtable}{|>{\centering\arraybackslash}p{0.05\textwidth}|%
+>{\raggedright\arraybackslash}p{0.22\textwidth}|%
+p{0.12\textwidth}|%
+>{\centering\arraybackslash}p{0.05\textwidth}|%
+>{\raggedright\arraybackslash}p{0.22\textwidth}|%
+p{0.12\textwidth}|}
+\hline
+\textbf{SL} & \textbf{Country} & \textbf{Box \#} & \textbf{SL} & \textbf{Country} & \textbf{Box \#} \\
+\hline
+\endfirsthead
+
+\hline
+\textbf{SL} & \textbf{Country} & \textbf{Box \#} & \textbf{SL} & \textbf{Country} & \textbf{Box \#} \\
+\hline
+\endhead
+
+% -------------------- COUNTRY LIST START --------------------
+\stepcounter{country}\arabic{country} & Afghanistan & & \stepcounter{country}\arabic{country} & Albania & \\
+\stepcounter{country}\arabic{country} & Algeria & & \stepcounter{country}\arabic{country} & Andorra & \\
+\stepcounter{country}\arabic{country} & Angola & & \stepcounter{country}\arabic{country} & Antigua and Barbuda & \\
+\stepcounter{country}\arabic{country} & Argentina & & \stepcounter{country}\arabic{country} & Armenia & \\
+\stepcounter{country}\arabic{country} & Australia & & \stepcounter{country}\arabic{country} & Austria & \\
+\stepcounter{country}\arabic{country} & Azerbaijan & & \stepcounter{country}\arabic{country} & Bahamas & \\
+\stepcounter{country}\arabic{country} & Bahrain & & \stepcounter{country}\arabic{country} & Bangladesh & \\
+\stepcounter{country}\arabic{country} & Barbados & & \stepcounter{country}\arabic{country} & Belarus & \\
+\stepcounter{country}\arabic{country} & Belgium & & \stepcounter{country}\arabic{country} & Belize & \\
+\stepcounter{country}\arabic{country} & Benin & & \stepcounter{country}\arabic{country} & Bhutan & \\
+\stepcounter{country}\arabic{country} & Bolivia & & \stepcounter{country}\arabic{country} & Bosnia and Herzegovina & \\
+\stepcounter{country}\arabic{country} & Botswana & & \stepcounter{country}\arabic{country} & Brazil & \\
+\stepcounter{country}\arabic{country} & Brunei & & \stepcounter{country}\arabic{country} & Bulgaria & \\
+\stepcounter{country}\arabic{country} & Burkina Faso & & \stepcounter{country}\arabic{country} & Burundi & \\
+\stepcounter{country}\arabic{country} & Cabo Verde & & \stepcounter{country}\arabic{country} & Cambodia & \\
+\stepcounter{country}\arabic{country} & Cameroon & & \stepcounter{country}\arabic{country} & Canada & \\
+\stepcounter{country}\arabic{country} & Central African Republic & & \stepcounter{country}\arabic{country} & Chad & \\
+\stepcounter{country}\arabic{country} & Chile & & \stepcounter{country}\arabic{country} & China & \\
+\stepcounter{country}\arabic{country} & Colombia & & \stepcounter{country}\arabic{country} & Comoros & \\
+\stepcounter{country}\arabic{country} & Congo (Congo-Brazzaville) & & \stepcounter{country}\arabic{country} & Congo (Democratic Republic) & \\
+\stepcounter{country}\arabic{country} & Costa Rica & & \stepcounter{country}\arabic{country} & Côte d'Ivoire & \\
+\stepcounter{country}\arabic{country} & Croatia & & \stepcounter{country}\arabic{country} & Cuba & \\
+\stepcounter{country}\arabic{country} & Cyprus & & \stepcounter{country}\arabic{country} & Czechia (Czech Republic) & \\
+\stepcounter{country}\arabic{country} & Denmark & & \stepcounter{country}\arabic{country} & Djibouti & \\
+\stepcounter{country}\arabic{country} & Dominica & & \stepcounter{country}\arabic{country} & Dominican Republic & \\
+\stepcounter{country}\arabic{country} & Ecuador & & \stepcounter{country}\arabic{country} & Egypt & \\
+\stepcounter{country}\arabic{country} & El Salvador & & \stepcounter{country}\arabic{country} & Equatorial Guinea & \\
+\stepcounter{country}\arabic{country} & Eritrea & & \stepcounter{country}\arabic{country} & Estonia & \\
+\stepcounter{country}\arabic{country} & Eswatini & & \stepcounter{country}\arabic{country} & Ethiopia & \\
+\stepcounter{country}\arabic{country} & Fiji & & \stepcounter{country}\arabic{country} & Finland & \\
+\stepcounter{country}\arabic{country} & France & & \stepcounter{country}\arabic{country} & Gabon & \\
+\stepcounter{country}\arabic{country} & Gambia & & \stepcounter{country}\arabic{country} & Georgia & \\
+\stepcounter{country}\arabic{country} & Germany & & \stepcounter{country}\arabic{country} & Ghana & \\
+\stepcounter{country}\arabic{country} & Greece & & \stepcounter{country}\arabic{country} & Grenada & \\
+\stepcounter{country}\arabic{country} & Guatemala & & \stepcounter{country}\arabic{country} & Guinea & \\
+\stepcounter{country}\arabic{country} & Guinea-Bissau & & \stepcounter{country}\arabic{country} & Guyana & \\
+\stepcounter{country}\arabic{country} & Haiti & & \stepcounter{country}\arabic{country} & Holy See & \\
+\stepcounter{country}\arabic{country} & Honduras & & \stepcounter{country}\arabic{country} & Hungary & \\
+\stepcounter{country}\arabic{country} & Iceland & & \stepcounter{country}\arabic{country} & India & \\
+\stepcounter{country}\arabic{country} & Indonesia & & \stepcounter{country}\arabic{country} & Iran & \\
+\stepcounter{country}\arabic{country} & Iraq & & \stepcounter{country}\arabic{country} & Ireland & \\
+\stepcounter{country}\arabic{country} & Israel & & \stepcounter{country}\arabic{country} & Italy & \\
+\stepcounter{country}\arabic{country} & Jamaica & & \stepcounter{country}\arabic{country} & Japan & \\
+\stepcounter{country}\arabic{country} & Jordan & & \stepcounter{country}\arabic{country} & Kazakhstan & \\
+\stepcounter{country}\arabic{country} & Kenya & & \stepcounter{country}\arabic{country} & Kiribati & \\
+\stepcounter{country}\arabic{country} & Korea (North) & & \stepcounter{country}\arabic{country} & Korea (South) & \\
+\stepcounter{country}\arabic{country} & Kuwait & & \stepcounter{country}\arabic{country} & Kyrgyzstan & \\
+\stepcounter{country}\arabic{country} & Laos & & \stepcounter{country}\arabic{country} & Latvia & \\
+\stepcounter{country}\arabic{country} & Lebanon & & \stepcounter{country}\arabic{country} & Lesotho & \\
+\stepcounter{country}\arabic{country} & Liberia & & \stepcounter{country}\arabic{country} & Libya & \\
+\stepcounter{country}\arabic{country} & Liechtenstein & & \stepcounter{country}\arabic{country} & Lithuania & \\
+\stepcounter{country}\arabic{country} & Luxembourg & & \stepcounter{country}\arabic{country} & Madagascar & \\
+\stepcounter{country}\arabic{country} & Malawi & & \stepcounter{country}\arabic{country} & Malaysia & \\
+\stepcounter{country}\arabic{country} & Maldives & & \stepcounter{country}\arabic{country} & Mali & \\
+\stepcounter{country}\arabic{country} & Malta & & \stepcounter{country}\arabic{country} & Marshall Islands & \\
+\stepcounter{country}\arabic{country} & Mauritania & & \stepcounter{country}\arabic{country} & Mauritius & \\
+\stepcounter{country}\arabic{country} & Mexico & & \stepcounter{country}\arabic{country} & Micronesia & \\
+\stepcounter{country}\arabic{country} & Moldova & & \stepcounter{country}\arabic{country} & Monaco & \\
+\stepcounter{country}\arabic{country} & Mongolia & & \stepcounter{country}\arabic{country} & Montenegro & \\
+\stepcounter{country}\arabic{country} & Morocco & & \stepcounter{country}\arabic{country} & Mozambique & \\
+\stepcounter{country}\arabic{country} & Myanmar & & \stepcounter{country}\arabic{country} & Namibia & \\
+\stepcounter{country}\arabic{country} & Nauru & & \stepcounter{country}\arabic{country} & Nepal & \\
+\stepcounter{country}\arabic{country} & Netherlands & & \stepcounter{country}\arabic{country} & New Zealand & \\
+\stepcounter{country}\arabic{country} & Nicaragua & & \stepcounter{country}\arabic{country} & Niger & \\
+\stepcounter{country}\arabic{country} & Nigeria & & \stepcounter{country}\arabic{country} & North Macedonia & \\
+\stepcounter{country}\arabic{country} & Norway & & \stepcounter{country}\arabic{country} & Oman & \\
+\stepcounter{country}\arabic{country} & Pakistan & & \stepcounter{country}\arabic{country} & Palau & \\
+\stepcounter{country}\arabic{country} & Palestine State & & \stepcounter{country}\arabic{country} & Panama & \\
+\stepcounter{country}\arabic{country} & Papua New Guinea & & \stepcounter{country}\arabic{country} & Paraguay & \\
+\stepcounter{country}\arabic{country} & Peru & & \stepcounter{country}\arabic{country} & Philippines & \\
+\stepcounter{country}\arabic{country} & Poland & & \stepcounter{country}\arabic{country} & Portugal & \\
+\stepcounter{country}\arabic{country} & Qatar & & \stepcounter{country}\arabic{country} & Romania & \\
+\stepcounter{country}\arabic{country} & Russia & & \stepcounter{country}\arabic{country} & Rwanda & \\
+\stepcounter{country}\arabic{country} & Saint Kitts and Nevis & & \stepcounter{country}\arabic{country} & Saint Lucia & \\
+\stepcounter{country}\arabic{country} & Saint Vincent and the Grenadines & & \stepcounter{country}\arabic{country} & Samoa & \\
+\stepcounter{country}\arabic{country} & San Marino & & \stepcounter{country}\arabic{country} & Sao Tome and Principe & \\
+\stepcounter{country}\arabic{country} & Saudi Arabia & & \stepcounter{country}\arabic{country} & Senegal & \\
+\stepcounter{country}\arabic{country} & Serbia & & \stepcounter{country}\arabic{country} & Seychelles & \\
+\stepcounter{country}\arabic{country} & Sierra Leone & & \stepcounter{country}\arabic{country} & Singapore & \\
+\stepcounter{country}\arabic{country} & Slovakia & & \stepcounter{country}\arabic{country} & Slovenia & \\
+\stepcounter{country}\arabic{country} & Solomon Islands & & \stepcounter{country}\arabic{country} & Somalia & \\
+\stepcounter{country}\arabic{country} & South Africa & & \stepcounter{country}\arabic{country} & South Sudan & \\
+\stepcounter{country}\arabic{country} & Spain & & \stepcounter{country}\arabic{country} & Sri Lanka & \\
+\stepcounter{country}\arabic{country} & Sudan & & \stepcounter{country}\arabic{country} & Suriname & \\
+\stepcounter{country}\arabic{country} & Sweden & & \stepcounter{country}\arabic{country} & Switzerland & \\
+\stepcounter{country}\arabic{country} & Syria & & \stepcounter{country}\arabic{country} & Tajikistan & \\
+\stepcounter{country}\arabic{country} & Tanzania & & \stepcounter{country}\arabic{country} & Thailand & \\
+\stepcounter{country}\arabic{country} & Timor-Leste & & \stepcounter{country}\arabic{country} & Togo & \\
+\stepcounter{country}\arabic{country} & Tonga & & \stepcounter{country}\arabic{country} & Trinidad and Tobago & \\
+\stepcounter{country}\arabic{country} & Tunisia & & \stepcounter{country}\arabic{country} & Turkey & \\
+\stepcounter{country}\arabic{country} & Turkmenistan & & \stepcounter{country}\arabic{country} & Tuvalu & \\
+\stepcounter{country}\arabic{country} & Uganda & & \stepcounter{country}\arabic{country} & Ukraine & \\
+\stepcounter{country}\arabic{country} & United Arab Emirates & & \stepcounter{country}\arabic{country} & United Kingdom & \\
+\stepcounter{country}\arabic{country} & United States & & \stepcounter{country}\arabic{country} & Uruguay & \\
+\stepcounter{country}\arabic{country} & Uzbekistan & & \stepcounter{country}\arabic{country} & Vanuatu & \\
+\stepcounter{country}\arabic{country} & Venezuela & & \stepcounter{country}\arabic{country} & Vietnam & \\
+\stepcounter{country}\arabic{country} & Yemen & & \stepcounter{country}\arabic{country} & Zambia & \\
+\stepcounter{country}\arabic{country} & Zimbabwe & & & & \\
+% -------------------- COUNTRY LIST END --------------------
+
+\hline
+\end{longtable}
+
+\end{document}

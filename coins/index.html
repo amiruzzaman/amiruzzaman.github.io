@@ -351,12 +351,15 @@
       })
       .catch(error => console.error('Error fetching JSON:', error));
 
-    // Combine duplicate countries
+    // Combine duplicate countries (only those with images)
     function combineData(data) {
       const result = [];
       const countryMap = new Map();
 
       data.forEach(item => {
+        // Skip items without images
+        if (!item.image || item.image.trim() === "") return;
+
         if (!countryMap.has(item.country)) {
           // If country doesn't exist, add it to the map and result array
           const newItem = {
@@ -407,48 +410,55 @@
       });
     }
 
-// Replace the existing renderSummary with this one
-  function renderSummary(data) {
-    const summary = document.getElementById('summary-container');
+    // Replace the existing renderSummary with this one
+    function renderSummary(data) {
+      const summary = document.getElementById('summary-container');
 
-    // Unique countries overall
-    const countries = new Set(data.map(item => item.country));
-
-    // Per-category: count each country at most once
-    const paperBillCountries = new Set();
-    const coinCountries = new Set();
-    const antiqueCountries = new Set();
-
-    data.forEach(item => {
-      const country = item.country;
-      if (!country) return;
-
-      // normalize currency_type -> array of tokens
-      const types = String(item.currency_type || '')
-        .toLowerCase()
-        .replace(/[-_]/g, ' ')       // "paper-bill" -> "paper bill"
-        .split(',')
-        .map(s => s.trim())
-        .filter(Boolean);
-
-      const hasPaperBill = types.some(t =>
-        t === 'paper bill' || t === 'banknote' || t === 'bank note' || t === 'paper note' || t === 'paper bills'
+      // Filter out countries with empty image fields
+      const countriesWithImages = new Set(
+        data
+          .filter(item => item.image && item.image.trim() !== "")
+          .map(item => item.country)
       );
-      const hasCoin = types.some(t => t === 'coin' || t === 'coins');
-      const hasAntique = types.some(t => t === 'antique' || t === 'antiques');
 
-      if (hasPaperBill) paperBillCountries.add(country);
-      if (hasCoin) coinCountries.add(country);
-      if (hasAntique) antiqueCountries.add(country);
-    });
+      // Per-category: count each country at most once (only those with images)
+      const paperBillCountries = new Set();
+      const coinCountries = new Set();
+      const antiqueCountries = new Set();
 
-    summary.innerHTML = `
-      <p><i class="fas fa-globe-americas"></i> Number of Countries: ${countries.size}</p>
-      <p><i class="fas fa-money-bill-alt"></i> Number of Paper Bills: ${paperBillCountries.size}</p>
-      <p><i class="fas fa-coins"></i> Number of Coins: ${coinCountries.size}</p>
-      <p><i class="fas fa-history"></i> Number of Antiques: ${antiqueCountries.size}</p>
-    `;
-  }
+      data.forEach(item => {
+        // Skip items without images
+        if (!item.image || item.image.trim() === "") return;
+
+        const country = item.country;
+        if (!country) return;
+
+        // normalize currency_type -> array of tokens
+        const types = String(item.currency_type || '')
+          .toLowerCase()
+          .replace(/[-_]/g, ' ')       // "paper-bill" -> "paper bill"
+          .split(',')
+          .map(s => s.trim())
+          .filter(Boolean);
+
+        const hasPaperBill = types.some(t =>
+          t === 'paper bill' || t === 'banknote' || t === 'bank note' || t === 'paper note' || t === 'paper bills'
+        );
+        const hasCoin = types.some(t => t === 'coin' || t === 'coins');
+        const hasAntique = types.some(t => t === 'antique' || t === 'antiques');
+
+        if (hasPaperBill) paperBillCountries.add(country);
+        if (hasCoin) coinCountries.add(country);
+        if (hasAntique) antiqueCountries.add(country);
+      });
+
+      summary.innerHTML = `
+    <p><i class="fas fa-globe-americas"></i> Number of Countries: ${countriesWithImages.size}</p>
+    <p><i class="fas fa-money-bill-alt"></i> Number of Paper Bills: ${paperBillCountries.size}</p>
+    <p><i class="fas fa-coins"></i> Number of Coins: ${coinCountries.size}</p>
+    <p><i class="fas fa-history"></i> Number of Antiques: ${antiqueCountries.size}</p>
+  `;
+    }
 
     // Add search functionality
     document.getElementById('search-input').addEventListener('input', event => {

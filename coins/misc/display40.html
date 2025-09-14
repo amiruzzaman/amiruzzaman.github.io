@@ -577,7 +577,7 @@
             }
         }
 
-
+       
 
         .detail-item:last-child {
             border-bottom: none;
@@ -585,47 +585,44 @@
             padding-bottom: 0;
         }
 
-
+       
         /* additional */
-        /* FIXED: Improved mobile text display for detail items */
-        .detail-item {
-            flex-direction: column;
-            gap: 5px;
-            width: 100%;
-            overflow: hidden;
-            /* Prevent overflow */
-        }
+/* FIXED: Improved mobile text display for detail items */
+.detail-item {
+    flex-direction: column;
+    gap: 5px;
+    width: 100%;
+    overflow: hidden; /* Prevent overflow */
+}
 
-        .detail-label {
-            min-width: auto;
-            font-size: 14px;
-            width: 100%;
-        }
+.detail-label {
+    min-width: auto;
+    font-size: 14px;
+    width: 100%;
+}
 
-        .detail-value {
-            font-size: 16px;
-            line-height: 1.4;
-            width: 100%;
-            overflow: hidden;
-            /* Prevent overflow */
-        }
+.detail-value {
+    font-size: 16px;
+    line-height: 1.4;
+    width: 100%;
+    overflow: hidden; /* Prevent overflow */
+}
 
-        /* Ensure text doesn't overflow in modal details */
-        .modal-details p,
-        .flag-modal-details p {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
+/* Ensure text doesn't overflow in modal details */
+.modal-details p,
+.flag-modal-details p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
-        /* Fix for the visual scale container on mobile */
-        @media (max-width: 900px) {
-            .size-scale-container {
-                max-width: 100% !important;
-                width: 100% !important;
-            }
-        }
-
+/* Fix for the visual scale container on mobile */
+@media (max-width: 900px) {
+    .size-scale-container {
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+}
         /* end additional */
 
 
@@ -755,7 +752,7 @@
             width: 100%;
         }
 
-
+        
 
         .modal-details p strong {
             color: var(--gold-color);
@@ -818,7 +815,7 @@
             border-radius: var(--border-radius);
         }
 
-
+        
 
         .flag-modal-details p strong {
             color: var(--gold-color);
@@ -1380,572 +1377,227 @@
             }
         }
     </style>
+   <style>
+    /* Add these styles to your CSS section */
 
-    <style>
-        /* Space Optimization Adjustments */
+    .size-scale-container {
+        margin-top: 10px;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        width: 100%;
+        max-width: 300px;
+        overflow: visible;
+    }
 
-        /* Reduce vertical spacing throughout */
-        .out-container {
-            padding: 15px 10px;
-            /* Reduced from 20px */
-        }
+    .size-scale {
+        height: 30px;
+        background-color: #e9ecef;
+        border-radius: 4px;
+        position: relative;
+        margin-bottom: 15px;
+        overflow: visible;
+        width: 100%;
+    }
 
-        .inner-container {
-            width: 95%;
-            /* Increased from 90% */
-            margin-bottom: 15px;
-            /* Reduced from 20px */
-        }
+    .scale-item {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary-color), var(--accent-light));
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        transition: width 0.5s ease;
+        min-width: 40px;
+    }
 
-        .title-container {
-            margin: 15px 0;
-            /* Reduced from 20px */
-        }
+    .two-dimensional-scale {
+        margin-bottom: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        overflow: visible;
+    }
 
-        .main-title {
-            font-size: 26px;
-            /* Slightly smaller */
-            margin-bottom: 5px;
-        }
+    .scale-rectangle {
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-light));
+        border: 2px solid var(--primary-dark);
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        max-width: 100%;
+        overflow: visible;
+    }
 
-        .selected-country-title {
-            font-size: 22px;
-            /* Slightly smaller */
-        }
+    .scale-dimensions {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        font-size: 12px;
+        color: var(--secondary-color);
+        text-align: center;
+        width: 100%;
+        overflow: visible;
+    }
 
-        /* Search bar adjustments */
-        .search-container {
-            margin: 15px 0;
-            /* Reduced from 20px */
-            max-width: 500px;
-            /* Slightly smaller */
-        }
+    .dimension.width::before {
+        content: "→ ";
+        color: var(--primary-color);
+    }
 
-        /* Main content area optimization */
-        .main-content {
-            gap: 20px;
-            /* Reduced from 30px */
-            margin-top: 15px;
-            /* Reduced from 20px */
-        }
+    .dimension.height::before {
+        content: "↓ ";
+        color: var(--accent-color);
+    }
 
-        .gallery-section,
-        .map-section {
-            padding: 20px;
-            /* Reduced from 25px */
-            min-width: 350px;
-            /* Reduced from 400px */
-        }
+    .scale-label {
+        color: white;
+        font-weight: 600;
+        font-size: 11px;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        white-space: nowrap;
+        padding: 0 4px;
+        overflow: visible;
+        text-overflow: clip;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
 
-        /* Image container adjustments */
-        .current-img-container {
-            padding: 12px;
-            /* Reduced from 15px */
-            gap: 12px;
-            /* Reduced from 15px */
-        }
+    .scale-reference {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 15px;
+        width: 100%;
+        overflow: visible;
+    }
 
-        .current-img-container img {
-            height: 280px;
-            /* Reduced from 300px */
-        }
+    .reference-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        overflow: visible;
+        flex-wrap: wrap; /* Allow wrapping on small screens */
+    }
 
-        /* Thumbnail adjustments */
-        .img-queue-in img {
-            width: 65px;
-            /* Reduced from 70px */
-            height: 65px;
-            /* Reduced from 70px */
-        }
+    .reference-line-container {
+        display: flex;
+        align-items: center;
+        min-width: 60px; /* Ensure minimum space for the line */
+        flex-grow: 1;
+    }
 
-        /* Map height adjustment */
-        #map {
-            height: 380px;
-            /* Reduced from 400px */
-        }
+    .reference-line {
+        height: 4px;
+        border-radius: 2px;
+        flex-shrink: 0;
+        min-width: 10px;
+        max-width: 100%;
+    }
 
-        /* Continent info adjustments */
-        .continent-info {
-            padding: 8px 10px;
-            /* Reduced from 10px */
-        }
+    .reference-rectangle {
+        border: 1px solid var(--secondary-color);
+        border-radius: 2px;
+        flex-shrink: 0;
+        min-width: 10px;
+        max-width: 100%;
+        overflow: visible;
+    }
 
-        .continent-info-label {
-            font-size: 11px;
-            /* Slightly smaller */
-        }
+    /* Different colors for each reference line */
+    .reference-line.penny {
+        background-color: #e74c3c;
+    }
 
-        .continent-info-value {
-            font-size: 13px;
-            /* Slightly smaller */
-        }
+    .reference-line.quarter {
+        background-color: #3498db;
+    }
 
-        #continent-map {
-            height: 180px;
-            /* Reduced from 200px */
-        }
+    .reference-line.dollar-coin {
+        background-color: #f39c12;
+    }
 
-        .country-flag {
-            width: 65px;
-            /* Reduced from 70px */
-            height: 65px;
-            /* Reduced from 70px */
-        }
+    .reference-rectangle.dollar-bill {
+        background-color: #27ae60;
+        height: 12px;
+    }
 
-        /* Countries list optimization */
-        .countries-list {
-            padding: 20px;
-            /* Reduced from 25px */
-            margin-top: 25px;
-            /* Reduced from 30px */
-        }
+    .reference-label {
+        font-size: 11px;
+        color: var(--secondary-color);
+        white-space: nowrap;
+        min-width: 110px;
+        overflow: visible;
+        text-overflow: clip;
+        flex-shrink: 0;
+    }
 
-        .countries-list h2 {
-            margin-bottom: 15px;
-            /* Reduced from 20px */
-            font-size: 20px;
-            /* Reduced from 22px */
-        }
-
-        .countries-list a {
-            min-width: 110px;
-            /* Reduced from 120px */
-            height: 38px;
-            /* Reduced from 40px */
-            font-size: 13px;
-            /* Reduced from 14px */
-            padding: 0 12px;
-            /* Reduced from 15px */
-        }
-
-        /* Button adjustments */
-        .btn {
-            padding: 10px 18px;
-            /* Reduced from 12px 20px */
-            font-size: 15px;
-            /* Reduced from 16px */
-        }
-
-        .btn-nav {
-            width: 45px;
-            /* Reduced from 50px */
-            height: 45px;
-            /* Reduced from 50px */
-            font-size: 18px;
-            /* Reduced from 20px */
-        }
-
-        /* Details section optimization */
-        .details-toggle {
-            padding: 12px 18px;
-            /* Reduced from 14px 20px */
-            font-size: 14px;
-            /* Reduced from 15px */
-        }
-
-        .details-content {
-            padding: 18px;
-            /* Reduced from 20px */
-        }
-
-        /* Gallery view optimization */
-        .gallery-view-section {
-            padding: 20px;
-            /* Reduced from 25px */
-        }
-
-        .gallery-grid {
-            gap: 12px;
-            /* Reduced from 15px */
-            padding: 8px;
-            /* Reduced from 10px */
-        }
-
-        .gallery-item-image {
-            height: 140px;
-            /* Reduced from 150px */
-        }
-
-        /* Filter/sort container */
-        .filter-sort-container {
-            gap: 12px;
-            /* Reduced from 15px */
-            margin-bottom: 15px;
-            /* Reduced from 20px */
-        }
-
-        /* Footer optimization */
-        footer {
-            margin-top: 40px;
-            /* Reduced from 60px */
-            padding: 15px 30px;
-            /* Reduced from 20px 40px */
-            font-size: 1em;
-            /* Reduced from 1.1em */
-        }
-
-        /* Responsive adjustments for smaller screens */
-        @media (max-width: 900px) {
-            .out-container {
-                padding: 10px 5px;
-            }
-
-            .gallery-section,
-            .map-section {
-                min-width: 100%;
-                padding: 15px;
-            }
-
-            .current-img-container img {
-                height: 240px;
-                /* Reduced from 250px */
-            }
-
-            .btn-nav {
-                width: 40px;
-                /* Reduced from 40px (no change but keeping for consistency) */
-                height: 40px;
-                /* Reduced from 40px (no change but keeping for consistency) */
-            }
-
-            #map {
-                height: 340px;
-                /* Reduced from 400px on mobile */
-            }
-
-            #continent-map {
-                height: 160px;
-                /* Reduced from 200px on mobile */
-            }
-
-            .countries-list {
-                padding: 15px;
-                margin-top: 20px;
-            }
-
-            .countries-list a {
-                min-width: 100px;
-                height: 36px;
-                font-size: 12px;
-            }
-        }
-
-        /* Additional space savings for very small screens */
-        @media (max-width: 480px) {
-            .title-container {
-                margin: 10px 0;
-            }
-
-            .main-title {
-                font-size: 22px;
-            }
-
-            .selected-country-title {
-                font-size: 18px;
-            }
-
-            .search-container {
-                margin: 10px 0;
-            }
-
-            .gallery-section,
-            .map-section {
-                padding: 12px;
-            }
-
-            .current-img-container {
-                padding: 8px;
-            }
-
-            .current-img-container img {
-                height: 200px;
-            }
-
-            .img-queue-in img {
-                width: 55px;
-                height: 55px;
-            }
-
-            #map {
-                height: 300px;
-            }
-
-            .countries-list {
-                padding: 12px;
-            }
-
-            .countries-list a {
-                min-width: 90px;
-                height: 34px;
-                font-size: 11px;
-                padding: 0 8px;
-            }
-        }
-
-        /* Fix for the home button wrapper to prevent extra space */
-        .home-button-wrapper {
-            margin-bottom: 10px;
-            /* Reduced from 15px */
-        }
-
-        /* Ensure summary popup doesn't create extra space */
-        .summary {
-            top: calc(100% + 8px);
-            /* Reduced from 10px */
-        }
-
-        /* View toggle container optimization */
-        .view-toggle-container {
-            margin: 8px auto;
-            /* Reduced from 10px */
-        }
-
-        .view-toggle-container button {
-            padding: 7px 12px;
-            /* Reduced from 8px 15px */
-            font-size: 13px;
-            /* Reduced from 14px */
-        }
-
-        /* Back to top button size reduction */
-        #back-to-top {
-            width: 45px;
-            /* Reduced from 50px */
-            height: 45px;
-            /* Reduced from 50px */
-            font-size: 22px;
-            /* Reduced from 24px */
-            bottom: 25px;
-            /* Reduced from 30px */
-            right: 25px;
-            /* Reduced from 30px */
-        }
-    </style>
-    <style>
-        /* Add these styles to your CSS section */
-
+    /* Responsive adjustments */
+    @media (max-width: 900px) {
         .size-scale-container {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-radius: var(--border-radius);
-            border: 1px solid var(--border-color);
-            width: 100%;
-            max-width: 300px;
-            overflow: visible;
+            max-width: 100%;
         }
 
         .size-scale {
-            height: 30px;
-            background-color: #e9ecef;
-            border-radius: 4px;
-            position: relative;
-            margin-bottom: 15px;
-            overflow: visible;
-            width: 100%;
-        }
-
-        .scale-item {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary-color), var(--accent-light));
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            transition: width 0.5s ease;
-            min-width: 40px;
-        }
-
-        .two-dimensional-scale {
-            margin-bottom: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            width: 100%;
-            overflow: visible;
-        }
-
-        .scale-rectangle {
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-light));
-            border: 2px solid var(--primary-dark);
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            max-width: 100%;
-            overflow: visible;
-        }
-
-        .scale-dimensions {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            font-size: 12px;
-            color: var(--secondary-color);
-            text-align: center;
-            width: 100%;
-            overflow: visible;
-        }
-
-        .dimension.width::before {
-            content: "→ ";
-            color: var(--primary-color);
-        }
-
-        .dimension.height::before {
-            content: "↓ ";
-            color: var(--accent-color);
+            height: 25px;
         }
 
         .scale-label {
-            color: white;
-            font-weight: 600;
-            font-size: 11px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-            white-space: nowrap;
-            padding: 0 4px;
-            overflow: visible;
-            text-overflow: clip;
-            max-width: 100%;
-            box-sizing: border-box;
-        }
-
-        .scale-reference {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 15px;
-            width: 100%;
-            overflow: visible;
-        }
-
-        .reference-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            width: 100%;
-            overflow: visible;
-            flex-wrap: wrap;
-            /* Allow wrapping on small screens */
-        }
-
-        .reference-line-container {
-            display: flex;
-            align-items: center;
-            min-width: 60px;
-            /* Ensure minimum space for the line */
-            flex-grow: 1;
-        }
-
-        .reference-line {
-            height: 4px;
-            border-radius: 2px;
-            flex-shrink: 0;
-            min-width: 10px;
-            max-width: 100%;
-        }
-
-        .reference-rectangle {
-            border: 1px solid var(--secondary-color);
-            border-radius: 2px;
-            flex-shrink: 0;
-            min-width: 10px;
-            max-width: 100%;
-            overflow: visible;
-        }
-
-        /* Different colors for each reference line */
-        .reference-line.penny {
-            background-color: #e74c3c;
-        }
-
-        .reference-line.quarter {
-            background-color: #3498db;
-        }
-
-        .reference-line.dollar-coin {
-            background-color: #f39c12;
-        }
-
-        .reference-rectangle.dollar-bill {
-            background-color: #27ae60;
-            height: 12px;
+            font-size: 10px;
         }
 
         .reference-label {
-            font-size: 11px;
-            color: var(--secondary-color);
-            white-space: nowrap;
-            min-width: 110px;
-            overflow: visible;
-            text-overflow: clip;
-            flex-shrink: 0;
+            font-size: 10px;
+            min-width: 100px;
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 900px) {
-            .size-scale-container {
-                max-width: 100%;
-            }
-
-            .size-scale {
-                height: 25px;
-            }
-
-            .scale-label {
-                font-size: 10px;
-            }
-
-            .reference-label {
-                font-size: 10px;
-                min-width: 100px;
-            }
-
-            .reference-rectangle.dollar-bill {
-                height: 10px;
-            }
-
-            .scale-dimensions {
-                font-size: 10px;
-            }
-
-            /* Mobile layout improvements */
-            .reference-item {
-                flex-direction: row;
-                align-items: center;
-                gap: 6px;
-            }
-
-            .reference-line-container {
-                min-width: 40px;
-                /* Smaller minimum on mobile */
-            }
-
-            .reference-label {
-                min-width: 90px;
-            }
+        .reference-rectangle.dollar-bill {
+            height: 10px;
         }
 
-        /* For very small screens */
-        @media (max-width: 480px) {
-            .reference-label {
-                font-size: 9px;
-                min-width: 80px;
-            }
-
-            .reference-item {
-                gap: 4px;
-            }
-
-            .reference-line-container {
-                min-width: 30px;
-                /* Even smaller on very small screens */
-            }
+        .scale-dimensions {
+            font-size: 10px;
         }
-    </style>
+        
+        /* Mobile layout improvements */
+        .reference-item {
+            flex-direction: row;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .reference-line-container {
+            min-width: 40px; /* Smaller minimum on mobile */
+        }
+        
+        .reference-label {
+            min-width: 90px;
+        }
+    }
+
+    /* For very small screens */
+    @media (max-width: 480px) {
+        .reference-label {
+            font-size: 9px;
+            min-width: 80px;
+        }
+        
+        .reference-item {
+            gap: 4px;
+        }
+        
+        .reference-line-container {
+            min-width: 30px; /* Even smaller on very small screens */
+        }
+    }
+</style>
 
 </head>
 
@@ -2159,18 +1811,14 @@
         function toTitleCase(str) {
             return str.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
         }
+
         // Fetch and process data
         fetch('images/coins.json')
             .then(response => response.json())
             .then(data => {
-                // First filter out entries with invalid images
-                const validData = data.filter(coin =>
-                    coin.image && coin.image.trim() !== "" && coin.image.toLowerCase() !== "none"
-                );
-
-                originalData = combineData(validData);
+                originalData = combineData(data);
                 //console.log(originalData);
-                renderSummary(originalData, validData.length);
+                renderSummary(originalData, data.length);
             })
             .catch(error => console.error('Error fetching JSON:', error));
 
@@ -2196,33 +1844,32 @@
             return result;
         }
 
+// Render the summary
+function renderSummary(data, n) {
+    const summary = document.getElementById('summary-container');
+    const numCountries = new Set(data.map(item => item.country)).size;
+    const totalVariations = n; // Total number of JSON objects
+    let numPaperBills = 0;
+    let numCoins = 0;
+    let numAntique = 0;
 
-        // Render the summary
-        function renderSummary(data, n) {
-            const summary = document.getElementById('summary-container');
-            const numCountries = new Set(data.map(item => item.country)).size;
-            const totalVariations = n; // Total number of JSON objects
-            let numPaperBills = 0;
-            let numCoins = 0;
-            let numAntique = 0;
+    data.forEach(item => {
+        item.currency_type.split(', ').forEach(type => {
+            const normalizedType = type.toLowerCase();
+            if (normalizedType.includes('paper-bill')) numPaperBills++;
+            if (normalizedType.includes('coin')) numCoins++;
+            if (normalizedType.includes('antique')) numAntique++;
+        });
+    });
 
-            data.forEach(item => {
-                item.currency_type.split(', ').forEach(type => {
-                    const normalizedType = type.toLowerCase();
-                    if (normalizedType.includes('paper-bill')) numPaperBills++;
-                    if (normalizedType.includes('coin')) numCoins++;
-                    if (normalizedType.includes('antique')) numAntique++;
-                });
-            });
-
-            summary.innerHTML = `
+    summary.innerHTML = `
         <p><i class="fas fa-globe-americas"></i> Countries: ${numCountries}</p>
         <p><i class="fas fa-cubes"></i> Variations: ${totalVariations}</p>
         <p><i class="fas fa-money-bill-alt"></i> Bills: ${numPaperBills}</p>
         <p><i class="fas fa-coins"></i> Coins: ${numCoins}</p>
         <p><i class="fas fa-clock"></i> Antique: ${numAntique}</p>
     `;
-        }
+}
 
         // helper to clean values
         function cleanValue(val) {
@@ -2356,8 +2003,8 @@
             const dollarBillWidthPercentage = (66.3 / maxItemSize) * 100;
             const dollarBillHeightPercentage = (156 / maxItemSize) * 100;
 
-            // Construct the HTML for coin details with visual scale
-            const countryDetails = countryInfo ? `
+// Construct the HTML for coin details with visual scale
+const countryDetails = countryInfo ? `
     <div class="detail-item">
         <span class="detail-label"><strong>Country:</strong></span>
         <span class="detail-value">${safeVal(countryInfo.name)}</span>
@@ -2620,125 +2267,114 @@
 
         // Function to load and display the continent map
         // Fix the loadContinentMap function
-        // Function to load and display the continent map
-        async function loadContinentMap(continentName, countryName) {
-            try {
-                // Initialize the map only once
-                if (!continentMap) {
-                    continentMap = L.map('continent-map', {
-                        preferCanvas: true,
-                        zoomControl: false,
-                        attributionControl: false
-                    }).setView([20, 0], 2);
+       // Function to load and display the continent map
+async function loadContinentMap(continentName, countryName) {
+    try {
+        // Initialize the map only once
+        if (!continentMap) {
+            continentMap = L.map('continent-map', {
+                preferCanvas: true,
+                zoomControl: false,
+                attributionControl: false
+            }).setView([20, 0], 2);
 
-                    // Add tile layer only once
-                    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-                        maxZoom: 18,
-                        attribution: "© OpenStreetMap contributors",
-                    }).addTo(continentMap);
-                } else {
-                    // Clear existing layers if map already exists
-                    continentMap.eachLayer(function (layer) {
-                        if (layer instanceof L.TileLayer) return; // Keep the tile layer
-                        continentMap.removeLayer(layer);
-                    });
+            // Add tile layer only once
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                maxZoom: 18,
+                attribution: "© OpenStreetMap contributors",
+            }).addTo(continentMap);
+        } else {
+            // Clear existing layers if map already exists
+            continentMap.eachLayer(function (layer) {
+                if (layer instanceof L.TileLayer) return; // Keep the tile layer
+                continentMap.removeLayer(layer);
+            });
+        }
+
+        // Clear existing marker
+        if (continentMapMarker) {
+            continentMap.removeLayer(continentMapMarker);
+            continentMapMarker = null;
+        }
+
+        // Filter GeoJSON for the specific continent
+        const filteredContinentGeoJson = {
+            type: "FeatureCollection",
+            features: cache.continentGeoJson.features.filter(feature => {
+                const featureContinent = feature.properties.CONTINENT;
+                if (continentName === "Australia" || continentName === "Oceania") {
+                    return featureContinent === "Australia" || featureContinent === "Oceania";
                 }
+                return featureContinent === continentName;
+            })
+        };
 
-                // Clear existing marker
-                if (continentMapMarker) {
-                    continentMap.removeLayer(continentMapMarker);
-                    continentMapMarker = null;
-                }
+        // Add the new continent layer
+        continentMapGeoJsonLayer = L.geoJSON(filteredContinentGeoJson, {
+            style: {
+                color: "#e74c3c",
+                weight: 2,
+                fillOpacity: 0.7,
+                fillColor: "#e74c3c"
+            }
+        }).addTo(continentMap);
 
-                // Filter GeoJSON for the specific continent
-                const filteredContinentGeoJson = {
-                    type: "FeatureCollection",
-                    features: cache.continentGeoJson.features.filter(feature => {
-                        const featureContinent = feature.properties.CONTINENT;
-                        if (continentName === "Australia" || continentName === "Oceania") {
-                            return featureContinent === "Australia" || featureContinent === "Oceania";
-                        }
-                        return featureContinent === continentName;
+        // FIXED: Proper bounds validation before calling flyToBounds
+        const bounds = continentMapGeoJsonLayer.getBounds();
+        if (bounds && bounds.isValid && bounds.isValid()) {
+            continentMap.flyToBounds(bounds, {
+                maxZoom: 3,
+                padding: [20, 20],
+                duration: 0.5
+            });
+        } else {
+            console.warn("Invalid bounds for continent map layer. Resetting view.");
+            continentMap.setView([20, 0], 2);
+        }
+
+        // If we have country data, try to show a marker for the country's capital/center
+        if (countryName) {
+            const countryMapping = cache.countryGeoJsonMapping.find(
+                item => item.country_name.toLowerCase() === countryName.toLowerCase()
+            );
+
+            if (countryMapping && countryMapping.center) {
+                const [lat, lng] = countryMapping.center;
+                continentMapMarker = L.marker([lat, lng], {
+                    icon: L.divIcon({
+                        className: 'continent-country-marker',
+                        html: '<i class="fas fa-map-marker-alt" style="color: #e74c3c; font-size: 24px;"></i>',
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 24]
                     })
-                };
-
-                // Add the new continent layer
-                continentMapGeoJsonLayer = L.geoJSON(filteredContinentGeoJson, {
-                    style: {
-                        color: "#e74c3c",
-                        weight: 2,
-                        fillOpacity: 0.7,
-                        fillColor: "#e74c3c"
-                    }
                 }).addTo(continentMap);
-
-                // FIXED: Proper bounds validation before calling flyToBounds
-                const bounds = continentMapGeoJsonLayer.getBounds();
-                if (bounds && bounds.isValid && bounds.isValid()) {
-                    continentMap.flyToBounds(bounds, {
-                        maxZoom: 3,
-                        padding: [20, 20],
-                        duration: 0.5
-                    });
-                } else {
-                    console.warn("Invalid bounds for continent map layer. Resetting view.");
-                    continentMap.setView([20, 0], 2);
-                }
-
-                // If we have country data, try to show a marker for the country's capital/center
-                if (countryName) {
-                    const countryMapping = cache.countryGeoJsonMapping.find(
-                        item => item.country_name.toLowerCase() === countryName.toLowerCase()
-                    );
-
-                    if (countryMapping && countryMapping.center) {
-                        const [lat, lng] = countryMapping.center;
-                        continentMapMarker = L.marker([lat, lng], {
-                            icon: L.divIcon({
-                                className: 'continent-country-marker',
-                                html: '<i class="fas fa-map-marker-alt" style="color: #e74c3c; font-size: 24px;"></i>',
-                                iconSize: [24, 24],
-                                iconAnchor: [12, 24]
-                            })
-                        }).addTo(continentMap);
-                    } else {
-                        console.warn(`No center coordinates found for country: ${countryName} on continent map.`);
-                    }
-                }
-
-                // Invalidate size to ensure proper rendering
-                setTimeout(() => {
-                    continentMap.invalidateSize();
-                }, 100);
-            } catch (error) {
-                console.error("Error loading continent map:", error);
+            } else {
+                console.warn(`No center coordinates found for country: ${countryName} on continent map.`);
             }
         }
+
+        // Invalidate size to ensure proper rendering
+        setTimeout(() => {
+            continentMap.invalidateSize();
+        }, 100);
+    } catch (error) {
+        console.error("Error loading continent map:", error);
+    }
+}
+
 
         // Renders the list of available countries in the UI
         function renderCountries(countries) {
             const countriesListUl = document.getElementById("countries-ul");
             countriesListUl.innerHTML = ""; // Clear existing list
 
-            // Filter out countries that don't have any valid images
-            const countriesWithImages = countries.filter(country => {
-                const countryCoins = cache.coinsData.filter(coin =>
-                    coin.country.toLowerCase() === country.toLowerCase()
-                );
-
-                // Check if any coin for this country has a valid image
-                return countryCoins.some(coin =>
-                    coin.image && coin.image.trim() !== "" && coin.image.toLowerCase() !== "none"
-                );
-            });
-
-            // Update the total count of unique countries with images
-            document.getElementById('total-countries-count').textContent = `(${countriesWithImages.length})`;
+            // Update the total count of unique countries
+            document.getElementById('total-countries-count').textContent = `(${countries.length})`;
 
             const queryParams = new URLSearchParams(window.location.search);
             const currentCountryParam = queryParams.get("country") ? queryParams.get("country").toLowerCase() : null;
 
-            countriesWithImages.forEach(country => {
+            countries.forEach(country => {
                 const li = document.createElement("li");
                 const link = document.createElement("a");
                 link.textContent = country;
@@ -2748,10 +2384,7 @@
                 if (currentCountryParam && country.toLowerCase() === currentCountryParam) {
                     link.classList.add("active");
                     // get the count of items for the selected country
-                    const countryItems = cache.coinsData.filter(coin =>
-                        coin.country.toLowerCase() === country.toLowerCase() &&
-                        coin.image && coin.image.trim() !== "" && coin.image.toLowerCase() !== "none"
-                    ).length;
+                    const countryItems = cache.coinsData.filter(coin => coin.country.toLowerCase() === country.toLowerCase()).length;
                     document.getElementById('selected-country').textContent = `: ${country}`;
                     document.getElementById('selected-country-title').textContent = `${country} (${countryItems})`;
                     updateTitle(`${country}`);
@@ -2770,10 +2403,7 @@
                     // Add active class to the clicked link
                     link.classList.add('active');
                     // get the count of items for the selected country
-                    const countryItems = cache.coinsData.filter(coin =>
-                        coin.country.toLowerCase() === country.toLowerCase() &&
-                        coin.image && coin.image.trim() !== "" && coin.image.toLowerCase() !== "none"
-                    ).length;
+                    const countryItems = cache.coinsData.filter(coin => coin.country.toLowerCase() === country.toLowerCase()).length;
                     document.getElementById('selected-country').textContent = `: ${country}`;
                     document.getElementById('selected-country-title').textContent = `${country} (${countryItems})`;
                     updateTitle(`${country}`);
@@ -2790,7 +2420,6 @@
                 countriesListUl.appendChild(li);
             });
         }
-
 
         // Fetches country-specific information from cached data
         function fetchCountryInfo(countryName) {
@@ -3501,7 +3130,7 @@
         };
     </script>
     <script type="text/javascript">
-
+        
 
         function updateTitle(countryName) {
             // Get the current base title (this should be "..::Amir's Coin Collection::..")

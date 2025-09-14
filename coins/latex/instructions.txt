@@ -1,0 +1,68 @@
+I have a countries.json file that located in ./static folder. The file content looks like
+
+[
+    {"name": "Afghanistan", "code": "AF"},
+    {"name": "Åland Islands", "code": "AX"},
+]
+and I have a coins.json file which is located in ./images folder. The content of the file look like 
+
+[
+  {
+    "country": "Afghanistan",
+    "currency_type": "",
+    "donor_name": "",
+    "image": "",
+    "note": "",
+    "size": "",
+    "year": "",
+    "box": "1",
+    "hidden_note": ""
+  }
+]
+if the country name match between these json files, then allow to edit the box field value. Note that there could be multiple entries for each countries,
+
+[
+  {
+    "country": "Afghanistan",
+    "currency_type": "coin",
+    "donor_name": "Jawid",
+    "image": "e2c7df94-7dc2-4ff7-8a66-197b204cb952.jpg",
+    "note": "5 Afgani",
+    "size": "24",
+    "year": "2003",
+"box": "1",
+    "hidden_note": "" 
+  },
+  {
+    "country": "Afghanistan",
+    "currency_type": "paper-bill",
+    "donor_name": "Jawid",
+    "image": "33f1e58c-529c-4be5-8baf-8ad6d4d401b3.jpg",
+    "note": "50 Afgani",
+    "size": "144 x 60",
+    "year": "2002",
+"box": "1",
+    "hidden_note": "" 
+  },
+]
+if user should see only one row for all the same countries, and if they set a box number then that should trigger update for all the entries with the same name. If a name of a country does not match between countries.json and coins.json, then add a new entry and display that as a new row, before adding the entry allow user to add the box value, and the newly added country for example is Nepal and box value is 5, then the entry should look like
+[
+  {
+    "country": "Napal", 
+    "currency_type": "",
+    "donor_name": "",
+    "image": "",
+    "note": "",
+    "size": "",
+    "year": "",
+    "box": "5", 
+    "hidden_note": ""
+  }
+]
+
+all the edit should update the records in ./images/coins.json file, which is the same file you are reading. If the fields does not exist in any record, then make sure to add the fields, and then update. There is a chance some of the records does not have "box" and "hidden_note" fields. Please give me the solution using Python, CSS, HTML, JavaScript, and all code should be part of the Python script. where country names are a match for countries.json and coins.json, highlight the row in different color. could you please make the tabular view using div instead of table tags?
+add one more column to the tabular view "Exists", and show an incremental count for the matching rows. Starting with 1 to begin with.
+
+can you show me at the bottom, where there is a country name in coins.json, but not in the countries.json file
+
+Now, please also add a tab where once clicked, then I get to see a tabular list of countries and their corresponding box number information. The list should option to sort ascending or descending for both countries name and box numbers, Also, allow to have a search option to narrow down the list to specific. The list should be organized by alpphabetic order, like A Afghanistan Angola B The Bahamas Bangladesh When sorting and listing no need to consider "The "

@@ -1000,49 +1000,6 @@ def edit_json():
 
 
     </style>
-    <style>
-    .filter-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.filter-btn {
-    padding: 10px 15px;
-    background-color: #6c757d;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-.filter-btn:hover {
-    background-color: #5a6268;
-}
-
-.filter-btn.active {
-    background-color: #28a745;
-}
-
-.search-container {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.search-box {
-    width: 100%;
-    padding: 10px;
-    font-size: 14px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #fff;
-    color: #333;
-}
-    </style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 
@@ -1054,20 +1011,11 @@ def edit_json():
 
         <div class="search-container">
             <input type="text" id="countrySearch" class="search-box" placeholder="Search by country...">
-            <input type="text" id="sizeSearch" class="search-box" placeholder="Search by size...">
-            <input type="number" id="yearFromSearch" class="search-box" placeholder="Year from..." min="0" max="9999">
-            <input type="number" id="yearToSearch" class="search-box" placeholder="Year to..." min="0" max="9999">
-            <button id="clearSearch" class="clear-search-btn" title="Clear all filters">
+            <button id="clearSearch" class="clear-search-btn" title="Clear search">
                 <i class="fas fa-times"></i>
             </button>
         </div>
 
-        <div class="filter-buttons">
-            <button id="applyFilters" class="filter-btn">Apply Filters</button>
-            <button id="clearFilters" class="filter-btn">Clear Filters</button>
-            <button id="toggleAddMode" class="filter-btn">Add New Mode</button>
-        </div>
-        
         <input type="file" id="jsonFileInput" class="file-input" accept=".json" />
 
         <label for="uploadFileInput">
@@ -1475,7 +1423,6 @@ def edit_json():
         
                 tableContainer.appendChild(rowDiv);
             });
-            filterTable();
         }
         
         // Setup image drop area functionality
@@ -1658,17 +1605,13 @@ def edit_json():
             .then(data => {
                 console.log(data.message || "File updated.");
                 showToast(data.message || "Changes saved!");
-                
-                // If filters are active, reapply them
-                if (activeFilters.country || activeFilters.size || activeFilters.yearFrom || activeFilters.yearTo) {
-                    applyFilters();
-                }
             })
             .catch(error => {
                 console.error("Error:", error);
                 showToast("❌ Error saving changes!");
             });
         }
+
 
 
         // Handle image upload via drag and drop in modal
@@ -1803,14 +1746,6 @@ def edit_json():
                 jsonData.push(newRow);
                 renderTable(jsonData);
                 saveUpdates();
-                
-                // If in add mode, keep only the new row visible
-                if (isAddMode) {
-                    const rows = document.querySelectorAll('.row:not(.header)');
-                    rows.forEach((row, index) => {
-                        row.style.display = index === rows.length - 1 ? 'flex' : 'none';
-                    });
-                }
             });
 
             document.getElementById("downloadBtn").addEventListener("click", function () {
@@ -1923,121 +1858,6 @@ function filterTableByCountry(searchTerm) {
         }
     });
 }
-
-// Search and filter functionality
-let activeFilters = {
-    country: '',
-    size: '',
-    yearFrom: '',
-    yearTo: ''
-};
-
-let isAddMode = false;
-
-document.getElementById("applyFilters").addEventListener("click", function() {
-    applyFilters();
-});
-
-document.getElementById("clearFilters").addEventListener("click", function() {
-    clearFilters();
-});
-
-document.getElementById("toggleAddMode").addEventListener("click", function() {
-    toggleAddMode();
-});
-
-function applyFilters() {
-    activeFilters = {
-        country: document.getElementById("countrySearch").value.toLowerCase(),
-        size: document.getElementById("sizeSearch").value.toLowerCase(),
-        yearFrom: document.getElementById("yearFromSearch").value,
-        yearTo: document.getElementById("yearToSearch").value
-    };
-    
-    filterTable();
-}
-
-function clearFilters() {
-    document.getElementById("countrySearch").value = "";
-    document.getElementById("sizeSearch").value = "";
-    document.getElementById("yearFromSearch").value = "";
-    document.getElementById("yearToSearch").value = "";
-    
-    activeFilters = {
-        country: '',
-        size: '',
-        yearFrom: '',
-        yearTo: ''
-    };
-    
-    filterTable();
-}
-
-function toggleAddMode() {
-    isAddMode = !isAddMode;
-    const btn = document.getElementById("toggleAddMode");
-    
-    if (isAddMode) {
-        btn.classList.add("active");
-        btn.textContent = "Exit Add Mode";
-        // Hide all existing rows except the header
-        document.querySelectorAll('.row:not(.header)').forEach(row => {
-            row.style.display = 'none';
-        });
-        // Show add row button if hidden
-        document.getElementById("addRowBtn").style.display = 'block';
-    } else {
-        btn.classList.remove("active");
-        btn.textContent = "Add New Mode";
-        filterTable(); // Reapply any active filters
-    }
-}
-
-function filterTable() {
-    const rows = document.querySelectorAll('.row:not(.header)');
-    
-    rows.forEach(row => {
-        if (isAddMode) {
-            row.style.display = 'none';
-            return;
-        }
-        
-        const countrySelect = row.querySelector('.country-dropdown');
-        const countryValue = countrySelect ? countrySelect.value.toLowerCase() : '';
-        const sizeCell = row.querySelectorAll('.column')[5]; // Size column
-        const sizeValue = sizeCell ? sizeCell.textContent.toLowerCase() : '';
-        const yearCell = row.querySelectorAll('.column')[6]; // Year column
-        const yearValue = yearCell ? parseInt(yearCell.textContent) || 0 : 0;
-        
-        let showRow = true;
-        
-        // Apply filters
-        if (activeFilters.country && !countryValue.includes(activeFilters.country)) {
-            showRow = false;
-        }
-        
-        if (activeFilters.size && !sizeValue.includes(activeFilters.size)) {
-            showRow = false;
-        }
-        
-        if (activeFilters.yearFrom && yearValue < parseInt(activeFilters.yearFrom)) {
-            showRow = false;
-        }
-        
-        if (activeFilters.yearTo && yearValue > parseInt(activeFilters.yearTo)) {
-            showRow = false;
-        }
-        
-        row.style.display = showRow ? 'flex' : 'none';
-    });
-    
-    // If all filters are empty, show all rows
-    if (!activeFilters.country && !activeFilters.size && !activeFilters.yearFrom && !activeFilters.yearTo && !isAddMode) {
-        rows.forEach(row => {
-            row.style.display = 'flex';
-        });
-    }
-}
     </script>
 </body>
 
@@ -2090,37 +1910,6 @@ def update_country():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
-@app.route('/filter-json', methods=['POST'])
-def filter_json():
-    try:
-        filters = request.get_json()
-        data = load_json()
-        
-        filtered_data = []
-        for item in data:
-            # Country filter
-            if filters.get('country') and filters['country'].lower() not in item.get('country', '').lower():
-                continue
-                
-            # Size filter
-            if filters.get('size') and filters['size'].lower() not in item.get('size', '').lower():
-                continue
-                
-            # Year range filter
-            year = item.get('year', '')
-            if year and year.isdigit():
-                year_num = int(year)
-                if filters.get('yearFrom') and year_num < int(filters['yearFrom']):
-                    continue
-                if filters.get('yearTo') and year_num > int(filters['yearTo']):
-                    continue
-            
-            filtered_data.append(item)
-            
-        return jsonify(filtered_data)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 @app.route('/upload-json', methods=['POST'])
 def upload_json():
