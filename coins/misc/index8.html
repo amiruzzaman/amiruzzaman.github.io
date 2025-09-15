@@ -518,9 +518,6 @@
           data.forEach((item, index) => {
             const { country, image } = item;
 
-            // Skip items with no image (null, undefined, or empty string)
-            if (!image || image.trim() === "") return;
-
             // Create a collage item div
             const collageItem = document.createElement('div');
             collageItem.className = 'collage-item';
@@ -543,6 +540,7 @@
 
             // Create an image element
             const imgElement = document.createElement('img');
+            //imgElement.src = `images/${country}/${image}`;
             const formattedCountry = country
               .toLowerCase()
               .split(" ")
