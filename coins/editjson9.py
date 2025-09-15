@@ -157,22 +157,14 @@ def update_entry(updated_entry):
         if entry['image'] == updated_entry['row_id']:
             entry.update({
                 "image": updated_entry.get("image", entry["image"]).replace('<br>', ''),
-                "note": updated_entry.get("note", entry.get("note", "")).replace('<br>', ''),
+                "note": updated_entry.get("note", entry["note"]).replace('<br>', ''),
                 "country": updated_entry.get("country", entry["country"]).replace('<br>', ''),
                 "donor_name": updated_entry.get("donor_name", entry["donor_name"]).replace('<br>', ''),
                 "currency_type": updated_entry.get("currency_type", entry["currency_type"]).replace('<br>', ''),
                 "size": updated_entry.get("size", entry.get("size", "")).replace('<br>', ''),
                 "year": updated_entry.get("year", entry.get("year", "")).replace('<br>', '')
             })
-
-            # ✅ Handle hidden_note
-            if "hidden_note" in updated_entry:
-                entry["hidden_note"] = updated_entry["hidden_note"].replace('<br>', '')
-            elif "hidden_note" not in updated_entry and "hidden_note" in entry:
-                del entry["hidden_note"]
-
     write_json_file(data)
-
 
 def delete_entry(entry):
     data = read_json_file()
@@ -1136,10 +1128,6 @@ def edit_json():
                         <input type="file" id="editImageInput" accept="image/*" style="display: none;">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="editHiddenNote">Hidden Note:</label>
-                    <textarea id="editHiddenNote" name="hidden_note" placeholder="(Optional, not shown publicly)"></textarea>
-                </div>
                 <button type="button" class="save-btn" id="saveChangesBtn">Save Changes</button>
             </div>
         </div>
@@ -1849,8 +1837,7 @@ def edit_json():
                     { id: "editDonorName", key: "donor_name" },
                     { id: "editNote", key: "note" },
                     { id: "editSize", key: "size" },
-                    { id: "editYear", key: "year" },
-                    { id: "editHiddenNote", key: "hidden_note" }   // ✅ added
+                    { id: "editYear", key: "year" }
                 ];
 
                 fields.forEach(field => {
@@ -1860,17 +1847,7 @@ def edit_json():
                     if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
                         el.addEventListener("blur", function () {
                             if (currentEditingIndex !== -1) {
-                                const value = this.value.trim();
-                                if (value) {
-                                    jsonData[currentEditingIndex][field.key] = value;
-                                } else {
-                                    // If empty, delete hidden_note if it already exists
-                                    if (field.key === "hidden_note") {
-                                        delete jsonData[currentEditingIndex][field.key];
-                                    } else {
-                                        jsonData[currentEditingIndex][field.key] = "";
-                                    }
-                                }
+                                jsonData[currentEditingIndex][field.key] = this.value;
                                 renderTable(jsonData);
                                 saveUpdates();
                             }
@@ -1890,6 +1867,7 @@ def edit_json():
                 });
             }
 
+
             document.addEventListener("click", function (event) {
                 if (event.target.classList.contains("thumbnail")) {
                     const index = event.target.getAttribute("data-index");
@@ -1905,7 +1883,6 @@ def edit_json():
                     document.getElementById("editNote").value = row.note || "";
                     document.getElementById("editSize").value = row.size || "";
                     document.getElementById("editYear").value = row.year || "";
-                    document.getElementById("editHiddenNote").value = row.hidden_note || "";
                     
                     currentEditingIndex = index;
                     document.getElementById("imageModal").style.display = "flex";
