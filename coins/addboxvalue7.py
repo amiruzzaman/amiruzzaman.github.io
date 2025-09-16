@@ -1,13 +1,3 @@
-import hashlib
-
-# --- Patch must happen before reportlab imports ---
-_real_md5 = hashlib.md5
-def md5_patch(*args, **kwargs):
-    kwargs.pop("usedforsecurity", None)  # ignore unsupported kwarg
-    return _real_md5(*args, **kwargs)
-hashlib.md5 = md5_patch
-# --------------------------------------------------
-
 from flask import Flask, request, jsonify, send_file
 import json, os
 from reportlab.lib.pagesizes import letter
@@ -59,19 +49,14 @@ def index():
   .cell:last-child { border-right: none; }
   .row:last-child .cell { border-bottom: none; }
   input[type='number'] { width: 80px; }
-  button { padding: 6px 12px; margin: 3px; }
+  button { padding: 6px 12px; margin-left: 8px; }
   .highlight { background-color: #d8f5d3; } /* both */
   .countries-only { background-color: #fff3cd; }
   .coins-only { background-color: #e2e3e5; }
   .alpha-header { background: #ddd; font-weight: bold; padding: 6px; }
   .search-sort { margin-bottom: 10px; }
-  #alphaFilter button { padding: 5px 8px; margin: 2px; }
   
-  /* NEW: Alphabet filter for manage tab */
-  #manageAlphaFilter { margin-bottom: 15px; }
-  #manageAlphaFilter button { padding: 5px 8px; margin: 2px; }
-  
-  /* Message bar */
+  /* Message bar styles */
   #messageBar {
     position: fixed;
     top: 0;
@@ -86,29 +71,33 @@ def index():
     color: white;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   }
-  .success { background-color: #4CAF50; }
-  .error { background-color: #F44336; }
   
-  .editable-cell { cursor: pointer; min-height: 20px; }
-  .editable-cell input { width: 80px; padding: 4px; }
+  .success { background-color: #4CAF50; } /* Green */
+  .error { background-color: #F44336; } /* Red */
+  
+  /* Editable cell styles */
+  .editable-cell {
+    cursor: pointer;
+    min-height: 20px;
+  }
+  
+  .editable-cell input {
+    width: 80px;
+    padding: 4px;
+  }
 </style>
 </head>
 <body>
   <div id="messageBar"></div>
   <h1>Country & Box Manager</h1>
 
-  <!-- Tabs -->
   <div class="tabs">
     <button class="tab-btn active" onclick="showTab('manageTab')">Manage Boxes</button>
     <button class="tab-btn" onclick="showTab('listTab')">Country List</button>
-    <button class="tab-btn" onclick="showTab('pdfTab')">Export to PDF</button>
   </div>
 
   <!-- Manage tab -->
   <div id="manageTab" class="tab-content active">
-    <!-- NEW: Alphabet filter for manage tab -->
-    <div id="manageAlphaFilter" style="margin-bottom: 15px;"></div>
-    
     <div class="table" id="countryTable">
       <div class="row header">
         <div class="cell">Country</div>
@@ -123,6 +112,10 @@ def index():
         <div class="cell">Box</div>
       </div>
     </div>
+    <!-- Add this button in the Manage tab section, after the tables -->
+<button onclick="exportPDF()" style="margin-top: 20px; padding: 10px 15px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
+    Export to PDF
+</button>
   </div>
 
   <!-- Country list tab -->
@@ -133,36 +126,24 @@ def index():
       <button onclick="sortList('box')">Sort by Box</button>
       <button onclick="toggleOrder()">Toggle Asc/Desc</button>
     </div>
-
-    <!-- alphabet filter -->
-    <div id="alphaFilter" style="margin-bottom: 10px;"></div>
-
     <div id="countryList"></div>
-  </div>
-
-  <!-- PDF export tab -->
-  <div id="pdfTab" class="tab-content">
-    <h2>Export Data to PDF</h2>
-    <button onclick="exportPDF()" style="padding: 10px 15px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
-      Export to PDF
-    </button>
-    <p>Click the button above to download all countries/boxes as a PDF file.</p>
   </div>
 
 <script>
 let coinCountries = [];
 let sortField = "name";
 let sortAsc = true;
-let activeLetter = "";
-let manageActiveLetter = "";  // NEW: filter letter for manage tab
-let allCountriesData = [];    // NEW: store all countries data for filtering
+let originalValues = {};
 
 function showTab(tabId) {
   document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
   document.querySelectorAll(".tab-content").forEach(tab => tab.classList.remove("active"));
-  if (tabId === "manageTab") document.querySelector(".tab-btn:nth-child(1)").classList.add("active");
-  if (tabId === "listTab") { document.querySelector(".tab-btn:nth-child(2)").classList.add("active"); renderList(); }
-  if (tabId === "pdfTab") document.querySelector(".tab-btn:nth-child(3)").classList.add("active");
+  if (tabId === "manageTab") {
+    document.querySelector(".tab-btn:nth-child(1)").classList.add("active");
+  } else {
+    document.querySelector(".tab-btn:nth-child(2)").classList.add("active");
+    renderList();
+  }
   document.getElementById(tabId).classList.add("active");
 }
 
@@ -171,192 +152,11 @@ function showMessage(message, isSuccess) {
   messageBar.textContent = message;
   messageBar.className = isSuccess ? "success" : "error";
   messageBar.style.display = "block";
-  setTimeout(() => { messageBar.style.display = "none"; }, 3000);
-}
-
-// NEW: Render alphabet filter for manage tab
-function renderManageAlphaFilter() {
-  const container = document.getElementById("manageAlphaFilter");
-  container.innerHTML = "";
-  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-  const allBtn = document.createElement("button");
-  allBtn.textContent = "All";
-  allBtn.onclick = () => { manageActiveLetter = ""; renderManageTable(); };
-  container.appendChild(allBtn);
-  letters.forEach(letter => {
-    const btn = document.createElement("button");
-    btn.textContent = letter;
-    btn.onclick = () => { manageActiveLetter = letter; renderManageTable(); };
-    container.appendChild(btn);
-  });
-}
-
-function renderAlphaFilter() {
-  const container = document.getElementById("alphaFilter");
-  container.innerHTML = "";
-  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-  const allBtn = document.createElement("button");
-  allBtn.textContent = "All";
-  allBtn.onclick = () => { activeLetter = ""; renderList(); };
-  container.appendChild(allBtn);
-  letters.forEach(letter => {
-    const btn = document.createElement("button");
-    btn.textContent = letter;
-    btn.onclick = () => { activeLetter = letter; renderList(); };
-    container.appendChild(btn);
-  });
-}
-
-// normalize name
-function normalizeName(name) {
-  return name.replace(/^The\s+/i, "").toLowerCase();
-}
-
-function sortList(field) { sortField = field; renderList(); }
-function toggleOrder() { sortAsc = !sortAsc; renderList(); }
-
-function renderList() {
-  const query = document.getElementById("searchBox").value.toLowerCase();
-  let filtered = coinCountries.filter(c => c.country.toLowerCase().includes(query));
-
-  // filter by selected letter
-  if (activeLetter) {
-    filtered = filtered.filter(c => normalizeName(c.country).charAt(0).toUpperCase() === activeLetter);
-  }
-
-  filtered.sort((a, b) => {
-    if (sortField === "name") {
-      let an = normalizeName(a.country), bn = normalizeName(b.country);
-      if (an < bn) return sortAsc ? -1 : 1;
-      if (an > bn) return sortAsc ? 1 : -1;
-      return 0;
-    } else {
-      let ab = parseInt(a.box || 0), bb = parseInt(b.box || 0);
-      if (ab < bb) return sortAsc ? -1 : 1;
-      if (ab > bb) return sortAsc ? 1 : -1;
-      return 0;
-    }
-  });
-
-  const container = document.getElementById("countryList");
-  container.innerHTML = "";
-  let currentLetter = "";
-  filtered.forEach(c => {
-    let firstLetter = normalizeName(c.country).charAt(0).toUpperCase();
-    if (!activeLetter && firstLetter !== currentLetter) {
-      currentLetter = firstLetter;
-      const header = document.createElement("div");
-      header.classList.add("alpha-header");
-      header.textContent = currentLetter;
-      container.appendChild(header);
-    }
-    const row = document.createElement("div");
-    row.classList.add("row");
-    row.innerHTML = `<div class="cell">${c.country}</div><div class="cell">${c.box || ''}</div>`;
-    container.appendChild(row);
-  });
-}
-
-// NEW: Render manage table with alphabet filter
-function renderManageTable() {
-  const table = document.getElementById("countryTable");
-  const extraTable = document.getElementById("extraTable");
-
-  // reset tables
-  table.innerHTML = `
-    <div class="row header">
-      <div class="cell">Country</div>
-      <div class="cell">Box</div>
-      <div class="cell">Exists</div>
-    </div>
-  `;
-  extraTable.innerHTML = `
-    <div class="row header">
-      <div class="cell">Country</div>
-      <div class="cell">Box</div>
-    </div>
-  `;
-
-  let existsCounter = 1;
-  let filteredCountries = allCountriesData;
-
-  // Apply alphabet filter if selected
-  if (manageActiveLetter) {
-    filteredCountries = allCountriesData.filter(c => 
-      normalizeName(c.country).charAt(0).toUpperCase() === manageActiveLetter
-    );
-  }
-
-  filteredCountries.forEach(c => {
-    const row = document.createElement("div");
-    row.classList.add("row");
-
-    if (c.source === "both") row.classList.add("highlight");
-    else if (c.source === "countries") row.classList.add("countries-only");
-    else if (c.source === "coins") row.classList.add("coins-only");
-
-    let existsCell = "";
-    if (c.source === "both") existsCell = existsCounter++;
-
-    row.innerHTML = `
-      <div class="cell">${c.country}</div>
-      <div class="cell editable-cell" data-country="${c.country}" data-source="${c.source}">${c.box || ''}</div>
-      <div class="cell">${existsCell}</div>
-    `;
-    table.appendChild(row);
-  });
-
-  // Make cells editable
-  document.querySelectorAll('.editable-cell').forEach(cell => {
-    cell.addEventListener('click', () => {
-      const country = cell.getAttribute('data-country');
-      const source = cell.getAttribute('data-source');
-      const currentValue = cell.textContent;
-      makeCellEditable(cell, country, currentValue, source);
-    });
-  });
-
-  // Also filter extras if needed
-  const extras = coinCountries.filter(c => 
-    !allCountriesData.some(country => country.country === c.country && country.source !== "coins")
-  );
   
-  let filteredExtras = extras;
-  if (manageActiveLetter) {
-    filteredExtras = extras.filter(e => 
-      normalizeName(e.country).charAt(0).toUpperCase() === manageActiveLetter
-    );
-  }
-
-  filteredExtras.forEach(e => {
-    const row = document.createElement("div");
-    row.classList.add("row", "coins-only");
-    row.innerHTML = `
-      <div class="cell">${e.country}</div>
-      <div class="cell">${e.box || ''}</div>
-    `;
-    extraTable.appendChild(row);
-  });
+  setTimeout(() => {
+    messageBar.style.display = "none";
+  }, 3000);
 }
-
-async function loadData() {
-  const res = await fetch('/data');
-  const result = await res.json();
-  const countries = result.countries;
-  const extras = result.extras;
-  coinCountries = result.coinCountries; // keep this for list tab
-  allCountriesData = countries; // NEW: store all countries data
-
-  renderManageTable(); // NEW: render the manage table instead of building it manually
-  renderManageAlphaFilter(); // NEW: render alphabet filter for manage tab
-}
-
-document.getElementById("searchBox").addEventListener("input", renderList);
-
-function exportPDF() { window.open('/export-pdf', '_blank'); }
-
-loadData();
-renderAlphaFilter();
 
 function makeCellEditable(cell, country, currentValue, source) {
   const originalValue = currentValue || "";
@@ -461,6 +261,132 @@ function moveToNextCell(currentCell) {
   }
 }
 
+
+async function loadData() {
+  const res = await fetch('/data');
+  const result = await res.json();
+  const countries = result.countries;
+  const extras = result.extras;
+  coinCountries = result.coinCountries; // only from coins.json
+
+  const table = document.getElementById("countryTable");
+  const extraTable = document.getElementById("extraTable");
+
+  // reset tables
+  table.innerHTML = `
+    <div class="row header">
+      <div class="cell">Country</div>
+      <div class="cell">Box</div>
+      <div class="cell">Exists</div>
+    </div>
+  `;
+  extraTable.innerHTML = `
+    <div class="row header">
+      <div class="cell">Country</div>
+      <div class="cell">Box</div>
+    </div>
+  `;
+
+  let existsCounter = 1;
+
+  countries.forEach(c => {
+    const row = document.createElement("div");
+    row.classList.add("row");
+
+    if (c.source === "both") row.classList.add("highlight");
+    else if (c.source === "countries") row.classList.add("countries-only");
+    else if (c.source === "coins") row.classList.add("coins-only");
+
+    let existsCell = "";
+    if (c.source === "both") existsCell = existsCounter++;
+
+    row.innerHTML = `
+      <div class="cell">${c.country}</div>
+      <div class="cell editable-cell" data-country="${c.country}" data-source="${c.source}">${c.box || ''}</div>
+      <div class="cell">${existsCell}</div>
+    `;
+    table.appendChild(row);
+  });
+
+ // Add click event to editable cells
+document.querySelectorAll('.editable-cell').forEach(cell => {
+  cell.addEventListener('click', () => {
+    const country = cell.getAttribute('data-country');
+    const source = cell.getAttribute('data-source');
+    const currentValue = cell.textContent;
+    makeCellEditable(cell, country, currentValue, source);
+  });
+});
+
+  extras.forEach(e => {
+    const row = document.createElement("div");
+    row.classList.add("row", "coins-only");
+    row.innerHTML = `
+      <div class="cell">${e.country}</div>
+      <div class="cell">${e.box || ''}</div>
+    `;
+    extraTable.appendChild(row);
+  });
+}
+
+// normalize country name for sorting (ignore "The ")
+function normalizeName(name) {
+  return name.replace(/^The\\s+/i, "").toLowerCase();
+}
+
+function sortList(field) {
+  sortField = field;
+  renderList();
+}
+
+function toggleOrder() {
+  sortAsc = !sortAsc;
+  renderList();
+}
+
+function renderList() {
+  const query = document.getElementById("searchBox").value.toLowerCase();
+  let filtered = coinCountries.filter(c => c.country.toLowerCase().includes(query));
+
+  filtered.sort((a, b) => {
+    if (sortField === "name") {
+      let an = normalizeName(a.country);
+      let bn = normalizeName(b.country);
+      if (an < bn) return sortAsc ? -1 : 1;
+      if (an > bn) return sortAsc ? 1 : -1;
+      return 0;
+    } else {
+      let ab = parseInt(a.box || 0);
+      let bb = parseInt(b.box || 0);
+      if (ab < bb) return sortAsc ? -1 : 1;
+      if (ab > bb) return sortAsc ? 1 : -1;
+      return 0;
+    }
+  });
+
+  const container = document.getElementById("countryList");
+  container.innerHTML = "";
+
+  let currentLetter = "";
+  filtered.forEach(c => {
+    let firstLetter = normalizeName(c.country).charAt(0).toUpperCase();
+    if (firstLetter !== currentLetter) {
+      currentLetter = firstLetter;
+      const header = document.createElement("div");
+      header.classList.add("alpha-header");
+      header.textContent = currentLetter;
+      container.appendChild(header);
+    }
+    const row = document.createElement("div");
+    row.classList.add("row");
+    row.innerHTML = `
+      <div class="cell">${c.country}</div>
+      <div class="cell">${c.box || ''}</div>
+    `;
+    container.appendChild(row);
+  });
+}
+
 async function saveBox(countryName, boxValue) {
   try {
     const res = await fetch('/update', {
@@ -475,18 +401,24 @@ async function saveBox(countryName, boxValue) {
 
     const msg = await res.json();
     showMessage(msg.status, true);
-    // Reload data to refresh the table with updated values
-    loadData();
+    // Don't call loadData() here as it interrupts the editing flow
   } catch (error) {
     showMessage("Error saving data: " + error.message, false);
   }
 }
+
+document.getElementById("searchBox").addEventListener("input", renderList);
+
+// function to handle the export
+function exportPDF() {
+    window.open('/export-pdf', '_blank');
+}
+
+loadData();
 </script>
 </body>
 </html>
     """
-
-
 
 
 @app.route("/data")
@@ -579,27 +511,14 @@ def update_data():
     else:
         return jsonify({"status": f"Updated box for {country} → {box}"})
 
+
+
+
 @app.route("/export-pdf")
 def export_pdf():
-    # Get data from both files
+    # Get the data
     countries = load_json(COUNTRIES_FILE)
     coins = load_json(COINS_FILE)
-    
-    # Create a mapping of country names to box values from coins.json
-    box_values = {}
-    for coin in coins:
-        country = coin.get("country", "")
-        box = coin.get("box", "")
-        if country:
-            box_values[country] = box
-    
-    # Prepare the result with all countries from countries.json
-    result = []
-    for country_data in sorted(countries, key=lambda x: x.get("name", "")):
-        country_name = country_data.get("name", "")
-        if country_name:
-            box_value = box_values.get(country_name, "")
-            result.append({"country": country_name, "box": box_value})
     
     # Create a file-like buffer to receive PDF data
     buffer = io.BytesIO()
@@ -615,10 +534,23 @@ def export_pdf():
     title = Paragraph("Country Box Manager Export", styles['Title'])
     elements.append(title)
     
-    # Add some summary information
-    elements.append(Paragraph(f"Total countries: {len(result)}", styles['Normal']))
-    elements.append(Paragraph(f"Countries with box values: {len([r for r in result if r['box']])}", styles['Normal']))
-    elements.append(Paragraph("<br/>", styles['Normal']))
+    # Prepare data for the table
+    country_names = {c["name"] for c in countries if c.get("name")}
+    coin_names = {c["country"] for c in coins if c.get("country")}
+    all_names = country_names.union(coin_names)
+    
+    result = []
+    for name in sorted(all_names):
+        if not name:  # Skip empty names
+            continue
+            
+        matches = [c for c in coins if c.get("country") == name]
+        if matches:
+            box_value = matches[0].get("box", "")  # take first match
+        else:
+            box_value = ""
+
+        result.append({"country": name, "box": box_value})
     
     # If no valid data found, add a message
     if not result:
@@ -729,26 +661,12 @@ def export_pdf():
     
     # File response
     buffer.seek(0)
-    
-    # Check which parameter name to use
-    import flask
-    if hasattr(flask, '__version__') and flask.__version__ >= '2.0.0':
-        return send_file(
-            buffer,
-            as_attachment=True,
-            download_name="country_box_export.pdf",
-            mimetype="application/pdf"
-        )
-    else:
-        return send_file(
-            buffer,
-            as_attachment=True,
-            attachment_filename="country_box_export.pdf",
-            mimetype="application/pdf"
-        )
-
-
-
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name="country_box_export.pdf",
+        mimetype="application/pdf"
+    )
 
 
 if __name__ == "__main__":

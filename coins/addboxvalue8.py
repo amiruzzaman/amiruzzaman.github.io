@@ -67,10 +67,6 @@ def index():
   .search-sort { margin-bottom: 10px; }
   #alphaFilter button { padding: 5px 8px; margin: 2px; }
   
-  /* NEW: Alphabet filter for manage tab */
-  #manageAlphaFilter { margin-bottom: 15px; }
-  #manageAlphaFilter button { padding: 5px 8px; margin: 2px; }
-  
   /* Message bar */
   #messageBar {
     position: fixed;
@@ -106,9 +102,6 @@ def index():
 
   <!-- Manage tab -->
   <div id="manageTab" class="tab-content active">
-    <!-- NEW: Alphabet filter for manage tab -->
-    <div id="manageAlphaFilter" style="margin-bottom: 15px;"></div>
-    
     <div class="table" id="countryTable">
       <div class="row header">
         <div class="cell">Country</div>
@@ -134,7 +127,7 @@ def index():
       <button onclick="toggleOrder()">Toggle Asc/Desc</button>
     </div>
 
-    <!-- alphabet filter -->
+    <!-- NEW alphabet filter -->
     <div id="alphaFilter" style="margin-bottom: 10px;"></div>
 
     <div id="countryList"></div>
@@ -153,9 +146,7 @@ def index():
 let coinCountries = [];
 let sortField = "name";
 let sortAsc = true;
-let activeLetter = "";
-let manageActiveLetter = "";  // NEW: filter letter for manage tab
-let allCountriesData = [];    // NEW: store all countries data for filtering
+let activeLetter = "";  // NEW filter letter
 
 function showTab(tabId) {
   document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
@@ -172,23 +163,6 @@ function showMessage(message, isSuccess) {
   messageBar.className = isSuccess ? "success" : "error";
   messageBar.style.display = "block";
   setTimeout(() => { messageBar.style.display = "none"; }, 3000);
-}
-
-// NEW: Render alphabet filter for manage tab
-function renderManageAlphaFilter() {
-  const container = document.getElementById("manageAlphaFilter");
-  container.innerHTML = "";
-  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-  const allBtn = document.createElement("button");
-  allBtn.textContent = "All";
-  allBtn.onclick = () => { manageActiveLetter = ""; renderManageTable(); };
-  container.appendChild(allBtn);
-  letters.forEach(letter => {
-    const btn = document.createElement("button");
-    btn.textContent = letter;
-    btn.onclick = () => { manageActiveLetter = letter; renderManageTable(); };
-    container.appendChild(btn);
-  });
 }
 
 function renderAlphaFilter() {
@@ -209,7 +183,7 @@ function renderAlphaFilter() {
 
 // normalize name
 function normalizeName(name) {
-  return name.replace(/^The\s+/i, "").toLowerCase();
+  return name.replace(/^The\\s+/i, "").toLowerCase();
 }
 
 function sortList(field) { sortField = field; renderList(); }
@@ -219,7 +193,7 @@ function renderList() {
   const query = document.getElementById("searchBox").value.toLowerCase();
   let filtered = coinCountries.filter(c => c.country.toLowerCase().includes(query));
 
-  // filter by selected letter
+  // NEW: filter by selected letter
   if (activeLetter) {
     filtered = filtered.filter(c => normalizeName(c.country).charAt(0).toUpperCase() === activeLetter);
   }
@@ -257,8 +231,13 @@ function renderList() {
   });
 }
 
-// NEW: Render manage table with alphabet filter
-function renderManageTable() {
+async function loadData() {
+  const res = await fetch('/data');
+  const result = await res.json();
+  const countries = result.countries;
+  const extras = result.extras;
+  coinCountries = result.coinCountries; // keep this for list tab
+
   const table = document.getElementById("countryTable");
   const extraTable = document.getElementById("extraTable");
 
@@ -278,16 +257,8 @@ function renderManageTable() {
   `;
 
   let existsCounter = 1;
-  let filteredCountries = allCountriesData;
 
-  // Apply alphabet filter if selected
-  if (manageActiveLetter) {
-    filteredCountries = allCountriesData.filter(c => 
-      normalizeName(c.country).charAt(0).toUpperCase() === manageActiveLetter
-    );
-  }
-
-  filteredCountries.forEach(c => {
+  countries.forEach(c => {
     const row = document.createElement("div");
     row.classList.add("row");
 
@@ -316,19 +287,7 @@ function renderManageTable() {
     });
   });
 
-  // Also filter extras if needed
-  const extras = coinCountries.filter(c => 
-    !allCountriesData.some(country => country.country === c.country && country.source !== "coins")
-  );
-  
-  let filteredExtras = extras;
-  if (manageActiveLetter) {
-    filteredExtras = extras.filter(e => 
-      normalizeName(e.country).charAt(0).toUpperCase() === manageActiveLetter
-    );
-  }
-
-  filteredExtras.forEach(e => {
+  extras.forEach(e => {
     const row = document.createElement("div");
     row.classList.add("row", "coins-only");
     row.innerHTML = `
@@ -337,18 +296,6 @@ function renderManageTable() {
     `;
     extraTable.appendChild(row);
   });
-}
-
-async function loadData() {
-  const res = await fetch('/data');
-  const result = await res.json();
-  const countries = result.countries;
-  const extras = result.extras;
-  coinCountries = result.coinCountries; // keep this for list tab
-  allCountriesData = countries; // NEW: store all countries data
-
-  renderManageTable(); // NEW: render the manage table instead of building it manually
-  renderManageAlphaFilter(); // NEW: render alphabet filter for manage tab
 }
 
 document.getElementById("searchBox").addEventListener("input", renderList);
@@ -475,8 +422,7 @@ async function saveBox(countryName, boxValue) {
 
     const msg = await res.json();
     showMessage(msg.status, true);
-    // Reload data to refresh the table with updated values
-    loadData();
+    // Don't call loadData() here as it interrupts the editing flow
   } catch (error) {
     showMessage("Error saving data: " + error.message, false);
   }
