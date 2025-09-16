@@ -160,8 +160,7 @@ function showMessage(message, isSuccess) {
 
 function makeCellEditable(cell, country, currentValue, source) {
   const originalValue = currentValue || "";
-  let isNavigatingWithEnter = false;
-  
+
   const input = document.createElement("input");
   input.type = "number";
   input.value = currentValue || "";
@@ -171,13 +170,12 @@ function makeCellEditable(cell, country, currentValue, source) {
   cell.innerHTML = "";
   cell.appendChild(input);
   input.focus();
-  input.select(); // Select the text for easy editing
 
   const commitValue = () => {
     const newValue = input.value.trim();
 
-    // Only save if the value has changed and is not empty
     if (newValue !== "" && newValue !== originalValue) {
+      // Save new non-empty value
       saveBox(country, newValue);
       cell.textContent = newValue;
     } else {
@@ -186,62 +184,12 @@ function makeCellEditable(cell, country, currentValue, source) {
     }
   };
 
-  const cancelEdit = () => {
-    // Restore original value
-    cell.textContent = originalValue || "";
-  };
-
-  // Save when clicking away (blur)
-  input.addEventListener("blur", () => {
-    // Only commit if not navigating with Enter key
-    if (!isNavigatingWithEnter) {
-      commitValue();
-    }
-  });
-
-  // Handle key events
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      isNavigatingWithEnter = true;
-      commitValue();
-      
-      // Move to next cell after a short delay
-      setTimeout(() => {
-        moveToNextCell(cell);
-        isNavigatingWithEnter = false;
-      }, 10);
-      
-      e.preventDefault();
-    } else if (e.key === "Escape") {
-      cancelEdit();
-      
-      // Move to next cell after a short delay
-      setTimeout(() => {
-        moveToNextCell(cell);
-      }, 10);
-      
-      e.preventDefault();
-    } else if (e.key === "Tab") {
-      isNavigatingWithEnter = true;
-      commitValue();
-      
-      // Move to next cell after a short delay
-      setTimeout(() => {
-        moveToNextCell(cell);
-        isNavigatingWithEnter = false;
-      }, 10);
-      
-      e.preventDefault(); // Prevent default tab behavior
-    }
-  });
-}
-
-function moveToNextCell(currentCell) {
+  const moveToNextCell = () => {
   const editableCells = document.querySelectorAll(".editable-cell");
   let nextCell = null;
 
   for (let i = 0; i < editableCells.length; i++) {
-    if (editableCells[i] === currentCell) {
+    if (editableCells[i] === cell) {
       if (i < editableCells.length - 1) {
         nextCell = editableCells[i + 1];
       }
@@ -259,7 +207,28 @@ function moveToNextCell(currentCell) {
       makeCellEditable(nextCell, nextCountry, nextValue, nextSource);
     }, 50);
   }
+};
+
+
+  // Save when clicking away
+  input.addEventListener("blur", () => {
+    commitValue();
+  });
+
+  // Save + move when pressing Enter
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      commitValue();
+      moveToNextCell();
+      e.preventDefault();
+    }
+    if (e.key === "Escape") {
+      // Cancel edit
+      cell.textContent = originalValue || "";
+    }
+  });
 }
+
 
 
 async function loadData() {
@@ -308,15 +277,15 @@ async function loadData() {
     table.appendChild(row);
   });
 
- // Add click event to editable cells
-document.querySelectorAll('.editable-cell').forEach(cell => {
-  cell.addEventListener('click', () => {
-    const country = cell.getAttribute('data-country');
-    const source = cell.getAttribute('data-source');
-    const currentValue = cell.textContent;
-    makeCellEditable(cell, country, currentValue, source);
+  // Add click event to editable cells
+  document.querySelectorAll('.editable-cell').forEach(cell => {
+    cell.addEventListener('click', () => {
+      const country = cell.getAttribute('data-country');
+      const source = cell.getAttribute('data-source');
+      const currentValue = cell.textContent;
+      makeCellEditable(cell, country, currentValue, source);
+    });
   });
-});
 
   extras.forEach(e => {
     const row = document.createElement("div");
@@ -401,9 +370,11 @@ async function saveBox(countryName, boxValue) {
 
     const msg = await res.json();
     showMessage(msg.status, true);
-    // Don't call loadData() here as it interrupts the editing flow
+    loadData(); // Reload data to refresh the display
   } catch (error) {
     showMessage("Error saving data: " + error.message, false);
+    // Reload data to restore original state
+    loadData();
   }
 }
 
