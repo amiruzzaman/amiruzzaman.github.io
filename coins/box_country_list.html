@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Country List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f8f9fa;
+        }
+
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        .search-sort {
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 15px;
+        }
+
+        .filter-group label {
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        #searchBox {
+            padding: 8px 12px;
+            width: 200px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        #boxFilter {
+            padding: 8px 12px;
+            width: 80px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 8px 16px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            background: #eee;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            background-color: #ddd;
+        }
+
+        #alphaFilter {
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #alphaFilter button {
+            min-width: 36px;
+        }
+
+        #alphaFilter button.active {
+            background: #ddd;
+            font-weight: bold;
+        }
+
+        #countryList {
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .alpha-header {
+            background: #ddd;
+            font-weight: bold;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .row {
+            display: flex;
+            border-bottom: 1px solid #eee;
+        }
+
+        .row:last-child {
+            border-bottom: none;
+        }
+
+        .cell {
+            flex: 1;
+            padding: 12px;
+        }
+
+        .cell:first-child {
+            font-weight: 500;
+        }
+
+        .cell:nth-child(2) {
+            text-align: center;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            z-index: 1000;
+            opacity: 0.9;
+            display: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .success {
+            background-color: #4CAF50;
+        }
+
+        .error {
+            background-color: #F44336;
+        }
+
+        .stats {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #e8f4f8;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .search-sort {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .filter-group {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            #searchBox,
+            #boxFilter {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Country List</h1>
+
+    <div class="search-sort">
+        <div class="filter-group">
+            <label for="searchBox">Country:</label>
+            <input type="text" id="searchBox" placeholder="Search country...">
+        </div>
+
+        <div class="filter-group">
+            <label for="boxFilter">Box:</label>
+            <select id="boxFilter">
+                <option value="">All Boxes</option>
+                <!-- Options will be populated by JavaScript -->
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <button onclick="sortList('name')">Sort by Name</button>
+            <button onclick="sortList('box')">Sort by Box</button>
+            <button onclick="toggleOrder()">Toggle Asc/Desc</button>
+        </div>
+    </div>
+
+    <div id="alphaFilter"></div>
+
+    <div class="stats">
+        Showing <span id="count">0</span> countries out of <span id="total">0</span>
+    </div>
+
+    <div id="countryList">
+        <div class="loading">Loading data from images/coins.json...</div>
+    </div>
+
+    <div id="message" class="message"></div>
+
+    <script>
+        // Global variables
+        let coinCountries = [];
+        let sortField = "name";
+        let sortAsc = true;
+        let activeLetter = "";
+        let activeBoxFilter = "";
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function () {
+            loadData();
+            renderAlphaFilter();
+            populateBoxFilter();
+
+            // Add event listeners
+            document.getElementById("searchBox").addEventListener("input", renderList);
+            document.getElementById("boxFilter").addEventListener("change", function () {
+                activeBoxFilter = this.value;
+                renderList();
+            });
+        });
+
+        // Show message function
+        function showMessage(message, isSuccess) {
+            const messageEl = document.getElementById("message");
+            messageEl.textContent = message;
+            messageEl.className = isSuccess ? "message success" : "message error";
+            messageEl.style.display = "block";
+            setTimeout(() => { messageEl.style.display = "none"; }, 3000);
+        }
+
+        // Populate the box filter dropdown
+        function populateBoxFilter() {
+            const boxFilter = document.getElementById("boxFilter");
+
+            // Clear existing options except the first one
+            while (boxFilter.options.length > 1) {
+                boxFilter.remove(1);
+            }
+
+            // Add options for boxes 1 to 60
+            for (let i = 1; i <= 60; i++) {
+                const option = document.createElement("option");
+                option.value = i;
+                option.textContent = i;
+                boxFilter.appendChild(option);
+            }
+        }
+
+        // Render alphabet filter
+        function renderAlphaFilter() {
+            const container = document.getElementById("alphaFilter");
+            container.innerHTML = "";
+
+            const allBtn = document.createElement("button");
+            allBtn.textContent = "All";
+            allBtn.onclick = () => {
+                activeLetter = "";
+                renderList();
+
+                // Update active state
+                document.querySelectorAll('#alphaFilter button').forEach(b => b.classList.remove('active'));
+                allBtn.classList.add('active');
+            };
+            if (!activeLetter) allBtn.classList.add("active");
+            container.appendChild(allBtn);
+
+            // Create A-Z buttons
+            for (let i = 65; i <= 90; i++) {
+                const letter = String.fromCharCode(i);
+                const btn = document.createElement("button");
+                btn.textContent = letter;
+                btn.onclick = () => {
+                    activeLetter = letter;
+                    renderList();
+
+                    // Update active state
+                    document.querySelectorAll('#alphaFilter button').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                };
+                if (activeLetter === letter) btn.classList.add("active");
+                container.appendChild(btn);
+            }
+        }
+
+        // Normalize country name for sorting
+        function normalizeName(name) {
+            return name.replace(/^The\s+/i, "").toLowerCase();
+        }
+
+        // Sort functions
+        function sortList(field) {
+            sortField = field;
+            renderList();
+        }
+
+        function toggleOrder() {
+            sortAsc = !sortAsc;
+            renderList();
+        }
+
+        // Render the country list
+        function renderList() {
+            const query = document.getElementById("searchBox").value.toLowerCase();
+            let filtered = coinCountries.filter(c =>
+                c.country && c.country.toLowerCase().includes(query)
+            );
+
+            // Filter by selected letter if any
+            if (activeLetter) {
+                filtered = filtered.filter(c =>
+                    normalizeName(c.country).charAt(0).toUpperCase() === activeLetter
+                );
+            }
+
+            // Filter by selected box if any
+            if (activeBoxFilter) {
+                filtered = filtered.filter(c =>
+                    c.box == activeBoxFilter
+                );
+            }
+
+            // Sort the results
+            filtered.sort((a, b) => {
+                if (sortField === "name") {
+                    let an = normalizeName(a.country), bn = normalizeName(b.country);
+                    if (an < bn) return sortAsc ? -1 : 1;
+                    if (an > bn) return sortAsc ? 1 : -1;
+                    return 0;
+                } else {
+                    let ab = parseInt(a.box || 0), bb = parseInt(b.box || 0);
+                    if (ab < bb) return sortAsc ? -1 : 1;
+                    if (ab > bb) return sortAsc ? 1 : -1;
+                    return 0;
+                }
+            });
+
+            // Update stats
+            document.getElementById("count").textContent = filtered.length;
+            document.getElementById("total").textContent = coinCountries.length;
+
+            const container = document.getElementById("countryList");
+            container.innerHTML = "";
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="row"><div class="cell" style="text-align: center; padding: 20px;">No countries found</div></div>';
+                return;
+            }
+
+            let currentLetter = "";
+
+            // Create rows for each country
+            filtered.forEach(c => {
+                let firstLetter = normalizeName(c.country).charAt(0).toUpperCase();
+
+                // Add alphabetical header if needed
+                if (!activeLetter && firstLetter !== currentLetter && sortField === "name") {
+                    currentLetter = firstLetter;
+                    const header = document.createElement("div");
+                    header.classList.add("alpha-header");
+                    header.textContent = currentLetter;
+                    container.appendChild(header);
+                }
+
+                const row = document.createElement("div");
+                row.classList.add("row");
+                row.innerHTML = `
+                    <div class="cell">${c.country}</div>
+                    <div class="cell">${c.box || ''}</div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        // Load data from coins.json
+        async function loadData() {
+            try {
+                // Load from the actual coins.json file
+                const response = await fetch('images/coins.json');
+
+                if (!response.ok) {
+                    throw new Error(`Failed to load coins.json: ${response.status} ${response.statusText}`);
+                }
+
+                const coins = await response.json();
+
+                // Deduplicate countries
+                const seen = {};
+                coinCountries = [];
+
+                for (const c of coins) {
+                    const country = c.country;
+                    if (country && !seen[country]) {
+                        seen[country] = true;
+                        coinCountries.push({
+                            country: country,
+                            box: c.box || ""
+                        });
+                    }
+                }
+
+                // Sort by country name initially
+                coinCountries.sort((a, b) =>
+                    normalizeName(a.country).localeCompare(normalizeName(b.country))
+                );
+
+                // Update stats
+                document.getElementById("count").textContent = coinCountries.length;
+                document.getElementById("total").textContent = coinCountries.length;
+
+                renderList();
+
+            } catch (error) {
+                showMessage("Error loading data: " + error.message, false);
+                console.error("Error loading coins.json:", error);
+                document.getElementById("countryList").innerHTML =
+                    '<div class="row"><div class="cell" style="text-align: center; padding: 20px; color: #F44336;">Error loading data from images/coins.json</div></div>';
+            }
+        }
+    </script>
+</body>
+
+</html>
