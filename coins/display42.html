@@ -1945,60 +1945,6 @@
                 /* Even smaller on very small screens */
             }
         }
-
-        /* Box List Button Styles */
-        .box-list-button-wrapper {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 100;
-        }
-
-        .btn-box-list {
-            width: 40px;
-            height: 40px;
-            padding: 0;
-            border-radius: 50%;
-            background: var(--secondary-color);
-            border-color: var(--dark-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn-box-list i {
-            color: white;
-            font-size: 18px;
-        }
-
-        .btn-box-list:hover {
-            background: var(--dark-color);
-            transform: translateY(-2px);
-        }
-
-        /* Responsive adjustment */
-        @media (max-width: 900px) {
-            .box-list-button-wrapper {
-                top: 15px;
-                right: 15px;
-            }
-
-            .btn-box-list {
-                width: 35px;
-                height: 35px;
-            }
-
-            .btn-box-list i {
-                font-size: 16px;
-            }
-        }
-
-        .home-button-wrapper {
-            margin-bottom: 10px;
-            position: relative;
-            z-index: 101;
-            /* Ensure it stays above the box list button */
-        }
     </style>
 
 </head>
@@ -2009,11 +1955,6 @@
             <div class="home-button-wrapper">
                 <a href="index.html" class="btn btn-home"><i class="fas fa-home"></i> Home</a>
                 <div id="summary-container" class="summary"></div>
-            </div>
-            <div class="box-list-button-wrapper">
-                <a href="box_country_list.html" class="btn btn-box-list" title="Box Country List">
-                    <i class="fas fa-boxes"></i>
-                </a>
             </div>
 
             <div class="search-container">
@@ -2194,6 +2135,38 @@
     </footer>
 
     <script>
+
+
+        // Clean URL handling functions
+        function getCountryFromPath() {
+            const path = window.location.pathname;
+            // Extract country name from path like /bangladesh
+            const parts = path.split('/');
+            const country = parts.filter(part => part.trim() !== '' && part !== 'display.html').pop();
+            return country ? decodeURIComponent(country.toLowerCase()) : null;
+        }
+
+        function updateCountryURL(countryName) {
+            const newPath = window.location.pathname.replace(/\/[^\/]*$/, '') + '/' +
+                encodeURIComponent(countryName.toLowerCase());
+            history.replaceState(null, "", newPath);
+        }
+
+        // Override all link generation to use clean URLs
+        function updateAllLinks() {
+            // Update country list links
+            document.querySelectorAll('.countries-list a').forEach(link => {
+                const country = link.textContent.toLowerCase();
+                link.href = `/${encodeURIComponent(country)}`;
+            });
+
+            // Update home link to point to root
+            const homeLink = document.querySelector('.btn-home');
+            if (homeLink) {
+                homeLink.href = '/';
+            }
+        }
+
         // Global variables for caching fetched data to improve performance
         const cache = {
             coinsData: null,
@@ -2794,17 +2767,16 @@
             // Update the total count of unique countries with images
             document.getElementById('total-countries-count').textContent = `(${countriesWithImages.length})`;
 
-            const queryParams = new URLSearchParams(window.location.search);
-            const currentCountryParam = queryParams.get("country") ? queryParams.get("country").toLowerCase() : null;
+            const currentCountry = getCountryFromPath();
 
             countriesWithImages.forEach(country => {
                 const li = document.createElement("li");
                 const link = document.createElement("a");
                 link.textContent = country;
-                link.href = `?country=${country.toLowerCase()}`;
+                link.href = `/${encodeURIComponent(country.toLowerCase())}`;
 
                 // Set active class and update titles if this is the currently selected country
-                if (currentCountryParam && country.toLowerCase() === currentCountryParam) {
+                if (currentCountry && country.toLowerCase() === currentCountry) {
                     link.classList.add("active");
                     // get the count of items for the selected country
                     const countryItems = cache.coinsData.filter(coin =>
@@ -2838,7 +2810,7 @@
                     updateTitle(`${country}`);
 
                     // Update URL without reloading the page
-                    history.pushState(null, "", `?country=${countryName}`);
+                    updateCountryURL(countryName);
                     // Trigger map highlight and image loading for the selected country
                     highlightCountry(countryName);
                     loadCountryImages(countryName);
@@ -2995,11 +2967,10 @@
                                     direction: "center",
                                     className: "country-tooltip"
                                 });
-
                                 layer.on({
                                     click: () => {
                                         const countryName = countryMapping.country_name;
-                                        history.pushState(null, "", `?country=${countryName.toLowerCase()}`);
+                                        updateCountryURL(countryName.toLowerCase());
                                         highlightCountry(countryName.toLowerCase());
                                         loadCountryImages(countryName.toLowerCase());
                                         loadGalleryView(countryName.toLowerCase());
@@ -3025,6 +2996,7 @@
                                         layer.setStyle({ fillOpacity: 0.3 });
                                     }
                                 });
+
                             }
 
                         }).addTo(availableCountriesLayer);
@@ -3197,7 +3169,10 @@
 
                 // Add click event listener to open image modal
                 galleryItem.addEventListener('click', function () {
-                    const countryInfo = fetchCountryInfo(countryName);
+                    const countryFromPath = getCountryFromPath();
+                    if (!countryFromPath) return;
+
+                    const countryInfo = fetchCountryInfo(countryFromPath);
                     openImageModal(this.dataset.imageUrl, this.dataset.note, countryInfo.name, countryInfo.capital, countryInfo.currency?.name, index);
                     currentCountryCoins = filteredCoins; // Update current coins for modal navigation
                 });
@@ -3260,11 +3235,12 @@
             const currentImage = document.getElementById("current-image-img");
 
             currentImage.addEventListener("click", function () {
-                const queryParams = new URLSearchParams(window.location.search);
-                const countryQuery = queryParams.get("country").toLowerCase();
-                const countryInfo = fetchCountryInfo(countryQuery);
+                const countryFromPath = getCountryFromPath();
+                if (!countryFromPath) return;
+
+                const countryInfo = fetchCountryInfo(countryFromPath);
                 const currentCoin = currentCountryCoins[currentImageIndex];
-                const imagePath = `images/${toTitleCase(countryQuery)}/${currentCoin.image}`;
+                const imagePath = `images/${toTitleCase(countryFromPath)}/${currentCoin.image}`;
                 openImageModal(imagePath, currentCoin.note, countryInfo.name, countryInfo.capital, countryInfo.currency?.name, currentImageIndex);
             });
 
@@ -3326,11 +3302,12 @@
                 currentImageIndex = (currentImageIndex + direction + currentCountryCoins.length) % currentCountryCoins.length;
                 const coin = currentCountryCoins[currentImageIndex];
 
-                const queryParams = new URLSearchParams(window.location.search);
-                const countryQuery = queryParams.get("country").toLowerCase();
-                const countryInfo = fetchCountryInfo(countryQuery);
+                const countryFromPath = getCountryFromPath();
+                if (!countryFromPath) return;
 
-                const imageUrl = `images/${toTitleCase(countryQuery)}/${coin.image}`;
+                const countryInfo = fetchCountryInfo(countryFromPath);
+
+                const imageUrl = `images/${toTitleCase(countryFromPath)}/${coin.image}`;
 
                 document.getElementById('modalImage').src = imageUrl;
                 document.getElementById('modal-country-name').textContent = countryInfo.name;
@@ -3339,6 +3316,7 @@
                 document.getElementById('modal-note').textContent = coin.note;
             }
         }
+
 
 
         // Initializes the flag modal for enlarged view
@@ -3426,7 +3404,7 @@
                             });
 
                             // Update URL, highlight map, and load images for selected country
-                            history.pushState(null, "", `?country=${country.toLowerCase()}`);
+                            updateCountryURL(country.toLowerCase());
                             highlightCountry(country.toLowerCase());
                             loadCountryImages(country.toLowerCase());
                             loadGalleryView(country.toLowerCase());
@@ -3500,7 +3478,6 @@
             });
         }
 
-
         // Main initialization function, executed when the DOM is fully loaded
         window.onload = async () => {
             // Preload all data first. If it fails, log error and stop initialization.
@@ -3510,13 +3487,15 @@
                 return; // Stop execution if data preload fails
             }
 
-            // Get country from URL query parameters, default to "default" if not present
-            const queryParams = new URLSearchParams(window.location.search);
-            const countryQuery = queryParams.get("country") || "default";
+            // Get country from URL path instead of query parameters
+            const countryFromPath = getCountryFromPath();
 
             // Get unique countries from cached coin data and sort them alphabetically
             const countries = [...new Set(cache.coinsData.map(coin => toTitleCase(coin.country)))].sort();
             renderCountries(countries); // Render the list of countries
+
+            // Update all links to use clean URLs
+            updateAllLinks();
 
             // Initialize the main map and get its controller functions
             const mapController = initializeMap();
@@ -3525,21 +3504,21 @@
             mapController.showAvailableCountries(countries);
 
             // If a country is specified in the URL, load its images and highlight it
-            if (countryQuery !== "default") {
-                highlightCountry(countryQuery.toLowerCase());
-                loadCountryImages(countryQuery.toLowerCase());
-                loadGalleryView(countryQuery.toLowerCase());
+            if (countryFromPath) {
+                highlightCountry(countryFromPath);
+                loadCountryImages(countryFromPath);
+                loadGalleryView(countryFromPath);
             } else if (countries.length > 0) {
                 // If no country is specified, load images for the first available country
                 // and highlight it on the map.
                 const firstCountry = countries[0].toLowerCase();
-                history.pushState(null, "", `?country=${firstCountry}`); // Update URL
+                updateCountryURL(firstCountry); // Update URL
                 highlightCountry(firstCountry);
                 loadCountryImages(firstCountry);
                 loadGalleryView(firstCountry);
 
                 // Also set the first country as active in the list
-                const firstCountryLink = document.querySelector(`.countries-list a[href="?country=${firstCountry}"]`);
+                const firstCountryLink = document.querySelector(`.countries-list a[href="/${encodeURIComponent(firstCountry)}"]`);
                 if (firstCountryLink) {
                     firstCountryLink.classList.add('active');
                     const countryItems = cache.coinsData.filter(coin => coin.country.toLowerCase() === firstCountry).length;
@@ -3549,7 +3528,6 @@
                 }
             }
 
-
             // Initialize various UI components
             initDetailsToggle();
             initImageModal();
@@ -3558,6 +3536,7 @@
             initViewToggle();
             initBackToTop();
         };
+
     </script>
     <script type="text/javascript">
 
@@ -3722,6 +3701,28 @@
 
             return usa ? usa.area : 9833517; // Default USA area in km² if not found
         }
+
+        // Handle browser back/forward navigation
+        window.addEventListener('popstate', function () {
+            const countryFromPath = getCountryFromPath();
+            if (countryFromPath) {
+                highlightCountry(countryFromPath);
+                loadCountryImages(countryFromPath);
+                loadGalleryView(countryFromPath);
+
+                // Update active country link in the list
+                document.querySelectorAll('.countries-list a').forEach(el => {
+                    el.classList.remove('active');
+                    if (el.textContent.toLowerCase() === countryFromPath) {
+                        el.classList.add('active');
+                        const countryItems = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryFromPath).length;
+                        document.getElementById('selected-country').textContent = `: ${toTitleCase(countryFromPath)}`;
+                        document.getElementById('selected-country-title').textContent = `${toTitleCase(countryFromPath)} (${countryItems})`;
+                        updateTitle(`${toTitleCase(countryFromPath)}`);
+                    }
+                });
+            }
+        });
     </script>
 </body>
 
