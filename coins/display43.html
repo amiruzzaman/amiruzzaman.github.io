@@ -2000,157 +2000,7 @@
             /* Ensure it stays above the box list button */
         }
     </style>
-    <style>
-        /* Timeline Visualization Styles */
-        .timeline-section {
-            width: 100%;
-            margin-top: 20px;
-            background: white;
-            padding: 20px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            border: 1px solid var(--border-color);
-            display: none;
-        }
 
-        .timeline-section.show {
-            display: block;
-        }
-
-        .timeline-container {
-            width: 100%;
-            height: 120px;
-            position: relative;
-            margin-top: 10px;
-        }
-
-        .timeline-axis {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background-color: var(--secondary-color);
-        }
-
-        .timeline-marker {
-            position: absolute;
-            bottom: 0;
-            width: 6px;
-            height: 20px;
-            background-color: var(--primary-color);
-            transform: translateX(-50%);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border-radius: 2px;
-        }
-
-        .timeline-marker:hover {
-            height: 30px;
-            background-color: var(--accent-color);
-        }
-
-        .timeline-marker.active {
-            height: 40px;
-            background-color: var(--accent-color);
-            z-index: 10;
-        }
-
-        .timeline-label {
-            position: absolute;
-            bottom: -25px;
-            font-size: 10px;
-            transform: translateX(-50%);
-            white-space: nowrap;
-        }
-
-        .timeline-tooltip {
-            position: absolute;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            bottom: 25px;
-            transform: translateX(-50%);
-            white-space: nowrap;
-            display: none;
-            z-index: 100;
-        }
-
-        .timeline-marker:hover .timeline-tooltip {
-            display: block;
-        }
-
-        .timeline-title {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .timeline-stats {
-            font-size: 14px;
-            color: var(--secondary-color);
-        }
-    </style>
-    <style>
-        /* Currency Distribution Styles */
-        .distribution-section {
-            width: 100%;
-            margin-top: 20px;
-            background: white;
-            padding: 20px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            border: 1px solid var(--border-color);
-            display: none;
-        }
-
-        .distribution-section.show {
-            display: block;
-        }
-
-        .distribution-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .distribution-chart {
-            width: 200px;
-            height: 200px;
-            position: relative;
-        }
-
-        .distribution-legend {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-        }
-
-        .legend-color {
-            width: 16px;
-            height: 16px;
-            border-radius: 4px;
-        }
-
-        .distribution-title {
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-    </style>
 </head>
 
 <body>
@@ -2296,21 +2146,6 @@
                 </h2>
                 <ul id="countries-ul"></ul>
             </div>
-            <!-- Add this after the countries-list section -->
-            <div class="timeline-section" id="timeline-section">
-                <div class="timeline-title">
-                    <h3><i class="fas fa-history"></i> Collection Timeline</h3>
-                    <div class="timeline-stats" id="timeline-stats"></div>
-                </div>
-                <div class="timeline-container" id="timeline-container"></div>
-            </div>
-            <!-- Add this after the timeline section -->
-            <div class="distribution-section" id="distribution-section">
-                <div class="distribution-title">
-                    <h3><i class="fas fa-chart-pie"></i> Currency Type Distribution</h3>
-                </div>
-                <div class="distribution-container" id="distribution-container"></div>
-            </div>
         </div>
     </div>
 
@@ -2351,7 +2186,6 @@
 
 
     <button id="back-to-top" title="Go to top"><i class="fas fa-arrow-up"></i></button>
-
 
     <footer>
         <p><i class="far fa-copyright"></i> 2025 Amiruzzaman coin collection. All rights reserved. |
@@ -3312,10 +3146,6 @@
                 // Display a default message if no images for the country
                 setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null, null, null, 0);
             }
-            // In loadCountryImages function, add this at the end:
-            createTimelineVisualization(currentCountryCoins);
-            // In loadCountryImages function, add this after the timeline call:
-            createCurrencyDistributionChart(currentCountryCoins);
         }
 
         // NEW: Load and display images in gallery view
@@ -3365,19 +3195,11 @@
                     </div>
                 `;
 
-                // In loadGalleryView function, update the click event:
+                // Add click event listener to open image modal
                 galleryItem.addEventListener('click', function () {
                     const countryInfo = fetchCountryInfo(countryName);
-                    openImageModal(
-                        this.dataset.imageUrl,
-                        this.dataset.note,
-                        countryInfo.name,
-                        countryInfo.capital,
-                        countryInfo.currency?.name,
-                        index,
-                        this.dataset.donor  // ADD DONOR PARAMETER
-                    );
-                    currentCountryCoins = filteredCoins;
+                    openImageModal(this.dataset.imageUrl, this.dataset.note, countryInfo.name, countryInfo.capital, countryInfo.currency?.name, index);
+                    currentCountryCoins = filteredCoins; // Update current coins for modal navigation
                 });
 
                 galleryGrid.appendChild(galleryItem);
@@ -3437,22 +3259,13 @@
             const closeModal = document.querySelector(".close-modal");
             const currentImage = document.getElementById("current-image-img");
 
-            // In initImageModal function, update the currentImage click event:
             currentImage.addEventListener("click", function () {
                 const queryParams = new URLSearchParams(window.location.search);
                 const countryQuery = queryParams.get("country").toLowerCase();
                 const countryInfo = fetchCountryInfo(countryQuery);
                 const currentCoin = currentCountryCoins[currentImageIndex];
                 const imagePath = `images/${toTitleCase(countryQuery)}/${currentCoin.image}`;
-                openImageModal(
-                    imagePath,
-                    currentCoin.note,
-                    countryInfo.name,
-                    countryInfo.capital,
-                    countryInfo.currency?.name,
-                    currentImageIndex,
-                    currentCoin.donor_name  // ADD DONOR PARAMETER
-                );
+                openImageModal(imagePath, currentCoin.note, countryInfo.name, countryInfo.capital, countryInfo.currency?.name, currentImageIndex);
             });
 
             const prevModalBtn = document.getElementById('prev-modal-btn');
@@ -3485,7 +3298,7 @@
             });
         }
 
-        function openImageModal(imageUrl, note, countryName, capital, currencyName, index, donorName) {
+        function openImageModal(imageUrl, note, countryName, capital, currencyName, index) {
             const imageModal = document.getElementById("imageModal");
             const modalImage = document.getElementById("modalImage");
             const modalDetails = document.getElementById("image-modal-details");
@@ -3494,7 +3307,7 @@
             imageModal.style.display = "flex";
             document.body.style.overflow = "hidden";
 
-            // Set details - ADD DONOR INFORMATION HERE
+            // Set details
             document.getElementById('modal-country-name').style.color = 'white';
             document.getElementById('modal-country-name').textContent = countryName;
             document.getElementById('modal-capital-name').style.color = 'white';
@@ -3503,19 +3316,6 @@
             document.getElementById('modal-currency-name').textContent = currencyName;
             document.getElementById('modal-note').style.color = 'white';
             document.getElementById('modal-note').textContent = note;
-
-            // ADD THIS SECTION FOR DONOR INFO
-            const donorElement = document.getElementById('modal-donor');
-            if (donorElement) {
-                donorElement.textContent = donorName;
-            } else {
-                // Create donor element if it doesn't exist
-                const modalDetailsDiv = document.getElementById('image-modal-details');
-                const donorP = document.createElement('p');
-                donorP.innerHTML = '<strong>Donor:</strong> <span id="modal-donor" style="color: white;">' + (donorName || 'Unknown') + '</span>';
-                modalDetailsDiv.appendChild(donorP);
-            }
-
             modalDetails.style.display = 'block';
 
             currentImageIndex = index;
@@ -3537,9 +3337,6 @@
                 document.getElementById('modal-capital-name').textContent = countryInfo.capital;
                 document.getElementById('modal-currency-name').textContent = countryInfo.currency?.name;
                 document.getElementById('modal-note').textContent = coin.note;
-
-                // ADD DONOR INFO UPDATE
-                document.getElementById('modal-donor').textContent = coin.donor_name || 'Unknown';
             }
         }
 
@@ -3924,206 +3721,6 @@
             );
 
             return usa ? usa.area : 9833517; // Default USA area in km² if not found
-        }
-    </script>
-    <script>
-        // Function to create timeline visualization - IMPROVED VERSION
-        function createTimelineVisualization(coinsData) {
-            const timelineSection = document.getElementById('timeline-section');
-            const timelineContainer = document.getElementById('timeline-container');
-            const timelineStats = document.getElementById('timeline-stats');
-
-            // Filter coins with valid year data
-            const coinsWithYears = coinsData.filter(coin => {
-                if (!coin.year) return false;
-
-                const year = parseInt(coin.year);
-                return !isNaN(year) && year > 1000 && year <= new Date().getFullYear();
-            });
-
-            if (coinsWithYears.length === 0) {
-                timelineSection.style.display = 'none';
-                return;
-            }
-
-            // Show timeline section
-            timelineSection.style.display = 'block';
-            timelineContainer.innerHTML = '';
-
-            // Get year range
-            const years = coinsWithYears.map(coin => parseInt(coin.year));
-            const minYear = Math.min(...years);
-            const maxYear = Math.max(...years);
-            const yearRange = Math.max(1, maxYear - minYear); // Ensure at least 1 to avoid division by zero
-
-            // Update stats
-            timelineStats.textContent = `${minYear} - ${maxYear} (${yearRange} years, ${coinsWithYears.length} items)`;
-
-            // Create timeline axis
-            const axis = document.createElement('div');
-            axis.className = 'timeline-axis';
-            timelineContainer.appendChild(axis);
-
-            // Add markers for each coin
-            coinsWithYears.forEach(coin => {
-                const year = parseInt(coin.year);
-                const position = ((year - minYear) / yearRange) * 100;
-
-                const marker = document.createElement('div');
-                marker.className = 'timeline-marker';
-                marker.style.left = `${position}%`;
-                marker.dataset.year = year;
-                marker.dataset.name = coin.image;
-
-                const tooltip = document.createElement('div');
-                tooltip.className = 'timeline-tooltip';
-                tooltip.textContent = `${year}: ${coin.image.split('.')[0]}`; // Remove file extension
-                marker.appendChild(tooltip);
-
-                marker.addEventListener('click', function () {
-                    // Find and display this coin
-                    const coinIndex = currentCountryCoins.findIndex(c =>
-                        c.image === coin.image && parseInt(c.year) === year
-                    );
-
-                    if (coinIndex !== -1) {
-                        currentImageIndex = coinIndex;
-                        updateImage(currentImageIndex);
-
-                        // Scroll to gallery
-                        document.querySelector('.gallery-section').scrollIntoView({
-                            behavior: 'smooth'
-                        });
-                    }
-                });
-
-                timelineContainer.appendChild(marker);
-            });
-
-            // Add decade labels
-            const startDecade = Math.floor(minYear / 10) * 10;
-            const endDecade = Math.ceil(maxYear / 10) * 10;
-
-            for (let decade = startDecade; decade <= endDecade; decade += 10) {
-                if (decade < minYear || decade > maxYear) continue;
-
-                const position = ((decade - minYear) / yearRange) * 100;
-
-                const label = document.createElement('div');
-                label.className = 'timeline-label';
-                label.style.left = `${position}%`;
-                label.textContent = decade;
-
-                timelineContainer.appendChild(label);
-            }
-        }
-    </script>
-    <script>
-        // Function to create currency type distribution chart - FIXED VERSION
-        function createCurrencyDistributionChart(coinsData) {
-            const distributionSection = document.getElementById('distribution-section');
-            const distributionContainer = document.getElementById('distribution-container');
-
-            distributionContainer.innerHTML = '';
-
-            // Count currency types - FIXED: Properly handle multiple types per coin
-            const typeCount = {};
-            let totalItems = 0;
-
-            coinsData.forEach(coin => {
-                if (coin.currency_type && coin.currency_type.toLowerCase() !== 'none') {
-                    const types = coin.currency_type.split(',').map(t => t.trim().toLowerCase());
-                    types.forEach(type => {
-                        if (type) {
-                            typeCount[type] = (typeCount[type] || 0) + 1;
-                            totalItems++;
-                        }
-                    });
-                }
-            });
-
-            const types = Object.keys(typeCount);
-
-            if (types.length === 0) {
-                distributionSection.style.display = 'none';
-                return;
-            }
-
-            // Show distribution section
-            distributionSection.style.display = 'block';
-
-            // Create chart container
-            const chartDiv = document.createElement('div');
-            chartDiv.className = 'distribution-chart';
-            distributionContainer.appendChild(chartDiv);
-
-            // Create legend
-            const legendDiv = document.createElement('div');
-            legendDiv.className = 'distribution-legend';
-            distributionContainer.appendChild(legendDiv);
-
-            // Colors for chart segments
-            const colors = [
-                '#3498db', '#e74c3c', '#2ecc71', '#f39c12',
-                '#9b59b6', '#1abc9c', '#d35400', '#34495e'
-            ];
-
-            // Create pie chart using conic-gradient
-            let conicGradient = '';
-            let cumulativePercentage = 0;
-
-            types.forEach((type, index) => {
-                const percentage = (typeCount[type] / totalItems) * 100;
-                const color = colors[index % colors.length];
-
-                const start = cumulativePercentage;
-                const end = cumulativePercentage + percentage;
-
-                if (conicGradient) {
-                    conicGradient += `, ${color} ${start}% ${end}%`;
-                } else {
-                    conicGradient = `${color} ${start}% ${end}%`;
-                }
-
-                cumulativePercentage = end;
-
-                // Add to legend
-                const legendItem = document.createElement('div');
-                legendItem.className = 'legend-item';
-
-                const colorBox = document.createElement('div');
-                colorBox.className = 'legend-color';
-                colorBox.style.backgroundColor = color;
-
-                const label = document.createElement('span');
-                // Format the type name for better display
-                const formattedType = type.split('-').map(word =>
-                    word.charAt(0).toUpperCase() + word.slice(1)
-                ).join(' ');
-                label.textContent = `${formattedType} (${typeCount[type]})`;
-
-                legendItem.appendChild(colorBox);
-                legendItem.appendChild(label);
-                legendDiv.appendChild(legendItem);
-            });
-
-            // Apply the gradient to the chart
-            chartDiv.style.background = `conic-gradient(${conicGradient})`;
-            chartDiv.style.borderRadius = '50%';
-
-            // Add center text for total
-            const centerText = document.createElement('div');
-            centerText.style.position = 'absolute';
-            centerText.style.top = '50%';
-            centerText.style.left = '50%';
-            centerText.style.transform = 'translate(-50%, -50%)';
-            centerText.style.textAlign = 'center';
-            centerText.style.fontWeight = 'bold';
-            centerText.style.fontSize = '16px';
-            centerText.style.color = '#2c3e50';
-            centerText.textContent = totalItems;
-
-            chartDiv.appendChild(centerText);
         }
     </script>
 </body>
