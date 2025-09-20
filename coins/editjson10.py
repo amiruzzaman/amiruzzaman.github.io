@@ -10,10 +10,6 @@ from flask import Flask, flash, request, redirect, render_template, url_for, ses
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
 
-# Add these imports at the top of editjson.py
-import base64
-from PIL import Image, ImageOps
-
 app = Flask(__name__, static_url_path='/static')
 CORS(app)
 
@@ -1013,110 +1009,46 @@ def edit_json():
 
     </style>
     <style>
-        .filter-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
+    .filter-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
 
-        .filter-btn {
-            padding: 10px 15px;
-            background-color: #6c757d;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
+.filter-btn {
+    padding: 10px 15px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
 
-        .filter-btn:hover {
-            background-color: #5a6268;
-        }
+.filter-btn:hover {
+    background-color: #5a6268;
+}
 
-        .filter-btn.active {
-            background-color: #28a745;
-        }
+.filter-btn.active {
+    background-color: #28a745;
+}
 
-        .search-container {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
+.search-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
 
-        .search-box {
-            width: 100%;
-            padding: 10px;
-            font-size: 14px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #fff;
-            color: #333;
-        }
-            </style>
-            <style>
-            /* Add these styles to the existing CSS */
-        .image-drop-areas-container {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .merge-drop-area {
-            flex: 1;
-            min-height: 80px;
-        }
-
-        .merge-options {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .merge-options label {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            color: #333;
-            font-weight: normal;
-        }
-
-        #mergeImagesBtn {
-            padding: 5px 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        #mergeImagesBtn:disabled {
-            background-color: #6c757d;
-            cursor: not-allowed;
-        }
-        
-        /* Add to your CSS */
-.merge-preview {
-    margin-top: 10px;
+.search-box {
+    width: 100%;
     padding: 10px;
-    border: 2px dashed #007bff;
-    border-radius: 5px;
-    background-color: #f8f9fa;
-}
-
-.merge-preview img {
-    max-width: 100%;
-    max-height: 150px;
-    margin: 5px;
+    font-size: 14px;
     border: 1px solid #ddd;
-}
-
-.merge-size-info {
-    font-size: 12px;
-    color: #666;
-    margin-top: 5px;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #333;
 }
     </style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
@@ -1204,46 +1136,6 @@ def edit_json():
                         <input type="file" id="editImageInput" accept="image/*" style="display: none;">
                     </div>
                 </div>
-                
-                <!-- Add this inside the modal-content div, after the existing image drop area -->
-                <div class="form-group" style="grid-column: span 2;">
-                    <label>Merge Images (Optional):</label>
-                    <div class="merge-controls">
-                        <div class="image-drop-areas-container">
-                            <div class="image-drop-area merge-drop-area" id="mergeDropArea1">
-                                <p>Drag & drop first image here</p>
-                            </div>
-                            <div class="image-drop-area merge-drop-area" id="mergeDropArea2">
-                                <p>Drag & drop second image here</p>
-                            </div>
-                        </div>
-                        
-                        <div class="merge-options">
-                            <div>
-                                <strong>Merge Direction:</strong>
-                                <label><input type="radio" name="mergeDirection" value="horizontal" checked> Side by Side</label>
-                                <label><input type="radio" name="mergeDirection" value="vertical"> Top and Bottom</label>
-                            </div>
-                            
-                            <div style="margin-top: 10px;">
-                                <strong>Resize Option:</strong>
-                                <label><input type="radio" name="resizeOption" value="equal" checked> Equal Size</label>
-                                <label><input type="radio" name="resizeOption" value="original"> Keep Original Sizes</label>
-                            </div>
-                            
-                            <button type="button" id="mergeImagesBtn" disabled>Merge Images</button>
-                        </div>
-                        
-                        <div id="mergePreviewContainer" style="display: none;">
-                            <div class="merge-preview">
-                                <p><strong>Preview:</strong></p>
-                                <div id="imagePreviews"></div>
-                                <div class="merge-size-info" id="sizeInfo"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
                 <div class="form-group">
                     <label for="editHiddenNote">Hidden Note:</label>
                     <textarea id="editHiddenNote" name="hidden_note" placeholder="(Optional, not shown publicly)"></textarea>
@@ -1254,389 +1146,6 @@ def edit_json():
     </div>
 
     <script>
-    // Add these variables at the top of your script section
-    let mergeImage1 = null;
-    let mergeImage2 = null;
-    let mergedImage = null;
-
-    // Add this function to handle the merge functionality
-    function setupImageMerging() {
-        const mergeDropArea1 = document.getElementById('mergeDropArea1');
-        const mergeDropArea2 = document.getElementById('mergeDropArea2');
-        const mergeImagesBtn = document.getElementById('mergeImagesBtn');
-        const mergedImagePreview = document.getElementById('mergedImagePreview');
-        const mergedPreviewImg = document.getElementById('mergedPreviewImg');
-        
-        // Setup drop areas for merging
-        setupMergeDropArea(mergeDropArea1, 1);
-        setupMergeDropArea(mergeDropArea2, 2);
-        
-        // Update the merge button click handler to show format info
-        // Update the merge button click handler to show format info
-mergeImagesBtn.addEventListener('click', function() {
-    if (!mergeImage1 || !mergeImage2) {
-        alert('Please upload both images first');
-        return;
-    }
-    
-    const mergeDirection = document.querySelector('input[name="mergeDirection"]:checked').value;
-    
-    // Show loading state
-    const originalText = mergeImagesBtn.textContent;
-    mergeImagesBtn.textContent = 'Merging...';
-    mergeImagesBtn.disabled = true;
-    
-    mergeImages(mergeImage1, mergeImage2, mergeDirection)
-        .then(result => {
-            alert(`${result.message} (Format: ${result.format || 'PNG'})`);
-            
-            // Update the JSON data with the new filename
-            if (currentEditingIndex !== -1) {
-                jsonData[currentEditingIndex].image = result.filename;
-                renderTable(jsonData);
-                saveUpdates();
-            }
-            
-            // Update the main drop area to show the new image
-          // Update the main drop area to show the new image
-const mainDropArea = document.querySelector('.drop-area');
-mainDropArea.innerHTML = '<img src="images/' + document.getElementById('editCountry').value + '/' + result.filename + '" style="max-width: 100%; max-height: 100px;">';
-            
-// Hide the merged image preview and reset
-document.getElementById('mergePreviewContainer').style.display = 'none';
-clearMergeAreas();
-
-// Restore button text
-mergeImagesBtn.textContent = originalText;
-mergeImagesBtn.disabled = false;
-})
-.catch(error => {
-    console.error('Error merging images:', error);
-    alert('Error merging images: ' + error.message);
-    // Restore button text even on error
-    mergeImagesBtn.textContent = originalText;
-    mergeImagesBtn.disabled = false;
-});
-});
-        
-    }
-
-    function setupMergeDropArea(dropArea, imageNumber) {
-        // Add this function inside setupMergeDropArea
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        // ... rest of the code remains the same
-        fileInput.accept = 'image/*';
-        fileInput.style.display = 'none';
-        document.body.appendChild(fileInput);
-        
-        // Click to select file
-        dropArea.addEventListener('click', () => {
-            fileInput.click();
-        });
-        
-        // Handle file selection
-        fileInput.addEventListener('change', function(e) {
-            handleMergeFileSelect(e, imageNumber);
-        });
-        
-        // Drag and drop events
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, preventDefaults, false);
-        });
-        
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropArea.addEventListener(eventName, () => {
-                dropArea.classList.add('highlight');
-            }, false);
-        });
-        
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, () => {
-                dropArea.classList.remove('highlight');
-            }, false);
-        });
-        
-        // Handle file drop
-        dropArea.addEventListener('drop', function(e) {
-            handleMergeFileDrop(e, imageNumber);
-        }, false);
-    }
-
-    function handleMergeFileSelect(e, imageNumber) {
-        const files = e.target.files;
-        handleMergeFiles(files, imageNumber);
-    }
-
-    function handleMergeFileDrop(e, imageNumber) {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-        handleMergeFiles(files, imageNumber);
-    }
-
-    // Update the handleMergeFiles function to show image format info
-    
-function handleMergeFiles(files, imageNumber) {
-    if (files.length === 0) return;
-    
-    const file = files[0];
-    if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
-        return;
-    }
-    
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const fileSizeKB = Math.round(file.size / 1024);
-        const htmlContent = '<img src="' + e.target.result + '" style="max-width: 100%; max-height: 70px;">' +
-                           '<div style="font-size: 10px; margin-top: 5px;">' +
-                           file.name + '<br>' + file.type + ' (' + fileSizeKB + 'KB)' +
-                           '</div>';
-        
-        if (imageNumber === 1) {
-            mergeImage1 = file;
-            document.getElementById('mergeDropArea1').innerHTML = htmlContent;
-        } else {
-            mergeImage2 = file;
-            document.getElementById('mergeDropArea2').innerHTML = htmlContent;
-        }
-        
-        // Enable merge button if both images are uploaded
-        if (mergeImage1 && mergeImage2) {
-            document.getElementById('mergeImagesBtn').disabled = false;
-            showImagePreviews();
-        }
-    };
-    reader.readAsDataURL(file);
-}
-
-function showImagePreviews() {
-    const previewContainer = document.getElementById('mergePreviewContainer');
-    const imagePreviews = document.getElementById('imagePreviews');
-    const sizeInfo = document.getElementById('sizeInfo');
-    
-    previewContainer.style.display = 'block';
-    imagePreviews.innerHTML = '';
-    
-    const reader1 = new FileReader();
-    const reader2 = new FileReader();
-    
-    reader1.onload = function(e1) {
-        reader2.onload = function(e2) {
-            const img1 = new Image();
-            const img2 = new Image();
-            
-            img1.onload = img2.onload = function() {
-                imagePreviews.innerHTML = '<img src="' + e1.target.result + '" title="Image 1: ' + img1.width + '×' + img1.height + '">' +
-                                         '<img src="' + e2.target.result + '" title="Image 2: ' + img2.width + '×' + img2.height + '">';
-                
-                const direction = document.querySelector('input[name="mergeDirection"]:checked').value;
-                const resizeOption = document.querySelector('input[name="resizeOption"]:checked').value;
-                
-                if (resizeOption === 'equal') {
-                    if (direction === 'horizontal') {
-                        const targetHeight = Math.min(img1.height, img2.height);
-                        const width1 = Math.round((targetHeight / img1.height) * img1.width);
-                        const width2 = Math.round((targetHeight / img2.height) * img2.width);
-                        sizeInfo.textContent = 'Merged size: ' + (width1 + width2) + '×' + targetHeight + ' pixels';
-                    } else {
-                        const targetWidth = Math.min(img1.width, img2.width);
-                        const height1 = Math.round((targetWidth / img1.width) * img1.height);
-                        const height2 = Math.round((targetWidth / img2.width) * img2.height);
-                        sizeInfo.textContent = 'Merged size: ' + targetWidth + '×' + (height1 + height2) + ' pixels';
-                    }
-                } else {
-                    if (direction === 'horizontal') {
-                        sizeInfo.textContent = 'Merged size: ' + (img1.width + img2.width) + '×' + Math.max(img1.height, img2.height) + ' pixels';
-                    } else {
-                        sizeInfo.textContent = 'Merged size: ' + Math.max(img1.width, img2.width) + '×' + (img1.height + img2.height) + ' pixels';
-                    }
-                }
-            };
-            
-            img1.src = e1.target.result;
-            img2.src = e2.target.result;
-        };
-        reader2.readAsDataURL(mergeImage2);
-    };
-    reader1.readAsDataURL(mergeImage1);
-}
-
-    // Add this helper function
-    function getFileExtensionFromFormat(format) {
-        const formatMap = {
-            'image/jpeg': 'jpg',
-            'image/jpg': 'jpg',
-            'image/png': 'png',
-            'image/gif': 'gif',
-            'image/webp': 'webp',
-            'image/bmp': 'bmp',
-            'image/tiff': 'tiff'
-        };
-        
-        return formatMap[format.toLowerCase()] || 'png';
-    }
-    
-    // Replace the mergeImages function with this complete version
-function mergeImages(image1, image2, direction) {
-    return new Promise((resolve, reject) => {
-        const reader1 = new FileReader();
-        const reader2 = new FileReader();
-        
-        reader1.onload = function(e1) {
-            reader2.onload = function(e2) {
-                const img1 = new Image();
-                const img2 = new Image();
-                
-                img1.onload = function() {
-                    img2.onload = function() {
-                        try {
-                            // Resize images to have equal dimensions while maintaining aspect ratio
-                            let targetWidth, targetHeight;
-                            
-                            if (direction === 'horizontal') {
-                                // For horizontal merge, make both images same height
-                                targetHeight = Math.min(img1.height, img2.height);
-                                targetWidth1 = Math.round((targetHeight / img1.height) * img1.width);
-                                targetWidth2 = Math.round((targetHeight / img2.height) * img2.width);
-                                
-                                // Create canvas with combined width
-                                const canvas = document.createElement('canvas');
-                                canvas.width = targetWidth1 + targetWidth2;
-                                canvas.height = targetHeight;
-                                const ctx = canvas.getContext('2d');
-                                
-                                // Draw resized images
-                                ctx.drawImage(img1, 0, 0, targetWidth1, targetHeight);
-                                ctx.drawImage(img2, targetWidth1, 0, targetWidth2, targetHeight);
-                                
-                                createMergedImage(canvas, direction);
-                                
-                            } else {
-                                // For vertical merge, make both images same width
-                                targetWidth = Math.min(img1.width, img2.width);
-                                targetHeight1 = Math.round((targetWidth / img1.width) * img1.height);
-                                targetHeight2 = Math.round((targetWidth / img2.width) * img2.height);
-                                
-                                // Create canvas with combined height
-                                const canvas = document.createElement('canvas');
-                                canvas.width = targetWidth;
-                                canvas.height = targetHeight1 + targetHeight2;
-                                const ctx = canvas.getContext('2d');
-                                
-                                // Draw resized images
-                                ctx.drawImage(img1, 0, 0, targetWidth, targetHeight1);
-                                ctx.drawImage(img2, 0, targetHeight1, targetWidth, targetHeight2);
-                                
-                                createMergedImage(canvas, direction);
-                            }
-                            
-                        } catch (error) {
-                            reject(new Error('Failed to merge images: ' + error.message));
-                        }
-                    };
-                    
-                    img2.onerror = function() {
-                        reject(new Error('Failed to load second image'));
-                    };
-                    
-                    img2.src = e2.target.result;
-                };
-                
-                img1.onerror = function() {
-                    reject(new Error('Failed to load first image'));
-                };
-                
-                img1.src = e1.target.result;
-            };
-            
-            reader2.onerror = function() {
-                reject(new Error('Failed to read second image file'));
-            };
-            
-            reader2.readAsDataURL(image2);
-        };
-        
-        reader1.onerror = function() {
-            reject(new Error('Failed to read first image file'));
-        };
-        
-        reader1.readAsDataURL(image1);
-        
-        function createMergedImage(canvas, direction) {
-            // Ask user for output format
-            const useJpeg = confirm(\'Use JPEG format for output? (Cancel for PNG)\\n\\nJPEG: Smaller file size, no transparency\\nPNG: Better quality, supports transparency\');
-            const mimeType = useJpeg ? 'image/jpeg' : 'image/png';
-            const quality = useJpeg ? 0.9 : 1.0; // JPEG quality (0-1)
-            
-            canvas.toBlob(function(blob) {
-                // Create FormData to send to server
-                const formData = new FormData();
-                const extension = useJpeg ? 'jpg' : 'png';
-                const filename = `merged-${Date.now()}.${extension}`;
-                
-                formData.append('file', blob, filename);
-                formData.append('country', document.getElementById('editCountry').value);
-                
-                // Get existing image filename if editing
-                if (currentEditingIndex !== -1 && jsonData[currentEditingIndex].image && jsonData[currentEditingIndex].image !== "placeholder.jpg") {
-                    formData.append('existing_image', jsonData[currentEditingIndex].image);
-                }
-                
-                // Send to server
-                fetch('/upload-image', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok: ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.error) {
-                        reject(new Error(data.error));
-                    } else {
-                        resolve({
-                            message: `Images merged successfully (${direction === 'horizontal' ? 'side-by-side' : 'top-bottom'})`,
-                            filename: data.filename,
-                            filepath: data.filepath,
-                            format: useJpeg ? 'JPEG' : 'PNG'
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Upload error:', error);
-                    reject(new Error('Failed to upload merged image: ' + error.message));
-                });
-            }, mimeType, quality);
-        }
-    });
-}
-
-    function dataURLtoBlob(dataURL) {
-        const parts = dataURL.split(';base64,');
-        const contentType = parts[0].split(':')[1];
-        const raw = window.atob(parts[1]);
-        const uInt8Array = new Uint8Array(raw.length);
-        
-        for (let i = 0; i < raw.length; ++i) {
-            uInt8Array[i] = raw.charCodeAt(i);
-        }
-        
-        return new Blob([uInt8Array], { type: contentType });
-    }
-
-    // Add this function call to initialize the merging functionality
-    setupImageMerging();
-    
-    
         document.getElementById("uploadFileBtn").addEventListener("click", function () {
             const fileInput = document.getElementById("uploadFileInput");
             const file = fileInput.files[0];
@@ -2293,9 +1802,6 @@ function mergeImages(image1, image2, direction) {
             setupModalAutoSave();
 
 
-            // Setup image merging functionality
-            setupImageMerging();
-
             document.getElementById("addRowBtn").addEventListener("click", function () {
                 const newRow = {
                     country: "",
@@ -2555,14 +2061,6 @@ function filterTable() {
         });
     }
 }
-// Add these helper functions to the JavaScript section
-function clearMergeAreas() {
-    mergeImage1 = null;
-    mergeImage2 = null;
-    document.getElementById('mergeDropArea1').innerHTML = '<p>Drag & drop first image here</p>';
-    document.getElementById('mergeDropArea2').innerHTML = '<p>Drag & drop second image here</p>';
-    document.getElementById('mergeImagesBtn').disabled = true;
-}
     </script>
 </body>
 
@@ -2665,126 +2163,6 @@ def upload_json():
             return jsonify({"error": f"Error processing JSON file: {str(e)}"}), 400
     else:
         return jsonify({"error": "Invalid file type. Please upload a JSON file."}), 400
-
-# Update the merge-images route to handle different formats
-@app.route('/merge-images', methods=['POST'])
-def merge_images():
-    try:
-        # Get the JSON data
-        data = request.get_json()
-        
-        # Get the base64 encoded images and merge direction
-        image1_data = data.get('image1')
-        image2_data = data.get('image2')
-        direction = data.get('direction', 'horizontal')
-        country = data.get('country')
-        
-        if not all([image1_data, image2_data, country]):
-            return jsonify({"error": "Missing required parameters"}), 400
-        
-        # Remove the data URL prefix if present
-        if 'base64,' in image1_data:
-            image1_data = image1_data.split('base64,')[1]
-        if 'base64,' in image2_data:
-            image2_data = image2_data.split('base64,')[1]
-        
-        # Decode base64 images
-        image1 = Image.open(io.BytesIO(base64.b64decode(image1_data)))
-        image2 = Image.open(io.BytesIO(base64.b64decode(image2_data)))
-        
-        # Determine the output format based on input images
-        # Prefer PNG for transparency, otherwise use the format of the first image
-        output_format = 'PNG'
-        
-        # Check if either image has transparency
-        has_transparency = (
-            (image1.mode in ('RGBA', 'LA') or 
-             (image1.mode == 'P' and 'transparency' in image1.info)) or
-            (image2.mode in ('RGBA', 'LA') or 
-             (image2.mode == 'P' and 'transparency' in image2.info))
-        )
-        
-        # If no transparency, use the format of the first image if it's JPEG
-        if not has_transparency:
-            # Try to get format from the first image
-            try:
-                if hasattr(image1, 'format') and image1.format:
-                    first_format = image1.format.upper()
-                    # Use JPEG for JPEG images to maintain quality
-                    if first_format == 'JPEG':
-                        output_format = 'JPEG'
-            except:
-                pass  # Fall back to PNG if we can't determine format
-        
-        # Determine the merge direction and resize images if needed
-        if direction == 'horizontal':
-            # Resize images to have the same height
-            max_height = max(image1.height, image2.height)
-            image1 = ImageOps.contain(image1, (image1.width, max_height))
-            image2 = ImageOps.contain(image2, (image2.width, max_height))
-            
-            # Create new image with combined width
-            new_width = image1.width + image2.width
-            if has_transparency:
-                merged_image = Image.new('RGBA', (new_width, max_height))
-            else:
-                merged_image = Image.new('RGB', (new_width, max_height))
-            merged_image.paste(image1, (0, 0))
-            merged_image.paste(image2, (image1.width, 0))
-        else:  # vertical
-            # Resize images to have the same width
-            max_width = max(image1.width, image2.width)
-            image1 = ImageOps.contain(image1, (max_width, image1.height))
-            image2 = ImageOps.contain(image2, (max_width, image2.height))
-            
-            # Create new image with combined height
-            new_height = image1.height + image2.height
-            if has_transparency:
-                merged_image = Image.new('RGBA', (max_width, new_height))
-            else:
-                merged_image = Image.new('RGB', (max_width, new_height))
-            merged_image.paste(image1, (0, 0))
-            merged_image.paste(image2, (0, image1.height))
-        
-        # Save the merged image to a bytes buffer
-        buffer = io.BytesIO()
-        
-        # Set appropriate quality and format options
-        save_kwargs = {}
-        if output_format == 'JPEG':
-            save_kwargs['quality'] = 95  # High quality JPEG
-            file_ext = 'jpg'
-        else:
-            # PNG format - preserve transparency
-            file_ext = 'png'
-            if has_transparency:
-                merged_image = merged_image.convert('RGBA')
-        
-        merged_image.save(buffer, format=output_format, **save_kwargs)
-        buffer.seek(0)
-        
-        # Generate a filename with UUID
-        file_uuid = str(uuid.uuid4())
-        filename = f"{file_uuid}.{file_ext}"
-        country_folder = os.path.join(BASE_UPLOAD_FOLDER, country)
-        
-        # Ensure the country folder exists
-        os.makedirs(country_folder, exist_ok=True)
-        
-        # Save the file
-        file_path = os.path.join(country_folder, filename)
-        with open(file_path, 'wb') as f:
-            f.write(buffer.getvalue())
-        
-        return jsonify({
-            "message": "Images merged and saved successfully",
-            "filename": filename,
-            "filepath": file_path,
-            "format": output_format
-        }), 200
-        
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
