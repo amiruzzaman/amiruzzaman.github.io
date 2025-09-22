@@ -9,6 +9,7 @@ from PIL import Image
 from flask import Flask, flash, request, redirect, render_template, url_for, session, send_from_directory, jsonify, send_file
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
+from werkzeug.exceptions import RequestEntityTooLarge  # Add this import
 
 # Add these imports at the top of editjson.py
 import base64
@@ -28,14 +29,26 @@ def after_request(response):
 # App configuration
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.secret_key = "secret key"
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024
 app.config["UPLOAD_FOLDER"] = "upload"
 
 # Paths and file setup
 file_name = './images/coins.json'
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'images')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+# Allow more image formats
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'tiff', 'webp'}
+ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'tiff', 'webp'}
+
+
+@app.errorhandler(RequestEntityTooLarge)
+def handle_large_file_error(e):
+    return jsonify({
+        "message": "File too large!",
+        "error": "The file exceeds the maximum allowed size of 100MB",
+        "max_size": "100MB"
+    }), 413
+
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
@@ -59,7 +72,7 @@ IMAGE_FOLDER = os.path.join(os.getcwd(), 'crop')
 os.makedirs(IMAGE_FOLDER, exist_ok=True)  # Ensure the folder exists
 
 # Allowed file extensions for uploaded images
-ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+#ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 # Load countries data
 COUNTRIES_FILE_PATH = './countries.json'
@@ -92,6 +105,8 @@ def download_file_from_url(url, country):
         f.write(response.content)
     return file_path, f"{file_uuid}.{file_ext}"
 
+
+
 def save_file(file, country):
     """
     Save the file with a random UUID and structured path.
@@ -100,9 +115,12 @@ def save_file(file, country):
         print(f"Attempting to save file for country: {country}")
         print(f"Original filename: {file.filename}")
         
-        # Get the file extension
+        # Get the file extension more reliably
         if '.' in file.filename:
             file_ext = file.filename.rsplit('.', 1)[-1].lower()
+            # Ensure extension is valid
+            if file_ext not in ALLOWED_EXTENSIONS:
+                file_ext = 'jpg'  # Default to jpg if extension not allowed
         else:
             file_ext = 'jpg'  # Default extension if none provided
         
@@ -111,17 +129,11 @@ def save_file(file, country):
         # Ensure the country folder exists
         country_folder = ensure_country_folder_exists(country)
         print(f"Country folder: {country_folder}")
-        print(f"Folder exists: {os.path.exists(country_folder)}")
         
         # Create the filename and path
         filename = f"{file_uuid}.{file_ext}"
         file_path = os.path.join(country_folder, filename)
         print(f"Saving file to: {file_path}")
-        
-        # Check if we have write permissions
-        if not os.access(country_folder, os.W_OK):
-            print(f"NO WRITE PERMISSION for folder: {country_folder}")
-            raise Exception(f"No write permission for folder: {country_folder}")
         
         # Save the file
         file.save(file_path)
@@ -138,6 +150,8 @@ def save_file(file, country):
     except Exception as e:
         print(f"Error in save_file: {str(e)}")
         raise e
+
+
 def ensure_country_folder_exists(country):
     """
     Ensure the country folder exists, create it if it doesn't.
@@ -419,6 +433,8 @@ def index():
 def upload_form():
     return render_template('upload.html')
 
+
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     try:
@@ -472,11 +488,17 @@ def upload_file():
             })
         except Exception as e:
             print(f"Error saving file: {str(e)}")
-            return jsonify({"message": "Error saving file!", "error": str(e)}), 500
+            # Add more detailed error information
+            error_details = f"Error saving file: {str(e)}. File: {file.filename}, Size: {getattr(file, 'content_length', 'unknown')}"
+            return jsonify({"message": "Error saving file!", "error": error_details}), 500
 
     except Exception as e:
         print(f"Unexpected error in upload: {str(e)}")
-        return jsonify({"message": "Server error!", "error": str(e)}), 500
+        import traceback
+        traceback.print_exc()
+        return jsonify({"message": "Server error!", "error": str(e), "traceback": traceback.format_exc()}), 500
+
+
 
 @app.route('/edit', methods=['GET', 'POST'])
 def edit():
@@ -1177,10 +1199,18 @@ def edit_json():
         }
 
         // Process uploaded files
+        // Add this to your JavaScript to check file size before upload
         function handleFiles(files) {
             if (files.length === 0) return;
             
             const file = files[0];
+            const maxSize = 50 * 1024 * 1024; // 50MB
+            
+            if (file.size > maxSize) {
+                showToast('File is too large. Maximum size is 50MB', 'error');
+                return;
+            }
+            
             if (!file.type.startsWith('image/')) {
                 showToast('Please select an image file', 'error');
                 return;
@@ -1785,6 +1815,7 @@ def upload_json():
     else:
         return jsonify({"error": "Invalid file type. Please upload a JSON file."}), 400
 
+
 # Update the merge-images route to handle different formats
 @app.route('/merge-images', methods=['POST'])
 def merge_images():
@@ -1807,84 +1838,71 @@ def merge_images():
         if 'base64,' in image2_data:
             image2_data = image2_data.split('base64,')[1]
         
-        # Decode base64 images
-        image1 = Image.open(io.BytesIO(base64.b64decode(image1_data)))
-        image2 = Image.open(io.BytesIO(base64.b64decode(image2_data)))
+        # Decode base64 images with better error handling
+        try:
+            image1 = Image.open(io.BytesIO(base64.b64decode(image1_data)))
+            # Convert to RGB if necessary
+            if image1.mode in ('RGBA', 'LA', 'P'):
+                if image1.mode == 'RGBA':
+                    # Create a white background for transparency
+                    background = Image.new('RGB', image1.size, (255, 255, 255))
+                    background.paste(image1, mask=image1.split()[3])  # 3 is the alpha channel
+                    image1 = background
+                else:
+                    image1 = image1.convert('RGB')
+            elif image1.mode != 'RGB':
+                image1 = image1.convert('RGB')
+        except Exception as e:
+            return jsonify({"error": f"Failed to process image 1: {str(e)}"}), 400
         
-        # Determine the output format based on input images
-        # Prefer PNG for transparency, otherwise use the format of the first image
-        output_format = 'PNG'
+        try:
+            image2 = Image.open(io.BytesIO(base64.b64decode(image2_data)))
+            # Convert to RGB if necessary
+            if image2.mode in ('RGBA', 'LA', 'P'):
+                if image2.mode == 'RGBA':
+                    # Create a white background for transparency
+                    background = Image.new('RGB', image2.size, (255, 255, 255))
+                    background.paste(image2, mask=image2.split()[3])  # 3 is the alpha channel
+                    image2 = background
+                else:
+                    image2 = image2.convert('RGB')
+            elif image2.mode != 'RGB':
+                image2 = image2.convert('RGB')
+        except Exception as e:
+            return jsonify({"error": f"Failed to process image 2: {str(e)}"}), 400
         
-        # Check if either image has transparency
-        has_transparency = (
-            (image1.mode in ('RGBA', 'LA') or 
-             (image1.mode == 'P' and 'transparency' in image1.info)) or
-            (image2.mode in ('RGBA', 'LA') or 
-             (image2.mode == 'P' and 'transparency' in image2.info))
-        )
-        
-        # If no transparency, use the format of the first image if it's JPEG
-        if not has_transparency:
-            # Try to get format from the first image
-            try:
-                if hasattr(image1, 'format') and image1.format:
-                    first_format = image1.format.upper()
-                    # Use JPEG for JPEG images to maintain quality
-                    if first_format == 'JPEG':
-                        output_format = 'JPEG'
-            except:
-                pass  # Fall back to PNG if we can't determine format
-        
-        # Determine the merge direction and resize images if needed
+        # Determine the merge direction and resize images
         if direction == 'horizontal':
             # Resize images to have the same height
             max_height = max(image1.height, image2.height)
-            image1 = ImageOps.contain(image1, (image1.width, max_height))
-            image2 = ImageOps.contain(image2, (image2.width, max_height))
+            image1_resized = ImageOps.contain(image1, (image1.width, max_height))
+            image2_resized = ImageOps.contain(image2, (image2.width, max_height))
             
             # Create new image with combined width
-            new_width = image1.width + image2.width
-            if has_transparency:
-                merged_image = Image.new('RGBA', (new_width, max_height))
-            else:
-                merged_image = Image.new('RGB', (new_width, max_height))
-            merged_image.paste(image1, (0, 0))
-            merged_image.paste(image2, (image1.width, 0))
+            new_width = image1_resized.width + image2_resized.width
+            merged_image = Image.new('RGB', (new_width, max_height), (255, 255, 255))
+            merged_image.paste(image1_resized, (0, 0))
+            merged_image.paste(image2_resized, (image1_resized.width, 0))
         else:  # vertical
             # Resize images to have the same width
             max_width = max(image1.width, image2.width)
-            image1 = ImageOps.contain(image1, (max_width, image1.height))
-            image2 = ImageOps.contain(image2, (max_width, image2.height))
+            image1_resized = ImageOps.contain(image1, (max_width, image1.height))
+            image2_resized = ImageOps.contain(image2, (max_width, image2.height))
             
             # Create new image with combined height
-            new_height = image1.height + image2.height
-            if has_transparency:
-                merged_image = Image.new('RGBA', (max_width, new_height))
-            else:
-                merged_image = Image.new('RGB', (max_width, new_height))
-            merged_image.paste(image1, (0, 0))
-            merged_image.paste(image2, (0, image1.height))
+            new_height = image1_resized.height + image2_resized.height
+            merged_image = Image.new('RGB', (max_width, new_height), (255, 255, 255))
+            merged_image.paste(image1_resized, (0, 0))
+            merged_image.paste(image2_resized, (0, image1_resized.height))
         
-        # Save the merged image to a bytes buffer
+        # Save the merged image to a bytes buffer as JPEG
         buffer = io.BytesIO()
-        
-        # Set appropriate quality and format options
-        save_kwargs = {}
-        if output_format == 'JPEG':
-            save_kwargs['quality'] = 95  # High quality JPEG
-            file_ext = 'jpg'
-        else:
-            # PNG format - preserve transparency
-            file_ext = 'png'
-            if has_transparency:
-                merged_image = merged_image.convert('RGBA')
-        
-        merged_image.save(buffer, format=output_format, **save_kwargs)
+        merged_image.save(buffer, format='JPEG', quality=95)
         buffer.seek(0)
         
         # Generate a filename with UUID
         file_uuid = str(uuid.uuid4())
-        filename = f"{file_uuid}.{file_ext}"
+        filename = f"{file_uuid}.jpg"
         country_folder = os.path.join(BASE_UPLOAD_FOLDER, country)
         
         # Ensure the country folder exists
@@ -1899,11 +1917,15 @@ def merge_images():
             "message": "Images merged and saved successfully",
             "filename": filename,
             "filepath": file_path,
-            "format": output_format
+            "format": "JPEG"
         }), 200
         
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"Error in merge_images: {str(e)}")
+        return jsonify({"error": f"Failed to merge images: {str(e)}"}), 500
+
+
+
 
 @app.route('/test-connection', methods=['GET'])
 def test_connection():
