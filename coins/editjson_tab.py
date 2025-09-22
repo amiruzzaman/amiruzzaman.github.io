@@ -510,11 +510,11 @@ def edit():
     coins = read_json_file()
     return render_template('edit.html', title="Edit Page", jsonfile=json.dumps(coins))
 
-@app.route('/test', methods=['POST'])
-def test():
-    data = request.get_json()
-    update_entry(data)
-    return render_template('edit_table.html')
+# @app.route('/test', methods=['POST'])
+# def test():
+#     data = request.get_json()
+#     update_entry(data)
+#     return render_template('edit_table.html')
 
 @app.route('/testdelete', methods=['POST'])
 def testdelete():
@@ -912,6 +912,60 @@ def edit_json():
             border-radius: 4px;
         }
     </style>
+    <style>
+    .collection-controls {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.edit-mode-active {
+    background-color: #fff3cd !important;
+    border-color: #ffeaa7 !important;
+}
+
+.editable-field {
+    width: 100%;
+    padding: 5px;
+    border: 1px dashed #ccc;
+    border-radius: 3px;
+    background-color: #f8f9fa;
+}
+
+.editable-field:focus {
+    border-color: #007bff;
+    outline: none;
+    background-color: white;
+}
+
+.collection-item.editing {
+    border: 2px solid #007bff;
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.action-buttons .btn {
+    flex: 1;
+    min-width: 80px;
+    font-size: 12px;
+    padding: 5px 8px;
+}
+    </style>
 </head>
 <body>
     <div class="container">
@@ -1018,10 +1072,16 @@ def edit_json():
             </form>
         </div>
         
-        <div class="tab-content" id="view-tab">
+       <div class="tab-content" id="view-tab">
             <div class="search-container">
                 <input type="text" id="searchInput" placeholder="Search collection...">
                 <button id="clearSearch" class="btn">Clear Search</button>
+            </div>
+            
+            <!-- ADD THIS EDIT MODE CONTROL PANEL -->
+            <div class="collection-controls" style="margin-bottom: 15px;">
+                <button id="toggleEditMode" class="btn btn-secondary">Enable Edit Mode</button>
+                <span id="editModeStatus" style="margin-left: 10px; color: #666;">Edit mode: OFF</span>
             </div>
             
             <div id="collectionContainer" class="collection-container">
@@ -1039,6 +1099,9 @@ def edit_json():
         let mergeImage2 = null;
         let countriesData = [];
         let collectionData = [];
+        
+        // Global variable for edit mode
+        let editMode = false;
 
         // Initialize the application
         //document.addEventListener('DOMContentLoaded', function() {
@@ -1167,6 +1230,9 @@ def edit_json():
             
             // Clear merge button
             document.getElementById('clearMergeBtn').addEventListener('click', clearMergeAreas);
+            
+            // Edit mode toggle
+            document.getElementById('toggleEditMode').addEventListener('click', toggleEditMode);
         }
 
         // Prevent default behavior for drag and drop
@@ -1630,7 +1696,7 @@ def edit_json():
                 });
         }
 
-        // Display collection items
+        // Enhanced displayCollection function
         function displayCollection(data) {
             const container = document.getElementById('collectionContainer');
             container.innerHTML = '';
@@ -1643,46 +1709,269 @@ def edit_json():
             data.forEach((item, index) => {
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'collection-item';
+                itemDiv.dataset.index = index;
                 
                 // Create image URL based on country and image filename
                 const imageUrl = `images/${item.country}/${item.image}`;
                 
-                itemDiv.innerHTML = `
-                    <h3>${item.country} - ${item.currency_type}</h3>
-                    <p><strong>Donor:</strong> ${item.donor_name}</p>
-                    <p><strong>Year:</strong> ${item.year || 'N/A'}</p>
-                    <p><strong>Size:</strong> ${item.size || 'N/A'}</p>
-                    <p><strong>Note:</strong> ${item.note || 'N/A'}</p>
-                    <img src="${imageUrl}" alt="${item.country} ${item.currency_type}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VlZWVlZSIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPkltYWdlIG5vdCBmb3VuZDwvdGV4dD48L3N2Zz4='">
-                    <button class="btn btn-danger" onclick="deleteItem(${index})">Delete</button>
-                `;
+                if (editMode) {
+                    // Edit mode: show editable fields
+                    itemDiv.classList.add('editing');
+                    itemDiv.innerHTML = `
+                        <div class="form-group">
+                            <label>Country:</label>
+                            <select class="editable-field editable-country">
+                                ${generateCountryOptions(item.country)}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Currency Type:</label>
+                            <select class="editable-field editable-currency-type">
+                                <option value="coin" ${item.currency_type === 'coin' ? 'selected' : ''}>Coin</option>
+                                <option value="paper-bill" ${item.currency_type === 'paper-bill' ? 'selected' : ''}>Paper Bill</option>
+                                <option value="antique" ${item.currency_type === 'antique' ? 'selected' : ''}>Antique</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Donor Name:</label>
+                            <input type="text" class="editable-field editable-donor" value="${escapeHtml(item.donor_name || '')}">
+                        </div>
+                        <div class="form-group">
+                            <label>Year:</label>
+                            <input type="text" class="editable-field editable-year" value="${escapeHtml(item.year || '')}">
+                        </div>
+                        <div class="form-group">
+                            <label>Size:</label>
+                            <input type="text" class="editable-field editable-size" value="${escapeHtml(item.size || '')}">
+                        </div>
+                        <div class="form-group">
+                            <label>Note:</label>
+                            <textarea class="editable-field editable-note">${escapeHtml(item.note || '')}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Hidden Note:</label>
+                            <textarea class="editable-field editable-hidden-note">${escapeHtml(item.hidden_note || '')}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Image:</label>
+                            <img src="${imageUrl}" alt="${item.country} ${item.currency_type}" 
+                                onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VlZWVlZSIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPkltYWdlIG5vdCBmb3VuZDwvdGV4dD48L3N2Zz4='" 
+                                style="max-width: 100%; max-height: 150px; display: block; margin: 5px 0;">
+                            <div style="font-size: 12px; color: #666;">${item.image}</div>
+                            <input type="file" class="editable-image-upload" accept="image/*" style="margin-top: 5px;">
+                            <button type="button" class="btn btn-sm" onclick="updateImage(${index})" style="margin-top: 5px;">Update Image</button>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-success" onclick="saveItem(${index})">Save</button>
+                            <button class="btn btn-secondary" onclick="cancelEdit(${index})">Cancel</button>
+                            <button class="btn btn-danger" onclick="deleteItem(${index})">Delete</button>
+                        </div>
+                    `;
+                } else {
+                    // View mode: show read-only display
+                    itemDiv.innerHTML = `
+                        <h3>${escapeHtml(item.country)} - ${escapeHtml(item.currency_type)}</h3>
+                        <p><strong>Donor:</strong> ${escapeHtml(item.donor_name)}</p>
+                        <p><strong>Year:</strong> ${escapeHtml(item.year || 'N/A')}</p>
+                        <p><strong>Size:</strong> ${escapeHtml(item.size || 'N/A')}</p>
+                        <p><strong>Note:</strong> ${escapeHtml(item.note || 'N/A')}</p>
+                        ${item.hidden_note ? `<p><strong>Hidden Note:</strong> <em>${escapeHtml(item.hidden_note)}</em></p>` : ''}
+                        <img src="${imageUrl}" alt="${item.country} ${item.currency_type}" 
+                            onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VlZWVlZSIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPkltYWdlIG5vdCBmb3VuZDwvdGV4dD48L3N2Zz4='" 
+                            style="max-width: 100%; max-height: 150px; display: block; margin: 10px auto;">
+                        ${editMode ? `<button class="btn btn-danger" onclick="deleteItem(${index})" style="margin-top: 10px;">Delete</button>` : ''}
+                    `;
+                }
+                
                 container.appendChild(itemDiv);
             });
         }
 
-        // Delete an item from the collection
-        function deleteItem(index) {
-            if (confirm('Are you sure you want to delete this item?')) {
-                const item = collectionData[index];
-                
-                fetch('/testdelete', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(item)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    showToast('Item deleted successfully');
-                    loadCollection(); // Reload the collection
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('Error deleting item', 'error');
-                });
-            }
+        // Generate country options for dropdown
+        function generateCountryOptions(selectedCountry) {
+            let options = '<option value="">Select a country</option>';
+            countriesData.forEach(country => {
+                const selected = country.name === selectedCountry ? 'selected' : '';
+                options += `<option value="${escapeHtml(country.name)}" ${selected}>${escapeHtml(country.name)}</option>`;
+            });
+            return options;
         }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Toggle edit mode
+function toggleEditMode() {
+    editMode = !editMode;
+    const statusElement = document.getElementById('editModeStatus');
+    const buttonElement = document.getElementById('toggleEditMode');
+    
+    if (editMode) {
+        statusElement.textContent = 'Edit mode: ON';
+        statusElement.style.color = '#28a745';
+        statusElement.style.fontWeight = 'bold';
+        buttonElement.textContent = 'Disable Edit Mode';
+        buttonElement.classList.remove('btn-secondary');
+        buttonElement.classList.add('btn-warning');
+        document.body.classList.add('edit-mode-active');
+    } else {
+        statusElement.textContent = 'Edit mode: OFF';
+        statusElement.style.color = '#666';
+        statusElement.style.fontWeight = 'normal';
+        buttonElement.textContent = 'Enable Edit Mode';
+        buttonElement.classList.remove('btn-warning');
+        buttonElement.classList.add('btn-secondary');
+        document.body.classList.remove('edit-mode-active');
+    }
+    
+    // Refresh the collection display to show/hide edit controls
+    displayCollection(collectionData);
+}
+
+
+        // Cancel edit function
+        function cancelEdit(index) {
+            // Simply reload the collection to discard changes
+            loadCollection();
+        }
+
+        // Save item function - FIXED
+function saveItem(index) {
+    const item = collectionData[index];
+    const itemElement = document.querySelector(`.collection-item[data-index="${index}"]`);
+    
+    // Get updated values
+    const updatedItem = {
+        row_id: item.image, // Use image filename as unique identifier
+        country: itemElement.querySelector('.editable-country').value,
+        currency_type: itemElement.querySelector('.editable-currency-type').value,
+        donor_name: itemElement.querySelector('.editable-donor').value,
+        year: itemElement.querySelector('.editable-year').value,
+        size: itemElement.querySelector('.editable-size').value,
+        note: itemElement.querySelector('.editable-note').value,
+        hidden_note: itemElement.querySelector('.editable-hidden-note').value,
+        image: item.image // Keep original image filename unless changed
+    };
+    
+    // Validate required fields
+    if (!updatedItem.country || !updatedItem.currency_type || !updatedItem.donor_name) {
+        showToast('Please fill in all required fields', 'error');
+        return;
+    }
+    
+    // Send update to server - USE ONLY ONE ENDPOINT
+    fetch('/test', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedItem)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Update failed');
+        }
+        return response.text();
+    })
+    .then(() => {
+        showToast('Item updated successfully');
+        // Reload collection to get fresh data
+        loadCollection();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Error updating item', 'error');
+    });
+}
+
+// Update image function - FIXED
+function updateImage(index) {
+    const item = collectionData[index];
+    const itemElement = document.querySelector(`.collection-item[data-index="${index}"]`);
+    const fileInput = itemElement.querySelector('.editable-image-upload');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        showToast('Please select a new image file', 'error');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('country', item.country);
+    formData.append('file', file);
+    formData.append('existing_image', item.image);
+    
+    fetch('/upload-image', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        
+        // Update the item with new image filename
+        const updatedItem = {
+            row_id: item.image,
+            image: data.filename,
+            country: item.country
+        };
+        
+        return fetch('/test', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedItem)
+        });
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Image update failed');
+        }
+        showToast('Image updated successfully');
+        loadCollection(); // Reload to show new image
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Error updating image: ' + error.message, 'error');
+    });
+}
+
+// Enhanced deleteItem function with confirmation - FIXED
+function deleteItem(index) {
+    const item = collectionData[index];
+    const itemDescription = `${item.country} - ${item.currency_type} (${item.donor_name})`;
+    
+    if (confirm(`Are you sure you want to delete "${itemDescription}"? This action cannot be undone.`)) {
+        fetch('/testdelete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(item)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Delete failed');
+            }
+            return response.text();
+        })
+        .then(() => {
+            showToast('Item deleted successfully');
+            loadCollection(); // Reload the collection
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error deleting item', 'error');
+        });
+    }
+}
 
         // Filter collection based on search input
         function filterCollection() {
@@ -1963,7 +2252,40 @@ def merge_images():
         return jsonify({"error": f"Failed to merge images: {str(e)}"}), 500
 
 
+# Change this route
+@app.route('/test', methods=['POST'])
+def test():
+    data = request.get_json()
+    update_entry(data)
+    return jsonify({"message": "Item updated successfully"})
 
+# Remove or comment out the existing test route:
+# @app.route('/test', methods=['POST'])
+# def test():
+#     data = request.get_json()
+#     update_entry(data)
+#     return render_template('edit_table.html')
+
+# Replace with these new routes:
+
+@app.route('/update-entry', methods=['POST'])
+def update_entry_endpoint():
+    data = request.get_json()
+    update_entry(data)
+    return jsonify({"message": "Item updated successfully"})
+
+@app.route('/delete-entry', methods=['POST'])
+def delete_entry_endpoint():
+    data = request.get_json()
+    delete_entry(data)
+    return jsonify({"message": "Item deleted successfully"})
+
+# Keep the existing testdelete route but make sure it has a unique name:
+@app.route('/testdelete', methods=['POST'])
+def test_delete():
+    data = request.get_json()
+    delete_entry(data)
+    return jsonify({"message": "Item deleted successfully"})
 
 @app.route('/test-connection', methods=['GET'])
 def test_connection():
