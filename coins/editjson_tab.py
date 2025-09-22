@@ -423,6 +423,11 @@ def serve_flags_svg(filename):
     return send_from_directory('flags/svg', filename)
 
 
+# ADD THIS NEW ROUTE - Serve box_country_list.html
+@app.route('/box_country_list.html')
+def box_country_list():
+    return send_from_directory('.', 'box_country_list.html')
+
 # Routes
 @app.route('/')
 def index():
