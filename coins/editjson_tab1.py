@@ -1417,8 +1417,7 @@ def edit_json():
             };
             reader1.readAsDataURL(mergeImage1);
         }
-        
-        
+
         // Merge two images
         function mergeImages(image1, image2, direction, resizeOption) {
             return new Promise((resolve, reject) => {
@@ -1479,25 +1478,17 @@ def edit_json():
                                         ctx.drawImage(img2, 0, height1, width2, height2);
                                     }
                                     
-                                    // Determine output format based on input images
-                                    const outputFormat = image1.type === 'image/jpeg' && image2.type === 'image/jpeg' 
-                                        ? 'image/jpeg' 
-                                        : 'image/png';
-                                    
-                                    const fileExtension = outputFormat === 'image/jpeg' ? 'jpg' : 'png';
-                                    
-                                    // Convert canvas to blob with correct format
+                                    // Convert canvas to blob
                                     canvas.toBlob(function(blob) {
-                                        const filename = `merged-${Date.now()}.${fileExtension}`;
-                                        const file = new File([blob], filename, { type: outputFormat });
+                                        const filename = `merged-${Date.now()}.png`;
+                                        const file = new File([blob], filename, { type: 'image/png' });
                                         
                                         resolve({
                                             message: 'Images merged successfully',
                                             filename: filename,
-                                            file: file,
-                                            format: outputFormat
+                                            file: file
                                         });
-                                    }, outputFormat.replace('image/', ''), 0.95);
+                                    }, 'image/png');
                                     
                                 } catch (error) {
                                     reject(new Error('Failed to merge images: ' + error.message));
@@ -1532,8 +1523,6 @@ def edit_json():
                 reader1.readAsDataURL(image1);
             });
         }
-        
-
 
         // Clear merge areas
         function clearMergeAreas() {
@@ -1839,7 +1828,6 @@ def merge_images():
         image2_data = data.get('image2')
         direction = data.get('direction', 'horizontal')
         country = data.get('country')
-        output_format = data.get('format', 'JPEG')  # Add format parameter
         
         if not all([image1_data, image2_data, country]):
             return jsonify({"error": "Missing required parameters"}), 400
@@ -1850,26 +1838,11 @@ def merge_images():
         if 'base64,' in image2_data:
             image2_data = image2_data.split('base64,')[1]
         
-        # Detect original format and preserve it
-        def detect_format(image_data):
-            # Check for JPEG signature
-            if image_data.startswith('/9j/4AA') or image_data.startswith('/9j/2w'):
-                return 'JPEG'
-            # Check for PNG signature
-            elif image_data.startswith('iVBORw0KGgo'):
-                return 'PNG'
-            else:
-                return 'JPEG'  # Default to JPEG
-        
-        # Use the format of the first image, or JPEG as default
-        original_format = detect_format(image1_data)
-        output_format = original_format  # Use the same format as input
-        
         # Decode base64 images with better error handling
         try:
             image1 = Image.open(io.BytesIO(base64.b64decode(image1_data)))
-            # Convert to RGB if necessary for JPEG output
-            if output_format == 'JPEG' and image1.mode != 'RGB':
+            # Convert to RGB if necessary
+            if image1.mode in ('RGBA', 'LA', 'P'):
                 if image1.mode == 'RGBA':
                     # Create a white background for transparency
                     background = Image.new('RGB', image1.size, (255, 255, 255))
@@ -1877,13 +1850,15 @@ def merge_images():
                     image1 = background
                 else:
                     image1 = image1.convert('RGB')
+            elif image1.mode != 'RGB':
+                image1 = image1.convert('RGB')
         except Exception as e:
             return jsonify({"error": f"Failed to process image 1: {str(e)}"}), 400
         
         try:
             image2 = Image.open(io.BytesIO(base64.b64decode(image2_data)))
-            # Convert to RGB if necessary for JPEG output
-            if output_format == 'JPEG' and image2.mode != 'RGB':
+            # Convert to RGB if necessary
+            if image2.mode in ('RGBA', 'LA', 'P'):
                 if image2.mode == 'RGBA':
                     # Create a white background for transparency
                     background = Image.new('RGB', image2.size, (255, 255, 255))
@@ -1891,6 +1866,8 @@ def merge_images():
                     image2 = background
                 else:
                     image2 = image2.convert('RGB')
+            elif image2.mode != 'RGB':
+                image2 = image2.convert('RGB')
         except Exception as e:
             return jsonify({"error": f"Failed to process image 2: {str(e)}"}), 400
         
@@ -1918,28 +1895,14 @@ def merge_images():
             merged_image.paste(image1_resized, (0, 0))
             merged_image.paste(image2_resized, (0, image1_resized.height))
         
-        # Determine file extension and save format
-        if output_format == 'JPEG':
-            file_ext = 'jpg'
-            save_format = 'JPEG'
-            save_kwargs = {'quality': 95}
-        elif output_format == 'PNG':
-            file_ext = 'png'
-            save_format = 'PNG'
-            save_kwargs = {'optimize': True}
-        else:
-            file_ext = 'jpg'
-            save_format = 'JPEG'
-            save_kwargs = {'quality': 95}
-        
-        # Save the merged image to a bytes buffer
+        # Save the merged image to a bytes buffer as JPEG
         buffer = io.BytesIO()
-        merged_image.save(buffer, format=save_format, **save_kwargs)
+        merged_image.save(buffer, format='JPEG', quality=95)
         buffer.seek(0)
         
         # Generate a filename with UUID
         file_uuid = str(uuid.uuid4())
-        filename = f"{file_uuid}.{file_ext}"
+        filename = f"{file_uuid}.jpg"
         country_folder = os.path.join(BASE_UPLOAD_FOLDER, country)
         
         # Ensure the country folder exists
@@ -1954,8 +1917,7 @@ def merge_images():
             "message": "Images merged and saved successfully",
             "filename": filename,
             "filepath": file_path,
-            "format": output_format,
-            "extension": file_ext
+            "format": "JPEG"
         }), 200
         
     except Exception as e:
