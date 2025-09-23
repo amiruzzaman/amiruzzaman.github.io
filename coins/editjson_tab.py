@@ -152,6 +152,30 @@ def save_file(file, country):
         raise e
 
 
+def ensure_all_entries_have_ids():
+    """Ensure every entry in the JSON file has a unique ID"""
+    data = read_json_file()
+    updated_count = 0
+    
+    for entry in data:
+        if not entry.get("id"):
+            ensure_entry_id(entry, existing_ids={e.get("id") for e in data if e.get("id")})
+            updated_count += 1
+            print(f"Added ID to entry: {entry.get('country', 'Unknown')}")
+    
+    if updated_count > 0:
+        write_json_file(data)
+        print(f"Added IDs to {updated_count} entries")
+    
+    return updated_count
+
+# Add this route to run the ID migration
+@app.route('/ensure-ids', methods=['GET'])
+def ensure_ids():
+    count = ensure_all_entries_have_ids()
+    return jsonify({"message": f"Ensured all {count} entries have IDs"})
+
+
 def ensure_country_folder_exists(country):
     """
     Ensure the country folder exists, create it if it doesn't.
@@ -273,13 +297,29 @@ def allowed_file(filename):
     ext = filename.rsplit('.', 1)[1].lower()
     return ext in ALLOWED_EXTENSIONS
 
+
+
 def read_json_file():
-    with open(file_name, 'r', encoding='utf-8') as file:
-        return json.load(file) if os.stat(file_name).st_size > 0 else []
+    """Read JSON file with better error handling"""
+    try:
+        with open(file_name, 'r', encoding='utf-8') as file:
+            content = file.read().strip()
+            if not content:
+                return []
+            return json.loads(content)
+    except Exception as e:
+        print(f"Error reading JSON file {file_name}: {e}")
+        return []
 
 def write_json_file(data):
-    with open(file_name, 'w', encoding='utf-8') as file:
-        json.dump(data, file, sort_keys=True, indent=4, separators=(',', ': '))
+    """Write JSON file with better error handling"""
+    try:
+        with open(file_name, 'w', encoding='utf-8') as file:
+            json.dump(data, file, sort_keys=True, indent=4, separators=(',', ': '))
+        print(f"✓ Successfully wrote {len(data)} entries to {file_name}")
+    except Exception as e:
+        print(f"Error writing JSON file {file_name}: {e}")
+        raise e
 
 
 
@@ -295,64 +335,60 @@ def edit_or_delete_entry(action, value):
         updated_data.append(entry)
     write_json_file(updated_data)
 
-def update_entry(updated_entry):
-    """
-    Update an existing JSON entry identified by 'id' (preferred) or 'row_id' (legacy image filename).
-    If not found, append as a new entry (with a new id).
-    """
-    data = read_json_file()
-    updated = False
-
-    # Prefer id (stable). For backward compatibility accept row_id which may be image filename.
-    identifier = updated_entry.get("id") or updated_entry.get("row_id")
-
-    for entry in data:
-        if (entry.get("id") and identifier and entry.get("id") == identifier) or \
-           (entry.get("image") and identifier and entry.get("image") == identifier):
-            # update fields if provided
-            for key in ["image", "note", "country", "donor_name", "currency_type", "size", "year", "hidden_note"]:
-                if key in updated_entry:
-                    val = updated_entry.get(key)
-                    if isinstance(val, str):
-                        val = val.replace("<br>", "")
-                    entry[key] = val
-            # Ensure entry has an id
-            if not entry.get("id"):
-                entry["id"] = str(uuid.uuid4())
-            updated = True
-            break
-
-    if updated:
-        write_json_file(data)
-    else:
-        # Not found -> create new entry with id (so future edits will target it)
-        new_entry = {
-            "country": updated_entry.get("country", "").strip(),
-            "image": updated_entry.get("image", "").strip(),
-            "note": updated_entry.get("note", "").strip(),
-            "donor_name": updated_entry.get("donor_name", "").strip(),
-            "currency_type": updated_entry.get("currency_type", "").strip(),
-            "size": updated_entry.get("size", "").strip(),
-            "year": updated_entry.get("year", "").strip()
-        }
-        if "hidden_note" in updated_entry:
-            new_entry["hidden_note"] = updated_entry.get("hidden_note", "").replace("<br>", "")
-        # assign id
-        ensure_entry_id(new_entry, existing_ids={e.get("id") for e in data if e.get("id")})
-        data.append(new_entry)
-        write_json_file(data)
-
-
 
 
 
 def delete_entry(entry):
+    """
+    Delete an entry strictly by ID.
+    """
     data = read_json_file()
-    updated_data = [item for item in data if item["image"] != entry["image"]]
-    file_path = os.path.join(UPLOAD_FOLDER, entry["country"], entry["image"])
-    if os.path.exists(file_path):
-        os.remove(file_path)
-    write_json_file(updated_data)
+    
+    identifier = entry.get("id")
+    if not identifier:
+        print(f"ERROR: No id provided for deletion: {entry}")
+        return {"error": "ID is required for deletion"}, 400
+    
+    print(f"Looking for entry to delete with id: {identifier}")
+    
+    initial_count = len(data)
+    # Filter out the entry with matching ID
+    updated_data = [item for item in data if item.get("id") != identifier]
+    
+    if len(updated_data) < initial_count:
+        # Entry was found and removed
+        write_json_file(updated_data)
+        print(f"Successfully deleted entry with id: {identifier}")
+        
+        # Optional: Also delete the image file
+        image_to_delete = entry.get("image")
+        country_to_delete = entry.get("country")
+        if image_to_delete and country_to_delete:
+            file_path = os.path.join(UPLOAD_FOLDER, country_to_delete, image_to_delete)
+            if os.path.exists(file_path):
+                try:
+                    os.remove(file_path)
+                    print(f"Deleted image file: {file_path}")
+                except Exception as e:
+                    print(f"Warning: Could not delete image file {file_path}: {e}")
+        
+        return {"message": "Entry deleted successfully"}
+    else:
+        print(f"ERROR: No entry found with id: {identifier} for deletion")
+        return {"error": f"No entry found with id: {identifier}"}, 404
+
+
+
+@app.route('/testdelete', methods=['POST'])
+def test_delete():
+    data = request.get_json()
+    result = delete_entry(data)
+    if "error" in result:
+        return jsonify(result), 400
+    return jsonify(result)
+
+
+
 
 def load_json():
     with file_lock:  # Ensure thread-safe access
@@ -630,9 +666,17 @@ def edit():
 
 @app.route('/test', methods=['POST'])
 def test():
+    """Endpoint for testing updates"""
     data = request.get_json()
-    update_entry(data)
-    return jsonify({"message": "Entry updated successfully"})
+    print("=== /test ENDPOINT CALLED ===")
+    result = update_entry(data)
+    
+    if isinstance(result, tuple) and len(result) == 2:
+        # Error case: (response, status_code)
+        return jsonify(result[0]), result[1]
+    else:
+        # Success case
+        return jsonify(result)
 
 @app.route('/testdelete', methods=['POST'])
 def testdelete():
@@ -788,7 +832,117 @@ def upload_image():
 
 
 
+def update_entry(updated_entry):
+    """
+    Update an existing JSON entry identified strictly by 'id'.
+    """
+    print(f"=== UPDATE ENTRY CALLED ===")
+    print(f"Received data: {json.dumps(updated_entry, indent=2)}")
+    
+    try:
+        data = read_json_file()
+        print(f"Total entries in file: {len(data)}")
+    except Exception as e:
+        print(f"Error reading JSON file: {e}")
+        return {"error": f"Error reading data: {e}"}, 500
 
+    # Get the identifier - must have id
+    identifier = updated_entry.get("id")
+    
+    if not identifier:
+        print(f"ERROR: No id provided in update entry")
+        return {"error": "ID is required for updating"}, 400
+
+    print(f"Looking for entry with id: {identifier}")
+    
+    found = False
+    for i, entry in enumerate(data):
+        entry_id = entry.get("id")
+        print(f"Checking entry {i}: id='{entry_id}', country='{entry.get('country')}'")
+        
+        # Strict match by id only
+        if entry_id == identifier:
+            print(f"✓ FOUND MATCH at index {i}")
+            print(f"Before update: {json.dumps(entry, indent=2)}")
+            
+            # Update only the fields that are provided in the update
+            for key in ["image", "note", "country", "donor_name", "currency_type", "size", "year", "hidden_note"]:
+                if key in updated_entry:
+                    old_value = entry.get(key)
+                    new_value = updated_entry.get(key)
+                    if isinstance(new_value, str):
+                        new_value = new_value.strip().replace("<br>", "")
+                    entry[key] = new_value
+                    print(f"Updated {key}: '{old_value}' -> '{new_value}'")
+            
+            found = True
+            print(f"After update: {json.dumps(entry, indent=2)}")
+            break
+        else:
+            print(f"✗ No match: '{entry_id}' != '{identifier}'")
+
+    if found:
+        try:
+            write_json_file(data)
+            print(f"✓ Successfully updated entry with id: {identifier}")
+            return {"message": "Entry updated successfully", "updated_id": identifier}
+        except Exception as e:
+            print(f"Error writing JSON file: {e}")
+            return {"error": f"Error saving data: {e}"}, 500
+    else:
+        print(f"✗ ERROR: No entry found with id: {identifier}")
+        print("Available IDs:")
+        for i, entry in enumerate(data):
+            print(f"  {i}: id='{entry.get('id')}', country='{entry.get('country')}'")
+        return {"error": f"No entry found with id: {identifier}"}, 404
+    
+
+@app.route('/check-duplicate-ids', methods=['GET'])
+def check_duplicate_ids():
+    """Check for duplicate IDs in the JSON file"""
+    data = read_json_file()
+    id_count = {}
+    duplicates = []
+    
+    for i, entry in enumerate(data):
+        entry_id = entry.get("id")
+        if entry_id:
+            if entry_id in id_count:
+                id_count[entry_id].append(i)
+                duplicates.append(entry_id)
+            else:
+                id_count[entry_id] = [i]
+    
+    return jsonify({
+        "total_entries": len(data),
+        "entries_with_ids": len([e for e in data if e.get("id")]),
+        "duplicate_ids": duplicates,
+        "id_distribution": {k: len(v) for k, v in id_count.items() if len(v) > 1}
+    })   
+    
+
+def add_new_entry(updated_entry, data=None):
+    """Add a new entry with proper ID"""
+    if data is None:
+        data = read_json_file()
+    
+    new_entry = {
+        "country": updated_entry.get("country", "").strip(),
+        "image": updated_entry.get("image", "").strip(),
+        "note": updated_entry.get("note", "").strip(),
+        "donor_name": updated_entry.get("donor_name", "").strip(),
+        "currency_type": updated_entry.get("currency_type", "").strip(),
+        "size": updated_entry.get("size", "").strip(),
+        "year": updated_entry.get("year", "").strip()
+    }
+    if "hidden_note" in updated_entry:
+        new_entry["hidden_note"] = updated_entry.get("hidden_note", "").replace("<br>", "")
+    
+    # Always assign a new ID for new entries
+    ensure_entry_id(new_entry, existing_ids={e.get("id") for e in data if e.get("id")})
+    data.append(new_entry)
+    write_json_file(data)
+    return new_entry
 
 
 # Edit JSON page - now with embedded HTML
@@ -1090,6 +1244,46 @@ def edit_json():
     padding: 5px 8px;
 }
     </style>
+    <style>
+.edit-image-drop-area {
+    border: 2px dashed #ccc;
+    border-radius: 4px;
+    padding: 15px;
+    text-align: center;
+    background-color: #f8f9fa;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.edit-image-drop-area.highlight {
+    border-color: #007bff;
+    background-color: #e9f0ff;
+}
+
+.edit-image-drop-area p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.edit-merge-controls {
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.edit-merge-controls h4 {
+    color: #495057;
+    font-size: 16px;
+}
+
+.edit-merge-drop-area-1, .edit-merge-drop-area-2 {
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+    </style>
 </head>
 <body>
     <div class="container">
@@ -1217,6 +1411,10 @@ def edit_json():
     <div id="toastMessage" class="toast-message"></div>
 
     <script>
+    
+    //new Global variables
+    let editModeUploadedFiles = {}; // Store files for each edit item
+let editModeMergeImages = {}; // Store merge images for each edit item
         // Global variables
         let uploadedFile = null;
         let mergeImage1 = null;
@@ -1820,96 +2018,159 @@ def edit_json():
                 });
         }
 
-        // Enhanced displayCollection function
-        function displayCollection(data) {
-            const container = document.getElementById('collectionContainer');
-            container.innerHTML = '';
+// Enhanced displayCollection function to show IDs
+function displayCollection(data) {
+    const container = document.getElementById('collectionContainer');
+    container.innerHTML = '';
+    
+    if (data.length === 0) {
+        container.innerHTML = '<p>No items in collection yet.</p>';
+        return;
+    }
+    
+    data.forEach((item, index) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'collection-item';
+        itemDiv.dataset.index = index;
+        itemDiv.dataset.id = item.id || 'no-id'; // Add ID to dataset for debugging
+        
+        // Create image URL based on country and image filename
+        const imageUrl = `images/${item.country}/${item.image}`;
+        
+        if (editMode) {
+            // Edit mode: show editable fields WITH ID VISIBLE FOR DEBUGGING
+            itemDiv.classList.add('editing');
+            itemDiv.innerHTML = `
+                <div style="font-size: 10px; color: #666; margin-bottom: 5px;">
+                    ID: ${item.id || 'NO ID'} | Index: ${index}
+                </div>
+                <div class="form-group">
+                    <label>Country:</label>
+                    <select class="editable-field editable-country">
+                        ${generateCountryOptions(item.country)}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Currency Type:</label>
+                    <select class="editable-field editable-currency-type">
+                        <option value="coin" ${item.currency_type === 'coin' ? 'selected' : ''}>Coin</option>
+                        <option value="paper-bill" ${item.currency_type === 'paper-bill' ? 'selected' : ''}>Paper Bill</option>
+                        <option value="antique" ${item.currency_type === 'antique' ? 'selected' : ''}>Antique</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Donor Name:</label>
+                    <input type="text" class="editable-field editable-donor" value="${escapeHtml(item.donor_name || '')}">
+                </div>
+                <div class="form-group">
+                    <label>Year:</label>
+                    <input type="text" class="editable-field editable-year" value="${escapeHtml(item.year || '')}">
+                </div>
+                <div class="form-group">
+                    <label>Size:</label>
+                    <input type="text" class="editable-field editable-size" value="${escapeHtml(item.size || '')}">
+                </div>
+                <div class="form-group">
+                    <label>Note:</label>
+                    <textarea class="editable-field editable-note">${escapeHtml(item.note || '')}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Hidden Note:</label>
+                    <textarea class="editable-field editable-hidden-note">${escapeHtml(item.hidden_note || '')}</textarea>
+                </div>
+             
+                
+                <div class="form-group">
+    <label>Image:</label>
+    <img src="${imageUrl}" alt="${item.country} ${item.currency_type}" 
+        onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VlZWVlZSIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPkltYWdlIG5vdCBmb3VuZDwvdGV4dD48L3N2Zz4='" 
+        style="max-width: 100%; max-height: 150px; display: block; margin: 5px 0;">
+    <div style="font-size: 12px; color: #666;">${item.image || 'No image'}</div>
+    
+    <!-- Single Image Upload -->
+    <div class="drop-area edit-image-drop-area" data-index="${index}" style="margin: 10px 0;">
+        <p>Drag & drop new image here or click to select</p>
+        <input type="file" class="edit-image-input" accept="image/*" style="display: none;">
+    </div>
+    <img class="edit-image-preview" data-index="${index}" style="max-width: 100%; max-height: 100px; display: none; margin: 5px 0;">
+    
+    <!-- Merge Images Option -->
+    <div class="merge-controls edit-merge-controls" data-index="${index}" style="margin-top: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+        <h4 style="margin: 0 0 10px 0;">Merge Images (Optional)</h4>
+        
+        <div class="image-drop-areas-container" style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <div class="drop-area merge-drop-area edit-merge-drop-area-1" data-index="${index}" style="flex: 1; min-height: 80px;">
+                <p>Drag & drop first image</p>
+            </div>
+            <div class="drop-area merge-drop-area edit-merge-drop-area-2" data-index="${index}" style="flex: 1; min-height: 80px;">
+                <p>Drag & drop second image</p>
+            </div>
+        </div>
+        
+        <div class="merge-options" style="margin-bottom: 10px;">
+            <div style="margin-bottom: 5px;">
+                <strong>Merge Direction:</strong>
+                <label><input type="radio" name="edit-mergeDirection-${index}" value="horizontal" checked> Side by Side</label>
+                <label><input type="radio" name="edit-mergeDirection-${index}" value="vertical"> Top and Bottom</label>
+            </div>
             
-            if (data.length === 0) {
-                container.innerHTML = '<p>No items in collection yet.</p>';
-                return;
-            }
+            <div style="margin-bottom: 10px;">
+                <strong>Resize Option:</strong>
+                <label><input type="radio" name="edit-resizeOption-${index}" value="equal" checked> Equal Size</label>
+                <label><input type="radio" name="edit-resizeOption-${index}" value="original"> Keep Original Sizes</label>
+            </div>
             
-            data.forEach((item, index) => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'collection-item';
-                itemDiv.dataset.index = index;
-                
-                // Create image URL based on country and image filename
-                const imageUrl = `images/${item.country}/${item.image}`;
-                
-                if (editMode) {
-                    // Edit mode: show editable fields
-                    itemDiv.classList.add('editing');
-                    itemDiv.innerHTML = `
-                        <div class="form-group">
-                            <label>Country:</label>
-                            <select class="editable-field editable-country">
-                                ${generateCountryOptions(item.country)}
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Currency Type:</label>
-                            <select class="editable-field editable-currency-type">
-                                <option value="coin" ${item.currency_type === 'coin' ? 'selected' : ''}>Coin</option>
-                                <option value="paper-bill" ${item.currency_type === 'paper-bill' ? 'selected' : ''}>Paper Bill</option>
-                                <option value="antique" ${item.currency_type === 'antique' ? 'selected' : ''}>Antique</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Donor Name:</label>
-                            <input type="text" class="editable-field editable-donor" value="${escapeHtml(item.donor_name || '')}">
-                        </div>
-                        <div class="form-group">
-                            <label>Year:</label>
-                            <input type="text" class="editable-field editable-year" value="${escapeHtml(item.year || '')}">
-                        </div>
-                        <div class="form-group">
-                            <label>Size:</label>
-                            <input type="text" class="editable-field editable-size" value="${escapeHtml(item.size || '')}">
-                        </div>
-                        <div class="form-group">
-                            <label>Note:</label>
-                            <textarea class="editable-field editable-note">${escapeHtml(item.note || '')}</textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>Hidden Note:</label>
-                            <textarea class="editable-field editable-hidden-note">${escapeHtml(item.hidden_note || '')}</textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>Image:</label>
-                            <img src="${imageUrl}" alt="${item.country} ${item.currency_type}" 
-                                onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VlZWVlZSIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPkltYWdlIG5vdCBmb3VuZDwvdGV4dD48L3N2Zz4='" 
-                                style="max-width: 100%; max-height: 150px; display: block; margin: 5px 0;">
-                            <div style="font-size: 12px; color: #666;">${item.image}</div>
-                            <input type="file" class="editable-image-upload" accept="image/*" style="margin-top: 5px;">
-                            <button type="button" class="btn btn-sm" onclick="updateImage(${index})" style="margin-top: 5px;">Update Image</button>
-                        </div>
-                        <div class="action-buttons">
-                            <button class="btn btn-success" onclick="saveItem(${index})">Save</button>
-                            <button class="btn btn-secondary" onclick="cancelEdit(${index})">Cancel</button>
-                            <button class="btn btn-danger" onclick="deleteItem(${index})">Delete</button>
-                        </div>
-                    `;
-                } else {
-                    // View mode: show read-only display
-                    itemDiv.innerHTML = `
-                        <h3>${escapeHtml(item.country)} - ${escapeHtml(item.currency_type)}</h3>
-                        <p><strong>Donor:</strong> ${escapeHtml(item.donor_name)}</p>
-                        <p><strong>Year:</strong> ${escapeHtml(item.year || 'N/A')}</p>
-                        <p><strong>Size:</strong> ${escapeHtml(item.size || 'N/A')}</p>
-                        <p><strong>Note:</strong> ${escapeHtml(item.note || 'N/A')}</p>
-                        ${item.hidden_note ? `<p><strong>Hidden Note:</strong> <em>${escapeHtml(item.hidden_note)}</em></p>` : ''}
-                        <img src="${imageUrl}" alt="${item.country} ${item.currency_type}" 
-                            onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VlZWVlZSIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPkltYWdlIG5vdCBmb3VuZDwvdGV4dD48L3N2Zz4='" 
-                            style="max-width: 100%; max-height: 150px; display: block; margin: 10px auto;">
-                        ${editMode ? `<button class="btn btn-danger" onclick="deleteItem(${index})" style="margin-top: 10px;">Delete</button>` : ''}
-                    `;
-                }
-                
-                container.appendChild(itemDiv);
-            });
+            <button type="button" class="btn btn-sm edit-merge-images-btn" data-index="${index}" disabled>Merge Images</button>
+            <button type="button" class="btn btn-sm btn-danger edit-clear-merge-btn" data-index="${index}">Clear Merge</button>
+        </div>
+        
+        <div class="edit-merge-preview-container" data-index="${index}" style="display: none;">
+            <div class="merge-preview">
+                <p><strong>Preview:</strong></p>
+                <div class="edit-image-previews" data-index="${index}"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="action-buttons">
+        <button class="btn btn-success" onclick="saveItem(${index})">Save Changes</button>
+        <button class="btn btn-secondary" onclick="updateImage(${index})">Update Image Only</button>
+        <button class="btn btn-warning" onclick="cancelEdit(${index})">Cancel</button>
+        <button class="btn btn-danger" onclick="deleteItem(${index})">Delete Item</button>
+    </div>
+</div>
+                <div class="action-buttons">
+                    <button class="btn btn-success" onclick="saveItem(${index})">Save</button>
+                    <button class="btn btn-secondary" onclick="cancelEdit(${index})">Cancel</button>
+                    <button class="btn btn-danger" onclick="deleteItem(${index})">Delete</button>
+                </div>
+            `;
+            
+            // Initialize edit mode image upload functionality after rendering
+setTimeout(() => {
+    initializeEditModeImageUpload();
+}, 100);
+        } else {
+            // View mode: show read-only display WITH ID
+            itemDiv.innerHTML = `
+                <div style="font-size: 10px; color: #666; margin-bottom: 5px;">
+                    ID: ${item.id || 'NO ID'}
+                </div>
+                <h3>${escapeHtml(item.country)} - ${escapeHtml(item.currency_type)}</h3>
+                <p><strong>Donor:</strong> ${escapeHtml(item.donor_name)}</p>
+                <p><strong>Year:</strong> ${escapeHtml(item.year || 'N/A')}</p>
+                <p><strong>Size:</strong> ${escapeHtml(item.size || 'N/A')}</p>
+                <p><strong>Note:</strong> ${escapeHtml(item.note || 'N/A')}</p>
+                ${item.hidden_note ? `<p><strong>Hidden Note:</strong> <em>${escapeHtml(item.hidden_note)}</em></p>` : ''}
+                <img src="${imageUrl}" alt="${item.country} ${item.currency_type}" 
+                    onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VlZWVlZSIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPkltYWdlIG5vdCBmb3VuZDwvdGV4dD48L3N2Zz4='" 
+                    style="max-width: 100%; max-height: 150px; display: block; margin: 10px auto;">
+            `;
         }
+        
+        container.appendChild(itemDiv);
+    });
+}
 
         // Generate country options for dropdown
         function generateCountryOptions(selectedCountry) {
@@ -1957,61 +2218,46 @@ function toggleEditMode() {
 }
 
 
-        // Cancel edit function
-        function cancelEdit(index) {
-            // Simply reload the collection to discard changes
-            loadCollection();
-        }
+       
 
-        // Save item function - FIXED
-function saveItem(index) {
+// Delete item function - also fixed to use ID
+function deleteItem(index) {
     const item = collectionData[index];
-    const itemElement = document.querySelector(`.collection-item[data-index="${index}"]`);
-    
-    // Get updated values
- const updatedItem = {
-    id: item.id,   // <-- use id
-    country: itemElement.querySelector('.editable-country').value,
-    currency_type: itemElement.querySelector('.editable-currency-type').value,
-    donor_name: itemElement.querySelector('.editable-donor').value,
-    year: itemElement.querySelector('.editable-year').value,
-    size: itemElement.querySelector('.editable-size').value,
-    note: itemElement.querySelector('.editable-note').value,
-    hidden_note: itemElement.querySelector('.editable-hidden-note').value,
-    image: item.image // may be "" if none yet
-};
-
-
-    
-    // Validate required fields
-    if (!updatedItem.country || !updatedItem.currency_type || !updatedItem.donor_name) {
-        showToast('Please fill in all required fields', 'error');
+    if (!item || !item.id) {
+        console.error("Cannot delete - item or id missing:", item);
+        showToast('Error: Cannot delete item - missing ID', 'error');
         return;
     }
     
-    // Send update to server - USE ONLY ONE ENDPOINT
-    fetch('/test', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedItem)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Update failed');
-        }
-        return response.text();
-    })
-    .then(() => {
-        showToast('Item updated successfully');
-        // Reload collection to get fresh data
-        loadCollection();
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showToast('Error updating item', 'error');
-    });
+    const itemDescription = `${item.country} - ${item.currency_type} (${item.donor_name})`;
+    
+    if (confirm(`Are you sure you want to delete "${itemDescription}"? This action cannot be undone.`)) {
+        // Send delete request with ID
+        const deleteItem = { id: item.id };
+        
+        fetch('/testdelete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(deleteItem)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Delete failed');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("Delete successful:", data);
+            showToast('Item deleted successfully');
+            loadCollection(); // Reload the collection
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error deleting item', 'error');
+        });
+    }
 }
 
 // Update image function - FIXED
@@ -2121,6 +2367,399 @@ function deleteItem(index) {
                 toast.style.display = 'none';
             }, 3000);
         }
+    </script>
+    <script>
+    // Initialize edit mode image upload functionality
+function initializeEditModeImageUpload() {
+    // Set up event listeners for all edit mode drop areas
+    document.querySelectorAll('.edit-image-drop-area').forEach(dropArea => {
+        const index = dropArea.dataset.index;
+        setupEditSingleImageUpload(dropArea, index);
+    });
+    
+    // Set up event listeners for merge functionality
+    document.querySelectorAll('.edit-merge-controls').forEach(control => {
+        const index = control.dataset.index;
+        setupEditMergeFunctionality(index);
+    });
+}
+
+// Set up single image upload for edit mode
+function setupEditSingleImageUpload(dropArea, index) {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.style.display = 'none';
+    fileInput.classList.add('edit-image-input');
+    fileInput.dataset.index = index;
+    dropArea.appendChild(fileInput);
+    
+    // Click to select file
+    dropArea.addEventListener('click', (e) => {
+        if (e.target !== fileInput) {
+            fileInput.click();
+        }
+    });
+    
+    // Drag and drop events
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, () => {
+            dropArea.classList.add('highlight');
+        }, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, () => {
+            dropArea.classList.remove('highlight');
+        }, false);
+    });
+    
+    // Handle file drop
+    dropArea.addEventListener('drop', (e) => {
+        handleEditFileDrop(e, index);
+    }, false);
+    
+    // Handle file selection
+    fileInput.addEventListener('change', (e) => {
+        handleEditFileSelect(e, index);
+    });
+}
+
+// Set up merge functionality for edit mode
+function setupEditMergeFunctionality(index) {
+    const mergeDropArea1 = document.querySelector(`.edit-merge-drop-area-1[data-index="${index}"]`);
+    const mergeDropArea2 = document.querySelector(`.edit-merge-drop-area-2[data-index="${index}"]`);
+    const mergeBtn = document.querySelector(`.edit-merge-images-btn[data-index="${index}"]`);
+    const clearBtn = document.querySelector(`.edit-clear-merge-btn[data-index="${index}"]`);
+    
+    // Initialize storage for this item
+    if (!editModeMergeImages[index]) {
+        editModeMergeImages[index] = { image1: null, image2: null };
+    }
+    
+    // Set up drop areas
+    setupEditMergeDropArea(mergeDropArea1, index, 1);
+    setupEditMergeDropArea(mergeDropArea2, index, 2);
+    
+    // Merge button click handler
+    mergeBtn.addEventListener('click', () => {
+        const image1 = editModeMergeImages[index].image1;
+        const image2 = editModeMergeImages[index].image2;
+        
+        if (!image1 || !image2) {
+            showToast('Please upload both images first', 'error');
+            return;
+        }
+        
+        const mergeDirection = document.querySelector(`input[name="edit-mergeDirection-${index}"]:checked`).value;
+        const resizeOption = document.querySelector(`input[name="edit-resizeOption-${index}"]:checked`).value;
+        
+        mergeImages(image1, image2, mergeDirection, resizeOption)
+            .then(result => {
+                showToast(result.message);
+                
+                // Update the single image upload with merged result
+                editModeUploadedFiles[index] = result.file;
+                const dropArea = document.querySelector(`.edit-image-drop-area[data-index="${index}"]`);
+                const preview = document.querySelector(`.edit-image-preview[data-index="${index}"]`);
+                
+                dropArea.innerHTML = `<p>Merged image: ${result.filename}</p>`;
+                preview.src = URL.createObjectURL(result.file);
+                preview.style.display = 'block';
+                
+                // Clear merge areas
+                clearEditMergeAreas(index);
+            })
+            .catch(error => {
+                console.error('Error merging images:', error);
+                showToast('Error merging images: ' + error.message, 'error');
+            });
+    });
+    
+    // Clear button click handler
+    clearBtn.addEventListener('click', () => {
+        clearEditMergeAreas(index);
+    });
+}
+
+// Set up individual merge drop area for edit mode
+function setupEditMergeDropArea(dropArea, index, imageNumber) {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.style.display = 'none';
+    dropArea.appendChild(fileInput);
+    
+    // Click to select file
+    dropArea.addEventListener('click', () => {
+        fileInput.click();
+    });
+    
+    // Drag and drop events
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, () => {
+            dropArea.classList.add('highlight');
+        }, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, () => {
+            dropArea.classList.remove('highlight');
+        }, false);
+    });
+    
+    // Handle file drop
+    dropArea.addEventListener('drop', (e) => {
+        handleEditMergeFileDrop(e, index, imageNumber);
+    }, false);
+    
+    // Handle file selection
+    fileInput.addEventListener('change', (e) => {
+        handleEditMergeFileSelect(e, index, imageNumber);
+    });
+}
+
+// Handle edit mode file drop
+function handleEditFileDrop(e, index) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    handleEditFiles(files, index);
+}
+
+// Handle edit mode file selection
+function handleEditFileSelect(e, index) {
+    const files = e.target.files;
+    handleEditFiles(files, index);
+}
+
+// Process edit mode files
+function handleEditFiles(files, index) {
+    if (files.length === 0) return;
+    
+    const file = files[0];
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    
+    if (file.size > maxSize) {
+        showToast('File is too large. Maximum size is 50MB', 'error');
+        return;
+    }
+    
+    if (!file.type.startsWith('image/')) {
+        showToast('Please select an image file', 'error');
+        return;
+    }
+    
+    editModeUploadedFiles[index] = file;
+    
+    // Display preview
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const dropArea = document.querySelector(`.edit-image-drop-area[data-index="${index}"]`);
+        const preview = document.querySelector(`.edit-image-preview[data-index="${index}"]`);
+        
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+        
+        dropArea.innerHTML = `<p>${file.name} (${Math.round(file.size / 1024)}KB)</p>`;
+    };
+    reader.readAsDataURL(file);
+}
+
+// Handle edit mode merge file drop
+function handleEditMergeFileDrop(e, index, imageNumber) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    handleEditMergeFiles(files, index, imageNumber);
+}
+
+// Handle edit mode merge file selection
+function handleEditMergeFileSelect(e, index, imageNumber) {
+    const files = e.target.files;
+    handleEditMergeFiles(files, index, imageNumber);
+}
+
+// Process edit mode merge files
+function handleEditMergeFiles(files, index, imageNumber) {
+    if (files.length === 0) return;
+    
+    const file = files[0];
+    if (!file.type.startsWith('image/')) {
+        showToast('Please select an image file', 'error');
+        return;
+    }
+    
+    // Store the file
+    if (imageNumber === 1) {
+        editModeMergeImages[index].image1 = file;
+    } else {
+        editModeMergeImages[index].image2 = file;
+    }
+    
+    // Display preview
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const htmlContent = '<img src="' + e.target.result + '" style="max-width: 100%; max-height: 50px;">' +
+                           '<div style="font-size: 10px; margin-top: 2px;">' +
+                           file.name + '<br>(' + Math.round(file.size / 1024) + 'KB)' +
+                           '</div>';
+        
+        const dropArea = document.querySelector(`.edit-merge-drop-area-${imageNumber}[data-index="${index}"]`);
+        dropArea.innerHTML = htmlContent;
+        
+        // Enable merge button if both images are uploaded
+        const mergeBtn = document.querySelector(`.edit-merge-images-btn[data-index="${index}"]`);
+        if (editModeMergeImages[index].image1 && editModeMergeImages[index].image2) {
+            mergeBtn.disabled = false;
+            showEditImagePreviews(index);
+        }
+    };
+    reader.readAsDataURL(file);
+}
+
+// Show preview of images to be merged in edit mode
+function showEditImagePreviews(index) {
+    const previewContainer = document.querySelector(`.edit-merge-preview-container[data-index="${index}"]`);
+    const imagePreviews = document.querySelector(`.edit-image-previews[data-index="${index}"]`);
+    
+    previewContainer.style.display = 'block';
+    imagePreviews.innerHTML = '';
+    
+    const reader1 = new FileReader();
+    const reader2 = new FileReader();
+    
+    reader1.onload = function(e1) {
+        reader2.onload = function(e2) {
+            imagePreviews.innerHTML = '<img src="' + e1.target.result + '" style="max-width: 80px; max-height: 60px; margin: 2px;">' +
+                                     '<img src="' + e2.target.result + '" style="max-width: 80px; max-height: 60px; margin: 2px;">';
+        };
+        reader2.readAsDataURL(editModeMergeImages[index].image2);
+    };
+    reader1.readAsDataURL(editModeMergeImages[index].image1);
+}
+
+// Clear merge areas for specific edit item
+function clearEditMergeAreas(index) {
+    editModeMergeImages[index] = { image1: null, image2: null };
+    
+    document.querySelector(`.edit-merge-drop-area-1[data-index="${index}"]`).innerHTML = '<p>Drag & drop first image</p>';
+    document.querySelector(`.edit-merge-drop-area-2[data-index="${index}"]`).innerHTML = '<p>Drag & drop second image</p>';
+    document.querySelector(`.edit-merge-images-btn[data-index="${index}"]`).disabled = true;
+    document.querySelector(`.edit-merge-preview-container[data-index="${index}"]`).style.display = 'none';
+}
+
+// Enhanced updateImage function to handle both single and merged images
+function updateImage(index) {
+    const item = collectionData[index];
+    let fileToUpload = editModeUploadedFiles[index];
+    
+    if (!fileToUpload) {
+        showToast('Please select a new image first', 'error');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('id', item.id);
+    formData.append('country', item.country);
+    formData.append('file', fileToUpload);
+
+    fetch('/upload-image', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.error) throw new Error(data.error);
+        showToast('Image uploaded successfully');
+        
+        // Clear the uploaded file
+        delete editModeUploadedFiles[index];
+        const dropArea = document.querySelector(`.edit-image-drop-area[data-index="${index}"]`);
+        const preview = document.querySelector(`.edit-image-preview[data-index="${index}"]`);
+        
+        dropArea.innerHTML = '<p>Drag & drop new image here or click to select</p>';
+        preview.style.display = 'none';
+        
+        loadCollection();
+    })
+    .catch(err => {
+        console.error(err);
+        showToast('Error: ' + err.message, 'error');
+    });
+}
+
+// Enhanced saveItem function to handle image updates
+function saveItem(index) {
+    const item = collectionData[index];
+    const itemElement = document.querySelector(`.collection-item[data-index="${index}"]`);
+    
+    // Get updated values
+    const updatedItem = {
+        id: item.id,
+        country: itemElement.querySelector('.editable-country').value,
+        currency_type: itemElement.querySelector('.editable-currency-type').value,
+        donor_name: itemElement.querySelector('.editable-donor').value,
+        year: itemElement.querySelector('.editable-year').value,
+        size: itemElement.querySelector('.editable-size').value,
+        note: itemElement.querySelector('.editable-note').value,
+        hidden_note: itemElement.querySelector('.editable-hidden-note').value,
+        image: item.image || ""
+    };
+    
+    // Validate required fields
+    if (!updatedItem.country || !updatedItem.currency_type || !updatedItem.donor_name) {
+        showToast('Please fill in all required fields', 'error');
+        return;
+    }
+    
+    // First update the item data
+    fetch('/test', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedItem)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Update failed');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // If there's a new image, upload it
+        if (editModeUploadedFiles[index]) {
+            return updateImage(index).then(() => {
+                showToast('Item and image updated successfully');
+                loadCollection();
+            });
+        } else {
+            showToast('Item updated successfully');
+            loadCollection();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Error updating item', 'error');
+    });
+}
+
+// Enhanced cancelEdit function
+function cancelEdit(index) {
+    // Clear any uploaded files for this item
+    delete editModeUploadedFiles[index];
+    delete editModeMergeImages[index];
+    
+    // Reload the collection to discard changes
+    loadCollection();
+}
     </script>
 </body>
 </html>
@@ -2360,6 +2999,24 @@ def merge_images():
         return jsonify({"error": f"Failed to merge images: {str(e)}"}), 500
 
 
+
+@app.route('/debug-json', methods=['GET'])
+def debug_json():
+    """Debug endpoint to see exact JSON file content"""
+    try:
+        with open(file_name, 'r', encoding='utf-8') as file:
+            content = file.read()
+        return jsonify({
+            "file_path": file_name,
+            "file_exists": os.path.exists(file_name),
+            "file_size": os.path.getsize(file_name) if os.path.exists(file_name) else 0,
+            "content": content,
+            "parsed_data": read_json_file()
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 # Change this route
 # @app.route('/test', methods=['POST'])
 # def test():
@@ -2388,12 +3045,44 @@ def delete_entry_endpoint():
     delete_entry(data)
     return jsonify({"message": "Item deleted successfully"})
 
-# Keep the existing testdelete route but make sure it has a unique name:
-@app.route('/testdelete', methods=['POST'])
-def test_delete():
-    data = request.get_json()
-    delete_entry(data)
-    return jsonify({"message": "Item deleted successfully"})
+
+@app.route('/debug-data', methods=['GET'])
+def debug_data():
+    """Debug endpoint to see all data with IDs"""
+    data = read_json_file()
+    simplified_data = []
+    for i, entry in enumerate(data):
+        simplified_data.append({
+            "index": i,
+            "id": entry.get("id", "MISSING ID"),
+            "country": entry.get("country", "No country"),
+            "donor_name": entry.get("donor_name", "No donor"),
+            "image": entry.get("image", "No image")
+        })
+    return jsonify(simplified_data)
+
+
+@app.route('/fix-all-ids', methods=['GET'])
+def fix_all_ids():
+    """Ensure every entry has a unique ID"""
+    data = read_json_file()
+    updated_count = 0
+    
+    for entry in data:
+        if not entry.get("id"):
+            # Create a new ID
+            entry["id"] = str(uuid.uuid4())
+            updated_count += 1
+            print(f"Added ID to entry: {entry.get('country', 'Unknown')} -> {entry['id']}")
+    
+    if updated_count > 0:
+        write_json_file(data)
+    
+    return jsonify({
+        "message": f"Added IDs to {updated_count} entries",
+        "total_entries": len(data)
+    })
+
 
 @app.route('/test-connection', methods=['GET'])
 def test_connection():
