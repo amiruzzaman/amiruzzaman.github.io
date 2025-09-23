@@ -189,83 +189,49 @@ def ensure_country_folder_exists(country):
         os.makedirs(default_folder, exist_ok=True)
         return default_folder
 
-
-def add_to_json(country, image, note, donor_name, currency_type, size, year, hidden_note=""):
-    data = read_json_file()
-    new_entry = {
-        'country': country.title(),
-        'image': image,
-        'note': note,
-        'donor_name': donor_name,
-        'currency_type': currency_type,
-        'size': size,
-        'year': year
-    }
-    if hidden_note:
-        new_entry["hidden_note"] = hidden_note
-
-    # ensure id
-    ensure_entry_id(new_entry, existing_ids={e.get("id") for e in data if e.get("id")})
-    data.append(new_entry)
-    write_json_file(data)
-
-
 def update_json_file(country, image, note, donor_name, currency_type, size, year, hidden_note=""):
     """
-    Update an existing entry by country (if found) or append new.
-    Prefer preserving an existing id for that entry, create one if missing.
+    Update the coins.json file with the new entry.
     """
+    print(f"Updating JSON with entry: {country}, {image}, {donor_name}")
+    
+    # Ensure the JSON file exists
     if not os.path.exists(JSON_FILE_PATH):
         with open(JSON_FILE_PATH, 'w') as f:
             json.dump([], f)
-
+    
+    # Load existing data
     try:
-        data = read_json_file()
-    except Exception:
+        with open(JSON_FILE_PATH, 'r') as f:
+            data = json.load(f)
+        print(f"Loaded {len(data)} existing entries")
+    except (json.JSONDecodeError, FileNotFoundError):
+        print("No existing data found, starting fresh")
         data = []
 
-    updated = False
-    for entry in data:
-        if entry.get("country", "").lower() == country.lower():
-            # Update fields
-            entry["image"] = image
-            entry["note"] = note
-            entry["donor_name"] = donor_name
-            entry["currency_type"] = currency_type
-            entry["size"] = size
-            entry["year"] = year
-            if hidden_note:
-                entry["hidden_note"] = hidden_note
-            elif "hidden_note" in entry and not hidden_note:
-                # If hidden_note omitted in update, keep existing behavior: remove only if explicitly desired.
-                pass
-            # Keep existing id or assign one if missing
-            if not entry.get("id"):
-                ensure_entry_id(entry, existing_ids={e.get("id") for e in data if e.get("id")})
-            updated = True
-            break
+    # Add the new entry
+    new_entry = {
+        "country": country,
+        "image": image,
+        "note": note,
+        "donor_name": donor_name,
+        "currency_type": currency_type,
+        "size": size,
+        "year": year
+    }
+    
+    # Add hidden_note if provided
+    if hidden_note:
+        new_entry["hidden_note"] = hidden_note
 
-    if not updated:
-        new_entry = {
-            "country": country,
-            "image": image,
-            "note": note,
-            "donor_name": donor_name,
-            "currency_type": currency_type,
-            "size": size,
-            "year": year
-        }
-        if hidden_note:
-            new_entry["hidden_note"] = hidden_note
-        ensure_entry_id(new_entry, existing_ids={e.get("id") for e in data if e.get("id")})
-        data.append(new_entry)
+    data.append(new_entry)
+    print(f"Added new entry: {new_entry}")
 
-    write_json_file(data)
-
-
-
-
-
+    # Save updated data
+    with open(JSON_FILE_PATH, 'w') as f:
+        json.dump(data, f, indent=4)
+    
+    print(f"JSON file updated successfully with {len(data)} entries")
 
 def allowed_file(filename):
     if not filename or '.' not in filename:
@@ -281,7 +247,24 @@ def write_json_file(data):
     with open(file_name, 'w', encoding='utf-8') as file:
         json.dump(data, file, sort_keys=True, indent=4, separators=(',', ': '))
 
-
+def add_to_json(country, image, note, donor_name, currency_type, size, year, hidden_note=""):
+    data = read_json_file()
+    new_entry = {
+        'country': country.title(),
+        'image': image,
+        'note': note,
+        'donor_name': donor_name,
+        'currency_type': currency_type,
+        'size': size,
+        'year': year
+    }
+    
+    # Add hidden_note if provided
+    if hidden_note:
+        new_entry["hidden_note"] = hidden_note
+        
+    data.append(new_entry)
+    write_json_file(data)
 
 def edit_or_delete_entry(action, value):
     data = read_json_file()
@@ -296,54 +279,26 @@ def edit_or_delete_entry(action, value):
     write_json_file(updated_data)
 
 def update_entry(updated_entry):
-    """
-    Update an existing JSON entry identified by 'id' (preferred) or 'row_id' (legacy image filename).
-    If not found, append as a new entry (with a new id).
-    """
     data = read_json_file()
-    updated = False
-
-    # Prefer id (stable). For backward compatibility accept row_id which may be image filename.
-    identifier = updated_entry.get("id") or updated_entry.get("row_id")
-
     for entry in data:
-        if (entry.get("id") and identifier and entry.get("id") == identifier) or \
-           (entry.get("image") and identifier and entry.get("image") == identifier):
-            # update fields if provided
-            for key in ["image", "note", "country", "donor_name", "currency_type", "size", "year", "hidden_note"]:
-                if key in updated_entry:
-                    val = updated_entry.get(key)
-                    if isinstance(val, str):
-                        val = val.replace("<br>", "")
-                    entry[key] = val
-            # Ensure entry has an id
-            if not entry.get("id"):
-                entry["id"] = str(uuid.uuid4())
-            updated = True
-            break
+        if entry['image'] == updated_entry['row_id']:
+            entry.update({
+                "image": updated_entry.get("image", entry["image"]).replace('<br>', ''),
+                "note": updated_entry.get("note", entry.get("note", "")).replace('<br>', ''),
+                "country": updated_entry.get("country", entry["country"]).replace('<br>', ''),
+                "donor_name": updated_entry.get("donor_name", entry["donor_name"]).replace('<br>', ''),
+                "currency_type": updated_entry.get("currency_type", entry["currency_type"]).replace('<br>', ''),
+                "size": updated_entry.get("size", entry.get("size", "")).replace('<br>', ''),
+                "year": updated_entry.get("year", entry.get("year", "")).replace('<br>', '')
+            })
 
-    if updated:
-        write_json_file(data)
-    else:
-        # Not found -> create new entry with id (so future edits will target it)
-        new_entry = {
-            "country": updated_entry.get("country", "").strip(),
-            "image": updated_entry.get("image", "").strip(),
-            "note": updated_entry.get("note", "").strip(),
-            "donor_name": updated_entry.get("donor_name", "").strip(),
-            "currency_type": updated_entry.get("currency_type", "").strip(),
-            "size": updated_entry.get("size", "").strip(),
-            "year": updated_entry.get("year", "").strip()
-        }
-        if "hidden_note" in updated_entry:
-            new_entry["hidden_note"] = updated_entry.get("hidden_note", "").replace("<br>", "")
-        # assign id
-        ensure_entry_id(new_entry, existing_ids={e.get("id") for e in data if e.get("id")})
-        data.append(new_entry)
-        write_json_file(data)
+            # ✅ Handle hidden_note
+            if "hidden_note" in updated_entry:
+                entry["hidden_note"] = updated_entry["hidden_note"].replace('<br>', '')
+            elif "hidden_note" not in updated_entry and "hidden_note" in entry:
+                del entry["hidden_note"]
 
-
-
+    write_json_file(data)
 
 
 def delete_entry(entry):
@@ -550,74 +505,6 @@ def upload_file():
 
 
 
-# import uuid
-
-# def ensure_entry_id(entry):
-#     """Ensure each JSON entry has a unique id."""
-#     if "id" not in entry or not entry["id"]:
-#         entry["id"] = str(uuid.uuid4())
-#     return entry
-
-
-# --- START: Add unique-id helpers + migration endpoint ---
-
-import uuid
-
-def ensure_entry_id(entry, existing_ids=None):
-    """
-    Ensure the given entry has a stable unique id.
-    existing_ids: optional set of ids to avoid collisions.
-    """
-    if not existing_ids:
-        existing_ids = set()
-    # if entry already has a non-empty id, keep it
-    if entry.get("id"):
-        return entry
-    new_id = str(uuid.uuid4())
-    while new_id in existing_ids:
-        new_id = str(uuid.uuid4())
-    entry["id"] = new_id
-    return entry
-
-def apply_ids_to_all_entries():
-    """
-    One-time migration that adds an 'id' (UUID) to every entry that lacks one.
-    Uses read_json_file() and write_json_file() helpers already in the file.
-    Returns a dict with counts.
-    """
-    data = read_json_file()
-    existing_ids = {e.get("id") for e in data if e.get("id")}
-    changed = 0
-    for entry in data:
-        if not entry.get("id"):
-            entry["id"] = str(uuid.uuid4())
-            # ensure uniqueness (unlikely to loop, but safe)
-            while entry["id"] in existing_ids:
-                entry["id"] = str(uuid.uuid4())
-            existing_ids.add(entry["id"])
-            changed += 1
-
-    if changed > 0:
-        write_json_file(data)
-
-    return {"updated": changed, "total": len(data)}
-
-@app.route('/migrate-add-ids', methods=['GET'])
-def migrate_add_ids():
-    data = read_json_file()
-    updated = 0
-    for entry in data:
-        if "id" not in entry or not entry["id"]:
-            entry["id"] = str(uuid.uuid4())
-            updated += 1
-    write_json_file(data)
-    return jsonify({"message": f"Added ids to {updated} entries"}), 200
-
-
-# --- END: Add unique-id helpers + migration endpoint ---
-
-
-
 @app.route('/edit', methods=['GET', 'POST'])
 def edit():
     if request.method == 'POST':
@@ -628,11 +515,11 @@ def edit():
     coins = read_json_file()
     return render_template('edit.html', title="Edit Page", jsonfile=json.dumps(coins))
 
-@app.route('/test', methods=['POST'])
-def test():
-    data = request.get_json()
-    update_entry(data)
-    return jsonify({"message": "Entry updated successfully"})
+# @app.route('/test', methods=['POST'])
+# def test():
+#     data = request.get_json()
+#     update_entry(data)
+#     return render_template('edit_table.html')
 
 @app.route('/testdelete', methods=['POST'])
 def testdelete():
@@ -741,54 +628,48 @@ def get_countries():
     countries = load_countries()
     return jsonify(countries)
 
-
-
+# API to handle image upload for a specific country
 @app.route('/upload-image', methods=['POST'])
 def upload_image():
     try:
-        entry_id = request.form.get('id')   # ✅ stable unique id
         country = request.form.get('country')
         file = request.files.get('file')
+        existing_image = request.form.get('existing_image')  # 👈 pass current filename from frontend if editing
 
-        if not entry_id:
-            return jsonify({"error": "Entry id is required"}), 400
         if not country:
             return jsonify({"error": "Country is required"}), 400
+
         if not file:
             return jsonify({"error": "No file provided"}), 400
 
-        # Create country folder if missing
         country_folder = os.path.join(BASE_UPLOAD_FOLDER, country)
         os.makedirs(country_folder, exist_ok=True)
 
-        # Generate safe filename
         file_ext = file.filename.rsplit('.', 1)[-1].lower()
-        filename = f"{uuid.uuid4()}.{file_ext}"
+
+        if existing_image:
+            old_ext = existing_image.rsplit('.', 1)[-1].lower()
+            if file_ext == old_ext:
+                # ✅ Replace old file, keep same name
+                filename = existing_image
+            else:
+                # ✅ Different extension → generate new UUID
+                filename = f"{uuid.uuid4()}.{file_ext}"
+        else:
+            # ✅ No existing image → new UUID
+            filename = f"{uuid.uuid4()}.{file_ext}"
+
         file_path = os.path.join(country_folder, filename)
         file.save(file_path)
-
-        # ✅ Update JSON entry by id, not by country/image
-        data = read_json_file()
-        for entry in data:
-            if entry.get("id") == entry_id:
-                entry["image"] = filename
-                entry["country"] = country   # keep consistent
-                break
-        write_json_file(data)
 
         return jsonify({
             "message": "File uploaded successfully",
             "filename": filename,
-            "filepath": file_path,
-            "id": entry_id
+            "filepath": file_path
         }), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-
-
-
 
 
 # Edit JSON page - now with embedded HTML
@@ -1969,19 +1850,17 @@ function saveItem(index) {
     const itemElement = document.querySelector(`.collection-item[data-index="${index}"]`);
     
     // Get updated values
- const updatedItem = {
-    id: item.id,   // <-- use id
-    country: itemElement.querySelector('.editable-country').value,
-    currency_type: itemElement.querySelector('.editable-currency-type').value,
-    donor_name: itemElement.querySelector('.editable-donor').value,
-    year: itemElement.querySelector('.editable-year').value,
-    size: itemElement.querySelector('.editable-size').value,
-    note: itemElement.querySelector('.editable-note').value,
-    hidden_note: itemElement.querySelector('.editable-hidden-note').value,
-    image: item.image // may be "" if none yet
-};
-
-
+    const updatedItem = {
+        row_id: item.image, // Use image filename as unique identifier
+        country: itemElement.querySelector('.editable-country').value,
+        currency_type: itemElement.querySelector('.editable-currency-type').value,
+        donor_name: itemElement.querySelector('.editable-donor').value,
+        year: itemElement.querySelector('.editable-year').value,
+        size: itemElement.querySelector('.editable-size').value,
+        note: itemElement.querySelector('.editable-note').value,
+        hidden_note: itemElement.querySelector('.editable-hidden-note').value,
+        image: item.image // Keep original image filename unless changed
+    };
     
     // Validate required fields
     if (!updatedItem.country || !updatedItem.currency_type || !updatedItem.donor_name) {
@@ -2016,40 +1895,58 @@ function saveItem(index) {
 
 // Update image function - FIXED
 function updateImage(index) {
-    const item = collectionData[index];  // this should have .id
-    const fileInput = document.querySelector(
-        `.collection-item[data-index="${index}"] .editable-image-upload`
-    );
+    const item = collectionData[index];
+    const itemElement = document.querySelector(`.collection-item[data-index="${index}"]`);
+    const fileInput = itemElement.querySelector('.editable-image-upload');
     const file = fileInput.files[0];
-
+    
     if (!file) {
-        showToast('Please select a file first', 'error');
+        showToast('Please select a new image file', 'error');
         return;
     }
-
+    
     const formData = new FormData();
-    formData.append('id', item.id);         // ✅ critical line
     formData.append('country', item.country);
     formData.append('file', file);
-
+    formData.append('existing_image', item.image);
+    
     fetch('/upload-image', {
         method: 'POST',
         body: formData
     })
-    .then(res => res.json())
+    .then(response => response.json())
     .then(data => {
-        if (data.error) throw new Error(data.error);
-        showToast('Image uploaded successfully');
-        loadCollection();
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        
+        // Update the item with new image filename
+        const updatedItem = {
+            row_id: item.image,
+            image: data.filename,
+            country: item.country
+        };
+        
+        return fetch('/test', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedItem)
+        });
     })
-    .catch(err => {
-        console.error(err);
-        showToast('Error: ' + err.message, 'error');
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Image update failed');
+        }
+        showToast('Image updated successfully');
+        loadCollection(); // Reload to show new image
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Error updating image: ' + error.message, 'error');
     });
 }
-
-
-
 
 // Enhanced deleteItem function with confirmation - FIXED
 function deleteItem(index) {
@@ -2361,11 +2258,11 @@ def merge_images():
 
 
 # Change this route
-# @app.route('/test', methods=['POST'])
-# def test():
-#     data = request.get_json()
-#     update_entry(data)
-#     return jsonify({"message": "Item updated successfully"})
+@app.route('/test', methods=['POST'])
+def test():
+    data = request.get_json()
+    update_entry(data)
+    return jsonify({"message": "Item updated successfully"})
 
 # Remove or comment out the existing test route:
 # @app.route('/test', methods=['POST'])
