@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rubric Grading Interface</title>
+    <style>
+        :root {
+            --positive-color: #e8f5e9;
+            --negative-color: #ffebee;
+            --border-color: #ddd;
+            --header-bg: #f5f5f5;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .rubric-section {
+            flex: 2;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-section {
+            flex: 1;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+
+        .section-header {
+            background-color: var(--header-bg);
+            padding: 10px 15px;
+            margin: 15px 0 10px;
+            border-left: 4px solid #4CAF50;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .subsection-header {
+            background-color: #f0f0f0;
+            padding: 8px 12px;
+            margin: 10px 0 5px;
+            border-left: 3px solid #2196F3;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .item-list {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .item {
+            padding: 8px 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .item:hover {
+            opacity: 0.8;
+        }
+
+        .positive-item {
+            background-color: var(--positive-color);
+            border-left: 3px solid #4CAF50;
+        }
+
+        .negative-item {
+            background-color: var(--negative-color);
+            border-left: 3px solid #F44336;
+        }
+
+        .selected-positive {
+            background-color: #c8e6c9;
+        }
+
+        .selected-negative {
+            background-color: #ffcdd2;
+        }
+
+        .feedback-textarea {
+            width: 100%;
+            min-height: 80px;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .controls {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 10px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #resetBtn {
+            background-color: #f44336;
+        }
+
+        #resetBtn:hover {
+            background-color: #d32f2f;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        .summary-table th,
+        .summary-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .summary-table th {
+            background-color: var(--header-bg);
+        }
+
+        .total-row {
+            font-weight: bold;
+            background-color: #e3f2fd;
+        }
+
+        .output-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .editable {
+            outline: none;
+            border: 1px dashed transparent;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+
+        .editable:focus {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="rubric-section">
+            <h1>Rubric Grading Interface</h1>
+            <div id="rubricContainer"></div>
+
+            <div class="controls">
+                <button id="generateBtn">Generate Feedback</button>
+                <button id="resetBtn">Reset All</button>
+            </div>
+
+            <div id="outputSection" class="output-section hidden"></div>
+        </div>
+
+        <div class="summary-section">
+            <h2>Points Summary</h2>
+            <table class="summary-table" id="summaryTable">
+                <thead>
+                    <tr>
+                        <th>Section</th>
+                        <th>Points</th>
+                        <th>Max</th>
+                    </tr>
+                </thead>
+                <tbody id="summaryBody">
+                </tbody>
+                <tfoot>
+                    <tr class="total-row">
+                        <td>Total</td>
+                        <td id="totalPoints">0</td>
+                        <td id="maxPoints">100</td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <div id="extraCreditSection" class="hidden">
+                <h3>Extra Credit</h3>
+                <table class="summary-table">
+                    <thead>
+                        <tr>
+                            <th>Section</th>
+                            <th>Points</th>
+                            <th>Max</th>
+                        </tr>
+                    </thead>
+                    <tbody id="extraCreditBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Rubric data (from your JSON)
+        const rubricData = {
+            "grading_rubric": {
+                "total_points": 100,
+                "extra_credit_points": 5,
+                "sections": [
+                    {
+                        "main_section": "1) Requirements ( /10)",
+                        "points_available": 10,
+                        "positive_items": {
+                            "items": [
+                                {
+                                    "description": "Overleaf + LaTeX used; final PDF submitted",
+                                    "points": 1
+                                },
+                                {
+                                    "description": "GitHub commit hash provided and resolves",
+                                    "points": 1
+                                },
+                                {
+                                    "description": "DOCSTRING-GTusername has runnable instructions (env/deps/entry point)",
+                                    "points": 2
+                                },
+                                {
+                                    "description": "Report length ≤ 8 pages (main text)",
+                                    "points": 1
+                                },
+                                {
+                                    "description": "Figures/text legible at 100% zoom (≤2 hard-to-read plots)",
+                                    "points": 2
+                                },
+                                {
+                                    "description": "References are consistent (MLA/APA/IEEE OK) and include ≥1 source beyond course material",
+                                    "points": 3
+                                }
+                            ]
+                        },
+                        "negative_items": {
+                            "items": [
+                                "Missing/invalid GitHub hash or repo not runnable from instructions",
+                                "Instructions live only on GitHub, not in the DOCSTRING (deduct)",
+                                ">8 pages; note for future reports",
+                                "≥3 figures hard to read at 100%",
+                                "References inconsistent; lacks outside literature; style includes body text in bibliography"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    },
+                    {
+                        "main_section": "2) Problem Description ( /6)",
+                        "points_available": 6,
+                        "subsections": [
+                            {
+                                "subsection": "Hotel Booking Demand ( /3)",
+                                "positive_items": {
+                                    "points_available": 3,
+                                    "items": [
+                                        {
+                                            "description": "Brief but clear ML framing (structure, noise)",
+                                            "points": 0.5
+                                        },
+                                        {
+                                            "description": "Noted class imbalance, missingness/outliers, continuous vs categorical mix",
+                                            "points": 1
+                                        },
+                                        {
+                                            "description": "Justified classification vs regression target(s) for this dataset",
+                                            "points": 1.5
+                                        }
+                                    ]
+                                },
+                                "negative_items": {
+                                    "items": [
+                                        "Deeper EDA on missing data/outliers or target imbalance",
+                                        "Clearer rationale for chosen target(s) and why alternatives weren't used"
+                                    ]
+                                },
+                                "feedback_section": "Feedback on Section: <free-text>"
+                            },
+                            {
+                                "subsection": "US Accidents ( /3)",
+                                "positive_items": {
+                                    "points_available": 3,
+                                    "items": [
+                                        {
+                                            "description": "Clear ML relevance (spatiotemporal, weather/POI enrichment)",
+                                            "points": 0.5
+                                        },
+                                        {
+                                            "description": "Mentioned imbalance, feature types, possible reporting bias",
+                                            "points": 1
+                                        },
+                                        {
+                                            "description": "Justified classification vs regression target(s) for this dataset",
+                                            "points": 1.5
+                                        }
+                                    ]
+                                },
+                                "negative_items": {
+                                    "items": [
+                                        "Sparse EDA; needs more on missingness or post-event fields (leakage risk)",
+                                        "Stronger justification of target framing and constraints"
+                                    ]
+                                },
+                                "feedback_section": "Feedback on Section: <free-text>"
+                            }
+                        ]
+                    },
+                    {
+                        "main_section": "3) Hypothesis ( /10)",
+                        "points_available": 10,
+                        "subsections": [
+                            {
+                                "subsection": "Initial Hypothesis ( /5)",
+                                "positive_items": {
+                                    "points_available": 5,
+                                    "items": [
+                                        {
+                                            "description": "Explicit hypothesis states expected algorithm ordering/behaviors",
+                                            "points": 2
+                                        },
+                                        {
+                                            "description": "Grounded in lecture/paper/theory or minimal EDA evidence",
+                                            "points": 3
+                                        }
+                                    ]
+                                },
+                                "negative_items": {
+                                    "items": [
+                                        "Hypothesis vague or unfalsifiable",
+                                        "Lacks citation or tie-in to course material / literature"
+                                    ]
+                                },
+                                "feedback_section": "Feedback on Section: <free-text>"
+                            },
+                            {
+                                "subsection": "Follow-Through ( /5)",
+                                "positive_items": {
+                                    "points_available": 5,
+                                    "items": [
+                                        {
+                                            "description": "Returned to hypothesis in Discussion/Conclusion",
+                                            "points": 2
+                                        },
+                                        {
+                                            "description": "Cited specific numbers/figures/tables to support or refute",
+                                            "points": 3
+                                        }
+                                    ]
+                                },
+                                "negative_items": {
+                                    "items": [
+                                        "Conclusion does not explicitly resolve the hypothesis",
+                                        "References trends qualitatively without quantitative evidence"
+                                    ]
+                                },
+                                "feedback_section": "Feedback on Section: <free-text>"
+                            }
+                        ]
+                    },
+                    {
+                        "main_section": "4) Algorithms ( /68 total = 17 per algorithm)",
+                        "points_available": 68,
+                        "subsections": [
+                            {
+                                "subsection": "4.1 Decision Trees ( /17)",
+                                "positive_items": {
+                                    "points_available": 17,
+                                    "items": [
+                                        {
+                                            "description": "Error metrics justified for tasks (classification vs regression)",
+                                            "points": 2
+                                        },
+                                        {
+                                            "description": "Learning Curves — Hotel: Valid LC + bias/variance trends + iterative improvements",
+                                            "points": 3
+                                        },
+                                        {
+                                            "description": "Learning Curves — US Accidents: Valid LC + trends + iterative adjustments",
+                                            "points": 3
+                                        },
+                                        {
+                                            "description": "Model Complexity — Hotel: Valid validation curve + interpretation + refinement",
+                                            "points": 4
+                                        },
+                                        {
+                                            "description": "Model Complexity — US Accidents: Valid MC plot + interpretation + refinement",
+                                            "points": 5
+                                        }
+                                    ]
+                                },
+                                "negative_items": {
+                                    "items": [
+                                        "Missing/incorrect metrics; no rationale for classification vs regression errors",
+                                        "No pruning or no ccp_alpha path; depth/leaf sizing unexamined",
+                                        "LC/MC plots missing for one/both datasets or axes/curves incomplete",
+                                        "Trends listed without linking to data or DT properties"
+                                    ]
+                                },
+                                "feedback_section": "Feedback on Section: <free-text>"
+                            },
+                            {
+                                "subsection": "4.2 k-Nearest Neighbors ( /17)",
+                                "positive_items": {
+                                    "points_available": 17,
+                                    "items": [
+                                        {
+                                            "description": "Error metrics justified",
+                                            "points": 2
+                                        },
+                                        {
+                                            "description": "Learning Curves — Hotel: Valid LC + bias/variance patterns + iterative tuning",
+                                            "points": 3
+                                        },
+                                        {
+                                            "description": "Learning Curves — US Accidents: Valid LC + trends + curse of dimensionality discussion",
+                                            "points": 3
+                                        },
+                                        {
+                                            "description": "Model Complexity — Hotel: MC plot vs k + interpretation + justification",
+                                            "points": 4
+                                        },
+                                        {
+                                            "description": "Model Complexity — US Accidents: MC plot + interpretation + data property ties",
+                                            "points": 5
+                                        }
+                                    ]
+                                },
+                                "negative_items": {
+                                    "items": [
+                                        "Features not scaled; metric/weighting not discussed",
+                                        "Only one value of k considered; MC plot missing",
+                                        "No discussion of imbalance effects in neighborhoods"
+                                    ]
+                                },
+                                "feedback_section": "Feedback on Section: <free-text>"
+                            },
+                            {
+                                "subsection": "4.3 Support Vector Machines ( /17)",
+                                "positive_items": {
+                                    "points_available": 17,
+                                    "items": [
+                                        {
+                                            "description": "Error metrics justified",
+                                            "points": 2
+                                        },
+                                        {
+                                            "description": "Learning Curves — Hotel: Valid LC + bias/variance + iterative C/γ/degree tuning",
+                                            "points": 3
+                                        },
+                                        {
+                                            "description": "Learning Curves — US Accidents: Valid LC + trends + kernel choice connection",
+                                            "points": 3
+                                        },
+                                        {
+                                            "description": "Model Complexity — Hotel: MC plot vs C/γ/degree + interpretation + kernel justification",
+                                            "points": 4
+                                        },
+                                        {
+                                            "description": "Model Complexity — US Accidents: MC plot + interpretation + data trait ties",
+                                            "points": 5
+                                        }
+                                    ]
+                                },
+                                "negative_items": {
+                                    "items": [
+                                        "Features not scaled; only one kernel (need ≥2 kernels)",
+                                        "Probabilities reported without calibration rationale",
+                                        "MC/LC missing or not linked to SVM inductive biases"
+                                    ]
+                                },
+                                "feedback_section": "Feedback on Section: <free-text>"
+                            },
+                            {
+                                "subsection": "4.4 Neural Networks ( /17)",
+                                "positive_items": {
+                                    "points_available": 17,
+                                    "items": [
+                                        {
+                                            "description": "Error metrics justified",
+                                            "points": 2
+                                        },
+                                        {
+                                            "description": "Learning Curves — Hotel: Valid data-size LC + epoch LC + bias/variance + regularization",
+                                            "points": 3
+                                        },
+                                        {
+                                            "description": "Learning Curves — US Accidents: Valid LC + trends + scale/imbalance discussion",
+                                            "points": 3
+                                        },
+                                        {
+                                            "description": "Model Complexity — Hotel: MC plot vs hyperparameter + interpretation + architecture justification",
+                                            "points": 4
+                                        },
+                                        {
+                                            "description": "Model Complexity — US Accidents: MC plot + interpretation + dataset complexity ties",
+                                            "points": 5
+                                        }
+                                    ]
+                                },
+                                "negative_items": {
+                                    "items": [
+                                        "Missing epoch-wise LC; only final scores shown",
+                                        "No standardization of inputs; heads/losses mismatched to task",
+                                        "No calibration when thresholding; imbalance untreated"
+                                    ]
+                                },
+                                "feedback_section": "Feedback on Section: <free-text>"
+                            }
+                        ]
+                    },
+                    {
+                        "main_section": "5) Conclusion ( /6)",
+                        "points_available": 6,
+                        "positive_items": {
+                            "items": [
+                                {
+                                    "description": "Clear wrap-up with Type I/II tied to thresholds or residuals",
+                                    "points": 1.5
+                                },
+                                {
+                                    "description": "≥3 evidence-backed takeaways comparing algorithms & datasets",
+                                    "points": 1.5
+                                },
+                                {
+                                    "description": "Connects to course concepts (generalization, CV, bias–variance, proper metrics)",
+                                    "points": 1.5
+                                },
+                                {
+                                    "description": "Notes limitations and one concrete next step; cites figures/tables",
+                                    "points": 1.5
+                                }
+                            ]
+                        },
+                        "negative_items": {
+                            "items": [
+                                "Too generic; lacks Type I/II or concrete, numbered takeaways",
+                                "Weak linkage to course concepts; limited cross-dataset comparison"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    },
+                    {
+                        "main_section": "Extra Credit: Neural Network Activation Tests (up to 5)",
+                        "points_available": 5,
+                        "positive_items": {
+                            "items": [
+                                {
+                                    "description": "NN only, SGD only, one dataset, four activations; all non-activation factors held constant",
+                                    "points": 1
+                                },
+                                {
+                                    "description": "Validation curves (loss + primary metric), comparison table, 3+ seeds (mean±std)",
+                                    "points": 2
+                                },
+                                {
+                                    "description": "Insightful analysis: convergence speed/stability, calibration/residuals, trade-offs",
+                                    "points": 2
+                                }
+                            ]
+                        },
+                        "negative_items": {
+                            "items": [
+                                "Missing activations / uncontrolled changes (LR/init/reg) / incomplete curves or metrics",
+                                "Descriptive commentary without diagnosing stability or trade-offs"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    }
+                ],
+                "general_feedback": {
+                    "section": "General Feedback",
+                    "content": "<free-text>"
+                }
+            }
+        };
+
+        // State management
+        const state = {
+            selectedItems: new Map(), // Map of sectionId -> {positive: Set(), negative: Set()}
+            feedbackTexts: new Map(), // Map of sectionId -> feedback text
+            generalFeedback: ""
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function () {
+            renderRubric();
+            setupEventListeners();
+            updateSummary();
+        });
+
+        // Render the rubric interface
+        function renderRubric() {
+            const container = document.getElementById('rubricContainer');
+            container.innerHTML = '';
+
+            rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
+                const sectionId = `section-${sectionIndex}`;
+
+                // Create section header
+                const sectionHeader = document.createElement('div');
+                sectionHeader.className = 'section-header';
+                sectionHeader.innerHTML = `<span class="editable" data-id="${sectionId}-header">${section.main_section}</span>`;
+                container.appendChild(sectionHeader);
+
+                // Create section content
+                const sectionContent = document.createElement('div');
+                sectionContent.id = `${sectionId}-content`;
+
+                // Check if there are subsections
+                if (section.subsections) {
+                    // Add subsections if they exist
+                    section.subsections.forEach((subsection, subIndex) => {
+                        const subsectionId = `${sectionId}-subsection-${subIndex}`;
+
+                        // Create subsection header
+                        const subsectionHeader = document.createElement('div');
+                        subsectionHeader.className = 'subsection-header';
+                        subsectionHeader.innerHTML = `<span class="editable" data-id="${subsectionId}-header">${subsection.subsection}</span>`;
+                        container.appendChild(subsectionHeader);
+
+                        // Create subsection content
+                        const subsectionContent = document.createElement('div');
+                        subsectionContent.id = `${subsectionId}-content`;
+
+                        // Add positive items for subsection
+                        if (subsection.positive_items) {
+                            const subPositiveList = document.createElement('div');
+                            subPositiveList.className = 'item-list';
+                            subPositiveList.innerHTML = '<strong>What you did well</strong>';
+                            subsection.positive_items.items.forEach((item, itemIndex) => {
+                                const itemId = `${subsectionId}-positive-${itemIndex}`;
+                                const itemElement = document.createElement('div');
+                                itemElement.className = 'item positive-item';
+                                itemElement.id = itemId;
+                                itemElement.innerHTML = `• <span class="editable" data-id="${itemId}-text">${item.description}</span>`;
+                                subPositiveList.appendChild(itemElement);
+                            });
+                            subsectionContent.appendChild(subPositiveList);
+                        }
+
+                        // Add negative items for subsection
+                        if (subsection.negative_items) {
+                            const subNegativeList = document.createElement('div');
+                            subNegativeList.className = 'item-list';
+                            subNegativeList.innerHTML = '<strong>What needs improvement</strong>';
+                            subsection.negative_items.items.forEach((item, itemIndex) => {
+                                const itemId = `${subsectionId}-negative-${itemIndex}`;
+                                const itemElement = document.createElement('div');
+                                itemElement.className = 'item negative-item';
+                                itemElement.id = itemId;
+                                itemElement.innerHTML = `• <span class="editable" data-id="${itemId}-text">${item}</span>`;
+                                subNegativeList.appendChild(itemElement);
+                            });
+                            subsectionContent.appendChild(subNegativeList);
+                        }
+
+                        // Add feedback section for subsection
+                        const subFeedbackDiv = document.createElement('div');
+                        subFeedbackDiv.innerHTML = `<strong>${subsection.feedback_section}</strong>`;
+                        const subFeedbackTextarea = document.createElement('textarea');
+                        subFeedbackTextarea.className = 'feedback-textarea';
+                        subFeedbackTextarea.id = `${subsectionId}-feedback`;
+                        subFeedbackTextarea.placeholder = 'Enter feedback here (optional)';
+                        subFeedbackDiv.appendChild(subFeedbackTextarea);
+                        subsectionContent.appendChild(subFeedbackDiv);
+
+                        container.appendChild(subsectionContent);
+                    });
+                } else {
+                    // Add positive items for main section
+                    if (section.positive_items) {
+                        const positiveList = document.createElement('div');
+                        positiveList.className = 'item-list';
+                        positiveList.innerHTML = '<strong>What you did well</strong>';
+                        section.positive_items.items.forEach((item, itemIndex) => {
+                            const itemId = `${sectionId}-positive-${itemIndex}`;
+                            const itemElement = document.createElement('div');
+                            itemElement.className = 'item positive-item';
+                            itemElement.id = itemId;
+                            itemElement.innerHTML = `• <span class="editable" data-id="${itemId}-text">${item.description}</span>`;
+                            positiveList.appendChild(itemElement);
+                        });
+                        sectionContent.appendChild(positiveList);
+                    }
+
+                    // Add negative items for main section
+                    if (section.negative_items) {
+                        const negativeList = document.createElement('div');
+                        negativeList.className = 'item-list';
+                        negativeList.innerHTML = '<strong>What needs improvement</strong>';
+                        section.negative_items.items.forEach((item, itemIndex) => {
+                            const itemId = `${sectionId}-negative-${itemIndex}`;
+                            const itemElement = document.createElement('div');
+                            itemElement.className = 'item negative-item';
+                            itemElement.id = itemId;
+                            itemElement.innerHTML = `• <span class="editable" data-id="${itemId}-text">${item}</span>`;
+                            negativeList.appendChild(itemElement);
+                        });
+                        sectionContent.appendChild(negativeList);
+                    }
+
+                    // Add feedback section
+                    const feedbackDiv = document.createElement('div');
+                    feedbackDiv.innerHTML = `<strong>${section.feedback_section}</strong>`;
+                    const feedbackTextarea = document.createElement('textarea');
+                    feedbackTextarea.className = 'feedback-textarea';
+                    feedbackTextarea.id = `${sectionId}-feedback`;
+                    feedbackTextarea.placeholder = 'Enter feedback here (optional)';
+                    feedbackDiv.appendChild(feedbackTextarea);
+                    sectionContent.appendChild(feedbackDiv);
+                }
+
+                container.appendChild(sectionContent);
+
+                // Add separator
+                const separator = document.createElement('hr');
+                separator.style.margin = '20px 0';
+                container.appendChild(separator);
+            });
+
+            // Add general feedback section
+            const generalFeedbackDiv = document.createElement('div');
+            generalFeedbackDiv.innerHTML = `<h3>${rubricData.grading_rubric.general_feedback.section}</h3>`;
+            const generalTextarea = document.createElement('textarea');
+            generalTextarea.className = 'feedback-textarea';
+            generalTextarea.id = 'general-feedback';
+            generalTextarea.placeholder = 'Enter general feedback here (optional)';
+            generalFeedbackDiv.appendChild(generalTextarea);
+            container.appendChild(generalFeedbackDiv);
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Item selection
+            document.addEventListener('click', function (e) {
+                const item = e.target.closest('.item');
+                if (item) {
+                    toggleItemSelection(item);
+                    updateSummary();
+                }
+            });
+
+            // Header toggling
+            document.addEventListener('click', function (e) {
+                const header = e.target.closest('.section-header, .subsection-header');
+                if (header) {
+                    const contentId = header.id ? `${header.id}-content` :
+                        header.querySelector('span').getAttribute('data-id').replace('-header', '-content');
+                    const content = document.getElementById(contentId);
+                    if (content) {
+                        content.style.display = content.style.display === 'none' ? 'block' : 'none';
+                    }
+                }
+            });
+
+            // Double-click editing
+            document.addEventListener('dblclick', function (e) {
+                const editable = e.target.closest('.editable');
+                if (editable) {
+                    makeEditable(editable);
+                }
+            });
+
+            // Generate feedback button
+            document.getElementById('generateBtn').addEventListener('click', generateFeedback);
+
+            // Reset button
+            document.getElementById('resetBtn').addEventListener('click', resetAll);
+        }
+
+        // Toggle item selection
+        function toggleItemSelection(item) {
+            const itemId = item.id;
+            const isPositive = item.classList.contains('positive-item');
+
+            // Initialize section state if not exists
+            let sectionId;
+            const parts = itemId.split('-');
+            if (parts.length > 3 && parts[2] === 'subsection') {
+                sectionId = `${parts[0]}-${parts[1]}-${parts[2]}-${parts[3]}`;
+            } else {
+                sectionId = `${parts[0]}-${parts[1]}`;
+            }
+
+            if (!state.selectedItems.has(sectionId)) {
+                state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
+            }
+
+            const sectionState = state.selectedItems.get(sectionId);
+            const itemSet = isPositive ? sectionState.positive : sectionState.negative;
+
+            if (itemSet.has(itemId)) {
+                // Deselect
+                itemSet.delete(itemId);
+                item.classList.remove(isPositive ? 'selected-positive' : 'selected-negative');
+            } else {
+                // Select
+                itemSet.add(itemId);
+                item.classList.add(isPositive ? 'selected-positive' : 'selected-negative');
+            }
+        }
+
+        // Make element editable
+        function makeEditable(element) {
+            const currentText = element.textContent;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentText;
+            input.style.width = '100%';
+            input.style.border = '1px solid #2196F3';
+            input.style.padding = '2px 4px';
+
+            element.innerHTML = '';
+            element.appendChild(input);
+            input.focus();
+
+            input.addEventListener('blur', function () {
+                element.textContent = input.value;
+            });
+
+            input.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    input.blur();
+                }
+            });
+        }
+
+        // Update points summary
+        function updateSummary() {
+            const summaryBody = document.getElementById('summaryBody');
+            summaryBody.innerHTML = '';
+
+            let totalPoints = 0;
+            let totalMaxPoints = 0;
+            let hasExtraCredit = false;
+            let extraCreditPoints = 0;
+            let extraCreditMaxPoints = 0;
+
+            const extraCreditBody = document.getElementById('extraCreditBody');
+            extraCreditBody.innerHTML = '';
+
+
+            rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
+                const sectionId = `section-${sectionIndex}`;
+                const isExtraCredit = section.main_section.includes('Extra Credit');
+
+                if (isExtraCredit) {
+                    hasExtraCredit = true;
+                }
+
+                // Process subsections
+                if (section.subsections) {
+                    let mainSectionPoints = 0;
+                    let mainSectionMax = 0;
+
+                    section.subsections.forEach((subsection, subIndex) => {
+                        const subsectionId = `${sectionId}-subsection-${subIndex}`;
+                        const subsectionState = state.selectedItems.get(subsectionId) || { positive: new Set(), negative: new Set() };
+                        const maxSubPoints = subsection.positive_items.points_available;
+                        let subsectionPoints = 0;
+
+                        subsectionState.positive.forEach(itemId => {
+                            const parts = itemId.split('-');
+                            const itemIndex = parseInt(parts[parts.length - 1]);
+                            if (subsection.positive_items.items[itemIndex]) {
+                                subsectionPoints += subsection.positive_items.items[itemIndex].points;
+                            }
+                        });
+
+                        mainSectionPoints += subsectionPoints;
+                        mainSectionMax += maxSubPoints;
+
+                        // Update subsection header with points
+                        const subHeaderElement = document.querySelector(`[data-id="${subsectionId}-header"]`);
+                        if (subHeaderElement) {
+                            const headerText = subHeaderElement.textContent;
+                            const newHeader = headerText.replace(/\(\s*\/\d+(\.\d+)?\)/, `(${subsectionPoints.toFixed(1)}/${maxSubPoints})`);
+                            subHeaderElement.textContent = newHeader;
+                        }
+                    });
+
+                    // Update main section header with points
+                    const mainHeaderElement = document.querySelector(`[data-id="${sectionId}-header"]`);
+                    if (mainHeaderElement) {
+                        const headerText = mainHeaderElement.textContent;
+                        const newHeader = headerText.replace(/\(\s*\/\d+(\.\d+)?\)/, `(${mainSectionPoints.toFixed(1)}/${mainSectionMax})`);
+                        mainHeaderElement.textContent = newHeader;
+                    }
+
+                    // Add main section row for subsections
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${section.main_section.split('(')[0].trim()}</td>
+                        <td>${mainSectionPoints.toFixed(1)}</td>
+                        <td>${mainSectionMax}</td>
+                    `;
+                    summaryBody.appendChild(row);
+                    totalPoints += mainSectionPoints;
+
+                } else {
+                    // Process main section
+                    const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
+                    let sectionPoints = 0;
+                    const maxPoints = section.points_available;
+
+                    if (section.positive_items) {
+                        sectionState.positive.forEach(itemId => {
+                            const parts = itemId.split('-');
+                            const itemIndex = parseInt(parts[parts.length - 1]);
+                            if (section.positive_items.items[itemIndex]) {
+                                sectionPoints += section.positive_items.items[itemIndex].points;
+                            }
+                        });
+                    }
+
+                    if (isExtraCredit) {
+                        extraCreditPoints += sectionPoints;
+                        extraCreditMaxPoints = rubricData.grading_rubric.extra_credit_points;
+
+                        // Add row to extra credit table
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${section.main_section.split('(')[0].trim()}</td>
+                            <td>${extraCreditPoints.toFixed(1)}</td>
+                            <td>${extraCreditMaxPoints}</td>
+                        `;
+                        extraCreditBody.appendChild(row);
+                    } else {
+                        totalPoints += sectionPoints;
+
+                        // Add row to summary table
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${section.main_section.split('(')[0].trim()}</td>
+                            <td>${sectionPoints.toFixed(1)}</td>
+                            <td>${maxPoints}</td>
+                        `;
+                        summaryBody.appendChild(row);
+                    }
+
+                    // Update section header with points
+                    const headerElement = document.querySelector(`[data-id="${sectionId}-header"]`);
+                    if (headerElement && section.positive_items) {
+                        const headerText = headerElement.textContent;
+                        const newHeader = headerText.replace(/\(\s*\/\d+(\.\d+)?\)/, `(${sectionPoints.toFixed(1)}/${maxPoints})`);
+                        headerElement.textContent = newHeader;
+                    }
+                }
+            });
+
+            // Update total points
+            document.getElementById('totalPoints').textContent = totalPoints.toFixed(1);
+            document.getElementById('maxPoints').textContent = rubricData.grading_rubric.total_points;
+
+            // Handle extra credit section visibility
+            if (hasExtraCredit) {
+                document.getElementById('extraCreditSection').classList.remove('hidden');
+            } else {
+                document.getElementById('extraCreditSection').classList.add('hidden');
+            }
+        }
+
+
+        // Generate the final feedback
+        function generateFeedback() {
+            // Collect all feedback texts
+            state.feedbackTexts.clear();
+
+            rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
+                const sectionId = `section-${sectionIndex}`;
+                // Process subsections
+                if (section.subsections) {
+                    section.subsections.forEach((subsection, subIndex) => {
+                        const subsectionId = `${sectionId}-subsection-${subIndex}`;
+                        const feedbackTextarea = document.getElementById(`${subsectionId}-feedback`);
+                        if (feedbackTextarea && feedbackTextarea.value.trim()) {
+                            state.feedbackTexts.set(subsectionId, feedbackTextarea.value.trim());
+                        }
+                    });
+                } else {
+                    const feedbackTextarea = document.getElementById(`${sectionId}-feedback`);
+                    if (feedbackTextarea && feedbackTextarea.value.trim()) {
+                        state.feedbackTexts.set(sectionId, feedbackTextarea.value.trim());
+                    }
+                }
+            });
+
+            // Get general feedback
+            const generalTextarea = document.getElementById('general-feedback');
+            state.generalFeedback = generalTextarea ? generalTextarea.value.trim() : '';
+
+            // Generate the output
+            let output = '';
+
+            rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
+                const sectionId = `section-${sectionIndex}`;
+                let sectionPoints = 0;
+                let sectionMaxPoints = section.points_available;
+
+                if (section.subsections) {
+                    section.subsections.forEach((subsection, subIndex) => {
+                        const subsectionId = `${sectionId}-subsection-${subIndex}`;
+                        const subsectionState = state.selectedItems.get(subsectionId) || { positive: new Set(), negative: new Set() };
+                        let subPoints = 0;
+                        const subMaxPoints = subsection.positive_items.points_available;
+
+                        subsectionState.positive.forEach(itemId => {
+                            const parts = itemId.split('-');
+                            const itemIndex = parseInt(parts[parts.length - 1]);
+                            if (subsection.positive_items.items[itemIndex]) {
+                                subPoints += subsection.positive_items.items[itemIndex].points;
+                            }
+                        });
+                        sectionPoints += subPoints;
+                    });
+                } else {
+                    const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
+                    sectionState.positive.forEach(itemId => {
+                        const parts = itemId.split('-');
+                        const itemIndex = parseInt(parts[parts.length - 1]);
+                        if (section.positive_items && section.positive_items.items[itemIndex]) {
+                            sectionPoints += section.positive_items.items[itemIndex].points;
+                        }
+                    });
+                }
+
+                output += `${section.main_section.split('(')[0].trim()} (${sectionPoints.toFixed(1)}/${sectionMaxPoints})\n{\n`;
+
+                if (section.subsections) {
+                    section.subsections.forEach((subsection, subIndex) => {
+                        const subsectionId = `${sectionId}-subsection-${subIndex}`;
+                        const subsectionState = state.selectedItems.get(subsectionId) || { positive: new Set(), negative: new Set() };
+                        let subPoints = 0;
+                        const subMaxPoints = subsection.positive_items.points_available;
+
+                        subsectionState.positive.forEach(itemId => {
+                            const parts = itemId.split('-');
+                            const itemIndex = parseInt(parts[parts.length - 1]);
+                            if (subsection.positive_items.items[itemIndex]) {
+                                subPoints += subsection.positive_items.items[itemIndex].points;
+                            }
+                        });
+
+                        output += `\n${subsection.subsection.split('(')[0].trim()} (${subPoints.toFixed(1)}/${subMaxPoints})\n`;
+
+                        // Add positive items
+                        if (subsectionState.positive.size > 0) {
+                            output += `What you did well\n`;
+                            subsectionState.positive.forEach(itemId => {
+                                const itemElement = document.getElementById(itemId);
+                                if (itemElement) {
+                                    const text = itemElement.querySelector('.editable').textContent;
+                                    output += `•\t${text}\n`;
+                                }
+                            });
+                        }
+
+                        // Add negative items
+                        if (subsectionState.negative.size > 0) {
+                            output += `What needs improvement\n`;
+                            subsectionState.negative.forEach(itemId => {
+                                const itemElement = document.getElementById(itemId);
+                                if (itemElement) {
+                                    const text = itemElement.querySelector('.editable').textContent;
+                                    output += `•\t${text}\n`;
+                                }
+                            });
+                        }
+
+                        // Add feedback if exists
+                        if (state.feedbackTexts.has(subsectionId)) {
+                            output += `Feedback on Section:\n${state.feedbackTexts.get(subsectionId)}\n`;
+                        }
+                    });
+
+                } else {
+                    const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
+
+                    // Add positive items
+                    if (sectionState.positive.size > 0) {
+                        output += `What you did well\n`;
+                        sectionState.positive.forEach(itemId => {
+                            const itemElement = document.getElementById(itemId);
+                            if (itemElement) {
+                                const text = itemElement.querySelector('.editable').textContent;
+                                output += `•\t${text}\n`;
+                            }
+                        });
+                    }
+
+                    // Add negative items
+                    if (sectionState.negative.size > 0) {
+                        output += `What needs improvement\n`;
+                        sectionState.negative.forEach(itemId => {
+                            const itemElement = document.getElementById(itemId);
+                            if (itemElement) {
+                                const text = itemElement.querySelector('.editable').textContent;
+                                output += `•\t${text}\n`;
+                            }
+                        });
+                    }
+
+                    // Add feedback if exists
+                    if (state.feedbackTexts.has(sectionId)) {
+                        output += `Feedback on Section:\n${state.feedbackTexts.get(sectionId)}\n`;
+                    }
+                }
+
+                output += `}\n`;
+                output += `${'_'.repeat(40)}\n`;
+            });
+
+            // Add general feedback if exists
+            if (state.generalFeedback) {
+                output += `General Feedback\n{\n${state.generalFeedback}\n}\n`;
+            }
+
+            // Display the output
+            const outputSection = document.getElementById('outputSection');
+            outputSection.textContent = output;
+            outputSection.classList.remove('hidden');
+        }
+
+        // Reset all selections and feedback
+        function resetAll() {
+            // Clear selections
+            state.selectedItems.clear();
+            state.feedbackTexts.clear();
+            state.generalFeedback = '';
+
+            // Reset UI
+            document.querySelectorAll('.item').forEach(item => {
+                item.classList.remove('selected-positive', 'selected-negative');
+            });
+
+            document.querySelectorAll('.feedback-textarea').forEach(textarea => {
+                textarea.value = '';
+            });
+
+            // Reset headers
+            document.querySelectorAll('.editable[data-id$="-header"]').forEach(header => {
+                const originalText = header.getAttribute('data-id').includes('subsection-') ?
+                    getSubsectionOriginalText(header) :
+                    getMainSectionOriginalText(header);
+                header.textContent = originalText;
+            });
+
+            // Hide output
+            document.getElementById('outputSection').classList.add('hidden');
+
+            // Update summary
+            updateSummary();
+        }
+
+        // Helper function to get original main section text
+        function getMainSectionOriginalText(header) {
+            const dataId = header.getAttribute('data-id');
+            const parts = dataId.split('-');
+            const sectionIndex = parseInt(parts[1]);
+            return rubricData.grading_rubric.sections[sectionIndex].main_section;
+        }
+
+        // Helper function to get original subsection text
+        function getSubsectionOriginalText(header) {
+            const dataId = header.getAttribute('data-id');
+            const parts = dataId.split('-');
+            const sectionIndex = parseInt(parts[1]);
+            const subIndex = parseInt(parts[3]);
+            return rubricData.grading_rubric.sections[sectionIndex].subsections[subIndex].subsection;
+        }
+    </script>
+</body>
+
+</html>
