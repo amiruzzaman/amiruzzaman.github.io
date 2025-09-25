@@ -2150,268 +2150,6 @@
             align-items: center;
             gap: 10px;
         }
-
-        /* Add this to your CSS section */
-        .detail-item.year-additional {
-            margin-top: 5px;
-            padding-top: 5px;
-            border-top: 1px dashed #e0e0e0;
-        }
-
-        .detail-item.year-additional .detail-label {
-            font-weight: 500;
-            /* Slightly lighter than the first year */
-        }
-
-        .detail-item.year-additional .detail-value {
-            font-size: 15px;
-            /* Slightly smaller than the first year */
-        }
-
-
-        /* Enhanced Timeline Styles */
-        .timeline-year-container {
-            min-width: 30px;
-        }
-
-        .timeline-bar-container {
-            gap: 1px;
-        }
-
-        .timeline-bar {
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .timeline-bar:hover {
-            transform: scale(1.15);
-            z-index: 20;
-        }
-
-        .timeline-bar:hover .timeline-tooltip {
-            display: block;
-            opacity: 1;
-        }
-
-        .timeline-tooltip {
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
-            padding: 5px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            white-space: nowrap;
-            display: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: 100;
-            pointer-events: none;
-        }
-
-        .timeline-bar:hover::after {
-            content: '';
-            position: absolute;
-            top: -5px;
-            left: -5px;
-            right: -5px;
-            bottom: -5px;
-            border: 2px solid #e74c3c;
-            border-radius: 4px;
-            z-index: -1;
-        }
-
-        /* Timeline stats enhancement */
-        .timeline-stats {
-            font-size: 13px;
-            color: #7f8c8d;
-            font-weight: 500;
-        }
-
-        /* Color legend for currency types */
-        .timeline-color-legend {
-            display: flex;
-            gap: 15px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 11px;
-        }
-
-        .legend-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 2px;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 900px) {
-            .timeline-bar {
-                width: 16px;
-            }
-
-            .timeline-year-container {
-                min-width: 25px;
-            }
-
-            .timeline-tooltip {
-                font-size: 10px;
-                padding: 3px 6px;
-            }
-        }
-
-
-        /* Enhanced Timeline Styles */
-        .timeline-year-container {
-            min-width: 30px;
-        }
-
-        .timeline-bar-container {
-            gap: 1px;
-        }
-
-        .timeline-bar {
-            position: relative;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .timeline-bar:hover {
-            transform: scale(1.15);
-            z-index: 20;
-            filter: brightness(1.2);
-        }
-
-        .timeline-bar:hover .timeline-tooltip {
-            display: block;
-            opacity: 1;
-            transform: translateX(-50%) translateY(-5px);
-        }
-
-        .timeline-tooltip {
-            position: absolute;
-            bottom: calc(100% + 8px);
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.95);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            white-space: nowrap;
-            display: none;
-            opacity: 0;
-            transition: all 0.3s ease;
-            z-index: 100;
-            pointer-events: none;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            line-height: 1.4;
-        }
-
-        .timeline-tooltip strong {
-            color: #f39c12;
-            display: block;
-            margin-bottom: 2px;
-        }
-
-        .timeline-bar.active {
-            box-shadow: 0 0 0 3px #e74c3c, 0 0 10px rgba(231, 76, 60, 0.5) !important;
-            border: 2px solid white !important;
-            z-index: 30;
-        }
-
-        /* Timeline stats enhancement */
-        .timeline-stats {
-            font-size: 13px;
-            color: #7f8c8d;
-            font-weight: 500;
-            background: #f8f9fa;
-            padding: 5px 10px;
-            border-radius: 4px;
-            border: 1px solid #e9ecef;
-        }
-
-        /* Color legend for currency types */
-        .timeline-color-legend {
-            display: flex;
-            gap: 15px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 6px;
-            border: 1px solid #e9ecef;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .legend-color {
-            width: 14px;
-            height: 14px;
-            border-radius: 3px;
-            border: 1px solid rgba(0, 0, 0, 0.2);
-        }
-
-        /* Year count badge for stacked bars */
-        .year-count-badge {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #e74c3c;
-            color: white;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 900px) {
-            .timeline-bar {
-                width: 16px;
-            }
-
-            .timeline-year-container {
-                min-width: 25px;
-            }
-
-            .timeline-tooltip {
-                font-size: 10px;
-                padding: 6px 8px;
-                white-space: normal;
-                max-width: 120px;
-                word-wrap: break-word;
-            }
-
-            .timeline-color-legend {
-                gap: 10px;
-            }
-
-            .legend-item {
-                font-size: 11px;
-            }
-        }
     </style>
 </head>
 
@@ -2780,56 +2518,31 @@
             // Get alphabet example from countries.languages.json
             let alphabetExample = "N/A";
             if (cache.languagesData) {
+                //console.log("✅ languagesData loaded:", cache.languagesData);
+
+                //console.log("🔍 Looking for:", countryInfo?.name);
+
                 const langMatch = cache.languagesData.find(c => {
+                    //console.log("➡️ Checking:", c.country_name);
                     return c.country_name.toLowerCase() === countryInfo.name.toLowerCase();
                 });
 
-                if (langMatch && langMatch.languages[0].alphabet_example) {
-                    alphabetExample = langMatch.languages[0].alphabet_example;
-                }
-            }
-
-            // Parse year values - handle single or multiple years
-            let yearDisplay = "";
-            if (year) {
-                // Split by comma and trim each value
-                const years = year.split(',').map(y => y.trim());
-
-                years.forEach((yearValue, idx) => {
-                    const yearNum = parseInt(yearValue);
-                    if (!isNaN(yearNum) && yearNum > 1000 && yearNum <= new Date().getFullYear()) {
-                        const age = new Date().getFullYear() - yearNum;
-                        yearDisplay += `<div class="detail-item${idx > 0 ? ' year-additional' : ''}">
-                    <span class="detail-label"><strong>${idx === 0 ? 'Year' : 'Year'}:</strong></span>
-                    <span class="detail-value">
-                        ${yearValue} <span style="color: #3498db;">(${age} years old)</span>
-                    </span>
-                </div>`;
-                    } else if (yearValue) {
-                        // For non-numeric or invalid years, just display the value
-                        yearDisplay += `<div class="detail-item${idx > 0 ? ' year-additional' : ''}">
-                    <span class="detail-label"><strong>${idx === 0 ? 'Year' : 'Year'}:</strong></span>
-                    <span class="detail-value">${yearValue}</span>
-                </div>`;
+                if (langMatch) {
+                    //console.log("🎯 Match found:", langMatch);
+                    //console.log(langMatch.alphabet_example);
+                    if (langMatch.languages[0].alphabet_example) {
+                        //alphabetExample = langMatch.alphabet_example;
+                        alphabetExample = langMatch.languages[0].alphabet_example;
                     }
-                });
-
-                // If no valid years were processed, show N/A
-                if (!yearDisplay) {
-                    yearDisplay = `<div class="detail-item">
-                <span class="detail-label"><strong>Year:</strong></span>
-                <span class="detail-value">N/A</span>
-            </div>`;
+                } else {
+                    console.warn("⚠️ No match found for:", countryInfo?.name);
                 }
             } else {
-                yearDisplay = `<div class="detail-item">
-            <span class="detail-label"><strong>Year:</strong></span>
-            <span class="detail-value">N/A</span>
-        </div>`;
+                console.error("❌ cache.languagesData is missing!");
             }
 
             // Use percentage-based scaling instead of fixed pixels
-            const maxVisualWidth = 280;
+            const maxVisualWidth = 280; // Maximum width for visual elements in pixels
 
             // Parse size correctly, handling both single values and width x height formats
             let sizeValue1 = 0;
@@ -2838,6 +2551,7 @@
             let displaySize = "N/A";
 
             if (size) {
+                // Check if size contains "x" for two-dimensional items
                 if (size.includes('x')) {
                     const sizeParts = size.split('x').map(part => parseFloat(part.trim()));
                     if (sizeParts.length === 2 && !isNaN(sizeParts[0]) && !isNaN(sizeParts[1])) {
@@ -2847,6 +2561,7 @@
                         displaySize = `${sizeValue1 % 1 === 0 ? sizeValue1 : sizeValue1.toFixed(1)} × ${sizeValue2 % 1 === 0 ? sizeValue2 : sizeValue2.toFixed(1)}`;
                     }
                 } else {
+                    // Single value size
                     sizeValue1 = parseFloat(size);
                     if (!isNaN(sizeValue1)) {
                         displaySize = sizeValue1 % 1 === 0 ? sizeValue1 : sizeValue1.toFixed(1);
@@ -2855,7 +2570,7 @@
             }
 
             // Calculate relative sizes as percentages of max width
-            const maxItemSize = Math.max(sizeValue1, sizeValue2, 30.6);
+            const maxItemSize = Math.max(sizeValue1, sizeValue2, 30.6); // 30.6mm is the largest reference item
             const scalePercentage1 = !isNaN(sizeValue1) ? (sizeValue1 / maxItemSize) * 100 : 0;
             const scalePercentage2 = !isNaN(sizeValue2) ? (sizeValue2 / maxItemSize) * 100 : 0;
 
@@ -2892,7 +2607,15 @@
         <span class="detail-label"><strong>Note:</strong></span>
         <span class="detail-value">${formatNoteWithURLs(safeVal(note) || "No note available")}</span>
     </div>
-    ${yearDisplay}
+    <div class="detail-item">
+        <span class="detail-label"><strong>Year:</strong></span>
+        <span class="detail-value">
+        ${safeVal(year)} 
+        ${year && !isNaN(parseFloat(year))
+                    ? `<span style="color: #3498db;">(${new Date().getFullYear() - parseInt(year)} years old)</span>`
+                    : ""}
+        </span>
+    </div>
     <div class="detail-item">
         <span class="detail-label"><strong>Size:</strong></span>
         <span class="detail-value">
@@ -2953,7 +2676,9 @@
         <span class="detail-value">Country information not available.</span>
     </div>`;
 
+
             noteElement.innerHTML = countryDetails;
+
 
             // Load continent map data and flag if country info is available
             if (countryInfo && countryInfo.name) {
@@ -2964,7 +2689,6 @@
                 countryFlagElement.src = '';
             }
         }
-
 
         // Loads continent-specific data and updates the continent info display
         // Update the loadContinentData function to include country details
@@ -3486,7 +3210,113 @@
             };
         }
 
+        // Loads and displays coin images for a selected country in slider view
+        function loadCountryImages(countryName) {
+            if (!cache.coinsData) {
+                console.error("Coins data not loaded from cache.");
+                return;
+            }
 
+            currentCountryCoins = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName);
+            const imageElements = currentCountryCoins.map(coin => ({
+                src: `images/${toTitleCase(countryName)}/${coin.image}`,
+                note: coin.note,
+                donor: coin.donor_name,
+                currency_type: coin.currency_type,
+                year: coin.year,
+                size: coin.size
+            }));
+
+            const thumbnailContainer = document.getElementById("thumbnail-container");
+            thumbnailContainer.innerHTML = ""; // Clear existing thumbnails
+            currentImageIndex = 0; // Reset index for new country
+
+            // Function to update the main image and details
+            const updateImage = async (index) => {
+                if (imageElements.length === 0) {
+                    // Handle case where no images are found for the country
+                    setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null, null, null, 0);
+                    document.getElementById("thumbnail-container").innerHTML = ""; // Clear thumbnails
+                    return;
+                }
+
+                currentImageIndex = index;
+                const { src, note, donor, currency_type, year, size } = imageElements[index];
+
+                // Remove active class from all thumbnails
+                document.querySelectorAll('.img-queue-in img').forEach(img => {
+                    img.classList.remove('active-thumbnail');
+                });
+
+                // Add active class to the current thumbnail
+                if (thumbnailContainer.children[index]) {
+                    thumbnailContainer.children[index].classList.add('active-thumbnail');
+                }
+
+                const countryInfo = await fetchCountryInfo(countryName);
+                //setCurrentImage(src, note, donor, currency_type, countryInfo, year, size, index)
+                await setCurrentImage(src, note, donor, currency_type, countryInfo, year, size, index);
+            };
+
+            // Function to change the image based on direction (-1 for prev, 1 for next)
+            const changeImage = (direction) => {
+                if (imageElements.length > 0) {
+                    currentImageIndex = (currentImageIndex + direction + imageElements.length) % imageElements.length;
+                    updateImage(currentImageIndex);
+                }
+            };
+
+            // Add event listeners for navigation buttons
+            document.getElementById("prev-btn").onclick = () => changeImage(-1);
+            document.getElementById("next-btn").onclick = () => changeImage(1);
+
+            // Add keyboard navigation
+            window.onkeydown = (event) => {
+                const isSliderView = document.getElementById('slider-view').style.display !== 'none';
+
+                // Handle keyboard navigation for the main slider
+                if (isSliderView) {
+                    if (event.key === "ArrowLeft") {
+                        changeImage(-1);
+                    } else if (event.key === "ArrowRight") {
+                        changeImage(1);
+                    }
+                }
+
+                // Handle keyboard navigation for the modal
+                if (document.getElementById("imageModal").style.display === "flex") {
+                    if (event.key === "ArrowLeft") {
+                        changeModalImage(-1);
+                    } else if (event.key === "ArrowRight") {
+                        changeModalImage(1);
+                    }
+                }
+            };
+
+            // Populate thumbnail container
+            imageElements.forEach((img, index) => {
+                const thumbnail = document.createElement("img");
+                thumbnail.src = img.src;
+                thumbnail.alt = `Thumbnail ${index + 1}`;
+                thumbnail.loading = "lazy"; // Lazy load thumbnails
+                thumbnail.addEventListener("click", () => {
+                    updateImage(index); // Update the main display when thumbnail is clicked
+                });
+                thumbnailContainer.appendChild(thumbnail);
+            });
+
+            // Display the first image if available
+            if (imageElements.length > 0) {
+                updateImage(currentImageIndex);
+            } else {
+                // Display a default message if no images for the country
+                setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null, null, null, 0);
+            }
+            // In loadCountryImages function, add this at the end:
+            createTimelineVisualization(currentCountryCoins);
+            // In loadCountryImages function, add this after the timeline call:
+            createCurrencyDistributionChart(currentCountryCoins);
+        }
 
         // NEW: Load and display images in gallery view
         function loadGalleryView(countryName) {
@@ -4097,295 +3927,21 @@
         }
     </script>
     <script>
-
-
-        // Enhanced updateImage function to highlight the corresponding timeline bar
-        function updateImage(index) {
-            if (currentCountryCoins.length === 0) return;
-
-            const coin = currentCountryCoins[index];
-
-            // Remove highlight from all timeline bars
-            document.querySelectorAll('.timeline-bar').forEach(bar => {
-                bar.style.boxShadow = 'none';
-                bar.style.border = 'none';
-            });
-
-            // Highlight all bars that correspond to this coin's image
-            if (coin.image) {
-                document.querySelectorAll(`.timeline - bar[data - image="${coin.image}"]`).forEach(bar => {
-                    bar.style.boxShadow = '0 0 0 2px #e74c3c';
-                    bar.style.border = '2px solid white';
-                });
-            }
-        }
-
-
-
-        // Update the updateImage function to highlight the corresponding timeline bar
-        function updateImage(index) {
-            if (currentCountryCoins.length === 0) return;
-
-            const coin = currentCountryCoins[index];
-
-            // Remove highlight from all timeline bars
-            document.querySelectorAll('.timeline-bar').forEach(bar => {
-                bar.style.boxShadow = 'none';
-                bar.style.border = 'none';
-            });
-
-            // Find and highlight the corresponding timeline bar(s)
-            if (coin.year) {
-                const years = coin.year.split(',').map(y => y.trim());
-                years.forEach(yearValue => {
-                    const year = parseInt(yearValue);
-                    if (!isNaN(year)) {
-                        document.querySelectorAll(`.timeline - bar[data - year="${year}"]`).forEach(bar => {
-                            if (bar.dataset.coinName === coin.image) {
-                                bar.style.boxShadow = '0 0 0 2px #e74c3c';
-                                bar.style.border = '2px solid white';
-                            }
-                        });
-                    }
-                });
-            }
-        }
-    </script>
-    <script>
-
-
-
-
-        // Helper function to update image display when clicked from timeline
-        async function updateImageFromTimeline(index) {
-            if (currentCountryCoins.length === 0) return;
-
-            const coin = currentCountryCoins[index];
-            const countryName = coin.country.toLowerCase();
-            const imagePath = `images/${toTitleCase(countryName)}/${coin.image}`;
-
-            // Update thumbnails active state
-            document.querySelectorAll('.img-queue-in img').forEach((img, idx) => {
-                if (idx === index) {
-                    img.classList.add('active-thumbnail');
-                } else {
-                    img.classList.remove('active-thumbnail');
-                }
-            });
-
-            // Update main image
-            const image = document.getElementById("current-image-img");
-            image.setAttribute("src", imagePath);
-            document.getElementById("modalImage").setAttribute("src", imagePath);
-
-            // Update details
-            const countryInfo = await fetchCountryInfo(countryName);
-            await setCurrentImage(imagePath, coin.note, coin.donor_name, coin.currency_type, countryInfo, coin.year, coin.size, index);
-
-            // Update timeline highlighting
-            updateTimelineHighlight(coin.image);
-
-            currentImageIndex = index;
-        }
-
-
-        // // In the createTimelineVisualization function, add this at the end:
-        // const timelineLegend = document.getElementById('timeline-legend');
-        // if (allYears.length > 0) {
-        //     timelineLegend.style.display = 'flex';
-        // } else {
-        //     timelineLegend.style.display = 'none';
-        // }
-
-        // Loads and displays coin images for a selected country in slider view
-        function loadCountryImages(countryName) {
-            if (!cache.coinsData) {
-                console.error("Coins data not loaded from cache.");
-                return;
-            }
-
-            currentCountryCoins = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName);
-            const imageElements = currentCountryCoins.map(coin => ({
-                src: `images/${toTitleCase(countryName)}/${coin.image}`,
-                note: coin.note,
-                donor: coin.donor_name,
-                currency_type: coin.currency_type,
-                year: coin.year,
-                size: coin.size
-            }));
-
-            const thumbnailContainer = document.getElementById("thumbnail-container");
-            thumbnailContainer.innerHTML = ""; // Clear existing thumbnails
-            currentImageIndex = 0; // Reset index for new country
-
-            // Function to update timeline highlighting based on current image
-            function updateTimelineHighlight(imageName) {
-                // Remove highlight from all bars
-                document.querySelectorAll('.timeline-bar').forEach(bar => {
-                    bar.classList.remove('active');
-                    bar.style.boxShadow = 'none';
-                    bar.style.border = 'none';
-                });
-
-                // Highlight bars with matching image
-                if (imageName) {
-                    document.querySelectorAll(`.timeline-bar[data-image="${imageName}"]`).forEach(bar => {
-                        bar.classList.add('active');
-                        bar.style.boxShadow = '0 0 0 2px #e74c3c';
-                        bar.style.border = '2px solid white';
-                    });
-                }
-            }
-
-            // Function to update the main image and details
-            const updateImage = async (index) => {
-                if (imageElements.length === 0) {
-                    // Handle case where no images are found for the country
-                    setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null, null, null, 0);
-                    document.getElementById("thumbnail-container").innerHTML = ""; // Clear thumbnails
-                    return;
-                }
-
-                currentImageIndex = index;
-                const { src, note, donor, currency_type, year, size } = imageElements[index];
-
-                // Remove active class from all thumbnails
-                document.querySelectorAll('.img-queue-in img').forEach(img => {
-                    img.classList.remove('active-thumbnail');
-                });
-
-                // Add active class to the current thumbnail
-                if (thumbnailContainer.children[index]) {
-                    thumbnailContainer.children[index].classList.add('active-thumbnail');
-                }
-
-                const countryInfo = await fetchCountryInfo(countryName);
-                await setCurrentImage(src, note, donor, currency_type, countryInfo, year, size, index);
-
-                // Update timeline highlighting
-                updateTimelineHighlight(currentCountryCoins[index].image);
-            };
-
-            // Function to change the image based on direction (-1 for prev, 1 for next)
-            const changeImage = (direction) => {
-                if (imageElements.length > 0) {
-                    currentImageIndex = (currentImageIndex + direction + imageElements.length) % imageElements.length;
-                    updateImage(currentImageIndex);
-                }
-            };
-
-            // Helper function to update image display when clicked from timeline
-            window.updateImageFromTimeline = async function (index) {
-                if (currentCountryCoins.length === 0) return;
-
-                const coin = currentCountryCoins[index];
-                const countryName = coin.country.toLowerCase();
-                const imagePath = `images/${toTitleCase(countryName)}/${coin.image}`;
-
-                // Update thumbnails active state
-                document.querySelectorAll('.img-queue-in img').forEach((img, idx) => {
-                    if (idx === index) {
-                        img.classList.add('active-thumbnail');
-                    } else {
-                        img.classList.remove('active-thumbnail');
-                    }
-                });
-
-                // Update main image
-                const image = document.getElementById("current-image-img");
-                image.setAttribute("src", imagePath);
-                document.getElementById("modalImage").setAttribute("src", imagePath);
-
-                // Update details
-                const countryInfo = await fetchCountryInfo(countryName);
-                await setCurrentImage(imagePath, coin.note, coin.donor_name, coin.currency_type, countryInfo, coin.year, coin.size, index);
-
-                // Update timeline highlighting
-                updateTimelineHighlight(coin.image);
-
-                currentImageIndex = index;
-            };
-
-            // Add event listeners for navigation buttons
-            document.getElementById("prev-btn").onclick = () => changeImage(-1);
-            document.getElementById("next-btn").onclick = () => changeImage(1);
-
-            // Add keyboard navigation
-            window.onkeydown = (event) => {
-                const isSliderView = document.getElementById('slider-view').style.display !== 'none';
-
-                // Handle keyboard navigation for the main slider
-                if (isSliderView) {
-                    if (event.key === "ArrowLeft") {
-                        changeImage(-1);
-                    } else if (event.key === "ArrowRight") {
-                        changeImage(1);
-                    }
-                }
-
-                // Handle keyboard navigation for the modal
-                if (document.getElementById("imageModal").style.display === "flex") {
-                    if (event.key === "ArrowLeft") {
-                        changeModalImage(-1);
-                    } else if (event.key === "ArrowRight") {
-                        changeModalImage(1);
-                    }
-                }
-            };
-
-            // Populate thumbnail container
-            imageElements.forEach((img, index) => {
-                const thumbnail = document.createElement("img");
-                thumbnail.src = img.src;
-                thumbnail.alt = `Thumbnail ${index + 1}`;
-                thumbnail.loading = "lazy"; // Lazy load thumbnails
-                thumbnail.addEventListener("click", () => {
-                    updateImage(index); // Update the main display when thumbnail is clicked
-                });
-                thumbnailContainer.appendChild(thumbnail);
-            });
-
-            // Display the first image if available
-            if (imageElements.length > 0) {
-                updateImage(currentImageIndex);
-            } else {
-                // Display a default message if no images for the country
-                setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null, null, null, 0);
-            }
-
-            // Create timeline visualization and currency distribution chart
-            createTimelineVisualization(currentCountryCoins);
-            createCurrencyDistributionChart(currentCountryCoins);
-        }
-
-        // Function to create timeline visualization with stacked bars using image as unique identifier
+        // Function to create timeline visualization - IMPROVED VERSION
         function createTimelineVisualization(coinsData) {
             const timelineSection = document.getElementById('timeline-section');
             const timelineContainer = document.getElementById('timeline-container');
             const timelineStats = document.getElementById('timeline-stats');
 
-            // Extract and process all years from coins data (handling multiple years per coin)
-            const allYears = [];
+            // Filter coins with valid year data
+            const coinsWithYears = coinsData.filter(coin => {
+                if (!coin.year) return false;
 
-            coinsData.forEach(coin => {
-                if (coin.year && coin.image) {
-                    // Split by comma and trim each value to handle multiple years
-                    const years = coin.year.split(',').map(y => y.trim());
-                    years.forEach(yearValue => {
-                        const year = parseInt(yearValue);
-                        if (!isNaN(year) && year > 1000 && year <= new Date().getFullYear()) {
-                            allYears.push({
-                                year: year,
-                                coin: coin,
-                                originalValue: yearValue,
-                                image: coin.image // Use image as unique identifier
-                            });
-                        }
-                    });
-                }
+                const year = parseInt(coin.year);
+                return !isNaN(year) && year > 1000 && year <= new Date().getFullYear();
             });
 
-            if (allYears.length === 0) {
+            if (coinsWithYears.length === 0) {
                 timelineSection.style.display = 'none';
                 return;
             }
@@ -4394,129 +3950,54 @@
             timelineSection.style.display = 'block';
             timelineContainer.innerHTML = '';
 
-            // Group coins by year for stacked bars
-            const yearGroups = {};
-            allYears.forEach(item => {
-                if (!yearGroups[item.year]) {
-                    yearGroups[item.year] = [];
-                }
-                yearGroups[item.year].push(item);
-            });
-
             // Get year range
-            const years = Object.keys(yearGroups).map(y => parseInt(y));
+            const years = coinsWithYears.map(coin => parseInt(coin.year));
             const minYear = Math.min(...years);
             const maxYear = Math.max(...years);
-            const yearRange = Math.max(1, maxYear - minYear);
+            const yearRange = Math.max(1, maxYear - minYear); // Ensure at least 1 to avoid division by zero
 
             // Update stats
-            const uniqueYears = Object.keys(yearGroups).length;
-            timelineStats.textContent = `${minYear} - ${maxYear} (${yearRange} years, ${uniqueYears} unique years, ${allYears.length} items)`;
+            timelineStats.textContent = `${minYear} - ${maxYear} (${yearRange} years, ${coinsWithYears.length} items)`;
 
             // Create timeline axis
             const axis = document.createElement('div');
             axis.className = 'timeline-axis';
             timelineContainer.appendChild(axis);
 
-            // Calculate maximum coins per year for scaling
-            const maxCoinsPerYear = Math.max(...Object.values(yearGroups).map(group => group.length));
+            // Add markers for each coin
+            coinsWithYears.forEach(coin => {
+                const year = parseInt(coin.year);
+                const position = ((year - minYear) / yearRange) * 100;
 
-            // Create bars for each year group
-            Object.keys(yearGroups).sort((a, b) => parseInt(a) - parseInt(b)).forEach(year => {
-                const yearNum = parseInt(year);
-                const coinsInYear = yearGroups[year];
-                const position = ((yearNum - minYear) / yearRange) * 100;
+                const marker = document.createElement('div');
+                marker.className = 'timeline-marker';
+                marker.style.left = `${position}%`;
+                marker.dataset.year = year;
+                marker.dataset.name = coin.image;
 
-                // Create year container
-                const yearContainer = document.createElement('div');
-                yearContainer.className = 'timeline-year-container';
-                yearContainer.style.position = 'absolute';
-                yearContainer.style.bottom = '0';
-                yearContainer.style.left = `${position}%`;
-                yearContainer.style.transform = 'translateX(-50%)';
-                yearContainer.style.display = 'flex';
-                yearContainer.style.flexDirection = 'column';
-                yearContainer.style.alignItems = 'center';
-                yearContainer.style.zIndex = coinsInYear.length;
+                const tooltip = document.createElement('div');
+                tooltip.className = 'timeline-tooltip';
+                tooltip.textContent = `${year}: ${coin.image.split('.')[0]}`; // Remove file extension
+                marker.appendChild(tooltip);
 
-                // Create stacked bars
-                const barContainer = document.createElement('div');
-                barContainer.className = 'timeline-bar-container';
-                barContainer.style.display = 'flex';
-                barContainer.style.flexDirection = 'column-reverse';
-                barContainer.style.alignItems = 'center';
-                barContainer.style.height = '60px';
+                marker.addEventListener('click', function () {
+                    // Find and display this coin
+                    const coinIndex = currentCountryCoins.findIndex(c =>
+                        c.image === coin.image && parseInt(c.year) === year
+                    );
 
-                coinsInYear.forEach((item, coinIndex) => {
-                    const bar = document.createElement('div');
-                    bar.className = 'timeline-bar';
-                    bar.dataset.year = yearNum;
-                    bar.dataset.image = item.image; // Use image as unique identifier
-                    bar.dataset.coinIndex = coinIndex;
-                    bar.dataset.totalCoins = coinsInYear.length;
+                    if (coinIndex !== -1) {
+                        currentImageIndex = coinIndex;
+                        updateImage(currentImageIndex);
 
-                    // Calculate bar height
-                    const barHeight = Math.max(15, (40 / maxCoinsPerYear) * coinsInYear.length);
-                    bar.style.height = `${barHeight}px`;
-                    bar.style.width = '20px';
-                    bar.style.backgroundColor = getColorForCoinType(item.coin.currency_type);
-                    bar.style.marginBottom = '1px';
-                    bar.style.borderRadius = '2px 2px 0 0';
-                    bar.style.cursor = 'pointer';
-                    bar.style.transition = 'all 0.2s ease';
-                    bar.style.position = 'relative';
-
-                    // Add hover effect
-                    bar.addEventListener('mouseover', function () {
-                        this.style.transform = 'scale(1.1)';
-                        this.style.zIndex = '100';
-                    });
-
-                    bar.addEventListener('mouseout', function () {
-                        this.style.transform = 'scale(1)';
-                        this.style.zIndex = 'auto';
-                    });
-
-                    // Create tooltip with coin information
-                    const tooltip = document.createElement('div');
-                    tooltip.className = 'timeline-tooltip';
-                    tooltip.innerHTML = `
-                <strong>${yearNum}</strong><br>
-                ${item.coin.image.split('.')[0]}<br>
-                ${item.coin.currency_type || 'Unknown type'}
-            `;
-                    bar.appendChild(tooltip);
-
-                    // Click event to display the specific coin
-                    bar.addEventListener('click', function () {
-                        const imageName = this.dataset.image;
-
-                        // Find the coin index by image name
-                        const coinIndex = currentCountryCoins.findIndex(c => c.image === imageName);
-
-                        if (coinIndex !== -1) {
-                            // Update the image display using the global function
-                            if (window.updateImageFromTimeline) {
-                                window.updateImageFromTimeline(coinIndex);
-                            }
-                        }
-                    });
-
-                    barContainer.appendChild(bar);
+                        // Scroll to gallery
+                        document.querySelector('.gallery-section').scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
                 });
 
-                yearContainer.appendChild(barContainer);
-
-                // Add year label
-                const yearLabel = document.createElement('div');
-                yearLabel.className = 'timeline-label';
-                yearLabel.textContent = yearNum;
-                yearLabel.style.marginTop = '5px';
-                yearLabel.style.fontSize = '10px';
-                yearLabel.style.fontWeight = 'bold';
-                yearContainer.appendChild(yearLabel);
-
-                timelineContainer.appendChild(yearContainer);
+                timelineContainer.appendChild(marker);
             });
 
             // Add decade labels
@@ -4530,48 +4011,22 @@
 
                 const label = document.createElement('div');
                 label.className = 'timeline-label';
-                label.style.position = 'absolute';
-                label.style.bottom = '-40px';
                 label.style.left = `${position}%`;
-                label.style.transform = 'translateX(-50%)';
-                label.style.fontSize = '11px';
-                label.style.color = '#7f8c8d';
-                label.style.fontWeight = '600';
                 label.textContent = decade;
 
                 timelineContainer.appendChild(label);
             }
-
-            // Show color legend
-            const timelineLegend = document.getElementById('timeline-legend');
-            if (timelineLegend) {
-                timelineLegend.style.display = 'flex';
-            }
         }
-
-        // Helper function to get color based on currency type
-        function getColorForCoinType(currencyType) {
-            if (!currencyType) return '#95a5a6';
-
-            const type = currencyType.toLowerCase();
-            if (type.includes('coin')) return '#3498db';
-            if (type.includes('paper') || type.includes('bill')) return '#e74c3c';
-            if (type.includes('antique')) return '#f39c12';
-            if (type.includes('gold')) return '#FFD700';
-            if (type.includes('silver')) return '#C0C0C0';
-            if (type.includes('bronze')) return '#CD7F32';
-
-            return '#95a5a6';
-        }
-
-        // Function to create currency type distribution chart
+    </script>
+    <script>
+        // Function to create currency type distribution chart - FIXED VERSION
         function createCurrencyDistributionChart(coinsData) {
             const distributionSection = document.getElementById('distribution-section');
             const distributionContainer = document.getElementById('distribution-container');
 
             distributionContainer.innerHTML = '';
 
-            // Count currency types - Properly handle multiple types per coin
+            // Count currency types - FIXED: Properly handle multiple types per coin
             const typeCount = {};
             let totalItems = 0;
 
