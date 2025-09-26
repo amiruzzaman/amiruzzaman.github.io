@@ -2412,106 +2412,6 @@
                 font-size: 11px;
             }
         }
-
-        /* Interactive Distribution Chart Styles */
-        .distribution-chart {
-            position: relative;
-            cursor: pointer;
-        }
-
-        .distribution-chart::before {
-            content: '';
-            position: absolute;
-            top: -5px;
-            left: -5px;
-            right: -5px;
-            bottom: -5px;
-            border-radius: 50%;
-            border: 2px solid transparent;
-            transition: border-color 0.3s ease;
-        }
-
-        .distribution-chart:hover::before {
-            border-color: var(--primary-color);
-        }
-
-        .legend-item:hover {
-            transform: translateX(5px);
-            opacity: 1 !important;
-        }
-
-        .legend-item:hover .legend-color {
-            transform: scale(1.1);
-        }
-
-        .legend-color {
-            transition: all 0.3s ease;
-        }
-
-        /* Active filter state */
-        .distribution-filter-active {
-            box-shadow: 0 0 0 3px var(--accent-color);
-        }
-
-
-        /* Enhanced Interactive Distribution Chart Styles */
-        .distribution-chart {
-            position: relative;
-            cursor: pointer;
-            margin: 0 auto;
-        }
-
-        .chart-segment-overlay {
-            transition: all 0.3s ease;
-        }
-
-        .chart-segment-overlay:hover {
-            opacity: 0.1 !important;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            padding: 8px 12px;
-            margin-bottom: 8px;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-            border: 1px solid #e0e0e0;
-            background: white;
-        }
-
-        .legend-item:hover {
-            background-color: #f8f9fa;
-            transform: translateX(5px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .legend-item.active {
-            border-color: var(--primary-color);
-            background-color: #e3f2fd;
-        }
-
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-            margin-right: 12px;
-            transition: all 0.3s ease;
-        }
-
-        .legend-item:hover .legend-color {
-            transform: scale(1.1);
-        }
-
-        .distribution-legend {
-            max-width: 300px;
-            margin: 0 auto;
-        }
-
-        /* Center text styles */
-        .distribution-chart .center-text {
-            pointer-events: none;
-        }
     </style>
 </head>
 
@@ -3346,23 +3246,13 @@
                 link.href = `?country=${country.toLowerCase()}`;
 
                 // Set active class and update titles if this is the currently selected country
-                // Set active class and update titles if this is the currently selected country
                 if (currentCountryParam && country.toLowerCase() === currentCountryParam) {
                     link.classList.add("active");
-                    // get the count of items for the selected country based on year values
+                    // get the count of items for the selected country
                     const countryItems = cache.coinsData.filter(coin =>
                         coin.country.toLowerCase() === country.toLowerCase() &&
                         coin.image && coin.image.trim() !== "" && coin.image.toLowerCase() !== "none"
-                    ).reduce((total, coin) => {
-                        if (coin.year && coin.year.trim() !== "") {
-                            // Count each comma-separated year value, minimum 1
-                            const yearCount = Math.max(coin.year.split(',').length, 1);
-                            return total + yearCount;
-                        } else {
-                            // Count as 1 for empty year field
-                            return total + 1;
-                        }
-                    }, 0);
+                    ).length;
                     document.getElementById('selected-country').textContent = `: ${country}`;
                     document.getElementById('selected-country-title').textContent = `${country} (${countryItems})`;
                     updateTitle(`${country}`);
@@ -3382,16 +3272,9 @@
                     link.classList.add('active');
                     // get the count of items for the selected country
                     const countryItems = cache.coinsData.filter(coin =>
-                        coin.country.toLowerCase() === countryName.toLowerCase() &&
+                        coin.country.toLowerCase() === country.toLowerCase() &&
                         coin.image && coin.image.trim() !== "" && coin.image.toLowerCase() !== "none"
-                    ).reduce((total, coin) => {
-                        if (coin.year && coin.year.trim() !== "") {
-                            const yearCount = Math.max(coin.year.split(',').length, 1);
-                            return total + yearCount;
-                        } else {
-                            return total + 1;
-                        }
-                    }, 0);
+                    ).length;
                     document.getElementById('selected-country').textContent = `: ${country}`;
                     document.getElementById('selected-country-title').textContent = `${country} (${countryItems})`;
                     updateTitle(`${country}`);
@@ -3605,36 +3488,70 @@
 
 
 
-
-        // Load and display images in gallery view with filter support
+        // NEW: Load and display images in gallery view
         function loadGalleryView(countryName) {
-            const allCountryCoins = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName);
+            const galleryGrid = document.getElementById('gallery-grid-container');
+            const sortBySelect = document.getElementById('sort-by');
+            const filterBySelect = document.getElementById('filter-by');
+            galleryGrid.innerHTML = ''; // Clear existing grid
 
-            // Apply active filter if exists
-            const filteredCoins = window.distributionData && window.distributionData.activeFilter ?
-                allCountryCoins.filter(coin => {
-                    if (!coin.currency_type) return false;
-                    const types = coin.currency_type.split(',').map(t => t.trim().toLowerCase());
-                    return types.includes(window.distributionData.activeFilter.toLowerCase());
-                }) :
-                allCountryCoins;
-
-            // Update distribution data with current country coins
-            if (window.distributionData) {
-                window.distributionData.coinsData = allCountryCoins;
+            if (!cache.coinsData) {
+                console.error("Coins data not loaded for gallery view.");
+                return;
             }
 
-            updateGalleryViewWithFilter(countryName, filteredCoins);
-
-            // Reset to first image if current index is invalid
-            if (currentImageIndex >= filteredCoins.length) {
-                currentImageIndex = 0;
+            let filteredCoins = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName);
+            const filterValue = filterBySelect.value;
+            if (filterValue !== 'all') {
+                filteredCoins = filteredCoins.filter(coin => coin.currency_type.toLowerCase().includes(filterValue));
             }
 
-            // Update main display if we have coins
-            if (filteredCoins.length > 0) {
-                updateImageDisplay(currentImageIndex, filteredCoins);
+            const sortValue = sortBySelect.value;
+            if (sortValue === 'name-asc') {
+                filteredCoins.sort((a, b) => a.image.localeCompare(b.image));
+            } else if (sortValue === 'name-desc') {
+                filteredCoins.sort((a, b) => b.image.localeCompare(a.image));
+            } else if (sortValue === 'type') {
+                filteredCoins.sort((a, b) => a.currency_type.localeCompare(b.currency_type));
             }
+
+            if (filteredCoins.length === 0) {
+                galleryGrid.innerHTML = '<p style="text-align: center; color: var(--secondary-color);">No items found for this filter.</p>';
+                return;
+            }
+
+            filteredCoins.forEach((coin, index) => {
+                const galleryItem = document.createElement('div');
+                galleryItem.classList.add('gallery-item');
+                galleryItem.dataset.imageUrl = `images/${toTitleCase(countryName)}/${coin.image}`;
+                galleryItem.dataset.note = coin.note;
+                galleryItem.dataset.donor = coin.donor_name;
+                galleryItem.dataset.currencyType = coin.currency_type;
+
+                galleryItem.innerHTML = `
+                    <img class="gallery-item-image" src="${galleryItem.dataset.imageUrl}" alt="${coin.note}">
+                    <div class="gallery-item-info">
+                        <p>${coin.image}</p>
+                    </div>
+                `;
+
+                // In loadGalleryView function, update the click event:
+                galleryItem.addEventListener('click', function () {
+                    const countryInfo = fetchCountryInfo(countryName);
+                    openImageModal(
+                        this.dataset.imageUrl,
+                        this.dataset.note,
+                        countryInfo.name,
+                        countryInfo.capital,
+                        countryInfo.currency?.name,
+                        index,
+                        this.dataset.donor  // ADD DONOR PARAMETER
+                    );
+                    currentCountryCoins = filteredCoins;
+                });
+
+                galleryGrid.appendChild(galleryItem);
+            });
         }
 
         // NEW: Event listeners for sorting and filtering
@@ -4630,9 +4547,6 @@
             if (timelineLegend) {
                 timelineLegend.style.display = 'flex';
             }
-
-            // Store the filtered coins data for timeline interactions
-            window.timelineCoinsData = coinsData;
         }
 
         // Helper function to get color based on currency type
@@ -4649,28 +4563,25 @@
 
             return '#95a5a6';
         }
-        // Function to create interactive currency type distribution chart
+
+        // Function to create currency type distribution chart
         function createCurrencyDistributionChart(coinsData) {
             const distributionSection = document.getElementById('distribution-section');
             const distributionContainer = document.getElementById('distribution-container');
 
             distributionContainer.innerHTML = '';
 
-            // Count currency types - Properly handle multiple types per coin with year-based counting
+            // Count currency types - Properly handle multiple types per coin
             const typeCount = {};
             let totalItems = 0;
 
             coinsData.forEach(coin => {
                 if (coin.currency_type && coin.currency_type.toLowerCase() !== 'none') {
                     const types = coin.currency_type.split(',').map(t => t.trim().toLowerCase());
-                    // Determine count multiplier based on year values
-                    const yearMultiplier = coin.year && coin.year.trim() !== "" ?
-                        Math.max(coin.year.split(',').length, 1) : 1;
-
                     types.forEach(type => {
                         if (type) {
-                            typeCount[type] = (typeCount[type] || 0) + yearMultiplier;
-                            totalItems += yearMultiplier;
+                            typeCount[type] = (typeCount[type] || 0) + 1;
+                            totalItems++;
                         }
                     });
                 }
@@ -4686,20 +4597,14 @@
             // Show distribution section
             distributionSection.style.display = 'block';
 
-            // Create chart container with proper layout
+            // Create chart container
             const chartDiv = document.createElement('div');
             chartDiv.className = 'distribution-chart';
-            chartDiv.id = 'distribution-pie-chart';
-            chartDiv.style.width = '200px';
-            chartDiv.style.height = '200px';
-            chartDiv.style.margin = '0 auto 20px auto';
-
             distributionContainer.appendChild(chartDiv);
 
             // Create legend
             const legendDiv = document.createElement('div');
             legendDiv.className = 'distribution-legend';
-            legendDiv.id = 'distribution-legend';
             distributionContainer.appendChild(legendDiv);
 
             // Colors for chart segments
@@ -4707,192 +4612,49 @@
                 '#3498db', '#e74c3c', '#2ecc71', '#f39c12',
                 '#9b59b6', '#1abc9c', '#d35400', '#34495e'
             ];
-            // Store chart data globally for filtering
-            window.distributionData = {
-                types: types,
-                typeCount: typeCount,
-                totalItems: totalItems,
-                colors: colors,
-                coinsData: coinsData,
-                activeFilter: null
-            };
 
-            // Create interactive pie chart
-            renderDistributionChart(window.distributionData);
-
-            // Add "Show All" button
-            const showAllButton = document.createElement('button');
-            showAllButton.className = 'btn';
-            showAllButton.style.marginTop = '15px';
-            showAllButton.style.width = '100%';
-            showAllButton.style.maxWidth = '200px';
-            showAllButton.innerHTML = '<i class="fas fa-eye"></i> Show All Types';
-            showAllButton.addEventListener('click', () => {
-                filterByCurrencyType(null);
-            });
-
-            const buttonContainer = document.createElement('div');
-            buttonContainer.style.textAlign = 'center';
-            buttonContainer.style.width = '100%';
-            buttonContainer.appendChild(showAllButton);
-            distributionContainer.appendChild(buttonContainer);
-
-        }
-
-        // Function to render the distribution chart with proper legends and clickable slices
-        function renderDistributionChart(data) {
-            const chartDiv = document.getElementById('distribution-pie-chart');
-            const legendDiv = document.getElementById('distribution-legend');
-
-            chartDiv.innerHTML = '';
-            legendDiv.innerHTML = '';
-
-            // Clear any existing segment overlays
-            chartDiv.style.background = '';
-            chartDiv.style.position = 'relative';
-
+            // Create pie chart using conic-gradient
             let conicGradient = '';
             let cumulativePercentage = 0;
-            const segments = [];
 
-            // First pass: calculate segments and create gradient
-            data.types.forEach((type, index) => {
-                const percentage = (data.typeCount[type] / data.totalItems) * 100;
-                const color = data.colors[index % data.colors.length];
-                const isActive = data.activeFilter === null || data.activeFilter === type;
+            types.forEach((type, index) => {
+                const percentage = (typeCount[type] / totalItems) * 100;
+                const color = colors[index % colors.length];
 
                 const start = cumulativePercentage;
                 const end = cumulativePercentage + percentage;
 
                 if (conicGradient) {
-                    conicGradient += `, ${isActive ? color : '#cccccc'} ${start}% ${end}%`;
+                    conicGradient += `, ${color} ${start}% ${end}%`;
                 } else {
-                    conicGradient = `${isActive ? color : '#cccccc'} ${start}% ${end}%`;
+                    conicGradient = `${color} ${start}% ${end}%`;
                 }
 
-                segments.push({
-                    type: type,
-                    start: start,
-                    end: end,
-                    percentage: percentage,
-                    color: color,
-                    isActive: isActive,
-                    index: index
-                });
-
                 cumulativePercentage = end;
+
+                // Add to legend
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+
+                const colorBox = document.createElement('div');
+                colorBox.className = 'legend-color';
+                colorBox.style.backgroundColor = color;
+
+                const label = document.createElement('span');
+                // Format the type name for better display
+                const formattedType = type.split('-').map(word =>
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                ).join(' ');
+                label.textContent = `${formattedType} (${typeCount[type]})`;
+
+                legendItem.appendChild(colorBox);
+                legendItem.appendChild(label);
+                legendDiv.appendChild(legendItem);
             });
 
             // Apply the gradient to the chart
             chartDiv.style.background = `conic-gradient(${conicGradient})`;
             chartDiv.style.borderRadius = '50%';
-            chartDiv.style.position = 'relative';
-            chartDiv.style.width = '200px';
-            chartDiv.style.height = '200px';
-
-            // Second pass: create clickable segment overlays and legends
-            segments.forEach(segment => {
-                const { type, start, end, percentage, color, isActive, index } = segment;
-
-                // Create clickable segment overlay
-                const segmentOverlay = document.createElement('div');
-                segmentOverlay.className = 'chart-segment-overlay';
-                segmentOverlay.style.position = 'absolute';
-                segmentOverlay.style.top = '0';
-                segmentOverlay.style.left = '0';
-                segmentOverlay.style.width = '100%';
-                segmentOverlay.style.height = '100%';
-                segmentOverlay.style.borderRadius = '50%';
-                segmentOverlay.style.clipPath = `conic-gradient(from ${start * 3.6}deg, #0000 0deg, #0000 ${percentage * 3.6}deg, #000 ${percentage * 3.6}deg)`;
-                segmentOverlay.style.cursor = 'pointer';
-                segmentOverlay.style.zIndex = '2';
-                segmentOverlay.style.opacity = '0'; // Make invisible but clickable
-                segmentOverlay.title = `Click to filter ${type}`;
-
-                segmentOverlay.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if (data.activeFilter === type) {
-                        filterByCurrencyType(null);
-                    } else {
-                        filterByCurrencyType(type);
-                    }
-                });
-
-                segmentOverlay.addEventListener('mouseenter', () => {
-                    segmentOverlay.style.opacity = '0.1';
-                    segmentOverlay.style.backgroundColor = color;
-                });
-
-                segmentOverlay.addEventListener('mouseleave', () => {
-                    segmentOverlay.style.opacity = '0';
-                });
-
-                chartDiv.appendChild(segmentOverlay);
-
-                // Create legend item
-                const legendItem = document.createElement('div');
-                legendItem.className = 'legend-item';
-                legendItem.style.cursor = 'pointer';
-                legendItem.style.opacity = isActive ? '1' : '0.5';
-                legendItem.style.transition = 'all 0.3s ease';
-                legendItem.style.padding = '4px 8px';
-                legendItem.style.borderRadius = '4px';
-                legendItem.style.marginBottom = '5px';
-                legendItem.style.border = data.activeFilter === type ? '2px solid #2c3e50' : '1px solid #e0e0e0';
-                legendItem.style.backgroundColor = data.activeFilter === type ? '#f8f9fa' : 'transparent';
-
-                const colorBox = document.createElement('div');
-                colorBox.className = 'legend-color';
-                colorBox.style.backgroundColor = isActive ? color : '#cccccc';
-                colorBox.style.width = '20px';
-                colorBox.style.height = '20px';
-                colorBox.style.borderRadius = '4px';
-                colorBox.style.marginRight = '10px';
-                colorBox.style.flexShrink = '0';
-                colorBox.style.transition = 'all 0.3s ease';
-
-                const label = document.createElement('span');
-                const formattedType = formatCurrencyType(type);
-                label.textContent = `${formattedType}: ${data.typeCount[type]} items`;
-                label.style.fontWeight = data.activeFilter === type ? 'bold' : 'normal';
-                label.style.fontSize = '14px';
-                label.style.flex = '1';
-
-                const percentageText = document.createElement('span');
-                percentageText.textContent = `(${((data.typeCount[type] / data.totalItems) * 100).toFixed(1)}%)`;
-                percentageText.style.fontSize = '12px';
-                percentageText.style.color = '#666';
-                percentageText.style.marginLeft = '8px';
-
-                legendItem.appendChild(colorBox);
-                legendItem.appendChild(label);
-                legendItem.appendChild(percentageText);
-
-                // Make legend item layout flexible
-                legendItem.style.display = 'flex';
-                legendItem.style.alignItems = 'center';
-                legendItem.style.justifyContent = 'flex-start';
-
-                legendItem.addEventListener('click', () => {
-                    if (data.activeFilter === type) {
-                        filterByCurrencyType(null);
-                    } else {
-                        filterByCurrencyType(type);
-                    }
-                });
-
-                legendItem.addEventListener('mouseenter', () => {
-                    legendItem.style.transform = 'translateX(5px)';
-                    colorBox.style.transform = 'scale(1.1)';
-                });
-
-                legendItem.addEventListener('mouseleave', () => {
-                    legendItem.style.transform = 'translateX(0)';
-                    colorBox.style.transform = 'scale(1)';
-                });
-
-                legendDiv.appendChild(legendItem);
-            });
 
             // Add center text for total
             const centerText = document.createElement('div');
@@ -4902,230 +4664,11 @@
             centerText.style.transform = 'translate(-50%, -50%)';
             centerText.style.textAlign = 'center';
             centerText.style.fontWeight = 'bold';
-            centerText.style.fontSize = data.activeFilter ? '18px' : '20px';
-            centerText.style.color = data.activeFilter ? '#e74c3c' : '#2c3e50';
-            centerText.style.background = 'white';
-            centerText.style.borderRadius = '50%';
-            centerText.style.width = '60px';
-            centerText.style.height = '60px';
-            centerText.style.display = 'flex';
-            centerText.style.alignItems = 'center';
-            centerText.style.justifyContent = 'center';
-            centerText.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-            centerText.textContent = data.activeFilter ? data.typeCount[data.activeFilter] : data.totalItems;
-            centerText.title = data.activeFilter ? `Showing only ${data.activeFilter}` : 'Showing all types';
-            centerText.style.zIndex = '1';
+            centerText.style.fontSize = '16px';
+            centerText.style.color = '#2c3e50';
+            centerText.textContent = totalItems;
 
             chartDiv.appendChild(centerText);
-        }
-
-
-        // Helper function to format currency type names
-        function formatCurrencyType(type) {
-            if (!type) return 'Unknown';
-
-            return type.split('-').map(word => {
-                if (word === 'paper') return 'Paper';
-                if (word === 'bill') return 'Bill';
-                if (word === 'coin') return 'Coin';
-                if (word === 'antique') return 'Antique';
-                return word.charAt(0).toUpperCase() + word.slice(1);
-            }).join(' ');
-        }
-
-        // Function to filter by currency type
-        function filterByCurrencyType(type) {
-            if (!window.distributionData) return;
-
-            // Update active filter
-            window.distributionData.activeFilter = type;
-
-            // Re-render chart with new filter state
-            renderDistributionChart(window.distributionData);
-
-            // Filter the coins data for timeline and gallery
-            const filteredCoins = type ?
-                window.distributionData.coinsData.filter(coin => {
-                    if (!coin.currency_type) return false;
-                    const types = coin.currency_type.split(',').map(t => t.trim().toLowerCase());
-                    return types.includes(type.toLowerCase());
-                }) :
-                window.distributionData.coinsData;
-
-            // Update currentCountryCoins with filtered data for navigation
-            currentCountryCoins = filteredCoins;
-
-            // Update timeline with filtered data
-            createTimelineVisualization(filteredCoins);
-
-            // Update gallery view with filtered data
-            const queryParams = new URLSearchParams(window.location.search);
-            const countryQuery = queryParams.get("country");
-            if (countryQuery) {
-                updateGalleryViewWithFilter(countryQuery.toLowerCase(), filteredCoins);
-            }
-
-            // Update the main image display if current image doesn't match filter
-            if (type && filteredCoins.length > 0) {
-                const currentImageSrc = document.getElementById("current-image-img").src;
-                const currentImageName = currentImageSrc.split('/').pop();
-
-                const currentCoinIndex = filteredCoins.findIndex(coin =>
-                    coin.image === currentImageName
-                );
-
-                if (currentCoinIndex === -1) {
-                    // Current image is not in filtered results, show first filtered image
-                    updateImageDisplay(0, filteredCoins);
-                }
-            } else if (filteredCoins.length > 0) {
-                // Show all types, ensure we're showing a valid image
-                updateImageDisplay(0, filteredCoins);
-            }
-        }
-
-        // Helper function to update image display
-        function updateImageDisplay(index, coinsArray) {
-            if (coinsArray.length === 0) return;
-
-            const coin = coinsArray[index];
-            const countryName = coin.country.toLowerCase();
-            const imagePath = `images/${toTitleCase(countryName)}/${coin.image}`;
-
-            // Update thumbnails
-            const thumbnailContainer = document.getElementById("thumbnail-container");
-            thumbnailContainer.innerHTML = "";
-
-            coinsArray.forEach((coin, idx) => {
-                const thumbnail = document.createElement("img");
-                thumbnail.src = `images/${toTitleCase(countryName)}/${coin.image}`;
-                thumbnail.alt = `Thumbnail ${idx + 1}`;
-                thumbnail.loading = "lazy";
-                if (idx === index) {
-                    thumbnail.classList.add('active-thumbnail');
-                }
-                thumbnail.addEventListener("click", () => {
-                    updateImageDisplay(idx, coinsArray);
-                });
-                thumbnailContainer.appendChild(thumbnail);
-            });
-
-            // Update main image and details
-            const countryInfo = fetchCountryInfo(countryName);
-            setCurrentImage(
-                imagePath,
-                coin.note,
-                coin.donor_name,
-                coin.currency_type,
-                countryInfo,
-                coin.year,
-                coin.size,
-                index
-            );
-
-            currentImageIndex = index;
-        }
-
-        // Function to update gallery view with filtered data
-        function updateGalleryViewWithFilter(countryName, filteredCoins) {
-            const galleryGrid = document.getElementById('gallery-grid-container');
-            const sortBySelect = document.getElementById('sort-by');
-            galleryGrid.innerHTML = '';
-
-            if (!filteredCoins || filteredCoins.length === 0) {
-                galleryGrid.innerHTML = '<p style="text-align: center; color: var(--secondary-color);">No items found for this currency type.</p>';
-                return;
-            }
-
-            let sortedCoins = [...filteredCoins];
-            const sortValue = sortBySelect.value;
-
-            if (sortValue === 'name-asc') {
-                sortedCoins.sort((a, b) => a.image.localeCompare(b.image));
-            } else if (sortValue === 'name-desc') {
-                sortedCoins.sort((a, b) => b.image.localeCompare(b.image));
-            } else if (sortValue === 'type') {
-                sortedCoins.sort((a, b) => (a.currency_type || '').localeCompare(b.currency_type || ''));
-            }
-
-            sortedCoins.forEach((coin, index) => {
-                const galleryItem = document.createElement('div');
-                galleryItem.classList.add('gallery-item');
-                const imageUrl = `images/${toTitleCase(countryName)}/${coin.image}`;
-                galleryItem.dataset.imageUrl = imageUrl;
-                galleryItem.dataset.note = coin.note;
-                galleryItem.dataset.donor = coin.donor_name;
-                galleryItem.dataset.currencyType = coin.currency_type;
-
-                galleryItem.innerHTML = `
-            <img class="gallery-item-image" src="${imageUrl}" alt="${coin.note}" onerror="this.src='https://placehold.co/200x150/cccccc/333333?text=Image+Not+Found'">
-            <div class="gallery-item-info">
-                <p>${coin.image}</p>
-                <p style="font-size: 10px; color: #666; margin-top: 5px;">${coin.currency_type || 'Unknown'}</p>
-            </div>
-        `;
-
-                galleryItem.addEventListener('click', function () {
-                    const countryInfo = fetchCountryInfo(countryName);
-                    openImageModal(
-                        imageUrl,
-                        coin.note,
-                        countryInfo.name,
-                        countryInfo.capital,
-                        countryInfo.currency?.name,
-                        index,
-                        coin.donor_name
-                    );
-                    // Update currentCountryCoins to filtered set for modal navigation
-                    currentCountryCoins = sortedCoins;
-                    currentImageIndex = index;
-                });
-
-                galleryGrid.appendChild(galleryItem);
-            });
-
-            // Update the thumbnail container as well
-            updateThumbnailsWithFilter(countryName, sortedCoins);
-        }
-
-        // Function to update thumbnails with filtered data
-        function updateThumbnailsWithFilter(countryName, filteredCoins) {
-            const thumbnailContainer = document.getElementById("thumbnail-container");
-            thumbnailContainer.innerHTML = "";
-
-            filteredCoins.forEach((coin, index) => {
-                const thumbnail = document.createElement("img");
-                thumbnail.src = `images/${toTitleCase(countryName)}/${coin.image}`;
-                thumbnail.alt = `Thumbnail ${index + 1}`;
-                thumbnail.loading = "lazy";
-                thumbnail.onerror = function () {
-                    this.src = 'https://placehold.co/70x70/cccccc/333333?text=404';
-                };
-
-                if (index === currentImageIndex) {
-                    thumbnail.classList.add('active-thumbnail');
-                }
-
-                thumbnail.addEventListener("click", () => {
-                    // Update all thumbnails
-                    document.querySelectorAll('.img-queue-in img').forEach(img => {
-                        img.classList.remove('active-thumbnail');
-                    });
-                    thumbnail.classList.add('active-thumbnail');
-
-                    // Update main display
-                    updateImageDisplay(index, filteredCoins);
-                });
-
-                thumbnailContainer.appendChild(thumbnail);
-            });
-        }
-
-        // Debug function to check filter state
-        function debugFilterState() {
-            console.log('Active Filter:', window.distributionData?.activeFilter);
-            console.log('Available Types:', window.distributionData?.types);
-            console.log('Type Counts:', window.distributionData?.typeCount);
         }
     </script>
 </body>
