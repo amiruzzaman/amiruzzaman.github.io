@@ -3420,6 +3420,11 @@ function clearMergeAreas() {
 </html>
     '''
 
+# ADD THIS NEW ROUTE - Serve box_country_list.html
+@app.route('/box_country_list.html')
+def box_country_list():
+    return send_from_directory('.', 'box_country_list.html')
+
 @app.route('/get-json', methods=['GET'])
 def get_json():
     return jsonify(load_json())
