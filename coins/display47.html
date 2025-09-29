@@ -3610,16 +3610,14 @@
         function loadGalleryView(countryName) {
             const allCountryCoins = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName);
 
-            // Apply active filters (support multiple toggles)
-const activeFilters = window.distributionData?.activeFilters || [];
-const filteredCoins = (activeFilters.length > 0) ?
-    allCountryCoins.filter(coin => {
-        if (!coin.currency_type) return false;
-        const types = coin.currency_type.split(',').map(t => t.trim().toLowerCase());
-        return types.some(t => activeFilters.includes(t));
-    }) :
-    allCountryCoins;
-
+            // Apply active filter if exists
+            const filteredCoins = window.distributionData && window.distributionData.activeFilter ?
+                allCountryCoins.filter(coin => {
+                    if (!coin.currency_type) return false;
+                    const types = coin.currency_type.split(',').map(t => t.trim().toLowerCase());
+                    return types.includes(window.distributionData.activeFilter.toLowerCase());
+                }) :
+                allCountryCoins;
 
             // Update distribution data with current country coins
             if (window.distributionData) {
@@ -4651,302 +4649,275 @@ const filteredCoins = (activeFilters.length > 0) ?
 
             return '#95a5a6';
         }
-        
-
-
-
         // Function to create interactive currency type distribution chart
-function createCurrencyDistributionChart(coinsData) {
-    const distributionSection = document.getElementById('distribution-section');
-    const distributionContainer = document.getElementById('distribution-container');
+        function createCurrencyDistributionChart(coinsData) {
+            const distributionSection = document.getElementById('distribution-section');
+            const distributionContainer = document.getElementById('distribution-container');
 
-    distributionContainer.innerHTML = '';
+            distributionContainer.innerHTML = '';
 
-    // Count currency types - Properly handle multiple types per coin with year-based counting
-    const typeCount = {};
-    let totalItems = 0;
+            // Count currency types - Properly handle multiple types per coin with year-based counting
+            const typeCount = {};
+            let totalItems = 0;
 
-    coinsData.forEach(coin => {
-        if (coin.currency_type && coin.currency_type.toLowerCase() !== 'none') {
-            const types = coin.currency_type.split(',').map(t => t.trim().toLowerCase());
-            const yearMultiplier = coin.year && coin.year.trim() !== "" ?
-                Math.max(coin.year.split(',').length, 1) : 1;
+            coinsData.forEach(coin => {
+                if (coin.currency_type && coin.currency_type.toLowerCase() !== 'none') {
+                    const types = coin.currency_type.split(',').map(t => t.trim().toLowerCase());
+                    // Determine count multiplier based on year values
+                    const yearMultiplier = coin.year && coin.year.trim() !== "" ?
+                        Math.max(coin.year.split(',').length, 1) : 1;
 
-            types.forEach(type => {
-                if (type) {
-                    typeCount[type] = (typeCount[type] || 0) + yearMultiplier;
-                    totalItems += yearMultiplier;
+                    types.forEach(type => {
+                        if (type) {
+                            typeCount[type] = (typeCount[type] || 0) + yearMultiplier;
+                            totalItems += yearMultiplier;
+                        }
+                    });
                 }
             });
-        }
-    });
 
-    const types = Object.keys(typeCount);
+            const types = Object.keys(typeCount);
 
-    if (types.length === 0) {
-        distributionSection.style.display = 'none';
-        return;
-    }
+            if (types.length === 0) {
+                distributionSection.style.display = 'none';
+                return;
+            }
 
-    // Show distribution section
-    distributionSection.style.display = 'block';
+            // Show distribution section
+            distributionSection.style.display = 'block';
 
-    // Create chart container with proper layout
-    const chartDiv = document.createElement('div');
-    chartDiv.className = 'distribution-chart';
-    chartDiv.id = 'distribution-pie-chart';
-    chartDiv.style.width = '200px';
-    chartDiv.style.height = '200px';
-    chartDiv.style.margin = '0 auto 20px auto';
+            // Create chart container with proper layout
+            const chartDiv = document.createElement('div');
+            chartDiv.className = 'distribution-chart';
+            chartDiv.id = 'distribution-pie-chart';
+            chartDiv.style.width = '200px';
+            chartDiv.style.height = '200px';
+            chartDiv.style.margin = '0 auto 20px auto';
 
-    distributionContainer.appendChild(chartDiv);
+            distributionContainer.appendChild(chartDiv);
 
-    // Create legend
-    const legendDiv = document.createElement('div');
-    legendDiv.className = 'distribution-legend';
-    legendDiv.id = 'distribution-legend';
-    distributionContainer.appendChild(legendDiv);
+            // Create legend
+            const legendDiv = document.createElement('div');
+            legendDiv.className = 'distribution-legend';
+            legendDiv.id = 'distribution-legend';
+            distributionContainer.appendChild(legendDiv);
 
-    // Colors for chart segments
-    const colors = [
-        '#3498db', '#e74c3c', '#2ecc71', '#f39c12',
-        '#9b59b6', '#1abc9c', '#d35400', '#34495e'
-    ];
-    // Store chart data globally for filtering (now supports multiple filters)
-    window.distributionData = {
-        types: types,
-        typeCount: typeCount,
-        totalItems: totalItems,
-        colors: colors,
-        coinsData: coinsData,
-        activeFilters: [] // <-- array of active filters (lowercase strings)
-    };
+            // Colors for chart segments
+            const colors = [
+                '#3498db', '#e74c3c', '#2ecc71', '#f39c12',
+                '#9b59b6', '#1abc9c', '#d35400', '#34495e'
+            ];
+            // Store chart data globally for filtering
+            window.distributionData = {
+                types: types,
+                typeCount: typeCount,
+                totalItems: totalItems,
+                colors: colors,
+                coinsData: coinsData,
+                activeFilter: null
+            };
 
-    // Render chart
-    renderDistributionChart(window.distributionData);
+            // Create interactive pie chart
+            renderDistributionChart(window.distributionData);
 
-    // Add "Show All" button
-    const showAllButton = document.createElement('button');
-    showAllButton.className = 'btn';
-    showAllButton.style.marginTop = '15px';
-    showAllButton.style.width = '100%';
-    showAllButton.style.maxWidth = '200px';
-    showAllButton.innerHTML = '<i class="fas fa-eye"></i> Show All Types';
-    showAllButton.addEventListener('click', () => {
-        // Clear filters
-        window.distributionData.activeFilters = [];
-        renderDistributionChart(window.distributionData);
-        // Reset filters across gallery/timeline
-        currentCountryCoins = window.distributionData.coinsData;
-        createTimelineVisualization(currentCountryCoins);
-        const queryParams = new URLSearchParams(window.location.search);
-        const countryQuery = queryParams.get("country");
-        if (countryQuery) {
-            updateGalleryViewWithFilter(countryQuery.toLowerCase(), currentCountryCoins);
-            updateImageDisplay(0, currentCountryCoins);
-        }
-    });
+            // Add "Show All" button
+            const showAllButton = document.createElement('button');
+            showAllButton.className = 'btn';
+            showAllButton.style.marginTop = '15px';
+            showAllButton.style.width = '100%';
+            showAllButton.style.maxWidth = '200px';
+            showAllButton.innerHTML = '<i class="fas fa-eye"></i> Show All Types';
+            showAllButton.addEventListener('click', () => {
+                filterByCurrencyType(null);
+            });
 
-    const buttonContainer = document.createElement('div');
-    buttonContainer.style.textAlign = 'center';
-    buttonContainer.style.width = '100%';
-    buttonContainer.appendChild(showAllButton);
-    distributionContainer.appendChild(buttonContainer);
-}
+            const buttonContainer = document.createElement('div');
+            buttonContainer.style.textAlign = 'center';
+            buttonContainer.style.width = '100%';
+            buttonContainer.appendChild(showAllButton);
+            distributionContainer.appendChild(buttonContainer);
 
-
-// Function to render the distribution chart with proper legends and clickable slices
-function renderDistributionChart(data) {
-    const chartDiv = document.getElementById('distribution-pie-chart');
-    const legendDiv = document.getElementById('distribution-legend');
-
-    // Defensive check
-    if (!chartDiv || !legendDiv || !data) return;
-
-    chartDiv.innerHTML = '';
-    legendDiv.innerHTML = '';
-
-    // Clear any existing segment overlays
-    chartDiv.style.background = '';
-    chartDiv.style.position = 'relative';
-
-    let conicGradient = '';
-    let cumulativePercentage = 0;
-    const segments = [];
-
-    const activeFilters = data.activeFilters || [];
-    const hasFilter = activeFilters.length > 0;
-
-    // First pass: calculate segments and create gradient
-    data.types.forEach((type, index) => {
-        const percentage = (data.typeCount[type] / data.totalItems) * 100;
-        const color = data.colors[index % data.colors.length];
-        // If there are no active filters, every segment is "active".
-        // If there are active filters, a segment is active only if its type is included.
-        const isActive = !hasFilter || activeFilters.includes(type);
-
-        const start = cumulativePercentage;
-        const end = cumulativePercentage + percentage;
-
-        if (conicGradient) {
-            conicGradient += `, ${isActive ? color : '#cccccc'} ${start}% ${end}%`;
-        } else {
-            conicGradient = `${isActive ? color : '#cccccc'} ${start}% ${end}%`;
         }
 
-        segments.push({
-            type: type,
-            start: start,
-            end: end,
-            percentage: percentage,
-            color: color,
-            isActive: isActive,
-            index: index
-        });
+        // Function to render the distribution chart with proper legends and clickable slices
+        function renderDistributionChart(data) {
+            const chartDiv = document.getElementById('distribution-pie-chart');
+            const legendDiv = document.getElementById('distribution-legend');
 
-        cumulativePercentage = end;
-    });
+            chartDiv.innerHTML = '';
+            legendDiv.innerHTML = '';
 
-    // Apply the gradient to the chart
-    chartDiv.style.background = `conic-gradient(${conicGradient})`;
-    chartDiv.style.borderRadius = '50%';
-    chartDiv.style.position = 'relative';
-    chartDiv.style.width = '200px';
-    chartDiv.style.height = '200px';
+            // Clear any existing segment overlays
+            chartDiv.style.background = '';
+            chartDiv.style.position = 'relative';
 
-    // Second pass: create clickable segment overlays and legends
-    segments.forEach(segment => {
-        const { type, start, end, percentage, color, isActive, index } = segment;
+            let conicGradient = '';
+            let cumulativePercentage = 0;
+            const segments = [];
 
-        // Create clickable segment overlay
-        const segmentOverlay = document.createElement('div');
-        segmentOverlay.className = 'chart-segment-overlay';
-        segmentOverlay.style.position = 'absolute';
-        segmentOverlay.style.top = '0';
-        segmentOverlay.style.left = '0';
-        segmentOverlay.style.width = '100%';
-        segmentOverlay.style.height = '100%';
-        segmentOverlay.style.borderRadius = '50%';
-        // Keep original overlay clipPath approach for clickable slice (works in your original file)
-        segmentOverlay.style.clipPath = `conic-gradient(from ${start * 3.6}deg, #0000 0deg, #0000 ${percentage * 3.6}deg, #000 ${percentage * 3.6}deg)`;
-        segmentOverlay.style.cursor = 'pointer';
-        segmentOverlay.style.zIndex = '2';
-        segmentOverlay.style.opacity = '0';
-        segmentOverlay.title = `Click to toggle ${type}`;
+            // First pass: calculate segments and create gradient
+            data.types.forEach((type, index) => {
+                const percentage = (data.typeCount[type] / data.totalItems) * 100;
+                const color = data.colors[index % data.colors.length];
+                const isActive = data.activeFilter === null || data.activeFilter === type;
 
-        segmentOverlay.addEventListener('click', (e) => {
-            e.stopPropagation();
-            filterByCurrencyType(type.toLowerCase().trim()); // normalize
-        });
+                const start = cumulativePercentage;
+                const end = cumulativePercentage + percentage;
 
+                if (conicGradient) {
+                    conicGradient += `, ${isActive ? color : '#cccccc'} ${start}% ${end}%`;
+                } else {
+                    conicGradient = `${isActive ? color : '#cccccc'} ${start}% ${end}%`;
+                }
 
-        segmentOverlay.addEventListener('mouseenter', () => {
-            segmentOverlay.style.opacity = '0.1';
-            segmentOverlay.style.backgroundColor = color;
-        });
+                segments.push({
+                    type: type,
+                    start: start,
+                    end: end,
+                    percentage: percentage,
+                    color: color,
+                    isActive: isActive,
+                    index: index
+                });
 
-        segmentOverlay.addEventListener('mouseleave', () => {
-            segmentOverlay.style.opacity = '0';
-            segmentOverlay.style.backgroundColor = 'transparent';
-        });
+                cumulativePercentage = end;
+            });
 
-        chartDiv.appendChild(segmentOverlay);
+            // Apply the gradient to the chart
+            chartDiv.style.background = `conic-gradient(${conicGradient})`;
+            chartDiv.style.borderRadius = '50%';
+            chartDiv.style.position = 'relative';
+            chartDiv.style.width = '200px';
+            chartDiv.style.height = '200px';
 
-        // Create legend item
-        const legendItem = document.createElement('div');
-        legendItem.className = 'legend-item';
-        legendItem.style.cursor = 'pointer';
-        legendItem.style.opacity = isActive ? '1' : '0.5';
-        legendItem.style.transition = 'all 0.3s ease';
-        legendItem.style.padding = '4px 8px';
-        legendItem.style.borderRadius = '4px';
-        legendItem.style.marginBottom = '5px';
-        legendItem.style.border = data.activeFilters.includes(type) ? '2px solid #2c3e50' : '1px solid #e0e0e0';
-        legendItem.style.backgroundColor = data.activeFilters.includes(type) ? '#f8f9fa' : 'transparent';
+            // Second pass: create clickable segment overlays and legends
+            segments.forEach(segment => {
+                const { type, start, end, percentage, color, isActive, index } = segment;
 
-        const colorBox = document.createElement('div');
-        colorBox.className = 'legend-color';
-        colorBox.style.backgroundColor = isActive ? color : '#cccccc';
-        colorBox.style.width = '20px';
-        colorBox.style.height = '20px';
-        colorBox.style.borderRadius = '4px';
-        colorBox.style.marginRight = '10px';
-        colorBox.style.flexShrink = '0';
-        colorBox.style.transition = 'all 0.3s ease';
+                // Create clickable segment overlay
+                const segmentOverlay = document.createElement('div');
+                segmentOverlay.className = 'chart-segment-overlay';
+                segmentOverlay.style.position = 'absolute';
+                segmentOverlay.style.top = '0';
+                segmentOverlay.style.left = '0';
+                segmentOverlay.style.width = '100%';
+                segmentOverlay.style.height = '100%';
+                segmentOverlay.style.borderRadius = '50%';
+                segmentOverlay.style.clipPath = `conic-gradient(from ${start * 3.6}deg, #0000 0deg, #0000 ${percentage * 3.6}deg, #000 ${percentage * 3.6}deg)`;
+                segmentOverlay.style.cursor = 'pointer';
+                segmentOverlay.style.zIndex = '2';
+                segmentOverlay.style.opacity = '0'; // Make invisible but clickable
+                segmentOverlay.title = `Click to filter ${type}`;
 
-        const label = document.createElement('span');
-        const formattedType = formatCurrencyType(type);
-        label.textContent = `${formattedType}: ${data.typeCount[type]} items`;
-        label.style.fontWeight = data.activeFilters.includes(type) ? 'bold' : 'normal';
-        label.style.fontSize = '14px';
-        label.style.flex = '1';
+                segmentOverlay.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (data.activeFilter === type) {
+                        filterByCurrencyType(null);
+                    } else {
+                        filterByCurrencyType(type);
+                    }
+                });
 
-        const percentageText = document.createElement('span');
-        percentageText.textContent = `(${((data.typeCount[type] / data.totalItems) * 100).toFixed(1)}%)`;
-        percentageText.style.fontSize = '12px';
-        percentageText.style.color = '#666';
-        percentageText.style.marginLeft = '8px';
+                segmentOverlay.addEventListener('mouseenter', () => {
+                    segmentOverlay.style.opacity = '0.1';
+                    segmentOverlay.style.backgroundColor = color;
+                });
 
-        legendItem.appendChild(colorBox);
-        legendItem.appendChild(label);
-        legendItem.appendChild(percentageText);
+                segmentOverlay.addEventListener('mouseleave', () => {
+                    segmentOverlay.style.opacity = '0';
+                });
 
-        // Make legend item layout flexible
-        legendItem.style.display = 'flex';
-        legendItem.style.alignItems = 'center';
-        legendItem.style.justifyContent = 'flex-start';
+                chartDiv.appendChild(segmentOverlay);
 
-        legendItem.addEventListener('click', () => {
-            //filterByCurrencyType(type); // toggle this type
-            filterByCurrencyType(type.toLowerCase().trim());
+                // Create legend item
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                legendItem.style.cursor = 'pointer';
+                legendItem.style.opacity = isActive ? '1' : '0.5';
+                legendItem.style.transition = 'all 0.3s ease';
+                legendItem.style.padding = '4px 8px';
+                legendItem.style.borderRadius = '4px';
+                legendItem.style.marginBottom = '5px';
+                legendItem.style.border = data.activeFilter === type ? '2px solid #2c3e50' : '1px solid #e0e0e0';
+                legendItem.style.backgroundColor = data.activeFilter === type ? '#f8f9fa' : 'transparent';
 
-        });
+                const colorBox = document.createElement('div');
+                colorBox.className = 'legend-color';
+                colorBox.style.backgroundColor = isActive ? color : '#cccccc';
+                colorBox.style.width = '20px';
+                colorBox.style.height = '20px';
+                colorBox.style.borderRadius = '4px';
+                colorBox.style.marginRight = '10px';
+                colorBox.style.flexShrink = '0';
+                colorBox.style.transition = 'all 0.3s ease';
 
-        legendItem.addEventListener('mouseenter', () => {
-            legendItem.style.transform = 'translateX(5px)';
-            colorBox.style.transform = 'scale(1.1)';
-        });
+                const label = document.createElement('span');
+                const formattedType = formatCurrencyType(type);
+                label.textContent = `${formattedType}: ${data.typeCount[type]} items`;
+                label.style.fontWeight = data.activeFilter === type ? 'bold' : 'normal';
+                label.style.fontSize = '14px';
+                label.style.flex = '1';
 
-        legendItem.addEventListener('mouseleave', () => {
-            legendItem.style.transform = 'translateX(0)';
-            colorBox.style.transform = 'scale(1)';
-        });
+                const percentageText = document.createElement('span');
+                percentageText.textContent = `(${((data.typeCount[type] / data.totalItems) * 100).toFixed(1)}%)`;
+                percentageText.style.fontSize = '12px';
+                percentageText.style.color = '#666';
+                percentageText.style.marginLeft = '8px';
 
-        legendDiv.appendChild(legendItem);
-    });
+                legendItem.appendChild(colorBox);
+                legendItem.appendChild(label);
+                legendItem.appendChild(percentageText);
 
-    // Add center text for total or selected total
-    const centerText = document.createElement('div');
-    centerText.style.position = 'absolute';
-    centerText.style.top = '50%';
-    centerText.style.left = '50%';
-    centerText.style.transform = 'translate(-50%, -50%)';
-    centerText.style.textAlign = 'center';
-    centerText.style.fontWeight = 'bold';
-    centerText.style.fontSize = data.activeFilters.length ? '18px' : '20px';
-    centerText.style.color = data.activeFilters.length ? '#e74c3c' : '#2c3e50';
-    centerText.style.background = 'white';
-    centerText.style.borderRadius = '50%';
-    centerText.style.width = '60px';
-    centerText.style.height = '60px';
-    centerText.style.display = 'flex';
-    centerText.style.alignItems = 'center';
-    centerText.style.justifyContent = 'center';
-    centerText.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                // Make legend item layout flexible
+                legendItem.style.display = 'flex';
+                legendItem.style.alignItems = 'center';
+                legendItem.style.justifyContent = 'flex-start';
 
-    // Compute selected total when filters active
-    let centerValue = data.totalItems;
-    if (data.activeFilters && data.activeFilters.length > 0) {
-        centerValue = data.activeFilters.reduce((sum, f) => sum + (data.typeCount[f] || 0), 0);
-    }
-    centerText.textContent = centerValue;
-    centerText.title = data.activeFilters && data.activeFilters.length > 0 ?
-        `Showing ${centerValue} items (${data.activeFilters.join(', ')})` : 'Showing all types';
-    centerText.style.zIndex = '1';
+                legendItem.addEventListener('click', () => {
+                    if (data.activeFilter === type) {
+                        filterByCurrencyType(null);
+                    } else {
+                        filterByCurrencyType(type);
+                    }
+                });
 
-    chartDiv.appendChild(centerText);
-}
+                legendItem.addEventListener('mouseenter', () => {
+                    legendItem.style.transform = 'translateX(5px)';
+                    colorBox.style.transform = 'scale(1.1)';
+                });
 
+                legendItem.addEventListener('mouseleave', () => {
+                    legendItem.style.transform = 'translateX(0)';
+                    colorBox.style.transform = 'scale(1)';
+                });
+
+                legendDiv.appendChild(legendItem);
+            });
+
+            // Add center text for total
+            const centerText = document.createElement('div');
+            centerText.style.position = 'absolute';
+            centerText.style.top = '50%';
+            centerText.style.left = '50%';
+            centerText.style.transform = 'translate(-50%, -50%)';
+            centerText.style.textAlign = 'center';
+            centerText.style.fontWeight = 'bold';
+            centerText.style.fontSize = data.activeFilter ? '18px' : '20px';
+            centerText.style.color = data.activeFilter ? '#e74c3c' : '#2c3e50';
+            centerText.style.background = 'white';
+            centerText.style.borderRadius = '50%';
+            centerText.style.width = '60px';
+            centerText.style.height = '60px';
+            centerText.style.display = 'flex';
+            centerText.style.alignItems = 'center';
+            centerText.style.justifyContent = 'center';
+            centerText.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+            centerText.textContent = data.activeFilter ? data.typeCount[data.activeFilter] : data.totalItems;
+            centerText.title = data.activeFilter ? `Showing only ${data.activeFilter}` : 'Showing all types';
+            centerText.style.zIndex = '1';
+
+            chartDiv.appendChild(centerText);
+        }
 
 
         // Helper function to format currency type names
@@ -4962,68 +4933,56 @@ function renderDistributionChart(data) {
             }).join(' ');
         }
 
-        // Function to filter by currency type (supports multiple toggles)
-function filterByCurrencyType(type) {
-    if (!window.distributionData) return;
+        // Function to filter by currency type
+        function filterByCurrencyType(type) {
+            if (!window.distributionData) return;
 
-    const t = (type || '').toLowerCase();
-    const activeFilters = window.distributionData.activeFilters || [];
+            // Update active filter
+            window.distributionData.activeFilter = type;
 
-    if (activeFilters.includes(t)) {
-        // Toggle off
-        window.distributionData.activeFilters = activeFilters.filter(f => f !== t);
-    } else {
-        // Toggle on
-        window.distributionData.activeFilters = [...activeFilters, t];
-    }
+            // Re-render chart with new filter state
+            renderDistributionChart(window.distributionData);
 
-    // Re-render chart with new filter state
-    renderDistributionChart(window.distributionData);
+            // Filter the coins data for timeline and gallery
+            const filteredCoins = type ?
+                window.distributionData.coinsData.filter(coin => {
+                    if (!coin.currency_type) return false;
+                    const types = coin.currency_type.split(',').map(t => t.trim().toLowerCase());
+                    return types.includes(type.toLowerCase());
+                }) :
+                window.distributionData.coinsData;
 
-    // Filter the coins data for timeline and gallery
-    const filters = window.distributionData.activeFilters || [];
-    const filteredCoins = (filters.length > 0) ?
-        window.distributionData.coinsData.filter(coin => {
-            if (!coin.currency_type) return false;
-            const types = coin.currency_type.split(',').map(x => x.trim().toLowerCase());
-            // include coin if any of its types is in active filters
-            return types.some(tt => filters.includes(tt));
-        }) :
-        window.distributionData.coinsData;
+            // Update currentCountryCoins with filtered data for navigation
+            currentCountryCoins = filteredCoins;
 
-    // Update currentCountryCoins with filtered data for navigation
-    currentCountryCoins = filteredCoins;
+            // Update timeline with filtered data
+            createTimelineVisualization(filteredCoins);
 
-    // Update timeline with filtered data
-    createTimelineVisualization(filteredCoins);
+            // Update gallery view with filtered data
+            const queryParams = new URLSearchParams(window.location.search);
+            const countryQuery = queryParams.get("country");
+            if (countryQuery) {
+                updateGalleryViewWithFilter(countryQuery.toLowerCase(), filteredCoins);
+            }
 
-    // Update gallery view with filtered data (if a country is selected)
-    const queryParams = new URLSearchParams(window.location.search);
-    const countryQuery = queryParams.get("country");
-    if (countryQuery) {
-        updateGalleryViewWithFilter(countryQuery.toLowerCase(), filteredCoins);
-    }
+            // Update the main image display if current image doesn't match filter
+            if (type && filteredCoins.length > 0) {
+                const currentImageSrc = document.getElementById("current-image-img").src;
+                const currentImageName = currentImageSrc.split('/').pop();
 
-    // Update the main image display if current image doesn't match filter
-    if (filters.length > 0 && filteredCoins.length > 0) {
-        const currentImageSrc = document.getElementById("current-image-img").src;
-        const currentImageName = currentImageSrc.split('/').pop();
+                const currentCoinIndex = filteredCoins.findIndex(coin =>
+                    coin.image === currentImageName
+                );
 
-        const currentCoinIndex = filteredCoins.findIndex(coin =>
-            coin.image === currentImageName
-        );
-
-        if (currentCoinIndex === -1) {
-            // Current image is not in filtered results, show first filtered image
-            updateImageDisplay(0, filteredCoins);
+                if (currentCoinIndex === -1) {
+                    // Current image is not in filtered results, show first filtered image
+                    updateImageDisplay(0, filteredCoins);
+                }
+            } else if (filteredCoins.length > 0) {
+                // Show all types, ensure we're showing a valid image
+                updateImageDisplay(0, filteredCoins);
+            }
         }
-    } else if (filteredCoins.length > 0) {
-        // Show all types, ensure we're showing a valid image
-        updateImageDisplay(0, filteredCoins);
-    }
-    debugFilterState();
-}
-
 
         // Helper function to update image display
         function updateImageDisplay(index, coinsArray) {
@@ -5162,70 +5121,13 @@ function filterByCurrencyType(type) {
             });
         }
 
+        // Debug function to check filter state
         function debugFilterState() {
-    console.log('Active Filters:', window.distributionData?.activeFilters);
-    console.log('Available Types:', window.distributionData?.types);
-    console.log('Type Counts:', window.distributionData?.typeCount);
-}
-
-// Suppress "Invalid LatLng" errors
-const origConsoleError = console.error;
-console.error = function (...args) {
-    if (args[0] && args[0].toString().includes("Invalid LatLng object")) {
-        // Ignore these
-        return;
-    }
-    origConsoleError.apply(console, args);
-};
-
-
+            console.log('Active Filter:', window.distributionData?.activeFilter);
+            console.log('Available Types:', window.distributionData?.types);
+            console.log('Type Counts:', window.distributionData?.typeCount);
+        }
     </script>
-
-    <script>
-// Suppress "Invalid LatLng object" errors thrown by Leaflet
-(function() {
-    const origOnError = window.onerror;
-    window.onerror = function (msg, url, lineNo, columnNo, error) {
-        if (msg && msg.toString().includes("Invalid LatLng object")) {
-            // Ignore these map errors
-            return true; // prevent logging in console
-        }
-        if (origOnError) return origOnError(msg, url, lineNo, columnNo, error);
-    };
-
-    const origConsoleError = console.error;
-    console.error = function (...args) {
-        if (args[0] && args[0].toString().includes("Invalid LatLng object")) {
-            // Ignore console.error messages too
-            return;
-        }
-        origConsoleError.apply(console, args);
-    };
-})();
-</script>
-<script>
-// Suppress "Invalid LatLng object" and "Error loading continent map" errors
-(function() {
-    const origOnError = window.onerror;
-    window.onerror = function (msg, url, lineNo, columnNo, error) {
-        if (msg && msg.toString().includes("Invalid LatLng object")) {
-            return true; // swallow error
-        }
-        if (origOnError) return origOnError(msg, url, lineNo, columnNo, error);
-    };
-
-    const origConsoleError = console.error;
-    console.error = function (...args) {
-        const joined = args.map(a => (a && a.toString ? a.toString() : '')).join(' ');
-        if (joined.includes("Invalid LatLng object") || joined.includes("Error loading continent map")) {
-            // hide these specific errors
-            return;
-        }
-        origConsoleError.apply(console, args);
-    };
-})();
-</script>
-
 </body>
 
 </html>

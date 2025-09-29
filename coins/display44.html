@@ -2150,368 +2150,6 @@
             align-items: center;
             gap: 10px;
         }
-
-        /* Add this to your CSS section */
-        .detail-item.year-additional {
-            margin-top: 5px;
-            padding-top: 5px;
-            border-top: 1px dashed #e0e0e0;
-        }
-
-        .detail-item.year-additional .detail-label {
-            font-weight: 500;
-            /* Slightly lighter than the first year */
-        }
-
-        .detail-item.year-additional .detail-value {
-            font-size: 15px;
-            /* Slightly smaller than the first year */
-        }
-
-
-        /* Enhanced Timeline Styles */
-        .timeline-year-container {
-            min-width: 30px;
-        }
-
-        .timeline-bar-container {
-            gap: 1px;
-        }
-
-        .timeline-bar {
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .timeline-bar:hover {
-            transform: scale(1.15);
-            z-index: 20;
-        }
-
-        .timeline-bar:hover .timeline-tooltip {
-            display: block;
-            opacity: 1;
-        }
-
-        .timeline-tooltip {
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
-            padding: 5px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            white-space: nowrap;
-            display: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: 100;
-            pointer-events: none;
-        }
-
-        .timeline-bar:hover::after {
-            content: '';
-            position: absolute;
-            top: -5px;
-            left: -5px;
-            right: -5px;
-            bottom: -5px;
-            border: 2px solid #e74c3c;
-            border-radius: 4px;
-            z-index: -1;
-        }
-
-        /* Timeline stats enhancement */
-        .timeline-stats {
-            font-size: 13px;
-            color: #7f8c8d;
-            font-weight: 500;
-        }
-
-        /* Color legend for currency types */
-        .timeline-color-legend {
-            display: flex;
-            gap: 15px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 11px;
-        }
-
-        .legend-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 2px;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 900px) {
-            .timeline-bar {
-                width: 16px;
-            }
-
-            .timeline-year-container {
-                min-width: 25px;
-            }
-
-            .timeline-tooltip {
-                font-size: 10px;
-                padding: 3px 6px;
-            }
-        }
-
-
-        /* Enhanced Timeline Styles */
-        .timeline-year-container {
-            min-width: 30px;
-        }
-
-        .timeline-bar-container {
-            gap: 1px;
-        }
-
-        .timeline-bar {
-            position: relative;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .timeline-bar:hover {
-            transform: scale(1.15);
-            z-index: 20;
-            filter: brightness(1.2);
-        }
-
-        .timeline-bar:hover .timeline-tooltip {
-            display: block;
-            opacity: 1;
-            transform: translateX(-50%) translateY(-5px);
-        }
-
-        .timeline-tooltip {
-            position: absolute;
-            bottom: calc(100% + 8px);
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.95);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            white-space: nowrap;
-            display: none;
-            opacity: 0;
-            transition: all 0.3s ease;
-            z-index: 100;
-            pointer-events: none;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            line-height: 1.4;
-        }
-
-        .timeline-tooltip strong {
-            color: #f39c12;
-            display: block;
-            margin-bottom: 2px;
-        }
-
-        .timeline-bar.active {
-            box-shadow: 0 0 0 3px #e74c3c, 0 0 10px rgba(231, 76, 60, 0.5) !important;
-            border: 2px solid white !important;
-            z-index: 30;
-        }
-
-        /* Timeline stats enhancement */
-        .timeline-stats {
-            font-size: 13px;
-            color: #7f8c8d;
-            font-weight: 500;
-            background: #f8f9fa;
-            padding: 5px 10px;
-            border-radius: 4px;
-            border: 1px solid #e9ecef;
-        }
-
-        /* Color legend for currency types */
-        .timeline-color-legend {
-            display: flex;
-            gap: 15px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 6px;
-            border: 1px solid #e9ecef;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .legend-color {
-            width: 14px;
-            height: 14px;
-            border-radius: 3px;
-            border: 1px solid rgba(0, 0, 0, 0.2);
-        }
-
-        /* Year count badge for stacked bars */
-        .year-count-badge {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #e74c3c;
-            color: white;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 900px) {
-            .timeline-bar {
-                width: 16px;
-            }
-
-            .timeline-year-container {
-                min-width: 25px;
-            }
-
-            .timeline-tooltip {
-                font-size: 10px;
-                padding: 6px 8px;
-                white-space: normal;
-                max-width: 120px;
-                word-wrap: break-word;
-            }
-
-            .timeline-color-legend {
-                gap: 10px;
-            }
-
-            .legend-item {
-                font-size: 11px;
-            }
-        }
-
-        /* Interactive Distribution Chart Styles */
-        .distribution-chart {
-            position: relative;
-            cursor: pointer;
-        }
-
-        .distribution-chart::before {
-            content: '';
-            position: absolute;
-            top: -5px;
-            left: -5px;
-            right: -5px;
-            bottom: -5px;
-            border-radius: 50%;
-            border: 2px solid transparent;
-            transition: border-color 0.3s ease;
-        }
-
-        .distribution-chart:hover::before {
-            border-color: var(--primary-color);
-        }
-
-        .legend-item:hover {
-            transform: translateX(5px);
-            opacity: 1 !important;
-        }
-
-        .legend-item:hover .legend-color {
-            transform: scale(1.1);
-        }
-
-        .legend-color {
-            transition: all 0.3s ease;
-        }
-
-        /* Active filter state */
-        .distribution-filter-active {
-            box-shadow: 0 0 0 3px var(--accent-color);
-        }
-
-
-        /* Enhanced Interactive Distribution Chart Styles */
-        .distribution-chart {
-            position: relative;
-            cursor: pointer;
-            margin: 0 auto;
-        }
-
-        .chart-segment-overlay {
-            transition: all 0.3s ease;
-        }
-
-        .chart-segment-overlay:hover {
-            opacity: 0.1 !important;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            padding: 8px 12px;
-            margin-bottom: 8px;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-            border: 1px solid #e0e0e0;
-            background: white;
-        }
-
-        .legend-item:hover {
-            background-color: #f8f9fa;
-            transform: translateX(5px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .legend-item.active {
-            border-color: var(--primary-color);
-            background-color: #e3f2fd;
-        }
-
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-            margin-right: 12px;
-            transition: all 0.3s ease;
-        }
-
-        .legend-item:hover .legend-color {
-            transform: scale(1.1);
-        }
-
-        .distribution-legend {
-            max-width: 300px;
-            margin: 0 auto;
-        }
-
-        /* Center text styles */
-        .distribution-chart .center-text {
-            pointer-events: none;
-        }
     </style>
 </head>
 
@@ -2880,56 +2518,31 @@
             // Get alphabet example from countries.languages.json
             let alphabetExample = "N/A";
             if (cache.languagesData) {
+                //console.log("✅ languagesData loaded:", cache.languagesData);
+
+                //console.log("🔍 Looking for:", countryInfo?.name);
+
                 const langMatch = cache.languagesData.find(c => {
+                    //console.log("➡️ Checking:", c.country_name);
                     return c.country_name.toLowerCase() === countryInfo.name.toLowerCase();
                 });
 
-                if (langMatch && langMatch.languages[0].alphabet_example) {
-                    alphabetExample = langMatch.languages[0].alphabet_example;
-                }
-            }
-
-            // Parse year values - handle single or multiple years
-            let yearDisplay = "";
-            if (year) {
-                // Split by comma and trim each value
-                const years = year.split(',').map(y => y.trim());
-
-                years.forEach((yearValue, idx) => {
-                    const yearNum = parseInt(yearValue);
-                    if (!isNaN(yearNum) && yearNum > 1000 && yearNum <= new Date().getFullYear()) {
-                        const age = new Date().getFullYear() - yearNum;
-                        yearDisplay += `<div class="detail-item${idx > 0 ? ' year-additional' : ''}">
-                    <span class="detail-label"><strong>${idx === 0 ? 'Year' : 'Year'}:</strong></span>
-                    <span class="detail-value">
-                        ${yearValue} <span style="color: #3498db;">(${age} years old)</span>
-                    </span>
-                </div>`;
-                    } else if (yearValue) {
-                        // For non-numeric or invalid years, just display the value
-                        yearDisplay += `<div class="detail-item${idx > 0 ? ' year-additional' : ''}">
-                    <span class="detail-label"><strong>${idx === 0 ? 'Year' : 'Year'}:</strong></span>
-                    <span class="detail-value">${yearValue}</span>
-                </div>`;
+                if (langMatch) {
+                    //console.log("🎯 Match found:", langMatch);
+                    //console.log(langMatch.alphabet_example);
+                    if (langMatch.languages[0].alphabet_example) {
+                        //alphabetExample = langMatch.alphabet_example;
+                        alphabetExample = langMatch.languages[0].alphabet_example;
                     }
-                });
-
-                // If no valid years were processed, show N/A
-                if (!yearDisplay) {
-                    yearDisplay = `<div class="detail-item">
-                <span class="detail-label"><strong>Year:</strong></span>
-                <span class="detail-value">N/A</span>
-            </div>`;
+                } else {
+                    console.warn("⚠️ No match found for:", countryInfo?.name);
                 }
             } else {
-                yearDisplay = `<div class="detail-item">
-            <span class="detail-label"><strong>Year:</strong></span>
-            <span class="detail-value">N/A</span>
-        </div>`;
+                console.error("❌ cache.languagesData is missing!");
             }
 
             // Use percentage-based scaling instead of fixed pixels
-            const maxVisualWidth = 280;
+            const maxVisualWidth = 280; // Maximum width for visual elements in pixels
 
             // Parse size correctly, handling both single values and width x height formats
             let sizeValue1 = 0;
@@ -2938,6 +2551,7 @@
             let displaySize = "N/A";
 
             if (size) {
+                // Check if size contains "x" for two-dimensional items
                 if (size.includes('x')) {
                     const sizeParts = size.split('x').map(part => parseFloat(part.trim()));
                     if (sizeParts.length === 2 && !isNaN(sizeParts[0]) && !isNaN(sizeParts[1])) {
@@ -2947,6 +2561,7 @@
                         displaySize = `${sizeValue1 % 1 === 0 ? sizeValue1 : sizeValue1.toFixed(1)} × ${sizeValue2 % 1 === 0 ? sizeValue2 : sizeValue2.toFixed(1)}`;
                     }
                 } else {
+                    // Single value size
                     sizeValue1 = parseFloat(size);
                     if (!isNaN(sizeValue1)) {
                         displaySize = sizeValue1 % 1 === 0 ? sizeValue1 : sizeValue1.toFixed(1);
@@ -2955,7 +2570,7 @@
             }
 
             // Calculate relative sizes as percentages of max width
-            const maxItemSize = Math.max(sizeValue1, sizeValue2, 30.6);
+            const maxItemSize = Math.max(sizeValue1, sizeValue2, 30.6); // 30.6mm is the largest reference item
             const scalePercentage1 = !isNaN(sizeValue1) ? (sizeValue1 / maxItemSize) * 100 : 0;
             const scalePercentage2 = !isNaN(sizeValue2) ? (sizeValue2 / maxItemSize) * 100 : 0;
 
@@ -2992,7 +2607,15 @@
         <span class="detail-label"><strong>Note:</strong></span>
         <span class="detail-value">${formatNoteWithURLs(safeVal(note) || "No note available")}</span>
     </div>
-    ${yearDisplay}
+    <div class="detail-item">
+        <span class="detail-label"><strong>Year:</strong></span>
+        <span class="detail-value">
+        ${safeVal(year)} 
+        ${year && !isNaN(parseFloat(year))
+                    ? `<span style="color: #3498db;">(${new Date().getFullYear() - parseInt(year)} years old)</span>`
+                    : ""}
+        </span>
+    </div>
     <div class="detail-item">
         <span class="detail-label"><strong>Size:</strong></span>
         <span class="detail-value">
@@ -3053,7 +2676,9 @@
         <span class="detail-value">Country information not available.</span>
     </div>`;
 
+
             noteElement.innerHTML = countryDetails;
+
 
             // Load continent map data and flag if country info is available
             if (countryInfo && countryInfo.name) {
@@ -3064,7 +2689,6 @@
                 countryFlagElement.src = '';
             }
         }
-
 
         // Loads continent-specific data and updates the continent info display
         // Update the loadContinentData function to include country details
@@ -3346,23 +2970,13 @@
                 link.href = `?country=${country.toLowerCase()}`;
 
                 // Set active class and update titles if this is the currently selected country
-                // Set active class and update titles if this is the currently selected country
                 if (currentCountryParam && country.toLowerCase() === currentCountryParam) {
                     link.classList.add("active");
-                    // get the count of items for the selected country based on year values
+                    // get the count of items for the selected country
                     const countryItems = cache.coinsData.filter(coin =>
                         coin.country.toLowerCase() === country.toLowerCase() &&
                         coin.image && coin.image.trim() !== "" && coin.image.toLowerCase() !== "none"
-                    ).reduce((total, coin) => {
-                        if (coin.year && coin.year.trim() !== "") {
-                            // Count each comma-separated year value, minimum 1
-                            const yearCount = Math.max(coin.year.split(',').length, 1);
-                            return total + yearCount;
-                        } else {
-                            // Count as 1 for empty year field
-                            return total + 1;
-                        }
-                    }, 0);
+                    ).length;
                     document.getElementById('selected-country').textContent = `: ${country}`;
                     document.getElementById('selected-country-title').textContent = `${country} (${countryItems})`;
                     updateTitle(`${country}`);
@@ -3382,16 +2996,9 @@
                     link.classList.add('active');
                     // get the count of items for the selected country
                     const countryItems = cache.coinsData.filter(coin =>
-                        coin.country.toLowerCase() === countryName.toLowerCase() &&
+                        coin.country.toLowerCase() === country.toLowerCase() &&
                         coin.image && coin.image.trim() !== "" && coin.image.toLowerCase() !== "none"
-                    ).reduce((total, coin) => {
-                        if (coin.year && coin.year.trim() !== "") {
-                            const yearCount = Math.max(coin.year.split(',').length, 1);
-                            return total + yearCount;
-                        } else {
-                            return total + 1;
-                        }
-                    }, 0);
+                    ).length;
                     document.getElementById('selected-country').textContent = `: ${country}`;
                     document.getElementById('selected-country-title').textContent = `${country} (${countryItems})`;
                     updateTitle(`${country}`);
@@ -3603,40 +3210,178 @@
             };
         }
 
+        // Loads and displays coin images for a selected country in slider view
+        function loadCountryImages(countryName) {
+            if (!cache.coinsData) {
+                console.error("Coins data not loaded from cache.");
+                return;
+            }
 
+            currentCountryCoins = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName);
+            const imageElements = currentCountryCoins.map(coin => ({
+                src: `images/${toTitleCase(countryName)}/${coin.image}`,
+                note: coin.note,
+                donor: coin.donor_name,
+                currency_type: coin.currency_type,
+                year: coin.year,
+                size: coin.size
+            }));
 
+            const thumbnailContainer = document.getElementById("thumbnail-container");
+            thumbnailContainer.innerHTML = ""; // Clear existing thumbnails
+            currentImageIndex = 0; // Reset index for new country
 
-        // Load and display images in gallery view with filter support
+            // Function to update the main image and details
+            const updateImage = async (index) => {
+                if (imageElements.length === 0) {
+                    // Handle case where no images are found for the country
+                    setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null, null, null, 0);
+                    document.getElementById("thumbnail-container").innerHTML = ""; // Clear thumbnails
+                    return;
+                }
+
+                currentImageIndex = index;
+                const { src, note, donor, currency_type, year, size } = imageElements[index];
+
+                // Remove active class from all thumbnails
+                document.querySelectorAll('.img-queue-in img').forEach(img => {
+                    img.classList.remove('active-thumbnail');
+                });
+
+                // Add active class to the current thumbnail
+                if (thumbnailContainer.children[index]) {
+                    thumbnailContainer.children[index].classList.add('active-thumbnail');
+                }
+
+                const countryInfo = await fetchCountryInfo(countryName);
+                //setCurrentImage(src, note, donor, currency_type, countryInfo, year, size, index)
+                await setCurrentImage(src, note, donor, currency_type, countryInfo, year, size, index);
+            };
+
+            // Function to change the image based on direction (-1 for prev, 1 for next)
+            const changeImage = (direction) => {
+                if (imageElements.length > 0) {
+                    currentImageIndex = (currentImageIndex + direction + imageElements.length) % imageElements.length;
+                    updateImage(currentImageIndex);
+                }
+            };
+
+            // Add event listeners for navigation buttons
+            document.getElementById("prev-btn").onclick = () => changeImage(-1);
+            document.getElementById("next-btn").onclick = () => changeImage(1);
+
+            // Add keyboard navigation
+            window.onkeydown = (event) => {
+                const isSliderView = document.getElementById('slider-view').style.display !== 'none';
+
+                // Handle keyboard navigation for the main slider
+                if (isSliderView) {
+                    if (event.key === "ArrowLeft") {
+                        changeImage(-1);
+                    } else if (event.key === "ArrowRight") {
+                        changeImage(1);
+                    }
+                }
+
+                // Handle keyboard navigation for the modal
+                if (document.getElementById("imageModal").style.display === "flex") {
+                    if (event.key === "ArrowLeft") {
+                        changeModalImage(-1);
+                    } else if (event.key === "ArrowRight") {
+                        changeModalImage(1);
+                    }
+                }
+            };
+
+            // Populate thumbnail container
+            imageElements.forEach((img, index) => {
+                const thumbnail = document.createElement("img");
+                thumbnail.src = img.src;
+                thumbnail.alt = `Thumbnail ${index + 1}`;
+                thumbnail.loading = "lazy"; // Lazy load thumbnails
+                thumbnail.addEventListener("click", () => {
+                    updateImage(index); // Update the main display when thumbnail is clicked
+                });
+                thumbnailContainer.appendChild(thumbnail);
+            });
+
+            // Display the first image if available
+            if (imageElements.length > 0) {
+                updateImage(currentImageIndex);
+            } else {
+                // Display a default message if no images for the country
+                setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null, null, null, 0);
+            }
+            // In loadCountryImages function, add this at the end:
+            createTimelineVisualization(currentCountryCoins);
+            // In loadCountryImages function, add this after the timeline call:
+            createCurrencyDistributionChart(currentCountryCoins);
+        }
+
+        // NEW: Load and display images in gallery view
         function loadGalleryView(countryName) {
-            const allCountryCoins = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName);
+            const galleryGrid = document.getElementById('gallery-grid-container');
+            const sortBySelect = document.getElementById('sort-by');
+            const filterBySelect = document.getElementById('filter-by');
+            galleryGrid.innerHTML = ''; // Clear existing grid
 
-            // Apply active filters (support multiple toggles)
-const activeFilters = window.distributionData?.activeFilters || [];
-const filteredCoins = (activeFilters.length > 0) ?
-    allCountryCoins.filter(coin => {
-        if (!coin.currency_type) return false;
-        const types = coin.currency_type.split(',').map(t => t.trim().toLowerCase());
-        return types.some(t => activeFilters.includes(t));
-    }) :
-    allCountryCoins;
-
-
-            // Update distribution data with current country coins
-            if (window.distributionData) {
-                window.distributionData.coinsData = allCountryCoins;
+            if (!cache.coinsData) {
+                console.error("Coins data not loaded for gallery view.");
+                return;
             }
 
-            updateGalleryViewWithFilter(countryName, filteredCoins);
-
-            // Reset to first image if current index is invalid
-            if (currentImageIndex >= filteredCoins.length) {
-                currentImageIndex = 0;
+            let filteredCoins = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName);
+            const filterValue = filterBySelect.value;
+            if (filterValue !== 'all') {
+                filteredCoins = filteredCoins.filter(coin => coin.currency_type.toLowerCase().includes(filterValue));
             }
 
-            // Update main display if we have coins
-            if (filteredCoins.length > 0) {
-                updateImageDisplay(currentImageIndex, filteredCoins);
+            const sortValue = sortBySelect.value;
+            if (sortValue === 'name-asc') {
+                filteredCoins.sort((a, b) => a.image.localeCompare(b.image));
+            } else if (sortValue === 'name-desc') {
+                filteredCoins.sort((a, b) => b.image.localeCompare(a.image));
+            } else if (sortValue === 'type') {
+                filteredCoins.sort((a, b) => a.currency_type.localeCompare(b.currency_type));
             }
+
+            if (filteredCoins.length === 0) {
+                galleryGrid.innerHTML = '<p style="text-align: center; color: var(--secondary-color);">No items found for this filter.</p>';
+                return;
+            }
+
+            filteredCoins.forEach((coin, index) => {
+                const galleryItem = document.createElement('div');
+                galleryItem.classList.add('gallery-item');
+                galleryItem.dataset.imageUrl = `images/${toTitleCase(countryName)}/${coin.image}`;
+                galleryItem.dataset.note = coin.note;
+                galleryItem.dataset.donor = coin.donor_name;
+                galleryItem.dataset.currencyType = coin.currency_type;
+
+                galleryItem.innerHTML = `
+                    <img class="gallery-item-image" src="${galleryItem.dataset.imageUrl}" alt="${coin.note}">
+                    <div class="gallery-item-info">
+                        <p>${coin.image}</p>
+                    </div>
+                `;
+
+                // In loadGalleryView function, update the click event:
+                galleryItem.addEventListener('click', function () {
+                    const countryInfo = fetchCountryInfo(countryName);
+                    openImageModal(
+                        this.dataset.imageUrl,
+                        this.dataset.note,
+                        countryInfo.name,
+                        countryInfo.capital,
+                        countryInfo.currency?.name,
+                        index,
+                        this.dataset.donor  // ADD DONOR PARAMETER
+                    );
+                    currentCountryCoins = filteredCoins;
+                });
+
+                galleryGrid.appendChild(galleryItem);
+            });
         }
 
         // NEW: Event listeners for sorting and filtering
@@ -4182,295 +3927,21 @@ const filteredCoins = (activeFilters.length > 0) ?
         }
     </script>
     <script>
-
-
-        // Enhanced updateImage function to highlight the corresponding timeline bar
-        function updateImage(index) {
-            if (currentCountryCoins.length === 0) return;
-
-            const coin = currentCountryCoins[index];
-
-            // Remove highlight from all timeline bars
-            document.querySelectorAll('.timeline-bar').forEach(bar => {
-                bar.style.boxShadow = 'none';
-                bar.style.border = 'none';
-            });
-
-            // Highlight all bars that correspond to this coin's image
-            if (coin.image) {
-                document.querySelectorAll(`.timeline - bar[data - image="${coin.image}"]`).forEach(bar => {
-                    bar.style.boxShadow = '0 0 0 2px #e74c3c';
-                    bar.style.border = '2px solid white';
-                });
-            }
-        }
-
-
-
-        // Update the updateImage function to highlight the corresponding timeline bar
-        function updateImage(index) {
-            if (currentCountryCoins.length === 0) return;
-
-            const coin = currentCountryCoins[index];
-
-            // Remove highlight from all timeline bars
-            document.querySelectorAll('.timeline-bar').forEach(bar => {
-                bar.style.boxShadow = 'none';
-                bar.style.border = 'none';
-            });
-
-            // Find and highlight the corresponding timeline bar(s)
-            if (coin.year) {
-                const years = coin.year.split(',').map(y => y.trim());
-                years.forEach(yearValue => {
-                    const year = parseInt(yearValue);
-                    if (!isNaN(year)) {
-                        document.querySelectorAll(`.timeline - bar[data - year="${year}"]`).forEach(bar => {
-                            if (bar.dataset.coinName === coin.image) {
-                                bar.style.boxShadow = '0 0 0 2px #e74c3c';
-                                bar.style.border = '2px solid white';
-                            }
-                        });
-                    }
-                });
-            }
-        }
-    </script>
-    <script>
-
-
-
-
-        // Helper function to update image display when clicked from timeline
-        async function updateImageFromTimeline(index) {
-            if (currentCountryCoins.length === 0) return;
-
-            const coin = currentCountryCoins[index];
-            const countryName = coin.country.toLowerCase();
-            const imagePath = `images/${toTitleCase(countryName)}/${coin.image}`;
-
-            // Update thumbnails active state
-            document.querySelectorAll('.img-queue-in img').forEach((img, idx) => {
-                if (idx === index) {
-                    img.classList.add('active-thumbnail');
-                } else {
-                    img.classList.remove('active-thumbnail');
-                }
-            });
-
-            // Update main image
-            const image = document.getElementById("current-image-img");
-            image.setAttribute("src", imagePath);
-            document.getElementById("modalImage").setAttribute("src", imagePath);
-
-            // Update details
-            const countryInfo = await fetchCountryInfo(countryName);
-            await setCurrentImage(imagePath, coin.note, coin.donor_name, coin.currency_type, countryInfo, coin.year, coin.size, index);
-
-            // Update timeline highlighting
-            updateTimelineHighlight(coin.image);
-
-            currentImageIndex = index;
-        }
-
-
-        // // In the createTimelineVisualization function, add this at the end:
-        // const timelineLegend = document.getElementById('timeline-legend');
-        // if (allYears.length > 0) {
-        //     timelineLegend.style.display = 'flex';
-        // } else {
-        //     timelineLegend.style.display = 'none';
-        // }
-
-        // Loads and displays coin images for a selected country in slider view
-        function loadCountryImages(countryName) {
-            if (!cache.coinsData) {
-                console.error("Coins data not loaded from cache.");
-                return;
-            }
-
-            currentCountryCoins = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName);
-            const imageElements = currentCountryCoins.map(coin => ({
-                src: `images/${toTitleCase(countryName)}/${coin.image}`,
-                note: coin.note,
-                donor: coin.donor_name,
-                currency_type: coin.currency_type,
-                year: coin.year,
-                size: coin.size
-            }));
-
-            const thumbnailContainer = document.getElementById("thumbnail-container");
-            thumbnailContainer.innerHTML = ""; // Clear existing thumbnails
-            currentImageIndex = 0; // Reset index for new country
-
-            // Function to update timeline highlighting based on current image
-            function updateTimelineHighlight(imageName) {
-                // Remove highlight from all bars
-                document.querySelectorAll('.timeline-bar').forEach(bar => {
-                    bar.classList.remove('active');
-                    bar.style.boxShadow = 'none';
-                    bar.style.border = 'none';
-                });
-
-                // Highlight bars with matching image
-                if (imageName) {
-                    document.querySelectorAll(`.timeline-bar[data-image="${imageName}"]`).forEach(bar => {
-                        bar.classList.add('active');
-                        bar.style.boxShadow = '0 0 0 2px #e74c3c';
-                        bar.style.border = '2px solid white';
-                    });
-                }
-            }
-
-            // Function to update the main image and details
-            const updateImage = async (index) => {
-                if (imageElements.length === 0) {
-                    // Handle case where no images are found for the country
-                    setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null, null, null, 0);
-                    document.getElementById("thumbnail-container").innerHTML = ""; // Clear thumbnails
-                    return;
-                }
-
-                currentImageIndex = index;
-                const { src, note, donor, currency_type, year, size } = imageElements[index];
-
-                // Remove active class from all thumbnails
-                document.querySelectorAll('.img-queue-in img').forEach(img => {
-                    img.classList.remove('active-thumbnail');
-                });
-
-                // Add active class to the current thumbnail
-                if (thumbnailContainer.children[index]) {
-                    thumbnailContainer.children[index].classList.add('active-thumbnail');
-                }
-
-                const countryInfo = await fetchCountryInfo(countryName);
-                await setCurrentImage(src, note, donor, currency_type, countryInfo, year, size, index);
-
-                // Update timeline highlighting
-                updateTimelineHighlight(currentCountryCoins[index].image);
-            };
-
-            // Function to change the image based on direction (-1 for prev, 1 for next)
-            const changeImage = (direction) => {
-                if (imageElements.length > 0) {
-                    currentImageIndex = (currentImageIndex + direction + imageElements.length) % imageElements.length;
-                    updateImage(currentImageIndex);
-                }
-            };
-
-            // Helper function to update image display when clicked from timeline
-            window.updateImageFromTimeline = async function (index) {
-                if (currentCountryCoins.length === 0) return;
-
-                const coin = currentCountryCoins[index];
-                const countryName = coin.country.toLowerCase();
-                const imagePath = `images/${toTitleCase(countryName)}/${coin.image}`;
-
-                // Update thumbnails active state
-                document.querySelectorAll('.img-queue-in img').forEach((img, idx) => {
-                    if (idx === index) {
-                        img.classList.add('active-thumbnail');
-                    } else {
-                        img.classList.remove('active-thumbnail');
-                    }
-                });
-
-                // Update main image
-                const image = document.getElementById("current-image-img");
-                image.setAttribute("src", imagePath);
-                document.getElementById("modalImage").setAttribute("src", imagePath);
-
-                // Update details
-                const countryInfo = await fetchCountryInfo(countryName);
-                await setCurrentImage(imagePath, coin.note, coin.donor_name, coin.currency_type, countryInfo, coin.year, coin.size, index);
-
-                // Update timeline highlighting
-                updateTimelineHighlight(coin.image);
-
-                currentImageIndex = index;
-            };
-
-            // Add event listeners for navigation buttons
-            document.getElementById("prev-btn").onclick = () => changeImage(-1);
-            document.getElementById("next-btn").onclick = () => changeImage(1);
-
-            // Add keyboard navigation
-            window.onkeydown = (event) => {
-                const isSliderView = document.getElementById('slider-view').style.display !== 'none';
-
-                // Handle keyboard navigation for the main slider
-                if (isSliderView) {
-                    if (event.key === "ArrowLeft") {
-                        changeImage(-1);
-                    } else if (event.key === "ArrowRight") {
-                        changeImage(1);
-                    }
-                }
-
-                // Handle keyboard navigation for the modal
-                if (document.getElementById("imageModal").style.display === "flex") {
-                    if (event.key === "ArrowLeft") {
-                        changeModalImage(-1);
-                    } else if (event.key === "ArrowRight") {
-                        changeModalImage(1);
-                    }
-                }
-            };
-
-            // Populate thumbnail container
-            imageElements.forEach((img, index) => {
-                const thumbnail = document.createElement("img");
-                thumbnail.src = img.src;
-                thumbnail.alt = `Thumbnail ${index + 1}`;
-                thumbnail.loading = "lazy"; // Lazy load thumbnails
-                thumbnail.addEventListener("click", () => {
-                    updateImage(index); // Update the main display when thumbnail is clicked
-                });
-                thumbnailContainer.appendChild(thumbnail);
-            });
-
-            // Display the first image if available
-            if (imageElements.length > 0) {
-                updateImage(currentImageIndex);
-            } else {
-                // Display a default message if no images for the country
-                setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null, null, null, 0);
-            }
-
-            // Create timeline visualization and currency distribution chart
-            createTimelineVisualization(currentCountryCoins);
-            createCurrencyDistributionChart(currentCountryCoins);
-        }
-
-        // Function to create timeline visualization with stacked bars using image as unique identifier
+        // Function to create timeline visualization - IMPROVED VERSION
         function createTimelineVisualization(coinsData) {
             const timelineSection = document.getElementById('timeline-section');
             const timelineContainer = document.getElementById('timeline-container');
             const timelineStats = document.getElementById('timeline-stats');
 
-            // Extract and process all years from coins data (handling multiple years per coin)
-            const allYears = [];
+            // Filter coins with valid year data
+            const coinsWithYears = coinsData.filter(coin => {
+                if (!coin.year) return false;
 
-            coinsData.forEach(coin => {
-                if (coin.year && coin.image) {
-                    // Split by comma and trim each value to handle multiple years
-                    const years = coin.year.split(',').map(y => y.trim());
-                    years.forEach(yearValue => {
-                        const year = parseInt(yearValue);
-                        if (!isNaN(year) && year > 1000 && year <= new Date().getFullYear()) {
-                            allYears.push({
-                                year: year,
-                                coin: coin,
-                                originalValue: yearValue,
-                                image: coin.image // Use image as unique identifier
-                            });
-                        }
-                    });
-                }
+                const year = parseInt(coin.year);
+                return !isNaN(year) && year > 1000 && year <= new Date().getFullYear();
             });
 
-            if (allYears.length === 0) {
+            if (coinsWithYears.length === 0) {
                 timelineSection.style.display = 'none';
                 return;
             }
@@ -4479,129 +3950,54 @@ const filteredCoins = (activeFilters.length > 0) ?
             timelineSection.style.display = 'block';
             timelineContainer.innerHTML = '';
 
-            // Group coins by year for stacked bars
-            const yearGroups = {};
-            allYears.forEach(item => {
-                if (!yearGroups[item.year]) {
-                    yearGroups[item.year] = [];
-                }
-                yearGroups[item.year].push(item);
-            });
-
             // Get year range
-            const years = Object.keys(yearGroups).map(y => parseInt(y));
+            const years = coinsWithYears.map(coin => parseInt(coin.year));
             const minYear = Math.min(...years);
             const maxYear = Math.max(...years);
-            const yearRange = Math.max(1, maxYear - minYear);
+            const yearRange = Math.max(1, maxYear - minYear); // Ensure at least 1 to avoid division by zero
 
             // Update stats
-            const uniqueYears = Object.keys(yearGroups).length;
-            timelineStats.textContent = `${minYear} - ${maxYear} (${yearRange} years, ${uniqueYears} unique years, ${allYears.length} items)`;
+            timelineStats.textContent = `${minYear} - ${maxYear} (${yearRange} years, ${coinsWithYears.length} items)`;
 
             // Create timeline axis
             const axis = document.createElement('div');
             axis.className = 'timeline-axis';
             timelineContainer.appendChild(axis);
 
-            // Calculate maximum coins per year for scaling
-            const maxCoinsPerYear = Math.max(...Object.values(yearGroups).map(group => group.length));
+            // Add markers for each coin
+            coinsWithYears.forEach(coin => {
+                const year = parseInt(coin.year);
+                const position = ((year - minYear) / yearRange) * 100;
 
-            // Create bars for each year group
-            Object.keys(yearGroups).sort((a, b) => parseInt(a) - parseInt(b)).forEach(year => {
-                const yearNum = parseInt(year);
-                const coinsInYear = yearGroups[year];
-                const position = ((yearNum - minYear) / yearRange) * 100;
+                const marker = document.createElement('div');
+                marker.className = 'timeline-marker';
+                marker.style.left = `${position}%`;
+                marker.dataset.year = year;
+                marker.dataset.name = coin.image;
 
-                // Create year container
-                const yearContainer = document.createElement('div');
-                yearContainer.className = 'timeline-year-container';
-                yearContainer.style.position = 'absolute';
-                yearContainer.style.bottom = '0';
-                yearContainer.style.left = `${position}%`;
-                yearContainer.style.transform = 'translateX(-50%)';
-                yearContainer.style.display = 'flex';
-                yearContainer.style.flexDirection = 'column';
-                yearContainer.style.alignItems = 'center';
-                yearContainer.style.zIndex = coinsInYear.length;
+                const tooltip = document.createElement('div');
+                tooltip.className = 'timeline-tooltip';
+                tooltip.textContent = `${year}: ${coin.image.split('.')[0]}`; // Remove file extension
+                marker.appendChild(tooltip);
 
-                // Create stacked bars
-                const barContainer = document.createElement('div');
-                barContainer.className = 'timeline-bar-container';
-                barContainer.style.display = 'flex';
-                barContainer.style.flexDirection = 'column-reverse';
-                barContainer.style.alignItems = 'center';
-                barContainer.style.height = '60px';
+                marker.addEventListener('click', function () {
+                    // Find and display this coin
+                    const coinIndex = currentCountryCoins.findIndex(c =>
+                        c.image === coin.image && parseInt(c.year) === year
+                    );
 
-                coinsInYear.forEach((item, coinIndex) => {
-                    const bar = document.createElement('div');
-                    bar.className = 'timeline-bar';
-                    bar.dataset.year = yearNum;
-                    bar.dataset.image = item.image; // Use image as unique identifier
-                    bar.dataset.coinIndex = coinIndex;
-                    bar.dataset.totalCoins = coinsInYear.length;
+                    if (coinIndex !== -1) {
+                        currentImageIndex = coinIndex;
+                        updateImage(currentImageIndex);
 
-                    // Calculate bar height
-                    const barHeight = Math.max(15, (40 / maxCoinsPerYear) * coinsInYear.length);
-                    bar.style.height = `${barHeight}px`;
-                    bar.style.width = '20px';
-                    bar.style.backgroundColor = getColorForCoinType(item.coin.currency_type);
-                    bar.style.marginBottom = '1px';
-                    bar.style.borderRadius = '2px 2px 0 0';
-                    bar.style.cursor = 'pointer';
-                    bar.style.transition = 'all 0.2s ease';
-                    bar.style.position = 'relative';
-
-                    // Add hover effect
-                    bar.addEventListener('mouseover', function () {
-                        this.style.transform = 'scale(1.1)';
-                        this.style.zIndex = '100';
-                    });
-
-                    bar.addEventListener('mouseout', function () {
-                        this.style.transform = 'scale(1)';
-                        this.style.zIndex = 'auto';
-                    });
-
-                    // Create tooltip with coin information
-                    const tooltip = document.createElement('div');
-                    tooltip.className = 'timeline-tooltip';
-                    tooltip.innerHTML = `
-                <strong>${yearNum}</strong><br>
-                ${item.coin.image.split('.')[0]}<br>
-                ${item.coin.currency_type || 'Unknown type'}
-            `;
-                    bar.appendChild(tooltip);
-
-                    // Click event to display the specific coin
-                    bar.addEventListener('click', function () {
-                        const imageName = this.dataset.image;
-
-                        // Find the coin index by image name
-                        const coinIndex = currentCountryCoins.findIndex(c => c.image === imageName);
-
-                        if (coinIndex !== -1) {
-                            // Update the image display using the global function
-                            if (window.updateImageFromTimeline) {
-                                window.updateImageFromTimeline(coinIndex);
-                            }
-                        }
-                    });
-
-                    barContainer.appendChild(bar);
+                        // Scroll to gallery
+                        document.querySelector('.gallery-section').scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
                 });
 
-                yearContainer.appendChild(barContainer);
-
-                // Add year label
-                const yearLabel = document.createElement('div');
-                yearLabel.className = 'timeline-label';
-                yearLabel.textContent = yearNum;
-                yearLabel.style.marginTop = '5px';
-                yearLabel.style.fontSize = '10px';
-                yearLabel.style.fontWeight = 'bold';
-                yearContainer.appendChild(yearLabel);
-
-                timelineContainer.appendChild(yearContainer);
+                timelineContainer.appendChild(marker);
             });
 
             // Add decade labels
@@ -4615,617 +4011,121 @@ const filteredCoins = (activeFilters.length > 0) ?
 
                 const label = document.createElement('div');
                 label.className = 'timeline-label';
-                label.style.position = 'absolute';
-                label.style.bottom = '-40px';
                 label.style.left = `${position}%`;
-                label.style.transform = 'translateX(-50%)';
-                label.style.fontSize = '11px';
-                label.style.color = '#7f8c8d';
-                label.style.fontWeight = '600';
                 label.textContent = decade;
 
                 timelineContainer.appendChild(label);
             }
-
-            // Show color legend
-            const timelineLegend = document.getElementById('timeline-legend');
-            if (timelineLegend) {
-                timelineLegend.style.display = 'flex';
-            }
-
-            // Store the filtered coins data for timeline interactions
-            window.timelineCoinsData = coinsData;
         }
+    </script>
+    <script>
+        // Function to create currency type distribution chart - FIXED VERSION
+        function createCurrencyDistributionChart(coinsData) {
+            const distributionSection = document.getElementById('distribution-section');
+            const distributionContainer = document.getElementById('distribution-container');
 
-        // Helper function to get color based on currency type
-        function getColorForCoinType(currencyType) {
-            if (!currencyType) return '#95a5a6';
+            distributionContainer.innerHTML = '';
 
-            const type = currencyType.toLowerCase();
-            if (type.includes('coin')) return '#2ECC71';
-            if (type.includes('paper') || type.includes('bill')) return '#3498db';
-            if (type.includes('antique')) return '#e74c3c'; //'#f39c12'
-            if (type.includes('gold')) return '#FFD700';
-            if (type.includes('silver')) return '#C0C0C0';
-            if (type.includes('bronze')) return '#CD7F32';
+            // Count currency types - FIXED: Properly handle multiple types per coin
+            const typeCount = {};
+            let totalItems = 0;
 
-            return '#95a5a6';
-        }
-        
-
-
-
-        // Function to create interactive currency type distribution chart
-function createCurrencyDistributionChart(coinsData) {
-    const distributionSection = document.getElementById('distribution-section');
-    const distributionContainer = document.getElementById('distribution-container');
-
-    distributionContainer.innerHTML = '';
-
-    // Count currency types - Properly handle multiple types per coin with year-based counting
-    const typeCount = {};
-    let totalItems = 0;
-
-    coinsData.forEach(coin => {
-        if (coin.currency_type && coin.currency_type.toLowerCase() !== 'none') {
-            const types = coin.currency_type.split(',').map(t => t.trim().toLowerCase());
-            const yearMultiplier = coin.year && coin.year.trim() !== "" ?
-                Math.max(coin.year.split(',').length, 1) : 1;
-
-            types.forEach(type => {
-                if (type) {
-                    typeCount[type] = (typeCount[type] || 0) + yearMultiplier;
-                    totalItems += yearMultiplier;
+            coinsData.forEach(coin => {
+                if (coin.currency_type && coin.currency_type.toLowerCase() !== 'none') {
+                    const types = coin.currency_type.split(',').map(t => t.trim().toLowerCase());
+                    types.forEach(type => {
+                        if (type) {
+                            typeCount[type] = (typeCount[type] || 0) + 1;
+                            totalItems++;
+                        }
+                    });
                 }
             });
-        }
-    });
 
-    const types = Object.keys(typeCount);
+            const types = Object.keys(typeCount);
 
-    if (types.length === 0) {
-        distributionSection.style.display = 'none';
-        return;
-    }
-
-    // Show distribution section
-    distributionSection.style.display = 'block';
-
-    // Create chart container with proper layout
-    const chartDiv = document.createElement('div');
-    chartDiv.className = 'distribution-chart';
-    chartDiv.id = 'distribution-pie-chart';
-    chartDiv.style.width = '200px';
-    chartDiv.style.height = '200px';
-    chartDiv.style.margin = '0 auto 20px auto';
-
-    distributionContainer.appendChild(chartDiv);
-
-    // Create legend
-    const legendDiv = document.createElement('div');
-    legendDiv.className = 'distribution-legend';
-    legendDiv.id = 'distribution-legend';
-    distributionContainer.appendChild(legendDiv);
-
-    // Colors for chart segments
-    const colors = [
-        '#3498db', '#e74c3c', '#2ecc71', '#f39c12',
-        '#9b59b6', '#1abc9c', '#d35400', '#34495e'
-    ];
-    // Store chart data globally for filtering (now supports multiple filters)
-    window.distributionData = {
-        types: types,
-        typeCount: typeCount,
-        totalItems: totalItems,
-        colors: colors,
-        coinsData: coinsData,
-        activeFilters: [] // <-- array of active filters (lowercase strings)
-    };
-
-    // Render chart
-    renderDistributionChart(window.distributionData);
-
-    // Add "Show All" button
-    const showAllButton = document.createElement('button');
-    showAllButton.className = 'btn';
-    showAllButton.style.marginTop = '15px';
-    showAllButton.style.width = '100%';
-    showAllButton.style.maxWidth = '200px';
-    showAllButton.innerHTML = '<i class="fas fa-eye"></i> Show All Types';
-    showAllButton.addEventListener('click', () => {
-        // Clear filters
-        window.distributionData.activeFilters = [];
-        renderDistributionChart(window.distributionData);
-        // Reset filters across gallery/timeline
-        currentCountryCoins = window.distributionData.coinsData;
-        createTimelineVisualization(currentCountryCoins);
-        const queryParams = new URLSearchParams(window.location.search);
-        const countryQuery = queryParams.get("country");
-        if (countryQuery) {
-            updateGalleryViewWithFilter(countryQuery.toLowerCase(), currentCountryCoins);
-            updateImageDisplay(0, currentCountryCoins);
-        }
-    });
-
-    const buttonContainer = document.createElement('div');
-    buttonContainer.style.textAlign = 'center';
-    buttonContainer.style.width = '100%';
-    buttonContainer.appendChild(showAllButton);
-    distributionContainer.appendChild(buttonContainer);
-}
-
-
-// Function to render the distribution chart with proper legends and clickable slices
-function renderDistributionChart(data) {
-    const chartDiv = document.getElementById('distribution-pie-chart');
-    const legendDiv = document.getElementById('distribution-legend');
-
-    // Defensive check
-    if (!chartDiv || !legendDiv || !data) return;
-
-    chartDiv.innerHTML = '';
-    legendDiv.innerHTML = '';
-
-    // Clear any existing segment overlays
-    chartDiv.style.background = '';
-    chartDiv.style.position = 'relative';
-
-    let conicGradient = '';
-    let cumulativePercentage = 0;
-    const segments = [];
-
-    const activeFilters = data.activeFilters || [];
-    const hasFilter = activeFilters.length > 0;
-
-    // First pass: calculate segments and create gradient
-    data.types.forEach((type, index) => {
-        const percentage = (data.typeCount[type] / data.totalItems) * 100;
-        const color = data.colors[index % data.colors.length];
-        // If there are no active filters, every segment is "active".
-        // If there are active filters, a segment is active only if its type is included.
-        const isActive = !hasFilter || activeFilters.includes(type);
-
-        const start = cumulativePercentage;
-        const end = cumulativePercentage + percentage;
-
-        if (conicGradient) {
-            conicGradient += `, ${isActive ? color : '#cccccc'} ${start}% ${end}%`;
-        } else {
-            conicGradient = `${isActive ? color : '#cccccc'} ${start}% ${end}%`;
-        }
-
-        segments.push({
-            type: type,
-            start: start,
-            end: end,
-            percentage: percentage,
-            color: color,
-            isActive: isActive,
-            index: index
-        });
-
-        cumulativePercentage = end;
-    });
-
-    // Apply the gradient to the chart
-    chartDiv.style.background = `conic-gradient(${conicGradient})`;
-    chartDiv.style.borderRadius = '50%';
-    chartDiv.style.position = 'relative';
-    chartDiv.style.width = '200px';
-    chartDiv.style.height = '200px';
-
-    // Second pass: create clickable segment overlays and legends
-    segments.forEach(segment => {
-        const { type, start, end, percentage, color, isActive, index } = segment;
-
-        // Create clickable segment overlay
-        const segmentOverlay = document.createElement('div');
-        segmentOverlay.className = 'chart-segment-overlay';
-        segmentOverlay.style.position = 'absolute';
-        segmentOverlay.style.top = '0';
-        segmentOverlay.style.left = '0';
-        segmentOverlay.style.width = '100%';
-        segmentOverlay.style.height = '100%';
-        segmentOverlay.style.borderRadius = '50%';
-        // Keep original overlay clipPath approach for clickable slice (works in your original file)
-        segmentOverlay.style.clipPath = `conic-gradient(from ${start * 3.6}deg, #0000 0deg, #0000 ${percentage * 3.6}deg, #000 ${percentage * 3.6}deg)`;
-        segmentOverlay.style.cursor = 'pointer';
-        segmentOverlay.style.zIndex = '2';
-        segmentOverlay.style.opacity = '0';
-        segmentOverlay.title = `Click to toggle ${type}`;
-
-        segmentOverlay.addEventListener('click', (e) => {
-            e.stopPropagation();
-            filterByCurrencyType(type.toLowerCase().trim()); // normalize
-        });
-
-
-        segmentOverlay.addEventListener('mouseenter', () => {
-            segmentOverlay.style.opacity = '0.1';
-            segmentOverlay.style.backgroundColor = color;
-        });
-
-        segmentOverlay.addEventListener('mouseleave', () => {
-            segmentOverlay.style.opacity = '0';
-            segmentOverlay.style.backgroundColor = 'transparent';
-        });
-
-        chartDiv.appendChild(segmentOverlay);
-
-        // Create legend item
-        const legendItem = document.createElement('div');
-        legendItem.className = 'legend-item';
-        legendItem.style.cursor = 'pointer';
-        legendItem.style.opacity = isActive ? '1' : '0.5';
-        legendItem.style.transition = 'all 0.3s ease';
-        legendItem.style.padding = '4px 8px';
-        legendItem.style.borderRadius = '4px';
-        legendItem.style.marginBottom = '5px';
-        legendItem.style.border = data.activeFilters.includes(type) ? '2px solid #2c3e50' : '1px solid #e0e0e0';
-        legendItem.style.backgroundColor = data.activeFilters.includes(type) ? '#f8f9fa' : 'transparent';
-
-        const colorBox = document.createElement('div');
-        colorBox.className = 'legend-color';
-        colorBox.style.backgroundColor = isActive ? color : '#cccccc';
-        colorBox.style.width = '20px';
-        colorBox.style.height = '20px';
-        colorBox.style.borderRadius = '4px';
-        colorBox.style.marginRight = '10px';
-        colorBox.style.flexShrink = '0';
-        colorBox.style.transition = 'all 0.3s ease';
-
-        const label = document.createElement('span');
-        const formattedType = formatCurrencyType(type);
-        label.textContent = `${formattedType}: ${data.typeCount[type]} items`;
-        label.style.fontWeight = data.activeFilters.includes(type) ? 'bold' : 'normal';
-        label.style.fontSize = '14px';
-        label.style.flex = '1';
-
-        const percentageText = document.createElement('span');
-        percentageText.textContent = `(${((data.typeCount[type] / data.totalItems) * 100).toFixed(1)}%)`;
-        percentageText.style.fontSize = '12px';
-        percentageText.style.color = '#666';
-        percentageText.style.marginLeft = '8px';
-
-        legendItem.appendChild(colorBox);
-        legendItem.appendChild(label);
-        legendItem.appendChild(percentageText);
-
-        // Make legend item layout flexible
-        legendItem.style.display = 'flex';
-        legendItem.style.alignItems = 'center';
-        legendItem.style.justifyContent = 'flex-start';
-
-        legendItem.addEventListener('click', () => {
-            //filterByCurrencyType(type); // toggle this type
-            filterByCurrencyType(type.toLowerCase().trim());
-
-        });
-
-        legendItem.addEventListener('mouseenter', () => {
-            legendItem.style.transform = 'translateX(5px)';
-            colorBox.style.transform = 'scale(1.1)';
-        });
-
-        legendItem.addEventListener('mouseleave', () => {
-            legendItem.style.transform = 'translateX(0)';
-            colorBox.style.transform = 'scale(1)';
-        });
-
-        legendDiv.appendChild(legendItem);
-    });
-
-    // Add center text for total or selected total
-    const centerText = document.createElement('div');
-    centerText.style.position = 'absolute';
-    centerText.style.top = '50%';
-    centerText.style.left = '50%';
-    centerText.style.transform = 'translate(-50%, -50%)';
-    centerText.style.textAlign = 'center';
-    centerText.style.fontWeight = 'bold';
-    centerText.style.fontSize = data.activeFilters.length ? '18px' : '20px';
-    centerText.style.color = data.activeFilters.length ? '#e74c3c' : '#2c3e50';
-    centerText.style.background = 'white';
-    centerText.style.borderRadius = '50%';
-    centerText.style.width = '60px';
-    centerText.style.height = '60px';
-    centerText.style.display = 'flex';
-    centerText.style.alignItems = 'center';
-    centerText.style.justifyContent = 'center';
-    centerText.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-
-    // Compute selected total when filters active
-    let centerValue = data.totalItems;
-    if (data.activeFilters && data.activeFilters.length > 0) {
-        centerValue = data.activeFilters.reduce((sum, f) => sum + (data.typeCount[f] || 0), 0);
-    }
-    centerText.textContent = centerValue;
-    centerText.title = data.activeFilters && data.activeFilters.length > 0 ?
-        `Showing ${centerValue} items (${data.activeFilters.join(', ')})` : 'Showing all types';
-    centerText.style.zIndex = '1';
-
-    chartDiv.appendChild(centerText);
-}
-
-
-
-        // Helper function to format currency type names
-        function formatCurrencyType(type) {
-            if (!type) return 'Unknown';
-
-            return type.split('-').map(word => {
-                if (word === 'paper') return 'Paper';
-                if (word === 'bill') return 'Bill';
-                if (word === 'coin') return 'Coin';
-                if (word === 'antique') return 'Antique';
-                return word.charAt(0).toUpperCase() + word.slice(1);
-            }).join(' ');
-        }
-
-        // Function to filter by currency type (supports multiple toggles)
-function filterByCurrencyType(type) {
-    if (!window.distributionData) return;
-
-    const t = (type || '').toLowerCase();
-    const activeFilters = window.distributionData.activeFilters || [];
-
-    if (activeFilters.includes(t)) {
-        // Toggle off
-        window.distributionData.activeFilters = activeFilters.filter(f => f !== t);
-    } else {
-        // Toggle on
-        window.distributionData.activeFilters = [...activeFilters, t];
-    }
-
-    // Re-render chart with new filter state
-    renderDistributionChart(window.distributionData);
-
-    // Filter the coins data for timeline and gallery
-    const filters = window.distributionData.activeFilters || [];
-    const filteredCoins = (filters.length > 0) ?
-        window.distributionData.coinsData.filter(coin => {
-            if (!coin.currency_type) return false;
-            const types = coin.currency_type.split(',').map(x => x.trim().toLowerCase());
-            // include coin if any of its types is in active filters
-            return types.some(tt => filters.includes(tt));
-        }) :
-        window.distributionData.coinsData;
-
-    // Update currentCountryCoins with filtered data for navigation
-    currentCountryCoins = filteredCoins;
-
-    // Update timeline with filtered data
-    createTimelineVisualization(filteredCoins);
-
-    // Update gallery view with filtered data (if a country is selected)
-    const queryParams = new URLSearchParams(window.location.search);
-    const countryQuery = queryParams.get("country");
-    if (countryQuery) {
-        updateGalleryViewWithFilter(countryQuery.toLowerCase(), filteredCoins);
-    }
-
-    // Update the main image display if current image doesn't match filter
-    if (filters.length > 0 && filteredCoins.length > 0) {
-        const currentImageSrc = document.getElementById("current-image-img").src;
-        const currentImageName = currentImageSrc.split('/').pop();
-
-        const currentCoinIndex = filteredCoins.findIndex(coin =>
-            coin.image === currentImageName
-        );
-
-        if (currentCoinIndex === -1) {
-            // Current image is not in filtered results, show first filtered image
-            updateImageDisplay(0, filteredCoins);
-        }
-    } else if (filteredCoins.length > 0) {
-        // Show all types, ensure we're showing a valid image
-        updateImageDisplay(0, filteredCoins);
-    }
-    debugFilterState();
-}
-
-
-        // Helper function to update image display
-        function updateImageDisplay(index, coinsArray) {
-            if (coinsArray.length === 0) return;
-
-            const coin = coinsArray[index];
-            const countryName = coin.country.toLowerCase();
-            const imagePath = `images/${toTitleCase(countryName)}/${coin.image}`;
-
-            // Update thumbnails
-            const thumbnailContainer = document.getElementById("thumbnail-container");
-            thumbnailContainer.innerHTML = "";
-
-            coinsArray.forEach((coin, idx) => {
-                const thumbnail = document.createElement("img");
-                thumbnail.src = `images/${toTitleCase(countryName)}/${coin.image}`;
-                thumbnail.alt = `Thumbnail ${idx + 1}`;
-                thumbnail.loading = "lazy";
-                if (idx === index) {
-                    thumbnail.classList.add('active-thumbnail');
-                }
-                thumbnail.addEventListener("click", () => {
-                    updateImageDisplay(idx, coinsArray);
-                });
-                thumbnailContainer.appendChild(thumbnail);
-            });
-
-            // Update main image and details
-            const countryInfo = fetchCountryInfo(countryName);
-            setCurrentImage(
-                imagePath,
-                coin.note,
-                coin.donor_name,
-                coin.currency_type,
-                countryInfo,
-                coin.year,
-                coin.size,
-                index
-            );
-
-            currentImageIndex = index;
-        }
-
-        // Function to update gallery view with filtered data
-        function updateGalleryViewWithFilter(countryName, filteredCoins) {
-            const galleryGrid = document.getElementById('gallery-grid-container');
-            const sortBySelect = document.getElementById('sort-by');
-            galleryGrid.innerHTML = '';
-
-            if (!filteredCoins || filteredCoins.length === 0) {
-                galleryGrid.innerHTML = '<p style="text-align: center; color: var(--secondary-color);">No items found for this currency type.</p>';
+            if (types.length === 0) {
+                distributionSection.style.display = 'none';
                 return;
             }
 
-            let sortedCoins = [...filteredCoins];
-            const sortValue = sortBySelect.value;
+            // Show distribution section
+            distributionSection.style.display = 'block';
 
-            if (sortValue === 'name-asc') {
-                sortedCoins.sort((a, b) => a.image.localeCompare(b.image));
-            } else if (sortValue === 'name-desc') {
-                sortedCoins.sort((a, b) => b.image.localeCompare(b.image));
-            } else if (sortValue === 'type') {
-                sortedCoins.sort((a, b) => (a.currency_type || '').localeCompare(b.currency_type || ''));
-            }
+            // Create chart container
+            const chartDiv = document.createElement('div');
+            chartDiv.className = 'distribution-chart';
+            distributionContainer.appendChild(chartDiv);
 
-            sortedCoins.forEach((coin, index) => {
-                const galleryItem = document.createElement('div');
-                galleryItem.classList.add('gallery-item');
-                const imageUrl = `images/${toTitleCase(countryName)}/${coin.image}`;
-                galleryItem.dataset.imageUrl = imageUrl;
-                galleryItem.dataset.note = coin.note;
-                galleryItem.dataset.donor = coin.donor_name;
-                galleryItem.dataset.currencyType = coin.currency_type;
+            // Create legend
+            const legendDiv = document.createElement('div');
+            legendDiv.className = 'distribution-legend';
+            distributionContainer.appendChild(legendDiv);
 
-                galleryItem.innerHTML = `
-            <img class="gallery-item-image" src="${imageUrl}" alt="${coin.note}" onerror="this.src='https://placehold.co/200x150/cccccc/333333?text=Image+Not+Found'">
-            <div class="gallery-item-info">
-                <p>${coin.image}</p>
-                <p style="font-size: 10px; color: #666; margin-top: 5px;">${coin.currency_type || 'Unknown'}</p>
-            </div>
-        `;
+            // Colors for chart segments
+            const colors = [
+                '#3498db', '#e74c3c', '#2ecc71', '#f39c12',
+                '#9b59b6', '#1abc9c', '#d35400', '#34495e'
+            ];
 
-                galleryItem.addEventListener('click', function () {
-                    const countryInfo = fetchCountryInfo(countryName);
-                    openImageModal(
-                        imageUrl,
-                        coin.note,
-                        countryInfo.name,
-                        countryInfo.capital,
-                        countryInfo.currency?.name,
-                        index,
-                        coin.donor_name
-                    );
-                    // Update currentCountryCoins to filtered set for modal navigation
-                    currentCountryCoins = sortedCoins;
-                    currentImageIndex = index;
-                });
+            // Create pie chart using conic-gradient
+            let conicGradient = '';
+            let cumulativePercentage = 0;
 
-                galleryGrid.appendChild(galleryItem);
-            });
+            types.forEach((type, index) => {
+                const percentage = (typeCount[type] / totalItems) * 100;
+                const color = colors[index % colors.length];
 
-            // Update the thumbnail container as well
-            updateThumbnailsWithFilter(countryName, sortedCoins);
-        }
+                const start = cumulativePercentage;
+                const end = cumulativePercentage + percentage;
 
-        // Function to update thumbnails with filtered data
-        function updateThumbnailsWithFilter(countryName, filteredCoins) {
-            const thumbnailContainer = document.getElementById("thumbnail-container");
-            thumbnailContainer.innerHTML = "";
-
-            filteredCoins.forEach((coin, index) => {
-                const thumbnail = document.createElement("img");
-                thumbnail.src = `images/${toTitleCase(countryName)}/${coin.image}`;
-                thumbnail.alt = `Thumbnail ${index + 1}`;
-                thumbnail.loading = "lazy";
-                thumbnail.onerror = function () {
-                    this.src = 'https://placehold.co/70x70/cccccc/333333?text=404';
-                };
-
-                if (index === currentImageIndex) {
-                    thumbnail.classList.add('active-thumbnail');
+                if (conicGradient) {
+                    conicGradient += `, ${color} ${start}% ${end}%`;
+                } else {
+                    conicGradient = `${color} ${start}% ${end}%`;
                 }
 
-                thumbnail.addEventListener("click", () => {
-                    // Update all thumbnails
-                    document.querySelectorAll('.img-queue-in img').forEach(img => {
-                        img.classList.remove('active-thumbnail');
-                    });
-                    thumbnail.classList.add('active-thumbnail');
+                cumulativePercentage = end;
 
-                    // Update main display
-                    updateImageDisplay(index, filteredCoins);
-                });
+                // Add to legend
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
 
-                thumbnailContainer.appendChild(thumbnail);
+                const colorBox = document.createElement('div');
+                colorBox.className = 'legend-color';
+                colorBox.style.backgroundColor = color;
+
+                const label = document.createElement('span');
+                // Format the type name for better display
+                const formattedType = type.split('-').map(word =>
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                ).join(' ');
+                label.textContent = `${formattedType} (${typeCount[type]})`;
+
+                legendItem.appendChild(colorBox);
+                legendItem.appendChild(label);
+                legendDiv.appendChild(legendItem);
             });
+
+            // Apply the gradient to the chart
+            chartDiv.style.background = `conic-gradient(${conicGradient})`;
+            chartDiv.style.borderRadius = '50%';
+
+            // Add center text for total
+            const centerText = document.createElement('div');
+            centerText.style.position = 'absolute';
+            centerText.style.top = '50%';
+            centerText.style.left = '50%';
+            centerText.style.transform = 'translate(-50%, -50%)';
+            centerText.style.textAlign = 'center';
+            centerText.style.fontWeight = 'bold';
+            centerText.style.fontSize = '16px';
+            centerText.style.color = '#2c3e50';
+            centerText.textContent = totalItems;
+
+            chartDiv.appendChild(centerText);
         }
-
-        function debugFilterState() {
-    console.log('Active Filters:', window.distributionData?.activeFilters);
-    console.log('Available Types:', window.distributionData?.types);
-    console.log('Type Counts:', window.distributionData?.typeCount);
-}
-
-// Suppress "Invalid LatLng" errors
-const origConsoleError = console.error;
-console.error = function (...args) {
-    if (args[0] && args[0].toString().includes("Invalid LatLng object")) {
-        // Ignore these
-        return;
-    }
-    origConsoleError.apply(console, args);
-};
-
-
     </script>
-
-    <script>
-// Suppress "Invalid LatLng object" errors thrown by Leaflet
-(function() {
-    const origOnError = window.onerror;
-    window.onerror = function (msg, url, lineNo, columnNo, error) {
-        if (msg && msg.toString().includes("Invalid LatLng object")) {
-            // Ignore these map errors
-            return true; // prevent logging in console
-        }
-        if (origOnError) return origOnError(msg, url, lineNo, columnNo, error);
-    };
-
-    const origConsoleError = console.error;
-    console.error = function (...args) {
-        if (args[0] && args[0].toString().includes("Invalid LatLng object")) {
-            // Ignore console.error messages too
-            return;
-        }
-        origConsoleError.apply(console, args);
-    };
-})();
-</script>
-<script>
-// Suppress "Invalid LatLng object" and "Error loading continent map" errors
-(function() {
-    const origOnError = window.onerror;
-    window.onerror = function (msg, url, lineNo, columnNo, error) {
-        if (msg && msg.toString().includes("Invalid LatLng object")) {
-            return true; // swallow error
-        }
-        if (origOnError) return origOnError(msg, url, lineNo, columnNo, error);
-    };
-
-    const origConsoleError = console.error;
-    console.error = function (...args) {
-        const joined = args.map(a => (a && a.toString ? a.toString() : '')).join(' ');
-        if (joined.includes("Invalid LatLng object") || joined.includes("Error loading continent map")) {
-            // hide these specific errors
-            return;
-        }
-        origConsoleError.apply(console, args);
-    };
-})();
-</script>
-
 </body>
 
 </html>
