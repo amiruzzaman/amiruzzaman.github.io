@@ -200,10 +200,8 @@
 
             <div class="controls">
                 <button id="generateBtn">Generate Feedback</button>
-                <button id="copyBtn" class="hidden">Copy Feedback</button>
                 <button id="resetBtn">Reset All</button>
             </div>
-
 
             <div id="outputSection" class="output-section hidden"></div>
         </div>
@@ -688,11 +686,9 @@
                                 const itemElement = document.createElement('div');
                                 itemElement.className = 'item positive-item';
                                 itemElement.id = itemId;
-                                itemElement.innerHTML = `• <span class="editable" data-id="${itemId}-text">${item.description}</span>
-        (<span class="editable point-edit" data-id="${itemId}-points">${item.points}</span> pts)`;
+                                itemElement.innerHTML = `• <span class="editable" data-id="${itemId}-text">${item.description}</span>`;
                                 subPositiveList.appendChild(itemElement);
                             });
-
                             subsectionContent.appendChild(subPositiveList);
                         }
 
@@ -735,11 +731,9 @@
                             const itemElement = document.createElement('div');
                             itemElement.className = 'item positive-item';
                             itemElement.id = itemId;
-                            itemElement.innerHTML = `• <span class="editable" data-id="${itemId}-text">${item.description}</span>
-        (<span class="editable point-edit" data-id="${itemId}-points">${item.points}</span> pts)`;
+                            itemElement.innerHTML = `• <span class="editable" data-id="${itemId}-text">${item.description}</span>`;
                             positiveList.appendChild(itemElement);
                         });
-
                         sectionContent.appendChild(positiveList);
                     }
 
@@ -875,37 +869,7 @@
             input.focus();
 
             input.addEventListener('blur', function () {
-                let newValue = input.value.trim();
-
-                if (element.dataset.id.endsWith('-points')) {
-                    // Handle points editing
-                    const parts = element.dataset.id.split('-');
-                    const itemIndex = parseInt(parts[parts.length - 2]); // before "points"
-                    const parentId = parts.slice(0, parts.length - 2).join('-');
-
-                    // Traverse rubricData to update
-                    rubricData.grading_rubric.sections.forEach((section, si) => {
-                        const sectionId = `section-${si}`;
-                        if (parentId.startsWith(sectionId)) {
-                            if (section.subsections) {
-                                section.subsections.forEach((sub, sj) => {
-                                    const subsectionId = `${sectionId}-subsection-${sj}`;
-                                    if (parentId.startsWith(subsectionId)) {
-                                        sub.positive_items.items[itemIndex].points = parseFloat(newValue) || 0;
-                                    }
-                                });
-                            } else if (section.positive_items) {
-                                section.positive_items.items[itemIndex].points = parseFloat(newValue) || 0;
-                            }
-                        }
-                    });
-
-                    element.textContent = newValue;
-                    updateSummary(); // refresh everything (summary + headers)
-                } else {
-                    // Normal text editing
-                    element.textContent = newValue;
-                }
+                element.textContent = input.value;
             });
 
             input.addEventListener('keypress', function (e) {
@@ -914,8 +878,6 @@
                 }
             });
         }
-
-
 
         // Update points summary
         function updateSummary() {
@@ -963,21 +925,21 @@
                         mainSectionMax += maxSubPoints;
 
                         // Update subsection header with points
-                        // Update subsection header with points (always overwrite)
                         const subHeaderElement = document.querySelector(`[data-id="${subsectionId}-header"]`);
                         if (subHeaderElement) {
-                            subHeaderElement.textContent = `${subsection.subsection.split('(')[0].trim()} (${subsectionPoints.toFixed(1)}/${maxSubPoints})`;
+                            const headerText = subHeaderElement.textContent;
+                            const newHeader = headerText.replace(/\(\s*\/\d+(\.\d+)?\)/, `(${subsectionPoints.toFixed(1)}/${maxSubPoints})`);
+                            subHeaderElement.textContent = newHeader;
                         }
-
-
                     });
 
-                    // Update main section header with points (always overwrite)
+                    // Update main section header with points
                     const mainHeaderElement = document.querySelector(`[data-id="${sectionId}-header"]`);
                     if (mainHeaderElement) {
-                        mainHeaderElement.textContent = `${section.main_section.split('(')[0].trim()} (${mainSectionPoints.toFixed(1)}/${mainSectionMax})`;
+                        const headerText = mainHeaderElement.textContent;
+                        const newHeader = headerText.replace(/\(\s*\/\d+(\.\d+)?\)/, `(${mainSectionPoints.toFixed(1)}/${mainSectionMax})`);
+                        mainHeaderElement.textContent = newHeader;
                     }
-
 
                     // Add main section row for subsections
                     const row = document.createElement('tr');
@@ -1029,12 +991,14 @@
                         `;
                         summaryBody.appendChild(row);
                     }
-                    // Update section header with points (always overwrite)
+
+                    // Update section header with points
                     const headerElement = document.querySelector(`[data-id="${sectionId}-header"]`);
                     if (headerElement && section.positive_items) {
-                        headerElement.textContent = `${section.main_section.split('(')[0].trim()} (${sectionPoints.toFixed(1)}/${maxPoints})`;
+                        const headerText = headerElement.textContent;
+                        const newHeader = headerText.replace(/\(\s*\/\d+(\.\d+)?\)/, `(${sectionPoints.toFixed(1)}/${maxPoints})`);
+                        headerElement.textContent = newHeader;
                     }
-
                 }
             });
 
@@ -1209,8 +1173,6 @@
             const outputSection = document.getElementById('outputSection');
             outputSection.textContent = output;
             outputSection.classList.remove('hidden');
-            document.getElementById('copyBtn').classList.remove('hidden');
-
         }
 
         // Reset all selections and feedback
@@ -1260,19 +1222,6 @@
             const subIndex = parseInt(parts[3]);
             return rubricData.grading_rubric.sections[sectionIndex].subsections[subIndex].subsection;
         }
-
-        // Copy feedback button
-        document.getElementById('copyBtn').addEventListener('click', function () {
-            const output = document.getElementById('outputSection').textContent;
-            if (output.trim()) {
-                navigator.clipboard.writeText(output).then(() => {
-                    alert('Feedback copied to clipboard!');
-                }).catch(err => {
-                    console.error('Failed to copy text: ', err);
-                });
-            }
-        });
-
     </script>
 </body>
 
