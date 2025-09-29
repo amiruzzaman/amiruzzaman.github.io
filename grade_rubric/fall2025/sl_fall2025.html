@@ -1454,7 +1454,7 @@
                             const subRow = document.createElement('tr');
                             subRow.innerHTML = `
                         <td style="padding-left: 20px;">${subsection.subsection.split('(')[0].trim()}</td>
-                        <td>${subsectionPoints.toFixed(1)}</td>
+                        <td>${parseInt(parseInt(subsectionPoints.toFixed(1)))}</td>
                         <td>${maxSubPoints}</td>
                     `;
                             if (!isExtraCredit) {
@@ -1467,7 +1467,7 @@
                         // Update subsection header with points (always overwrite)
                         const subHeaderElement = document.querySelector(`[data-id="${subsectionId}-header"]`);
                         if (subHeaderElement) {
-                            subHeaderElement.textContent = `${subsection.subsection.split('(')[0].trim()} (${subsectionPoints.toFixed(1)}/${maxSubPoints})`;
+                            subHeaderElement.textContent = `${subsection.subsection.split('(')[0].trim()} (${parseInt(subsectionPoints.toFixed(1))}/${maxSubPoints})`;
                         }
                     });
 
@@ -1477,7 +1477,7 @@
                         totalRow.style.borderTop = '1px solid #ddd';
                         totalRow.innerHTML = `
                     <td style="padding-left: 20px;"><em>${section.main_section.split('(')[0].trim()} Total</em></td>
-                    <td><strong>${mainSectionPoints.toFixed(1)}</strong></td>
+                    <td><strong>${parseInt(mainSectionPoints.toFixed(1))}</strong></td>
                     <td><strong>${mainSectionMax}</strong></td>
                 `;
                         if (!isExtraCredit) {
@@ -1493,7 +1493,7 @@
                         const row = document.createElement('tr');
                         row.innerHTML = `
                     <td>${section.main_section.split('(')[0].trim()}</td>
-                    <td>${mainSectionPoints.toFixed(1)}</td>
+                    <td>${parseInt(mainSectionPoints.toFixed(1))}</td>
                     <td>${mainSectionMax}</td>
                 `;
                         if (!isExtraCredit) {
@@ -1509,7 +1509,7 @@
                     // Update main section header with points (always overwrite)
                     const mainHeaderElement = document.querySelector(`[data-id="${sectionId}-header"]`);
                     if (mainHeaderElement) {
-                        mainHeaderElement.textContent = `${section.main_section.split('(')[0].trim()} (${mainSectionPoints.toFixed(1)}/${mainSectionMax})`;
+                        mainHeaderElement.textContent = `${section.main_section.split('(')[0].trim()} (${parseInt(mainSectionPoints.toFixed(1))}/${section.points_available})`;
                     }
 
                 } else {
@@ -1536,7 +1536,7 @@
                         const row = document.createElement('tr');
                         row.innerHTML = `
                     <td>${section.main_section.split('(')[0].trim()}</td>
-                    <td>${sectionPoints.toFixed(1)}</td>
+                    <td>${parseInt(sectionPoints.toFixed(1))}</td>
                     <td>${maxPoints}</td>
                 `;
                         extraCreditBody.appendChild(row);
@@ -1547,7 +1547,7 @@
                         const row = document.createElement('tr');
                         row.innerHTML = `
                     <td>${section.main_section.split('(')[0].trim()}</td>
-                    <td>${sectionPoints.toFixed(1)}</td>
+                    <td>${parseInt(sectionPoints.toFixed(1))}</td>
                     <td>${maxPoints}</td>
                 `;
                         summaryBody.appendChild(row);
@@ -1555,14 +1555,14 @@
 
                     // Update section header with points (always overwrite)
                     const headerElement = document.querySelector(`[data-id="${sectionId}-header"]`);
-                    if (headerElement && section.positive_items) {
-                        headerElement.textContent = `${section.main_section.split('(')[0].trim()} (${sectionPoints.toFixed(1)}/${maxPoints})`;
+                    if (headerElement) {
+                        headerElement.textContent = `${section.main_section.split('(')[0].trim()} (${parseInt(sectionPoints.toFixed(1))}/${maxPoints})`;
                     }
                 }
             });
 
             // Update total points
-            document.getElementById('totalPoints').textContent = totalPoints.toFixed(1);
+            document.getElementById('totalPoints').textContent = parseInt(totalPoints.toFixed(1));
             document.getElementById('maxPoints').textContent = rubricData.grading_rubric.total_points;
 
             // Handle extra credit section visibility
@@ -1575,7 +1575,7 @@
                     extraCreditTotalRow.className = 'total-row';
                     extraCreditTotalRow.innerHTML = `
                 <td><strong>Extra Credit Total</strong></td>
-                <td><strong>${extraCreditPoints.toFixed(1)}</strong></td>
+                <td><strong>${parseInt(extraCreditPoints.toFixed(1))}</strong></td>
                 <td><strong>${extraCreditMaxPoints}</strong></td>
             `;
                     extraCreditBody.appendChild(extraCreditTotalRow);
@@ -1758,6 +1758,7 @@
         // }
 
         // Generate feedback
+        // Generate feedback
         function generateFeedback() {
             const outputSection = document.getElementById('outputSection');
             const copyBtn = document.getElementById('copyBtn');
@@ -1766,48 +1767,165 @@
             // Add section feedback
             rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
                 const sectionId = `section-${sectionIndex}`;
-                const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
+
+                // Calculate section points
+                let sectionPoints = 0;
+                let sectionMaxPoints = section.points_available;
+
+                if (section.subsections) {
+                    // Process subsections
+                    section.subsections.forEach((subsection, subIndex) => {
+                        const subsectionId = `${sectionId}-subsection-${subIndex}`;
+                        const subsectionState = state.selectedItems.get(subsectionId) || { positive: new Set(), negative: new Set() };
+
+                        // Calculate subsection points
+                        let subsectionPoints = 0;
+                        subsectionState.positive.forEach(itemId => {
+                            const parts = itemId.split('-');
+                            const itemIndex = parseInt(parts[parts.length - 1]);
+                            if (subsection.positive_items && subsection.positive_items.items[itemIndex]) {
+                                subsectionPoints += subsection.positive_items.items[itemIndex].points;
+                            }
+                        });
+                        sectionPoints += subsectionPoints;
+                    });
+                } else {
+                    // Process main section
+                    const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
+                    sectionState.positive.forEach(itemId => {
+                        const parts = itemId.split('-');
+                        const itemIndex = parseInt(parts[parts.length - 1]);
+                        if (section.positive_items && section.positive_items.items[itemIndex]) {
+                            sectionPoints += section.positive_items.items[itemIndex].points;
+                        }
+                    });
+                }
+
                 const feedbackTextarea = document.getElementById(`${sectionId}-feedback`);
                 const feedbackText = feedbackTextarea ? feedbackTextarea.value : '';
 
-                if (sectionState.positive.size > 0 || sectionState.negative.size > 0 || feedbackText) {
-                    feedback += `\n${section.main_section}\n`;
+                // Check if there are any selected items or feedback
+                let hasContent = false;
 
-                    // Positive items
-                    if (sectionState.positive.size > 0) {
-                        feedback += 'Strengths:\n';
-                        sectionState.positive.forEach(itemId => {
-                            const itemElement = document.getElementById(itemId);
-                            if (itemElement) {
-                                feedback += `• ${itemElement.querySelector('.editable[data-id$="-text"]').textContent}\n`;
+                if (section.subsections) {
+                    section.subsections.forEach((subsection, subIndex) => {
+                        const subsectionId = `${sectionId}-subsection-${subIndex}`;
+                        const subsectionState = state.selectedItems.get(subsectionId) || { positive: new Set(), negative: new Set() };
+                        if (subsectionState.positive.size > 0 || subsectionState.negative.size > 0) {
+                            hasContent = true;
+                        }
+                    });
+                } else {
+                    const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
+                    if (sectionState.positive.size > 0 || sectionState.negative.size > 0) {
+                        hasContent = true;
+                    }
+                }
+
+                if (hasContent || feedbackText) {
+                    feedback += `\n${section.main_section.split('(')[0].trim()} (${parseInt(sectionPoints.toFixed(1))}/${sectionMaxPoints})\n`;
+
+                    if (section.subsections) {
+                        // Process subsections
+                        section.subsections.forEach((subsection, subIndex) => {
+                            const subsectionId = `${sectionId}-subsection-${subIndex}`;
+                            const subsectionState = state.selectedItems.get(subsectionId) || { positive: new Set(), negative: new Set() };
+                            const subFeedbackTextarea = document.getElementById(`${subsectionId}-feedback`);
+                            const subFeedbackText = subFeedbackTextarea ? subFeedbackTextarea.value : '';
+
+                            // Calculate subsection points
+                            let subsectionPoints = 0;
+                            subsectionState.positive.forEach(itemId => {
+                                const parts = itemId.split('-');
+                                const itemIndex = parseInt(parts[parts.length - 1]);
+                                if (subsection.positive_items && subsection.positive_items.items[itemIndex]) {
+                                    subsectionPoints += subsection.positive_items.items[itemIndex].points;
+                                }
+                            });
+
+                            if (subsectionState.positive.size > 0 || subsectionState.negative.size > 0 || subFeedbackText) {
+                                feedback += `\n${subsection.subsection.split('(')[0].trim()} (${parseInt(subsectionPoints.toFixed(1))}/${subsection.positive_items.points_available})\n`;
+
+                                // Positive items
+                                if (subsectionState.positive.size > 0) {
+                                    feedback += 'Strengths:\n';
+                                    subsectionState.positive.forEach(itemId => {
+                                        const itemElement = document.getElementById(itemId);
+                                        if (itemElement) {
+                                            const textElement = itemElement.querySelector('.editable[data-id$="-text"]');
+                                            if (textElement) {
+                                                feedback += `• ${textElement.textContent}\n`;
+                                            }
+                                        }
+                                    });
+                                }
+
+                                // Negative items
+                                if (subsectionState.negative.size > 0) {
+                                    feedback += 'Areas for Improvement:\n';
+                                    subsectionState.negative.forEach(itemId => {
+                                        const itemElement = document.getElementById(itemId);
+                                        if (itemElement) {
+                                            const textElement = itemElement.querySelector('.editable[data-id$="-text"]');
+                                            if (textElement) {
+                                                feedback += `• ${textElement.textContent}\n`;
+                                            }
+                                        }
+                                    });
+                                }
+
+                                // Subsection feedback
+                                if (subFeedbackText) {
+                                    feedback += `Additional Feedback: ${subFeedbackText}\n`;
+                                }
                             }
                         });
+                    } else {
+                        // Process main section without subsections
+                        const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
+
+                        // Positive items
+                        if (sectionState.positive.size > 0) {
+                            feedback += 'Strengths:\n';
+                            sectionState.positive.forEach(itemId => {
+                                const itemElement = document.getElementById(itemId);
+                                if (itemElement) {
+                                    const textElement = itemElement.querySelector('.editable[data-id$="-text"]');
+                                    if (textElement) {
+                                        feedback += `• ${textElement.textContent}\n`;
+                                    }
+                                }
+                            });
+                        }
+
+                        // Negative items
+                        if (sectionState.negative.size > 0) {
+                            feedback += 'Areas for Improvement:\n';
+                            sectionState.negative.forEach(itemId => {
+                                const itemElement = document.getElementById(itemId);
+                                if (itemElement) {
+                                    const textElement = itemElement.querySelector('.editable[data-id$="-text"]');
+                                    if (textElement) {
+                                        feedback += `• ${textElement.textContent}\n`;
+                                    }
+                                }
+                            });
+                        }
+
+                        // Section feedback
+                        if (feedbackText) {
+                            feedback += `Additional Feedback: ${feedbackText}\n`;
+                        }
                     }
 
-                    // Negative items
-                    if (sectionState.negative.size > 0) {
-                        feedback += 'Areas for Improvement:\n';
-                        sectionState.negative.forEach(itemId => {
-                            const itemElement = document.getElementById(itemId);
-                            if (itemElement) {
-                                feedback += `• ${itemElement.querySelector('.editable[data-id$="-text"]').textContent}\n`;
-                            }
-                        });
-                    }
-
-                    // Section feedback
-                    if (feedbackText) {
-                        feedback += `Additional Feedback: ${feedbackText}\n`;
-                    }
-
-                    feedback += '\n';
+                    feedback += `${'_'.repeat(40)}\n`;
                 }
             });
 
             // Add general feedback
             const generalFeedbackTextarea = document.getElementById('general-feedback');
             if (generalFeedbackTextarea && generalFeedbackTextarea.value) {
-                feedback += `General Feedback:\n${generalFeedbackTextarea.value}\n\n`;
+                feedback += `\nGeneral Feedback:\n${generalFeedbackTextarea.value}\n\n`;
             }
 
             // Add summary
@@ -1834,6 +1952,25 @@
             // Clear all textareas
             document.querySelectorAll('textarea').forEach(textarea => {
                 textarea.value = '';
+            });
+
+            // Reset headers to original values
+            document.querySelectorAll('.editable[data-id$="-header"]').forEach(header => {
+                const dataId = header.getAttribute('data-id');
+                const parts = dataId.split('-');
+
+                if (dataId.includes('subsection')) {
+                    // Reset subsection header
+                    const sectionIndex = parseInt(parts[1]);
+                    const subIndex = parseInt(parts[3]);
+                    const originalText = rubricData.grading_rubric.sections[sectionIndex].subsections[subIndex].subsection;
+                    header.textContent = originalText;
+                } else {
+                    // Reset main section header
+                    const sectionIndex = parseInt(parts[1]);
+                    const originalText = rubricData.grading_rubric.sections[sectionIndex].main_section;
+                    header.textContent = originalText;
+                }
             });
 
             // Hide output section
