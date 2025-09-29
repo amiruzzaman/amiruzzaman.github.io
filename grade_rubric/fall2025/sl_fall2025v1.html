@@ -189,132 +189,6 @@
         .hidden {
             display: none;
         }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            width: 500px;
-            max-width: 90%;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .modal-title {
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #666;
-            padding: 0;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .close-btn:hover {
-            color: #333;
-        }
-
-        .modal-body {
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-family: inherit;
-            box-sizing: border-box;
-        }
-
-        .form-control:focus {
-            border-color: #2196F3;
-            outline: none;
-        }
-
-        .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-
-        .modal-btn {
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .modal-btn-primary {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-        }
-
-        .modal-btn-primary:hover {
-            background-color: #45a049;
-        }
-
-        .modal-btn-secondary {
-            background-color: #f5f5f5;
-            color: #333;
-            border: 1px solid #ddd;
-        }
-
-        .modal-btn-secondary:hover {
-            background-color: #e9e9e9;
-        }
-
-        .modal-btn-danger {
-            background-color: #f44336;
-            color: white;
-            border: none;
-        }
-
-        .modal-btn-danger:hover {
-            background-color: #d32f2f;
-        }
     </style>
 </head>
 
@@ -329,6 +203,7 @@
                 <button id="copyBtn" class="hidden">Copy Feedback</button>
                 <button id="resetBtn">Reset All</button>
             </div>
+
 
             <div id="outputSection" class="output-section hidden"></div>
         </div>
@@ -367,31 +242,6 @@
                     <tbody id="extraCreditBody">
                     </tbody>
                 </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal for editing items -->
-    <div id="itemModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">Edit Item</div>
-                <button class="close-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="itemText">Item Description</label>
-                    <textarea id="itemText" class="form-control" rows="3"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="itemPoints">Points</label>
-                    <input type="number" id="itemPoints" class="form-control" step="0.1">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="clearTextBtn" class="modal-btn modal-btn-danger">Clear Text</button>
-                <button id="cancelBtn" class="modal-btn modal-btn-secondary">Cancel</button>
-                <button id="saveBtn" class="modal-btn modal-btn-primary">Save</button>
             </div>
         </div>
     </div>
@@ -476,9 +326,6 @@
                                 },
                                 "negative_items": {
                                     "items": [
-                                        "Unclear ML framing; problem setup vague or missing structure",
-                                        "No mention of imbalance, missingness, outliers, or feature types",
-                                        "Target task justification missing or unjustified",
                                         "Deeper EDA on missing data/outliers or target imbalance",
                                         "Clearer rationale for chosen target(s) and why alternatives weren't used"
                                     ]
@@ -506,9 +353,6 @@
                                 },
                                 "negative_items": {
                                     "items": [
-                                        "ML framing unclear; relevance to predictive tasks not articulated",
-                                        "No mention of imbalance, feature types, or possible reporting bias",
-                                        "Target task justification missing or unjustified",
                                         "Sparse EDA; needs more on missingness or post-event fields (leakage risk)",
                                         "Stronger justification of target framing and constraints"
                                     ]
@@ -539,7 +383,6 @@
                                 "negative_items": {
                                     "items": [
                                         "Hypothesis vague or unfalsifiable",
-                                        "No predicted ordering/expected behaviors stated",
                                         "Lacks citation or tie-in to course material / literature"
                                     ]
                                 },
@@ -563,7 +406,6 @@
                                 "negative_items": {
                                     "items": [
                                         "Conclusion does not explicitly resolve the hypothesis",
-                                        "Hypothesis mentioned only in passing, not tied back in discussion",
                                         "References trends qualitatively without quantitative evidence"
                                     ]
                                 },
@@ -605,10 +447,6 @@
                                 "negative_items": {
                                     "items": [
                                         "Missing/incorrect metrics; no rationale for classification vs regression errors",
-                                        "Hotel LC missing or uninterpreted; no bias/variance discussion",
-                                        "US Accidents LC missing or uninterpreted; no trends/adjustments",
-                                        "Hotel MC missing or uninterpreted; no refinement attempted",
-                                        "US Accidents MC missing or uninterpreted; no refinement attempted",
                                         "No pruning or no ccp_alpha path; depth/leaf sizing unexamined",
                                         "LC/MC plots missing for one/both datasets or axes/curves incomplete",
                                         "Trends listed without linking to data or DT properties"
@@ -645,11 +483,6 @@
                                 },
                                 "negative_items": {
                                     "items": [
-                                        "Metrics missing or not justified",
-                                        "Hotel LC missing or uninterpreted; no bias/variance tuning",
-                                        "US Accidents LC missing or uninterpreted; no dimensionality discussion",
-                                        "Hotel MC missing or uninterpreted; no justification",
-                                        "US Accidents MC missing or uninterpreted; no tie to data",
                                         "Features not scaled; metric/weighting not discussed",
                                         "Only one value of k considered; MC plot missing",
                                         "No discussion of imbalance effects in neighborhoods"
@@ -686,11 +519,6 @@
                                 },
                                 "negative_items": {
                                     "items": [
-                                        "Metrics missing or not justified",
-                                        "Hotel LC missing or uninterpreted; no C/γ/degree tuning",
-                                        "US Accidents LC missing or uninterpreted; no kernel tie-in",
-                                        "Hotel MC missing or uninterpreted; no kernel justification",
-                                        "US Accidents MC missing or uninterpreted; no tie to data traits",
                                         "Features not scaled; only one kernel (need ≥2 kernels)",
                                         "Probabilities reported without calibration rationale",
                                         "MC/LC missing or not linked to SVM inductive biases"
@@ -727,11 +555,6 @@
                                 },
                                 "negative_items": {
                                     "items": [
-                                        "Metrics missing or not justified",
-                                        "Hotel LC missing or uninterpreted; no epoch/bias/variance discussion",
-                                        "US Accidents LC missing or uninterpreted; no imbalance/scale tie-in",
-                                        "Hotel MC missing or uninterpreted; no architecture justification",
-                                        "US Accidents MC missing or uninterpreted; no tie to dataset complexity",
                                         "Missing epoch-wise LC; only final scores shown",
                                         "No standardization of inputs; heads/losses mismatched to task",
                                         "No calibration when thresholding; imbalance untreated"
@@ -766,10 +589,8 @@
                         },
                         "negative_items": {
                             "items": [
-                                "Conclusion missing or too generic; no Type I/II analysis",
-                                "Fewer than 3 evidence-backed takeaways",
-                                "Weak linkage to course concepts; limited cross-dataset comparison",
-                                "No limitations discussed; no concrete next step cited"
+                                "Too generic; lacks Type I/II or concrete, numbered takeaways",
+                                "Weak linkage to course concepts; limited cross-dataset comparison"
                             ]
                         },
                         "feedback_section": "Feedback on Section: <free-text>"
@@ -795,10 +616,8 @@
                         },
                         "negative_items": {
                             "items": [
-                                "Non-SGD or multiple uncontrolled factors varied; missing activations",
-                                "Incomplete validation curves or missing comparison table / insufficient seeds",
-                                "Descriptive commentary without diagnosing stability or trade-offs",
-                                "Missing analysis of convergence speed, stability, or calibration"
+                                "Missing activations / uncontrolled changes (LR/init/reg) / incomplete curves or metrics",
+                                "Descriptive commentary without diagnosing stability or trade-offs"
                             ]
                         },
                         "feedback_section": "Feedback on Section: <free-text>"
@@ -815,14 +634,13 @@
         const state = {
             selectedItems: new Map(), // Map of sectionId -> {positive: Set(), negative: Set()}
             feedbackTexts: new Map(), // Map of sectionId -> feedback text
-            generalFeedback: "",
-            currentEditingItem: null // Track the currently editing item - ADD THIS LINE
+            generalFeedback: ""
         };
+
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function () {
             renderRubric();
             setupEventListeners();
-            setupModalEvents(); // ADD THIS LINE
             updateSummary();
         });
 
@@ -971,121 +789,18 @@
             container.appendChild(generalFeedbackDiv);
         }
 
-
-
-        // // Set up event listeners
-        // function setupEventListeners() {
-        //     let clickTimer;
-        //     let isDoubleClick = false;
-
-        //     // Item selection - single click (ONLY selects, no modal)
-        //     document.addEventListener('click', function (e) {
-        //         const item = e.target.closest('.item');
-        //         if (item) {
-        //             // Set a timer to distinguish between single and double click
-        //             clickTimer = setTimeout(function () {
-        //                 if (!isDoubleClick) {
-        //                     // This is a single click
-        //                     toggleItemSelection(item);
-        //                     updateSummary();
-        //                 }
-        //                 isDoubleClick = false; // Reset for next click
-        //             }, 300); // 300ms delay to wait for double click
-        //         }
-        //     });
-
-        //     // Item editing - double click for items, regular editing for headers
-        //     document.addEventListener('dblclick', function (e) {
-        //         const item = e.target.closest('.item');
-        //         if (item) {
-        //             // Clear the single click timer
-        //             clearTimeout(clickTimer);
-        //             isDoubleClick = true;
-
-        //             showItemModal(item.id);
-        //             e.preventDefault(); // Prevent text selection
-        //             e.stopPropagation(); // Prevent event bubbling
-        //         } else {
-        //             // Keep the existing double-click editing for headers and other elements
-        //             const editable = e.target.closest('.editable');
-        //             if (editable) {
-        //                 makeEditable(editable);
-        //             }
-        //         }
-        //     });
-
-        //     // Header toggling
-        //     document.addEventListener('click', function (e) {
-        //         const header = e.target.closest('.section-header, .subsection-header');
-        //         if (header) {
-        //             const contentId = header.id ? `${header.id}-content` :
-        //                 header.querySelector('span').getAttribute('data-id').replace('-header', '-content');
-        //             const content = document.getElementById(contentId);
-        //             if (content) {
-        //                 content.style.display = content.style.display === 'none' ? 'block' : 'none';
-        //             }
-        //         }
-        //     });
-
-        //     // Generate feedback button
-        //     document.getElementById('generateBtn').addEventListener('click', generateFeedback);
-
-        //     // Reset button
-        //     document.getElementById('resetBtn').addEventListener('click', resetAll);
-
-        //     // Copy button
-        //     document.getElementById('copyBtn').addEventListener('click', function () {
-        //         const output = document.getElementById('outputSection').textContent;
-        //         if (output.trim()) {
-        //             navigator.clipboard.writeText(output).then(() => {
-        //                 alert('Feedback copied to clipboard!');
-        //             }).catch(err => {
-        //                 console.error('Failed to copy text: ', err);
-        //             });
-        //         }
-        //     });
-        // }
-
-
         // Set up event listeners
         function setupEventListeners() {
-
-            // 1. Item editing - DOUBLE-CLICK to open the modal (Modal opening MUST be here)
-            document.addEventListener('dblclick', function (e) {
-                const item = e.target.closest('.item');
-                if (item) {
-                    // **ONLY** place the modal opening function here.
-                    showItemModal(item.id);
-
-                    // Stop all events from propagating, preventing other clicks/listeners
-                    e.preventDefault();
-                    e.stopPropagation();
-                } else {
-                    // Keep editing for headers/editable elements
-                    const editable = e.target.closest('.editable');
-                    if (editable) {
-                        makeEditable(editable);
-                    }
-                }
-            });
-
-            // 2. Item selection - SINGLE-CLICK to select (Modal logic MUST NOT be here)
+            // Item selection
             document.addEventListener('click', function (e) {
                 const item = e.target.closest('.item');
-
                 if (item) {
-                    // **ONLY** place the selection functions here.
                     toggleItemSelection(item);
                     updateSummary();
-
-                    // Stop propagation to prevent the click from falling through 
-                    // to the header toggling or any other document click listeners.
-                    e.stopPropagation();
                 }
             });
 
-            // 3. Header toggling - Dedicated listener (Runs only if not handled above)
-            // We attach this to the document, but it only acts on headers.
+            // Header toggling
             document.addEventListener('click', function (e) {
                 const header = e.target.closest('.section-header, .subsection-header');
                 if (header) {
@@ -1093,68 +808,25 @@
                         header.querySelector('span').getAttribute('data-id').replace('-header', '-content');
                     const content = document.getElementById(contentId);
                     if (content) {
-                        // This is the logic that hides/shows content.
                         content.style.display = content.style.display === 'none' ? 'block' : 'none';
-
-                        // Crucial: Stop propagation here too, so this click doesn't 
-                        // trigger other listeners unnecessarily.
-                        e.stopPropagation();
                     }
                 }
             });
 
-            // --- (Rest of the listeners remain the same) ---
+            // Double-click editing
+            document.addEventListener('dblclick', function (e) {
+                const editable = e.target.closest('.editable');
+                if (editable) {
+                    makeEditable(editable);
+                }
+            });
 
             // Generate feedback button
             document.getElementById('generateBtn').addEventListener('click', generateFeedback);
 
             // Reset button
             document.getElementById('resetBtn').addEventListener('click', resetAll);
-
-            // Copy button
-            document.getElementById('copyBtn').addEventListener('click', function () {
-                const output = document.getElementById('outputSection').textContent;
-                if (output.trim()) {
-                    navigator.clipboard.writeText(output).then(() => {
-                        alert('Feedback copied to clipboard!');
-                    }).catch(err => {
-                        console.error('Failed to copy text: ', err);
-                    });
-                }
-            });
         }
-
-        // Set up modal events
-        function setupModalEvents() {
-            const modal = document.getElementById('itemModal');
-            const closeBtn = document.querySelector('.close-btn');
-            const cancelBtn = document.getElementById('cancelBtn');
-            const saveBtn = document.getElementById('saveBtn');
-            const clearTextBtn = document.getElementById('clearTextBtn');
-
-            // Close modal when clicking X or cancel
-            [closeBtn, cancelBtn].forEach(btn => {
-                btn.addEventListener('click', () => {
-                    modal.style.display = 'none';
-                });
-            });
-
-            // Save button
-            saveBtn.addEventListener('click', saveItemChanges);
-
-            // Clear text button
-            clearTextBtn.addEventListener('click', () => {
-                document.getElementById('itemText').value = '';
-            });
-
-            // Close modal when clicking outside
-            window.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.style.display = 'none';
-                }
-            });
-        }
-
 
         // Toggle item selection
         function toggleItemSelection(item) {
@@ -1188,7 +860,7 @@
             }
         }
 
-        // Make element editable - KEEP THIS FUNCTION AS IS
+        // Make element editable
         function makeEditable(element) {
             const currentText = element.textContent;
             const input = document.createElement('input');
@@ -1245,110 +917,6 @@
 
 
 
-
-        // Show modal for editing item
-        function showItemModal(itemId) {
-            const modal = document.getElementById('itemModal');
-            const itemText = document.getElementById('itemText');
-            const itemPoints = document.getElementById('itemPoints');
-
-            // Get the item element
-            const itemElement = document.getElementById(itemId);
-            if (!itemElement) return;
-
-            // Get current values
-            const textElement = itemElement.querySelector('.editable[data-id$="-text"]');
-            const pointsElement = itemElement.querySelector('.editable[data-id$="-points"]');
-
-            if (!textElement) return;
-
-            // Set modal values
-            itemText.value = textElement.textContent;
-
-            // For negative items, we'll use negative points
-            const isNegative = itemElement.classList.contains('negative-item');
-            const pointsValue = pointsElement ?
-                (isNegative ? -Math.abs(parseFloat(pointsElement.textContent) || 0) :
-                    parseFloat(pointsElement.textContent) || 0) : 0;
-            itemPoints.value = pointsValue;
-
-            // Store the current editing item
-            state.currentEditingItem = {
-                id: itemId,
-                textElement: textElement,
-                pointsElement: pointsElement,
-                isNegative: isNegative
-            };
-
-            // Show modal
-            modal.style.display = 'flex';
-        }
-
-        // Save item changes from modal
-        function saveItemChanges() {
-            const modal = document.getElementById('itemModal');
-            const itemText = document.getElementById('itemText');
-            const itemPoints = document.getElementById('itemPoints');
-
-            if (!state.currentEditingItem) return;
-
-            const { id, textElement, pointsElement, isNegative } = state.currentEditingItem;
-
-            // Update text
-            textElement.textContent = itemText.value;
-
-            // Update points if points element exists
-            if (pointsElement) {
-                const pointsValue = parseFloat(itemPoints.value) || 0;
-                const displayPoints = isNegative ? -pointsValue : pointsValue;
-                pointsElement.textContent = displayPoints;
-
-                // Update rubric data
-                updateRubricData(id, itemText.value, displayPoints);
-            } else {
-                // For negative items without points, just update text
-                updateRubricData(id, itemText.value, 0);
-            }
-
-            // Close modal
-            modal.style.display = 'none';
-            state.currentEditingItem = null;
-
-            // Update summary
-            updateSummary();
-        }
-
-        // Update rubric data structure with new values
-        function updateRubricData(itemId, newText, newPoints) {
-            const parts = itemId.split('-');
-            const sectionIndex = parseInt(parts[1]);
-            const isPositive = parts[2] === 'positive';
-            const itemIndex = parseInt(parts[parts.length - 1]);
-
-            // Check if this is a subsection
-            if (parts.length > 4 && parts[2] === 'subsection') {
-                const subIndex = parseInt(parts[3]);
-                const subItemIndex = parseInt(parts[5]);
-                const subSection = rubricData.grading_rubric.sections[sectionIndex].subsections[subIndex];
-
-                if (isPositive) {
-                    subSection.positive_items.items[subItemIndex].description = newText;
-                    subSection.positive_items.items[subItemIndex].points = newPoints;
-                } else {
-                    subSection.negative_items.items[subItemIndex] = newText;
-                }
-            } else {
-                const section = rubricData.grading_rubric.sections[sectionIndex];
-
-                if (isPositive) {
-                    section.positive_items.items[itemIndex].description = newText;
-                    section.positive_items.items[itemIndex].points = newPoints;
-                } else {
-                    section.negative_items.items[itemIndex] = newText;
-                }
-            }
-        }
-
         // Update points summary
         function updateSummary() {
             const summaryBody = document.getElementById('summaryBody');
@@ -1363,6 +931,7 @@
             const extraCreditBody = document.getElementById('extraCreditBody');
             extraCreditBody.innerHTML = '';
 
+
             rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
                 const sectionId = `section-${sectionIndex}`;
                 const isExtraCredit = section.main_section.includes('Extra Credit');
@@ -1375,26 +944,6 @@
                 if (section.subsections) {
                     let mainSectionPoints = 0;
                     let mainSectionMax = 0;
-
-                    // Check if any subsection has a number pattern (like 1.1, 2.1, etc.)
-                    const hasNumberedSubsections = section.subsections.some(subsection =>
-                        subsection.subsection.match(/\d+\.\d+/)
-                    );
-
-                    if (hasNumberedSubsections) {
-                        // Add main section header row
-                        const mainRow = document.createElement('tr');
-                        mainRow.innerHTML = `
-                    <td><strong>${section.main_section.split('(')[0].trim()}</strong></td>
-                    <td></td>
-                    <td></td>
-                `;
-                        if (!isExtraCredit) {
-                            summaryBody.appendChild(mainRow);
-                        } else {
-                            extraCreditBody.appendChild(mainRow);
-                        }
-                    }
 
                     section.subsections.forEach((subsection, subIndex) => {
                         const subsectionId = `${sectionId}-subsection-${subIndex}`;
@@ -1413,63 +962,15 @@
                         mainSectionPoints += subsectionPoints;
                         mainSectionMax += maxSubPoints;
 
-                        // Only add subsection row if it has a number pattern (like 1.1, 2.1, etc.)
-                        if (subsection.subsection.match(/\d+\.\d+/)) {
-                            // Add subsection row
-                            const subRow = document.createElement('tr');
-                            subRow.innerHTML = `
-                        <td style="padding-left: 20px;">${subsection.subsection.split('(')[0].trim()}</td>
-                        <td>${subsectionPoints.toFixed(1)}</td>
-                        <td>${maxSubPoints}</td>
-                    `;
-                            if (!isExtraCredit) {
-                                summaryBody.appendChild(subRow);
-                            } else {
-                                extraCreditBody.appendChild(subRow);
-                            }
-                        }
-
+                        // Update subsection header with points
                         // Update subsection header with points (always overwrite)
                         const subHeaderElement = document.querySelector(`[data-id="${subsectionId}-header"]`);
                         if (subHeaderElement) {
                             subHeaderElement.textContent = `${subsection.subsection.split('(')[0].trim()} (${subsectionPoints.toFixed(1)}/${maxSubPoints})`;
                         }
-                    });
 
-                    // Add main section total row only if it has numbered subsections
-                    if (hasNumberedSubsections) {
-                        const totalRow = document.createElement('tr');
-                        totalRow.style.borderTop = '1px solid #ddd';
-                        totalRow.innerHTML = `
-                    <td style="padding-left: 20px;"><em>${section.main_section.split('(')[0].trim()} Total</em></td>
-                    <td><strong>${mainSectionPoints.toFixed(1)}</strong></td>
-                    <td><strong>${mainSectionMax}</strong></td>
-                `;
-                        if (!isExtraCredit) {
-                            summaryBody.appendChild(totalRow);
-                            totalPoints += mainSectionPoints;
-                        } else {
-                            extraCreditBody.appendChild(totalRow);
-                            extraCreditPoints += mainSectionPoints;
-                            extraCreditMaxPoints = rubricData.grading_rubric.extra_credit_points;
-                        }
-                    } else {
-                        // If no numbered subsections, just add the main section as a single row
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                    <td>${section.main_section.split('(')[0].trim()}</td>
-                    <td>${mainSectionPoints.toFixed(1)}</td>
-                    <td>${mainSectionMax}</td>
-                `;
-                        if (!isExtraCredit) {
-                            summaryBody.appendChild(row);
-                            totalPoints += mainSectionPoints;
-                        } else {
-                            extraCreditBody.appendChild(row);
-                            extraCreditPoints += mainSectionPoints;
-                            extraCreditMaxPoints = rubricData.grading_rubric.extra_credit_points;
-                        }
-                    }
+
+                    });
 
                     // Update main section header with points (always overwrite)
                     const mainHeaderElement = document.querySelector(`[data-id="${sectionId}-header"]`);
@@ -1477,8 +978,19 @@
                         mainHeaderElement.textContent = `${section.main_section.split('(')[0].trim()} (${mainSectionPoints.toFixed(1)}/${mainSectionMax})`;
                     }
 
+
+                    // Add main section row for subsections
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${section.main_section.split('(')[0].trim()}</td>
+                        <td>${mainSectionPoints.toFixed(1)}</td>
+                        <td>${mainSectionMax}</td>
+                    `;
+                    summaryBody.appendChild(row);
+                    totalPoints += mainSectionPoints;
+
                 } else {
-                    // Process main section without subsections
+                    // Process main section
                     const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
                     let sectionPoints = 0;
                     const maxPoints = section.points_available;
@@ -1500,10 +1012,10 @@
                         // Add row to extra credit table
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                    <td>${section.main_section.split('(')[0].trim()}</td>
-                    <td>${sectionPoints.toFixed(1)}</td>
-                    <td>${maxPoints}</td>
-                `;
+                            <td>${section.main_section.split('(')[0].trim()}</td>
+                            <td>${extraCreditPoints.toFixed(1)}</td>
+                            <td>${extraCreditMaxPoints}</td>
+                        `;
                         extraCreditBody.appendChild(row);
                     } else {
                         totalPoints += sectionPoints;
@@ -1511,18 +1023,18 @@
                         // Add row to summary table
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                    <td>${section.main_section.split('(')[0].trim()}</td>
-                    <td>${sectionPoints.toFixed(1)}</td>
-                    <td>${maxPoints}</td>
-                `;
+                            <td>${section.main_section.split('(')[0].trim()}</td>
+                            <td>${sectionPoints.toFixed(1)}</td>
+                            <td>${maxPoints}</td>
+                        `;
                         summaryBody.appendChild(row);
                     }
-
                     // Update section header with points (always overwrite)
                     const headerElement = document.querySelector(`[data-id="${sectionId}-header"]`);
                     if (headerElement && section.positive_items) {
                         headerElement.textContent = `${section.main_section.split('(')[0].trim()} (${sectionPoints.toFixed(1)}/${maxPoints})`;
                     }
+
                 }
             });
 
@@ -1533,282 +1045,233 @@
             // Handle extra credit section visibility
             if (hasExtraCredit) {
                 document.getElementById('extraCreditSection').classList.remove('hidden');
-
-                // Add extra credit total row if needed
-                if (extraCreditPoints > 0) {
-                    const extraCreditTotalRow = document.createElement('tr');
-                    extraCreditTotalRow.className = 'total-row';
-                    extraCreditTotalRow.innerHTML = `
-                <td><strong>Extra Credit Total</strong></td>
-                <td><strong>${extraCreditPoints.toFixed(1)}</strong></td>
-                <td><strong>${extraCreditMaxPoints}</strong></td>
-            `;
-                    extraCreditBody.appendChild(extraCreditTotalRow);
-                }
             } else {
                 document.getElementById('extraCreditSection').classList.add('hidden');
             }
         }
-        // // Update points summary
-        // function updateSummary() {
-        //     const summaryBody = document.getElementById('summaryBody');
-        //     summaryBody.innerHTML = '';
 
-        //     let totalPoints = 0;
-        //     let totalMaxPoints = 0;
-        //     let hasExtraCredit = false;
-        //     let extraCreditPoints = 0;
-        //     let extraCreditMaxPoints = 0;
 
-        //     const extraCreditBody = document.getElementById('extraCreditBody');
-        //     extraCreditBody.innerHTML = '';
-
-        //     rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
-        //         const sectionId = `section-${sectionIndex}`;
-        //         const isExtraCredit = section.main_section.includes('Extra Credit');
-
-        //         if (isExtraCredit) {
-        //             hasExtraCredit = true;
-        //         }
-
-        //         // Process subsections
-        //         if (section.subsections) {
-        //             let mainSectionPoints = 0;
-        //             let mainSectionMax = 0;
-
-        //             // Add main section header row
-        //             const mainRow = document.createElement('tr');
-        //             mainRow.innerHTML = `
-        //         <td><strong>${section.main_section.split('(')[0].trim()}</strong></td>
-        //         <td></td>
-        //         <td></td>
-        //     `;
-        //             if (!isExtraCredit) {
-        //                 summaryBody.appendChild(mainRow);
-        //             } else {
-        //                 extraCreditBody.appendChild(mainRow);
-        //             }
-
-        //             section.subsections.forEach((subsection, subIndex) => {
-        //                 const subsectionId = `${sectionId}-subsection-${subIndex}`;
-        //                 const subsectionState = state.selectedItems.get(subsectionId) || { positive: new Set(), negative: new Set() };
-        //                 const maxSubPoints = subsection.positive_items.points_available;
-        //                 let subsectionPoints = 0;
-
-        //                 subsectionState.positive.forEach(itemId => {
-        //                     const parts = itemId.split('-');
-        //                     const itemIndex = parseInt(parts[parts.length - 1]);
-        //                     if (subsection.positive_items.items[itemIndex]) {
-        //                         subsectionPoints += subsection.positive_items.items[itemIndex].points;
-        //                     }
-        //                 });
-
-        //                 mainSectionPoints += subsectionPoints;
-        //                 mainSectionMax += maxSubPoints;
-
-        //                 // Add subsection row
-        //                 const subRow = document.createElement('tr');
-        //                 subRow.innerHTML = `
-        //             <td style="padding-left: 20px;">${subsection.subsection.split('(')[0].trim()}</td>
-        //             <td>${subsectionPoints.toFixed(1)}</td>
-        //             <td>${maxSubPoints}</td>
-        //         `;
-        //                 if (!isExtraCredit) {
-        //                     summaryBody.appendChild(subRow);
-        //                 } else {
-        //                     extraCreditBody.appendChild(subRow);
-        //                 }
-
-        //                 // Update subsection header with points (always overwrite)
-        //                 const subHeaderElement = document.querySelector(`[data-id="${subsectionId}-header"]`);
-        //                 if (subHeaderElement) {
-        //                     subHeaderElement.textContent = `${subsection.subsection.split('(')[0].trim()} (${subsectionPoints.toFixed(1)}/${maxSubPoints})`;
-        //                 }
-        //             });
-
-        //             // Add main section total row
-        //             const totalRow = document.createElement('tr');
-        //             totalRow.style.borderTop = '1px solid #ddd';
-        //             totalRow.innerHTML = `
-        //         <td style="padding-left: 20px;"><em>${section.main_section.split('(')[0].trim()} Total</em></td>
-        //         <td><strong>${mainSectionPoints.toFixed(1)}</strong></td>
-        //         <td><strong>${mainSectionMax}</strong></td>
-        //     `;
-        //             if (!isExtraCredit) {
-        //                 summaryBody.appendChild(totalRow);
-        //                 totalPoints += mainSectionPoints;
-        //             } else {
-        //                 extraCreditBody.appendChild(totalRow);
-        //                 extraCreditPoints += mainSectionPoints;
-        //                 extraCreditMaxPoints = rubricData.grading_rubric.extra_credit_points;
-        //             }
-
-        //             // Update main section header with points (always overwrite)
-        //             const mainHeaderElement = document.querySelector(`[data-id="${sectionId}-header"]`);
-        //             if (mainHeaderElement) {
-        //                 mainHeaderElement.textContent = `${section.main_section.split('(')[0].trim()} (${mainSectionPoints.toFixed(1)}/${mainSectionMax})`;
-        //             }
-
-        //         } else {
-        //             // Process main section without subsections
-        //             const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
-        //             let sectionPoints = 0;
-        //             const maxPoints = section.points_available;
-
-        //             if (section.positive_items) {
-        //                 sectionState.positive.forEach(itemId => {
-        //                     const parts = itemId.split('-');
-        //                     const itemIndex = parseInt(parts[parts.length - 1]);
-        //                     if (section.positive_items.items[itemIndex]) {
-        //                         sectionPoints += section.positive_items.items[itemIndex].points;
-        //                     }
-        //                 });
-        //             }
-
-        //             if (isExtraCredit) {
-        //                 extraCreditPoints += sectionPoints;
-        //                 extraCreditMaxPoints = rubricData.grading_rubric.extra_credit_points;
-
-        //                 // Add row to extra credit table
-        //                 const row = document.createElement('tr');
-        //                 row.innerHTML = `
-        //             <td>${section.main_section.split('(')[0].trim()}</td>
-        //             <td>${sectionPoints.toFixed(1)}</td>
-        //             <td>${maxPoints}</td>
-        //         `;
-        //                 extraCreditBody.appendChild(row);
-        //             } else {
-        //                 totalPoints += sectionPoints;
-
-        //                 // Add row to summary table
-        //                 const row = document.createElement('tr');
-        //                 row.innerHTML = `
-        //             <td>${section.main_section.split('(')[0].trim()}</td>
-        //             <td>${sectionPoints.toFixed(1)}</td>
-        //             <td>${maxPoints}</td>
-        //         `;
-        //                 summaryBody.appendChild(row);
-        //             }
-
-        //             // Update section header with points (always overwrite)
-        //             const headerElement = document.querySelector(`[data-id="${sectionId}-header"]`);
-        //             if (headerElement && section.positive_items) {
-        //                 headerElement.textContent = `${section.main_section.split('(')[0].trim()} (${sectionPoints.toFixed(1)}/${maxPoints})`;
-        //             }
-        //         }
-        //     });
-
-        //     // Update total points
-        //     document.getElementById('totalPoints').textContent = totalPoints.toFixed(1);
-        //     document.getElementById('maxPoints').textContent = rubricData.grading_rubric.total_points;
-
-        //     // Handle extra credit section visibility
-        //     if (hasExtraCredit) {
-        //         document.getElementById('extraCreditSection').classList.remove('hidden');
-
-        //         // Add extra credit total row if needed
-        //         if (extraCreditPoints > 0) {
-        //             const extraCreditTotalRow = document.createElement('tr');
-        //             extraCreditTotalRow.className = 'total-row';
-        //             extraCreditTotalRow.innerHTML = `
-        //         <td><strong>Extra Credit Total</strong></td>
-        //         <td><strong>${extraCreditPoints.toFixed(1)}</strong></td>
-        //         <td><strong>${extraCreditMaxPoints}</strong></td>
-        //     `;
-        //             extraCreditBody.appendChild(extraCreditTotalRow);
-        //         }
-        //     } else {
-        //         document.getElementById('extraCreditSection').classList.add('hidden');
-        //     }
-        // }
-
-        // Generate feedback
+        // Generate the final feedback
         function generateFeedback() {
-            const outputSection = document.getElementById('outputSection');
-            const copyBtn = document.getElementById('copyBtn');
-            let feedback = '';
+            // Collect all feedback texts
+            state.feedbackTexts.clear();
 
-            // Add section feedback
             rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
                 const sectionId = `section-${sectionIndex}`;
-                const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
-                const feedbackTextarea = document.getElementById(`${sectionId}-feedback`);
-                const feedbackText = feedbackTextarea ? feedbackTextarea.value : '';
-
-                if (sectionState.positive.size > 0 || sectionState.negative.size > 0 || feedbackText) {
-                    feedback += `\n${section.main_section}\n`;
-
-                    // Positive items
-                    if (sectionState.positive.size > 0) {
-                        feedback += 'Strengths:\n';
-                        sectionState.positive.forEach(itemId => {
-                            const itemElement = document.getElementById(itemId);
-                            if (itemElement) {
-                                feedback += `• ${itemElement.querySelector('.editable[data-id$="-text"]').textContent}\n`;
-                            }
-                        });
+                // Process subsections
+                if (section.subsections) {
+                    section.subsections.forEach((subsection, subIndex) => {
+                        const subsectionId = `${sectionId}-subsection-${subIndex}`;
+                        const feedbackTextarea = document.getElementById(`${subsectionId}-feedback`);
+                        if (feedbackTextarea && feedbackTextarea.value.trim()) {
+                            state.feedbackTexts.set(subsectionId, feedbackTextarea.value.trim());
+                        }
+                    });
+                } else {
+                    const feedbackTextarea = document.getElementById(`${sectionId}-feedback`);
+                    if (feedbackTextarea && feedbackTextarea.value.trim()) {
+                        state.feedbackTexts.set(sectionId, feedbackTextarea.value.trim());
                     }
-
-                    // Negative items
-                    if (sectionState.negative.size > 0) {
-                        feedback += 'Areas for Improvement:\n';
-                        sectionState.negative.forEach(itemId => {
-                            const itemElement = document.getElementById(itemId);
-                            if (itemElement) {
-                                feedback += `• ${itemElement.querySelector('.editable[data-id$="-text"]').textContent}\n`;
-                            }
-                        });
-                    }
-
-                    // Section feedback
-                    if (feedbackText) {
-                        feedback += `Additional Feedback: ${feedbackText}\n`;
-                    }
-
-                    feedback += '\n';
                 }
             });
 
-            // Add general feedback
-            const generalFeedbackTextarea = document.getElementById('general-feedback');
-            if (generalFeedbackTextarea && generalFeedbackTextarea.value) {
-                feedback += `General Feedback:\n${generalFeedbackTextarea.value}\n\n`;
+            // Get general feedback
+            const generalTextarea = document.getElementById('general-feedback');
+            state.generalFeedback = generalTextarea ? generalTextarea.value.trim() : '';
+
+            // Generate the output
+            let output = '';
+
+            rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
+                const sectionId = `section-${sectionIndex}`;
+                let sectionPoints = 0;
+                let sectionMaxPoints = section.points_available;
+
+                if (section.subsections) {
+                    section.subsections.forEach((subsection, subIndex) => {
+                        const subsectionId = `${sectionId}-subsection-${subIndex}`;
+                        const subsectionState = state.selectedItems.get(subsectionId) || { positive: new Set(), negative: new Set() };
+                        let subPoints = 0;
+                        const subMaxPoints = subsection.positive_items.points_available;
+
+                        subsectionState.positive.forEach(itemId => {
+                            const parts = itemId.split('-');
+                            const itemIndex = parseInt(parts[parts.length - 1]);
+                            if (subsection.positive_items.items[itemIndex]) {
+                                subPoints += subsection.positive_items.items[itemIndex].points;
+                            }
+                        });
+                        sectionPoints += subPoints;
+                    });
+                } else {
+                    const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
+                    sectionState.positive.forEach(itemId => {
+                        const parts = itemId.split('-');
+                        const itemIndex = parseInt(parts[parts.length - 1]);
+                        if (section.positive_items && section.positive_items.items[itemIndex]) {
+                            sectionPoints += section.positive_items.items[itemIndex].points;
+                        }
+                    });
+                }
+
+                output += `${section.main_section.split('(')[0].trim()} (${sectionPoints.toFixed(1)}/${sectionMaxPoints})\n{\n`;
+
+                if (section.subsections) {
+                    section.subsections.forEach((subsection, subIndex) => {
+                        const subsectionId = `${sectionId}-subsection-${subIndex}`;
+                        const subsectionState = state.selectedItems.get(subsectionId) || { positive: new Set(), negative: new Set() };
+                        let subPoints = 0;
+                        const subMaxPoints = subsection.positive_items.points_available;
+
+                        subsectionState.positive.forEach(itemId => {
+                            const parts = itemId.split('-');
+                            const itemIndex = parseInt(parts[parts.length - 1]);
+                            if (subsection.positive_items.items[itemIndex]) {
+                                subPoints += subsection.positive_items.items[itemIndex].points;
+                            }
+                        });
+
+                        output += `\n${subsection.subsection.split('(')[0].trim()} (${subPoints.toFixed(1)}/${subMaxPoints})\n`;
+
+                        // Add positive items
+                        if (subsectionState.positive.size > 0) {
+                            output += `What you did well\n`;
+                            subsectionState.positive.forEach(itemId => {
+                                const itemElement = document.getElementById(itemId);
+                                if (itemElement) {
+                                    const text = itemElement.querySelector('.editable').textContent;
+                                    output += `•\t${text}\n`;
+                                }
+                            });
+                        }
+
+                        // Add negative items
+                        if (subsectionState.negative.size > 0) {
+                            output += `What needs improvement\n`;
+                            subsectionState.negative.forEach(itemId => {
+                                const itemElement = document.getElementById(itemId);
+                                if (itemElement) {
+                                    const text = itemElement.querySelector('.editable').textContent;
+                                    output += `•\t${text}\n`;
+                                }
+                            });
+                        }
+
+                        // Add feedback if exists
+                        if (state.feedbackTexts.has(subsectionId)) {
+                            output += `Feedback on Section:\n${state.feedbackTexts.get(subsectionId)}\n`;
+                        }
+                    });
+
+                } else {
+                    const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
+
+                    // Add positive items
+                    if (sectionState.positive.size > 0) {
+                        output += `What you did well\n`;
+                        sectionState.positive.forEach(itemId => {
+                            const itemElement = document.getElementById(itemId);
+                            if (itemElement) {
+                                const text = itemElement.querySelector('.editable').textContent;
+                                output += `•\t${text}\n`;
+                            }
+                        });
+                    }
+
+                    // Add negative items
+                    if (sectionState.negative.size > 0) {
+                        output += `What needs improvement\n`;
+                        sectionState.negative.forEach(itemId => {
+                            const itemElement = document.getElementById(itemId);
+                            if (itemElement) {
+                                const text = itemElement.querySelector('.editable').textContent;
+                                output += `•\t${text}\n`;
+                            }
+                        });
+                    }
+
+                    // Add feedback if exists
+                    if (state.feedbackTexts.has(sectionId)) {
+                        output += `Feedback on Section:\n${state.feedbackTexts.get(sectionId)}\n`;
+                    }
+                }
+
+                output += `}\n`;
+                output += `${'_'.repeat(40)}\n`;
+            });
+
+            // Add general feedback if exists
+            if (state.generalFeedback) {
+                output += `General Feedback\n{\n${state.generalFeedback}\n}\n`;
             }
 
-            // Add summary
-            const totalPoints = document.getElementById('totalPoints').textContent;
-            const maxPoints = document.getElementById('maxPoints').textContent;
-            feedback += `Total Score: ${totalPoints}/${maxPoints}`;
-
-            // Display feedback
-            outputSection.textContent = feedback;
+            // Display the output
+            const outputSection = document.getElementById('outputSection');
+            outputSection.textContent = output;
             outputSection.classList.remove('hidden');
-            copyBtn.classList.remove('hidden');
+            document.getElementById('copyBtn').classList.remove('hidden');
+
         }
 
         // Reset all selections and feedback
         function resetAll() {
-            // Clear selected items
+            // Clear selections
             state.selectedItems.clear();
+            state.feedbackTexts.clear();
+            state.generalFeedback = '';
 
-            // Clear all selections visually
+            // Reset UI
             document.querySelectorAll('.item').forEach(item => {
                 item.classList.remove('selected-positive', 'selected-negative');
             });
 
-            // Clear all textareas
-            document.querySelectorAll('textarea').forEach(textarea => {
+            document.querySelectorAll('.feedback-textarea').forEach(textarea => {
                 textarea.value = '';
             });
 
-            // Hide output section
-            document.getElementById('outputSection').classList.add('hidden');
-            document.getElementById('copyBtn').classList.add('hidden');
+            // Reset headers
+            document.querySelectorAll('.editable[data-id$="-header"]').forEach(header => {
+                const originalText = header.getAttribute('data-id').includes('subsection-') ?
+                    getSubsectionOriginalText(header) :
+                    getMainSectionOriginalText(header);
+                header.textContent = originalText;
+            });
 
-            // Reset summary
+            // Hide output
+            document.getElementById('outputSection').classList.add('hidden');
+
+            // Update summary
             updateSummary();
         }
 
+        // Helper function to get original main section text
+        function getMainSectionOriginalText(header) {
+            const dataId = header.getAttribute('data-id');
+            const parts = dataId.split('-');
+            const sectionIndex = parseInt(parts[1]);
+            return rubricData.grading_rubric.sections[sectionIndex].main_section;
+        }
+
+        // Helper function to get original subsection text
+        function getSubsectionOriginalText(header) {
+            const dataId = header.getAttribute('data-id');
+            const parts = dataId.split('-');
+            const sectionIndex = parseInt(parts[1]);
+            const subIndex = parseInt(parts[3]);
+            return rubricData.grading_rubric.sections[sectionIndex].subsections[subIndex].subsection;
+        }
+
+        // Copy feedback button
+        document.getElementById('copyBtn').addEventListener('click', function () {
+            const output = document.getElementById('outputSection').textContent;
+            if (output.trim()) {
+                navigator.clipboard.writeText(output).then(() => {
+                    alert('Feedback copied to clipboard!');
+                }).catch(err => {
+                    console.error('Failed to copy text: ', err);
+                });
+            }
+        });
 
     </script>
 </body>

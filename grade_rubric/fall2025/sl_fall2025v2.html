@@ -1093,7 +1093,8 @@
                         header.querySelector('span').getAttribute('data-id').replace('-header', '-content');
                     const content = document.getElementById(contentId);
                     if (content) {
-                        // This is the logic that hides/shows content.
+                        // This is the logic that hides/shows content, which may be 
+                        // what is hiding your modal if the modal is considered 'content'.
                         content.style.display = content.style.display === 'none' ? 'block' : 'none';
 
                         // Crucial: Stop propagation here too, so this click doesn't 
@@ -1809,7 +1810,13 @@
             updateSummary();
         }
 
-
+        // Add click event for items to open modal
+        document.addEventListener('click', function (e) {
+            const item = e.target.closest('.item');
+            if (item) {
+                showItemModal(item.id);
+            }
+        });
     </script>
 </body>
 
