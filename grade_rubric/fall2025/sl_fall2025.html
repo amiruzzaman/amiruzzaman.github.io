@@ -1155,7 +1155,38 @@
             });
         }
 
+        // Function to save modal data
+        function saveItemModal() {
+            const itemId = document.getElementById('modalItemId').value;
+            const itemText = document.getElementById('modalItemText').value;
+            // CRITICAL: Get the new points value from the modal input
+            const newPoints = parseInt(document.getElementById('modalItemPoints').value);
 
+            // 1. Find the corresponding item in the DOM and update its text and points
+            const itemElement = document.getElementById(itemId);
+            if (itemElement) {
+                // Update the description text in the DOM
+                itemElement.querySelector('.item-description').textContent = itemText;
+
+                // Update the points value in the DOM
+                const pointsElement = itemElement.querySelector('.item-points');
+                if (pointsElement) {
+                    // Convert to a string for display in the DOM
+                    pointsElement.textContent = `[${newPoints}]`;
+                }
+            }
+
+            // 2. Update the hidden rubricData structure
+            // This is where the application stores the source of truth for all points.
+            updateRubricData(itemId, itemText, newPoints);
+
+            // 3. REFRESH THE SUMMARY
+            // The summary must be refreshed immediately after the data is saved, 
+            // especially if the item is selected, to reflect the new score.
+            updateSummary();
+
+            hideItemModal();
+        }
         // Toggle item selection
         function toggleItemSelection(item) {
             const itemId = item.id;
@@ -1318,31 +1349,35 @@
             updateSummary();
         }
 
-        // Update rubric data structure with new values
+        // Function to update the hidden rubricData structure (Ensure this is correct)
         function updateRubricData(itemId, newText, newPoints) {
             const parts = itemId.split('-');
             const sectionIndex = parseInt(parts[1]);
-            const isPositive = parts[2] === 'positive';
-            const itemIndex = parseInt(parts[parts.length - 1]);
 
-            // Check if this is a subsection
+            // Check if this is a subsection (ID contains 'subsection')
             if (parts.length > 4 && parts[2] === 'subsection') {
                 const subIndex = parseInt(parts[3]);
+                // FIX: Now correctly checks for 'positive' at index 4 for subsections
+                const isPositive = parts[4] === 'positive';
                 const subItemIndex = parseInt(parts[5]);
+
                 const subSection = rubricData.grading_rubric.sections[sectionIndex].subsections[subIndex];
 
                 if (isPositive) {
                     subSection.positive_items.items[subItemIndex].description = newText;
-                    subSection.positive_items.items[subItemIndex].points = newPoints;
+                    subSection.positive_items.items[subItemIndex].points = newPoints; // Saves new points
                 } else {
                     subSection.negative_items.items[subItemIndex] = newText;
                 }
             } else {
+                // This handles main sections
+                const isPositive = parts[2] === 'positive';
+                const itemIndex = parseInt(parts[parts.length - 1]);
                 const section = rubricData.grading_rubric.sections[sectionIndex];
 
                 if (isPositive) {
                     section.positive_items.items[itemIndex].description = newText;
-                    section.positive_items.items[itemIndex].points = newPoints;
+                    section.positive_items.items[itemIndex].points = newPoints; // Saves new points
                 } else {
                     section.negative_items.items[itemIndex] = newText;
                 }
