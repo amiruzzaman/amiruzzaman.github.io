@@ -4626,7 +4626,7 @@ function loadCountryImages(countryName) {
                     const barHeight = Math.max(15, (40 / maxCoinsPerYear) * coinsInYear.length);
                     bar.style.height = `${barHeight}px`;
                     bar.style.width = '20px';
-                    bar.style.backgroundColor = getColorForCoinType(item.coin.currency_type);
+                    bar.style.backgroundColor = getColorForCurrencyType(item.coin.currency_type);
                     bar.style.marginBottom = '1px';
                     bar.style.borderRadius = '2px 2px 0 0';
                     bar.style.cursor = 'pointer';
@@ -4719,25 +4719,30 @@ function loadCountryImages(countryName) {
             window.timelineCoinsData = coinsData;
         }
 
-        // Helper function to get color based on currency type
-        function getColorForCoinType(currencyType) {
-            if (!currencyType) return '#95a5a6';
-
-            const type = currencyType.toLowerCase();
-            if (type.includes('coin')) return '#2ECC71';
-            if (type.includes('paper') || type.includes('bill')) return '#3498db';
-            if (type.includes('antique')) return '#e74c3c'; //'#f39c12'
-            if (type.includes('gold')) return '#FFD700';
-            if (type.includes('silver')) return '#C0C0C0';
-            if (type.includes('bronze')) return '#CD7F32';
-
-            return '#95a5a6';
-        }
+        // Centralized color mapping for currency types
+function getColorForCurrencyType(currencyType) {
+    if (!currencyType) return '#95a5a6'; // Default gray
+    
+    const type = currencyType.toLowerCase().trim();
+    
+    // Consistent color mapping for all visualizations
+    if (type.includes('coin')) return '#2ECC71'; // Green for coins
+    if (type.includes('paper') || type.includes('bill')) return '#3498db'; // Blue for paper bills
+    if (type.includes('antique')) return '#e74c3c'; // Red for antique
+    if (type.includes('gold')) return '#FFD700'; // Gold color
+    if (type.includes('silver')) return '#C0C0C0'; // Silver color
+    if (type.includes('bronze')) return '#CD7F32'; // Bronze color
+    
+    return '#95a5a6'; // Default gray for unknown types
+}
         
+// Use the centralized color mapping (alias for backward compatibility)
+function getColorForCoinType(currencyType) {
+    return getColorForCurrencyType(currencyType);
+}
 
 
-
-        // Function to create interactive currency type distribution chart
+// Function to create interactive currency type distribution chart
 function createCurrencyDistributionChart(coinsData) {
     const distributionSection = document.getElementById('distribution-section');
     const distributionContainer = document.getElementById('distribution-container');
@@ -4789,11 +4794,9 @@ function createCurrencyDistributionChart(coinsData) {
     legendDiv.id = 'distribution-legend';
     distributionContainer.appendChild(legendDiv);
 
-    // Colors for chart segments
-    const colors = [
-        '#3498db', '#e74c3c', '#2ecc71', '#f39c12',
-        '#9b59b6', '#1abc9c', '#d35400', '#34495e'
-    ];
+    // Colors for chart segments - use centralized color mapping
+    const colors = types.map(type => getColorForCurrencyType(type));
+
     // Store chart data globally for filtering (now supports multiple filters)
     window.distributionData = {
         types: types,
@@ -4835,6 +4838,7 @@ function createCurrencyDistributionChart(coinsData) {
     buttonContainer.appendChild(showAllButton);
     distributionContainer.appendChild(buttonContainer);
 }
+
 
 // Function to render the distribution chart with proper legends and clickable slices
 function renderDistributionChart(data) {
@@ -4954,7 +4958,7 @@ function renderDistributionChart(data) {
 
         const colorBox = document.createElement('div');
         colorBox.className = 'legend-color';
-        colorBox.style.backgroundColor = isActive ? color : '#cccccc';
+        colorBox.style.backgroundColor = isActive ? getColorForCurrencyType(type) : '#cccccc';
         colorBox.style.width = '20px';
         colorBox.style.height = '20px';
         colorBox.style.borderRadius = '4px';
@@ -5236,6 +5240,20 @@ function filterByCurrencyType(type) {
     }
 }
 
+
+// Ensure consistent colors across all visualizations
+function ensureColorConsistency() {
+    // This function can be called to verify colors are consistent
+    const testTypes = ['coin', 'paper-bill', 'antique', 'gold coin', 'silver coin'];
+    
+    console.log('Color consistency check:');
+    testTypes.forEach(type => {
+        console.log(`${type}: ${getColorForCurrencyType(type)}`);
+    });
+}
+
+// Call this during development to verify colors
+// ensureColorConsistency();
 
         // Helper function to update image display
         function updateImageDisplay(index, coinsArray) {
