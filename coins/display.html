@@ -2523,7 +2523,7 @@
                 <div id="summary-container" class="summary"></div>
             </div>
             <div class="box-list-button-wrapper">
-                <a href="box_country_list.html" class="btn btn-box-list" title="Box Country List">
+                <a href="box_country_list.html" class="btn btn-box-list" title="Box Country List" target="_blank">
                     <i class="fas fa-boxes"></i>
                 </a>
             </div>
@@ -4754,7 +4754,6 @@ function createCurrencyDistributionChart(coinsData) {
     distributionContainer.appendChild(buttonContainer);
 }
 
-
 // Function to render the distribution chart with proper legends and clickable slices
 function renderDistributionChart(data) {
     const chartDiv = document.getElementById('distribution-pie-chart');
@@ -4781,8 +4780,6 @@ function renderDistributionChart(data) {
     data.types.forEach((type, index) => {
         const percentage = (data.typeCount[type] / data.totalItems) * 100;
         const color = data.colors[index % data.colors.length];
-        // If there are no active filters, every segment is "active".
-        // If there are active filters, a segment is active only if its type is included.
         const isActive = !hasFilter || activeFilters.includes(type);
 
         const start = cumulativePercentage;
@@ -4827,27 +4824,36 @@ function renderDistributionChart(data) {
         segmentOverlay.style.width = '100%';
         segmentOverlay.style.height = '100%';
         segmentOverlay.style.borderRadius = '50%';
-        // Keep original overlay clipPath approach for clickable slice (works in your original file)
-        segmentOverlay.style.clipPath = `conic-gradient(from ${start * 3.6}deg, #0000 0deg, #0000 ${percentage * 3.6}deg, #000 ${percentage * 3.6}deg)`;
+        
+        // Create clip path for this specific segment
+        const startAngle = start * 3.6;
+        const endAngle = end * 3.6;
+        segmentOverlay.style.clipPath = `conic-gradient(from ${startAngle}deg, #0000 0deg, #0000 ${percentage * 3.6}deg, #000 ${percentage * 3.6}deg)`;
+        
         segmentOverlay.style.cursor = 'pointer';
         segmentOverlay.style.zIndex = '2';
         segmentOverlay.style.opacity = '0';
         segmentOverlay.title = `Click to toggle ${type}`;
 
-        segmentOverlay.addEventListener('click', (e) => {
+        // Use let to create block-scoped variable
+        let currentType = type;
+
+        // Add click event - use the block-scoped variable
+        segmentOverlay.addEventListener('click', function(e) {
             e.stopPropagation();
-            filterByCurrencyType(type.toLowerCase().trim()); // normalize
+            console.log('Chart slice clicked - currentType:', currentType);
+            filterByCurrencyType(currentType);
         });
 
-
-        segmentOverlay.addEventListener('mouseenter', () => {
-            segmentOverlay.style.opacity = '0.1';
-            segmentOverlay.style.backgroundColor = color;
+        // Add hover effects
+        segmentOverlay.addEventListener('mouseenter', function() {
+            this.style.opacity = '0.1';
+            this.style.backgroundColor = color;
         });
 
-        segmentOverlay.addEventListener('mouseleave', () => {
-            segmentOverlay.style.opacity = '0';
-            segmentOverlay.style.backgroundColor = 'transparent';
+        segmentOverlay.addEventListener('mouseleave', function() {
+            this.style.opacity = '0';
+            this.style.backgroundColor = 'transparent';
         });
 
         chartDiv.appendChild(segmentOverlay);
@@ -4896,20 +4902,23 @@ function renderDistributionChart(data) {
         legendItem.style.alignItems = 'center';
         legendItem.style.justifyContent = 'flex-start';
 
-        legendItem.addEventListener('click', () => {
-            //filterByCurrencyType(type); // toggle this type
-            filterByCurrencyType(type.toLowerCase().trim());
+        // Use let for legend type too
+        let legendType = type;
 
+        // Add click event to legend item
+        legendItem.addEventListener('click', function(e) {
+            console.log('Legend item clicked - legendType:', legendType);
+            filterByCurrencyType(legendType);
         });
 
-        legendItem.addEventListener('mouseenter', () => {
-            legendItem.style.transform = 'translateX(5px)';
-            colorBox.style.transform = 'scale(1.1)';
+        legendItem.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateX(5px)';
+            this.querySelector('.legend-color').style.transform = 'scale(1.1)';
         });
 
-        legendItem.addEventListener('mouseleave', () => {
-            legendItem.style.transform = 'translateX(0)';
-            colorBox.style.transform = 'scale(1)';
+        legendItem.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateX(0)';
+            this.querySelector('.legend-color').style.transform = 'scale(1)';
         });
 
         legendDiv.appendChild(legendItem);
@@ -4948,6 +4957,120 @@ function renderDistributionChart(data) {
 }
 
 
+// Replace the segments.forEach loop with this:
+function createChartSegment(segment) {
+    const { type, start, end, percentage, color, isActive, index } = segment;
+
+    // Create clickable segment overlay
+    const segmentOverlay = document.createElement('div');
+    segmentOverlay.className = 'chart-segment-overlay';
+    segmentOverlay.style.position = 'absolute';
+    segmentOverlay.style.top = '0';
+    segmentOverlay.style.left = '0';
+    segmentOverlay.style.width = '100%';
+    segmentOverlay.style.height = '100%';
+    segmentOverlay.style.borderRadius = '50%';
+    
+    const startAngle = start * 3.6;
+    const endAngle = end * 3.6;
+    segmentOverlay.style.clipPath = `conic-gradient(from ${startAngle}deg, #0000 0deg, #0000 ${percentage * 3.6}deg, #000 ${percentage * 3.6}deg)`;
+    
+    segmentOverlay.style.cursor = 'pointer';
+    segmentOverlay.style.zIndex = '2';
+    segmentOverlay.style.opacity = '0';
+    segmentOverlay.title = `Click to toggle ${type}`;
+
+    // Add click event
+    segmentOverlay.addEventListener('click', function(e) {
+        e.stopPropagation();
+        console.log('Chart slice clicked - type:', type);
+        filterByCurrencyType(type);
+    });
+
+    // Add hover effects
+    segmentOverlay.addEventListener('mouseenter', function() {
+        this.style.opacity = '0.1';
+        this.style.backgroundColor = color;
+    });
+
+    segmentOverlay.addEventListener('mouseleave', function() {
+        this.style.opacity = '0';
+        this.style.backgroundColor = 'transparent';
+    });
+
+    document.getElementById('distribution-pie-chart').appendChild(segmentOverlay);
+}
+
+function createLegendItem(segment, data) {
+    const { type, color, isActive } = segment;
+
+    const legendItem = document.createElement('div');
+    legendItem.className = 'legend-item';
+    legendItem.style.cursor = 'pointer';
+    legendItem.style.opacity = isActive ? '1' : '0.5';
+    legendItem.style.transition = 'all 0.3s ease';
+    legendItem.style.padding = '4px 8px';
+    legendItem.style.borderRadius = '4px';
+    legendItem.style.marginBottom = '5px';
+    legendItem.style.border = data.activeFilters.includes(type) ? '2px solid #2c3e50' : '1px solid #e0e0e0';
+    legendItem.style.backgroundColor = data.activeFilters.includes(type) ? '#f8f9fa' : 'transparent';
+
+    const colorBox = document.createElement('div');
+    colorBox.className = 'legend-color';
+    colorBox.style.backgroundColor = isActive ? color : '#cccccc';
+    colorBox.style.width = '20px';
+    colorBox.style.height = '20px';
+    colorBox.style.borderRadius = '4px';
+    colorBox.style.marginRight = '10px';
+    colorBox.style.flexShrink = '0';
+    colorBox.style.transition = 'all 0.3s ease';
+
+    const label = document.createElement('span');
+    const formattedType = formatCurrencyType(type);
+    label.textContent = `${formattedType}: ${data.typeCount[type]} items`;
+    label.style.fontWeight = data.activeFilters.includes(type) ? 'bold' : 'normal';
+    label.style.fontSize = '14px';
+    label.style.flex = '1';
+
+    const percentageText = document.createElement('span');
+    percentageText.textContent = `(${((data.typeCount[type] / data.totalItems) * 100).toFixed(1)}%)`;
+    percentageText.style.fontSize = '12px';
+    percentageText.style.color = '#666';
+    percentageText.style.marginLeft = '8px';
+
+    legendItem.appendChild(colorBox);
+    legendItem.appendChild(label);
+    legendItem.appendChild(percentageText);
+
+    legendItem.style.display = 'flex';
+    legendItem.style.alignItems = 'center';
+    legendItem.style.justifyContent = 'flex-start';
+
+    // Add click event to legend item
+    legendItem.addEventListener('click', function(e) {
+        console.log('Legend item clicked - type:', type);
+        filterByCurrencyType(type);
+    });
+
+    legendItem.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateX(5px)';
+        this.querySelector('.legend-color').style.transform = 'scale(1.1)';
+    });
+
+    legendItem.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateX(0)';
+        this.querySelector('.legend-color').style.transform = 'scale(1)';
+    });
+
+    document.getElementById('distribution-legend').appendChild(legendItem);
+}
+
+// Then call these functions for each segment
+segments.forEach(segment => {
+    createChartSegment(segment);
+    createLegendItem(segment, data);
+});
+
 
         // Helper function to format currency type names
         function formatCurrencyType(type) {
@@ -4962,20 +5085,28 @@ function renderDistributionChart(data) {
             }).join(' ');
         }
 
-        // Function to filter by currency type (supports multiple toggles)
+// Function to filter by currency type (supports multiple toggles)
 function filterByCurrencyType(type) {
     if (!window.distributionData) return;
 
-    const t = (type || '').toLowerCase();
+    console.log('Filtering by type:', type); // Debug log
+    
+    // Ensure type is properly normalized (trimmed and lowercase)
+    const normalizedType = (type || '').toLowerCase().trim();
     const activeFilters = window.distributionData.activeFilters || [];
 
-    if (activeFilters.includes(t)) {
+    console.log('Normalized type:', normalizedType); // Debug log
+    console.log('Current active filters:', activeFilters); // Debug log
+
+    if (activeFilters.includes(normalizedType)) {
         // Toggle off
-        window.distributionData.activeFilters = activeFilters.filter(f => f !== t);
+        window.distributionData.activeFilters = activeFilters.filter(f => f !== normalizedType);
     } else {
         // Toggle on
-        window.distributionData.activeFilters = [...activeFilters, t];
+        window.distributionData.activeFilters = [...activeFilters, normalizedType];
     }
+
+    console.log('New active filters:', window.distributionData.activeFilters); // Debug log
 
     // Re-render chart with new filter state
     renderDistributionChart(window.distributionData);
@@ -5021,7 +5152,6 @@ function filterByCurrencyType(type) {
         // Show all types, ensure we're showing a valid image
         updateImageDisplay(0, filteredCoins);
     }
-    debugFilterState();
 }
 
 
