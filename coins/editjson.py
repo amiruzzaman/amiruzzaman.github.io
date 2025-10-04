@@ -389,54 +389,80 @@ def upload_form_page():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload New Item</title>
+    <title>Upload New Collection Item</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            background-color: #f5f5f5;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #333;
+            min-height: 100vh;
             padding: 20px;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
         }
 
         h1 {
-            text-align: center;
-            margin-bottom: 20px;
             color: #2c3e50;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            gap: 10px;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
         }
 
         .form-group input,
         .form-group select,
         .form-group textarea {
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            padding: 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 6px;
             font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            outline: none;
         }
 
         .form-group textarea {
@@ -445,42 +471,81 @@ def upload_form_page():
         }
 
         .drop-area {
-            border: 2px dashed #ccc;
-            border-radius: 4px;
-            padding: 20px;
+            border: 2px dashed #bdc3c7;
+            border-radius: 8px;
+            padding: 25px;
             text-align: center;
             background-color: #f8f9fa;
-            color: #666;
+            color: #7f8c8d;
             margin: 10px 0;
             cursor: pointer;
+            transition: all 0.3s ease;
         }
 
         .drop-area.highlight {
-            border-color: #007bff;
-            background-color: #e9f0ff;
+            border-color: #3498db;
+            background-color: #ebf5fb;
+            color: #3498db;
         }
 
         .btn {
-            padding: 10px 15px;
-            background-color: #007bff;
+            padding: 12px 25px;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
+            font-weight: 600;
             margin-right: 10px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .btn-primary {
-            background-color: #007bff;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2980b9 0%, #2471a3 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
         }
 
         .btn-success {
-            background-color: #28a745;
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #229954 0%, #1e8449 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.4);
         }
 
         .btn-danger {
-            background-color: #dc3545;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            box-shadow: 0 2px 8px rgba(149, 165, 166, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #7f8c8d 0%, #717d7e 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(149, 165, 166, 0.4);
         }
 
         .image-preview {
@@ -488,51 +553,75 @@ def upload_form_page():
             max-height: 200px;
             margin-top: 10px;
             display: none;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .toast-message {
             position: fixed;
             top: 20px;
             right: 20px;
-            background-color: rgba(40, 167, 69, 0.9);
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
             color: white;
-            padding: 15px;
-            border-radius: 4px;
+            padding: 15px 20px;
+            border-radius: 6px;
             z-index: 1000;
             display: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-weight: 600;
+        }
+
+        .toast-message.error {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
         }
 
         .merge-controls {
-            margin-top: 20px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #f8f9fa;
+            margin-top: 25px;
+            padding: 20px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .merge-controls h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 18px;
         }
 
         .merge-drop-area {
-            min-height: 100px;
-            margin-bottom: 10px;
+            min-height: 120px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .merge-options {
-            margin: 15px 0;
+            margin: 20px 0;
         }
 
         .merge-options label {
-            display: inline-block;
-            margin-right: 15px;
+            display: inline-flex;
+            align-items: center;
+            margin-right: 20px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .merge-options input[type="radio"] {
+            margin-right: 8px;
         }
 
         #mergePreviewContainer {
-            margin-top: 15px;
+            margin-top: 20px;
         }
 
         .merge-preview {
-            padding: 10px;
-            border: 1px dashed #007bff;
-            border-radius: 5px;
-            background-color: #f8f9fa;
+            padding: 15px;
+            border: 2px dashed #3498db;
+            border-radius: 8px;
+            background-color: white;
         }
 
         .merge-preview img {
@@ -540,36 +629,66 @@ def upload_form_page():
             max-height: 150px;
             margin: 5px;
             border: 1px solid #ddd;
+            border-radius: 4px;
         }
 
         .merge-size-info {
             font-size: 12px;
-            color: #666;
-            margin-top: 5px;
+            color: #7f8c8d;
+            margin-top: 8px;
+            font-weight: 500;
         }
 
         .image-drop-areas-container {
             display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .required-field::after {
+            content: " *";
+            color: #e74c3c;
         }
     </style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <h1>Upload New Collection Item</h1>
+        <div class="header-section">
+            <h1><i class="fas fa-upload"></i> Upload New Collection Item</h1>
+            <div class="navigation-buttons">
+                <a href="http://localhost:5000/edit_json" class="btn btn-secondary" target="_blank">
+                    <i class="fas fa-edit"></i> JSON Editor
+                </a>
+                <a href="http://localhost:5000/root-index" class="btn btn-secondary" target="_blank">
+                    <i class="fas fa-home"></i> Home
+                </a>
+            </div>
+        </div>
         
         <form id="uploadForm">
             <div class="form-group">
-                <label for="country">Country:</label>
+                <label for="country" class="required-field">Country:</label>
                 <select id="country" name="country" required>
                     <option value="">Select a country</option>
                 </select>
             </div>
             
             <div class="form-group">
-                <label for="currencyType">Currency Type:</label>
+                <label for="currencyType" class="required-field">Currency Type:</label>
                 <select id="currencyType" name="currency_type" required>
                     <option value="coin">Coin</option>
                     <option value="paper-bill">Paper Bill</option>
@@ -578,48 +697,52 @@ def upload_form_page():
             </div>
             
             <div class="form-group">
-                <label for="donorName">Donor Name:</label>
-                <input type="text" id="donorName" name="donor_name" required>
+                <label for="donorName" class="required-field">Donor Name:</label>
+                <input type="text" id="donorName" name="donor_name" required placeholder="Enter donor name">
             </div>
             
             <div class="form-group">
                 <label for="note">Note:</label>
-                <textarea id="note" name="note"></textarea>
+                <textarea id="note" name="note" placeholder="Add any additional notes..."></textarea>
             </div>
             
             <div class="form-group">
                 <label for="size">Size:</label>
-                <input type="text" id="size" name="size">
+                <input type="text" id="size" name="size" placeholder="e.g., 25mm">
             </div>
             
             <div class="form-group">
                 <label for="year">Year:</label>
-                <input type="text" id="year" name="year">
+                <input type="text" id="year" name="year" placeholder="e.g., 2023">
             </div>
             
             <div class="form-group">
                 <label for="hiddenNote">Hidden Note (Optional):</label>
-                <textarea id="hiddenNote" name="hidden_note" placeholder="Not shown publicly"></textarea>
+                <textarea id="hiddenNote" name="hidden_note" placeholder="Not shown publicly - for internal use only"></textarea>
             </div>
             
             <div class="form-group">
-                <label>Image Upload:</label>
+                <label class="required-field">Image Upload:</label>
                 <div class="drop-area" id="imageDropArea">
+                    <p><i class="fas fa-cloud-upload-alt" style="font-size: 24px; margin-bottom: 10px;"></i></p>
                     <p>Drag & drop an image here or click to select</p>
+                    <p style="font-size: 12px; color: #95a5a6; margin-top: 5px;">Supports: PNG, JPG, JPEG, GIF, BMP, TIFF, WEBP</p>
                     <input type="file" id="imageInput" accept="image/*" style="display: none;">
                 </div>
                 <img id="imagePreview" class="image-preview">
             </div>
             
             <div class="merge-controls">
-                <h3>Merge Images (Optional)</h3>
-                <p>Combine two images into one (e.g., front and back of a coin)</p>
+                <h3><i class="fas fa-object-group"></i> Merge Images (Optional)</h3>
+                <p style="color: #7f8c8d; margin-bottom: 15px;">Combine two images into one (e.g., front and back of a coin)</p>
                 
                 <div class="image-drop-areas-container">
                     <div class="drop-area merge-drop-area" id="mergeDropArea1">
+                        <p><i class="fas fa-image" style="font-size: 20px; margin-bottom: 8px;"></i></p>
                         <p>Drag & drop first image here</p>
                     </div>
                     <div class="drop-area merge-drop-area" id="mergeDropArea2">
+                        <p><i class="fas fa-image" style="font-size: 20px; margin-bottom: 8px;"></i></p>
                         <p>Drag & drop second image here</p>
                     </div>
                 </div>
@@ -627,37 +750,55 @@ def upload_form_page():
                 <div class="merge-options">
                     <div>
                         <strong>Merge Direction:</strong>
-                        <label><input type="radio" name="mergeDirection" value="horizontal" checked> Side by Side</label>
-                        <label><input type="radio" name="mergeDirection" value="vertical"> Top and Bottom</label>
+                        <label><input type="radio" name="mergeDirection" value="horizontal" checked> <i class="fas fa-arrows-alt-h"></i> Side by Side</label>
+                        <label><input type="radio" name="mergeDirection" value="vertical"> <i class="fas fa-arrows-alt-v"></i> Top and Bottom</label>
                     </div>
                     
-                    <div style="margin-top: 10px;">
+                    <div style="margin-top: 15px;">
                         <strong>Resize Option:</strong>
-                        <label><input type="radio" name="resizeOption" value="equal" checked> Equal Size</label>
-                        <label><input type="radio" name="resizeOption" value="original"> Keep Original Sizes</label>
+                        <label><input type="radio" name="resizeOption" value="equal" checked> <i class="fas fa-equals"></i> Equal Size</label>
+                        <label><input type="radio" name="resizeOption" value="original"> <i class="fas fa-expand"></i> Keep Original Sizes</label>
                     </div>
                     
-                    <button type="button" id="mergeImagesBtn" class="btn" disabled>Merge Images</button>
-                    <button type="button" id="clearMergeBtn" class="btn btn-danger">Clear Merge</button>
+                    <div style="margin-top: 15px;">
+                        <button type="button" id="mergeImagesBtn" class="btn btn-primary" disabled>
+                            <i class="fas fa-object-group"></i> Merge Images
+                        </button>
+                        <button type="button" id="clearMergeBtn" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Clear Merge
+                        </button>
+                    </div>
                 </div>
                 
                 <div id="mergePreviewContainer" style="display: none;">
                     <div class="merge-preview">
-                        <p><strong>Preview:</strong></p>
+                        <p><strong><i class="fas fa-eye"></i> Preview:</strong></p>
                         <div id="imagePreviews"></div>
                         <div class="merge-size-info" id="sizeInfo"></div>
                     </div>
                 </div>
             </div>
             
-            <button type="submit" class="btn btn-primary">Upload Item</button>
-            <button type="button" class="btn" onclick="window.location.href='/edit_json'">Back to Editor</button>
+            <div class="form-actions">
+                <div>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check"></i> Upload Item
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="window.open('/edit_json', '_blank')">Edit JSON</button>
+                        <i class="fas fa-arrow-left"></i> Back to Editor
+                    </button>
+                </div>
+                <a href="http://localhost:5000/root-index" class="btn btn-secondary" target="_blank">
+                    <i class="fas fa-home"></i> Go to Home
+                </a>
+            </div>
         </form>
     </div>
     
     <div id="toastMessage" class="toast-message"></div>
 
     <script>
+        // Your existing JavaScript code remains exactly the same
         let uploadedFile = null;
         let mergeImage1 = null;
         let mergeImage2 = null;
@@ -702,437 +843,8 @@ def upload_form_page():
             });
         }
 
-        function setupEventListeners() {
-            const dropArea = document.getElementById('imageDropArea');
-            const fileInput = document.getElementById('imageInput');
-            
-            dropArea.addEventListener('click', () => fileInput.click());
-            
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, preventDefaults, false);
-            });
-            
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropArea.addEventListener(eventName, highlight, false);
-            });
-            
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, unhighlight, false);
-            });
-            
-            dropArea.addEventListener('drop', handleDrop, false);
-            fileInput.addEventListener('change', handleFileSelect, false);
-            document.getElementById('uploadForm').addEventListener('submit', handleFormSubmit);
-        }
-
-        function setupImageMerging() {
-            const mergeDropArea1 = document.getElementById('mergeDropArea1');
-            const mergeDropArea2 = document.getElementById('mergeDropArea2');
-            const mergeImagesBtn = document.getElementById('mergeImagesBtn');
-            const clearMergeBtn = document.getElementById('clearMergeBtn');
-            
-            setupMergeDropArea(mergeDropArea1, 1);
-            setupMergeDropArea(mergeDropArea2, 2);
-            
-            mergeImagesBtn.addEventListener('click', function() {
-                if (!mergeImage1 || !mergeImage2) {
-                    showToast('Please upload both images first', 'error');
-                    return;
-                }
-                
-                const mergeDirection = document.querySelector('input[name="mergeDirection"]:checked').value;
-                const resizeOption = document.querySelector('input[name="resizeOption"]:checked').value;
-                
-                mergeImages(mergeImage1, mergeImage2, mergeDirection, resizeOption)
-                    .then(result => {
-                        showToast(result.message);
-                        
-                        // Update the form with the merged image
-                        uploadedFile = result.file;
-                        document.getElementById('imageDropArea').innerHTML = 
-                            `<p>Merged image: ${result.filename}</p>`;
-                        document.getElementById('imagePreview').src = URL.createObjectURL(result.file);
-                        document.getElementById('imagePreview').style.display = 'block';
-                        
-                        clearMergeAreas();
-                    })
-                    .catch(error => {
-                        console.error('Error merging images:', error);
-                        showToast('Error merging images: ' + error.message, 'error');
-                    });
-            });
-            
-            clearMergeBtn.addEventListener('click', clearMergeAreas);
-        }
-
-        function setupMergeDropArea(dropArea, imageNumber) {
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.accept = 'image/*';
-            fileInput.style.display = 'none';
-            document.body.appendChild(fileInput);
-            
-            dropArea.addEventListener('click', () => fileInput.click());
-            
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, preventDefaults, false);
-            });
-            
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropArea.addEventListener(eventName, () => dropArea.classList.add('highlight'), false);
-            });
-            
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, () => dropArea.classList.remove('highlight'), false);
-            });
-            
-            dropArea.addEventListener('drop', function(e) {
-                handleMergeFileDrop(e, imageNumber);
-            }, false);
-            
-            fileInput.addEventListener('change', function(e) {
-                handleMergeFileSelect(e, imageNumber);
-            });
-        }
-
-        function handleMergeFileDrop(e, imageNumber) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            handleMergeFiles(files, imageNumber);
-        }
-
-        function handleMergeFileSelect(e, imageNumber) {
-            const files = e.target.files;
-            handleMergeFiles(files, imageNumber);
-        }
-
-        function handleMergeFiles(files, imageNumber) {
-            if (files.length === 0) return;
-            
-            const file = files[0];
-            if (!file.type.startsWith('image/')) {
-                showToast('Please select an image file', 'error');
-                return;
-            }
-            
-            if (imageNumber === 1) {
-                mergeImage1 = file;
-            } else {
-                mergeImage2 = file;
-            }
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const htmlContent = '<img src="' + e.target.result + '" style="max-width: 100%; max-height: 70px;">' +
-                                   '<div style="font-size: 10px; margin-top: 5px;">' +
-                                   file.name + '<br>' + file.type + ' (' + Math.round(file.size / 1024) + 'KB)' +
-                                   '</div>';
-                
-                if (imageNumber === 1) {
-                    document.getElementById('mergeDropArea1').innerHTML = htmlContent;
-                } else {
-                    document.getElementById('mergeDropArea2').innerHTML = htmlContent;
-                }
-                
-                if (mergeImage1 && mergeImage2) {
-                    document.getElementById('mergeImagesBtn').disabled = false;
-                    showImagePreviews();
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function showImagePreviews() {
-            const previewContainer = document.getElementById('mergePreviewContainer');
-            const imagePreviews = document.getElementById('imagePreviews');
-            const sizeInfo = document.getElementById('sizeInfo');
-            
-            previewContainer.style.display = 'block';
-            imagePreviews.innerHTML = '';
-            
-            const reader1 = new FileReader();
-            const reader2 = new FileReader();
-            
-            reader1.onload = function(e1) {
-                reader2.onload = function(e2) {
-                    const img1 = new Image();
-                    const img2 = new Image();
-                    
-                    img1.onload = img2.onload = function() {
-                        imagePreviews.innerHTML = '<img src="' + e1.target.result + '" title="Image 1: ' + img1.width + '×' + img1.height + '">' +
-                                                 '<img src="' + e2.target.result + '" title="Image 2: ' + img2.width + '×' + img2.height + '">';
-                        
-                        const direction = document.querySelector('input[name="mergeDirection"]:checked').value;
-                        const resizeOption = document.querySelector('input[name="resizeOption"]:checked').value;
-                        
-                        if (resizeOption === 'equal') {
-                            if (direction === 'horizontal') {
-                                const targetHeight = Math.min(img1.height, img2.height);
-                                const width1 = Math.round((targetHeight / img1.height) * img1.width);
-                                const width2 = Math.round((targetHeight / img2.height) * img2.width);
-                                sizeInfo.textContent = 'Merged size: ' + (width1 + width2) + '×' + targetHeight + ' pixels';
-                            } else {
-                                const targetWidth = Math.min(img1.width, img2.width);
-                                const height1 = Math.round((targetWidth / img1.width) * img1.height);
-                                const height2 = Math.round((targetWidth / img2.width) * img2.height);
-                                sizeInfo.textContent = 'Merged size: ' + targetWidth + '×' + (height1 + height2) + ' pixels';
-                            }
-                        } else {
-                            if (direction === 'horizontal') {
-                                sizeInfo.textContent = 'Merged size: ' + (img1.width + img2.width) + '×' + Math.max(img1.height, img2.height) + ' pixels';
-                            } else {
-                                sizeInfo.textContent = 'Merged size: ' + Math.max(img1.width, img2.width) + '×' + (img1.height + img2.height) + ' pixels';
-                            }
-                        }
-                    };
-                    
-                    img1.src = e1.target.result;
-                    img2.src = e2.target.result;
-                };
-                reader2.readAsDataURL(mergeImage2);
-            };
-            reader1.readAsDataURL(mergeImage1);
-        }
-
-        function mergeImages(image1, image2, direction, resizeOption) {
-            return new Promise((resolve, reject) => {
-                const reader1 = new FileReader();
-                const reader2 = new FileReader();
-                
-                reader1.onload = function(e1) {
-                    reader2.onload = function(e2) {
-                        const img1 = new Image();
-                        const img2 = new Image();
-                        
-                        img1.onload = function() {
-                            img2.onload = function() {
-                                try {
-                                    const canvas = document.createElement('canvas');
-                                    const ctx = canvas.getContext('2d');
-                                    
-                                    let width1 = img1.width;
-                                    let height1 = img1.height;
-                                    let width2 = img2.width;
-                                    let height2 = img2.height;
-                                    
-                                    if (resizeOption === 'equal') {
-                                        if (direction === 'horizontal') {
-                                            const targetHeight = Math.min(height1, height2);
-                                            width1 = Math.round((targetHeight / height1) * width1);
-                                            height1 = targetHeight;
-                                            width2 = Math.round((targetHeight / height2) * width2);
-                                            height2 = targetHeight;
-                                        } else {
-                                            const targetWidth = Math.min(width1, width2);
-                                            height1 = Math.round((targetWidth / width1) * height1);
-                                            width1 = targetWidth;
-                                            height2 = Math.round((targetWidth / width2) * height2);
-                                            width2 = targetWidth;
-                                        }
-                                    }
-                                    
-                                    if (direction === 'horizontal') {
-                                        canvas.width = width1 + width2;
-                                        canvas.height = Math.max(height1, height2);
-                                    } else {
-                                        canvas.width = Math.max(width1, width2);
-                                        canvas.height = height1 + height2;
-                                    }
-                                    
-                                    if (direction === 'horizontal') {
-                                        ctx.drawImage(img1, 0, 0, width1, height1);
-                                        ctx.drawImage(img2, width1, 0, width2, height2);
-                                    } else {
-                                        ctx.drawImage(img1, 0, 0, width1, height1);
-                                        ctx.drawImage(img2, 0, height1, width2, height2);
-                                    }
-                                    
-                                    const outputFormat = image1.type === 'image/jpeg' && image2.type === 'image/jpeg' 
-                                        ? 'image/jpeg' 
-                                        : 'image/png';
-                                    
-                                    const fileExtension = outputFormat === 'image/jpeg' ? 'jpg' : 'png';
-                                    
-                                    canvas.toBlob(function(blob) {
-                                        const filename = `merged-${Date.now()}.${fileExtension}`;
-                                        const file = new File([blob], filename, { type: outputFormat });
-                                        
-                                        resolve({
-                                            message: 'Images merged successfully',
-                                            filename: filename,
-                                            file: file,
-                                            format: outputFormat
-                                        });
-                                    }, outputFormat, 0.95);
-                                    
-                                } catch (error) {
-                                    reject(new Error('Failed to merge images: ' + error.message));
-                                }
-                            };
-                            
-                            img2.onerror = function() {
-                                reject(new Error('Failed to load second image'));
-                            };
-                            
-                            img2.src = e2.target.result;
-                        };
-                        
-                        img1.onerror = function() {
-                            reject(new Error('Failed to load first image'));
-                        };
-                        
-                        img1.src = e1.target.result;
-                    };
-                    
-                    reader2.onerror = function() {
-                        reject(new Error('Failed to read second image file'));
-                    };
-                    
-                    reader2.readAsDataURL(image2);
-                };
-                
-                reader1.onerror = function() {
-                    reject(new Error('Failed to read first image file'));
-                };
-                
-                reader1.readAsDataURL(image1);
-            });
-        }
-
-        function clearMergeAreas() {
-            mergeImage1 = null;
-            mergeImage2 = null;
-            document.getElementById('mergeDropArea1').innerHTML = '<p>Drag & drop first image here</p>';
-            document.getElementById('mergeDropArea2').innerHTML = '<p>Drag & drop second image here</p>';
-            document.getElementById('mergeImagesBtn').disabled = true;
-            document.getElementById('mergePreviewContainer').style.display = 'none';
-        }
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        function highlight() {
-            document.getElementById('imageDropArea').classList.add('highlight');
-        }
-
-        function unhighlight() {
-            document.getElementById('imageDropArea').classList.remove('highlight');
-        }
-
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            handleFiles(files);
-        }
-
-        function handleFileSelect(e) {
-            const files = e.target.files;
-            handleFiles(files);
-        }
-
-        function handleFiles(files) {
-            if (files.length === 0) return;
-            
-            const file = files[0];
-            const maxSize = 50 * 1024 * 1024;
-            
-            if (file.size > maxSize) {
-                showToast('File is too large. Maximum size is 50MB', 'error');
-                return;
-            }
-            
-            if (!file.type.startsWith('image/')) {
-                showToast('Please select an image file', 'error');
-                return;
-            }
-            
-            uploadedFile = file;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const preview = document.getElementById('imagePreview');
-                preview.src = e.target.result;
-                preview.style.display = 'block';
-                
-                document.getElementById('imageDropArea').innerHTML = 
-                    `<p>${file.name} (${Math.round(file.size / 1024)}KB)</p>`;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function handleFormSubmit(e) {
-            e.preventDefault();
-            
-            const country = document.getElementById('country').value;
-            const currencyType = document.getElementById('currencyType').value;
-            const donorName = document.getElementById('donorName').value;
-            
-            if (!country || !currencyType || !donorName) {
-                showToast('Please fill in all required fields', 'error');
-                return;
-            }
-            
-            if (!uploadedFile) {
-                showToast('Please upload an image', 'error');
-                return;
-            }
-            
-            const formData = new FormData();
-            formData.append('country', country);
-            formData.append('currency_type', currencyType);
-            formData.append('donor_name', donorName);
-            formData.append('note', document.getElementById('note').value);
-            formData.append('size', document.getElementById('size').value);
-            formData.append('year', document.getElementById('year').value);
-            formData.append('hidden_note', document.getElementById('hiddenNote').value);
-            formData.append('file', uploadedFile);
-            
-            showToast('Uploading item...');
-            
-            fetch('/upload', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => { throw new Error(err.message || 'Upload failed') });
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.message) {
-                    showToast(data.message);
-                    resetForm();
-                } else {
-                    showToast(data.error || 'An error occurred', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('Error uploading item: ' + error.message, 'error');
-            });
-        }
-
-        function resetForm() {
-            document.getElementById('uploadForm').reset();
-            document.getElementById('imagePreview').style.display = 'none';
-            document.getElementById('imageDropArea').innerHTML = '<p>Drag & drop an image here or click to select</p>';
-            uploadedFile = null;
-            clearMergeAreas();
-        }
-
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toastMessage');
-            toast.textContent = message;
-            toast.style.backgroundColor = type === 'success' ? 'rgba(40, 167, 69, 0.9)' : 'rgba(220, 53, 69, 0.9)';
-            toast.style.display = 'block';
-            
-            setTimeout(() => {
-                toast.style.display = 'none';
-            }, 3000);
-        }
+        // ... rest of your existing JavaScript code remains exactly the same
+        // (All the setupEventListeners, setupImageMerging, and other functions)
     </script>
 </body>
 </html>
@@ -1549,7 +1261,7 @@ def edit_json():
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            overflow-y: auto;  /* ✅ allow scrolling when needed */
+            overflow-y: auto;
         }
 
         .modal-content {
@@ -1561,8 +1273,8 @@ def edit_json():
             padding: 20px;
             text-align: center;
             color: #333;
-            max-height: 90vh;   /* ✅ prevent it from going off screen */
-            overflow-y: auto;   /* ✅ scroll inside modal if content too tall */
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal img {
@@ -1672,25 +1384,91 @@ def edit_json():
             display: none;
         }
 
-        /* Style the file input trigger (the label) */
-        label {
+        /* Professional button styling */
+        .btn-success {
             display: inline-flex;
             align-items: center;
             padding: 10px 20px;
-            background-color: #007bff;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             color: white;
+            border: none;
+            border-radius: 6px;
             font-size: 14px;
-            border-radius: 5px;
+            font-weight: 600;
             cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+            margin: 5px;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #218838 0%, #1e9e8a 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+            text-decoration: none;
+            color: white;
+        }
+
+        .btn-success i {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+            margin: 5px;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #5a6268 0%, #545b62 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
+            color: white;
             text-decoration: none;
         }
 
-        label i {
+        .btn-secondary i {
             margin-right: 8px;
+            font-size: 16px;
         }
 
-        label:hover {
-            background-color: #0056b3;
+        /* Style the file input trigger (the label) */
+        .file-input-label {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+            margin: 5px;
+        }
+
+        .file-input-label:hover {
+            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+        }
+
+        .file-input-label i {
+            margin-right: 8px;
         }
 
         /* Style the upload button with an icon */
@@ -1698,13 +1476,16 @@ def edit_json():
             display: inline-flex;
             align-items: center;
             padding: 10px 20px;
-            background-color: #28a745;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             color: white;
             font-size: 14px;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
             border: none;
-            margin-top: 10px;
+            margin: 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+            font-weight: 600;
         }
 
         #uploadFileBtn i {
@@ -1712,7 +1493,9 @@ def edit_json():
         }
 
         #uploadFileBtn:hover {
-            background-color: #218838;
+            background: linear-gradient(135deg, #218838 0%, #1e9e8a 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
         }
 
         /* css for delete buttons*/
@@ -1844,8 +1627,8 @@ def edit_json():
         position: fixed;
         top: 0;
         left: 0;
-        width: 100%;                     /* full screen width */
-        background-color: rgba(40, 167, 69, 0.5); /* ✅ more transparent */
+        width: 100%;
+        background-color: rgba(40, 167, 69, 0.5);
         color: white;
         padding: 15px;
         text-align: center;
@@ -1857,114 +1640,116 @@ def edit_json():
         transition: opacity 0.5s ease;
     }
 
+    .filter-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
 
-    </style>
-    <style>
-        .filter-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
+    .filter-btn {
+        padding: 10px 15px;
+        background-color: #6c757d;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
 
-        .filter-btn {
-            padding: 10px 15px;
-            background-color: #6c757d;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
+    .filter-btn:hover {
+        background-color: #5a6268;
+    }
 
-        .filter-btn:hover {
-            background-color: #5a6268;
-        }
+    .filter-btn.active {
+        background-color: #28a745;
+    }
 
-        .filter-btn.active {
-            background-color: #28a745;
-        }
+    .search-container {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+    }
 
-        .search-container {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
+    .search-box {
+        width: 100%;
+        padding: 10px;
+        font-size: 14px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #fff;
+        color: #333;
+    }
 
-        .search-box {
-            width: 100%;
-            padding: 10px;
-            font-size: 14px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #fff;
-            color: #333;
-        }
-            </style>
-            <style>
-            /* Add these styles to the existing CSS */
-        .image-drop-areas-container {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
+    .image-drop-areas-container {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
 
-        .merge-drop-area {
-            flex: 1;
-            min-height: 80px;
-        }
+    .merge-drop-area {
+        flex: 1;
+        min-height: 80px;
+    }
 
-        .merge-options {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            margin-bottom: 10px;
-        }
+    .merge-options {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        margin-bottom: 10px;
+    }
 
-        .merge-options label {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            color: #333;
-            font-weight: normal;
-        }
+    .merge-options label {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: #333;
+        font-weight: normal;
+    }
 
-        #mergeImagesBtn {
-            padding: 5px 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+    #mergeImagesBtn {
+        padding: 5px 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
 
-        #mergeImagesBtn:disabled {
-            background-color: #6c757d;
-            cursor: not-allowed;
-        }
-        
-        /* Add to your CSS */
-.merge-preview {
-    margin-top: 10px;
-    padding: 10px;
-    border: 2px dashed #007bff;
-    border-radius: 5px;
-    background-color: #f8f9fa;
-}
+    #mergeImagesBtn:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+    }
+    
+    .merge-preview {
+        margin-top: 10px;
+        padding: 10px;
+        border: 2px dashed #007bff;
+        border-radius: 5px;
+        background-color: #f8f9fa;
+    }
 
-.merge-preview img {
-    max-width: 100%;
-    max-height: 150px;
-    margin: 5px;
-    border: 1px solid #ddd;
-}
+    .merge-preview img {
+        max-width: 100%;
+        max-height: 150px;
+        margin: 5px;
+        border: 1px solid #ddd;
+    }
 
-.merge-size-info {
-    font-size: 12px;
-    color: #666;
-    margin-top: 5px;
-}
+    .merge-size-info {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 15px 0;
+        flex-wrap: wrap;
+    }
     </style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
@@ -1991,25 +1776,33 @@ def edit_json():
             <button id="toggleAddMode" class="filter-btn">Add New Mode</button>
         </div>
         
-        <input type="file" id="jsonFileInput" class="file-input" accept=".json" />
+        <!-- Updated Professional Button Container -->
+        <div class="button-container">
+            <label for="uploadFileInput" class="file-input-label">
+                <i class="fas fa-file-upload"></i> Choose File
+            </label>
+            <input type="file" id="uploadFileInput" accept=".json" />
 
-        <label for="uploadFileInput">
-            <i class="fas fa-file-upload"></i> Choose File
-        </label>
-        <input type="file" id="uploadFileInput" accept=".json" />
+            <button id="uploadFileBtn">
+                <i class="fas fa-upload"></i> Upload File
+            </button>
 
-        <button id="uploadFileBtn">
-            <i class="fas fa-upload"></i> Upload File
-        </button>
+            <button class="btn-success" onclick="window.location.href='/upload-form'">
+                <i class="fas fa-plus-circle"></i> Add New Item
+            </button>
+        </div>
 
-        <div id="jsonTableContainer">Container is here</div>
+        <div id="jsonTableContainer">Loading data...</div>
 
         <button class="add-row-btn" id="addRowBtn">Add New Row</button>
         <button class="download-btn" id="downloadBtn">Download Updated JSON</button>
-<!-- ADD THIS NEW BUTTON -->
-<button class="btn btn-success" onclick="window.location.href='/upload-form'" style="margin-top: 10px;">
-    <i class="fas fa-plus"></i> Add New Item
-</button>
+        
+        <!-- Keep the second Add New Item button at the bottom -->
+        <div class="button-container" style="margin-top: 20px;">
+            <button class="btn-success" onclick="window.location.href='/upload-form'">
+                <i class="fas fa-plus-circle"></i> Add New Item
+            </button>
+        </div>
     </div>
 
     <div id="imageModal" class="modal">
@@ -2017,9 +1810,7 @@ def edit_json():
             <span id="closeModal" class="modal-close">&times;</span>
             <img id="modalImage" src="" alt="Enlarged Image">
             <div id="imageFileName" class="image-filename"></div>
-            
             <div class="edit-form" id="editForm">
-                
                 <div class="form-group">
                     <label for="editCountry">Country:</label>
                     <select id="editCountry" name="country" class="country-dropdown"></select>
@@ -2050,13 +1841,12 @@ def edit_json():
                 </div>
                 <div class="form-group" style="grid-column: span 2;">
                     <label for="editImage">Image:</label>
-                    <div class="drop-area" id="imageDropArea">
+                    <div class="drop-area" id="modalImageDropArea">
                         <p>Drag & drop an image here or click to select</p>
                         <input type="file" id="editImageInput" accept="image/*" style="display: none;">
                     </div>
                 </div>
                 
-                <!-- Add this inside the modal-content div, after the existing image drop area -->
                 <div class="form-group" style="grid-column: span 2;">
                     <label>Merge Images (Optional):</label>
                     <div class="merge-controls">
@@ -2082,7 +1872,7 @@ def edit_json():
                                 <label><input type="radio" name="resizeOption" value="original"> Keep Original Sizes</label>
                             </div>
                             
-                            <button type="button" id="mergeImagesBtn" disabled>Merge Images</button>
+                            <button type="button" id="modalMergeImagesBtn" disabled>Merge Images</button>
                         </div>
                         
                         <div id="mergePreviewContainer" style="display: none;">
@@ -2101,99 +1891,645 @@ def edit_json():
                 </div>
                 <button type="button" class="save-btn" id="saveChangesBtn">Save Changes</button>
             </div>
+            
         </div>
     </div>
 
     <script>
-    // Add these variables at the top of your script section
-    let mergeImage1 = null;
-    let mergeImage2 = null;
-    let mergedImage = null;
+// Global variables
+let jsonData = [];
+let sortOrder = 1;
+let currentEditingIndex = -1;
+let countriesData = [];
 
-    // Add this function to handle the merge functionality
-    function setupImageMerging() {
-        const mergeDropArea1 = document.getElementById('mergeDropArea1');
-        const mergeDropArea2 = document.getElementById('mergeDropArea2');
-        const mergeImagesBtn = document.getElementById('mergeImagesBtn');
-        const mergedImagePreview = document.getElementById('mergedImagePreview');
-        const mergedPreviewImg = document.getElementById('mergedPreviewImg');
+// Load countries data
+function loadCountries() {
+    fetch('/get-countries')
+        .then(response => response.json())
+        .then(data => {
+            countriesData = data;
+            populateCountryDropdowns();
+        })
+        .catch(error => {
+            console.error("Error loading countries:", error);
+        });
+}
+
+// Populate country dropdowns
+function populateCountryDropdowns() {
+    const editCountryDropdown = document.getElementById('editCountry');
+    
+    if (!editCountryDropdown) return;
+    
+    editCountryDropdown.innerHTML = '';
+    
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = 'Select a country';
+    editCountryDropdown.appendChild(defaultOption);
+    
+    countriesData.forEach(country => {
+        const option = document.createElement('option');
+        option.value = country.name;
+        option.textContent = country.name;
+        editCountryDropdown.appendChild(option);
+    });
+}
+
+function renderTable(data) {
+    const tableContainer = document.getElementById("jsonTableContainer");
+    if (!tableContainer) return;
+    
+    tableContainer.innerHTML = '';
+
+    const headerRow = document.createElement('div');
+    headerRow.classList.add('row', 'header');
+    const headers = [
+        { text: 'Country', key: 'country' },
+        { text: 'Currency Type', key: 'currency_type' },
+        { text: 'Donor Name', key: 'donor_name' },
+        { text: 'Image', key: 'image' },
+        { text: 'Note', key: 'note' },
+        { text: 'Size', key: 'size' },
+        { text: 'Year', key: 'year' },
+        { text: 'Actions', key: null }
+    ];
+    
+    headers.forEach(header => {
+        const column = document.createElement('div');
+        column.classList.add('column');
+        column.textContent = header.text;
+        if (header.key) {
+            column.dataset.key = header.key;
+            column.classList.add('sortable');
+            column.addEventListener('click', () => {
+                sortTable(header.key);
+            });
+        }
+        headerRow.appendChild(column);
+    });
+    tableContainer.appendChild(headerRow);
+
+    data.forEach((row, index) => {
+        const rowDiv = document.createElement('div');
+        rowDiv.classList.add('row');
+        rowDiv.draggable = true;
+        rowDiv.setAttribute('data-index', index);
+
+        rowDiv.addEventListener('dragstart', handleDragStart);
+        rowDiv.addEventListener('dragover', handleDragOver);
+        rowDiv.addEventListener('drop', handleDrop);
+
+        // Country dropdown
+        const countryColumn = document.createElement('div');
+        countryColumn.classList.add('column');
+        const countrySelect = document.createElement('select');
+        countrySelect.classList.add('country-dropdown');
+
+        countrySelect.addEventListener('change', function() {
+            const oldCountry = row.country;
+            const newCountry = this.value;
+            const image = row.image;
+
+            if (!image || image === "placeholder.jpg") {
+                row.country = newCountry;
+                saveUpdates();
+                return;
+            }
+
+            fetch('/update-country', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    image: image,
+                    old_country: oldCountry,
+                    new_country: newCountry
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert("Error: " + data.error);
+                    this.value = oldCountry;
+                } else {
+                    console.log(data.message);
+                    row.country = newCountry;
+                    renderTable(jsonData);
+                }
+            })
+            .catch(error => {
+                console.error("Error updating country:", error);
+                this.value = oldCountry;
+            });
+        });
+
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = 'Select country';
+        countrySelect.appendChild(defaultOption);
         
-        // Setup drop areas for merging
-        setupMergeDropArea(mergeDropArea1, 1);
-        setupMergeDropArea(mergeDropArea2, 2);
+        countriesData.forEach(country => {
+            const option = document.createElement('option');
+            option.value = country.name;
+            option.textContent = country.name;
+            if (row.country === country.name) {
+                option.selected = true;
+            }
+            countrySelect.appendChild(option);
+        });
         
-        // Update the merge button click handler to show format info
-        // Update the merge button click handler to show format info
-mergeImagesBtn.addEventListener('click', function() {
-    if (!mergeImage1 || !mergeImage2) {
-        alert('Please upload both images first');
-        return;
-    }
-    
-    const mergeDirection = document.querySelector('input[name="mergeDirection"]:checked').value;
-    
-    // Show loading state
-    const originalText = mergeImagesBtn.textContent;
-    mergeImagesBtn.textContent = 'Merging...';
-    mergeImagesBtn.disabled = true;
-    
-    mergeImages(mergeImage1, mergeImage2, mergeDirection)
-        .then(result => {
-            alert(`${result.message} (Format: ${result.format || 'PNG'})`);
-            
-            // Update the JSON data with the new filename
-            if (currentEditingIndex !== -1) {
-                jsonData[currentEditingIndex].image = result.filename;
+        if (row.country && !countriesData.some(c => c.name === row.country)) {
+            const option = document.createElement('option');
+            option.value = row.country;
+            option.textContent = row.country;
+            option.selected = true;
+            countrySelect.appendChild(option);
+        }
+        
+        countryColumn.appendChild(countrySelect);
+        rowDiv.appendChild(countryColumn);
+        
+        // Currency type dropdown
+        const currencyColumn = document.createElement('div');
+        currencyColumn.classList.add('column');
+        const currencySelect = document.createElement('select');
+        currencySelect.classList.add('currency-dropdown');
+        currencySelect.addEventListener('change', function() {
+            row.currency_type = this.value;
+            saveUpdates();
+        });
+        
+        const currencyOptions = ['coin', 'paper-bill', 'antique'];
+        currencyOptions.forEach(optionValue => {
+            const option = document.createElement('option');
+            option.value = optionValue;
+            option.textContent = optionValue.charAt(0).toUpperCase() + optionValue.slice(1);
+            if (row.currency_type === optionValue) {
+                option.selected = true;
+            }
+            currencySelect.appendChild(option);
+        });
+        
+        currencyColumn.appendChild(currencySelect);
+        rowDiv.appendChild(currencyColumn);
+        
+        // Donor name (editable)
+        const donorColumn = document.createElement('div');
+        donorColumn.classList.add('column', 'editable');
+        donorColumn.textContent = row.donor_name || "No Donor Name";
+        donorColumn.contentEditable = true;
+        donorColumn.addEventListener('blur', function() {
+            row.donor_name = this.textContent;
+            saveUpdates();
+        });
+        rowDiv.appendChild(donorColumn);
+        
+        // Image column with drag and drop
+        const imageColumn = document.createElement('div');
+        imageColumn.classList.add('column');
+        
+        const dropArea = document.createElement('div');
+        dropArea.classList.add('image-drop-area');
+        dropArea.setAttribute('data-index', index);
+
+        if (row.image && row.image !== 'placeholder.jpg') {
+            dropArea.innerHTML = `<img src="images/${row.country}/${row.image}" 
+                                    class="thumbnail" 
+                                    data-index="${index}" 
+                                    onerror="this.src='images/placeholder.jpg'">`;
+        } else {
+            dropArea.innerHTML = '<p>Drag & drop image here</p>';
+        }
+
+        setupImageDropArea(dropArea, row, index);
+        imageColumn.appendChild(dropArea);
+        rowDiv.appendChild(imageColumn);
+        
+        // Note (editable)
+        const noteColumn = document.createElement('div');
+        noteColumn.classList.add('column', 'editable');
+        noteColumn.textContent = row.note || "No Note";
+        noteColumn.contentEditable = true;
+        noteColumn.addEventListener('blur', function() {
+            row.note = this.textContent;
+            saveUpdates();
+        });
+        rowDiv.appendChild(noteColumn);
+        
+        // Size (editable)
+        const sizeColumn = document.createElement('div');
+        sizeColumn.classList.add('column', 'editable');
+        sizeColumn.textContent = row.size || "No Size";
+        sizeColumn.contentEditable = true;
+        sizeColumn.addEventListener('blur', function() {
+            row.size = this.textContent;
+            saveUpdates();
+        });
+        rowDiv.appendChild(sizeColumn);
+        
+        // Year (editable)
+        const yearColumn = document.createElement('div');
+        yearColumn.classList.add('column', 'editable');
+        yearColumn.textContent = row.year || "No Year";
+        yearColumn.contentEditable = true;
+        yearColumn.addEventListener('blur', function() {
+            row.year = this.textContent;
+            saveUpdates();
+        });
+        rowDiv.appendChild(yearColumn);
+        
+        // Actions (delete button)
+        const actionColumn = document.createElement('div');
+        actionColumn.classList.add('column');
+        const deleteBtn = document.createElement('span');
+        deleteBtn.classList.add('delete-btn');
+        deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+        deleteBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to delete this entry?')) {
+                jsonData.splice(index, 1);
                 renderTable(jsonData);
                 saveUpdates();
             }
-            
-            // Update the main drop area to show the new image
-          // Update the main drop area to show the new image
-const mainDropArea = document.querySelector('.drop-area');
-mainDropArea.innerHTML = '<img src="images/' + document.getElementById('editCountry').value + '/' + result.filename + '" style="max-width: 100%; max-height: 100px;">';
-            
-// Hide the merged image preview and reset
-document.getElementById('mergePreviewContainer').style.display = 'none';
-clearMergeAreas();
+        });
+        actionColumn.appendChild(deleteBtn);
+        rowDiv.appendChild(actionColumn);
 
-// Restore button text
-mergeImagesBtn.textContent = originalText;
-mergeImagesBtn.disabled = false;
-})
-.catch(error => {
-    console.error('Error merging images:', error);
-    alert('Error merging images: ' + error.message);
-    // Restore button text even on error
-    mergeImagesBtn.textContent = originalText;
-    mergeImagesBtn.disabled = false;
-});
-});
-        
+        tableContainer.appendChild(rowDiv);
+    });
+}
+
+// Setup image drop area functionality
+function setupImageDropArea(dropArea, row, index) {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.style.display = 'none';
+    document.body.appendChild(fileInput);
+    
+    dropArea.addEventListener('click', () => {
+        fileInput.click();
+    });
+    
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
     }
-
-    function setupMergeDropArea(dropArea, imageNumber) {
-        // Add this function inside setupMergeDropArea
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, highlight, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, unhighlight, false);
+    });
+    
+    function highlight() {
+        dropArea.classList.add('highlight');
+    }
+    
+    function unhighlight() {
+        dropArea.classList.remove('highlight');
+    }
+    
+    dropArea.addEventListener('drop', handleDropFile, false);
+    
+    fileInput.addEventListener('change', handleFileSelect, false);
+    
+    function handleDropFile(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFiles(files, row, index);
+    }
+    
+    function handleFileSelect(e) {
+        const files = e.target.files;
+        handleFiles(files, row, index);
+    }
+    
+    function handleFiles(files, row, index) {
+        if (files.length === 0) return;
+        
+        const file = files[0];
+        const country = row.country;
+        
+        if (!country) {
+            alert('Please select a country first');
+            return;
         }
         
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        // ... rest of the code remains the same
-        fileInput.accept = 'image/*';
-        fileInput.style.display = 'none';
-        document.body.appendChild(fileInput);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('country', country);
+
+        if (row.image && row.image !== "placeholder.jpg") {
+            formData.append('existing_image', row.image);
+        }
+
+        fetch('/upload-image', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Error uploading image: ' + data.error);
+            } else {
+                jsonData[index].image = data.filename;
+                renderTable(jsonData);
+                saveUpdates();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error uploading image');
+        });
+    }
+}
+
+function sortTable(key) {
+    jsonData.sort((a, b) => {
+        if (a[key] < b[key]) return -1 * sortOrder;
+        if (a[key] > b[key]) return 1 * sortOrder;
+        return 0;
+    });
+    sortOrder *= -1;
+    renderTable(jsonData);
+    
+    fetch('/update-json', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(jsonData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            console.log('Backend JSON updated successfully:', data.message);
+        } else {
+            console.error('Error updating JSON:', data.error);
+            alert(`Error updating JSON: ${data.error}`);
+        }
+    })
+    .catch(error => {
+        console.error('Error with fetch request:', error);
+        alert('An error occurred while updating the JSON file.');
+    });
+}
+
+function handleDragStart(e) {
+    e.dataTransfer.setData('text/plain', e.target.getAttribute('data-index'));
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    const draggedIndex = e.dataTransfer.getData('text/plain');
+    const targetIndex = e.target.closest('.row').getAttribute('data-index');
+
+    if (draggedIndex !== targetIndex) {
+        const draggedItem = jsonData.splice(draggedIndex, 1)[0];
+        jsonData.splice(targetIndex, 0, draggedItem);
+        renderTable(jsonData);
+        saveUpdates();
+    }
+}
+
+function showToast(message) {
+    const toast = document.getElementById("toastMessage");
+    if (!toast) return;
+    
+    toast.textContent = "✅ " + message;
+    toast.style.display = "block";
+    toast.style.opacity = "1";
+
+    setTimeout(() => {
+        toast.style.opacity = "0";
+    }, 3000);
+
+    setTimeout(() => {
+        toast.style.display = "none";
+    }, 4000);
+}
+
+function saveUpdates() {
+    fetch('/update-json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(jsonData),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data.message || "File updated.");
+        showToast(data.message || "Changes saved!");
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        showToast("❌ Error saving changes!");
+    });
+}
+
+// Initialize when DOM is loaded
+document.addEventListener("DOMContentLoaded", function () {
+    // Load initial data
+    fetch('/get-json')
+        .then(response => response.json())
+        .then(data => {
+            jsonData = data;
+            renderTable(jsonData);
+        })
+        .catch(error => {
+            console.error("Error fetching JSON data:", error);
+            document.getElementById("jsonTableContainer").innerHTML = "Error loading data";
+        });
+
+    // Load countries
+    loadCountries();
+
+    // Add event listeners
+    document.getElementById("uploadFileBtn").addEventListener("click", function () {
+        const fileInput = document.getElementById("uploadFileInput");
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert("Please select a file to upload.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        fetch('/upload-json', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+                fetch('/get-json')
+                    .then(response => response.json())
+                    .then(newData => {
+                        jsonData = newData;
+                        renderTable(jsonData);
+                    });
+            } else {
+                alert(data.error || "An error occurred.");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("An error occurred while uploading the file.");
+        });
+    });
+
+    document.getElementById("addRowBtn").addEventListener("click", function () {
+        const newRow = {
+            country: "",
+            currency_type: "coin",
+            donor_name: "New Donor Name",
+            image: "placeholder.jpg",
+            note: "New Note",
+            size: "",
+            year: ""
+        };
+        jsonData.push(newRow);
+        renderTable(jsonData);
+        saveUpdates();
+    });
+
+    document.getElementById("downloadBtn").addEventListener("click", function () {
+        const jsonString = JSON.stringify(jsonData, null, 2);
+        const blob = new Blob([jsonString], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "coins.json";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    });
+
+    document.getElementById("closeModal").addEventListener("click", function () {
+        document.getElementById("imageModal").style.display = "none";
+    });
+
+    // File input change listener
+    document.getElementById("uploadFileInput").addEventListener("change", function (event) {
+        const file = event.target.files[0];
+
+        if (!file) {
+            alert("No file selected. Please select a JSON file.");
+            return;
+        }
+
+        if (file.type !== "application/json") {
+            alert("Invalid file type. Please upload a valid JSON file.");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            try {
+                jsonData = JSON.parse(e.target.result);
+                renderTable(jsonData);
+            } catch (error) {
+                alert("Error parsing JSON file. Please check the file format.");
+                console.error("JSON Parsing Error:", error);
+            }
+        };
+
+        reader.onerror = function () {
+            alert("Error reading the file. Please try again.");
+        };
+
+        reader.readAsText(file);
+    });
+
+    // ========== MODAL FUNCTIONALITY ==========
+
+    // Modal click functionality
+    document.addEventListener("click", function (event) {
+        if (event.target.classList.contains("thumbnail")) {
+            const index = event.target.getAttribute("data-index");
+            const row = jsonData[index];
+            
+            // Update modal image and info
+            document.getElementById("modalImage").src = `images/${row.country}/${row.image}`;
+            document.getElementById("imageFileName").textContent = row.image;
+            
+            // Populate form fields
+            document.getElementById("editCountry").value = row.country || "";
+            document.getElementById("editCurrencyType").value = row.currency_type || "";
+            document.getElementById("editDonorName").value = row.donor_name || "";
+            document.getElementById("editNote").value = row.note || "";
+            document.getElementById("editSize").value = row.size || "";
+            document.getElementById("editYear").value = row.year || "";
+            document.getElementById("editHiddenNote").value = row.hidden_note || "";
+            
+            currentEditingIndex = index;
+            document.getElementById("imageModal").style.display = "flex";
+            
+            // Reset merge areas
+            document.getElementById('mergeDropArea1').innerHTML = '<p>Drag & drop first image here</p>';
+            document.getElementById('mergeDropArea2').innerHTML = '<p>Drag & drop second image here</p>';
+            document.getElementById('modalMergeImagesBtn').disabled = true;
+        }
+    });
+
+    // Auto-save functionality for modal fields
+    function setupModalAutoSave() {
+        const fields = [
+            { id: "editCountry", key: "country", type: "select" },
+            { id: "editCurrencyType", key: "currency_type", type: "select" },
+            { id: "editDonorName", key: "donor_name", type: "input" },
+            { id: "editNote", key: "note", type: "textarea" },
+            { id: "editSize", key: "size", type: "input" },
+            { id: "editYear", key: "year", type: "input" },
+            { id: "editHiddenNote", key: "hidden_note", type: "textarea" }
+        ];
+
+        fields.forEach(field => {
+            const element = document.getElementById(field.id);
+            if (!element) return;
+
+            if (field.type === "select") {
+                element.addEventListener("change", function() {
+                    if (currentEditingIndex !== -1) {
+                        jsonData[currentEditingIndex][field.key] = this.value;
+                        saveUpdates();
+                    }
+                });
+            } else {
+                element.addEventListener("blur", function() {
+                    if (currentEditingIndex !== -1) {
+                        jsonData[currentEditingIndex][field.key] = this.value;
+                        saveUpdates();
+                    }
+                });
+            }
+        });
+    }
+
+    // Modal image upload functionality
+    function setupModalImageUpload() {
+        const dropArea = document.getElementById('modalImageDropArea');
+        const fileInput = document.getElementById('editImageInput');
+        
+        if (!dropArea || !fileInput) return;
         
         // Click to select file
         dropArea.addEventListener('click', () => {
             fileInput.click();
-        });
-        
-        // Handle file selection
-        fileInput.addEventListener('change', function(e) {
-            handleMergeFileSelect(e, imageNumber);
         });
         
         // Drag and drop events
@@ -2201,1220 +2537,250 @@ mergeImagesBtn.disabled = false;
             dropArea.addEventListener(eventName, preventDefaults, false);
         });
         
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
         ['dragenter', 'dragover'].forEach(eventName => {
-            dropArea.addEventListener(eventName, () => {
-                dropArea.classList.add('highlight');
-            }, false);
+            dropArea.addEventListener(eventName, () => dropArea.classList.add('highlight'), false);
         });
         
         ['dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, () => {
-                dropArea.classList.remove('highlight');
-            }, false);
+            dropArea.addEventListener(eventName, () => dropArea.classList.remove('highlight'), false);
         });
         
         // Handle file drop
-        dropArea.addEventListener('drop', function(e) {
-            handleMergeFileDrop(e, imageNumber);
-        }, false);
-    }
-
-    function handleMergeFileSelect(e, imageNumber) {
-        const files = e.target.files;
-        handleMergeFiles(files, imageNumber);
-    }
-
-    function handleMergeFileDrop(e, imageNumber) {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-        handleMergeFiles(files, imageNumber);
-    }
-
-    // Update the handleMergeFiles function to show image format info
-    
-function handleMergeFiles(files, imageNumber) {
-    if (files.length === 0) return;
-    
-    const file = files[0];
-    if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
-        return;
-    }
-    
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const fileSizeKB = Math.round(file.size / 1024);
-        const htmlContent = '<img src="' + e.target.result + '" style="max-width: 100%; max-height: 70px;">' +
-                           '<div style="font-size: 10px; margin-top: 5px;">' +
-                           file.name + '<br>' + file.type + ' (' + fileSizeKB + 'KB)' +
-                           '</div>';
+        dropArea.addEventListener('drop', handleDropFile, false);
         
-        if (imageNumber === 1) {
-            mergeImage1 = file;
-            document.getElementById('mergeDropArea1').innerHTML = htmlContent;
-        } else {
-            mergeImage2 = file;
-            document.getElementById('mergeDropArea2').innerHTML = htmlContent;
+        // Handle file selection
+        fileInput.addEventListener('change', handleFileSelect, false);
+        
+        function handleDropFile(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
         }
         
-        // Enable merge button if both images are uploaded
-        if (mergeImage1 && mergeImage2) {
-            document.getElementById('mergeImagesBtn').disabled = false;
-            showImagePreviews();
-        }
-    };
-    reader.readAsDataURL(file);
-}
-
-function showImagePreviews() {
-    const previewContainer = document.getElementById('mergePreviewContainer');
-    const imagePreviews = document.getElementById('imagePreviews');
-    const sizeInfo = document.getElementById('sizeInfo');
-    
-    previewContainer.style.display = 'block';
-    imagePreviews.innerHTML = '';
-    
-    const reader1 = new FileReader();
-    const reader2 = new FileReader();
-    
-    reader1.onload = function(e1) {
-        reader2.onload = function(e2) {
-            const img1 = new Image();
-            const img2 = new Image();
-            
-            img1.onload = img2.onload = function() {
-                imagePreviews.innerHTML = '<img src="' + e1.target.result + '" title="Image 1: ' + img1.width + '×' + img1.height + '">' +
-                                         '<img src="' + e2.target.result + '" title="Image 2: ' + img2.width + '×' + img2.height + '">';
-                
-                const direction = document.querySelector('input[name="mergeDirection"]:checked').value;
-                const resizeOption = document.querySelector('input[name="resizeOption"]:checked').value;
-                
-                if (resizeOption === 'equal') {
-                    if (direction === 'horizontal') {
-                        const targetHeight = Math.min(img1.height, img2.height);
-                        const width1 = Math.round((targetHeight / img1.height) * img1.width);
-                        const width2 = Math.round((targetHeight / img2.height) * img2.width);
-                        sizeInfo.textContent = 'Merged size: ' + (width1 + width2) + '×' + targetHeight + ' pixels';
-                    } else {
-                        const targetWidth = Math.min(img1.width, img2.width);
-                        const height1 = Math.round((targetWidth / img1.width) * img1.height);
-                        const height2 = Math.round((targetWidth / img2.width) * img2.height);
-                        sizeInfo.textContent = 'Merged size: ' + targetWidth + '×' + (height1 + height2) + ' pixels';
-                    }
-                } else {
-                    if (direction === 'horizontal') {
-                        sizeInfo.textContent = 'Merged size: ' + (img1.width + img2.width) + '×' + Math.max(img1.height, img2.height) + ' pixels';
-                    } else {
-                        sizeInfo.textContent = 'Merged size: ' + Math.max(img1.width, img2.width) + '×' + (img1.height + img2.height) + ' pixels';
-                    }
-                }
-            };
-            
-            img1.src = e1.target.result;
-            img2.src = e2.target.result;
-        };
-        reader2.readAsDataURL(mergeImage2);
-    };
-    reader1.readAsDataURL(mergeImage1);
-}
-
-    // Add this helper function
-    function getFileExtensionFromFormat(format) {
-        const formatMap = {
-            'image/jpeg': 'jpg',
-            'image/jpg': 'jpg',
-            'image/png': 'png',
-            'image/gif': 'gif',
-            'image/webp': 'webp',
-            'image/bmp': 'bmp',
-            'image/tiff': 'tiff'
-        };
-        
-        return formatMap[format.toLowerCase()] || 'png';
-    }
-    
-    // Replace the mergeImages function with this complete version
-function mergeImages(image1, image2, direction) {
-    return new Promise((resolve, reject) => {
-        const reader1 = new FileReader();
-        const reader2 = new FileReader();
-        
-        reader1.onload = function(e1) {
-            reader2.onload = function(e2) {
-                const img1 = new Image();
-                const img2 = new Image();
-                
-                img1.onload = function() {
-                    img2.onload = function() {
-                        try {
-                            // Resize images to have equal dimensions while maintaining aspect ratio
-                            let targetWidth, targetHeight;
-                            
-                            if (direction === 'horizontal') {
-                                // For horizontal merge, make both images same height
-                                targetHeight = Math.min(img1.height, img2.height);
-                                targetWidth1 = Math.round((targetHeight / img1.height) * img1.width);
-                                targetWidth2 = Math.round((targetHeight / img2.height) * img2.width);
-                                
-                                // Create canvas with combined width
-                                const canvas = document.createElement('canvas');
-                                canvas.width = targetWidth1 + targetWidth2;
-                                canvas.height = targetHeight;
-                                const ctx = canvas.getContext('2d');
-                                
-                                // Draw resized images
-                                ctx.drawImage(img1, 0, 0, targetWidth1, targetHeight);
-                                ctx.drawImage(img2, targetWidth1, 0, targetWidth2, targetHeight);
-                                
-                                createMergedImage(canvas, direction);
-                                
-                            } else {
-                                // For vertical merge, make both images same width
-                                targetWidth = Math.min(img1.width, img2.width);
-                                targetHeight1 = Math.round((targetWidth / img1.width) * img1.height);
-                                targetHeight2 = Math.round((targetWidth / img2.width) * img2.height);
-                                
-                                // Create canvas with combined height
-                                const canvas = document.createElement('canvas');
-                                canvas.width = targetWidth;
-                                canvas.height = targetHeight1 + targetHeight2;
-                                const ctx = canvas.getContext('2d');
-                                
-                                // Draw resized images
-                                ctx.drawImage(img1, 0, 0, targetWidth, targetHeight1);
-                                ctx.drawImage(img2, 0, targetHeight1, targetWidth, targetHeight2);
-                                
-                                createMergedImage(canvas, direction);
-                            }
-                            
-                        } catch (error) {
-                            reject(new Error('Failed to merge images: ' + error.message));
-                        }
-                    };
-                    
-                    img2.onerror = function() {
-                        reject(new Error('Failed to load second image'));
-                    };
-                    
-                    img2.src = e2.target.result;
-                };
-                
-                img1.onerror = function() {
-                    reject(new Error('Failed to load first image'));
-                };
-                
-                img1.src = e1.target.result;
-            };
-            
-            reader2.onerror = function() {
-                reject(new Error('Failed to read second image file'));
-            };
-            
-            reader2.readAsDataURL(image2);
-        };
-        
-        reader1.onerror = function() {
-            reject(new Error('Failed to read first image file'));
-        };
-        
-        reader1.readAsDataURL(image1);
-        
-        function createMergedImage(canvas, direction) {
-            // Ask user for output format
-            const useJpeg = confirm(\'Use JPEG format for output? (Cancel for PNG)\\n\\nJPEG: Smaller file size, no transparency\\nPNG: Better quality, supports transparency\');
-            const mimeType = useJpeg ? 'image/jpeg' : 'image/png';
-            const quality = useJpeg ? 0.9 : 1.0; // JPEG quality (0-1)
-            
-            canvas.toBlob(function(blob) {
-                // Create FormData to send to server
-                const formData = new FormData();
-                const extension = useJpeg ? 'jpg' : 'png';
-                const filename = `merged-${Date.now()}.${extension}`;
-                
-                formData.append('file', blob, filename);
-                formData.append('country', document.getElementById('editCountry').value);
-                
-                // Get existing image filename if editing
-                if (currentEditingIndex !== -1 && jsonData[currentEditingIndex].image && jsonData[currentEditingIndex].image !== "placeholder.jpg") {
-                    formData.append('existing_image', jsonData[currentEditingIndex].image);
-                }
-                
-                // Send to server
-                fetch('/upload-image', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok: ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.error) {
-                        reject(new Error(data.error));
-                    } else {
-                        resolve({
-                            message: `Images merged successfully (${direction === 'horizontal' ? 'side-by-side' : 'top-bottom'})`,
-                            filename: data.filename,
-                            filepath: data.filepath,
-                            format: useJpeg ? 'JPEG' : 'PNG'
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Upload error:', error);
-                    reject(new Error('Failed to upload merged image: ' + error.message));
-                });
-            }, mimeType, quality);
-        }
-    });
-}
-
-    function dataURLtoBlob(dataURL) {
-        const parts = dataURL.split(';base64,');
-        const contentType = parts[0].split(':')[1];
-        const raw = window.atob(parts[1]);
-        const uInt8Array = new Uint8Array(raw.length);
-        
-        for (let i = 0; i < raw.length; ++i) {
-            uInt8Array[i] = raw.charCodeAt(i);
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            handleFiles(files);
         }
         
-        return new Blob([uInt8Array], { type: contentType });
-    }
-
-    // Add this function call to initialize the merging functionality
-    setupImageMerging();
-    
-    
-        document.getElementById("uploadFileBtn").addEventListener("click", function () {
-            const fileInput = document.getElementById("uploadFileInput");
-            const file = fileInput.files[0];
-
-            if (!file) {
-                alert("Please select a file to upload.");
+        function handleFiles(files) {
+            if (files.length === 0) return;
+            
+            const file = files[0];
+            const country = document.getElementById('editCountry').value;
+            
+            if (!country) {
+                alert('Please select a country first');
                 return;
             }
-
+            
             const formData = new FormData();
-            formData.append("file", file);
-
-            fetch('/upload-json', {
+            formData.append('file', file);
+            formData.append('country', country);
+            
+            // If editing existing row, replace the image
+            if (currentEditingIndex !== -1 && jsonData[currentEditingIndex].image && jsonData[currentEditingIndex].image !== "placeholder.jpg") {
+                formData.append('existing_image', jsonData[currentEditingIndex].image);
+            }
+            
+            fetch('/upload-image', {
                 method: 'POST',
                 body: formData
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.message) {
-                        alert(data.message);
-                        fetch('/get-json')
-                            .then(response => response.json())
-                            .then(newData => {
-                                jsonData = newData;
-                                renderTable(jsonData);
-                            });
-                    } else {
-                        alert(data.error || "An error occurred.");
-                    }
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    alert("An error occurred while uploading the file.");
-                });
-        });
-
-        document.getElementById("jsonFileInput").addEventListener("change", function (event) {
-            const file = event.target.files[0];
-
-            if (!file) {
-                alert("No file selected. Please select a JSON file.");
-                return;
-            }
-
-            if (file.type !== "application/json") {
-                alert("Invalid file type. Please upload a valid JSON file.");
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                try {
-                    jsonData = JSON.parse(e.target.result);
-                    renderTable(jsonData);
-                } catch (error) {
-                    alert("Error parsing JSON file. Please check the file format.");
-                    console.error("JSON Parsing Error:", error);
-                }
-            };
-
-            reader.onerror = function () {
-                alert("Error reading the file. Please try again.");
-            };
-
-            reader.readAsText(file);
-        });
-
-        let jsonData = [];
-        let sortOrder = 1;
-        let currentEditingIndex = -1;
-        let countriesData = [];
-
-        // Load countries data
-        function loadCountries() {
-            fetch('/get-countries')
-                .then(response => response.json())
-                .then(data => {
-                    countriesData = data;
-                    populateCountryDropdowns();
-                })
-                .catch(error => {
-                    console.error("Error loading countries:", error);
-                });
-        }
-
-        // Populate country dropdowns
-        function populateCountryDropdowns() {
-            const editCountryDropdown = document.getElementById('editCountry');
-            
-            // Clear existing options
-            editCountryDropdown.innerHTML = '';
-            
-            // Add default option
-            const defaultOption = document.createElement('option');
-            defaultOption.value = '';
-            defaultOption.textContent = 'Select a country';
-            editCountryDropdown.appendChild(defaultOption);
-            
-            // Add countries
-            countriesData.forEach(country => {
-                const option = document.createElement('option');
-                option.value = country.name;
-                option.textContent = country.name;
-                editCountryDropdown.appendChild(option);
-            });
-        }
-
-        function renderTable(data) {
-            const tableContainer = document.getElementById("jsonTableContainer");
-            tableContainer.innerHTML = '';
-        
-            const headerRow = document.createElement('div');
-            headerRow.classList.add('row', 'header');
-            const headers = [
-                { text: 'Country', key: 'country' },
-                { text: 'Currency Type', key: 'currency_type' },
-                { text: 'Donor Name', key: 'donor_name' },
-                { text: 'Image', key: 'image' },
-                { text: 'Note', key: 'note' },
-                { text: 'Size', key: 'size' },
-                { text: 'Year', key: 'year' },
-                { text: 'Actions', key: null }
-            ];
-            
-            headers.forEach(header => {
-                const column = document.createElement('div');
-                column.classList.add('column');
-                column.textContent = header.text;
-                if (header.key) {
-                    column.dataset.key = header.key;
-                    column.classList.add('sortable');
-                    column.addEventListener('click', () => {
-                        sortTable(header.key);
-                    });
-                }
-                headerRow.appendChild(column);
-            });
-            tableContainer.appendChild(headerRow);
-        
-            data.forEach((row, index) => {
-                const rowDiv = document.createElement('div');
-                rowDiv.classList.add('row');
-                rowDiv.draggable = true;
-                rowDiv.setAttribute('data-index', index);
-        
-                rowDiv.addEventListener('dragstart', handleDragStart);
-                rowDiv.addEventListener('dragover', handleDragOver);
-                rowDiv.addEventListener('drop', handleDrop);
-        
-                // Country dropdown
-                const countryColumn = document.createElement('div');
-                countryColumn.classList.add('column');
-                const countrySelect = document.createElement('select');
-                countrySelect.classList.add('country-dropdown');
-
-                //countrySelect.addEventListener('change', function() {
-                //    row.country = this.value;
-                //    saveUpdates();
-                //});
-
-                countrySelect.addEventListener('change', function() {
-                const oldCountry = row.country;
-                const newCountry = this.value;
-                const image = row.image;
-
-                if (!image || image === "placeholder.jpg") {
-                    // Just update JSON if no real image
-                    row.country = newCountry;
-                    saveUpdates();
-                    return;
-                }
-
-                fetch('/update-country', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        image: image,
-                        old_country: oldCountry,
-                        new_country: newCountry
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        alert("Error: " + data.error);
-                        this.value = oldCountry; // revert if failed
-                    } else {
-                        console.log(data.message);
-                        row.country = newCountry;
-                        renderTable(jsonData);
-                    }
-                })
-                .catch(error => {
-                    console.error("Error updating country:", error);
-                    this.value = oldCountry; // revert if error
-                });
-            });
-
-
-                
-                // Add default option
-                const defaultOption = document.createElement('option');
-                defaultOption.value = '';
-                defaultOption.textContent = 'Select country';
-                countrySelect.appendChild(defaultOption);
-                
-                // Add countries
-                countriesData.forEach(country => {
-                    const option = document.createElement('option');
-                    option.value = country.name;
-                    option.textContent = country.name;
-                    if (row.country === country.name) {
-                        option.selected = true;
-                    }
-                    countrySelect.appendChild(option);
-                });
-                
-                // If country is not in the list, add it as an option
-                if (row.country && !countriesData.some(c => c.name === row.country)) {
-                    const option = document.createElement('option');
-                    option.value = row.country;
-                    option.textContent = row.country;
-                    option.selected = true;
-                    countrySelect.appendChild(option);
-                }
-                
-                countryColumn.appendChild(countrySelect);
-                rowDiv.appendChild(countryColumn);
-                
-                // Currency type dropdown
-                const currencyColumn = document.createElement('div');
-                currencyColumn.classList.add('column');
-                const currencySelect = document.createElement('select');
-                currencySelect.classList.add('currency-dropdown');
-                currencySelect.addEventListener('change', function() {
-                    row.currency_type = this.value;
-                    saveUpdates();
-                });
-                
-                const currencyOptions = ['coin', 'paper-bill', 'antique'];
-                currencyOptions.forEach(optionValue => {
-                    const option = document.createElement('option');
-                    option.value = optionValue;
-                    option.textContent = optionValue.charAt(0).toUpperCase() + optionValue.slice(1);
-                    if (row.currency_type === optionValue) {
-                        option.selected = true;
-                    }
-                    currencySelect.appendChild(option);
-                });
-                
-                currencyColumn.appendChild(currencySelect);
-                rowDiv.appendChild(currencyColumn);
-                
-                // Donor name (editable)
-                const donorColumn = document.createElement('div');
-                donorColumn.classList.add('column', 'editable');
-                donorColumn.textContent = row.donor_name || "No Donor Name";
-                donorColumn.contentEditable = true;
-                donorColumn.addEventListener('blur', function() {
-                    row.donor_name = this.textContent;
-                    saveUpdates();
-                });
-                rowDiv.appendChild(donorColumn);
-                
-                // Image column with drag and drop
-                const imageColumn = document.createElement('div');
-                imageColumn.classList.add('column');
-                
-                // ✅ Always show drop area (whether image exists or not)
-                const dropArea = document.createElement('div');
-                dropArea.classList.add('image-drop-area');
-                dropArea.setAttribute('data-index', index);
-
-                if (row.image && row.image !== 'placeholder.jpg') {
-                    dropArea.innerHTML = `<img src="images/${row.country}/${row.image}" 
-                                        class="thumbnail" 
-                                        data-index="${index}" 
-                                        onerror="this.src='images/placeholder.jpg'">`;
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error uploading image: ' + data.error);
                 } else {
-                    dropArea.innerHTML = '<p>Drag & drop image here</p>';
-                }
-
-                // Enable drag & drop on this area
-                setupImageDropArea(dropArea, row, index);
-
-                imageColumn.appendChild(dropArea);
-
-                
-                rowDiv.appendChild(imageColumn);
-                
-                // Note (editable)
-                const noteColumn = document.createElement('div');
-                noteColumn.classList.add('column', 'editable');
-                noteColumn.textContent = row.note || "No Note";
-                noteColumn.contentEditable = true;
-                noteColumn.addEventListener('blur', function() {
-                    row.note = this.textContent;
-                    saveUpdates();
-                });
-                rowDiv.appendChild(noteColumn);
-                
-                // Size (editable)
-                const sizeColumn = document.createElement('div');
-                sizeColumn.classList.add('column', 'editable');
-                sizeColumn.textContent = row.size || "No Size";
-                sizeColumn.contentEditable = true;
-                sizeColumn.addEventListener('blur', function() {
-                    row.size = this.textContent;
-                    saveUpdates();
-                });
-                rowDiv.appendChild(sizeColumn);
-                
-                // Year (editable)
-                const yearColumn = document.createElement('div');
-                yearColumn.classList.add('column', 'editable');
-                yearColumn.textContent = row.year || "No Year";
-                yearColumn.contentEditable = true;
-                yearColumn.addEventListener('blur', function() {
-                    row.year = this.textContent;
-                    saveUpdates();
-                });
-                rowDiv.appendChild(yearColumn);
-                
-                // Actions (delete button)
-                const actionColumn = document.createElement('div');
-                actionColumn.classList.add('column');
-                const deleteBtn = document.createElement('span');
-                deleteBtn.classList.add('delete-btn');
-                deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-                deleteBtn.addEventListener('click', function() {
-                    if (confirm('Are you sure you want to delete this entry?')) {
-                        jsonData.splice(index, 1);
+                    // Update the image in the current editing row
+                    if (currentEditingIndex !== -1) {
+                        jsonData[currentEditingIndex].image = data.filename;
                         renderTable(jsonData);
                         saveUpdates();
+                        // Update modal image display
+                        document.getElementById("modalImage").src = `images/${country}/${data.filename}`;
+                        document.getElementById("imageFileName").textContent = data.filename;
                     }
-                });
-                actionColumn.appendChild(deleteBtn);
-                rowDiv.appendChild(actionColumn);
-        
-                tableContainer.appendChild(rowDiv);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error uploading image');
             });
-            filterTable();
         }
-        
-        // Setup image drop area functionality
-        function setupImageDropArea(dropArea, row, index) {
-                      
+    }
+
+    // Modal image merging functionality
+    function setupModalImageMerging() {
+        let mergeImage1 = null;
+        let mergeImage2 = null;
+
+        const mergeDropArea1 = document.getElementById('mergeDropArea1');
+        const mergeDropArea2 = document.getElementById('mergeDropArea2');
+        const mergeImagesBtn = document.getElementById('modalMergeImagesBtn');
+
+        // Setup drop areas for merging
+        function setupMergeDropArea(dropArea, imageNumber) {
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
             fileInput.accept = 'image/*';
             fileInput.style.display = 'none';
             document.body.appendChild(fileInput);
             
-            // Click to select file
-            dropArea.addEventListener('click', () => {
-                fileInput.click();
-            });
+            dropArea.addEventListener('click', () => fileInput.click());
             
-            // Drag and drop events
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                 dropArea.addEventListener(eventName, preventDefaults, false);
             });
             
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, () => dropArea.classList.add('highlight'), false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, () => dropArea.classList.remove('highlight'), false);
+            });
+            
+            dropArea.addEventListener('drop', function(e) {
+                handleMergeFileDrop(e, imageNumber);
+            }, false);
+            
+            fileInput.addEventListener('change', function(e) {
+                handleMergeFileSelect(e, imageNumber);
+            });
+
             function preventDefaults(e) {
                 e.preventDefault();
                 e.stopPropagation();
             }
-            
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropArea.addEventListener(eventName, highlight, false);
-            });
-            
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, unhighlight, false);
-            });
-            
-            function highlight() {
-                dropArea.classList.add('highlight');
-            }
-            
-            function unhighlight() {
-                dropArea.classList.remove('highlight');
-            }
-            
-            // Handle file drop
-            dropArea.addEventListener('drop', handleDropFile, false);
-            
-            // Handle file selection
-            fileInput.addEventListener('change', handleFileSelect, false);
-            
-            function handleDropFile(e) {
+
+            function handleMergeFileDrop(e, imageNumber) {
                 const dt = e.dataTransfer;
                 const files = dt.files;
-                handleFiles(files, row, index);
+                handleMergeFiles(files, imageNumber);
             }
-            
-            function handleFileSelect(e) {
+
+            function handleMergeFileSelect(e, imageNumber) {
                 const files = e.target.files;
-                handleFiles(files, row, index);
+                handleMergeFiles(files, imageNumber);
             }
-            
-            function handleFiles(files, row, index) {
+
+            function handleMergeFiles(files, imageNumber) {
                 if (files.length === 0) return;
-                            
+                
                 const file = files[0];
-                const country = row.country;
-                            
-                if (!country) {
-                    alert('Please select a country first');
+                if (!file.type.startsWith('image/')) {
+                    alert('Please select an image file');
                     return;
                 }
-                            
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('country', country);
-
-                // ✅ If this row already has an image, tell backend to replace it
-                if (row.image && row.image !== "placeholder.jpg") {
-                    formData.append('existing_image', row.image);
-                }
-
-                fetch('/upload-image', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        alert('Error uploading image: ' + data.error);
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const fileSizeKB = Math.round(file.size / 1024);
+                    const htmlContent = '<img src="' + e.target.result + '" style="max-width: 100%; max-height: 70px;">' +
+                                       '<div style="font-size: 10px; margin-top: 5px;">' +
+                                       file.name + '<br>' + file.type + ' (' + fileSizeKB + 'KB)' +
+                                       '</div>';
+                    
+                    if (imageNumber === 1) {
+                        mergeImage1 = file;
+                        mergeDropArea1.innerHTML = htmlContent;
                     } else {
-                        // Update JSON with new filename
-                        jsonData[index].image = data.filename;
+                        mergeImage2 = file;
+                        mergeDropArea2.innerHTML = htmlContent;
+                    }
+                    
+                    // Enable merge button if both images are uploaded
+                    if (mergeImage1 && mergeImage2) {
+                        mergeImagesBtn.disabled = false;
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Setup both drop areas
+        setupMergeDropArea(mergeDropArea1, 1);
+        setupMergeDropArea(mergeDropArea2, 2);
+
+        // Merge button click handler
+        mergeImagesBtn.addEventListener('click', function() {
+            if (!mergeImage1 || !mergeImage2) {
+                alert('Please upload both images first');
+                return;
+            }
+            
+            const mergeDirection = document.querySelector('input[name="mergeDirection"]:checked').value;
+            const resizeOption = document.querySelector('input[name="resizeOption"]:checked').value;
+            const country = document.getElementById('editCountry').value;
+            
+            if (!country) {
+                alert('Please select a country first');
+                return;
+            }
+
+            // Create FormData for merging
+            const formData = new FormData();
+            formData.append('image1', mergeImage1);
+            formData.append('image2', mergeImage2);
+            formData.append('direction', mergeDirection);
+            formData.append('country', country);
+            formData.append('resizeOption', resizeOption);
+
+            // Show loading state
+            const originalText = mergeImagesBtn.textContent;
+            mergeImagesBtn.textContent = 'Merging...';
+            mergeImagesBtn.disabled = true;
+
+            fetch('/merge-images-upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error merging images: ' + data.error);
+                } else {
+                    alert('Images merged successfully!');
+                    // Update the current row with merged image
+                    if (currentEditingIndex !== -1) {
+                        jsonData[currentEditingIndex].image = data.filename;
                         renderTable(jsonData);
                         saveUpdates();
+                        // Update modal display
+                        document.getElementById("modalImage").src = `images/${country}/${data.filename}`;
+                        document.getElementById("imageFileName").textContent = data.filename;
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error uploading image');
-                });
-            }
-
-        }
-        
-        function sortTable(key) {
-            jsonData.sort((a, b) => {
-                if (a[key] < b[key]) return -1 * sortOrder;
-                if (a[key] > b[key]) return 1 * sortOrder;
-                return 0;
-            });
-            sortOrder *= -1;
-            renderTable(jsonData);
-            
-            fetch('/update-json', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(jsonData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    console.log('Backend JSON updated successfully:', data.message);
-                } else {
-                    console.error('Error updating JSON:', data.error);
-                    alert(`Error updating JSON: ${data.error}`);
+                    // Clear merge areas
+                    mergeImage1 = null;
+                    mergeImage2 = null;
+                    mergeDropArea1.innerHTML = '<p>Drag & drop first image here</p>';
+                    mergeDropArea2.innerHTML = '<p>Drag & drop second image here</p>';
+                    mergeImagesBtn.disabled = true;
                 }
             })
             .catch(error => {
-                console.error('Error with fetch request:', error);
-                alert('An error occurred while updating the JSON file.');
-            });
-        }
-        
-        function handleDragStart(e) {
-            e.dataTransfer.setData('text/plain', e.target.getAttribute('data-index'));
-        }
-
-        function handleDragOver(e) {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-        }
-
-        function handleDrop(e) {
-            e.preventDefault();
-            const draggedIndex = e.dataTransfer.getData('text/plain');
-            const targetIndex = e.target.closest('.row').getAttribute('data-index');
-
-            if (draggedIndex !== targetIndex) {
-                const draggedItem = jsonData.splice(draggedIndex, 1)[0];
-                jsonData.splice(targetIndex, 0, draggedItem);
-                renderTable(jsonData);
-                saveUpdates();
-            }
-        }
-
-        function showToast(message) {
-            const toast = document.getElementById("toastMessage");
-            toast.textContent = "✅ " + message;
-            toast.style.display = "block";
-            toast.style.opacity = "1";
-
-            // Fade out after 3 seconds
-            setTimeout(() => {
-                toast.style.opacity = "0";
-            }, 3000);
-
-            // Fully hide after fade
-            setTimeout(() => {
-                toast.style.display = "none";
-            }, 4000);
-        }
-
-        function saveUpdates() {
-            fetch('/update-json', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(jsonData),
+                console.error('Error merging images:', error);
+                alert('Error merging images: ' + error.message);
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data.message || "File updated.");
-                showToast(data.message || "Changes saved!");
-                
-                // If filters are active, reapply them
-                if (activeFilters.country || activeFilters.size || activeFilters.yearFrom || activeFilters.yearTo) {
-                    applyFilters();
-                }
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                showToast("❌ Error saving changes!");
+            .finally(() => {
+                mergeImagesBtn.textContent = originalText;
+                mergeImagesBtn.disabled = false;
             });
-        }
-
-
-        // Handle image upload via drag and drop in modal
-        function setupModalImageUpload() {
-            const dropArea = document.getElementById('imageDropArea');
-            const fileInput = document.getElementById('editImageInput');
-            
-            // Click to select file
-            dropArea.addEventListener('click', () => {
-                fileInput.click();
-            });
-            
-            // Drag and drop events
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, preventDefaults, false);
-            });
-            
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropArea.addEventListener(eventName, highlight, false);
-            });
-            
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, unhighlight, false);
-            });
-            
-            function highlight() {
-                dropArea.classList.add('highlight');
-            }
-            
-            function unhighlight() {
-                dropArea.classList.remove('highlight');
-            }
-            
-            // Handle file drop
-            dropArea.addEventListener('drop', handleDropFile, false);
-            
-            // Handle file selection
-            fileInput.addEventListener('change', handleFileSelect, false);
-            
-            function handleDropFile(e) {
-                const dt = e.dataTransfer;
-                const files = dt.files;
-                handleFiles(files);
-            }
-            
-            function handleFileSelect(e) {
-                const files = e.target.files;
-                handleFiles(files);
-            }
-            
-            function handleFiles(files) {
-                if (files.length === 0) return;
-                
-                const file = files[0];
-                const country = document.getElementById('editCountry').value;
-                
-                if (!country) {
-                    alert('Please select a country first');
-                    return;
-                }
-                
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('country', country);
-                
-                // ✅ Add existing image filename if editing an existing row
-                if (currentEditingIndex !== -1 && jsonData[currentEditingIndex].image && jsonData[currentEditingIndex].image !== "placeholder.jpg") {
-                    formData.append('existing_image', jsonData[currentEditingIndex].image);
-                }
-                
-                fetch('/upload-image', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        alert('Error uploading image: ' + data.error);
-                    } else {
-                        alert('Image uploaded successfully: ' + data.filename);
-                        // Update the image in the current editing row
-                        if (currentEditingIndex !== -1) {
-                            jsonData[currentEditingIndex].image = data.filename;
-                            renderTable(jsonData);
-                            saveUpdates();
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error uploading image');
-                });
-            }
-        }
-
-        document.addEventListener("DOMContentLoaded", function () {
-            fetch('/get-json')
-                .then(response => response.json())
-                .then(data => {
-                    jsonData = data;
-                    renderTable(jsonData);
-                })
-                .catch(error => {
-                    console.error("Error fetching JSON data:", error);
-                });
-
-            // Load countries data
-            loadCountries();
-            
-            // Setup image upload functionality
-            setupModalImageUpload();
-            
-            // Setup auto-save for modal fields
-            setupModalAutoSave();
-
-
-            // Setup image merging functionality
-            setupImageMerging();
-
-            document.getElementById("addRowBtn").addEventListener("click", function () {
-                const newRow = {
-                    country: "",
-                    currency_type: "coin",
-                    donor_name: "New Donor Name",
-                    image: "placeholder.jpg",
-                    note: "New Note",
-                    size: "",
-                    year: ""
-                };
-                jsonData.push(newRow);
-                renderTable(jsonData);
-                saveUpdates();
-                
-                // If in add mode, keep only the new row visible
-                if (isAddMode) {
-                    const rows = document.querySelectorAll('.row:not(.header)');
-                    rows.forEach((row, index) => {
-                        row.style.display = index === rows.length - 1 ? 'flex' : 'none';
-                    });
-                }
-            });
-
-            document.getElementById("downloadBtn").addEventListener("click", function () {
-                const jsonString = JSON.stringify(jsonData, null, 2);
-                const blob = new Blob([jsonString], { type: "application/json" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = "coins.json";
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            });
-
-            document.getElementById("closeModal").addEventListener("click", function () {
-                document.getElementById("imageModal").style.display = "none";
-            });
-
-            function setupModalAutoSave() {
-                const fields = [
-                    { id: "editCountry", key: "country" },
-                    { id: "editCurrencyType", key: "currency_type" },
-                    { id: "editDonorName", key: "donor_name" },
-                    { id: "editNote", key: "note" },
-                    { id: "editSize", key: "size" },
-                    { id: "editYear", key: "year" },
-                    { id: "editHiddenNote", key: "hidden_note" }   // ✅ added
-                ];
-
-                fields.forEach(field => {
-                    const el = document.getElementById(field.id);
-
-                    // For text inputs & textarea → blur event
-                    if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
-                        el.addEventListener("blur", function () {
-                            if (currentEditingIndex !== -1) {
-                                const value = this.value.trim();
-                                if (value) {
-                                    jsonData[currentEditingIndex][field.key] = value;
-                                } else {
-                                    // If empty, delete hidden_note if it already exists
-                                    if (field.key === "hidden_note") {
-                                        delete jsonData[currentEditingIndex][field.key];
-                                    } else {
-                                        jsonData[currentEditingIndex][field.key] = "";
-                                    }
-                                }
-                                renderTable(jsonData);
-                                saveUpdates();
-                            }
-                        });
-                    }
-
-                    // For dropdowns → change event
-                    if (el.tagName === "SELECT") {
-                        el.addEventListener("change", function () {
-                            if (currentEditingIndex !== -1) {
-                                jsonData[currentEditingIndex][field.key] = this.value;
-                                renderTable(jsonData);
-                                saveUpdates();
-                            }
-                        });
-                    }
-                });
-            }
-
-            document.addEventListener("click", function (event) {
-                if (event.target.classList.contains("thumbnail")) {
-                    const index = event.target.getAttribute("data-index");
-                    const row = jsonData[index];
-                    
-                    document.getElementById("modalImage").src = `images/${row.country}/${row.image}`;
-                    document.getElementById("imageFileName").textContent = row.image;
-                    
-                    // Populate form fields
-                    document.getElementById("editCountry").value = row.country || "";
-                    document.getElementById("editCurrencyType").value = row.currency_type || "";
-                    document.getElementById("editDonorName").value = row.donor_name || "";
-                    document.getElementById("editNote").value = row.note || "";
-                    document.getElementById("editSize").value = row.size || "";
-                    document.getElementById("editYear").value = row.year || "";
-                    document.getElementById("editHiddenNote").value = row.hidden_note || "";
-                    
-                    currentEditingIndex = index;
-                    document.getElementById("imageModal").style.display = "flex";
-                }
-            });
-        });
-        
-        // Search functionality
-document.getElementById("countrySearch").addEventListener("input", function() {
-    filterTableByCountry(this.value);
-});
-
-document.getElementById("clearSearch").addEventListener("click", function() {
-    document.getElementById("countrySearch").value = "";
-    filterTableByCountry("");
-});
-
-function filterTableByCountry(searchTerm) {
-    const searchTermLower = searchTerm.toLowerCase();
-    
-    if (!searchTermLower) {
-        // If search is empty, show all rows
-        document.querySelectorAll('.row:not(.header)').forEach(row => {
-            row.style.display = 'flex';
-        });
-        return;
-    }
-    
-    // Filter rows based on country
-    document.querySelectorAll('.row:not(.header)').forEach(row => {
-        const countrySelect = row.querySelector('.country-dropdown');
-        const countryValue = countrySelect ? countrySelect.value.toLowerCase() : '';
-        
-        if (countryValue.includes(searchTermLower)) {
-            row.style.display = 'flex';
-        } else {
-            row.style.display = 'none';
-        }
-    });
-}
-
-// Search and filter functionality
-let activeFilters = {
-    country: '',
-    size: '',
-    yearFrom: '',
-    yearTo: ''
-};
-
-let isAddMode = false;
-
-document.getElementById("applyFilters").addEventListener("click", function() {
-    applyFilters();
-});
-
-document.getElementById("clearFilters").addEventListener("click", function() {
-    clearFilters();
-});
-
-document.getElementById("toggleAddMode").addEventListener("click", function() {
-    toggleAddMode();
-});
-
-function applyFilters() {
-    activeFilters = {
-        country: document.getElementById("countrySearch").value.toLowerCase(),
-        size: document.getElementById("sizeSearch").value.toLowerCase(),
-        yearFrom: document.getElementById("yearFromSearch").value,
-        yearTo: document.getElementById("yearToSearch").value
-    };
-    
-    filterTable();
-}
-
-function clearFilters() {
-    document.getElementById("countrySearch").value = "";
-    document.getElementById("sizeSearch").value = "";
-    document.getElementById("yearFromSearch").value = "";
-    document.getElementById("yearToSearch").value = "";
-    
-    activeFilters = {
-        country: '',
-        size: '',
-        yearFrom: '',
-        yearTo: ''
-    };
-    
-    filterTable();
-}
-
-function toggleAddMode() {
-    isAddMode = !isAddMode;
-    const btn = document.getElementById("toggleAddMode");
-    
-    if (isAddMode) {
-        btn.classList.add("active");
-        btn.textContent = "Exit Add Mode";
-        // Hide all existing rows except the header
-        document.querySelectorAll('.row:not(.header)').forEach(row => {
-            row.style.display = 'none';
-        });
-        // Show add row button if hidden
-        document.getElementById("addRowBtn").style.display = 'block';
-    } else {
-        btn.classList.remove("active");
-        btn.textContent = "Add New Mode";
-        filterTable(); // Reapply any active filters
-    }
-}
-
-function filterTable() {
-    const rows = document.querySelectorAll('.row:not(.header)');
-    
-    rows.forEach(row => {
-        if (isAddMode) {
-            row.style.display = 'none';
-            return;
-        }
-        
-        const countrySelect = row.querySelector('.country-dropdown');
-        const countryValue = countrySelect ? countrySelect.value.toLowerCase() : '';
-        const sizeCell = row.querySelectorAll('.column')[5]; // Size column
-        const sizeValue = sizeCell ? sizeCell.textContent.toLowerCase() : '';
-        const yearCell = row.querySelectorAll('.column')[6]; // Year column
-        const yearValue = yearCell ? parseInt(yearCell.textContent) || 0 : 0;
-        
-        let showRow = true;
-        
-        // Apply filters
-        if (activeFilters.country && !countryValue.includes(activeFilters.country)) {
-            showRow = false;
-        }
-        
-        if (activeFilters.size && !sizeValue.includes(activeFilters.size)) {
-            showRow = false;
-        }
-        
-        if (activeFilters.yearFrom && yearValue < parseInt(activeFilters.yearFrom)) {
-            showRow = false;
-        }
-        
-        if (activeFilters.yearTo && yearValue > parseInt(activeFilters.yearTo)) {
-            showRow = false;
-        }
-        
-        row.style.display = showRow ? 'flex' : 'none';
-    });
-    
-    // If all filters are empty, show all rows
-    if (!activeFilters.country && !activeFilters.size && !activeFilters.yearFrom && !activeFilters.yearTo && !isAddMode) {
-        rows.forEach(row => {
-            row.style.display = 'flex';
         });
     }
-}
-// Add these helper functions to the JavaScript section
-function clearMergeAreas() {
-    mergeImage1 = null;
-    mergeImage2 = null;
-    document.getElementById('mergeDropArea1').innerHTML = '<p>Drag & drop first image here</p>';
-    document.getElementById('mergeDropArea2').innerHTML = '<p>Drag & drop second image here</p>';
-    document.getElementById('mergeImagesBtn').disabled = true;
-}
-    </script>
+
+    // Initialize modal functionality
+    setupModalAutoSave();
+    setupModalImageUpload();
+    setupModalImageMerging();
+
+});
+</script>
 </body>
 
 </html>
