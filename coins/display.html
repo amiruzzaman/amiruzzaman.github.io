@@ -2523,7 +2523,7 @@
                 <div id="summary-container" class="summary"></div>
             </div>
             <div class="box-list-button-wrapper">
-                <a href="box_country_list.html" class="btn btn-box-list" title="Box Country List">
+                <a href="box_country_list.html" class="btn btn-box-list" title="Box Country List" target="_blank">
                     <i class="fas fa-boxes"></i>
                 </a>
             </div>
@@ -3316,98 +3316,105 @@
             }
         }
 
-        // Renders the list of available countries in the UI
-        function renderCountries(countries) {
-            const countriesListUl = document.getElementById("countries-ul");
-            countriesListUl.innerHTML = ""; // Clear existing list
+// Renders the list of available countries in the UI
+function renderCountries(countries) {
+    const countriesListUl = document.getElementById("countries-ul");
+    countriesListUl.innerHTML = ""; // Clear existing list
 
-            // Filter out countries that don't have any valid images
-            const countriesWithImages = countries.filter(country => {
-                const countryCoins = cache.coinsData.filter(coin =>
-                    coin.country.toLowerCase() === country.toLowerCase()
-                );
+    // Filter out countries that don't have any valid images
+    const countriesWithImages = countries.filter(country => {
+        const countryCoins = cache.coinsData.filter(coin =>
+            coin.country.toLowerCase() === country.toLowerCase()
+        );
 
-                // Check if any coin for this country has a valid image
-                return countryCoins.some(coin =>
-                    coin.image && coin.image.trim() !== "" && coin.image.toLowerCase() !== "none"
-                );
-            });
+        // Check if any coin for this country has a valid image
+        return countryCoins.some(coin =>
+            coin.image && coin.image.trim() !== "" && coin.image.toLowerCase() !== "none"
+        );
+    });
 
-            // Update the total count of unique countries with images
-            document.getElementById('total-countries-count').textContent = `(${countriesWithImages.length})`;
+    // Update the total count of unique countries with images
+    document.getElementById('total-countries-count').textContent = `(${countriesWithImages.length})`;
 
-            const queryParams = new URLSearchParams(window.location.search);
-            const currentCountryParam = queryParams.get("country") ? queryParams.get("country").toLowerCase() : null;
+    const queryParams = new URLSearchParams(window.location.search);
+    const currentCountryParam = queryParams.get("country") ? queryParams.get("country").toLowerCase() : null;
+    const currentCoinParam = queryParams.get("coin"); // NEW: get current coin parameter
 
-            countriesWithImages.forEach(country => {
-                const li = document.createElement("li");
-                const link = document.createElement("a");
-                link.textContent = country;
-                link.href = `?country=${country.toLowerCase()}`;
+    countriesWithImages.forEach(country => {
+        const li = document.createElement("li");
+        const link = document.createElement("a");
+        
+        // NEW: Include coin parameter in href if present
+        const href = currentCoinParam ? `?country=${country.toLowerCase()}&coin=${currentCoinParam}` : `?country=${country.toLowerCase()}`;
+        link.textContent = country;
+        link.href = href;
 
-                // Set active class and update titles if this is the currently selected country
-                // Set active class and update titles if this is the currently selected country
-                if (currentCountryParam && country.toLowerCase() === currentCountryParam) {
-                    link.classList.add("active");
-                    // get the count of items for the selected country based on year values
-                    const countryItems = cache.coinsData.filter(coin =>
-                        coin.country.toLowerCase() === country.toLowerCase() &&
-                        coin.image && coin.image.trim() !== "" && coin.image.toLowerCase() !== "none"
-                    ).reduce((total, coin) => {
-                        if (coin.year && coin.year.trim() !== "") {
-                            // Count each comma-separated year value, minimum 1
-                            const yearCount = Math.max(coin.year.split(',').length, 1);
-                            return total + yearCount;
-                        } else {
-                            // Count as 1 for empty year field
-                            return total + 1;
-                        }
-                    }, 0);
-                    document.getElementById('selected-country').textContent = `: ${country}`;
-                    document.getElementById('selected-country-title').textContent = `${country} (${countryItems})`;
-                    updateTitle(`${country}`);
+        // Set active class and update titles if this is the currently selected country
+        if (currentCountryParam && country.toLowerCase() === currentCountryParam) {
+            link.classList.add("active");
+            // get the count of items for the selected country based on year values
+            const countryItems = cache.coinsData.filter(coin =>
+                coin.country.toLowerCase() === country.toLowerCase() &&
+                coin.image && coin.image.trim() !== "" && coin.image.toLowerCase() !== "none"
+            ).reduce((total, coin) => {
+                if (coin.year && coin.year.trim() !== "") {
+                    // Count each comma-separated year value, minimum 1
+                    const yearCount = Math.max(coin.year.split(',').length, 1);
+                    return total + yearCount;
+                } else {
+                    // Count as 1 for empty year field
+                    return total + 1;
                 }
-
-                // Add click event listener to handle country selection
-                link.addEventListener("click", event => {
-                    event.preventDefault(); // Prevent default link behavior
-                    const countryName = country.toLowerCase();
-
-                    // Remove active class from all country links
-                    document.querySelectorAll('.countries-list a').forEach(el => {
-                        el.classList.remove('active');
-                    });
-
-                    // Add active class to the clicked link
-                    link.classList.add('active');
-                    // get the count of items for the selected country
-                    const countryItems = cache.coinsData.filter(coin =>
-                        coin.country.toLowerCase() === countryName.toLowerCase() &&
-                        coin.image && coin.image.trim() !== "" && coin.image.toLowerCase() !== "none"
-                    ).reduce((total, coin) => {
-                        if (coin.year && coin.year.trim() !== "") {
-                            const yearCount = Math.max(coin.year.split(',').length, 1);
-                            return total + yearCount;
-                        } else {
-                            return total + 1;
-                        }
-                    }, 0);
-                    document.getElementById('selected-country').textContent = `: ${country}`;
-                    document.getElementById('selected-country-title').textContent = `${country} (${countryItems})`;
-                    updateTitle(`${country}`);
-
-                    // Update URL without reloading the page
-                    history.pushState(null, "", `?country=${countryName}`);
-                    // Trigger map highlight and image loading for the selected country
-                    highlightCountry(countryName);
-                    loadCountryImages(countryName);
-                    loadGalleryView(countryName);
-                });
-
-                li.appendChild(link);
-                countriesListUl.appendChild(li);
-            });
+            }, 0);
+            document.getElementById('selected-country').textContent = `: ${country}`;
+            document.getElementById('selected-country-title').textContent = `${country} (${countryItems})`;
+            updateTitle(`${country}`);
         }
+
+        // Add click event listener to handle country selection
+        link.addEventListener("click", event => {
+            event.preventDefault(); // Prevent default link behavior
+            const countryName = country.toLowerCase();
+
+            // Remove active class from all country links
+            document.querySelectorAll('.countries-list a').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            // Add active class to the clicked link
+            link.classList.add('active');
+            // get the count of items for the selected country
+            const countryItems = cache.coinsData.filter(coin =>
+                coin.country.toLowerCase() === countryName.toLowerCase() &&
+                coin.image && coin.image.trim() !== "" && coin.image.toLowerCase() !== "none"
+            ).reduce((total, coin) => {
+                if (coin.year && coin.year.trim() !== "") {
+                    const yearCount = Math.max(coin.year.split(',').length, 1);
+                    return total + yearCount;
+                } else {
+                    return total + 1;
+                }
+            }, 0);
+            document.getElementById('selected-country').textContent = `: ${country}`;
+            document.getElementById('selected-country-title').textContent = `${country} (${countryItems})`;
+            updateTitle(`${country}`);
+
+            // NEW: Update URL without reloading the page, preserving coin parameter if present
+            const currentParams = new URLSearchParams(window.location.search);
+            const currentCoin = currentParams.get("coin");
+            const newUrl = currentCoin ? `?country=${countryName}&coin=${currentCoin}` : `?country=${countryName}`;
+            history.pushState(null, "", newUrl);
+            
+            // Trigger map highlight and image loading for the selected country
+            highlightCountry(countryName);
+            loadCountryImages(countryName);
+            loadGalleryView(countryName);
+        });
+
+        li.appendChild(link);
+        countriesListUl.appendChild(li);
+    });
+}
 
 
         // Fetches country-specific information from cached data
@@ -3558,7 +3565,12 @@
                                 layer.on({
                                     click: () => {
                                         const countryName = countryMapping.country_name;
-                                        history.pushState(null, "", `?country=${countryName.toLowerCase()}`);
+                                        // Update URL, preserving coin parameter if present
+const currentParams = new URLSearchParams(window.location.search);
+const currentCoin = currentParams.get("coin");
+const newUrl = currentCoin ? `?country=${countryName.toLowerCase()}&coin=${currentCoin}` : `?country=${countryName.toLowerCase()}`;
+history.pushState(null, "", newUrl);
+
                                         highlightCountry(countryName.toLowerCase());
                                         loadCountryImages(countryName.toLowerCase());
                                         loadGalleryView(countryName.toLowerCase());
@@ -3776,28 +3788,35 @@ const filteredCoins = (activeFilters.length > 0) ?
             currentImageIndex = index;
         }
 
-        function changeModalImage(direction) {
-            if (currentCountryCoins.length > 0) {
-                currentImageIndex = (currentImageIndex + direction + currentCountryCoins.length) % currentCountryCoins.length;
-                const coin = currentCountryCoins[currentImageIndex];
 
-                const queryParams = new URLSearchParams(window.location.search);
-                const countryQuery = queryParams.get("country").toLowerCase();
-                const countryInfo = fetchCountryInfo(countryQuery);
+function changeModalImage(direction) {
+    if (currentCountryCoins.length > 0) {
+        currentImageIndex = (currentImageIndex + direction + currentCountryCoins.length) % currentCountryCoins.length;
+        const coin = currentCountryCoins[currentImageIndex];
 
-                const imageUrl = `images/${toTitleCase(countryQuery)}/${coin.image}`;
+        const queryParams = new URLSearchParams(window.location.search);
+        const countryQuery = queryParams.get("country").toLowerCase();
+        const countryInfo = fetchCountryInfo(countryQuery);
 
-                document.getElementById('modalImage').src = imageUrl;
-                document.getElementById('modal-country-name').textContent = countryInfo.name;
-                document.getElementById('modal-capital-name').textContent = countryInfo.capital;
-                document.getElementById('modal-currency-name').textContent = countryInfo.currency?.name;
-                document.getElementById('modal-note').textContent = coin.note;
+        const imageUrl = `images/${toTitleCase(countryQuery)}/${coin.image}`;
 
-                // ADD DONOR INFO UPDATE
-                document.getElementById('modal-donor').textContent = coin.donor_name || 'Unknown';
-            }
+        document.getElementById('modalImage').src = imageUrl;
+        document.getElementById('modal-country-name').textContent = countryInfo.name;
+        document.getElementById('modal-capital-name').textContent = countryInfo.capital;
+        document.getElementById('modal-currency-name').textContent = countryInfo.currency?.name;
+        document.getElementById('modal-note').textContent = coin.note;
+
+        // ADD DONOR INFO UPDATE
+        document.getElementById('modal-donor').textContent = coin.donor_name || 'Unknown';
+
+        // NEW: Update URL with the new coin
+        const country = queryParams.get("country");
+        if (country && currentCountryCoins[currentImageIndex]) {
+            const cleanCoinName = currentCountryCoins[currentImageIndex].image.split('.')[0];
+            history.replaceState(null, "", `?country=${country}&coin=${cleanCoinName}`);
         }
-
+    }
+}
 
         // Initializes the flag modal for enlarged view
         function initFlagModal() {
@@ -3840,72 +3859,77 @@ const filteredCoins = (activeFilters.length > 0) ?
             flagModalDetails.style.display = 'block';
         }
 
-        // Initializes the search functionality for countries
-        function initSearch() {
-            const searchInput = document.getElementById('search-input');
-            const searchResults = document.getElementById('search-results');
 
-            searchInput.addEventListener('input', function () {
-                const query = this.value.toLowerCase().trim();
-                searchResults.innerHTML = ''; // Clear previous results
+// Initializes the search functionality for countries
+function initSearch() {
+    const searchInput = document.getElementById('search-input');
+    const searchResults = document.getElementById('search-results');
 
-                if (query.length < 2) {
-                    searchResults.classList.remove('show');
-                    return;
-                }
+    searchInput.addEventListener('input', function () {
+        const query = this.value.toLowerCase().trim();
+        searchResults.innerHTML = ''; // Clear previous results
 
-                if (!cache.coinsData) {
-                    console.error("Coins data not loaded for search.");
-                    return;
-                }
-
-                // Get unique countries from cached coin data and sort them
-                const countries = [...new Set(cache.coinsData.map(coin => toTitleCase(coin.country)))].sort();
-                const filteredCountries = countries.filter(country =>
-                    country.toLowerCase().includes(query)
-                );
-
-                if (filteredCountries.length > 0) {
-                    filteredCountries.forEach(country => {
-                        const resultItem = document.createElement('div');
-                        resultItem.classList.add('search-result-item');
-                        resultItem.textContent = country;
-                        resultItem.addEventListener('click', function () {
-                            // Update active country link in the list
-                            document.querySelectorAll('.countries-list a').forEach(el => {
-                                el.classList.remove('active');
-                                if (el.textContent.toLowerCase() === country.toLowerCase()) {
-                                    el.classList.add('active');
-                                    const countryItems = cache.coinsData.filter(coin => coin.country.toLowerCase() === country.toLowerCase()).length;
-                                    document.getElementById('selected-country').textContent = `: ${country}`;
-                                    document.getElementById('selected-country-title').textContent = `${country} (${countryItems})`;
-                                    updateTitle(`${country}`);
-                                }
-                            });
-
-                            // Update URL, highlight map, and load images for selected country
-                            history.pushState(null, "", `?country=${country.toLowerCase()}`);
-                            highlightCountry(country.toLowerCase());
-                            loadCountryImages(country.toLowerCase());
-                            loadGalleryView(country.toLowerCase());
-                            searchInput.value = country; // Set search input to selected country
-                            searchResults.classList.remove('show'); // Hide search results
-                        });
-                        searchResults.appendChild(resultItem);
-                    });
-                    searchResults.classList.add('show'); // Show search results
-                } else {
-                    searchResults.classList.remove('show'); // Hide if no results
-                }
-            });
-
-            // Hide search results when clicking outside the search input/results
-            document.addEventListener('click', function (event) {
-                if (!searchInput.contains(event.target) && !searchResults.contains(event.target)) {
-                    searchResults.classList.remove('show');
-                }
-            });
+        if (query.length < 2) {
+            searchResults.classList.remove('show');
+            return;
         }
+
+        if (!cache.coinsData) {
+            console.error("Coins data not loaded for search.");
+            return;
+        }
+
+        // Get unique countries from cached coin data and sort them
+        const countries = [...new Set(cache.coinsData.map(coin => toTitleCase(coin.country)))].sort();
+        const filteredCountries = countries.filter(country =>
+            country.toLowerCase().includes(query)
+        );
+
+        if (filteredCountries.length > 0) {
+            filteredCountries.forEach(country => {
+                const resultItem = document.createElement('div');
+                resultItem.classList.add('search-result-item');
+                resultItem.textContent = country;
+                resultItem.addEventListener('click', function () {
+                    // Update active country link in the list
+                    document.querySelectorAll('.countries-list a').forEach(el => {
+                        el.classList.remove('active');
+                        if (el.textContent.toLowerCase() === country.toLowerCase()) {
+                            el.classList.add('active');
+                            const countryItems = cache.coinsData.filter(coin => coin.country.toLowerCase() === country.toLowerCase()).length;
+                            document.getElementById('selected-country').textContent = `: ${country}`;
+                            document.getElementById('selected-country-title').textContent = `${country} (${countryItems})`;
+                            updateTitle(`${country}`);
+                        }
+                    });
+
+                    // NEW: Update URL, preserving coin parameter if present
+                    const currentParams = new URLSearchParams(window.location.search);
+                    const currentCoin = currentParams.get("coin");
+                    const newUrl = currentCoin ? `?country=${country.toLowerCase()}&coin=${currentCoin}` : `?country=${country.toLowerCase()}`;
+                    history.pushState(null, "", newUrl);
+                    
+                    highlightCountry(country.toLowerCase());
+                    loadCountryImages(country.toLowerCase());
+                    loadGalleryView(country.toLowerCase());
+                    searchInput.value = country; // Set search input to selected country
+                    searchResults.classList.remove('show'); // Hide search results
+                });
+                searchResults.appendChild(resultItem);
+            });
+            searchResults.classList.add('show'); // Show search results
+        } else {
+            searchResults.classList.remove('show'); // Hide if no results
+        }
+    });
+
+    // Hide search results when clicking outside the search input/results
+    document.addEventListener('click', function (event) {
+        if (!searchInput.contains(event.target) && !searchResults.contains(event.target)) {
+            searchResults.classList.remove('show');
+        }
+    });
+}
 
         // NEW: Function to toggle between slider and gallery view
         function initViewToggle() {
@@ -3959,63 +3983,69 @@ const filteredCoins = (activeFilters.length > 0) ?
         }
 
 
-        // Main initialization function, executed when the DOM is fully loaded
-        window.onload = async () => {
-            // Preload all data first. If it fails, log error and stop initialization.
-            const preloadSuccess = await preloadData();
-            if (!preloadSuccess) {
-                console.error("Application failed to load necessary data. Please check network and file paths.");
-                return; // Stop execution if data preload fails
-            }
+window.onload = async () => {
+    // Preload all data first. If it fails, log error and stop initialization.
+    const preloadSuccess = await preloadData();
+    if (!preloadSuccess) {
+        console.error("Application failed to load necessary data. Please check network and file paths.");
+        return; // Stop execution if data preload fails
+    }
 
-            // Get country from URL query parameters, default to "default" if not present
-            const queryParams = new URLSearchParams(window.location.search);
-            const countryQuery = queryParams.get("country") || "default";
+    // Get country and coin from URL query parameters
+    const queryParams = new URLSearchParams(window.location.search);
+    const countryQuery = queryParams.get("country") || "default";
+    const coinQuery = queryParams.get("coin"); // New: get specific coin parameter
 
-            // Get unique countries from cached coin data and sort them alphabetically
-            const countries = [...new Set(cache.coinsData.map(coin => toTitleCase(coin.country)))].sort();
-            renderCountries(countries); // Render the list of countries
+    // Get unique countries from cached coin data and sort them alphabetically
+    const countries = [...new Set(cache.coinsData.map(coin => toTitleCase(coin.country)))].sort();
+    renderCountries(countries); // Render the list of countries
 
-            // Initialize the main map and get its controller functions
-            const mapController = initializeMap();
+    // Initialize the main map and get its controller functions
+    const mapController = initializeMap();
 
-            // Show all available countries on the main map
-            mapController.showAvailableCountries(countries);
+    // Show all available countries on the main map
+    mapController.showAvailableCountries(countries);
 
-            // If a country is specified in the URL, load its images and highlight it
-            if (countryQuery !== "default") {
-                highlightCountry(countryQuery.toLowerCase());
-                loadCountryImages(countryQuery.toLowerCase());
-                loadGalleryView(countryQuery.toLowerCase());
-            } else if (countries.length > 0) {
-                // If no country is specified, load images for the first available country
-                // and highlight it on the map.
-                const firstCountry = countries[0].toLowerCase();
-                history.pushState(null, "", `?country=${firstCountry}`); // Update URL
-                highlightCountry(firstCountry);
-                loadCountryImages(firstCountry);
-                loadGalleryView(firstCountry);
+    // If a country is specified in the URL, load its images and highlight it
+    if (countryQuery !== "default") {
+        highlightCountry(countryQuery.toLowerCase());
+        loadCountryImages(countryQuery.toLowerCase());
+        loadGalleryView(countryQuery.toLowerCase());
+        
+        // NEW: If a specific coin is also specified, navigate to that coin
+        if (coinQuery) {
+            // Small delay to ensure country images are loaded first
+            setTimeout(() => {
+                navigateToSpecificCoin(coinQuery);
+            }, 100);
+        }
+    } else if (countries.length > 0) {
+        // If no country is specified, load images for the first available country
+        const firstCountry = countries[0].toLowerCase();
+        history.pushState(null, "", `?country=${firstCountry}`); // Update URL
+        highlightCountry(firstCountry);
+        loadCountryImages(firstCountry);
+        loadGalleryView(firstCountry);
 
-                // Also set the first country as active in the list
-                const firstCountryLink = document.querySelector(`.countries-list a[href="?country=${firstCountry}"]`);
-                if (firstCountryLink) {
-                    firstCountryLink.classList.add('active');
-                    const countryItems = cache.coinsData.filter(coin => coin.country.toLowerCase() === firstCountry).length;
-                    document.getElementById('selected-country').textContent = `: ${countries[0]}`;
-                    document.getElementById('selected-country-title').textContent = `${countries[0]} (${countryItems})`;
-                    updateTitle(`${countries[0]}`);
-                }
-            }
+        // Also set the first country as active in the list
+        const firstCountryLink = document.querySelector(`.countries-list a[href="?country=${firstCountry}"]`);
+        if (firstCountryLink) {
+            firstCountryLink.classList.add('active');
+            const countryItems = cache.coinsData.filter(coin => coin.country.toLowerCase() === firstCountry).length;
+            document.getElementById('selected-country').textContent = `: ${countries[0]}`;
+            document.getElementById('selected-country-title').textContent = `${countries[0]} (${countryItems})`;
+            updateTitle(`${countries[0]}`);
+        }
+    }
 
-
-            // Initialize various UI components
-            initDetailsToggle();
-            initImageModal();
-            initFlagModal();
-            initSearch();
-            initViewToggle();
-            initBackToTop();
-        };
+    // Initialize various UI components
+    initDetailsToggle();
+    initImageModal();
+    initFlagModal();
+    initSearch();
+    initViewToggle();
+    initBackToTop();
+};
     </script>
     <script type="text/javascript">
 
@@ -4034,6 +4064,42 @@ const filteredCoins = (activeFilters.length > 0) ?
             console.log("Updated Title:", newTitle);
         }
 
+
+// NEW: Function to navigate to a specific coin by image filename
+function navigateToSpecificCoin(coinFilename) {
+    if (!currentCountryCoins || currentCountryCoins.length === 0) {
+        console.warn("No country coins loaded yet");
+        return;
+    }
+
+    // Find the coin index by matching the filename (with or without extension)
+    const coinIndex = currentCountryCoins.findIndex(coin => {
+        const coinImageName = coin.image.toLowerCase();
+        const searchName = coinFilename.toLowerCase();
+        
+        // Match with or without file extension
+        return coinImageName === searchName || 
+               coinImageName === `${searchName}.jpg` || 
+               coinImageName === `${searchName}.jpeg` || 
+               coinImageName === `${searchName}.png` ||
+               coinImageName.split('.')[0] === searchName;
+    });
+
+    if (coinIndex !== -1) {
+        // Navigate to the specific coin
+        updateImageDisplay(coinIndex, currentCountryCoins);
+        
+        // Update URL to include both country and coin
+        const queryParams = new URLSearchParams(window.location.search);
+        const country = queryParams.get("country");
+        const cleanCoinName = currentCountryCoins[coinIndex].image.split('.')[0];
+        history.replaceState(null, "", `?country=${country}&coin=${cleanCoinName}`);
+        
+        console.log(`Navigated to coin: ${currentCountryCoins[coinIndex].image}`);
+    } else {
+        console.warn(`Coin not found: ${coinFilename}`);
+    }
+}
 
         // --- URL-in-Note support ---
         function formatNoteWithURLs(text) {
@@ -4282,166 +4348,182 @@ const filteredCoins = (activeFilters.length > 0) ?
         //     timelineLegend.style.display = 'none';
         // }
 
-        // Loads and displays coin images for a selected country in slider view
-        function loadCountryImages(countryName) {
-            if (!cache.coinsData) {
-                console.error("Coins data not loaded from cache.");
-                return;
-            }
+// Loads and displays coin images for a selected country in slider view
+function loadCountryImages(countryName) {
+    if (!cache.coinsData) {
+        console.error("Coins data not loaded from cache.");
+        return;
+    }
 
-            currentCountryCoins = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName);
-            const imageElements = currentCountryCoins.map(coin => ({
-                src: `images/${toTitleCase(countryName)}/${coin.image}`,
-                note: coin.note,
-                donor: coin.donor_name,
-                currency_type: coin.currency_type,
-                year: coin.year,
-                size: coin.size
-            }));
+    currentCountryCoins = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName);
+    const imageElements = currentCountryCoins.map(coin => ({
+        src: `images/${toTitleCase(countryName)}/${coin.image}`,
+        note: coin.note,
+        donor: coin.donor_name,
+        currency_type: coin.currency_type,
+        year: coin.year,
+        size: coin.size
+    }));
 
-            const thumbnailContainer = document.getElementById("thumbnail-container");
-            thumbnailContainer.innerHTML = ""; // Clear existing thumbnails
-            currentImageIndex = 0; // Reset index for new country
+    const thumbnailContainer = document.getElementById("thumbnail-container");
+    thumbnailContainer.innerHTML = ""; // Clear existing thumbnails
+    currentImageIndex = 0; // Reset index for new country
 
-            // Function to update timeline highlighting based on current image
-            function updateTimelineHighlight(imageName) {
-                // Remove highlight from all bars
-                document.querySelectorAll('.timeline-bar').forEach(bar => {
-                    bar.classList.remove('active');
-                    bar.style.boxShadow = 'none';
-                    bar.style.border = 'none';
-                });
+    // Function to update timeline highlighting based on current image
+    function updateTimelineHighlight(imageName) {
+        // Remove highlight from all bars
+        document.querySelectorAll('.timeline-bar').forEach(bar => {
+            bar.classList.remove('active');
+            bar.style.boxShadow = 'none';
+            bar.style.border = 'none';
+        });
 
-                // Highlight bars with matching image
-                if (imageName) {
-                    document.querySelectorAll(`.timeline-bar[data-image="${imageName}"]`).forEach(bar => {
-                        bar.classList.add('active');
-                        bar.style.boxShadow = '0 0 0 2px #e74c3c';
-                        bar.style.border = '2px solid white';
-                    });
-                }
-            }
-
-            // Function to update the main image and details
-            const updateImage = async (index) => {
-                if (imageElements.length === 0) {
-                    // Handle case where no images are found for the country
-                    setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null, null, null, 0);
-                    document.getElementById("thumbnail-container").innerHTML = ""; // Clear thumbnails
-                    return;
-                }
-
-                currentImageIndex = index;
-                const { src, note, donor, currency_type, year, size } = imageElements[index];
-
-                // Remove active class from all thumbnails
-                document.querySelectorAll('.img-queue-in img').forEach(img => {
-                    img.classList.remove('active-thumbnail');
-                });
-
-                // Add active class to the current thumbnail
-                if (thumbnailContainer.children[index]) {
-                    thumbnailContainer.children[index].classList.add('active-thumbnail');
-                }
-
-                const countryInfo = await fetchCountryInfo(countryName);
-                await setCurrentImage(src, note, donor, currency_type, countryInfo, year, size, index);
-
-                // Update timeline highlighting
-                updateTimelineHighlight(currentCountryCoins[index].image);
-            };
-
-            // Function to change the image based on direction (-1 for prev, 1 for next)
-            const changeImage = (direction) => {
-                if (imageElements.length > 0) {
-                    currentImageIndex = (currentImageIndex + direction + imageElements.length) % imageElements.length;
-                    updateImage(currentImageIndex);
-                }
-            };
-
-            // Helper function to update image display when clicked from timeline
-            window.updateImageFromTimeline = async function (index) {
-                if (currentCountryCoins.length === 0) return;
-
-                const coin = currentCountryCoins[index];
-                const countryName = coin.country.toLowerCase();
-                const imagePath = `images/${toTitleCase(countryName)}/${coin.image}`;
-
-                // Update thumbnails active state
-                document.querySelectorAll('.img-queue-in img').forEach((img, idx) => {
-                    if (idx === index) {
-                        img.classList.add('active-thumbnail');
-                    } else {
-                        img.classList.remove('active-thumbnail');
-                    }
-                });
-
-                // Update main image
-                const image = document.getElementById("current-image-img");
-                image.setAttribute("src", imagePath);
-                document.getElementById("modalImage").setAttribute("src", imagePath);
-
-                // Update details
-                const countryInfo = await fetchCountryInfo(countryName);
-                await setCurrentImage(imagePath, coin.note, coin.donor_name, coin.currency_type, countryInfo, coin.year, coin.size, index);
-
-                // Update timeline highlighting
-                updateTimelineHighlight(coin.image);
-
-                currentImageIndex = index;
-            };
-
-            // Add event listeners for navigation buttons
-            document.getElementById("prev-btn").onclick = () => changeImage(-1);
-            document.getElementById("next-btn").onclick = () => changeImage(1);
-
-            // Add keyboard navigation
-            window.onkeydown = (event) => {
-                const isSliderView = document.getElementById('slider-view').style.display !== 'none';
-
-                // Handle keyboard navigation for the main slider
-                if (isSliderView) {
-                    if (event.key === "ArrowLeft") {
-                        changeImage(-1);
-                    } else if (event.key === "ArrowRight") {
-                        changeImage(1);
-                    }
-                }
-
-                // Handle keyboard navigation for the modal
-                if (document.getElementById("imageModal").style.display === "flex") {
-                    if (event.key === "ArrowLeft") {
-                        changeModalImage(-1);
-                    } else if (event.key === "ArrowRight") {
-                        changeModalImage(1);
-                    }
-                }
-            };
-
-            // Populate thumbnail container
-            imageElements.forEach((img, index) => {
-                const thumbnail = document.createElement("img");
-                thumbnail.src = img.src;
-                thumbnail.alt = `Thumbnail ${index + 1}`;
-                thumbnail.loading = "lazy"; // Lazy load thumbnails
-                thumbnail.addEventListener("click", () => {
-                    updateImage(index); // Update the main display when thumbnail is clicked
-                });
-                thumbnailContainer.appendChild(thumbnail);
+        // Highlight bars with matching image
+        if (imageName) {
+            document.querySelectorAll(`.timeline-bar[data-image="${imageName}"]`).forEach(bar => {
+                bar.classList.add('active');
+                bar.style.boxShadow = '0 0 0 2px #e74c3c';
+                bar.style.border = '2px solid white';
             });
-
-            // Display the first image if available
-            if (imageElements.length > 0) {
-                updateImage(currentImageIndex);
-            } else {
-                // Display a default message if no images for the country
-                setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null, null, null, 0);
-            }
-
-            // Create timeline visualization and currency distribution chart
-            createTimelineVisualization(currentCountryCoins);
-            createCurrencyDistributionChart(currentCountryCoins);
         }
+    }
+
+    // Function to update the main image and details
+    const updateImage = async (index) => {
+        if (imageElements.length === 0) {
+            // Handle case where no images are found for the country
+            setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null, null, null, 0);
+            document.getElementById("thumbnail-container").innerHTML = ""; // Clear thumbnails
+            return;
+        }
+
+        currentImageIndex = index;
+        const { src, note, donor, currency_type, year, size } = imageElements[index];
+
+        // Remove active class from all thumbnails
+        document.querySelectorAll('.img-queue-in img').forEach(img => {
+            img.classList.remove('active-thumbnail');
+        });
+
+        // Add active class to the current thumbnail
+        if (thumbnailContainer.children[index]) {
+            thumbnailContainer.children[index].classList.add('active-thumbnail');
+        }
+
+        const countryInfo = await fetchCountryInfo(countryName);
+        await setCurrentImage(src, note, donor, currency_type, countryInfo, year, size, index);
+
+        // Update timeline highlighting
+        updateTimelineHighlight(currentCountryCoins[index].image);
+
+        // NEW: Update URL to include the current coin
+        const queryParams = new URLSearchParams(window.location.search);
+        const country = queryParams.get("country");
+        if (country && currentCountryCoins[index]) {
+            const cleanCoinName = currentCountryCoins[index].image.split('.')[0];
+            history.replaceState(null, "", `?country=${country}&coin=${cleanCoinName}`);
+        }
+    };
+
+    // Function to change the image based on direction (-1 for prev, 1 for next)
+    const changeImage = (direction) => {
+        if (imageElements.length > 0) {
+            currentImageIndex = (currentImageIndex + direction + imageElements.length) % imageElements.length;
+            updateImage(currentImageIndex);
+        }
+    };
+
+    // Helper function to update image display when clicked from timeline
+    window.updateImageFromTimeline = async function (index) {
+        if (currentCountryCoins.length === 0) return;
+
+        const coin = currentCountryCoins[index];
+        const countryName = coin.country.toLowerCase();
+        const imagePath = `images/${toTitleCase(countryName)}/${coin.image}`;
+
+        // Update thumbnails active state
+        document.querySelectorAll('.img-queue-in img').forEach((img, idx) => {
+            if (idx === index) {
+                img.classList.add('active-thumbnail');
+            } else {
+                img.classList.remove('active-thumbnail');
+            }
+        });
+
+        // Update main image
+        const image = document.getElementById("current-image-img");
+        image.setAttribute("src", imagePath);
+        document.getElementById("modalImage").setAttribute("src", imagePath);
+
+        // Update details
+        const countryInfo = await fetchCountryInfo(countryName);
+        await setCurrentImage(imagePath, coin.note, coin.donor_name, coin.currency_type, countryInfo, coin.year, coin.size, index);
+
+        // Update timeline highlighting
+        updateTimelineHighlight(coin.image);
+
+        currentImageIndex = index;
+
+        // NEW: Update URL with the new coin
+        const queryParams = new URLSearchParams(window.location.search);
+        const country = queryParams.get("country");
+        if (country && currentCountryCoins[index]) {
+            const cleanCoinName = currentCountryCoins[index].image.split('.')[0];
+            history.replaceState(null, "", `?country=${country}&coin=${cleanCoinName}`);
+        }
+    };
+
+    // Add event listeners for navigation buttons
+    document.getElementById("prev-btn").onclick = () => changeImage(-1);
+    document.getElementById("next-btn").onclick = () => changeImage(1);
+
+    // Add keyboard navigation
+    window.onkeydown = (event) => {
+        const isSliderView = document.getElementById('slider-view').style.display !== 'none';
+
+        // Handle keyboard navigation for the main slider
+        if (isSliderView) {
+            if (event.key === "ArrowLeft") {
+                changeImage(-1);
+            } else if (event.key === "ArrowRight") {
+                changeImage(1);
+            }
+        }
+
+        // Handle keyboard navigation for the modal
+        if (document.getElementById("imageModal").style.display === "flex") {
+            if (event.key === "ArrowLeft") {
+                changeModalImage(-1);
+            } else if (event.key === "ArrowRight") {
+                changeModalImage(1);
+            }
+        }
+    };
+
+    // Populate thumbnail container
+    imageElements.forEach((img, index) => {
+        const thumbnail = document.createElement("img");
+        thumbnail.src = img.src;
+        thumbnail.alt = `Thumbnail ${index + 1}`;
+        thumbnail.loading = "lazy"; // Lazy load thumbnails
+        thumbnail.addEventListener("click", () => {
+            updateImage(index); // Update the main display when thumbnail is clicked
+        });
+        thumbnailContainer.appendChild(thumbnail);
+    });
+
+    // Display the first image if available
+    if (imageElements.length > 0) {
+        updateImage(currentImageIndex);
+    } else {
+        // Display a default message if no images for the country
+        setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null, null, null, 0);
+    }
+
+    // Create timeline visualization and currency distribution chart
+    createTimelineVisualization(currentCountryCoins);
+    createCurrencyDistributionChart(currentCountryCoins);
+}
 
         // Function to create timeline visualization with stacked bars using image as unique identifier
         function createTimelineVisualization(coinsData) {
@@ -4544,7 +4626,7 @@ const filteredCoins = (activeFilters.length > 0) ?
                     const barHeight = Math.max(15, (40 / maxCoinsPerYear) * coinsInYear.length);
                     bar.style.height = `${barHeight}px`;
                     bar.style.width = '20px';
-                    bar.style.backgroundColor = getColorForCoinType(item.coin.currency_type);
+                    bar.style.backgroundColor = getColorForCurrencyType(item.coin.currency_type);
                     bar.style.marginBottom = '1px';
                     bar.style.borderRadius = '2px 2px 0 0';
                     bar.style.cursor = 'pointer';
@@ -4637,25 +4719,30 @@ const filteredCoins = (activeFilters.length > 0) ?
             window.timelineCoinsData = coinsData;
         }
 
-        // Helper function to get color based on currency type
-        function getColorForCoinType(currencyType) {
-            if (!currencyType) return '#95a5a6';
-
-            const type = currencyType.toLowerCase();
-            if (type.includes('coin')) return '#2ECC71';
-            if (type.includes('paper') || type.includes('bill')) return '#3498db';
-            if (type.includes('antique')) return '#e74c3c'; //'#f39c12'
-            if (type.includes('gold')) return '#FFD700';
-            if (type.includes('silver')) return '#C0C0C0';
-            if (type.includes('bronze')) return '#CD7F32';
-
-            return '#95a5a6';
-        }
+        // Centralized color mapping for currency types
+function getColorForCurrencyType(currencyType) {
+    if (!currencyType) return '#95a5a6'; // Default gray
+    
+    const type = currencyType.toLowerCase().trim();
+    
+    // Consistent color mapping for all visualizations
+    if (type.includes('coin')) return '#2ECC71'; // Green for coins
+    if (type.includes('paper') || type.includes('bill')) return '#3498db'; // Blue for paper bills
+    if (type.includes('antique')) return '#e74c3c'; // Red for antique
+    if (type.includes('gold')) return '#FFD700'; // Gold color
+    if (type.includes('silver')) return '#C0C0C0'; // Silver color
+    if (type.includes('bronze')) return '#CD7F32'; // Bronze color
+    
+    return '#95a5a6'; // Default gray for unknown types
+}
         
+// Use the centralized color mapping (alias for backward compatibility)
+function getColorForCoinType(currencyType) {
+    return getColorForCurrencyType(currencyType);
+}
 
 
-
-        // Function to create interactive currency type distribution chart
+// Function to create interactive currency type distribution chart
 function createCurrencyDistributionChart(coinsData) {
     const distributionSection = document.getElementById('distribution-section');
     const distributionContainer = document.getElementById('distribution-container');
@@ -4707,11 +4794,9 @@ function createCurrencyDistributionChart(coinsData) {
     legendDiv.id = 'distribution-legend';
     distributionContainer.appendChild(legendDiv);
 
-    // Colors for chart segments
-    const colors = [
-        '#3498db', '#e74c3c', '#2ecc71', '#f39c12',
-        '#9b59b6', '#1abc9c', '#d35400', '#34495e'
-    ];
+    // Colors for chart segments - use centralized color mapping
+    const colors = types.map(type => getColorForCurrencyType(type));
+
     // Store chart data globally for filtering (now supports multiple filters)
     window.distributionData = {
         types: types,
@@ -4781,8 +4866,6 @@ function renderDistributionChart(data) {
     data.types.forEach((type, index) => {
         const percentage = (data.typeCount[type] / data.totalItems) * 100;
         const color = data.colors[index % data.colors.length];
-        // If there are no active filters, every segment is "active".
-        // If there are active filters, a segment is active only if its type is included.
         const isActive = !hasFilter || activeFilters.includes(type);
 
         const start = cumulativePercentage;
@@ -4827,27 +4910,36 @@ function renderDistributionChart(data) {
         segmentOverlay.style.width = '100%';
         segmentOverlay.style.height = '100%';
         segmentOverlay.style.borderRadius = '50%';
-        // Keep original overlay clipPath approach for clickable slice (works in your original file)
-        segmentOverlay.style.clipPath = `conic-gradient(from ${start * 3.6}deg, #0000 0deg, #0000 ${percentage * 3.6}deg, #000 ${percentage * 3.6}deg)`;
+        
+        // Create clip path for this specific segment
+        const startAngle = start * 3.6;
+        const endAngle = end * 3.6;
+        segmentOverlay.style.clipPath = `conic-gradient(from ${startAngle}deg, #0000 0deg, #0000 ${percentage * 3.6}deg, #000 ${percentage * 3.6}deg)`;
+        
         segmentOverlay.style.cursor = 'pointer';
         segmentOverlay.style.zIndex = '2';
         segmentOverlay.style.opacity = '0';
         segmentOverlay.title = `Click to toggle ${type}`;
 
-        segmentOverlay.addEventListener('click', (e) => {
+        // Use let to create block-scoped variable
+        let currentType = type;
+
+        // Add click event - use the block-scoped variable
+        segmentOverlay.addEventListener('click', function(e) {
             e.stopPropagation();
-            filterByCurrencyType(type.toLowerCase().trim()); // normalize
+            console.log('Chart slice clicked - currentType:', currentType);
+            filterByCurrencyType(currentType);
         });
 
-
-        segmentOverlay.addEventListener('mouseenter', () => {
-            segmentOverlay.style.opacity = '0.1';
-            segmentOverlay.style.backgroundColor = color;
+        // Add hover effects
+        segmentOverlay.addEventListener('mouseenter', function() {
+            this.style.opacity = '0.1';
+            this.style.backgroundColor = color;
         });
 
-        segmentOverlay.addEventListener('mouseleave', () => {
-            segmentOverlay.style.opacity = '0';
-            segmentOverlay.style.backgroundColor = 'transparent';
+        segmentOverlay.addEventListener('mouseleave', function() {
+            this.style.opacity = '0';
+            this.style.backgroundColor = 'transparent';
         });
 
         chartDiv.appendChild(segmentOverlay);
@@ -4866,7 +4958,7 @@ function renderDistributionChart(data) {
 
         const colorBox = document.createElement('div');
         colorBox.className = 'legend-color';
-        colorBox.style.backgroundColor = isActive ? color : '#cccccc';
+        colorBox.style.backgroundColor = isActive ? getColorForCurrencyType(type) : '#cccccc';
         colorBox.style.width = '20px';
         colorBox.style.height = '20px';
         colorBox.style.borderRadius = '4px';
@@ -4896,20 +4988,23 @@ function renderDistributionChart(data) {
         legendItem.style.alignItems = 'center';
         legendItem.style.justifyContent = 'flex-start';
 
-        legendItem.addEventListener('click', () => {
-            //filterByCurrencyType(type); // toggle this type
-            filterByCurrencyType(type.toLowerCase().trim());
+        // Use let for legend type too
+        let legendType = type;
 
+        // Add click event to legend item
+        legendItem.addEventListener('click', function(e) {
+            console.log('Legend item clicked - legendType:', legendType);
+            filterByCurrencyType(legendType);
         });
 
-        legendItem.addEventListener('mouseenter', () => {
-            legendItem.style.transform = 'translateX(5px)';
-            colorBox.style.transform = 'scale(1.1)';
+        legendItem.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateX(5px)';
+            this.querySelector('.legend-color').style.transform = 'scale(1.1)';
         });
 
-        legendItem.addEventListener('mouseleave', () => {
-            legendItem.style.transform = 'translateX(0)';
-            colorBox.style.transform = 'scale(1)';
+        legendItem.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateX(0)';
+            this.querySelector('.legend-color').style.transform = 'scale(1)';
         });
 
         legendDiv.appendChild(legendItem);
@@ -4948,6 +5043,120 @@ function renderDistributionChart(data) {
 }
 
 
+// Replace the segments.forEach loop with this:
+function createChartSegment(segment) {
+    const { type, start, end, percentage, color, isActive, index } = segment;
+
+    // Create clickable segment overlay
+    const segmentOverlay = document.createElement('div');
+    segmentOverlay.className = 'chart-segment-overlay';
+    segmentOverlay.style.position = 'absolute';
+    segmentOverlay.style.top = '0';
+    segmentOverlay.style.left = '0';
+    segmentOverlay.style.width = '100%';
+    segmentOverlay.style.height = '100%';
+    segmentOverlay.style.borderRadius = '50%';
+    
+    const startAngle = start * 3.6;
+    const endAngle = end * 3.6;
+    segmentOverlay.style.clipPath = `conic-gradient(from ${startAngle}deg, #0000 0deg, #0000 ${percentage * 3.6}deg, #000 ${percentage * 3.6}deg)`;
+    
+    segmentOverlay.style.cursor = 'pointer';
+    segmentOverlay.style.zIndex = '2';
+    segmentOverlay.style.opacity = '0';
+    segmentOverlay.title = `Click to toggle ${type}`;
+
+    // Add click event
+    segmentOverlay.addEventListener('click', function(e) {
+        e.stopPropagation();
+        console.log('Chart slice clicked - type:', type);
+        filterByCurrencyType(type);
+    });
+
+    // Add hover effects
+    segmentOverlay.addEventListener('mouseenter', function() {
+        this.style.opacity = '0.1';
+        this.style.backgroundColor = color;
+    });
+
+    segmentOverlay.addEventListener('mouseleave', function() {
+        this.style.opacity = '0';
+        this.style.backgroundColor = 'transparent';
+    });
+
+    document.getElementById('distribution-pie-chart').appendChild(segmentOverlay);
+}
+
+function createLegendItem(segment, data) {
+    const { type, color, isActive } = segment;
+
+    const legendItem = document.createElement('div');
+    legendItem.className = 'legend-item';
+    legendItem.style.cursor = 'pointer';
+    legendItem.style.opacity = isActive ? '1' : '0.5';
+    legendItem.style.transition = 'all 0.3s ease';
+    legendItem.style.padding = '4px 8px';
+    legendItem.style.borderRadius = '4px';
+    legendItem.style.marginBottom = '5px';
+    legendItem.style.border = data.activeFilters.includes(type) ? '2px solid #2c3e50' : '1px solid #e0e0e0';
+    legendItem.style.backgroundColor = data.activeFilters.includes(type) ? '#f8f9fa' : 'transparent';
+
+    const colorBox = document.createElement('div');
+    colorBox.className = 'legend-color';
+    colorBox.style.backgroundColor = isActive ? color : '#cccccc';
+    colorBox.style.width = '20px';
+    colorBox.style.height = '20px';
+    colorBox.style.borderRadius = '4px';
+    colorBox.style.marginRight = '10px';
+    colorBox.style.flexShrink = '0';
+    colorBox.style.transition = 'all 0.3s ease';
+
+    const label = document.createElement('span');
+    const formattedType = formatCurrencyType(type);
+    label.textContent = `${formattedType}: ${data.typeCount[type]} items`;
+    label.style.fontWeight = data.activeFilters.includes(type) ? 'bold' : 'normal';
+    label.style.fontSize = '14px';
+    label.style.flex = '1';
+
+    const percentageText = document.createElement('span');
+    percentageText.textContent = `(${((data.typeCount[type] / data.totalItems) * 100).toFixed(1)}%)`;
+    percentageText.style.fontSize = '12px';
+    percentageText.style.color = '#666';
+    percentageText.style.marginLeft = '8px';
+
+    legendItem.appendChild(colorBox);
+    legendItem.appendChild(label);
+    legendItem.appendChild(percentageText);
+
+    legendItem.style.display = 'flex';
+    legendItem.style.alignItems = 'center';
+    legendItem.style.justifyContent = 'flex-start';
+
+    // Add click event to legend item
+    legendItem.addEventListener('click', function(e) {
+        console.log('Legend item clicked - type:', type);
+        filterByCurrencyType(type);
+    });
+
+    legendItem.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateX(5px)';
+        this.querySelector('.legend-color').style.transform = 'scale(1.1)';
+    });
+
+    legendItem.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateX(0)';
+        this.querySelector('.legend-color').style.transform = 'scale(1)';
+    });
+
+    document.getElementById('distribution-legend').appendChild(legendItem);
+}
+
+// Then call these functions for each segment
+segments.forEach(segment => {
+    createChartSegment(segment);
+    createLegendItem(segment, data);
+});
+
 
         // Helper function to format currency type names
         function formatCurrencyType(type) {
@@ -4962,20 +5171,28 @@ function renderDistributionChart(data) {
             }).join(' ');
         }
 
-        // Function to filter by currency type (supports multiple toggles)
+// Function to filter by currency type (supports multiple toggles)
 function filterByCurrencyType(type) {
     if (!window.distributionData) return;
 
-    const t = (type || '').toLowerCase();
+    console.log('Filtering by type:', type); // Debug log
+    
+    // Ensure type is properly normalized (trimmed and lowercase)
+    const normalizedType = (type || '').toLowerCase().trim();
     const activeFilters = window.distributionData.activeFilters || [];
 
-    if (activeFilters.includes(t)) {
+    console.log('Normalized type:', normalizedType); // Debug log
+    console.log('Current active filters:', activeFilters); // Debug log
+
+    if (activeFilters.includes(normalizedType)) {
         // Toggle off
-        window.distributionData.activeFilters = activeFilters.filter(f => f !== t);
+        window.distributionData.activeFilters = activeFilters.filter(f => f !== normalizedType);
     } else {
         // Toggle on
-        window.distributionData.activeFilters = [...activeFilters, t];
+        window.distributionData.activeFilters = [...activeFilters, normalizedType];
     }
+
+    console.log('New active filters:', window.distributionData.activeFilters); // Debug log
 
     // Re-render chart with new filter state
     renderDistributionChart(window.distributionData);
@@ -5021,9 +5238,22 @@ function filterByCurrencyType(type) {
         // Show all types, ensure we're showing a valid image
         updateImageDisplay(0, filteredCoins);
     }
-    debugFilterState();
 }
 
+
+// Ensure consistent colors across all visualizations
+function ensureColorConsistency() {
+    // This function can be called to verify colors are consistent
+    const testTypes = ['coin', 'paper-bill', 'antique', 'gold coin', 'silver coin'];
+    
+    console.log('Color consistency check:');
+    testTypes.forEach(type => {
+        console.log(`${type}: ${getColorForCurrencyType(type)}`);
+    });
+}
+
+// Call this during development to verify colors
+// ensureColorConsistency();
 
         // Helper function to update image display
         function updateImageDisplay(index, coinsArray) {
