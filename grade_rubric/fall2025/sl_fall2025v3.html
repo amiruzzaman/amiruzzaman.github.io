@@ -316,48 +316,6 @@
             background-color: #d32f2f;
         }
     </style>
-    <style>
-        /* Predefined feedback styles */
-        .predefined-feedback {
-            margin: 10px 0;
-        }
-
-        .predefined-comment {
-            display: block;
-            width: 100%;
-            padding: 8px 12px;
-            margin: 5px 0;
-            background-color: #f0f8ff;
-            border: 1px solid #b3d9ff;
-            color: #333;
-            border-radius: 4px;
-            cursor: pointer;
-            text-align: left;
-            font-size: 14px;
-            transition: background-color 0.2s;
-        }
-
-        .predefined-comment:hover {
-            background-color: #92d841;
-        }
-
-        .predefined-comment.selected {
-            background-color: #cce5ff;
-            border-color: #66b3ff;
-        }
-
-        .feedback-controls {
-            display: flex;
-            gap: 10px;
-            margin: 10px 0;
-        }
-
-        .feedback-controls button {
-            padding: 6px 12px;
-            font-size: 14px;
-            margin: 0;
-        }
-    </style>
 </head>
 
 <body>
@@ -853,288 +811,20 @@
             }
         };
 
-
-
-        // Predefined feedback comments for each section
-        const predefinedFeedback = {
-            "requirements": [
-                "For your plots and graphs, please increase the font size next time so that labels and titles are easier to read.",
-                "Some of your figures are difficult to read due to their small size. I will not deduct any points for this issue this time. However, please pay attention to making your images, figures, and plots clearer in the future. You may consider increasing the size of legend text or other annotations to improve readability.",
-                "Your documentation is thorough and well-organized, making it easy to follow your implementation.",
-                "The GitHub repository structure is clean and follows best practices for the project.",
-                "All required components (Overleaf, GitHub hash, DOCSTRING) are properly included and functional.",
-                "The report length is appropriate and stays within the page limit requirements.",
-                "References are properly formatted and include relevant external sources beyond course materials."
-            ],
-            "problem_description_hotel": [
-                "Your ML framing for the hotel booking dataset is clear and well-articulated.",
-                "Consider exploring more feature engineering opportunities with the hotel booking data.",
-                "The class imbalance discussion could be more detailed with specific examples from the data.",
-                "Good justification for choosing classification over regression for this dataset.",
-                "The discussion of missing data and outliers is comprehensive and well-reasoned.",
-                "You've effectively identified the key challenges in the hotel booking dataset.",
-                "Consider discussing how seasonality affects booking patterns in future analyses."
-            ],
-            "problem_description_accidents": [
-                "Excellent discussion of spatiotemporal aspects in the US Accidents dataset.",
-                "The connection between weather data and accident prediction is well explained.",
-                "Consider discussing more about potential data leakage issues with post-event fields.",
-                "Good analysis of reporting bias in the accident data.",
-                "The discussion of feature types and their implications for modeling is thorough.",
-                "You've effectively highlighted the unique challenges of the accidents dataset.",
-                "Consider exploring temporal patterns in accident occurrence more deeply."
-            ],
-            "hypothesis_initial": [
-                "Your hypothesis is clearly stated and testable.",
-                "The hypothesis could benefit from more specific predictions about algorithm performance.",
-                "Good grounding in course concepts and literature.",
-                "Consider making your hypothesis more specific to the datasets used.",
-                "The hypothesis demonstrates good understanding of algorithm characteristics.",
-                "Well-articulated expectations about algorithm behavior across different datasets.",
-                "The hypothesis could be strengthened with more specific performance metrics predictions."
-            ],
-            "hypothesis_followthrough": [
-                "Excellent follow-through by returning to your hypothesis in the conclusion.",
-                "Good use of specific results to support or refute your initial hypothesis.",
-                "The connection between results and hypothesis could be more explicit.",
-                "Well-documented evidence from your experiments supports your conclusions.",
-                "You effectively used quantitative results to validate your initial predictions.",
-                "The discussion clearly shows how experimental results relate to your hypothesis.",
-                "Good reflection on whether the hypothesis was supported or refuted by evidence."
-            ],
-            "algorithms_dt": [
-                "Comprehensive analysis of decision trees with good learning curve interpretation.",
-                "Consider exploring pruning parameters more thoroughly in future work.",
-                "Good discussion of bias-variance tradeoff specific to decision trees.",
-                "The model complexity analysis could benefit from more parameter variations.",
-                "Excellent interpretation of how tree depth affects model performance.",
-                "Good analysis of overfitting/underfitting patterns in decision trees.",
-                "Consider comparing different splitting criteria in future experiments."
-            ],
-            "algorithms_knn": [
-                "Good analysis of k-NN performance with appropriate distance metrics.",
-                "The curse of dimensionality discussion is well presented.",
-                "Consider exploring different weighting schemes for k-NN.",
-                "Good interpretation of how k-value affects model performance.",
-                "Excellent discussion of distance metric impact on k-NN results.",
-                "The analysis effectively shows how dataset size affects k-NN performance.",
-                "Consider exploring different similarity measures for categorical features."
-            ],
-            "algorithms_svm": [
-                "Thorough kernel comparison and good justification for choices.",
-                "The C parameter tuning analysis is comprehensive.",
-                "Consider exploring more kernel functions in future experiments.",
-                "Good discussion of SVM's performance on high-dimensional data.",
-                "Excellent analysis of how different kernels handle non-linear patterns.",
-                "Good interpretation of margin maximization in SVM results.",
-                "Consider discussing computational complexity trade-offs between kernels."
-            ],
-            "algorithms_nn": [
-                "Well-designed neural network architecture with good regularization.",
-                "The learning curve analysis shows good understanding of training dynamics.",
-                "Consider exploring more activation functions and optimization algorithms.",
-                "Good handling of scale and imbalance issues in the neural network implementation.",
-                "Excellent analysis of epoch-wise training behavior and convergence.",
-                "Good discussion of architecture choices and their impact on performance.",
-                "Consider exploring different regularization techniques in future work."
-            ],
-            "conclusion": [
-                "Strong conclusion with clear takeaways supported by evidence.",
-                "Good connection to course concepts throughout the conclusion.",
-                "The limitations discussion is honest and constructive.",
-                "Clear, actionable next steps for future work.",
-                "Excellent synthesis of results across different algorithms and datasets.",
-                "Good discussion of practical implications and real-world applicability.",
-                "The conclusion effectively summarizes key insights and learning outcomes."
-            ],
-            "extra_credit": [
-                "Excellent extra credit work with thorough activation function analysis.",
-                "Good experimental design holding other factors constant.",
-                "Comprehensive comparison with appropriate statistical measures.",
-                "Insightful analysis of convergence behavior across activations.",
-                "Well-documented analysis of activation function impact on training stability.",
-                "Good discussion of trade-offs between different activation functions.",
-                "The extra credit work demonstrates strong experimental methodology."
-            ],
-            "general": [
-                "Overall, this is a well-executed project that demonstrates good understanding of the course concepts.",
-                "The report is well-structured and follows the required format appropriately.",
-                "There are some areas for improvement in the analysis depth, but the foundational work is solid.",
-                "Excellent work overall - the implementation and analysis show strong understanding of machine learning principles.",
-                "Good effort on this project. With some refinements in the analysis, this could be even stronger.",
-                "The project demonstrates thorough experimentation and careful analysis of results.",
-                "Well-written report with clear explanations and appropriate visualizations.",
-                "Good balance between theoretical understanding and practical implementation."
-            ]
-        };
-
         // State management
         const state = {
             selectedItems: new Map(), // Map of sectionId -> {positive: Set(), negative: Set()}
             feedbackTexts: new Map(), // Map of sectionId -> feedback text
             generalFeedback: "",
-            currentEditingItem: null
+            currentEditingItem: null // Track the currently editing item - ADD THIS LINE
         };
-
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function () {
             renderRubric();
             setupEventListeners();
-            setupModalEvents();
-            setupPredefinedFeedbackEvents();
+            setupModalEvents(); // ADD THIS LINE
             updateSummary();
         });
-
-        // Function to get section key for predefined feedback
-        function getSectionKey(sectionId) {
-            // Handle general feedback section
-            if (sectionId === 'general' || sectionId.includes('general-feedback')) {
-                return 'general';
-            }
-
-            // Handle main sections by index
-            if (sectionId.includes('section-0')) {
-                return 'requirements';
-            } else if (sectionId.includes('section-1')) {
-                // Problem Description section - need to check subsections
-                if (sectionId.includes('Hotel') || sectionId.includes('2.1') || sectionId.includes('subsection-0')) {
-                    return 'problem_description_hotel';
-                } else if (sectionId.includes('Accidents') || sectionId.includes('2.2') || sectionId.includes('subsection-1')) {
-                    return 'problem_description_accidents';
-                }
-            } else if (sectionId.includes('section-2')) {
-                // Hypothesis section
-                if (sectionId.includes('Initial') || sectionId.includes('3.1') || sectionId.includes('subsection-0')) {
-                    return 'hypothesis_initial';
-                } else if (sectionId.includes('Follow-Through') || sectionId.includes('3.2') || sectionId.includes('subsection-1')) {
-                    return 'hypothesis_followthrough';
-                }
-            } else if (sectionId.includes('section-3')) {
-                // Algorithms section
-                if (sectionId.includes('Decision Trees') || sectionId.includes('4.1') || sectionId.includes('subsection-0')) {
-                    return 'algorithms_dt';
-                } else if (sectionId.includes('k-Nearest Neighbors') || sectionId.includes('4.2') || sectionId.includes('subsection-1')) {
-                    return 'algorithms_knn';
-                } else if (sectionId.includes('Support Vector Machines') || sectionId.includes('4.3') || sectionId.includes('subsection-2')) {
-                    return 'algorithms_svm';
-                } else if (sectionId.includes('Neural Networks') || sectionId.includes('4.4') || sectionId.includes('subsection-3')) {
-                    return 'algorithms_nn';
-                }
-            } else if (sectionId.includes('section-4')) {
-                return 'conclusion';
-            } else if (sectionId.includes('section-5') || sectionId.includes('Extra Credit')) {
-                return 'extra_credit';
-            }
-
-            // Fallback based on content matching
-            if (sectionId.includes('requirements') || sectionId.includes('Requirements')) {
-                return 'requirements';
-            } else if (sectionId.includes('problem') || sectionId.includes('Problem')) {
-                if (sectionId.includes('Hotel')) return 'problem_description_hotel';
-                if (sectionId.includes('Accidents')) return 'problem_description_accidents';
-            } else if (sectionId.includes('hypothesis') || sectionId.includes('Hypothesis')) {
-                if (sectionId.includes('Initial') || sectionId.includes('3.1')) return 'hypothesis_initial';
-                if (sectionId.includes('Follow-Through') || sectionId.includes('3.2')) return 'hypothesis_followthrough';
-            } else if (sectionId.includes('algorithm') || sectionId.includes('Algorithm')) {
-                if (sectionId.includes('Decision') || sectionId.includes('4.1')) return 'algorithms_dt';
-                if (sectionId.includes('k-NN') || sectionId.includes('4.2')) return 'algorithms_knn';
-                if (sectionId.includes('SVM') || sectionId.includes('4.3')) return 'algorithms_svm';
-                if (sectionId.includes('Neural') || sectionId.includes('4.4')) return 'algorithms_nn';
-            } else if (sectionId.includes('conclusion') || sectionId.includes('Conclusion')) {
-                return 'conclusion';
-            } else if (sectionId.includes('extra') || sectionId.includes('Extra')) {
-                return 'extra_credit';
-            }
-
-            return 'general';
-        }
-
-        // Function to create predefined feedback interface
-        function createPredefinedFeedback(sectionId) {
-            const sectionKey = getSectionKey(sectionId);
-            const comments = predefinedFeedback[sectionKey] || [];
-
-            if (comments.length === 0) return '';
-
-            let html = `
-        <div class="predefined-feedback">
-            <strong>Predefined Comments:</strong>
-    `;
-
-            comments.forEach((comment, index) => {
-                html += `
-            <button type="button" class="predefined-comment" data-comment="${comment.replace(/"/g, '&quot;')}">
-                ${comment}
-            </button>
-        `;
-            });
-
-            html += `
-            <div class="feedback-controls">
-                <button type="button" class="add-all-comments" style="background-color: #2196F3;">Add All Comments</button>
-                <button type="button" class="clear-comments" style="background-color: #ff9800;">Clear Comments</button>
-            </div>
-        </div>
-    `;
-
-            return html;
-        }
-
-        // Function to setup predefined feedback events
-        function setupPredefinedFeedbackEvents() {
-            // Add comment on click
-            document.addEventListener('click', function (e) {
-                if (e.target.classList.contains('predefined-comment')) {
-                    const comment = e.target.getAttribute('data-comment');
-                    const textarea = e.target.closest('.predefined-feedback').nextElementSibling;
-
-                    if (textarea && textarea.classList.contains('feedback-textarea')) {
-                        const currentText = textarea.value.trim();
-                        if (currentText) {
-                            textarea.value = currentText + '\n\n' + comment;
-                        } else {
-                            textarea.value = comment;
-                        }
-
-                        // Visual feedback
-                        e.target.classList.add('selected');
-                        setTimeout(() => {
-                            e.target.classList.remove('selected');
-                        }, 1000);
-                    }
-                }
-
-                // Add all comments
-                if (e.target.classList.contains('add-all-comments')) {
-                    const predefinedSection = e.target.closest('.predefined-feedback');
-                    const comments = predefinedSection.querySelectorAll('.predefined-comment');
-                    const textarea = predefinedSection.nextElementSibling;
-
-                    if (textarea && textarea.classList.contains('feedback-textarea')) {
-                        let allComments = '';
-                        comments.forEach(commentBtn => {
-                            const comment = commentBtn.getAttribute('data-comment');
-                            allComments += comment + '\n\n';
-                        });
-
-                        const currentText = textarea.value.trim();
-                        if (currentText) {
-                            textarea.value = currentText + '\n\n' + allComments;
-                        } else {
-                            textarea.value = allComments;
-                        }
-                    }
-                }
-
-                // Clear comments
-                if (e.target.classList.contains('clear-comments')) {
-                    const textarea = e.target.closest('.predefined-feedback').nextElementSibling;
-                    if (textarea && textarea.classList.contains('feedback-textarea')) {
-                        textarea.value = '';
-                    }
-                }
-            });
-        }
 
         // Render the rubric interface
         function renderRubric() {
@@ -1207,13 +897,6 @@
                         // Add feedback section for subsection
                         const subFeedbackDiv = document.createElement('div');
                         subFeedbackDiv.innerHTML = `<strong>${subsection.feedback_section}</strong>`;
-
-                        // Add predefined feedback for subsection
-                        const predefinedFeedbackHTML = createPredefinedFeedback(subsectionId);
-                        if (predefinedFeedbackHTML) {
-                            subFeedbackDiv.innerHTML += predefinedFeedbackHTML;
-                        }
-
                         const subFeedbackTextarea = document.createElement('textarea');
                         subFeedbackTextarea.className = 'feedback-textarea';
                         subFeedbackTextarea.id = `${subsectionId}-feedback`;
@@ -1261,13 +944,6 @@
                     // Add feedback section
                     const feedbackDiv = document.createElement('div');
                     feedbackDiv.innerHTML = `<strong>${section.feedback_section}</strong>`;
-
-                    // Add predefined feedback for main section
-                    const predefinedFeedbackHTML = createPredefinedFeedback(sectionId);
-                    if (predefinedFeedbackHTML) {
-                        feedbackDiv.innerHTML += predefinedFeedbackHTML;
-                    }
-
                     const feedbackTextarea = document.createElement('textarea');
                     feedbackTextarea.className = 'feedback-textarea';
                     feedbackTextarea.id = `${sectionId}-feedback`;
@@ -1287,13 +963,6 @@
             // Add general feedback section
             const generalFeedbackDiv = document.createElement('div');
             generalFeedbackDiv.innerHTML = `<h3>${rubricData.grading_rubric.general_feedback.section}</h3>`;
-
-            // Add predefined feedback for general section
-            const generalPredefinedFeedbackHTML = createPredefinedFeedback('general');
-            if (generalPredefinedFeedbackHTML) {
-                generalFeedbackDiv.innerHTML += generalPredefinedFeedbackHTML;
-            }
-
             const generalTextarea = document.createElement('textarea');
             generalTextarea.className = 'feedback-textarea';
             generalTextarea.id = 'general-feedback';
@@ -1302,8 +971,85 @@
             container.appendChild(generalFeedbackDiv);
         }
 
+
+
+        // // Set up event listeners
+        // function setupEventListeners() {
+        //     let clickTimer;
+        //     let isDoubleClick = false;
+
+        //     // Item selection - single click (ONLY selects, no modal)
+        //     document.addEventListener('click', function (e) {
+        //         const item = e.target.closest('.item');
+        //         if (item) {
+        //             // Set a timer to distinguish between single and double click
+        //             clickTimer = setTimeout(function () {
+        //                 if (!isDoubleClick) {
+        //                     // This is a single click
+        //                     toggleItemSelection(item);
+        //                     updateSummary();
+        //                 }
+        //                 isDoubleClick = false; // Reset for next click
+        //             }, 300); // 300ms delay to wait for double click
+        //         }
+        //     });
+
+        //     // Item editing - double click for items, regular editing for headers
+        //     document.addEventListener('dblclick', function (e) {
+        //         const item = e.target.closest('.item');
+        //         if (item) {
+        //             // Clear the single click timer
+        //             clearTimeout(clickTimer);
+        //             isDoubleClick = true;
+
+        //             showItemModal(item.id);
+        //             e.preventDefault(); // Prevent text selection
+        //             e.stopPropagation(); // Prevent event bubbling
+        //         } else {
+        //             // Keep the existing double-click editing for headers and other elements
+        //             const editable = e.target.closest('.editable');
+        //             if (editable) {
+        //                 makeEditable(editable);
+        //             }
+        //         }
+        //     });
+
+        //     // Header toggling
+        //     document.addEventListener('click', function (e) {
+        //         const header = e.target.closest('.section-header, .subsection-header');
+        //         if (header) {
+        //             const contentId = header.id ? `${header.id}-content` :
+        //                 header.querySelector('span').getAttribute('data-id').replace('-header', '-content');
+        //             const content = document.getElementById(contentId);
+        //             if (content) {
+        //                 content.style.display = content.style.display === 'none' ? 'block' : 'none';
+        //             }
+        //         }
+        //     });
+
+        //     // Generate feedback button
+        //     document.getElementById('generateBtn').addEventListener('click', generateFeedback);
+
+        //     // Reset button
+        //     document.getElementById('resetBtn').addEventListener('click', resetAll);
+
+        //     // Copy button
+        //     document.getElementById('copyBtn').addEventListener('click', function () {
+        //         const output = document.getElementById('outputSection').textContent;
+        //         if (output.trim()) {
+        //             navigator.clipboard.writeText(output).then(() => {
+        //                 alert('Feedback copied to clipboard!');
+        //             }).catch(err => {
+        //                 console.error('Failed to copy text: ', err);
+        //             });
+        //         }
+        //     });
+        // }
+
+
         // Set up event listeners
         function setupEventListeners() {
+
             // 1. Item editing - DOUBLE-CLICK to open the modal (Modal opening MUST be here)
             document.addEventListener('dblclick', function (e) {
                 const item = e.target.closest('.item');
@@ -1339,6 +1085,7 @@
             });
 
             // 3. Header toggling - Dedicated listener (Runs only if not handled above)
+            // We attach this to the document, but it only acts on headers.
             document.addEventListener('click', function (e) {
                 const header = e.target.closest('.section-header, .subsection-header');
                 if (header) {
@@ -1355,6 +1102,8 @@
                     }
                 }
             });
+
+            // --- (Rest of the listeners remain the same) ---
 
             // Generate feedback button
             document.getElementById('generateBtn').addEventListener('click', generateFeedback);
@@ -1406,6 +1155,38 @@
             });
         }
 
+        // Function to save modal data
+        function saveItemModal() {
+            const itemId = document.getElementById('modalItemId').value;
+            const itemText = document.getElementById('modalItemText').value;
+            // CRITICAL: Get the new points value from the modal input
+            const newPoints = parseInt(document.getElementById('modalItemPoints').value);
+
+            // 1. Find the corresponding item in the DOM and update its text and points
+            const itemElement = document.getElementById(itemId);
+            if (itemElement) {
+                // Update the description text in the DOM
+                itemElement.querySelector('.item-description').textContent = itemText;
+
+                // Update the points value in the DOM
+                const pointsElement = itemElement.querySelector('.item-points');
+                if (pointsElement) {
+                    // Convert to a string for display in the DOM
+                    pointsElement.textContent = `[${newPoints}]`;
+                }
+            }
+
+            // 2. Update the hidden rubricData structure
+            // This is where the application stores the source of truth for all points.
+            updateRubricData(itemId, itemText, newPoints);
+
+            // 3. REFRESH THE SUMMARY
+            // The summary must be refreshed immediately after the data is saved, 
+            // especially if the item is selected, to reflect the new score.
+            updateSummary();
+
+            hideItemModal();
+        }
         // Toggle item selection
         function toggleItemSelection(item) {
             const itemId = item.id;
@@ -1438,7 +1219,7 @@
             }
         }
 
-        // Make element editable
+        // Make element editable - KEEP THIS FUNCTION AS IS
         function makeEditable(element) {
             const currentText = element.textContent;
             const input = document.createElement('input');
@@ -1492,6 +1273,9 @@
                 }
             });
         }
+
+
+
 
         // Show modal for editing item
         function showItemModal(itemId) {
@@ -1565,7 +1349,7 @@
             updateSummary();
         }
 
-        // Function to update the hidden rubricData structure
+        // Function to update the hidden rubricData structure (Ensure this is correct)
         function updateRubricData(itemId, newText, newPoints) {
             const parts = itemId.split('-');
             const sectionIndex = parseInt(parts[1]);
@@ -1800,7 +1584,180 @@
                 document.getElementById('extraCreditSection').classList.add('hidden');
             }
         }
+        // // Update points summary
+        // function updateSummary() {
+        //     const summaryBody = document.getElementById('summaryBody');
+        //     summaryBody.innerHTML = '';
 
+        //     let totalPoints = 0;
+        //     let totalMaxPoints = 0;
+        //     let hasExtraCredit = false;
+        //     let extraCreditPoints = 0;
+        //     let extraCreditMaxPoints = 0;
+
+        //     const extraCreditBody = document.getElementById('extraCreditBody');
+        //     extraCreditBody.innerHTML = '';
+
+        //     rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
+        //         const sectionId = `section-${sectionIndex}`;
+        //         const isExtraCredit = section.main_section.includes('Extra Credit');
+
+        //         if (isExtraCredit) {
+        //             hasExtraCredit = true;
+        //         }
+
+        //         // Process subsections
+        //         if (section.subsections) {
+        //             let mainSectionPoints = 0;
+        //             let mainSectionMax = 0;
+
+        //             // Add main section header row
+        //             const mainRow = document.createElement('tr');
+        //             mainRow.innerHTML = `
+        //         <td><strong>${section.main_section.split('(')[0].trim()}</strong></td>
+        //         <td></td>
+        //         <td></td>
+        //     `;
+        //             if (!isExtraCredit) {
+        //                 summaryBody.appendChild(mainRow);
+        //             } else {
+        //                 extraCreditBody.appendChild(mainRow);
+        //             }
+
+        //             section.subsections.forEach((subsection, subIndex) => {
+        //                 const subsectionId = `${sectionId}-subsection-${subIndex}`;
+        //                 const subsectionState = state.selectedItems.get(subsectionId) || { positive: new Set(), negative: new Set() };
+        //                 const maxSubPoints = subsection.positive_items.points_available;
+        //                 let subsectionPoints = 0;
+
+        //                 subsectionState.positive.forEach(itemId => {
+        //                     const parts = itemId.split('-');
+        //                     const itemIndex = parseInt(parts[parts.length - 1]);
+        //                     if (subsection.positive_items.items[itemIndex]) {
+        //                         subsectionPoints += subsection.positive_items.items[itemIndex].points;
+        //                     }
+        //                 });
+
+        //                 mainSectionPoints += subsectionPoints;
+        //                 mainSectionMax += maxSubPoints;
+
+        //                 // Add subsection row
+        //                 const subRow = document.createElement('tr');
+        //                 subRow.innerHTML = `
+        //             <td style="padding-left: 20px;">${subsection.subsection.split('(')[0].trim()}</td>
+        //             <td>${subsectionPoints.toFixed(1)}</td>
+        //             <td>${maxSubPoints}</td>
+        //         `;
+        //                 if (!isExtraCredit) {
+        //                     summaryBody.appendChild(subRow);
+        //                 } else {
+        //                     extraCreditBody.appendChild(subRow);
+        //                 }
+
+        //                 // Update subsection header with points (always overwrite)
+        //                 const subHeaderElement = document.querySelector(`[data-id="${subsectionId}-header"]`);
+        //                 if (subHeaderElement) {
+        //                     subHeaderElement.textContent = `${subsection.subsection.split('(')[0].trim()} (${subsectionPoints.toFixed(1)}/${maxSubPoints})`;
+        //                 }
+        //             });
+
+        //             // Add main section total row
+        //             const totalRow = document.createElement('tr');
+        //             totalRow.style.borderTop = '1px solid #ddd';
+        //             totalRow.innerHTML = `
+        //         <td style="padding-left: 20px;"><em>${section.main_section.split('(')[0].trim()} Total</em></td>
+        //         <td><strong>${mainSectionPoints.toFixed(1)}</strong></td>
+        //         <td><strong>${mainSectionMax}</strong></td>
+        //     `;
+        //             if (!isExtraCredit) {
+        //                 summaryBody.appendChild(totalRow);
+        //                 totalPoints += mainSectionPoints;
+        //             } else {
+        //                 extraCreditBody.appendChild(totalRow);
+        //                 extraCreditPoints += mainSectionPoints;
+        //                 extraCreditMaxPoints = rubricData.grading_rubric.extra_credit_points;
+        //             }
+
+        //             // Update main section header with points (always overwrite)
+        //             const mainHeaderElement = document.querySelector(`[data-id="${sectionId}-header"]`);
+        //             if (mainHeaderElement) {
+        //                 mainHeaderElement.textContent = `${section.main_section.split('(')[0].trim()} (${mainSectionPoints.toFixed(1)}/${mainSectionMax})`;
+        //             }
+
+        //         } else {
+        //             // Process main section without subsections
+        //             const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
+        //             let sectionPoints = 0;
+        //             const maxPoints = section.points_available;
+
+        //             if (section.positive_items) {
+        //                 sectionState.positive.forEach(itemId => {
+        //                     const parts = itemId.split('-');
+        //                     const itemIndex = parseInt(parts[parts.length - 1]);
+        //                     if (section.positive_items.items[itemIndex]) {
+        //                         sectionPoints += section.positive_items.items[itemIndex].points;
+        //                     }
+        //                 });
+        //             }
+
+        //             if (isExtraCredit) {
+        //                 extraCreditPoints += sectionPoints;
+        //                 extraCreditMaxPoints = rubricData.grading_rubric.extra_credit_points;
+
+        //                 // Add row to extra credit table
+        //                 const row = document.createElement('tr');
+        //                 row.innerHTML = `
+        //             <td>${section.main_section.split('(')[0].trim()}</td>
+        //             <td>${sectionPoints.toFixed(1)}</td>
+        //             <td>${maxPoints}</td>
+        //         `;
+        //                 extraCreditBody.appendChild(row);
+        //             } else {
+        //                 totalPoints += sectionPoints;
+
+        //                 // Add row to summary table
+        //                 const row = document.createElement('tr');
+        //                 row.innerHTML = `
+        //             <td>${section.main_section.split('(')[0].trim()}</td>
+        //             <td>${sectionPoints.toFixed(1)}</td>
+        //             <td>${maxPoints}</td>
+        //         `;
+        //                 summaryBody.appendChild(row);
+        //             }
+
+        //             // Update section header with points (always overwrite)
+        //             const headerElement = document.querySelector(`[data-id="${sectionId}-header"]`);
+        //             if (headerElement && section.positive_items) {
+        //                 headerElement.textContent = `${section.main_section.split('(')[0].trim()} (${sectionPoints.toFixed(1)}/${maxPoints})`;
+        //             }
+        //         }
+        //     });
+
+        //     // Update total points
+        //     document.getElementById('totalPoints').textContent = totalPoints.toFixed(1);
+        //     document.getElementById('maxPoints').textContent = rubricData.grading_rubric.total_points;
+
+        //     // Handle extra credit section visibility
+        //     if (hasExtraCredit) {
+        //         document.getElementById('extraCreditSection').classList.remove('hidden');
+
+        //         // Add extra credit total row if needed
+        //         if (extraCreditPoints > 0) {
+        //             const extraCreditTotalRow = document.createElement('tr');
+        //             extraCreditTotalRow.className = 'total-row';
+        //             extraCreditTotalRow.innerHTML = `
+        //         <td><strong>Extra Credit Total</strong></td>
+        //         <td><strong>${extraCreditPoints.toFixed(1)}</strong></td>
+        //         <td><strong>${extraCreditMaxPoints}</strong></td>
+        //     `;
+        //             extraCreditBody.appendChild(extraCreditTotalRow);
+        //         }
+        //     } else {
+        //         document.getElementById('extraCreditSection').classList.add('hidden');
+        //     }
+        // }
+
+        // Generate feedback
         // Generate feedback
         function generateFeedback() {
             const outputSection = document.getElementById('outputSection');
