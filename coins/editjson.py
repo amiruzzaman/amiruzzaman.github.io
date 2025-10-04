@@ -389,7 +389,7 @@ def upload_form_page():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload New Collection Item</title>
+    <title>Upload New Item</title>
     <style>
         * {
             margin: 0;
@@ -399,40 +399,59 @@ def upload_form_page():
         }
 
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-color: #f8f9fa;
             color: #333;
-            min-height: 100vh;
             padding: 20px;
+            line-height: 1.6;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 800px;
             margin: 0 auto;
-            background: white;
+            background-color: white;
             padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            position: relative;
-        }
-
-        .header-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-        h1 {
-            color: #2c3e50;
-            font-size: 28px;
-            font-weight: 700;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
 
         .navigation-buttons {
             display: flex;
-            gap: 10px;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+        }
+
+        .nav-btn i {
+            margin-right: 8px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 28px;
         }
 
         .form-group {
@@ -443,26 +462,26 @@ def upload_form_page():
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            color: #2c3e50;
+            color: #495057;
         }
 
         .form-group input,
         .form-group select,
         .form-group textarea {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #e1e8ed;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
             border-radius: 6px;
-            font-size: 14px;
-            transition: all 0.3s ease;
+            font-size: 15px;
+            transition: border 0.3s;
         }
 
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            border-color: #007bff;
             outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
         }
 
         .form-group textarea {
@@ -471,81 +490,63 @@ def upload_form_page():
         }
 
         .drop-area {
-            border: 2px dashed #bdc3c7;
-            border-radius: 8px;
+            border: 2px dashed #ced4da;
+            border-radius: 6px;
             padding: 25px;
             text-align: center;
             background-color: #f8f9fa;
-            color: #7f8c8d;
+            color: #6c757d;
             margin: 10px 0;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
         }
 
         .drop-area.highlight {
-            border-color: #3498db;
-            background-color: #ebf5fb;
-            color: #3498db;
+            border-color: #007bff;
+            background-color: #e9f0ff;
         }
 
         .btn {
-            padding: 12px 25px;
+            padding: 12px 20px;
+            background-color: #007bff;
             color: white;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 16px;
+            font-weight: 500;
             margin-right: 10px;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            transition: all 0.3s;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
         }
 
         .btn-primary:hover {
-            background: linear-gradient(135deg, #2980b9 0%, #2471a3 100%);
+            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
         }
 
         .btn-success {
-            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
-            box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
         }
 
         .btn-success:hover {
-            background: linear-gradient(135deg, #229954 0%, #1e8449 100%);
+            background: linear-gradient(135deg, #1e7e34 0%, #155724 100%);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.4);
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
         }
 
         .btn-danger {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-            box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
         }
 
         .btn-danger:hover {
-            background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+            background: linear-gradient(135deg, #c82333 0%, #a71e2a 100%);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
-            box-shadow: 0 2px 8px rgba(149, 165, 166, 0.3);
-        }
-
-        .btn-secondary:hover {
-            background: linear-gradient(135deg, #7f8c8d 0%, #717d7e 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(149, 165, 166, 0.4);
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
         }
 
         .image-preview {
@@ -554,74 +555,53 @@ def upload_form_page():
             margin-top: 10px;
             display: none;
             border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         .toast-message {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            background-color: rgba(40, 167, 69, 0.9);
             color: white;
             padding: 15px 20px;
             border-radius: 6px;
             z-index: 1000;
             display: none;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            font-weight: 600;
-        }
-
-        .toast-message.error {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
         }
 
         .merge-controls {
             margin-top: 25px;
             padding: 20px;
-            border: 2px solid #e1e8ed;
+            border: 1px solid #eaeaea;
             border-radius: 8px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        }
-
-        .merge-controls h3 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-            font-size: 18px;
+            background-color: #f8f9fa;
         }
 
         .merge-drop-area {
-            min-height: 120px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            min-height: 100px;
+            margin-bottom: 10px;
         }
 
         .merge-options {
-            margin: 20px 0;
+            margin: 15px 0;
         }
 
         .merge-options label {
-            display: inline-flex;
-            align-items: center;
-            margin-right: 20px;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        .merge-options input[type="radio"] {
-            margin-right: 8px;
+            display: inline-block;
+            margin-right: 15px;
         }
 
         #mergePreviewContainer {
-            margin-top: 20px;
+            margin-top: 15px;
         }
 
         .merge-preview {
             padding: 15px;
-            border: 2px dashed #3498db;
-            border-radius: 8px;
-            background-color: white;
+            border: 1px dashed #007bff;
+            border-radius: 6px;
+            background-color: #f8f9fa;
         }
 
         .merge-preview img {
@@ -634,61 +614,49 @@ def upload_form_page():
 
         .merge-size-info {
             font-size: 12px;
-            color: #7f8c8d;
-            margin-top: 8px;
-            font-weight: 500;
+            color: #666;
+            margin-top: 5px;
         }
 
         .image-drop-areas-container {
             display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
+            gap: 10px;
+            margin-bottom: 10px;
         }
 
-        .form-actions {
+        .footer-buttons {
             display: flex;
             justify-content: space-between;
-            align-items: center;
             margin-top: 30px;
             padding-top: 20px;
-            border-top: 2px solid #f0f0f0;
-        }
-
-        .btn i {
-            margin-right: 8px;
-        }
-
-        .required-field::after {
-            content: " *";
-            color: #e74c3c;
+            border-top: 1px solid #eaeaea;
         }
     </style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <div class="header-section">
-            <h1><i class="fas fa-upload"></i> Upload New Collection Item</h1>
-            <div class="navigation-buttons">
-                <a href="http://localhost:5000/edit_json" class="btn btn-secondary" target="_blank">
-                    <i class="fas fa-edit"></i> JSON Editor
-                </a>
-                <a href="http://localhost:5000/root-index" class="btn btn-secondary" target="_blank">
-                    <i class="fas fa-home"></i> Home
-                </a>
-            </div>
+        <div class="navigation-buttons">
+            <a href="http://localhost:5000/edit_json" class="nav-btn" target="_blank">
+                <i class="fas fa-edit"></i> JSON Editor
+            </a>
+            <a href="http://localhost:5000/root-index" class="nav-btn" target="_blank">
+                <i class="fas fa-home"></i> Root Index
+            </a>
         </div>
+        
+        <h1>Upload New Collection Item</h1>
         
         <form id="uploadForm">
             <div class="form-group">
-                <label for="country" class="required-field">Country:</label>
+                <label for="country">Country:</label>
                 <select id="country" name="country" required>
                     <option value="">Select a country</option>
                 </select>
             </div>
             
             <div class="form-group">
-                <label for="currencyType" class="required-field">Currency Type:</label>
+                <label for="currencyType">Currency Type:</label>
                 <select id="currencyType" name="currency_type" required>
                     <option value="coin">Coin</option>
                     <option value="paper-bill">Paper Bill</option>
@@ -697,52 +665,48 @@ def upload_form_page():
             </div>
             
             <div class="form-group">
-                <label for="donorName" class="required-field">Donor Name:</label>
-                <input type="text" id="donorName" name="donor_name" required placeholder="Enter donor name">
+                <label for="donorName">Donor Name:</label>
+                <input type="text" id="donorName" name="donor_name" required>
             </div>
             
             <div class="form-group">
                 <label for="note">Note:</label>
-                <textarea id="note" name="note" placeholder="Add any additional notes..."></textarea>
+                <textarea id="note" name="note"></textarea>
             </div>
             
             <div class="form-group">
                 <label for="size">Size:</label>
-                <input type="text" id="size" name="size" placeholder="e.g., 25mm">
+                <input type="text" id="size" name="size">
             </div>
             
             <div class="form-group">
                 <label for="year">Year:</label>
-                <input type="text" id="year" name="year" placeholder="e.g., 2023">
+                <input type="text" id="year" name="year">
             </div>
             
             <div class="form-group">
                 <label for="hiddenNote">Hidden Note (Optional):</label>
-                <textarea id="hiddenNote" name="hidden_note" placeholder="Not shown publicly - for internal use only"></textarea>
+                <textarea id="hiddenNote" name="hidden_note" placeholder="Not shown publicly"></textarea>
             </div>
             
             <div class="form-group">
-                <label class="required-field">Image Upload:</label>
+                <label>Image Upload:</label>
                 <div class="drop-area" id="imageDropArea">
-                    <p><i class="fas fa-cloud-upload-alt" style="font-size: 24px; margin-bottom: 10px;"></i></p>
                     <p>Drag & drop an image here or click to select</p>
-                    <p style="font-size: 12px; color: #95a5a6; margin-top: 5px;">Supports: PNG, JPG, JPEG, GIF, BMP, TIFF, WEBP</p>
                     <input type="file" id="imageInput" accept="image/*" style="display: none;">
                 </div>
                 <img id="imagePreview" class="image-preview">
             </div>
             
             <div class="merge-controls">
-                <h3><i class="fas fa-object-group"></i> Merge Images (Optional)</h3>
-                <p style="color: #7f8c8d; margin-bottom: 15px;">Combine two images into one (e.g., front and back of a coin)</p>
+                <h3>Merge Images (Optional)</h3>
+                <p>Combine two images into one (e.g., front and back of a coin)</p>
                 
                 <div class="image-drop-areas-container">
                     <div class="drop-area merge-drop-area" id="mergeDropArea1">
-                        <p><i class="fas fa-image" style="font-size: 20px; margin-bottom: 8px;"></i></p>
                         <p>Drag & drop first image here</p>
                     </div>
                     <div class="drop-area merge-drop-area" id="mergeDropArea2">
-                        <p><i class="fas fa-image" style="font-size: 20px; margin-bottom: 8px;"></i></p>
                         <p>Drag & drop second image here</p>
                     </div>
                 </div>
@@ -750,46 +714,38 @@ def upload_form_page():
                 <div class="merge-options">
                     <div>
                         <strong>Merge Direction:</strong>
-                        <label><input type="radio" name="mergeDirection" value="horizontal" checked> <i class="fas fa-arrows-alt-h"></i> Side by Side</label>
-                        <label><input type="radio" name="mergeDirection" value="vertical"> <i class="fas fa-arrows-alt-v"></i> Top and Bottom</label>
+                        <label><input type="radio" name="mergeDirection" value="horizontal" checked> Side by Side</label>
+                        <label><input type="radio" name="mergeDirection" value="vertical"> Top and Bottom</label>
                     </div>
                     
-                    <div style="margin-top: 15px;">
+                    <div style="margin-top: 10px;">
                         <strong>Resize Option:</strong>
-                        <label><input type="radio" name="resizeOption" value="equal" checked> <i class="fas fa-equals"></i> Equal Size</label>
-                        <label><input type="radio" name="resizeOption" value="original"> <i class="fas fa-expand"></i> Keep Original Sizes</label>
+                        <label><input type="radio" name="resizeOption" value="equal" checked> Equal Size</label>
+                        <label><input type="radio" name="resizeOption" value="original"> Keep Original Sizes</label>
                     </div>
                     
-                    <div style="margin-top: 15px;">
-                        <button type="button" id="mergeImagesBtn" class="btn btn-primary" disabled>
-                            <i class="fas fa-object-group"></i> Merge Images
-                        </button>
-                        <button type="button" id="clearMergeBtn" class="btn btn-danger">
-                            <i class="fas fa-trash"></i> Clear Merge
-                        </button>
-                    </div>
+                    <button type="button" id="mergeImagesBtn" class="btn" disabled>Merge Images</button>
+                    <button type="button" id="clearMergeBtn" class="btn btn-danger">Clear Merge</button>
                 </div>
                 
                 <div id="mergePreviewContainer" style="display: none;">
                     <div class="merge-preview">
-                        <p><strong><i class="fas fa-eye"></i> Preview:</strong></p>
+                        <p><strong>Preview:</strong></p>
                         <div id="imagePreviews"></div>
                         <div class="merge-size-info" id="sizeInfo"></div>
                     </div>
                 </div>
             </div>
             
-            <div class="form-actions">
-                <div>
-                    <button type="submit" class="btn btn-success">
-                        <i class="fas fa-check"></i> Upload Item
-                    </button>
-                    <button type="button" class="btn btn-secondary" onclick="window.open('/edit_json', '_blank')">Edit JSON</button>
-                        <i class="fas fa-arrow-left"></i> Back to Editor
-                    </button>
-                </div>
-                <a href="http://localhost:5000/root-index" class="btn btn-secondary" target="_blank">
-                    <i class="fas fa-home"></i> Go to Home
+            <button type="submit" class="btn btn-primary">Upload Item</button>
+            <button type="button" class="btn" onclick="window.location.href='/edit_json'">Back to Editor</button>
+            
+            <div class="footer-buttons">
+                <a href="http://localhost:5000/edit_json" class="nav-btn" target="_blank">
+                    <i class="fas fa-edit"></i> JSON Editor
+                </a>
+                <a href="http://localhost:5000/root-index" class="nav-btn" target="_blank">
+                    <i class="fas fa-home"></i> Root Index
                 </a>
             </div>
         </form>
@@ -798,7 +754,6 @@ def upload_form_page():
     <div id="toastMessage" class="toast-message"></div>
 
     <script>
-        // Your existing JavaScript code remains exactly the same
         let uploadedFile = null;
         let mergeImage1 = null;
         let mergeImage2 = null;
@@ -843,8 +798,437 @@ def upload_form_page():
             });
         }
 
-        // ... rest of your existing JavaScript code remains exactly the same
-        // (All the setupEventListeners, setupImageMerging, and other functions)
+        function setupEventListeners() {
+            const dropArea = document.getElementById('imageDropArea');
+            const fileInput = document.getElementById('imageInput');
+            
+            dropArea.addEventListener('click', () => fileInput.click());
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            dropArea.addEventListener('drop', handleDrop, false);
+            fileInput.addEventListener('change', handleFileSelect, false);
+            document.getElementById('uploadForm').addEventListener('submit', handleFormSubmit);
+        }
+
+        function setupImageMerging() {
+            const mergeDropArea1 = document.getElementById('mergeDropArea1');
+            const mergeDropArea2 = document.getElementById('mergeDropArea2');
+            const mergeImagesBtn = document.getElementById('mergeImagesBtn');
+            const clearMergeBtn = document.getElementById('clearMergeBtn');
+            
+            setupMergeDropArea(mergeDropArea1, 1);
+            setupMergeDropArea(mergeDropArea2, 2);
+            
+            mergeImagesBtn.addEventListener('click', function() {
+                if (!mergeImage1 || !mergeImage2) {
+                    showToast('Please upload both images first', 'error');
+                    return;
+                }
+                
+                const mergeDirection = document.querySelector('input[name="mergeDirection"]:checked').value;
+                const resizeOption = document.querySelector('input[name="resizeOption"]:checked').value;
+                
+                mergeImages(mergeImage1, mergeImage2, mergeDirection, resizeOption)
+                    .then(result => {
+                        showToast(result.message);
+                        
+                        // Update the form with the merged image
+                        uploadedFile = result.file;
+                        document.getElementById('imageDropArea').innerHTML = 
+                            `<p>Merged image: ${result.filename}</p>`;
+                        document.getElementById('imagePreview').src = URL.createObjectURL(result.file);
+                        document.getElementById('imagePreview').style.display = 'block';
+                        
+                        clearMergeAreas();
+                    })
+                    .catch(error => {
+                        console.error('Error merging images:', error);
+                        showToast('Error merging images: ' + error.message, 'error');
+                    });
+            });
+            
+            clearMergeBtn.addEventListener('click', clearMergeAreas);
+        }
+
+        function setupMergeDropArea(dropArea, imageNumber) {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.style.display = 'none';
+            document.body.appendChild(fileInput);
+            
+            dropArea.addEventListener('click', () => fileInput.click());
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, () => dropArea.classList.add('highlight'), false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, () => dropArea.classList.remove('highlight'), false);
+            });
+            
+            dropArea.addEventListener('drop', function(e) {
+                handleMergeFileDrop(e, imageNumber);
+            }, false);
+            
+            fileInput.addEventListener('change', function(e) {
+                handleMergeFileSelect(e, imageNumber);
+            });
+        }
+
+        function handleMergeFileDrop(e, imageNumber) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleMergeFiles(files, imageNumber);
+        }
+
+        function handleMergeFileSelect(e, imageNumber) {
+            const files = e.target.files;
+            handleMergeFiles(files, imageNumber);
+        }
+
+        function handleMergeFiles(files, imageNumber) {
+            if (files.length === 0) return;
+            
+            const file = files[0];
+            if (!file.type.startsWith('image/')) {
+                showToast('Please select an image file', 'error');
+                return;
+            }
+            
+            if (imageNumber === 1) {
+                mergeImage1 = file;
+            } else {
+                mergeImage2 = file;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const htmlContent = '<img src="' + e.target.result + '" style="max-width: 100%; max-height: 70px;">' +
+                                   '<div style="font-size: 10px; margin-top: 5px;">' +
+                                   file.name + '<br>' + file.type + ' (' + Math.round(file.size / 1024) + 'KB)' +
+                                   '</div>';
+                
+                if (imageNumber === 1) {
+                    document.getElementById('mergeDropArea1').innerHTML = htmlContent;
+                } else {
+                    document.getElementById('mergeDropArea2').innerHTML = htmlContent;
+                }
+                
+                if (mergeImage1 && mergeImage2) {
+                    document.getElementById('mergeImagesBtn').disabled = false;
+                    showImagePreviews();
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function showImagePreviews() {
+            const previewContainer = document.getElementById('mergePreviewContainer');
+            const imagePreviews = document.getElementById('imagePreviews');
+            const sizeInfo = document.getElementById('sizeInfo');
+            
+            previewContainer.style.display = 'block';
+            imagePreviews.innerHTML = '';
+            
+            const reader1 = new FileReader();
+            const reader2 = new FileReader();
+            
+            reader1.onload = function(e1) {
+                reader2.onload = function(e2) {
+                    const img1 = new Image();
+                    const img2 = new Image();
+                    
+                    img1.onload = img2.onload = function() {
+                        imagePreviews.innerHTML = '<img src="' + e1.target.result + '" title="Image 1: ' + img1.width + '×' + img1.height + '">' +
+                                                 '<img src="' + e2.target.result + '" title="Image 2: ' + img2.width + '×' + img2.height + '">';
+                        
+                        const direction = document.querySelector('input[name="mergeDirection"]:checked').value;
+                        const resizeOption = document.querySelector('input[name="resizeOption"]:checked').value;
+                        
+                        if (resizeOption === 'equal') {
+                            if (direction === 'horizontal') {
+                                const targetHeight = Math.min(img1.height, img2.height);
+                                const width1 = Math.round((targetHeight / img1.height) * img1.width);
+                                const width2 = Math.round((targetHeight / img2.height) * img2.width);
+                                sizeInfo.textContent = 'Merged size: ' + (width1 + width2) + '×' + targetHeight + ' pixels';
+                            } else {
+                                const targetWidth = Math.min(img1.width, img2.width);
+                                const height1 = Math.round((targetWidth / img1.width) * img1.height);
+                                const height2 = Math.round((targetWidth / img2.width) * img2.height);
+                                sizeInfo.textContent = 'Merged size: ' + targetWidth + '×' + (height1 + height2) + ' pixels';
+                            }
+                        } else {
+                            if (direction === 'horizontal') {
+                                sizeInfo.textContent = 'Merged size: ' + (img1.width + img2.width) + '×' + Math.max(img1.height, img2.height) + ' pixels';
+                            } else {
+                                sizeInfo.textContent = 'Merged size: ' + Math.max(img1.width, img2.width) + '×' + (img1.height + img2.height) + ' pixels';
+                            }
+                        }
+                    };
+                    
+                    img1.src = e1.target.result;
+                    img2.src = e2.target.result;
+                };
+                reader2.readAsDataURL(mergeImage2);
+            };
+            reader1.readAsDataURL(mergeImage1);
+        }
+
+        function mergeImages(image1, image2, direction, resizeOption) {
+            return new Promise((resolve, reject) => {
+                const reader1 = new FileReader();
+                const reader2 = new FileReader();
+                
+                reader1.onload = function(e1) {
+                    reader2.onload = function(e2) {
+                        const img1 = new Image();
+                        const img2 = new Image();
+                        
+                        img1.onload = function() {
+                            img2.onload = function() {
+                                try {
+                                    const canvas = document.createElement('canvas');
+                                    const ctx = canvas.getContext('2d');
+                                    
+                                    let width1 = img1.width;
+                                    let height1 = img1.height;
+                                    let width2 = img2.width;
+                                    let height2 = img2.height;
+                                    
+                                    if (resizeOption === 'equal') {
+                                        if (direction === 'horizontal') {
+                                            const targetHeight = Math.min(height1, height2);
+                                            width1 = Math.round((targetHeight / height1) * width1);
+                                            height1 = targetHeight;
+                                            width2 = Math.round((targetHeight / height2) * width2);
+                                            height2 = targetHeight;
+                                        } else {
+                                            const targetWidth = Math.min(width1, width2);
+                                            height1 = Math.round((targetWidth / width1) * height1);
+                                            width1 = targetWidth;
+                                            height2 = Math.round((targetWidth / width2) * height2);
+                                            width2 = targetWidth;
+                                        }
+                                    }
+                                    
+                                    if (direction === 'horizontal') {
+                                        canvas.width = width1 + width2;
+                                        canvas.height = Math.max(height1, height2);
+                                    } else {
+                                        canvas.width = Math.max(width1, width2);
+                                        canvas.height = height1 + height2;
+                                    }
+                                    
+                                    if (direction === 'horizontal') {
+                                        ctx.drawImage(img1, 0, 0, width1, height1);
+                                        ctx.drawImage(img2, width1, 0, width2, height2);
+                                    } else {
+                                        ctx.drawImage(img1, 0, 0, width1, height1);
+                                        ctx.drawImage(img2, 0, height1, width2, height2);
+                                    }
+                                    
+                                    const outputFormat = image1.type === 'image/jpeg' && image2.type === 'image/jpeg' 
+                                        ? 'image/jpeg' 
+                                        : 'image/png';
+                                    
+                                    const fileExtension = outputFormat === 'image/jpeg' ? 'jpg' : 'png';
+                                    
+                                    canvas.toBlob(function(blob) {
+                                        const filename = `merged-${Date.now()}.${fileExtension}`;
+                                        const file = new File([blob], filename, { type: outputFormat });
+                                        
+                                        resolve({
+                                            message: 'Images merged successfully',
+                                            filename: filename,
+                                            file: file,
+                                            format: outputFormat
+                                        });
+                                    }, outputFormat, 0.95);
+                                    
+                                } catch (error) {
+                                    reject(new Error('Failed to merge images: ' + error.message));
+                                }
+                            };
+                            
+                            img2.onerror = function() {
+                                reject(new Error('Failed to load second image'));
+                            };
+                            
+                            img2.src = e2.target.result;
+                        };
+                        
+                        img1.onerror = function() {
+                            reject(new Error('Failed to load first image'));
+                        };
+                        
+                        img1.src = e1.target.result;
+                    };
+                    
+                    reader2.onerror = function() {
+                        reject(new Error('Failed to read second image file'));
+                    };
+                    
+                    reader2.readAsDataURL(image2);
+                };
+                
+                reader1.onerror = function() {
+                    reject(new Error('Failed to read first image file'));
+                };
+                
+                reader1.readAsDataURL(image1);
+            });
+        }
+
+        function clearMergeAreas() {
+            mergeImage1 = null;
+            mergeImage2 = null;
+            document.getElementById('mergeDropArea1').innerHTML = '<p>Drag & drop first image here</p>';
+            document.getElementById('mergeDropArea2').innerHTML = '<p>Drag & drop second image here</p>';
+            document.getElementById('mergeImagesBtn').disabled = true;
+            document.getElementById('mergePreviewContainer').style.display = 'none';
+        }
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function highlight() {
+            document.getElementById('imageDropArea').classList.add('highlight');
+        }
+
+        function unhighlight() {
+            document.getElementById('imageDropArea').classList.remove('highlight');
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            if (files.length === 0) return;
+            
+            const file = files[0];
+            const maxSize = 50 * 1024 * 1024;
+            
+            if (file.size > maxSize) {
+                showToast('File is too large. Maximum size is 50MB', 'error');
+                return;
+            }
+            
+            if (!file.type.startsWith('image/')) {
+                showToast('Please select an image file', 'error');
+                return;
+            }
+            
+            uploadedFile = file;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('imagePreview');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                
+                document.getElementById('imageDropArea').innerHTML = 
+                    `<p>${file.name} (${Math.round(file.size / 1024)}KB)</p>`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            const country = document.getElementById('country').value;
+            const currencyType = document.getElementById('currencyType').value;
+            const donorName = document.getElementById('donorName').value;
+            
+            if (!country || !currencyType || !donorName) {
+                showToast('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            if (!uploadedFile) {
+                showToast('Please upload an image', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('country', country);
+            formData.append('currency_type', currencyType);
+            formData.append('donor_name', donorName);
+            formData.append('note', document.getElementById('note').value);
+            formData.append('size', document.getElementById('size').value);
+            formData.append('year', document.getElementById('year').value);
+            formData.append('hidden_note', document.getElementById('hiddenNote').value);
+            formData.append('file', uploadedFile);
+            
+            showToast('Uploading item...');
+            
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.message || 'Upload failed') });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.message) {
+                    showToast(data.message);
+                    resetForm();
+                } else {
+                    showToast(data.error || 'An error occurred', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error uploading item: ' + error.message, 'error');
+            });
+        }
+
+        function resetForm() {
+            document.getElementById('uploadForm').reset();
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('imageDropArea').innerHTML = '<p>Drag & drop an image here or click to select</p>';
+            uploadedFile = null;
+            clearMergeAreas();
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toastMessage');
+            toast.textContent = message;
+            toast.style.backgroundColor = type === 'success' ? 'rgba(40, 167, 69, 0.9)' : 'rgba(220, 53, 69, 0.9)';
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
     </script>
 </body>
 </html>
