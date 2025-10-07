@@ -2285,6 +2285,13 @@ let jsonData = [];
 let sortOrder = 1;
 let currentEditingIndex = -1;
 let countriesData = [];
+let activeFilters = {
+    country: '',
+    size: '',
+    yearFrom: '',
+    yearTo: ''
+};
+let isAddMode = false;
 
 // Load countries data
 function loadCountries() {
@@ -2540,6 +2547,9 @@ function renderTable(data) {
 
         tableContainer.appendChild(rowDiv);
     });
+    
+    // Apply filters after rendering
+    filterTable();
 }
 
 // Setup image drop area functionality
@@ -2721,6 +2731,89 @@ function saveUpdates() {
     });
 }
 
+// Filter functionality
+function filterTable() {
+    const rows = document.querySelectorAll('#jsonTableContainer .row:not(.header)');
+    
+    rows.forEach(row => {
+        const index = parseInt(row.getAttribute('data-index'));
+        const rowData = jsonData[index];
+        
+        let shouldShow = true;
+        
+        // Country filter
+        if (activeFilters.country && rowData.country) {
+            const countryMatch = rowData.country.toLowerCase().includes(activeFilters.country.toLowerCase());
+            if (!countryMatch) shouldShow = false;
+        }
+        
+        // Size filter
+        if (activeFilters.size && rowData.size) {
+            const sizeMatch = rowData.size.toLowerCase().includes(activeFilters.size.toLowerCase());
+            if (!sizeMatch) shouldShow = false;
+        }
+        
+        // Year range filter
+        if (activeFilters.yearFrom && rowData.year) {
+            const year = parseInt(rowData.year);
+            if (!isNaN(year) && year < parseInt(activeFilters.yearFrom)) {
+                shouldShow = false;
+            }
+        }
+        
+        if (activeFilters.yearTo && rowData.year) {
+            const year = parseInt(rowData.year);
+            if (!isNaN(year) && year > parseInt(activeFilters.yearTo)) {
+                shouldShow = false;
+            }
+        }
+        
+        // Toggle visibility
+        row.style.display = shouldShow ? 'flex' : 'none';
+    });
+}
+
+function applyFilters() {
+    activeFilters.country = document.getElementById('countrySearch').value;
+    activeFilters.size = document.getElementById('sizeSearch').value;
+    activeFilters.yearFrom = document.getElementById('yearFromSearch').value;
+    activeFilters.yearTo = document.getElementById('yearToSearch').value;
+    
+    filterTable();
+}
+
+function clearFilters() {
+    document.getElementById('countrySearch').value = '';
+    document.getElementById('sizeSearch').value = '';
+    document.getElementById('yearFromSearch').value = '';
+    document.getElementById('yearToSearch').value = '';
+    
+    activeFilters = {
+        country: '',
+        size: '',
+        yearFrom: '',
+        yearTo: ''
+    };
+    
+    filterTable();
+}
+
+function toggleAddMode() {
+    isAddMode = !isAddMode;
+    const button = document.getElementById('toggleAddMode');
+    
+    if (isAddMode) {
+        button.classList.add('active');
+        button.textContent = 'Exit Add Mode';
+        // Add visual indication for add mode
+        document.body.style.backgroundColor = '#2c5530';
+    } else {
+        button.classList.remove('active');
+        button.textContent = 'Add New Mode';
+        document.body.style.backgroundColor = '#72787e';
+    }
+}
+
 // Initialize when DOM is loaded
 document.addEventListener("DOMContentLoaded", function () {
     // Load initial data
@@ -2806,6 +2899,18 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("closeModal").addEventListener("click", function () {
         document.getElementById("imageModal").style.display = "none";
     });
+
+    // Filter event listeners
+    document.getElementById("applyFilters").addEventListener("click", applyFilters);
+    document.getElementById("clearFilters").addEventListener("click", clearFilters);
+    document.getElementById("toggleAddMode").addEventListener("click", toggleAddMode);
+    document.getElementById("clearSearch").addEventListener("click", clearFilters);
+
+    // Add real-time filtering for text inputs
+    document.getElementById("countrySearch").addEventListener("input", applyFilters);
+    document.getElementById("sizeSearch").addEventListener("input", applyFilters);
+    document.getElementById("yearFromSearch").addEventListener("input", applyFilters);
+    document.getElementById("yearToSearch").addEventListener("input", applyFilters);
 
     // File input change listener
     document.getElementById("uploadFileInput").addEventListener("change", function (event) {
