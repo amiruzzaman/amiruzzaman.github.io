@@ -1,0 +1,731 @@
+\documentclass{article}
+\usepackage{enumitem}
+\usepackage[usenames,dvipsnames]{color} 
+\usepackage{soul}
+\setlist[enumerate]{itemsep=0mm}
+
+\usepackage{kotex} % korean characters
+\usepackage{xcolor}
+\usepackage{csquotes}
+\usepackage[style=apa,backend=biber,language=american]{biblatex}
+\DeclareLanguageMapping{american}{american-apa}
+\addbibresource{publications.bib}
+
+% Debugging: Print the entry type before each citation
+\renewbibmacro*{begentry}{%
+  \textbf{Type: \thefield{entrytype}} \par
+}
+
+\usepackage[left=2.5cm,right=2.5cm,top=1.5cm,bottom=2.5cm]{geometry}
+
+
+% as bibentry and hyperref clash in some cases, this is a workaround
+% as suggested by the following two links:
+%https://tex.stackexchange.com/questions/227933/using-bibentry-to-cite-in-text-reference-with-apacite
+% and
+%https://tex.stackexchange.com/questions/65348/clash-between-bibentry-and-hyperref-with-bibstyle-elsart-harv/65401#65401
+% \usepackage{bibentry}
+\makeatletter\let\saved@bibitem\@bibitem\makeatother
+% \usepackage[colorlinks=true]{hyperref}
+\usepackage[colorlinks = true,
+            linkcolor = blue,
+            urlcolor  = blue,
+            citecolor = blue,
+            anchorcolor = blue]{hyperref}
+
+\newcommand{\MYhref}[3][blue]{\href{#2}{\color{#1}{#3}}}%
+\usepackage{color,soul}
+\makeatletter\let\@bibitem\saved@bibitem\makeatother
+
+
+%%%%%%%%%% This is to show DOI and hyperlink them %%%%%%%%%%%%%%
+% \newcommand*{\doi}[1]{\href{https://dx.doi.org/#1}{doi: #1}}
+% \newcommand*{\doi}[1]{\href{#1}{#1}}
+
+%%% Indent paragraph
+\usepackage{changepage}   % for the adjustwidth environment
+
+\newenvironment{myenv}{\begin{adjustwidth}{2cm}{}}{\end{adjustwidth}}
+
+\usepackage{enumitem}
+
+%--------break url
+\PassOptionsToPackage{hyphens}{url}\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{color,soul}
+
+%UNDERLINED SUBSECTIONS     
+\usepackage{sectsty}
+\sectionfont{\textbf\normalfont\large\centering}
+\subsectionfont{\underline\normalfont\normalsize}
+
+%-----------text highlight
+\usepackage{color,soul}
+
+
+%-----------highlight match--------------------
+\DeclareSourcemap{
+  \maps[datatype=bibtex]{
+    \map{
+      \step[fieldsource=author,
+            match=\regexp{Amiruzzaman,\sMd},
+            replace=\regexp{\\textbf{Amiruzzaman}\\space \\textbf{M.}}]
+    }
+  }
+}
+
+\DeclareSourcemap{
+  \maps[datatype=bibtex]{
+    \map{
+      \step[fieldsource=author,
+            match=\regexp{Amiruzzaman,\sM},
+            replace=\regexp{\\textbf{Amiruzzaman}\\space \\textbf{M.}}]
+    }
+  }
+}
+
+\DeclareSourcemap{
+  \maps[datatype=bibtex]{
+    \map{
+      \step[fieldsource=author,
+            match=\regexp{(?:Amiruzzaman,\sMd|Md\sAmiruzzaman)},
+            replace=\regexp{\\textbf{Amiruzzaman}\\space \\textbf{M.}}]
+    }
+  }
+}
+
+%--------------Bibtex Type-------------------------
+\renewbibmacro*{begentry}{%
+  \printfield{labelprefix}%
+  \setunit{\addspace}%
+  \printfield{labelnumber}%
+  \setunit{\labelnamepunct}%
+}
+
+% Append colored labels for different entry types
+% \renewbibmacro*{finentry}{%
+%   \iffieldequalstr{entrytype}{article}
+%     {\textcolor{blue}{ ~[Article]}}
+%     {}%
+%   \iffieldequalstr{entrytype}{inproceedings}
+%     {\textcolor{red}{ [Proceeding]}}
+%     {}%
+%   \iffieldequalstr{entrytype}{INPROCEEDINGS}
+%     {\textcolor{red}{ [Proceeding]}}
+%     {}%
+%   \iffieldequalstr{entrytype}{book}
+%     {\textcolor{green}{ ~[Book]}}
+%     {}%
+%   \finentry
+% }
+
+
+% \AtEveryBibitem{%
+%   \ifentrytype{article}{\textcolor{blue}{ [Article]}}{}%
+%   \ifentrytype{inproceedings}{\textcolor{red}{ [Proceedings]}}{}%
+%   \ifentrytype{conference}{\textcolor{red}{ [Proceedings]}}{}%
+%   \ifentrytype{book}{\textcolor{green}{ [Book]}}{}%
+% }
+
+
+%----------------page# of page ----------------
+% \usepackage{lastpage}
+% \usepackage{fancyhdr}
+% \pagestyle{fancy} 
+% \cfoot{\thepage\ of \pageref{LastPage}}
+
+\usepackage{lastpage}
+\usepackage{fancyhdr}
+\usepackage{lipsum} % just for mock text
+
+\pagestyle{fancy}
+\renewcommand{\headrulewidth}{0pt}
+\fancyhf{}% clear all fields
+\fancyfoot[C]{\thepage\ of \pageref{LastPage}}
+
+%----------------highlight enumerate-----------
+\usepackage{framed}
+\usepackage{enumitem}
+\colorlet{shadecolor}{yellow}
+
+%---------------highlight item label-----------
+\newcommand{\hilight}[1]{\setlength{\fboxsep}{1pt}\colorbox{yellow}{#1}}
+\newcommand{\hlitem}{\stepcounter{enumi}\item[\hilight{\theenumi}]}
+
+%--------------highlight itemize item----------
+\usepackage{xcolor} % Add this line in the preamble if not already included
+%--------------- DOCUMENT START----------------
+
+\begin{document}
+
+
+\begin{center}
+\thispagestyle{empty}
+\large \textbf{Md Amiruzzaman \\}
+\normalsize Assistant Professor, Department of Computer Science\\
+\normalsize  West Chester University, PA\\
+% \normalsize mamiruzz@kent.edu $\mid$ https://orcid.org/0000-0002-2292-5798$\mid$ www.cs.kent.edu\textbackslash$\sim$mamiruzz\\
+\normalsize \href{mailto:m.amiruzzaman@gmail.com}{m.amiruzzaman@gmail.com} $\mid$  \url{https://www.cs.kent.edu/~mamiruzz/}\\%www.cs.kent.edu\textbackslash$\sim$mamiruzz\\
+\normalsize \url{https://orcid.org/0000-0002-2292-5798}\\
+\normalsize 330-474-9822\\ 
+\hrulefill
+\end{center}
+
+% \section*{Notes}
+% \begin{enumerate}
+%     \item \hl{Yellow highlighted work}\footnote{During my time at West Chester University}
+%     \item Black color work\footnote{Before my time at West Chester University}
+% \end{enumerate}
+
+%-----------EDUCATION-------------------
+\section*{Education}\vspace{-0.5em}
+% \vspace{-1mm}
+%   {\large \textbf{Education}}
+% \input{education.tex}
+ \begin{itemize}\setlength{\itemindent}{-.25in} 
+  \setlength\itemsep{-0.4em}
+      \item[]
+      \textbf{Doctor of Philosophy in Computer Science} \\
+      Kent State University, Kent, OH, USA, May 2021 \\
+      Dissertation: {\em Studying geospatial urban visual appearance and diversity to understand social phenomena} 
+     \item[]
+      \textbf{Doctor of Philosophy in Evaluation and Measurement} \\
+      Kent State University, Kent, OH, USA, August 2019 \\
+      Dissertation: {\em Assessing the psychometric properties of newly developed behavior and attitude Twitter scales: A validity and reliability study} 
+   \item[]
+      \textbf{Doctor of Philosophy in Mathematics Education} \\
+      Kent State University, Kent, OH, USA, August 2016 \\
+      Dissertation: {\em Exploring preservice teachers' understanding of measures of central tendency}
+   \item[]
+      \textbf{Master of Science in Cybersecurity} \\
+      Georgia Institute of Technology, Atlanta, GA, USA, August 2023\\
+      Practicum title: {\em Development of a tool to learn about outdated software for its vulnerabilities and end-of-life}
+  \item[]
+      \textbf{Master of Technology in Applied Engineering} \\
+      Kent State University, Kent, OH, USA, August 2015 
+  \item[]
+      \textbf{Master of Science in Computer Science} \\
+      Kent State University, Kent, OH, USA, August 2011 \\
+      Thesis: {\em Steganographic covert communication channels and their detection} 
+ \item[]
+      \textbf{Master of Science in Computer Science and Engineering} \\
+      Sejong University, Seoul, Korea,  February 2008 \\
+      Thesis: {\em The design and implementation of the embedded network-engine for Video on Demand (VoD)} 
+  \item[]
+      \textbf{Bachelor of Science in Computer Science} \\
+      National University, Dhaka, Bangladesh, February 2005 \\
+      Thesis: {\em Fingerprint authentication system using neural networks}
+  \end{itemize}
+
+
+%-----------PUBLICATION-------------------
+\nocite{*}
+\section*{Publications}\vspace{-0.5em}
+\subsection*{Peer reviewed published}\vspace{-0.5em}
+
+\subsubsection*{Under review or in preparation}
+\begin{enumerate}
+    \item \fullcite{Bhatiunder2024Semanticarticle}
+    \item \fullcite{Bhati2025Aarticle}
+    \item \fullcite{Neha2025Fromconference}
+    \item \fullcite{Neha2024Aconference}
+    \item \fullcite{Bhati2024Neuralconference}
+\end{enumerate}
+
+\subsubsection*{To appear}
+\begin{enumerate}
+    \item \fullcite{bhati2025book}
+    \item \fullcite{anem2024studyingarticle867240}
+    \item \fullcite{may2024englisharticle928120}
+    % \item \fullcite{amiruzzaman2024deepeninginproceedings475374}
+\end{enumerate}
+\subsubsection*{2025}
+ \begin{enumerate}[resume]
+ \item \fullcite{engproc2025089004}
+    \item \fullcite{arjun20257858}
+    \item \fullcite{sheets2024sequence}
+    \item \fullcite{afia2024YOLOv8}
+    \item \fullcite{Bhuiyan_Amiruzzaman_2025}
+    \item \fullcite{bhat2024TradeFinance}
+ \end{enumerate}
+\subsubsection*{2024}
+ \begin{enumerate}[resume]
+    % \item \colorbox{yellow}{\parbox[t]{\linewidth}{\fullcite{Knuth1998}}}
+    % \item \fullcite{einstein2}
+    \item \fullcite{wu2024visualizing}
+    \item \fullcite{nobel2024enhancing}
+    \item \fullcite{kumar2024predictive}
+    \item \fullcite{logasubramanian2024analyzing}
+    \item \fullcite{jimaging10100239}
+    \item \fullcite{Neha2024ChatGPTAI}
+    % \item \colorbox{yellow}{\parbox[t]{\linewidth}{\fullcite{wu2024visualizing}}}
+    % \item \colorbox{yellow}{\parbox[t]{\linewidth}{\fullcite{nobel2024enhancing}}}
+    % \item \colorbox{yellow}{\parbox[t]{\linewidth}{\fullcite{kumar2024predictive}}}
+    % \item \colorbox{yellow}{\parbox[t]{\linewidth}{\fullcite{logasubramanian2024analyzing}}}
+ \end{enumerate}
+ \subsubsection*{2023}
+ \begin{enumerate}[resume]
+ \item \fullcite{info14100569}
+    \item \fullcite{computers12030050}
+    \item \fullcite{konduru2023plant}
+    \item \fullcite{amiruzzaman2023secure}
+    \item \fullcite{bhat2023assessment}
+    \item \fullcite{gadde2023estimate}
+    \item \fullcite{islam2023efficient}
+    \item \fullcite{rini2023predicting}
+    \item \fullcite{amiruzzaman2023ai}
+    % \item \colorbox{yellow}{\parbox[t]{\linewidth}{\fullcite{info14100569}}}
+    % \item \colorbox{yellow}{\parbox[t]{\linewidth}{\fullcite{computers12030050}}}
+    % \item \colorbox{yellow}{\parbox[t]{\linewidth}{\fullcite{konduru2023plant}}}
+    % \item \colorbox{yellow}{\parbox[t]{\linewidth}{\fullcite{amiruzzaman2023secure}}}
+    % \item \colorbox{yellow}{\parbox[t]{\linewidth}{\fullcite{bhat2023assessment}}}
+    % \item \colorbox{yellow}{\parbox[t]{\linewidth}{\fullcite{gadde2023estimate}}}
+    % \item \colorbox{yellow}{\parbox[t]{\linewidth}{\fullcite{islam2023efficient}}}
+    % \item \colorbox{yellow}{\parbox[t]{\linewidth}{\fullcite{rini2023predicting}}}
+    % \item \colorbox{yellow}{\parbox[t]{\linewidth}{\fullcite{amiruzzaman2023ai}}}
+ \end{enumerate}
+ \subsubsection*{2022}
+ \begin{enumerate}[resume]
+ \item \fullcite{jamonnak2022geo}
+    \item \fullcite{amiruzzaman2022explore}
+    \item \fullcite{amiruzzaman2022use}
+    \item \fullcite{amiruzzaman2022analysis}
+    \item \fullcite{jamonnak2022visualcommunity}
+    \item \fullcite{amiruzzaman2022survey}
+    \item \fullcite{amiruzzaman2022logical}
+    \item \fullcite{sheets2022aves}
+    % \item \colorbox{yellow}{\parbox[t]{\linewidth}{\fullcite{jamonnak2022geo}}}
+    % \item \colorbox{yellow}{\parbox[t]{\linewidth}{\fullcite{amiruzzaman2022explore}}}
+    % \item \colorbox{yellow}{\parbox[t]{\linewidth}{\fullcite{amiruzzaman2022use}}}
+    % \item \colorbox{yellow}{\parbox[t]{\linewidth}{\fullcite{amiruzzaman2022analysis}}}
+    % \item \colorbox{yellow}{\parbox[t]{\linewidth}{\fullcite{jamonnak2022visualcommunity}}}
+    % \item \colorbox{yellow}{\parbox[t]{\linewidth}{\fullcite{amiruzzaman2022survey}}}
+    % \item \colorbox{yellow}{\parbox[t]{\linewidth}{\fullcite{amiruzzaman2022logical}}}
+    % \item \colorbox{yellow}{\parbox[t]{\linewidth}{\fullcite{sheets2022aves}}}
+ \end{enumerate}
+\subsubsection*{2021}
+ \begin{enumerate}[resume]
+     \item \fullcite{amiruzzaman2021students}
+     \item \fullcite{bhat2021leveraging}
+     \item \fullcite{bhat2021methodology}
+     \item \fullcite{bhati2021interactive}
+     \item \fullcite{amiruzzaman2021evaluation}
+     \item \fullcite{islam2021clustering}
+     %------------KSU and other--------------
+     \item \fullcite{bhat2021blockchain}
+    \item \fullcite{rizvee2021data}
+ \end{enumerate}
+
+\subsection*{2020}\vspace{-0.5em}
+\begin{enumerate}[resume,topsep=0pt,itemsep=1ex,partopsep=0ex,parsep=0ex]
+\item \fullcite{10.2312:eurova.20201091}
+\item \fullcite{s20236990}
+\item \fullcite{sym12071075}
+\item \fullcite{9318975}
+\item \fullcite{9318786}
+\item \fullcite{https://doi.org/10.1111/cgf.13995}
+\item \fullcite{9071138}
+\item \fullcite{9044257}
+% \item \fullcite{amiruzzaman2019assessing}
+\end{enumerate}
+
+\subsection*{2018}\vspace{-0.5em}
+\begin{enumerate}[resume,topsep=0pt,itemsep=1ex,partopsep=0ex,parsep=0ex]
+\item \fullcite{amiruzzaman2018prediction}
+% \item \fullcite{amiruzzaman2016exploring}
+% \item \fullcite{amiruzzaman2011steganographic}
+\item \fullcite{kosko2018growing}
+\end{enumerate}
+
+\subsection*{2017}\vspace{-0.5em}
+\begin{enumerate}[resume,topsep=0pt,itemsep=1ex,partopsep=0ex,parsep=0ex]
+\item \fullcite{amiruzzaman2017mode}
+\end{enumerate}
+
+\subsection*{2016}\vspace{-0.5em}
+\begin{enumerate}[resume,topsep=0pt,itemsep=1ex,partopsep=0ex,parsep=0ex]
+\item \fullcite{amiruzzaman2016median}
+\end{enumerate}
+
+\subsection*{2014}\vspace{-0.5em}
+\begin{enumerate}[resume,topsep=0pt,itemsep=1ex,partopsep=0ex,parsep=0ex]
+\item \fullcite{kosko2014few}
+\end{enumerate}
+
+\subsection*{2010}\vspace{-0.5em}
+\begin{enumerate}[resume,topsep=0pt,itemsep=1ex,partopsep=0ex,parsep=0ex]
+\item \fullcite{amiruzzaman2010analysis}
+\item \fullcite{amiruzzaman2010concurrent}
+\item \fullcite{amiruzzaman2010minimum}
+\item \fullcite{md2010covert}
+\end{enumerate}
+
+\subsection*{2009}\vspace{-0.5em}
+\begin{enumerate}[resume,topsep=0pt,itemsep=1ex,partopsep=0ex,parsep=0ex]
+\item \fullcite{amiruzzaman2009improved}
+\end{enumerate}
+
+\subsection*{2008}\vspace{-0.5em}
+\begin{enumerate}[resume,topsep=0pt,itemsep=1ex,partopsep=0ex,parsep=0ex]
+\item \fullcite{4721339}
+\item \fullcite{4743406}
+\item \fullcite{4743420}
+\item \fullcite{kim2008improved}
+\item \fullcite{md2008embedded}
+\item \fullcite{wadud2008bottom}
+\item \fullcite{amiruzzaman2008embedded}
+\item \fullcite{zhang2008new}
+\item \fullcite{md2008study}
+\item \fullcite{amiruzzaman2008steganography}
+\item \fullcite{amiruzzaman2008steganalysis}
+\end{enumerate}
+
+\subsection*{2007}\vspace{-0.5em}
+\begin{enumerate}[resume,topsep=0pt,itemsep=1ex,partopsep=0ex,parsep=0ex]
+\item \fullcite{amiruzzamanrahmanjoarder2007}
+\item \fullcite{son2007network}
+\item \fullcite{md2007embedded}
+\end{enumerate}
+
+\subsection*{2004}\vspace{-0.5em}
+\begin{enumerate}[resume,topsep=0pt,itemsep=1ex,partopsep=0ex,parsep=0ex]
+\item \fullcite{1307869}
+\end{enumerate}
+
+\subsection*{2003}\vspace{-0.5em}
+\begin{enumerate}[resume,topsep=0pt,itemsep=1ex,partopsep=0ex,parsep=0ex]
+\item \fullcite{sohel2003fingerprint}
+\item \fullcite{alamhossainamiruzzaman2003}
+\end{enumerate}
+
+
+%-----------------Thesis/dissertation--------
+\subsection*{Dissertation/thesis}\vspace{-0.5em}
+\begin{enumerate}[resume,topsep=0pt,itemsep=1ex,partopsep=0ex,parsep=0ex]
+\item \fullcite{amiruzzaman2021studying}
+\item \fullcite{amiruzzaman2019assessing}
+\item \fullcite{amiruzzaman2016exploring}
+\item \fullcite{amiruzzaman2023practicum}
+\item \fullcite{amiruzzaman2011steganographic}
+\item \fullcite{amiruzzaman2008vodenworkengine}
+\item \fullcite{amiruzzaman2005bsthesis}
+\end{enumerate}
+
+%------Conference/workshop presentation--------
+\subsection*{Conference/workshop presentation}\vspace{-0.5em}
+\begin{enumerate}[topsep=0pt,itemsep=1ex,partopsep=0ex,parsep=0ex]
+% \item \fullcite{amiruzzaman2021studying} %example
+\item \fullcite{Konduru2023-la}
+\item \fullcite{Amiruzzaman2023-lb}
+\item \fullcite{Avina2023-nm}
+\item \fullcite{Bhuiyan2022-ks}
+\item \fullcite{Amiruzzaman2022-ii}
+\item \fullcite{Amiruzzaman2022-hv}
+\item \fullcite{Begum2022-yr}
+\item \fullcite{Begum2021-nh}
+\item \fullcite{Amiruzzaman2021-sy}
+\item \fullcite{Amiruzzaman2020-tb}
+\item \fullcite{Amiruzzaman2019-cs}
+\item \fullcite{Ozer-Guclu2018-us}
+\item \fullcite{Amiruzzaman2017-jw}
+\item \fullcite{Amiruzzaman2016-ih}
+\item \fullcite{Amiruzzaman2008-hu}
+\item \fullcite{Amiruzzaman2008-vw}
+\item \fullcite{Amiruzzaman2008-kh}
+\item \fullcite{Amiruzzaman2008-xy}
+\item \fullcite{Amiruzzaman2008-ch}
+\item \fullcite{Kim2008-mo}
+\item \fullcite{Amiruzzaman2007-mj}
+\item \fullcite{Amiruzzaman2007-rc}
+\item \fullcite{Alam2003-dr}
+\end{enumerate}
+
+%------------invited talk------------
+\subsection*{Invited talk}\vspace{-0.5em}
+\begin{enumerate}[topsep=0pt,itemsep=1ex,partopsep=0ex,parsep=0ex]
+\item \fullcite{amir2008icutinvited}
+\item \fullcite{amir2018ksuinvited}
+\end{enumerate}
+
+
+%------------Students---------------
+\section*{Students thesis and independent study}
+\subsection*{Supervised Master’s Thesis}
+\begin{adjustwidth}{1cm}{}
+Sai Sravya Anem. (2024). \textit{Predicting and Forecasting Financial Data with Macroeconomic Factors using Machine Learning}. (Master thesis). West Chester University.
+\end{adjustwidth}
+
+\subsection*{Undergraduate research}
+Mentored undergraduate students for Sure Undergraduate Research Experience – 8 weeks
+\begin{itemize}
+ \setlength\itemsep{-0.5em}
+    \item Lucas Barrington, GPS data visualization (Summer, 2018). Kent State University 
+\end{itemize}
+
+\noindent Mentored several undergraduate students at West Chester University
+\begin{itemize}
+ \setlength\itemsep{-0.5em}
+    \item Sindhu Budhavarapu. Exploring Weka: a data mining tool (Independent project, Fall 2021)
+    \item Ana Khvedelidze. Ransomware: History, Detection, and Prevention (Independent project, Spring 2022)
+    \item Hunter Royce Musselman. Exploring CRUD operations using Java and MySQL (Independent project, Spring 2022)
+    \item Shaun Derstine. Retrain Convolutional Neural Network, VGG-16, for American Sign Language and Test Model Accuracy (Independent project, Spring 2022)
+    \item Joshua Jackson. Ransomware and its impacts on Higher Levels of Education (Independent project, Winter 2022)
+    \item Nathan Hollar. The Use of Machine Learning in Malware Detection. (Independent project, Spring 2024)
+    \item Daejour Jones. Survey on Deep Learning Techniques for ASL to English. (Independent project, Spring 2024)
+    \item Waleed Khalil. Machine Learning in Bug Detection and Repair. (Independent project, Spring 2024)
+    \item Kyle Brennan. Exploring Natural Language Processing. (Independent project, Summer 2024)
+    \item Cody Kime. Classification, Clustering and Neural Network. (Independent project, Summer 2024)
+\end{itemize}
+
+\noindent Mentored several graduate students at West Chester University
+\subsection*{Graduate research}
+\begin{itemize}
+ \setlength\itemsep{-0.5em}
+    \item Swathi Konduru. Plant Disease Detection and Classification (Independent research, Fall 2022)
+    \item Vijayendra Dushyanth Raj Avina. An AI-based system to convert ASL to English (Independent research, Fall 2022)
+    \item Rishita Gadde. Estimate House Price Using Machine Learning (Independent research, Spring 2023)
+    \item Eshwar Sai Ram Mamillapalli. Fraud detection by using SMOTE and Hyper Tuning 	(Independent research, Spring 2023)
+    \item Sai Sravya Anem. Exploring the Use of Machine Learning for Macro Economic Factors. (Independent research, Fall 2023)
+    \item Priyanka Logasubramanian. Analyzing the Impact of Smoking and Drinking on Health Metrics in Korea: A Data-Driven Predictive Approach (Independent research, Winter 2023)
+    \item Jisha Sheela Kumar. Unveiling Patterns in NYPD Crime through Machine Learning and Data Mining	(Independent research, Winter 2023)
+    \item Stephen J. Onarato. Machine Learning Side Effect Trend Predictions. (Independent research, Summer 2024)
+\end{itemize}
+
+
+%----------- EXPERIENCE -----------
+% \include{experience}
+\section*{Job experiences}\vspace{-0.5em}
+\subsection*{Academic job experiences}\vspace{-0.5em}
+\begin{itemize}
+ \setlength\itemsep{-0.5em}
+    \item Graduate Coordinator (August 2023 - present). 
+Computer Science, College of the Sciences and Mathematics,
+West Chester University, West Chester, PA 19383
+    \item Assistant Professor, Tenure-track (August 2021 - present).
+Computer Science, College of the Sciences and Mathematics, 
+West Chester University, West Chester, PA 19383
+    \item Assistant Professor, Tenure-track (January 2020 - August 2021).
+Computer Engineering and Technology, College of Aeronautics and Engineering, 
+Kent State University, Kent, OH 44242
+    \item Engineering Technology Coordinator (October 2018 - December 2019).
+College of Aeronautics and Engineering, Kent State University, Kent, OH 44242
+    \item Assistant Professor, Non-Tenure track (August 2016 - December 2019).
+Computer Engineering and Technology, College of Aeronautics and Engineering, 
+Kent State University, Kent, OH 44242
+    \item Adjunct faculty (January 2016 - May 2018).
+Management Information Systems, College of Business Administration, Kent State University, Kent, OH 44242
+    \item Graduate Assistant (July 2010 - August 2011).
+Graduate Students Orientation, Graduate Studies, Kent State University, Kent, OH 44242
+    \item Graduate Assistant (January 2009 - May 2010).
+Department of Computer Science, Kent State University, Kent, OH 44242
+    \item Research Assistant (January 2008 - December 2008).
+Multimedia Security Lab, Korea University, Seoul, South Korea
+    \item Research Assistant (February 2006 - December 2007).
+System Engineering Lab, Sejong University, Seoul, South Korea
+\end{itemize}
+
+\subsection*{Professional/industry experiences}\vspace{-0.5em}
+\textbf{Applications Developer} (August 2015 - August 2016)\\
+\textit{Information Services, Kent State University.}  
+\begin{adjustwidth}{1cm}{}
+Responsibilities: Developed, updated, and maintained web applications; all applications are used by the entire Kent State University (i.e., students, instructors, and staff). Most applications are based on ASP.net and C\#, MVC framework, MSSQL, and Oracle technology.
+\end{adjustwidth}
+\textbf{Applications Support Analyst} (January 2014 - August 2015)\\ 
+\textit{Information Services, Kent State University.}                                	
+\begin{adjustwidth}{1cm}{}
+Responsibilities: Developed, updated, and maintained web applications; all applications were used by the entire Kent State University (i.e., students, instructors, and staff). Developed building blocks for Blackboard Learn. Most applications were PHP, MySQL, ColdFusion, Java, and Oracle-based. In addition, I have developed a few applications using ASP.net and C\#.
+\end{adjustwidth}
+\textbf{Associate Multimedia Developer} (January 2013 - December 2013)\\ 
+\textit{Undergraduate studies, Kent State University.}                                	
+\begin{adjustwidth}{1cm}{}
+Responsibilities: Developed, updated, and maintained web applications and supervise a small group of programmers and media developers. Communicated with clients for their software needs, helped programmers to design applications, and presented a demo to clients when the product was ready. Most applications were ASP.net, C\#, MSSQL, PHP, MySQL based. 
+\end{adjustwidth}
+\textbf{Developer} (January 2012 - December 2012)\\ 
+\textit{Information Technology, Predictive Service, LLC.}		
+\begin{adjustwidth}{1cm}{}
+Responsibilities: Updated existing software and services, implemented new software and services, and participated in code review, unit test, and functional test.
+\end{adjustwidth}
+\textbf{Programmer} (March 2011 - December 2011)\\
+\textit{Information Technology, Kamans Art Shoppes, Inc.}		
+\begin{adjustwidth}{1cm}{}
+Responsibilities: Analyzed existing data, designed, and implemented an ERP system for the company. The ERP system included a daily sales database and summary for 36 sub-offices, and a comprehensive human resource, and payroll database.
+\end{adjustwidth}
+%----------- FUNDING -----------
+% \include{funding}
+\section*{Research grants}\vspace{-0.5em}
+\subsection*{Submitted (under review)}
+\begin{enumerate}
+    \item PI and Co-PIs: Ye Zhao (PI), Jing Yang (PI), Xiaoxia Newton, Mohsen Dorodchi, Md 	Amiruzzaman (PI), and Stefanie Amiruzzaman. (2024). Collaborative Research: CUE-T: Transforming AI Education to Wider Population with ScratchDL. National Science 	Foundation. Budget: \$2,456,779
+\end{enumerate}
+
+
+\subsection*{Research grants funded} \vspace{-0.5em}
+\begin{enumerate}[topsep=0pt,itemsep=-1ex,partopsep=0ex,parsep=1ex, resume]
+    \item PD and Co-PD: Stefanie Amiruzzaman, and Md Amiruzzaman. (2023). Translation of English and ASL using Deep Learning. The Pennsylvania State System of Higher Education 	(PASSHE) Faculty Professional Development Council (FPDC). Budget: \$7,950
+    \item Kent State investigators: M. Amiruzzaman, J. Merriman, and D. B. Stringer. (2019). Calhoun, 	S., et. al. Interoperability, Resiliency, and Contingency Management for Ohio UAS 	Operations. 2019. OFRN. Award \$1.5M. Calanalytics lead, Kent State University. Budget: \$125K. 
+    \item Chang-Geun Oh (PI) and Md Amiruzzaman (Co-PI). (2019). A study of customized pilot training platform associated with virtual reality and augmented reality. Donguk 	University. Budget: \$140K.
+\end{enumerate}
+\subsection*{Other grants funded}\vspace{-0.5em}
+\begin{enumerate}[topsep=0pt,itemsep=-1ex,partopsep=0ex,parsep=1ex, resume]
+    \item Amiruzzaman, M. \& Bhuiyan, A. (2021). eTextbook stipend/grant from West Chester University. Award: \$1200
+    \item Bhuiyan, A. \& Amiruzzaman, M. (2023). eTextbook grant from PA-ADOPT. Award: \$7000
+\end{enumerate}
+
+
+% \subsection*{Other grants funded}\vspace{-0.5em}
+% \begin{shaded*}
+% \begin{enumerate}[resume, wide = 0pt, before=\vspace*{-\dimexpr\topsep+\partopsep-2ex}, after=\vspace*{-\dimexpr\topsep+\partopsep-2ex}]
+%     \item Amiruzzaman, M. \& Bhuiyan, A. (2021). eTextbook stipend/grant from West Chester University. Award: \$1200
+%     \item Bhuiyan, A. \& Amiruzzaman, M. (2023). eTextbook grant from PA-ADOPT. Award: \$7000
+% \end{enumerate}
+% \end{shaded*}
+
+% \subsection*{Other grants funded}\vspace{-0.5em}
+% \begin{enumerate}[topsep=0pt,itemsep=-1ex,partopsep=0ex,parsep=1ex]
+%     \hlitem Amiruzzaman, M. \& Bhuiyan, A. (2021). eTextbook stipend/grant from West Chester University. Award: \$1200
+%     \hlitem Bhuiyan, A. \& Amiruzzaman, M. (2023). eTextbook grant from PA-ADOPT. Award: \$7000
+% \end{enumerate}
+
+\subsection*{Research grants not funded }\vspace{-0.5em}
+% \begin{shaded*}
+\begin{enumerate}[topsep=0pt,itemsep=-1ex,partopsep=0ex,parsep=1ex]
+% [topsep=0pt,itemsep=-1ex,partopsep=0ex,parsep=1ex]
+    \item PI and Co-PI: Md Amiruzzaman, Stefanie Amiruzzaman (Co-PI), Si Chen (Co-PI), Chuan Li (Co-PI), and Marc Gagne (Co-PI). (2023). MRI: Track 1 Acquisition of a high-performance computing cluster to enhance undergraduate computational research and 	education. National Science Foundation. Budget: \$288,612.
+    \item PD and Co-PD: Md Amiruzzaman, and Ashik Bhuiyan. (2023). A secure network-engine for 	mobile devices for transferring and retrieving video data. The Pennsylvania State System 	of Higher Education (PASSHE) Faculty Professional Development Council (FPDC). Budget: 7,895
+    \item Researchers: Md Amiruzzaman (PI). (2023). Incorporating AI and visualization in hands on learning for students. Provost’s Research Grant, West Chester University.	Budget: \$9984
+    \item Researchers: Md Amiruzzaman (PI). (2023). Application-oriented programming experience for 	students—using Arduino. Supplemental Funding for Faculty Development (SFFD), College of the Sciences and Mathematics. Budget: \$1119.99
+    \item Visual analytics to learn mathematics. (2022). Provost’s Research Grant, West Chester University. Researchers: Md Amiruzzaman (PI). Budget: \$9994.73
+    \item Researchers: Md Amiruzzaman (PI). (2022). Explicit Programming Experience—Using Arduino. Supplemental Funding for Faculty Development (SFFD), College of the 	Sciences and Mathematics. Budget: \$1194
+    \item Investigators: Joe Ortiz (PI), Co-PIs: Md Amiruzzaman, Tim Assal, He Yin, Blake Stringer, and Andrew Scholl. (2021). MRI: Acquisition of a Mobile, Hyperspectral Drone	Laboratory. National Science Foundation. Budget: \$353,820
+    \item Investigators: Joe Ortiz (PI), Co-PIs: Md Amiruzzaman, Tim Assal, He Yin, Blake Stringer, and Andrew Scholl. (2021). MRI: Acquisition of a Mobile, Hyperspectral Drone Laboratory. Ohio Department of Higher Educations ACTION FUND. Budget: \$75,819
+    \item PI and CO-PIs: Joseph Daniel Ortiz (PI), CO-PIs: Md Amiruzzaman, Cameron C Lee, David B Stringer, Jason Lorenzon. (2020). Enhanced Detection and Mitigation of HABs in the western basin of Lake Erie: a scalable approach. U.S. Army Corps of Engineers. Budget: \$2,096,783.13.  
+    \item Researchers: Ye Lu (PI), Joycelyn Harrison (PI) \& Md Amiruzzaman (Key person). (2020). Summer Undergraduate Research in Robotics and Autonomous Systems.  National Science Foundation (NSF). Budget: \$162,024
+    \item Researchers: Michael Fisch (PI), D. Blake Stringer (Co-PI), Md Amiruzzaman (Co-PI). (2019). Scholarships for Engineering and Engineering Technology Students. National Science Foundation. Budget: \$926,000
+    \item Researchers: Chang-Geun Oh (PI) \& Md Amiruzzaman (Co-PI). (2017). Development of a VR Based Aircraft Specific-Remote Flight Training System. (2017).  Ohio Federal Research Network (OFRN). Budget: \$162,024
+\end{enumerate}
+% \end{shaded*}
+
+%----------- TEACHING -----------
+% \include{teaching}
+\vspace{-1em}
+\section*{Teaching}\vspace{-0.5em}
+\subsection*{Courses taught}\vspace{-0.5em}
+\begin{adjustwidth}{1cm}{}
+(1) Computer application, (2) Programming C++, (3) Operating systems, (4) Algorithms, (5) Advanced Programming, (6) Problem-solving using information systems, (7) Requirements engineering and analysis, (8) Advanced networking, (9) Database management systems, (10) Programming theory and applications, (11) Visual basic programming for engineering, (12) Web design and development, (13) Programming for engineers I, (14) Programming for engineers II, (15) Quantitative methods in technology, (16) Research methods in technology, (17) Research in educational services, (18) Computer Science I, (19) Computer Systems, (20) Computer Science III, (21) Data Science, (22) Competitive Programming, (23) Information Visualization, (24) Computer Security, (25) Independent Project in Computer Science, (26) and Independent Research, (27) Advanced Seminar, (28) Thesis.
+\end{adjustwidth}
+
+\vspace{-1em}
+\subsection*{Courses developed}\vspace{-0.5em}
+\begin{adjustwidth}{1cm}{}
+\textbf{Undergraduate courses:} (1) Programming for Engineers I (Fall 2018), (2) Programming for Engineers II (Fall 2018), (3) Android development tools for instrument control (Fall 2018), (4) and data science (Spring 2023).\\
+\textbf{Graduate courses:} (1) Research methods in technology (Summer 2019), (2) Quantitative methods in technology (Fall 2019), (3) Requirements engineering (Spring 2018), (4) machine vision (Fall 2020).
+\end{adjustwidth}
+
+%-------------------SERVICE------------------
+\section*{Professional services/university citizenship}
+
+\subsection*{State level}\vspace{-0.5em}
+\begin{itemize}
+\setlength\itemsep{-0.4em}
+    \item Cybersecurity CTAG Panel/Reviewer (2020-present), Ohio Department of Education, State of Ohio
+    \item Information Technology Lead Reviewer (2020-present)
+\end{itemize}
+
+\subsection*{University level}\vspace{-0.5em}
+\begin{itemize}
+\setlength\itemsep{-0.4em}
+    \item Serving as a member of the New Faculty Orientation (NFO) committee, West Chester University, 2011-present. \url{https://www.wcupa.edu/tlc/NFO/orientationCommittee.aspx}
+    \item Serving as an alternative member of the Curriculum and Academic Policies Council (CAPC) committee, West Chester University, 2023-present. \url{https://www.wcupa.edu/deputy-provost/capc/committees.aspx}
+    \item Serving as a member of Graduate Programs and Policies Committee sub-committee, CAPC, West Chester University, 2024-present. \url{https://www.wcupa.edu/deputy-provost/capc/committees.aspx}
+    \item Served as a member of writing emphasis sub-committee, CAPC, West Chester University, 2023-2024.
+    \item Served as an alternative member of the student rights and standards committee, Kent State University, 2019-2020.
+    \item Served as a member of the commencement committee, Kent State University, 2018-2022.
+    \item Served as a reviewer for Graduate Studies, Kent State University for University Fellowship Award, 2017.
+    \item Served as a judge at the graduate research symposium at Kent State University, 2017-2018. 
+    \item Served as a judge at an undergraduate research symposium at Kent State University, 2017-2018.
+\end{itemize}
+
+
+\subsection*{College level}\vspace{-0.5em}
+\begin{itemize}
+\setlength\itemsep{-0.4em}
+    \item Served as a reviewer for Supplemental Funding for Faculty Development (SFFD), College of the Sciences \& Mathematics, West Chester University, 2021-2022.
+    \item Served as a member search committee for the position of Assistant Dean for External Affairs, Kent State University, 2019.
+    \item Served as a member search committee for the position of Associate Dean for Faculty Affairs, Kent State University, 2019.
+    \item Served as a member search committee for the position of Associate Dean for Flight and Operations, Kent State University, 2019.
+    \item Served as a member search committee for the position of Associate Dean for Research, Kent State University, 2019.
+    \item Served as a member of the Graduate Faculty (GFAC) working group- Degree Name and New Degree opportunities, Kent State University, 2018.
+    \item Served as a member of the faculty handbook committee, Kent State University, 2018.
+    \item Served as a member of the unmanned aircraft system bachelor program development committee, Kent State University, 2018.
+    \item Served as a member of the NTT review committee for re-appointment, Kent State University, 2018-2019.
+    \item Served as a member of the NTT faculty search committee for Mechatronics, Kent State University, 2018. 
+    \item Served as a member of the NTT faculty search committee for Computer Engineering Technology, Kent State University, 2018. 
+    \item Served as a judge at Skyhack competition at Kent State University, 2017 and 2019.
+    \item Served as a judge at FTC robotics competition at Kent State University, 2017-2020.
+\end{itemize}
+
+\subsection*{Department level}\vspace{-0.5em}
+\begin{itemize}
+\setlength\itemsep{-0.4em}
+    \item Served as a chair search committee for the position of Assistant Professor, West Chester University, 2022-2023.
+    \item Serving as a member of the scholarship committee for the department of computer science, West Chester University, 2021-present.
+    \item Served as a member of the search committee for the position of Assistant Professor, West Chester University, 2021, 2022, 2024.
+    \item Serving as an advisor for the department of computer science UPE, West Chester University, 2021-present.
+    % \item Serving as a member scholarship committee for the department of computer science, West Chester University, 2021-present.
+    \item Represented the department of computer science undergrad open house at Fall 2021, 2022, 2023, and Spring, 2024 West Chester University.
+    \item Represented the department of Computer Science grad open house at Spring 2023, 2024, West Chester University.
+    % \item Serving as a member search committee for the position of Assistant Professor, West Chester University, 2022-2023.
+\end{itemize}
+
+
+
+\subsection*{Conference committee}\vspace{-0.5em}
+\begin{itemize}
+\setlength\itemsep{-0.4em}
+    \item TPC member for the 21st IEEE International Conference on Pervasive Intelligence and Computing (PICom), Abu Dhabi, UAE. \url{https://icnetlab.org/cyber-science2023/picom/tpc/index.html}
+    \item TPC member for the 20th IEEE International Conference on Pervasive Intelligence and Computing (PICom), Calabria, Italy. \url{http://cyber-science.org/2022/picom/tpc/} 
+    \item TPC member for the 19th IEEE International Conference on Pervasive Intelligence and Computing (PICom), Canada.
+    \item TPC member for the IEEE International Workshop on Adaptive Cyber Learning 2021 (ACL 2021), Canada.
+    \item TPC member for the 18th IEEE International Conference on Pervasive Intelligence and Computing (PICom) June 22-26 2020, Calgary, Canada
+    \item TPC member for the IEEE International Workshop on Adaptive Cyber Learning 2020 (ACL 2020), Calgary, Canada
+    \item Secretary for the International Workshop on Digital Watermarking (IWDW, 2018), Pusan, Korea
+    \item Secretary for the International Joint Workshop on Information Security and Applications (IJWISA, 2008), Seoul, Korea
+\end{itemize}
+
+
+\subsection*{Journal editorial board member}\vspace{-0.5em}
+\begin{adjustwidth}{1cm}{}
+Serving as an associate editor for the Research Briefs on Information \& Communication Technology Evolution. \url{https://rebicte.org/index.php/rebicte/about/editorialTeam}
+\end{adjustwidth}
+
+\vspace{-1em}
+\subsection*{Journal reviewer (only listed selected journals)}
+\vspace{-0.5em}
+\begin{adjustwidth}{1cm}{}
+(1) Circuits, Systems, and Signal Processing (Springer), (2) IEEE Transactions on Visualization and Computer Graphics (IEEE), (3) IEEE Transactions on Information Forensics and Security (IEEE), (4) Computers in Human Behavior Reports (Elsevier), (5) Sensors (MDPI), (6) Computers (MDPI), (7) Algorithms (MDPI), (8) Mathematics (MDPI), (9) Electronics (MDPI), (10) Future Internet (MDPI), (11) Applied Sciences (MDPI), (12) Annals of Telecommunications, (13) Springer International Publishing, (14) Axioms (MDPI), (15) SoftwareX (Elsevier), (16) Information Sciences (Elsevier), (17) Plos one.
+\end{adjustwidth}
+
+%---------------------AWARDS-----------------------
+\section*{Awards}
+\vspace{-1em}
+\subsection*{Awards and scholarships}
+\vspace{-0.5em}
+\begin{itemize}
+ % \setlength\itemsep{0.1em}
+ \setlength\itemsep{-0.4em}
+    \item Diversity and Inclusion Faculty Learning Community scholarship, West Chester University, 2023.
+    \item Publons peer review awards, 2018 (placing top 1\% reviewers in multidisciplinary)
+    \item Intercultural faculty scholar, Kent State University, 2018-2019
+    \item FLA travel scholarship, Kent State University, 2018, 2019
+    \item GSS travel scholarship, Kent State University, 2016, 2017, 2018, 2019, 2020
+    \item TLC travel scholarship, Kent State University, 2016
+    \item Graduate Assistantship, Kent State University, 2009-2011
+    \item The Institute of Information Technology Advancement (IITA) scholarship, Korea, 2008-2012
+    \item Brain Korea 21 (BK21) scholarship, Korea, 2008
+    \item President’s scholarship, Korea University, 2008
+    \item President’s scholarship, Sejong University, 2006-2007 
+
+\end{itemize}
+
+
+\end{document}

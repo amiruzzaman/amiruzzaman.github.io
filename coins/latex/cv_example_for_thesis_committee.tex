@@ -1,0 +1,43 @@
+\documentclass[12pt]{article}
+
+\usepackage[margin=1in]{geometry}
+%\usepackage[
+%  backend=biber,
+%  style=apa,      % You can change to ieee, authoryear, etc.
+%  doi=false,
+%  isbn=false,
+%  url=false,
+%  eprint=false
+%]{biblatex}
+
+\usepackage[
+  backend=biber,
+  style=authoryear,
+  sorting=ynt,
+  doi=false,
+  isbn=false,
+  url=false,
+  eprint=false
+]{biblatex}
+
+
+
+% Load your BibTeX database
+\addbibresource{publications.bib}
+
+\begin{document}
+
+\section*{Thesis Committees (Selected)}
+
+% Using \fullcite to list each entry manually
+\begin{itemize}
+  \item \fullcite{adam_thesis_2024}
+  \item \fullcite{bella_thesis_2025}
+\end{itemize}
+
+% OR (optional): print all committee entries as a grouped bibliography
+%\DeclareBibliographyCategory{thesiscommittees}
+%\addtocategory{thesiscommittees}{adam_thesis_2024, bella_thesis_2025}
+%\printbibliography[category=thesiscommittees, title={Thesis Committees}]
+
+\end{document}
