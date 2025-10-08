@@ -3707,46 +3707,6 @@ def edit_json():
             0% {{ transform: rotate(0deg); }}
             100% {{ transform: rotate(360deg); }}
         }}
-
-        .show-all-btn {{
-    padding: 8px 16px;
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.3s ease;
-    margin-left: 10px;
-}}
-
-.show-all-btn:hover:not(:disabled) {{
-    background: linear-gradient(135deg, #218838 0%, #1e9e8a 100%);
-    transform: translateY(-2px);
-}}
-
-.show-all-btn:disabled {{
-    background: #6c757d;
-    cursor: not-allowed;
-    transform: none;
-}}
-
-.show-pagination-btn {{
-    padding: 8px 16px;
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.3s ease;
-    margin-left: 10px;
-}}
-
-.show-pagination-btn:hover:not(:disabled) {{
-    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
-    transform: translateY(-2px);
-}}
     </style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
@@ -3773,15 +3733,6 @@ def edit_json():
                     <option value="50" {selected_50}>50</option>
                     <option value="100" {selected_100}>100</option>
                 </select>
-            </div>
-            <!-- ADD THIS NEW SECTION -->
-            <div class="view-options">
-                <button class="show-all-btn" id="showAllBtn">
-                    <i class="fas fa-list"></i> Show All
-                </button>
-                <button class="show-pagination-btn" id="showPaginationBtn" style="display: none;">
-                    <i class="fas fa-file-alt"></i> Show Pagination
-                </button>
             </div>
         </div>
 
@@ -3831,16 +3782,6 @@ def edit_json():
             <button class="page-btn" id="nextPageBottom" {next_disabled}>
                 Next <i class="fas fa-chevron-right"></i>
             </button>
-            
-            <!-- ADD THIS NEW SECTION -->
-            <div class="view-options">
-                <button class="show-all-btn" id="showAllBtnBottom">
-                    <i class="fas fa-list"></i> Show All
-                </button>
-                <button class="show-pagination-btn" id="showPaginationBtnBottom" style="display: none;">
-                    <i class="fas fa-file-alt"></i> Show Pagination
-                </button>
-            </div>
         </div>
 
         <button class="add-row-btn" id="addRowBtn">Add New Row</button>
@@ -4624,13 +4565,6 @@ function toggleAddMode() {{
 
 // Initialize when DOM is loaded
 document.addEventListener("DOMContentLoaded", function () {{
-
-// Add event listeners for Show All functionality
-document.getElementById('showAllBtn').addEventListener('click', showAllEntries);
-document.getElementById('showAllBtnBottom').addEventListener('click', showAllEntries);
-document.getElementById('showPaginationBtn').addEventListener('click', showPaginationView);
-document.getElementById('showPaginationBtnBottom').addEventListener('click', showPaginationView);
-
     // Load initial data
     fetch('/get-json')
         .then(response => response.json())
@@ -5085,65 +5019,6 @@ document.getElementById('showPaginationBtnBottom').addEventListener('click', sho
 
 }});
 
-// Show All functionality
-function showAllEntries() {{
-    showLoading();
-    
-    // Fetch all data without pagination
-    fetch('/get-json')
-        .then(response => response.json())
-        .then(data => {{
-            jsonData = data;
-            renderTable(jsonData);
-            
-            // Update UI state
-            document.getElementById('showAllBtn').style.display = 'none';
-            document.getElementById('showAllBtnBottom').style.display = 'none';
-            document.getElementById('showPaginationBtn').style.display = 'inline-block';
-            document.getElementById('showPaginationBtnBottom').style.display = 'inline-block';
-            
-            // Hide pagination controls
-            document.getElementById('topPagination').style.display = 'none';
-            document.getElementById('bottomPagination').style.display = 'none';
-            
-            // Show item count
-            const itemCount = document.createElement('div');
-            itemCount.id = 'allItemsCount';
-            itemCount.style.cssText = 'text-align: center; color: white; font-weight: bold; margin: 10px 0;';
-            itemCount.textContent = `Showing all ${{jsonData.length}} items`;
-            
-            const tableContainer = document.getElementById('jsonTableContainer');
-            tableContainer.parentNode.insertBefore(itemCount, tableContainer);
-            
-            hideLoading();
-        }})
-        .catch(error => {{
-            console.error("Error fetching all data:", error);
-            document.getElementById("jsonTableContainer").innerHTML = "Error loading all data";
-            hideLoading();
-        }});
-}}
-
-function showPaginationView() {{
-    // Restore pagination view
-    document.getElementById('showAllBtn').style.display = 'inline-block';
-    document.getElementById('showAllBtnBottom').style.display = 'inline-block';
-    document.getElementById('showPaginationBtn').style.display = 'none';
-    document.getElementById('showPaginationBtnBottom').style.display = 'none';
-    
-    // Show pagination controls
-    document.getElementById('topPagination').style.display = 'flex';
-    document.getElementById('bottomPagination').style.display = 'flex';
-    
-    // Remove item count display
-    const itemCount = document.getElementById('allItemsCount');
-    if (itemCount) {{
-        itemCount.remove();
-    }}
-    
-    // Reload the first page
-    loadPageData(1, itemsPerPage);
-}}
 
 </script>
  
@@ -5151,9 +5026,7 @@ function showPaginationView() {{
 
 </html>
     '''
-# @app.route('/get-json', methods=['GET'])
-# def get_json():
-#     return jsonify(load_json())
+
 
 # ADD THIS NEW ROUTE - Serve box_country_list.html
 @app.route('/box_country_list.html')
