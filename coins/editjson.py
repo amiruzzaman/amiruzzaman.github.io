@@ -311,12 +311,827 @@ def serve_flags_svg(filename):
 # Routes
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return '''
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="#">
+    <title>Amir's Python Functions Index</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #343a40;
+            --background-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: #495057;
+            --light-text: #f8f9fa;
+            --dark-text: #212529;
+            --success-color: #28a745;
+            --border-radius: 12px;
+            --box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            --hover-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            padding: 4rem 0;
+            text-align: center;
+            color: var(--light-text);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 3rem;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            clip-path: polygon(0 0, 100% 0, 80% 100%, 0% 100%);
+            opacity: 0.5;
+        }
+
+        h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .container {
+            flex: 1;
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            transition: var(--transition);
+            border: 1px solid #e9ecef;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .card-header {
+            background: linear-gradient(90deg, var(--secondary-color), #495057);
+            color: var(--light-text);
+            padding: 1.5rem;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            border-bottom: 4px solid var(--primary-color);
+        }
+
+        .card-header i {
+            margin-right: 15px;
+            font-size: 1.8rem;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .function-list {
+            list-style: none;
+        }
+
+        .function-item {
+            margin-bottom: 1.2rem;
+            position: relative;
+        }
+
+        .function-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .function-link {
+            display: block;
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            transition: var(--transition);
+            background-color: var(--background-color);
+            position: relative;
+            z-index: 1;
+        }
+
+        .function-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-color);
+            border-radius: 8px;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+            z-index: -1;
+        }
+
+        .function-link:hover::before {
+            transform: scaleX(1);
+        }
+
+        .function-link:hover {
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .function-link i {
+            margin-right: 10px;
+            color: var(--primary-color);
+            transition: color 0.4s ease;
+        }
+
+        .function-link:hover i {
+            color: white;
+        }
+
+        .footer {
+            background: var(--secondary-color);
+            color: var(--light-text);
+            padding: 2.5rem 0;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .copyright {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .social-link {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.5rem;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        .social-link:hover {
+            color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .subtitle {
+                font-size: 1.1rem;
+            }
+
+            .card-header {
+                font-size: 1.2rem;
+                padding: 1.2rem;
+            }
+
+            .card-header i {
+                font-size: 1.5rem;
+            }
+
+            .card-body {
+                padding: 1.5rem;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            animation: fadeInUp 0.7s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+            opacity: 0;
+        }
+
+        .card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <h1>Python Functions Dashboard</h1>
+        <p class="subtitle">A curated collection of robust utilities and tools</p>
+    </header>
+
+    <div class="container">
+        <div class="grid">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-code"></i>
+                    JSON Management
+                </div>
+                <div class="card-body">
+                    <ul class="function-list">
+                        <li class="function-item">
+                            <a href="/edit_json" target="_blank" class="function-link">
+                                <i class="fas fa-edit"></i> Edit JSON Data
+                            </a>
+                        </li>
+                        <li class="function-item">
+                            <a href="/get-json" target="_blank" class="function-link">
+                                <i class="fas fa-eye"></i> View JSON Data (Raw)
+                            </a>
+                        </li>
+                        <li class="function-item">
+                            <a href="/upload" target="_blank" class="function-link">
+                                <i class="fas fa-upload"></i> Add/Upload Images & Update JSON
+                            </a>
+                        </li>
+                        <li class="function-item">
+                            <a href="/upload-form" target="_blank" class="function-link">
+                                <i class="fas fa-file-upload"></i> Upload Form
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-image"></i>
+                    Image Management
+                </div>
+                <div class="card-body">
+                    <ul class="function-list">
+                        <li class="function-item">
+                            <a href="/manage_image" target="_blank" class="function-link">
+                                <i class="fas fa-folder-open"></i> Manage Uploaded Images
+                            </a>
+                        </li>
+                        <li class="function-item">
+                            <a href="/merge-images" target="_blank" class="function-link">
+                                <i class="fas fa-compress"></i> Merge Images
+                            </a>
+                        </li>
+                        <li class="function-item">
+                            <a href="/crop-image" target="_blank" class="function-link">
+                                <i class="fas fa-crop-alt"></i> Crop Image
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-home"></i>
+                    Root Index Page
+                </div>
+                <div class="card-body">
+                    <ul class="function-list">
+                        <li class="function-item">
+                            <a href="/root-index" target="_blank" class="function-link">
+                                <i class="fas fa-external-link-alt"></i> Open Root Index
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p class="copyright">&copy; 2025 Amiruzzaman. All rights reserved.</p>
+            <div class="social-links">
+                <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>
+    '''
+    
 
 @app.route('/upload')
 @app.route("/", methods=["GET", "POST"])
 def upload_form():
-    return render_template('upload.html')
+    return '''
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="#">
+    <title>Donation Form</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #ffc107;
+            --secondary-color: #495057;
+            --background-color: #72787e;
+            --input-bg: #6c757d;
+            --success-color: #198754;
+            --error-color: #dc3545;
+            --text-color: #fff;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            background-color: var(--secondary-color);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            max-width: 600px;
+            width: 100%;
+            margin: 20px 0;
+            position: relative;
+            overflow: visible;
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-size: 28px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background-color: var(--primary-color);
+            border-radius: 3px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        label {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        label i {
+            margin-right: 8px;
+            width: 20px;
+            text-align: center;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 15px;
+            margin-top: 5px;
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(221, 221, 221, 0.3);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.2);
+        }
+
+        input[type="submit"] {
+            background-color: var(--success-color);
+            color: var(--text-color);
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            padding: 14px;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #157347;
+        }
+
+        #image-preview {
+            display: none;
+            margin-top: 15px;
+            text-align: center;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            padding: 10px;
+        }
+
+        #image-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: var(--border-radius);
+            object-fit: contain;
+        }
+
+        #message-container {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            background-color: rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .success-message {
+            color: #d4edda;
+            background-color: rgba(25, 135, 84, 0.2);
+            border-left: 4px solid var(--success-color);
+        }
+
+        .error-message {
+            color: #f8d7da;
+            background-color: rgba(220, 53, 69, 0.2);
+            border-left: 4px solid var(--error-color);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-button {
+            border: 1px solid rgba(221, 221, 221, 0.3);
+            border-radius: var(--border-radius);
+            padding: 10px 15px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .file-input-button i {
+            margin-left: 8px;
+        }
+
+        #file-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .preview-placeholder {
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            input,
+            select,
+            textarea {
+                padding: 10px 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2><i class="fas fa-hand-holding-heart"></i> Donation Form</h2>
+        <form id="donation-form">
+            <div class="form-group">
+                <label for="donor-name"><i class="fas fa-user"></i> Donor Name</label>
+                <input type="text" id="donor-name" name="donor-name" placeholder="Enter your name" required>
+            </div>
+            <div class="form-group">
+                <label for="country"><i class="fas fa-globe"></i> Country</label>
+                <select id="country" name="country" required>
+                    <option value="" disabled selected>Select a country</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-file-upload"></i> File Upload</label>
+                <div class="file-input-wrapper">
+                    <div class="file-input-button">
+                        <span id="file-input-label">Choose a file</span>
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <input type="file" id="file-input" name="file">
+                </div>
+                <div id="image-preview">
+                    <img id="preview-img" alt="Preview">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="file-url"><i class="fas fa-link"></i> File URL</label>
+                <input type="url" id="file-url" name="file-url" placeholder="Enter file URL (optional)">
+            </div>
+            <div class="form-group">
+                <label for="currency-type"><i class="fas fa-money-bill-wave"></i> Type of Currency</label>
+                <select id="currency-type" name="currency-type" required>
+                    <option value="" disabled selected>Select currency type</option>
+                    <option value="paper-bill">Paper Bill</option>
+                    <option value="coin">Coin</option>
+                    <option value="antique">Antique</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="note"><i class="fas fa-comment"></i> Note</label>
+                <textarea id="note" name="note" rows="4" placeholder="Add any additional information..."
+                    required></textarea>
+            </div>
+            <input type="submit" value="Submit Donation">
+        </form>
+        <div id="message-container"></div>
+    </div>
+
+    <script>
+        // Load country options dynamically
+        function loadCountries() {
+            fetch('/static/countries.json')
+                .then(response => response.json())
+                .then(data => {
+                    const countrySelect = document.getElementById('country');
+                    const currentSelection = countrySelect.value;
+                    countrySelect.innerHTML = '<option value="" disabled selected>Select a country</option>';
+                    data.forEach(country => {
+                        const option = document.createElement('option');
+                        option.value = country.name;
+                        option.textContent = country.name;
+                        if (country.name === currentSelection) {
+                            option.selected = true;
+                        }
+                        countrySelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error loading countries:', error));
+        }
+
+        // Clear information when a new country is selected
+        document.getElementById('country').addEventListener('change', () => {
+            const selectedCountry = document.getElementById('country').value;
+            document.getElementById('donation-form').reset();
+            document.getElementById('image-preview').style.display = 'none';
+            document.getElementById('message-container').innerHTML = '';
+            document.getElementById('country').value = selectedCountry;
+        });
+
+        // Preview selected image and update file input label
+        document.getElementById('file-input').addEventListener('change', function () {
+            const preview = document.getElementById('image-preview');
+            const previewImg = document.getElementById('preview-img');
+            const fileLabel = document.getElementById('file-input-label');
+
+            const file = this.files[0];
+            if (file) {
+                fileLabel.textContent = file.name;
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    previewImg.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                fileLabel.textContent = 'Choose a file';
+                preview.style.display = 'none';
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('donation-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const donorName = document.getElementById('donor-name').value;
+            const fileInput = document.getElementById('file-input');
+            const fileUrlInput = document.getElementById('file-url');
+            const country = document.getElementById('country').value;
+            const currencyType = document.getElementById('currency-type').value;
+            const note = document.getElementById('note').value;
+
+            const formData = new FormData();
+
+            // Check if a file is provided via local upload
+            if (fileInput.files.length > 0) {
+                formData.append('file', fileInput.files[0]);
+            }
+
+            // Check if a file is provided via URL
+            const fileUrlValue = fileUrlInput.value.trim();
+            if (fileUrlValue) {
+                formData.append('file-url', fileUrlValue);
+            }
+
+            // Add other form fields
+            formData.append('donor-name', donorName);
+            formData.append('country', country);
+            formData.append('currency-type', currencyType);
+            formData.append('note', note);
+
+            // Ensure at least one file input is provided
+            if (!fileInput.files.length && !fileUrlValue) {
+                showMessage('Please provide either a file or a valid URL.', 'error');
+                return;
+            }
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData,
+            })
+                .then((response) => response.json())
+                .then((result) => {
+                    if (result.message == 'Error fetching the file from URL!') {
+                        showMessage(`
+                            ${result.message}<br><br>
+                            <strong>Donor Name:</strong> ${result['donor_name']}<br>
+                            <strong>Country:</strong> ${result.country}<br>
+                            <strong>Currency Type:</strong> ${result['currency_type']}<br>
+                            <strong>Note:</strong> ${result.note}<br>
+                            <strong>File Path:</strong> ${result.file_path}
+                        `, 'error');
+                    } else {
+                        showMessage(`
+                            <p>${result.message}</p>
+                            <p><strong>Donor Name:</strong> ${result.donor_name}</p>
+                            <p><strong>Country:</strong> ${result.country}</p>
+                            <p><strong>Currency Type:</strong> ${result.currency_type}</p>
+                            <p><strong>Note:</strong> ${result.note}</p>
+                            <div style="margin-top: 15px; text-align: center;">
+                                <img src="${result.file_path}" alt="Uploaded Image" style="max-width: 100%; border-radius: 8px;">
+                            </div>
+                        `, 'success');
+                    }
+                })
+                .catch((error) => {
+                    showMessage(`Error: ${error.message}`, 'error');
+                });
+        });
+
+        // Helper function to show messages
+        function showMessage(content, type) {
+            const messageContainer = document.getElementById('message-container');
+            messageContainer.innerHTML = `
+                <div class="${type}-message">
+                    ${content}
+                </div>
+            `;
+
+            // Scroll to the message container smoothly
+            messageContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Initialize the countries when the page loads
+        window.addEventListener('DOMContentLoaded', loadCountries);
+    </script>
+</body>
+
+</html>
+    '''
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -1478,14 +2293,59 @@ def upload_image():
         return jsonify({"error": str(e)}), 500
 
 
+
 # Edit JSON page - now with embedded HTML
+from flask import Flask, request, jsonify # Assuming these imports are at the top
+# Define app, load_json, DEFAULT_JSON_FILE_PATH, current_json_file_path somewhere
+
 @app.route('/edit_json')
 def edit_json():
     global current_json_file_path
     current_json_file_path = DEFAULT_JSON_FILE_PATH  # Reset to default file
     
-    # Return the embedded HTML content directly
-    return '''
+    # Get pagination parameters
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 20, type=int)  # Default to 20 items per page
+    ajax = request.args.get('ajax', False, type=bool)
+    
+    # Load all JSON data
+    # Assuming load_json() is defined elsewhere and returns the full list
+    all_data = load_json()
+    total_items = len(all_data)
+    
+    # Calculate pagination
+    total_pages = (total_items + per_page - 1) // per_page
+    start_idx = (page - 1) * per_page
+    end_idx = start_idx + per_page
+    
+    # Get current page data
+    current_page_data = all_data[start_idx:end_idx]
+    
+    # If AJAX request, return JSON data only
+    if ajax:
+        return jsonify({
+            'data': current_page_data,
+            'pagination': {
+                'current_page': page,
+                'per_page': per_page,
+                'total_items': total_items,
+                'total_pages': total_pages,
+                'has_prev': page > 1,
+                'has_next': page < total_pages
+            }})
+    
+    # Calculate button disabled states
+    next_disabled = 'disabled' if page >= total_pages else ''
+    prev_disabled = 'disabled' if page <= 1 else '' # Added prev_disabled calculation
+    
+    # Calculate selected states for page size options
+    selected_10 = 'selected' if per_page == 10 else ''
+    selected_20 = 'selected' if per_page == 20 else ''
+    selected_50 = 'selected' if per_page == 50 else ''
+    selected_100 = 'selected' if per_page == 100 else ''
+    
+    # Return the embedded HTML content with pagination data
+    return f'''
 <!DOCTYPE html>
 <html lang="en">
 
@@ -1495,89 +2355,89 @@ def edit_json():
     <link rel="shortcut icon" href="#">
     <title>..::Amir's edit json::..</title>
     <style>
-        * {
+        * {{
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: Arial, sans-serif;
-        }
+        }}
 
-        body {
+        body {{
             background-color: #72787e;
             color: #fff;
             padding: 20px;
-        }
+        }}
 
-        h1 {
+        h1 {{
             text-align: center;
             margin-bottom: 20px;
             color: #ffc107;
-        }
+        }}
 
-        .container {
+        .container {{
             width: 80%;
             margin: 0 auto;
             padding: 20px;
             background-color: #495057;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
             border-radius: 8px;
-        }
+        }}
 
-        #jsonTableContainer {
+        #jsonTableContainer {{
             border: 2px solid #198754;
             padding: 10px;
             background-color: #6c757d;
             min-height: 100px;
             border-radius: 4px;
-        }
+        }}
 
-        .row {
+        .row {{
             display: flex;
             align-items: center;
             border-bottom: 1px solid #ddd;
             padding: 10px 0;
             transition: background-color 0.3s ease;
-        }
+        }}
 
-        .row:nth-child(odd) {
+        .row:nth-child(odd) {{
             background-color: #6c757d;
-        }
+        }}
 
-        .row:hover {
+        .row:hover {{
             background-color: #495057;
-        }
+        }}
 
-        .column {
+        .column {{
             flex: 1;
             text-align: center;
             padding: 5px;
             color: #fff;
-        }
+        }}
 
-        .thumbnail {
+        .thumbnail {{
             max-width: 50px;
             max-height: 50px;
             border-radius: 4px;
             cursor: pointer;
-        }
+        }}
 
-        .delete-btn {
+        .delete-btn {{
             color: #ff4d4d;
             cursor: pointer;
             font-weight: bold;
-        }
+        }}
 
-        a {
+        a {{
             color: #ffc107;
             text-decoration: none;
-        }
+        }}
 
-        a:hover {
+        a:hover {{
             color: #fff;
             text-decoration: underline;
-        }
+        }}
 
-        .download-btn {
+        .download-btn {{
             width: 100%;
             padding: 10px;
             background-color: #198754;
@@ -1587,13 +2447,13 @@ def edit_json():
             font-size: 16px;
             cursor: pointer;
             transition: background 0.3s ease;
-        }
+        }}
 
-        .download-btn:hover {
+        .download-btn:hover {{
             background-color: #145d37;
-        }
+        }}
 
-        .file-input {
+        .file-input {{
             margin-bottom: 20px;
             display: block;
             padding: 10px;
@@ -1602,15 +2462,15 @@ def edit_json():
             border-radius: 4px;
             background-color: #fff;
             color: #333;
-        }
+        }}
 
-        .header {
+        .header {{
             font-weight: bold;
             background-color: #198754;
             color: #fff;
-        }
+        }}
 
-        .add-row-btn {
+        .add-row-btn {{
             width: 100%;
             padding: 10px;
             background-color: #ffc107;
@@ -1621,20 +2481,20 @@ def edit_json():
             cursor: pointer;
             margin-top: 10px;
             transition: background 0.3s ease;
-        }
+        }}
 
-        .add-row-btn:hover {
+        .add-row-btn:hover {{
             background-color: #e0a800;
-        }
+        }}
 
-        .image-input {
+        .image-input {{
             width: 100%;
             padding: 5px;
             font-size: 14px;
             text-align: center;
-        }
+        }}
 
-        .modal {
+        .modal {{
             display: none;
             position: fixed;
             top: 0;
@@ -1646,9 +2506,9 @@ def edit_json():
             align-items: center;
             z-index: 1000;
             overflow-y: auto;
-        }
+        }}
 
-        .modal-content {
+        .modal-content {{
             position: relative;
             width: 90%;
             max-width: 800px;
@@ -1659,63 +2519,63 @@ def edit_json():
             color: #333;
             max-height: 90vh;
             overflow-y: auto;
-        }
+        }}
 
-        .modal img {
+        .modal img {{
             max-width: 100%;
             max-height: 400px;
             border-radius: 8px;
             margin-bottom: 20px;
-        }
+        }}
 
-        .modal-close {
+        .modal-close {{
             position: absolute;
             top: 10px;
             right: 10px;
             font-size: 20px;
             color: black;
             cursor: pointer;
-        }
+        }}
 
         .modal h2,
-        .modal p {
+        .modal p {{
             margin: 10px 0;
-        }
+        }}
 
         /* Form styling */
-        .edit-form {
+        .edit-form {{
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
             text-align: left;
-        }
+        }}
 
-        .form-group {
+        .form-group {{
             margin-bottom: 15px;
-        }
+        }}
 
-        .form-group label {
+        .form-group label {{
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
-        }
+        }}
 
         .form-group input,
         .form-group textarea,
-        .form-group select {
+        .form-group select {{
             width: 100%;
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 14px;
-        }
+        }}
 
-        .form-group textarea {
+        .form-group textarea {{
             height: 80px;
             resize: vertical;
-        }
+        }}
 
-        .save-btn {
+        .save-btn {{
             grid-column: span 2;
             padding: 10px;
             background-color: #28a745;
@@ -1725,51 +2585,51 @@ def edit_json():
             font-size: 16px;
             cursor: pointer;
             margin-top: 10px;
-        }
+        }}
 
-        .save-btn:hover {
+        .save-btn:hover {{
             background-color: #218838;
-        }
+        }}
 
         /* Drag-and-drop effects */
-        .row.draggable {
+        .row.draggable {{
             cursor: move;
-        }
+        }}
 
-        .row.drag-over {
+        .row.drag-over {{
             background-color: #495057;
-        }
+        }}
 
         /* imageModal */
-        .image-filename {
+        .image-filename {{
             margin-top: 10px;
             font-size: 14px;
             color: #333;
             text-align: center;
             font-weight: bold;
-        }
+        }}
 
         /*sorting*/
-        .sortable {
+        .sortable {{
             cursor: pointer;
             position: relative;
-        }
+        }}
         
-        .sortable:after {
+        .sortable:after {{
             content: ' ⇅';
             font-size: 0.8em;
             color: #ccc;
             position: absolute;
             right: 5px;
-        }
+        }}
         
         /* Hide the default file input */
-        #uploadFileInput {
+        #uploadFileInput {{
             display: none;
-        }
+        }}
 
         /* Professional button styling */
-        .btn-success {
+        .btn-success {{
             display: inline-flex;
             align-items: center;
             padding: 10px 20px;
@@ -1784,22 +2644,22 @@ def edit_json():
             transition: all 0.3s ease;
             box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
             margin: 5px;
-        }
+        }}
 
-        .btn-success:hover {
+        .btn-success:hover {{
             background: linear-gradient(135deg, #218838 0%, #1e9e8a 100%);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
             text-decoration: none;
             color: white;
-        }
+        }}
 
-        .btn-success i {
+        .btn-success i {{
             margin-right: 8px;
             font-size: 16px;
-        }
+        }}
 
-        .btn-secondary {
+        .btn-secondary {{
             display: inline-flex;
             align-items: center;
             padding: 10px 20px;
@@ -1814,23 +2674,23 @@ def edit_json():
             transition: all 0.3s ease;
             box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
             margin: 5px;
-        }
+        }}
 
-        .btn-secondary:hover {
+        .btn-secondary:hover {{
             background: linear-gradient(135deg, #5a6268 0%, #545b62 100%);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
             color: white;
             text-decoration: none;
-        }
+        }}
 
-        .btn-secondary i {
+        .btn-secondary i {{
             margin-right: 8px;
             font-size: 16px;
-        }
+        }}
 
         /* Style the file input trigger (the label) */
-        .file-input-label {
+        .file-input-label {{
             display: inline-flex;
             align-items: center;
             padding: 10px 20px;
@@ -1843,20 +2703,20 @@ def edit_json():
             transition: all 0.3s ease;
             box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
             margin: 5px;
-        }
+        }}
 
-        .file-input-label:hover {
+        .file-input-label:hover {{
             background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
-        }
+        }}
 
-        .file-input-label i {
+        .file-input-label i {{
             margin-right: 8px;
-        }
+        }}
 
         /* Style the upload button with an icon */
-        #uploadFileBtn {
+        #uploadFileBtn {{
             display: inline-flex;
             align-items: center;
             padding: 10px 20px;
@@ -1870,37 +2730,37 @@ def edit_json():
             transition: all 0.3s ease;
             box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
             font-weight: 600;
-        }
+        }}
 
-        #uploadFileBtn i {
+        #uploadFileBtn i {{
             margin-right: 8px;
-        }
+        }}
 
-        #uploadFileBtn:hover {
+        #uploadFileBtn:hover {{
             background: linear-gradient(135deg, #218838 0%, #1e9e8a 100%);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
-        }
+        }}
 
         /* css for delete buttons*/
-        .delete-btn {
+        .delete-btn {{
             display: inline-flex;
             align-items: center;
             color: yellow;
             cursor: pointer;
             font-weight: bold;
-        }
+        }}
 
-        .delete-btn i {
+        .delete-btn i {{
             margin-right: 8px;
-        }
+        }}
 
-        .delete-btn:hover {
+        .delete-btn:hover {{
             color: red;
-        }
+        }}
 
         /* Dropdown styling */
-        .country-dropdown {
+        .country-dropdown {{
             width: 100%;
             padding: 5px;
             font-size: 14px;
@@ -1909,10 +2769,10 @@ def edit_json():
             color: #333;
             border: 1px solid #ddd;
             border-radius: 4px;
-        }
+        }}
 
         /* Drag and drop area styling */
-        .drop-area {
+        .drop-area {{
             border: 2px dashed #ccc;
             border-radius: 4px;
             padding: 20px;
@@ -1921,15 +2781,15 @@ def edit_json():
             color: #333;
             margin: 10px 0;
             cursor: pointer;
-        }
+        }}
 
-        .drop-area.highlight {
+        .drop-area.highlight {{
             border-color: #007bff;
             background-color: #e9f0ff;
-        }
+        }}
         
         /* Currency type dropdown */
-        .currency-dropdown {
+        .currency-dropdown {{
             width: 100%;
             padding: 5px;
             font-size: 14px;
@@ -1938,10 +2798,10 @@ def edit_json():
             color: #333;
             border: 1px solid #ddd;
             border-radius: 4px;
-        }
+        }}
         
         /* Image drop area in table */
-        .image-drop-area {
+        .image-drop-area {{
             border: 2px dashed #ccc;
             border-radius: 4px;
             padding: 10px;
@@ -1954,28 +2814,28 @@ def edit_json():
             display: flex;
             align-items: center;
             justify-content: center;
-        }
+        }}
 
-        .image-drop-area.highlight {
+        .image-drop-area.highlight {{
             border-color: #007bff;
             background-color: #e9f0ff;
-        }
+        }}
 
-        .image-drop-area p {
+        .image-drop-area p {{
             margin: 0;
             font-size: 12px;
-        }
+        }}
         
         /* Search box styling */
-    .search-container {
+    .search-container {{
         margin-bottom: 20px;
         display: flex;
         justify-content: center;
         align-items: center;
         gap: 10px;
-    }
+    }}
 
-    .search-box {
+    .search-box {{
         width: 300px;
         padding: 10px;
         font-size: 16px;
@@ -1983,15 +2843,15 @@ def edit_json():
         border-radius: 4px;
         background-color: #fff;
         color: #333;
-    }
+    }}
 
-    .search-box:focus {
+    .search-box:focus {{
         outline: none;
         border-color: #007bff;
         box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-    }
+    }}
 
-    .clear-search-btn {
+    .clear-search-btn {{
         padding: 10px;
         background-color: #dc3545;
         color: white;
@@ -2001,13 +2861,13 @@ def edit_json():
         display: flex;
         align-items: center;
         justify-content: center;
-    }
+    }}
 
-    .clear-search-btn:hover {
+    .clear-search-btn:hover {{
         background-color: #c82333;
-    }
+    }}
     
-    .toast-message {
+    .toast-message {{
         position: fixed;
         top: 0;
         left: 0;
@@ -2022,16 +2882,16 @@ def edit_json():
         opacity: 0;
         display: none;
         transition: opacity 0.5s ease;
-    }
+    }}
 
-    .filter-buttons {
+    .filter-buttons {{
         display: flex;
         justify-content: center;
         gap: 10px;
         margin-bottom: 20px;
-    }
+    }}
 
-    .filter-btn {
+    .filter-btn {{
         padding: 10px 15px;
         background-color: #6c757d;
         color: white;
@@ -2039,24 +2899,24 @@ def edit_json():
         border-radius: 4px;
         cursor: pointer;
         transition: background 0.3s ease;
-    }
+    }}
 
-    .filter-btn:hover {
+    .filter-btn:hover {{
         background-color: #5a6268;
-    }
+    }}
 
-    .filter-btn.active {
+    .filter-btn.active {{
         background-color: #28a745;
-    }
+    }}
 
-    .search-container {
+    .search-container {{
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 10px;
         margin-bottom: 20px;
-    }
+    }}
 
-    .search-box {
+    .search-box {{
         width: 100%;
         padding: 10px;
         font-size: 14px;
@@ -2064,76 +2924,789 @@ def edit_json():
         border-radius: 4px;
         background-color: #fff;
         color: #333;
-    }
+    }}
 
-    .image-drop-areas-container {
+    .image-drop-areas-container {{
         display: flex;
         gap: 10px;
         margin-bottom: 10px;
-    }
+    }}
 
-    .merge-drop-area {
+    .merge-drop-area {{
         flex: 1;
         min-height: 80px;
-    }
+    }}
 
-    .merge-options {
+    .merge-options {{
         display: flex;
         gap: 15px;
         align-items: center;
         margin-bottom: 10px;
-    }
+    }}
 
-    .merge-options label {
+    .merge-options label {{
         display: flex;
         align-items: center;
         gap: 5px;
         color: #333;
         font-weight: normal;
-    }
+    }}
 
-    #mergeImagesBtn {
+    #mergeImagesBtn {{
         padding: 5px 10px;
         background-color: #007bff;
         color: white;
         border: none;
         border-radius: 4px;
         cursor: pointer;
-    }
+    }}
 
-    #mergeImagesBtn:disabled {
+    #mergeImagesBtn:disabled {{
         background-color: #6c757d;
         cursor: not-allowed;
-    }
+    }}
     
-    .merge-preview {
+    .merge-preview {{
         margin-top: 10px;
         padding: 10px;
         border: 2px dashed #007bff;
         border-radius: 5px;
         background-color: #f8f9fa;
-    }
+    }}
 
-    .merge-preview img {
+    .merge-preview img {{
         max-width: 100%;
         max-height: 150px;
         margin: 5px;
         border: 1px solid #ddd;
-    }
+    }}
 
-    .merge-size-info {
+    .merge-size-info {{
         font-size: 12px;
         color: #666;
         margin-top: 5px;
-    }
+    }}
 
-    .button-container {
+    .button-container {{
         display: flex;
         justify-content: center;
         gap: 10px;
         margin: 15px 0;
         flex-wrap: wrap;
-    }
+    }}
+    </style>
+    <style>
+        /* ... (keep all your existing CSS styles exactly as they are) ... */
+        
+        * {{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }}
+
+        body {{
+            background-color: #72787e;
+            color: #fff;
+            padding: 20px;
+        }}
+
+        h1 {{
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ffc107;
+        }}
+
+        .container {{
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #495057;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }}
+
+        #jsonTableContainer {{
+            border: 2px solid #198754;
+            padding: 10px;
+            background-color: #6c757d;
+            min-height: 100px;
+            border-radius: 4px;
+        }}
+
+        .row {{
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+            transition: background-color 0.3s ease;
+        }}
+
+        .row:nth-child(odd) {{
+            background-color: #6c757d;
+        }}
+
+        .row:hover {{
+            background-color: #495057;
+        }}
+
+        .column {{
+            flex: 1;
+            text-align: center;
+            padding: 5px;
+            color: #fff;
+        }}
+
+        .thumbnail {{
+            max-width: 50px;
+            max-height: 50px;
+            border-radius: 4px;
+            cursor: pointer;
+        }}
+
+        .delete-btn {{
+            color: #ff4d4d;
+            cursor: pointer;
+            font-weight: bold;
+        }}
+
+        a {{
+            color: #ffc107;
+            text-decoration: none;
+        }}
+
+        a:hover {{
+            color: #fff;
+            text-decoration: underline;
+        }}
+
+        .download-btn {{
+            width: 100%;
+            padding: 10px;
+            background-color: #198754;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }}
+
+        .download-btn:hover {{
+            background-color: #145d37;
+        }}
+
+        .file-input {{
+            margin-bottom: 20px;
+            display: block;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fff;
+            color: #333;
+        }}
+
+        .header {{
+            font-weight: bold;
+            background-color: #198754;
+            color: #fff;
+        }}
+
+        .add-row-btn {{
+            width: 100%;
+            padding: 10px;
+            background-color: #ffc107;
+            color: #333;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.3s ease;
+        }}
+
+        .add-row-btn:hover {{
+            background-color: #e0a800;
+        }}
+
+        .image-input {{
+            width: 100%;
+            padding: 5px;
+            font-size: 14px;
+            text-align: center;
+        }}
+
+        .modal {{
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            overflow-y: auto;
+        }}
+
+        .modal-content {{
+            position: relative;
+            width: 90%;
+            max-width: 800px;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            color: #333;
+            max-height: 90vh;
+            overflow-y: auto;
+        }}
+
+        .modal img {{
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }}
+
+        .modal-close {{
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+            color: black;
+            cursor: pointer;
+        }}
+
+        .modal h2,
+        .modal p {{
+            margin: 10px 0;
+        }}
+
+        /* Form styling */
+        .edit-form {{
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            text-align: left;
+        }}
+
+        .form-group {{
+            margin-bottom: 15px;
+        }}
+
+        .form-group label {{
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }}
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {{
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }}
+
+        .form-group textarea {{
+            height: 80px;
+            resize: vertical;
+        }}
+
+        .save-btn {{
+            grid-column: span 2;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }}
+
+        .save-btn:hover {{
+            background-color: #218838;
+        }}
+
+        /* Drag-and-drop effects */
+        .row.draggable {{
+            cursor: move;
+        }}
+
+        .row.drag-over {{
+            background-color: #495057;
+        }}
+
+        /* imageModal */
+        .image-filename {{
+            margin-top: 10px;
+            font-size: 14px;
+            color: #333;
+            text-align: center;
+            font-weight: bold;
+        }}
+
+        /*sorting*/
+        .sortable {{
+            cursor: pointer;
+            position: relative;
+        }}
+        
+        .sortable:after {{
+            content: ' ⇅';
+            font-size: 0.8em;
+            color: #ccc;
+            position: absolute;
+            right: 5px;
+        }}
+        
+        /* Hide the default file input */
+        #uploadFileInput {{
+            display: none;
+        }}
+
+        /* Professional button styling */
+        .btn-success {{
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+            margin: 5px;
+        }}
+
+        .btn-success:hover {{
+            background: linear-gradient(135deg, #218838 0%, #1e9e8a 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+            text-decoration: none;
+            color: white;
+        }}
+
+        .btn-success i {{
+            margin-right: 8px;
+            font-size: 16px;
+        }}
+
+        .btn-secondary {{
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+            margin: 5px;
+        }}
+
+        .btn-secondary:hover {{
+            background: linear-gradient(135deg, #5a6268 0%, #545b62 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
+            color: white;
+            text-decoration: none;
+        }}
+
+        .btn-secondary i {{
+            margin-right: 8px;
+            font-size: 16px;
+        }}
+
+        /* Style the file input trigger (the label) */
+        .file-input-label {{
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+            margin: 5px;
+        }}
+
+        .file-input-label:hover {{
+            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+        }}
+
+        .file-input-label i {{
+            margin-right: 8px;
+        }}
+
+        /* Style the upload button with an icon */
+        #uploadFileBtn {{
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            margin: 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+            font-weight: 600;
+        }}
+
+        #uploadFileBtn i {{
+            margin-right: 8px;
+        }}
+
+        #uploadFileBtn:hover {{
+            background: linear-gradient(135deg, #218838 0%, #1e9e8a 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+        }}
+
+        /* css for delete buttons*/
+        .delete-btn {{
+            display: inline-flex;
+            align-items: center;
+            color: yellow;
+            cursor: pointer;
+            font-weight: bold;
+        }}
+
+        .delete-btn i {{
+            margin-right: 8px;
+        }}
+
+        .delete-btn:hover {{
+            color: red;
+        }}
+
+        /* Dropdown styling */
+        .country-dropdown {{
+            width: 100%;
+            padding: 5px;
+            font-size: 14px;
+            text-align: center;
+            background-color: #fff;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }}
+
+        /* Drag and drop area styling */
+        .drop-area {{
+            border: 2px dashed #ccc;
+            border-radius: 4px;
+            padding: 20px;
+            text-align: center;
+            background-color: #f8f9fa;
+            color: #333;
+            margin: 10px 0;
+            cursor: pointer;
+        }}
+
+        .drop-area.highlight {{
+            border-color: #007bff;
+            background-color: #e9f0ff;
+        }}
+        
+        /* Currency type dropdown */
+        .currency-dropdown {{
+            width: 100%;
+            padding: 5px;
+            font-size: 14px;
+            text-align: center;
+            background-color: #fff;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }}
+        
+        /* Image drop area in table */
+        .image-drop-area {{
+            border: 2px dashed #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            text-align: center;
+            background-color: #f8f9fa;
+            color: #333;
+            margin: 5px 0;
+            cursor: pointer;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }}
+
+        .image-drop-area.highlight {{
+            border-color: #007bff;
+            background-color: #e9f0ff;
+        }}
+
+        .image-drop-area p {{
+            margin: 0;
+            font-size: 12px;
+        }}
+        
+        /* Search box styling */
+    .search-container {{
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }}
+
+    .search-box {{
+        width: 300px;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #fff;
+        color: #333;
+    }}
+
+    .search-box:focus {{
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }}
+
+    .clear-search-btn {{
+        padding: 10px;
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }}
+
+    .clear-search-btn:hover {{
+        background-color: #c82333;
+    }}
+    
+    .toast-message {{
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: rgba(40, 167, 69, 0.5);
+        color: white;
+        padding: 15px;
+        text-align: center;
+        font-size: 16px;
+        font-weight: bold;
+        z-index: 3000;
+        opacity: 0;
+        display: none;
+        transition: opacity 0.5s ease;
+    }}
+
+    .filter-buttons {{
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+    }}
+
+    .filter-btn {{
+        padding: 10px 15px;
+        background-color: #6c757d;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }}
+
+    .filter-btn:hover {{
+        background-color: #5a6268;
+    }}
+
+    .filter-btn.active {{
+        background-color: #28a745;
+    }}
+
+    .search-container {{
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+    }}
+
+    .search-box {{
+        width: 100%;
+        padding: 10px;
+        font-size: 14px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #fff;
+        color: #333;
+    }}
+
+    .image-drop-areas-container {{
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+    }}
+
+    .merge-drop-area {{
+        flex: 1;
+        min-height: 80px;
+    }}
+
+    .merge-options {{
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        margin-bottom: 10px;
+    }}
+
+    .merge-options label {{
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: #333;
+        font-weight: normal;
+    }}
+
+    #mergeImagesBtn {{
+        padding: 5px 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+            border-radius: 4px;
+        cursor: pointer;
+    }}
+
+    #mergeImagesBtn:disabled {{
+        background-color: #6c757d;
+        cursor: not-allowed;
+    }}
+    
+    .merge-preview {{
+        margin-top: 10px;
+        padding: 10px;
+        border: 2px dashed #007bff;
+        border-radius: 5px;
+        background-color: #f8f9fa;
+    }}
+
+    .merge-preview img {{
+        max-width: 100%;
+        max-height: 150px;
+        margin: 5px;
+        border: 1px solid #ddd;
+    }}
+
+    .merge-size-info {{
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+    }}
+
+    .button-container {{
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 15px 0;
+        flex-wrap: wrap;
+    }}
+    
+        
+        /* Add pagination styles */
+        .pagination {{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            gap: 10px;
+        }}
+
+        .page-btn {{
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }}
+
+        .page-btn:hover:not(:disabled) {{
+            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+            transform: translateY(-2px);
+        }}
+
+        .page-btn:disabled {{
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }}
+
+        .page-info {{
+            color: white;
+            font-weight: bold;
+            margin: 0 15px;
+        }}
+
+        .page-size-selector {{
+            margin-left: 20px;
+        }}
+
+        .page-size-selector select {{
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }}
+
+        .loading-spinner {{
+            text-align: center;
+            padding: 20px;
+            color: white;
+            font-size: 16px;
+        }}
+
+        .spinner {{
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto 10px;
+        }}
+
+        @keyframes spin {{
+            0% {{ transform: rotate(0deg); }}
+            100% {{ transform: rotate(360deg); }}
+        }}
     </style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
@@ -2143,6 +3716,25 @@ def edit_json():
 
     <div class="container">
         <h1>JSON Viewer & Editor</h1>
+
+        <div class="pagination" id="topPagination">
+            <button class="page-btn" id="prevPage" {prev_disabled}>
+                <i class="fas fa-chevron-left"></i> Previous
+            </button>
+            <span class="page-info" id="pageInfo">Page {page} of {total_pages}</span>
+            <button class="page-btn" id="nextPage" {next_disabled}>
+                Next <i class="fas fa-chevron-right"></i>
+            </button>
+            <div class="page-size-selector">
+                <label for="pageSize" style="color: white;">Items per page:</label>
+                <select id="pageSize">
+                    <option value="10" {selected_10}>10</option>
+                    <option value="20" {selected_20}>20</option>
+                    <option value="50" {selected_50}>50</option>
+                    <option value="100" {selected_100}>100</option>
+                </select>
+            </div>
+        </div>
 
         <div class="search-container">
             <input type="text" id="countrySearch" class="search-box" placeholder="Search by country...">
@@ -2160,7 +3752,6 @@ def edit_json():
             <button id="toggleAddMode" class="filter-btn">Add New Mode</button>
         </div>
         
-        <!-- Updated Professional Button Container -->
         <div class="button-container">
             <label for="uploadFileInput" class="file-input-label">
                 <i class="fas fa-file-upload"></i> Choose File
@@ -2176,12 +3767,26 @@ def edit_json():
             </button>
         </div>
 
-        <div id="jsonTableContainer">Loading data...</div>
+        <div id="jsonTableContainer">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                Loading data...
+            </div>
+        </div>
+
+        <div class="pagination" id="bottomPagination">
+            <button class="page-btn" id="prevPageBottom" {prev_disabled}>
+                <i class="fas fa-chevron-left"></i> Previous
+            </button>
+            <span class="page-info" id="pageInfoBottom">Page {page} of {total_pages}</span>
+            <button class="page-btn" id="nextPageBottom" {next_disabled}>
+                Next <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
 
         <button class="add-row-btn" id="addRowBtn">Add New Row</button>
         <button class="download-btn" id="downloadBtn">Download Updated JSON</button>
         
-        <!-- Keep the second Add New Item button at the bottom -->
         <div class="button-container" style="margin-top: 20px;">
             <button class="btn-success" onclick="window.location.href='/upload-form'">
                 <i class="fas fa-plus-circle"></i> Add New Item
@@ -2275,7 +3880,6 @@ def edit_json():
                 </div>
                 <button type="button" class="save-btn" id="saveChangesBtn">Save Changes</button>
             </div>
-            
         </div>
     </div>
 
@@ -2285,29 +3889,35 @@ let jsonData = [];
 let sortOrder = 1;
 let currentEditingIndex = -1;
 let countriesData = [];
-let activeFilters = {
+let activeFilters = {{
     country: '',
     size: '',
     yearFrom: '',
     yearTo: ''
-};
+}}; // Corrected JS object literal escaping
 let isAddMode = false;
 
+// Pagination variables
+let currentPage = {page};
+let itemsPerPage = {per_page};
+let totalPages = {total_pages};
+let totalItems = {total_items};
+
 // Load countries data
-function loadCountries() {
+function loadCountries() {{ // Corrected function brace escaping
     fetch('/get-countries')
         .then(response => response.json())
-        .then(data => {
+        .then(data => {{ // Corrected function brace escaping
             countriesData = data;
             populateCountryDropdowns();
-        })
-        .catch(error => {
+        }}) // Corrected function brace escaping
+        .catch(error => {{ // Corrected function brace escaping
             console.error("Error loading countries:", error);
-        });
-}
+        }}); // Corrected function brace escaping
+}}
 
 // Populate country dropdowns
-function populateCountryDropdowns() {
+function populateCountryDropdowns() {{ // Corrected function brace escaping
     const editCountryDropdown = document.getElementById('editCountry');
     
     if (!editCountryDropdown) return;
@@ -2319,15 +3929,154 @@ function populateCountryDropdowns() {
     defaultOption.textContent = 'Select a country';
     editCountryDropdown.appendChild(defaultOption);
     
-    countriesData.forEach(country => {
+    countriesData.forEach(country => {{ // Corrected function brace escaping
         const option = document.createElement('option');
         option.value = country.name;
         option.textContent = country.name;
         editCountryDropdown.appendChild(option);
-    });
-}
+    }}); // Corrected function brace escaping
+}}
 
-function renderTable(data) {
+// Load data for current page
+function loadPageData(page = currentPage, perPage = itemsPerPage) {{ // Corrected function brace escaping
+    showLoading();
+    
+    // Corrected JS template literal interpolation for the fetch URL
+    fetch(`/edit_json?page=${{page}}&per_page=${{perPage}}&ajax=true`)
+        .then(response => response.json())
+        .then(data => {{ // Corrected function brace escaping
+            jsonData = data.data;
+            currentPage = data.pagination.current_page;
+            itemsPerPage = data.pagination.per_page;
+            totalPages = data.pagination.total_pages;
+            totalItems = data.pagination.total_items;
+            
+            updatePaginationControls();
+            renderTable(jsonData);
+            hideLoading();
+        }}) // Corrected function brace escaping
+        .catch(error => {{ // Corrected function brace escaping
+            console.error("Error fetching page data:", error);
+            document.getElementById("jsonTableContainer").innerHTML = "Error loading data";
+            hideLoading();
+        }}); // Corrected function brace escaping
+}}
+
+function showLoading() {{ // Corrected function brace escaping
+    const container = document.getElementById("jsonTableContainer");
+    container.innerHTML = `
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            Loading data...
+        </div>
+    `;
+}} // Corrected function brace escaping
+
+function hideLoading() {{ // Corrected function brace escaping
+    // Loading is hidden when renderTable is called
+}} // Corrected function brace escaping
+
+function updatePaginationControls() {{ // Corrected function brace escaping
+    // Update page info - Corrected JS template literal interpolation
+    document.getElementById('pageInfo').textContent = `Page ${{currentPage}} of ${{totalPages}}`;
+    document.getElementById('pageInfoBottom').textContent = `Page ${{currentPage}} of ${{totalPages}}`;
+    
+    // Update button states
+    document.getElementById('prevPage').disabled = currentPage <= 1;
+    document.getElementById('prevPageBottom').disabled = currentPage <= 1;
+    document.getElementById('nextPage').disabled = currentPage >= totalPages;
+    document.getElementById('nextPageBottom').disabled = currentPage >= totalPages;
+    
+    // Update page size selector
+    document.getElementById('pageSize').value = itemsPerPage;
+}} // Corrected function brace escaping
+
+function changePage(newPage) {{ // Corrected function brace escaping
+    if (newPage < 1 || newPage > totalPages) return;
+    
+    // Update URL without reloading the page
+    const newUrl = new URL(window.location);
+    newUrl.searchParams.set('page', newPage);
+    newUrl.searchParams.set('per_page', itemsPerPage);
+    window.history.pushState({{}}, '', newUrl); // Corrected empty object literal escaping
+    
+    loadPageData(newPage, itemsPerPage);
+}} // Corrected function brace escaping
+
+function changePageSize(newSize) {{ // Corrected function brace escaping
+    itemsPerPage = parseInt(newSize);
+    
+    // Reset to first page when changing page size
+    const newUrl = new URL(window.location);
+    newUrl.searchParams.set('page', 1);
+    newUrl.searchParams.set('per_page', itemsPerPage);
+    window.history.pushState({{}}, '', newUrl); // Corrected empty object literal escaping
+    
+    loadPageData(1, itemsPerPage);
+}} // Corrected function brace escaping
+
+// ... (rest of your JavaScript functions remain exactly the same as in your original code)
+// Just add the pagination functions above and keep everything else unchanged
+
+// Initialize when DOM is loaded
+document.addEventListener("DOMContentLoaded", function () {{ // Corrected function brace escaping
+    // Load initial page data
+    loadPageData(currentPage, itemsPerPage);
+
+    // Load countries
+    loadCountries();
+
+    // Pagination event listeners
+    document.getElementById('prevPage').addEventListener('click', () => changePage(currentPage - 1));
+    document.getElementById('nextPage').addEventListener('click', () => changePage(currentPage + 1));
+    document.getElementById('prevPageBottom').addEventListener('click', () => changePage(currentPage - 1));
+    document.getElementById('nextPageBottom').addEventListener('click', () => changePage(currentPage + 1));
+    document.getElementById('pageSize').addEventListener('change', (e) => changePageSize(e.target.value));
+
+    // ... (keep all your existing event listeners exactly as they are from your original code) ...
+}}); // Corrected function brace escaping
+
+// ... (include all your existing JavaScript functions from the original code here)
+// Make sure to include: renderTable, setupImageDropArea, sortTable, handleDragStart, 
+// handleDragOver, handleDrop, showToast, saveUpdates, filterTable, applyFilters, 
+// clearFilters, toggleAddMode, and all modal functionality
+
+
+// Load countries data
+function loadCountries() {{
+    fetch('/get-countries')
+        .then(response => response.json())
+        .then(data => {{
+            countriesData = data;
+            populateCountryDropdowns();
+        }})
+        .catch(error => {{
+            console.error("Error loading countries:", error);
+        }});
+}}
+
+// Populate country dropdowns
+function populateCountryDropdowns() {{
+    const editCountryDropdown = document.getElementById('editCountry');
+    
+    if (!editCountryDropdown) return;
+    
+    editCountryDropdown.innerHTML = '';
+    
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = 'Select a country';
+    editCountryDropdown.appendChild(defaultOption);
+    
+    countriesData.forEach(country => {{
+        const option = document.createElement('option');
+        option.value = country.name;
+        option.textContent = country.name;
+        editCountryDropdown.appendChild(option);
+    }});
+}}
+
+function renderTable(data) {{
     const tableContainer = document.getElementById("jsonTableContainer");
     if (!tableContainer) return;
     
@@ -2336,32 +4085,32 @@ function renderTable(data) {
     const headerRow = document.createElement('div');
     headerRow.classList.add('row', 'header');
     const headers = [
-        { text: 'Country', key: 'country' },
-        { text: 'Currency Type', key: 'currency_type' },
-        { text: 'Donor Name', key: 'donor_name' },
-        { text: 'Image', key: 'image' },
-        { text: 'Note', key: 'note' },
-        { text: 'Size', key: 'size' },
-        { text: 'Year', key: 'year' },
-        { text: 'Actions', key: null }
+        {{ text: 'Country', key: 'country' }},
+        {{ text: 'Currency Type', key: 'currency_type' }},
+        {{ text: 'Donor Name', key: 'donor_name' }},
+        {{ text: 'Image', key: 'image' }},
+        {{ text: 'Note', key: 'note' }},
+        {{ text: 'Size', key: 'size' }},
+        {{ text: 'Year', key: 'year' }},
+        {{ text: 'Actions', key: null }}
     ];
     
-    headers.forEach(header => {
+    headers.forEach(header => {{
         const column = document.createElement('div');
         column.classList.add('column');
         column.textContent = header.text;
-        if (header.key) {
+        if (header.key) {{
             column.dataset.key = header.key;
             column.classList.add('sortable');
-            column.addEventListener('click', () => {
+            column.addEventListener('click', () => {{
                 sortTable(header.key);
-            });
-        }
+            }});
+        }}
         headerRow.appendChild(column);
-    });
+    }});
     tableContainer.appendChild(headerRow);
 
-    data.forEach((row, index) => {
+    data.forEach((row, index) => {{
         const rowDiv = document.createElement('div');
         rowDiv.classList.add('row');
         rowDiv.draggable = true;
@@ -2377,65 +4126,65 @@ function renderTable(data) {
         const countrySelect = document.createElement('select');
         countrySelect.classList.add('country-dropdown');
 
-        countrySelect.addEventListener('change', function() {
+        countrySelect.addEventListener('change', function() {{
             const oldCountry = row.country;
             const newCountry = this.value;
             const image = row.image;
 
-            if (!image || image === "placeholder.jpg") {
+            if (!image || image === "placeholder.jpg") {{
                 row.country = newCountry;
                 saveUpdates();
                 return;
-            }
+            }}
 
-            fetch('/update-country', {
+            fetch('/update-country', {{
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
+                headers: {{ 'Content-Type': 'application/json' }},
+                body: JSON.stringify({{
                     image: image,
                     old_country: oldCountry,
                     new_country: newCountry
-                })
-            })
+                }})
+            }})
             .then(response => response.json())
-            .then(data => {
-                if (data.error) {
+            .then(data => {{
+                if (data.error) {{
                     alert("Error: " + data.error);
                     this.value = oldCountry;
-                } else {
+                }} else {{
                     console.log(data.message);
                     row.country = newCountry;
                     renderTable(jsonData);
-                }
-            })
-            .catch(error => {
+                }}
+            }})
+            .catch(error => {{
                 console.error("Error updating country:", error);
                 this.value = oldCountry;
-            });
-        });
+            }});
+        }});
 
         const defaultOption = document.createElement('option');
         defaultOption.value = '';
         defaultOption.textContent = 'Select country';
         countrySelect.appendChild(defaultOption);
         
-        countriesData.forEach(country => {
+        countriesData.forEach(country => {{
             const option = document.createElement('option');
             option.value = country.name;
             option.textContent = country.name;
-            if (row.country === country.name) {
+            if (row.country === country.name) {{
                 option.selected = true;
-            }
+            }}
             countrySelect.appendChild(option);
-        });
+        }});
         
-        if (row.country && !countriesData.some(c => c.name === row.country)) {
+        if (row.country && !countriesData.some(c => c.name === row.country)) {{
             const option = document.createElement('option');
             option.value = row.country;
             option.textContent = row.country;
             option.selected = true;
             countrySelect.appendChild(option);
-        }
+        }}
         
         countryColumn.appendChild(countrySelect);
         rowDiv.appendChild(countryColumn);
@@ -2445,21 +4194,21 @@ function renderTable(data) {
         currencyColumn.classList.add('column');
         const currencySelect = document.createElement('select');
         currencySelect.classList.add('currency-dropdown');
-        currencySelect.addEventListener('change', function() {
+        currencySelect.addEventListener('change', function() {{
             row.currency_type = this.value;
             saveUpdates();
-        });
+        }});
         
         const currencyOptions = ['coin', 'paper-bill', 'antique'];
-        currencyOptions.forEach(optionValue => {
+        currencyOptions.forEach(optionValue => {{
             const option = document.createElement('option');
             option.value = optionValue;
             option.textContent = optionValue.charAt(0).toUpperCase() + optionValue.slice(1);
-            if (row.currency_type === optionValue) {
+            if (row.currency_type === optionValue) {{
                 option.selected = true;
-            }
+            }}
             currencySelect.appendChild(option);
-        });
+        }});
         
         currencyColumn.appendChild(currencySelect);
         rowDiv.appendChild(currencyColumn);
@@ -2469,10 +4218,10 @@ function renderTable(data) {
         donorColumn.classList.add('column', 'editable');
         donorColumn.textContent = row.donor_name || "No Donor Name";
         donorColumn.contentEditable = true;
-        donorColumn.addEventListener('blur', function() {
+        donorColumn.addEventListener('blur', function() {{
             row.donor_name = this.textContent;
             saveUpdates();
-        });
+        }});
         rowDiv.appendChild(donorColumn);
         
         // Image column with drag and drop
@@ -2483,14 +4232,14 @@ function renderTable(data) {
         dropArea.classList.add('image-drop-area');
         dropArea.setAttribute('data-index', index);
 
-        if (row.image && row.image !== 'placeholder.jpg') {
-            dropArea.innerHTML = `<img src="images/${row.country}/${row.image}" 
+        if (row.image && row.image !== 'placeholder.jpg') {{
+            dropArea.innerHTML = `<img src="images/${{row.country}}/${{row.image}}" 
                                     class="thumbnail" 
-                                    data-index="${index}" 
+                                    data-index="${{index}}" 
                                     onerror="this.src='images/placeholder.jpg'">`;
-        } else {
+        }} else {{
             dropArea.innerHTML = '<p>Drag & drop image here</p>';
-        }
+        }}
 
         setupImageDropArea(dropArea, row, index);
         imageColumn.appendChild(dropArea);
@@ -2501,10 +4250,10 @@ function renderTable(data) {
         noteColumn.classList.add('column', 'editable');
         noteColumn.textContent = row.note || "No Note";
         noteColumn.contentEditable = true;
-        noteColumn.addEventListener('blur', function() {
+        noteColumn.addEventListener('blur', function() {{
             row.note = this.textContent;
             saveUpdates();
-        });
+        }});
         rowDiv.appendChild(noteColumn);
         
         // Size (editable)
@@ -2512,10 +4261,10 @@ function renderTable(data) {
         sizeColumn.classList.add('column', 'editable');
         sizeColumn.textContent = row.size || "No Size";
         sizeColumn.contentEditable = true;
-        sizeColumn.addEventListener('blur', function() {
+        sizeColumn.addEventListener('blur', function() {{
             row.size = this.textContent;
             saveUpdates();
-        });
+        }});
         rowDiv.appendChild(sizeColumn);
         
         // Year (editable)
@@ -2523,10 +4272,10 @@ function renderTable(data) {
         yearColumn.classList.add('column', 'editable');
         yearColumn.textContent = row.year || "No Year";
         yearColumn.contentEditable = true;
-        yearColumn.addEventListener('blur', function() {
+        yearColumn.addEventListener('blur', function() {{
             row.year = this.textContent;
             saveUpdates();
-        });
+        }});
         rowDiv.appendChild(yearColumn);
         
         // Actions (delete button)
@@ -2535,169 +4284,169 @@ function renderTable(data) {
         const deleteBtn = document.createElement('span');
         deleteBtn.classList.add('delete-btn');
         deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-        deleteBtn.addEventListener('click', function() {
-            if (confirm('Are you sure you want to delete this entry?')) {
+        deleteBtn.addEventListener('click', function() {{
+            if (confirm('Are you sure you want to delete this entry?')) {{
                 jsonData.splice(index, 1);
                 renderTable(jsonData);
                 saveUpdates();
-            }
-        });
+            }}
+        }});
         actionColumn.appendChild(deleteBtn);
         rowDiv.appendChild(actionColumn);
 
         tableContainer.appendChild(rowDiv);
-    });
+    }});
     
     // Apply filters after rendering
     filterTable();
-}
+}}
 
 // Setup image drop area functionality
-function setupImageDropArea(dropArea, row, index) {
+function setupImageDropArea(dropArea, row, index) {{
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = 'image/*';
     fileInput.style.display = 'none';
     document.body.appendChild(fileInput);
     
-    dropArea.addEventListener('click', () => {
+    dropArea.addEventListener('click', () => {{
         fileInput.click();
-    });
+    }});
     
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {{
         dropArea.addEventListener(eventName, preventDefaults, false);
-    });
+    }});
     
-    function preventDefaults(e) {
+    function preventDefaults(e) {{
         e.preventDefault();
         e.stopPropagation();
-    }
+    }}
     
-    ['dragenter', 'dragover'].forEach(eventName => {
+    ['dragenter', 'dragover'].forEach(eventName => {{
         dropArea.addEventListener(eventName, highlight, false);
-    });
+    }});
     
-    ['dragleave', 'drop'].forEach(eventName => {
+    ['dragleave', 'drop'].forEach(eventName => {{
         dropArea.addEventListener(eventName, unhighlight, false);
-    });
+    }});
     
-    function highlight() {
+    function highlight() {{
         dropArea.classList.add('highlight');
-    }
+    }}
     
-    function unhighlight() {
+    function unhighlight() {{
         dropArea.classList.remove('highlight');
-    }
+    }}
     
     dropArea.addEventListener('drop', handleDropFile, false);
     
     fileInput.addEventListener('change', handleFileSelect, false);
     
-    function handleDropFile(e) {
+    function handleDropFile(e) {{
         const dt = e.dataTransfer;
         const files = dt.files;
         handleFiles(files, row, index);
-    }
+    }}
     
-    function handleFileSelect(e) {
+    function handleFileSelect(e) {{
         const files = e.target.files;
         handleFiles(files, row, index);
-    }
+    }}
     
-    function handleFiles(files, row, index) {
+    function handleFiles(files, row, index) {{
         if (files.length === 0) return;
         
         const file = files[0];
         const country = row.country;
         
-        if (!country) {
+        if (!country) {{
             alert('Please select a country first');
             return;
-        }
+        }}
         
         const formData = new FormData();
         formData.append('file', file);
         formData.append('country', country);
 
-        if (row.image && row.image !== "placeholder.jpg") {
+        if (row.image && row.image !== "placeholder.jpg") {{
             formData.append('existing_image', row.image);
-        }
+        }}
 
-        fetch('/upload-image', {
+        fetch('/upload-image', {{
             method: 'POST',
             body: formData
-        })
+        }})
         .then(response => response.json())
-        .then(data => {
-            if (data.error) {
+        .then(data => {{
+            if (data.error) {{
                 alert('Error uploading image: ' + data.error);
-            } else {
+            }} else {{
                 jsonData[index].image = data.filename;
                 renderTable(jsonData);
                 saveUpdates();
-            }
-        })
-        .catch(error => {
+            }}
+        }})
+        .catch(error => {{
             console.error('Error:', error);
             alert('Error uploading image');
-        });
-    }
-}
+        }});
+    }}
+}}
 
-function sortTable(key) {
-    jsonData.sort((a, b) => {
+function sortTable(key) {{
+    jsonData.sort((a, b) => {{
         if (a[key] < b[key]) return -1 * sortOrder;
         if (a[key] > b[key]) return 1 * sortOrder;
         return 0;
-    });
+    }});
     sortOrder *= -1;
     renderTable(jsonData);
     
-    fetch('/update-json', {
+    fetch('/update-json', {{
         method: 'POST',
-        headers: {
+        headers: {{
             'Content-Type': 'application/json',
-        },
+        }},
         body: JSON.stringify(jsonData)
-    })
+    }})
     .then(response => response.json())
-    .then(data => {
-        if (data.message) {
+    .then(data => {{
+        if (data.message) {{
             console.log('Backend JSON updated successfully:', data.message);
-        } else {
+        }} else {{
             console.error('Error updating JSON:', data.error);
-            alert(`Error updating JSON: ${data.error}`);
-        }
-    })
-    .catch(error => {
+            alert(`Error updating JSON: ${{data.error}}`);
+        }}
+    }})
+    .catch(error => {{
         console.error('Error with fetch request:', error);
         alert('An error occurred while updating the JSON file.');
-    });
-}
+    }});
+}}
 
-function handleDragStart(e) {
+function handleDragStart(e) {{
     e.dataTransfer.setData('text/plain', e.target.getAttribute('data-index'));
-}
+}}
 
-function handleDragOver(e) {
+function handleDragOver(e) {{
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-}
+}}
 
-function handleDrop(e) {
+function handleDrop(e) {{
     e.preventDefault();
     const draggedIndex = e.dataTransfer.getData('text/plain');
     const targetIndex = e.target.closest('.row').getAttribute('data-index');
 
-    if (draggedIndex !== targetIndex) {
+    if (draggedIndex !== targetIndex) {{
         const draggedItem = jsonData.splice(draggedIndex, 1)[0];
         jsonData.splice(targetIndex, 0, draggedItem);
         renderTable(jsonData);
         saveUpdates();
-    }
-}
+    }}
+}}
 
-function showToast(message) {
+function showToast(message) {{
     const toast = document.getElementById("toastMessage");
     if (!toast) return;
     
@@ -2705,171 +4454,171 @@ function showToast(message) {
     toast.style.display = "block";
     toast.style.opacity = "1";
 
-    setTimeout(() => {
+    setTimeout(() => {{
         toast.style.opacity = "0";
-    }, 3000);
+    }}, 3000);
 
-    setTimeout(() => {
+    setTimeout(() => {{
         toast.style.display = "none";
-    }, 4000);
-}
+    }}, 4000);
+}}
 
-function saveUpdates() {
-    fetch('/update-json', {
+function saveUpdates() {{
+    fetch('/update-json', {{
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {{ 'Content-Type': 'application/json' }},
         body: JSON.stringify(jsonData),
-    })
+    }})
     .then(response => response.json())
-    .then(data => {
+    .then(data => {{
         console.log(data.message || "File updated.");
         showToast(data.message || "Changes saved!");
-    })
-    .catch(error => {
+    }})
+    .catch(error => {{
         console.error("Error:", error);
         showToast("❌ Error saving changes!");
-    });
-}
+    }});
+}}
 
 // Filter functionality
-function filterTable() {
+function filterTable() {{
     const rows = document.querySelectorAll('#jsonTableContainer .row:not(.header)');
     
-    rows.forEach(row => {
+    rows.forEach(row => {{
         const index = parseInt(row.getAttribute('data-index'));
         const rowData = jsonData[index];
         
         let shouldShow = true;
         
         // Country filter
-        if (activeFilters.country && rowData.country) {
+        if (activeFilters.country && rowData.country) {{
             const countryMatch = rowData.country.toLowerCase().includes(activeFilters.country.toLowerCase());
             if (!countryMatch) shouldShow = false;
-        }
+        }}
         
         // Size filter
-        if (activeFilters.size && rowData.size) {
+        if (activeFilters.size && rowData.size) {{
             const sizeMatch = rowData.size.toLowerCase().includes(activeFilters.size.toLowerCase());
             if (!sizeMatch) shouldShow = false;
-        }
+        }}
         
         // Year range filter
-        if (activeFilters.yearFrom && rowData.year) {
+        if (activeFilters.yearFrom && rowData.year) {{
             const year = parseInt(rowData.year);
-            if (!isNaN(year) && year < parseInt(activeFilters.yearFrom)) {
+            if (!isNaN(year) && year < parseInt(activeFilters.yearFrom)) {{
                 shouldShow = false;
-            }
-        }
+            }}
+        }}
         
-        if (activeFilters.yearTo && rowData.year) {
+        if (activeFilters.yearTo && rowData.year) {{
             const year = parseInt(rowData.year);
-            if (!isNaN(year) && year > parseInt(activeFilters.yearTo)) {
+            if (!isNaN(year) && year > parseInt(activeFilters.yearTo)) {{
                 shouldShow = false;
-            }
-        }
+            }}
+        }}
         
         // Toggle visibility
         row.style.display = shouldShow ? 'flex' : 'none';
-    });
-}
+    }});
+}}
 
-function applyFilters() {
+function applyFilters() {{
     activeFilters.country = document.getElementById('countrySearch').value;
     activeFilters.size = document.getElementById('sizeSearch').value;
     activeFilters.yearFrom = document.getElementById('yearFromSearch').value;
     activeFilters.yearTo = document.getElementById('yearToSearch').value;
     
     filterTable();
-}
+}}
 
-function clearFilters() {
+function clearFilters() {{
     document.getElementById('countrySearch').value = '';
     document.getElementById('sizeSearch').value = '';
     document.getElementById('yearFromSearch').value = '';
     document.getElementById('yearToSearch').value = '';
     
-    activeFilters = {
+    activeFilters = {{
         country: '',
         size: '',
         yearFrom: '',
         yearTo: ''
-    };
+    }};
     
     filterTable();
-}
+}}
 
-function toggleAddMode() {
+function toggleAddMode() {{
     isAddMode = !isAddMode;
     const button = document.getElementById('toggleAddMode');
     
-    if (isAddMode) {
+    if (isAddMode) {{
         button.classList.add('active');
         button.textContent = 'Exit Add Mode';
         // Add visual indication for add mode
         document.body.style.backgroundColor = '#2c5530';
-    } else {
+    }} else {{
         button.classList.remove('active');
         button.textContent = 'Add New Mode';
         document.body.style.backgroundColor = '#72787e';
-    }
-}
+    }}
+}}
 
 // Initialize when DOM is loaded
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {{
     // Load initial data
     fetch('/get-json')
         .then(response => response.json())
-        .then(data => {
+        .then(data => {{
             jsonData = data;
             renderTable(jsonData);
-        })
-        .catch(error => {
+        }})
+        .catch(error => {{
             console.error("Error fetching JSON data:", error);
             document.getElementById("jsonTableContainer").innerHTML = "Error loading data";
-        });
+        }});
 
     // Load countries
     loadCountries();
 
     // Add event listeners
-    document.getElementById("uploadFileBtn").addEventListener("click", function () {
+    document.getElementById("uploadFileBtn").addEventListener("click", function () {{
         const fileInput = document.getElementById("uploadFileInput");
         const file = fileInput.files[0];
 
-        if (!file) {
+        if (!file) {{
             alert("Please select a file to upload.");
             return;
-        }
+        }}
 
         const formData = new FormData();
         formData.append("file", file);
 
-        fetch('/upload-json', {
+        fetch('/upload-json', {{
             method: 'POST',
             body: formData
-        })
+        }})
         .then(response => response.json())
-        .then(data => {
-            if (data.message) {
+        .then(data => {{
+            if (data.message) {{
                 alert(data.message);
                 fetch('/get-json')
                     .then(response => response.json())
-                    .then(newData => {
+                    .then(newData => {{
                         jsonData = newData;
                         renderTable(jsonData);
-                    });
-            } else {
+                    }});
+            }} else {{
                 alert(data.error || "An error occurred.");
-            }
-        })
-        .catch(error => {
+            }}
+        }})
+        .catch(error => {{
             console.error("Error:", error);
             alert("An error occurred while uploading the file.");
-        });
-    });
+        }});
+    }});
 
-    document.getElementById("addRowBtn").addEventListener("click", function () {
-        const newRow = {
+    document.getElementById("addRowBtn").addEventListener("click", function () {{
+        const newRow = {{
             country: "",
             currency_type: "coin",
             donor_name: "New Donor Name",
@@ -2877,15 +4626,15 @@ document.addEventListener("DOMContentLoaded", function () {
             note: "New Note",
             size: "",
             year: ""
-        };
+        }};
         jsonData.push(newRow);
         renderTable(jsonData);
         saveUpdates();
-    });
+    }});
 
-    document.getElementById("downloadBtn").addEventListener("click", function () {
+    document.getElementById("downloadBtn").addEventListener("click", function () {{
         const jsonString = JSON.stringify(jsonData, null, 2);
-        const blob = new Blob([jsonString], { type: "application/json" });
+        const blob = new Blob([jsonString], {{ type: "application/json" }});
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
@@ -2894,11 +4643,11 @@ document.addEventListener("DOMContentLoaded", function () {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-    });
+    }});
 
-    document.getElementById("closeModal").addEventListener("click", function () {
+    document.getElementById("closeModal").addEventListener("click", function () {{
         document.getElementById("imageModal").style.display = "none";
-    });
+    }});
 
     // Filter event listeners
     document.getElementById("applyFilters").addEventListener("click", applyFilters);
@@ -2913,47 +4662,47 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("yearToSearch").addEventListener("input", applyFilters);
 
     // File input change listener
-    document.getElementById("uploadFileInput").addEventListener("change", function (event) {
+    document.getElementById("uploadFileInput").addEventListener("change", function (event) {{
         const file = event.target.files[0];
 
-        if (!file) {
+        if (!file) {{
             alert("No file selected. Please select a JSON file.");
             return;
-        }
+        }}
 
-        if (file.type !== "application/json") {
+        if (file.type !== "application/json") {{
             alert("Invalid file type. Please upload a valid JSON file.");
             return;
-        }
+        }}
 
         const reader = new FileReader();
-        reader.onload = function (e) {
-            try {
+        reader.onload = function (e) {{
+            try {{
                 jsonData = JSON.parse(e.target.result);
                 renderTable(jsonData);
-            } catch (error) {
+            }} catch (error) {{
                 alert("Error parsing JSON file. Please check the file format.");
                 console.error("JSON Parsing Error:", error);
-            }
-        };
+            }}
+        }};
 
-        reader.onerror = function () {
+        reader.onerror = function () {{
             alert("Error reading the file. Please try again.");
-        };
+        }};
 
         reader.readAsText(file);
-    });
+    }});
 
     // ========== MODAL FUNCTIONALITY ==========
 
     // Modal click functionality
-    document.addEventListener("click", function (event) {
-        if (event.target.classList.contains("thumbnail")) {
+    document.addEventListener("click", function (event) {{
+        if (event.target.classList.contains("thumbnail")) {{
             const index = event.target.getAttribute("data-index");
             const row = jsonData[index];
             
             // Update modal image and info
-            document.getElementById("modalImage").src = `images/${row.country}/${row.image}`;
+            document.getElementById("modalImage").src = `images/${{row.country}}/${{row.image}}`;
             document.getElementById("imageFileName").textContent = row.image;
             
             // Populate form fields
@@ -2972,72 +4721,72 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById('mergeDropArea1').innerHTML = '<p>Drag & drop first image here</p>';
             document.getElementById('mergeDropArea2').innerHTML = '<p>Drag & drop second image here</p>';
             document.getElementById('modalMergeImagesBtn').disabled = true;
-        }
-    });
+        }}
+    }});
 
     // Auto-save functionality for modal fields
-    function setupModalAutoSave() {
+    function setupModalAutoSave() {{
         const fields = [
-            { id: "editCountry", key: "country", type: "select" },
-            { id: "editCurrencyType", key: "currency_type", type: "select" },
-            { id: "editDonorName", key: "donor_name", type: "input" },
-            { id: "editNote", key: "note", type: "textarea" },
-            { id: "editSize", key: "size", type: "input" },
-            { id: "editYear", key: "year", type: "input" },
-            { id: "editHiddenNote", key: "hidden_note", type: "textarea" }
+            {{ id: "editCountry", key: "country", type: "select" }},
+            {{ id: "editCurrencyType", key: "currency_type", type: "select" }},
+            {{ id: "editDonorName", key: "donor_name", type: "input" }},
+            {{ id: "editNote", key: "note", type: "textarea" }},
+            {{ id: "editSize", key: "size", type: "input" }},
+            {{ id: "editYear", key: "year", type: "input" }},
+            {{ id: "editHiddenNote", key: "hidden_note", type: "textarea" }}
         ];
 
-        fields.forEach(field => {
+        fields.forEach(field => {{
             const element = document.getElementById(field.id);
             if (!element) return;
 
-            if (field.type === "select") {
-                element.addEventListener("change", function() {
-                    if (currentEditingIndex !== -1) {
+            if (field.type === "select") {{
+                element.addEventListener("change", function() {{
+                    if (currentEditingIndex !== -1) {{
                         jsonData[currentEditingIndex][field.key] = this.value;
                         saveUpdates();
-                    }
-                });
-            } else {
-                element.addEventListener("blur", function() {
-                    if (currentEditingIndex !== -1) {
+                    }}
+                }});
+            }} else {{
+                element.addEventListener("blur", function() {{
+                    if (currentEditingIndex !== -1) {{
                         jsonData[currentEditingIndex][field.key] = this.value;
                         saveUpdates();
-                    }
-                });
-            }
-        });
-    }
+                    }}
+                }});
+            }}
+        }});
+    }}
 
     // Modal image upload functionality
-    function setupModalImageUpload() {
+    function setupModalImageUpload() {{
         const dropArea = document.getElementById('modalImageDropArea');
         const fileInput = document.getElementById('editImageInput');
         
         if (!dropArea || !fileInput) return;
         
         // Click to select file
-        dropArea.addEventListener('click', () => {
+        dropArea.addEventListener('click', () => {{
             fileInput.click();
-        });
+        }});
         
         // Drag and drop events
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {{
             dropArea.addEventListener(eventName, preventDefaults, false);
-        });
+        }});
         
-        function preventDefaults(e) {
+        function preventDefaults(e) {{
             e.preventDefault();
             e.stopPropagation();
-        }
+        }}
         
-        ['dragenter', 'dragover'].forEach(eventName => {
+        ['dragenter', 'dragover'].forEach(eventName => {{
             dropArea.addEventListener(eventName, () => dropArea.classList.add('highlight'), false);
-        });
+        }});
         
-        ['dragleave', 'drop'].forEach(eventName => {
+        ['dragleave', 'drop'].forEach(eventName => {{
             dropArea.addEventListener(eventName, () => dropArea.classList.remove('highlight'), false);
-        });
+        }});
         
         // Handle file drop
         dropArea.addEventListener('drop', handleDropFile, false);
@@ -3045,66 +4794,66 @@ document.addEventListener("DOMContentLoaded", function () {
         // Handle file selection
         fileInput.addEventListener('change', handleFileSelect, false);
         
-        function handleDropFile(e) {
+        function handleDropFile(e) {{
             const dt = e.dataTransfer;
             const files = dt.files;
             handleFiles(files);
-        }
+        }}
         
-        function handleFileSelect(e) {
+        function handleFileSelect(e) {{
             const files = e.target.files;
             handleFiles(files);
-        }
+        }}
         
-        function handleFiles(files) {
+        function handleFiles(files) {{
             if (files.length === 0) return;
             
             const file = files[0];
             const country = document.getElementById('editCountry').value;
             
-            if (!country) {
+            if (!country) {{
                 alert('Please select a country first');
                 return;
-            }
+            }}
             
             const formData = new FormData();
             formData.append('file', file);
             formData.append('country', country);
             
             // If editing existing row, replace the image
-            if (currentEditingIndex !== -1 && jsonData[currentEditingIndex].image && jsonData[currentEditingIndex].image !== "placeholder.jpg") {
+            if (currentEditingIndex !== -1 && jsonData[currentEditingIndex].image && jsonData[currentEditingIndex].image !== "placeholder.jpg") {{
                 formData.append('existing_image', jsonData[currentEditingIndex].image);
-            }
+            }}
             
-            fetch('/upload-image', {
+            fetch('/upload-image', {{
                 method: 'POST',
                 body: formData
-            })
+            }})
             .then(response => response.json())
-            .then(data => {
-                if (data.error) {
+            .then(data => {{
+                if (data.error) {{
                     alert('Error uploading image: ' + data.error);
-                } else {
+                }} else {{
                     // Update the image in the current editing row
-                    if (currentEditingIndex !== -1) {
+                    if (currentEditingIndex !== -1) {{
                         jsonData[currentEditingIndex].image = data.filename;
                         renderTable(jsonData);
                         saveUpdates();
                         // Update modal image display
-                        document.getElementById("modalImage").src = `images/${country}/${data.filename}`;
+                        document.getElementById("modalImage").src = `images/${{country}}/${{data.filename}}`;
                         document.getElementById("imageFileName").textContent = data.filename;
-                    }
-                }
-            })
-            .catch(error => {
+                    }}
+                }}
+            }})
+            .catch(error => {{
                 console.error('Error:', error);
                 alert('Error uploading image');
-            });
-        }
-    }
+            }});
+        }}
+    }}
 
     // Modal image merging functionality
-    function setupModalImageMerging() {
+    function setupModalImageMerging() {{
         let mergeImage1 = null;
         let mergeImage2 = null;
 
@@ -3113,7 +4862,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const mergeImagesBtn = document.getElementById('modalMergeImagesBtn');
 
         // Setup drop areas for merging
-        function setupMergeDropArea(dropArea, imageNumber) {
+        function setupMergeDropArea(dropArea, imageNumber) {{
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
             fileInput.accept = 'image/*';
@@ -3122,95 +4871,95 @@ document.addEventListener("DOMContentLoaded", function () {
             
             dropArea.addEventListener('click', () => fileInput.click());
             
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {{
                 dropArea.addEventListener(eventName, preventDefaults, false);
-            });
+            }});
             
-            ['dragenter', 'dragover'].forEach(eventName => {
+            ['dragenter', 'dragover'].forEach(eventName => {{
                 dropArea.addEventListener(eventName, () => dropArea.classList.add('highlight'), false);
-            });
+            }});
             
-            ['dragleave', 'drop'].forEach(eventName => {
+            ['dragleave', 'drop'].forEach(eventName => {{
                 dropArea.addEventListener(eventName, () => dropArea.classList.remove('highlight'), false);
-            });
+            }});
             
-            dropArea.addEventListener('drop', function(e) {
+            dropArea.addEventListener('drop', function(e) {{
                 handleMergeFileDrop(e, imageNumber);
-            }, false);
+            }}, false);
             
-            fileInput.addEventListener('change', function(e) {
+            fileInput.addEventListener('change', function(e) {{
                 handleMergeFileSelect(e, imageNumber);
-            });
+            }});
 
-            function preventDefaults(e) {
+            function preventDefaults(e) {{
                 e.preventDefault();
                 e.stopPropagation();
-            }
+            }}
 
-            function handleMergeFileDrop(e, imageNumber) {
+            function handleMergeFileDrop(e, imageNumber) {{
                 const dt = e.dataTransfer;
                 const files = dt.files;
                 handleMergeFiles(files, imageNumber);
-            }
+            }}
 
-            function handleMergeFileSelect(e, imageNumber) {
+            function handleMergeFileSelect(e, imageNumber) {{
                 const files = e.target.files;
                 handleMergeFiles(files, imageNumber);
-            }
+            }}
 
-            function handleMergeFiles(files, imageNumber) {
+            function handleMergeFiles(files, imageNumber) {{
                 if (files.length === 0) return;
                 
                 const file = files[0];
-                if (!file.type.startsWith('image/')) {
+                if (!file.type.startsWith('image/')) {{
                     alert('Please select an image file');
                     return;
-                }
+                }}
                 
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function(e) {{
                     const fileSizeKB = Math.round(file.size / 1024);
                     const htmlContent = '<img src="' + e.target.result + '" style="max-width: 100%; max-height: 70px;">' +
                                        '<div style="font-size: 10px; margin-top: 5px;">' +
                                        file.name + '<br>' + file.type + ' (' + fileSizeKB + 'KB)' +
                                        '</div>';
                     
-                    if (imageNumber === 1) {
+                    if (imageNumber === 1) {{
                         mergeImage1 = file;
                         mergeDropArea1.innerHTML = htmlContent;
-                    } else {
+                    }} else {{
                         mergeImage2 = file;
                         mergeDropArea2.innerHTML = htmlContent;
-                    }
+                    }}
                     
                     // Enable merge button if both images are uploaded
-                    if (mergeImage1 && mergeImage2) {
+                    if (mergeImage1 && mergeImage2) {{
                         mergeImagesBtn.disabled = false;
-                    }
-                };
+                    }}
+                }};
                 reader.readAsDataURL(file);
-            }
-        }
+            }}
+        }}
 
         // Setup both drop areas
         setupMergeDropArea(mergeDropArea1, 1);
         setupMergeDropArea(mergeDropArea2, 2);
 
         // Merge button click handler
-        mergeImagesBtn.addEventListener('click', function() {
-            if (!mergeImage1 || !mergeImage2) {
+        mergeImagesBtn.addEventListener('click', function() {{
+            if (!mergeImage1 || !mergeImage2) {{
                 alert('Please upload both images first');
                 return;
-            }
+            }}
             
             const mergeDirection = document.querySelector('input[name="mergeDirection"]:checked').value;
             const resizeOption = document.querySelector('input[name="resizeOption"]:checked').value;
             const country = document.getElementById('editCountry').value;
             
-            if (!country) {
+            if (!country) {{
                 alert('Please select a country first');
                 return;
-            }
+            }}
 
             // Create FormData for merging
             const formData = new FormData();
@@ -3225,55 +4974,59 @@ document.addEventListener("DOMContentLoaded", function () {
             mergeImagesBtn.textContent = 'Merging...';
             mergeImagesBtn.disabled = true;
 
-            fetch('/merge-images-upload', {
+            fetch('/merge-images-upload', {{
                 method: 'POST',
                 body: formData
-            })
+            }})
             .then(response => response.json())
-            .then(data => {
-                if (data.error) {
+            .then(data => {{
+                if (data.error) {{
                     alert('Error merging images: ' + data.error);
-                } else {
+                }} else {{
                     alert('Images merged successfully!');
                     // Update the current row with merged image
-                    if (currentEditingIndex !== -1) {
+                    if (currentEditingIndex !== -1) {{
                         jsonData[currentEditingIndex].image = data.filename;
                         renderTable(jsonData);
                         saveUpdates();
                         // Update modal display
-                        document.getElementById("modalImage").src = `images/${country}/${data.filename}`;
+                        document.getElementById("modalImage").src = `images/${{country}}/${{data.filename}}`;
                         document.getElementById("imageFileName").textContent = data.filename;
-                    }
+                    }}
                     // Clear merge areas
                     mergeImage1 = null;
                     mergeImage2 = null;
                     mergeDropArea1.innerHTML = '<p>Drag & drop first image here</p>';
                     mergeDropArea2.innerHTML = '<p>Drag & drop second image here</p>';
                     mergeImagesBtn.disabled = true;
-                }
-            })
-            .catch(error => {
+                }}
+            }})
+            .catch(error => {{
                 console.error('Error merging images:', error);
                 alert('Error merging images: ' + error.message);
-            })
-            .finally(() => {
+            }})
+            .finally(() => {{
                 mergeImagesBtn.textContent = originalText;
                 mergeImagesBtn.disabled = false;
-            });
-        });
-    }
+            }});
+        }});
+    }}
 
     // Initialize modal functionality
     setupModalAutoSave();
     setupModalImageUpload();
     setupModalImageMerging();
 
-});
+}});
+
+
 </script>
+ 
 </body>
 
 </html>
     '''
+
 
 # ADD THIS NEW ROUTE - Serve box_country_list.html
 @app.route('/box_country_list.html')
