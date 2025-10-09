@@ -14,7 +14,14 @@ from flask_cors import CORS
 import base64
 from PIL import Image, ImageOps
 
-app = Flask(__name__, static_url_path='/static')
+#app = Flask(__name__, static_url_path='/static')
+app = Flask(__name__, static_url_path='/static', static_folder='static')
+
+# Add this after your directory definitions
+required_dirs = ['images', 'crop', 'static', 'geojson', 'flags/svg']
+for dir_name in required_dirs:
+    os.makedirs(dir_name, exist_ok=True)
+
 CORS(app)
 
 # App configuration
@@ -3641,12 +3648,48 @@ def edit_json():
         
         /* Add pagination styles */
         .pagination {{
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 20px 0;
-            gap: 10px;
-        }}
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+    gap: 10px;
+}}
+
+.view-options {{
+    display: flex;
+    gap: 10px;
+    margin-left: 20px;
+}}
+
+.show-all-btn, .show-pagination-btn {{
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}}
+
+.show-all-btn:hover:not(:disabled), .show-pagination-btn:hover:not(:disabled) {{
+    background: linear-gradient(135deg, #218838 0%, #1e9e8a 100%);
+    transform: translateY(-2px);
+}}
+
+.show-all-btn:disabled, .show-pagination-btn:disabled {{
+    background: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+}}
+
+.show-pagination-btn {{
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+}}
+
+.show-pagination-btn:hover:not(:disabled) {{
+    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+}}
 
         .page-btn {{
             padding: 8px 16px;
@@ -5085,55 +5128,105 @@ document.getElementById('showPaginationBtnBottom').addEventListener('click', sho
 
 }});
 
-// Show All functionality
+
 function showAllEntries() {{
     showLoading();
     
-    // Fetch all data without pagination
-    fetch('/get-json')
+    // First check how many total items we have
+    fetch('/get-json?page=1&per_page=1&ajax=true')
         .then(response => response.json())
+        .then(paginationInfo => {{
+            const totalItems = paginationInfo.pagination.total_items;
+            
+            // Show warning for large datasets
+            if (totalItems > 500) {{
+                if (!confirm(`This will load ${{totalItems}} items. This might be slow on large collections. Continue?`)) {{
+                    hideLoading();
+                    return;
+                }}
+            }}
+            
+            // Fetch all data
+            return fetch('/get-all-json');
+        }})
+        .then(response => {{
+            if (!response) return; // User cancelled the operation
+            return response.json();
+        }})
         .then(data => {{
+            if (!data) return; // User cancelled the operation
+            
             jsonData = data;
             renderTable(jsonData);
             
-            // Update UI state
+            // Update UI state - ONLY hide pagination navigation, keep the view option buttons
+            document.getElementById('prevPage').style.display = 'none';
+            document.getElementById('nextPage').style.display = 'none';
+            document.getElementById('prevPageBottom').style.display = 'none';
+            document.getElementById('nextPageBottom').style.display = 'none';
+            document.getElementById('pageInfo').style.display = 'none';
+            document.getElementById('pageInfoBottom').style.display = 'none';
+            document.getElementById('pageSize').style.display = 'none';
+            document.querySelector('.page-size-selector label').style.display = 'none';
+            
+            // Show the "Show Pagination" buttons and hide "Show All" buttons
             document.getElementById('showAllBtn').style.display = 'none';
             document.getElementById('showAllBtnBottom').style.display = 'none';
             document.getElementById('showPaginationBtn').style.display = 'inline-block';
             document.getElementById('showPaginationBtnBottom').style.display = 'inline-block';
             
-            // Hide pagination controls
-            document.getElementById('topPagination').style.display = 'none';
-            document.getElementById('bottomPagination').style.display = 'none';
+            // Remove existing item count if present
+            const existingCount = document.getElementById('allItemsCount');
+            if (existingCount) {{
+                existingCount.remove();
+            }}
             
-            // Show item count
+            // Create and show item count
             const itemCount = document.createElement('div');
             itemCount.id = 'allItemsCount';
-            itemCount.style.cssText = 'text-align: center; color: white; font-weight: bold; margin: 10px 0;';
-            itemCount.textContent = `Showing all ${{jsonData.length}} items`;
+            itemCount.style.cssText = 'text-align: center; color: white; font-weight: bold; margin: 10px 0; padding: 10px; background-color: rgba(0,0,0,0.3); border-radius: 4px;';
+            itemCount.textContent = `📊 Showing all ${{jsonData.length}} items`;
             
             const tableContainer = document.getElementById('jsonTableContainer');
             tableContainer.parentNode.insertBefore(itemCount, tableContainer);
             
             hideLoading();
+            
+            // Show success message
+            showToast(`Loaded all ${{jsonData.length}} items`);
         }})
         .catch(error => {{
             console.error("Error fetching all data:", error);
-            document.getElementById("jsonTableContainer").innerHTML = "Error loading all data";
+            document.getElementById("jsonTableContainer").innerHTML = `
+                <div style="text-align: center; color: #ff6b6b; padding: 20px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 10px;"></i>
+                    <h3>Error loading data</h3>
+                    <p>Failed to load all items. Please try again or use pagination view.</p>
+                    <button onclick="showPaginationView()" class="btn-success" style="margin-top: 10px;">
+                        <i class="fas fa-file-alt"></i> Return to Pagination View
+                    </button>
+                </div>
+            `;
             hideLoading();
         }});
 }}
 
 function showPaginationView() {{
-    // Restore pagination view
+    // Restore ALL pagination controls
+    document.getElementById('prevPage').style.display = 'inline-block';
+    document.getElementById('nextPage').style.display = 'inline-block';
+    document.getElementById('prevPageBottom').style.display = 'inline-block';
+    document.getElementById('nextPageBottom').style.display = 'inline-block';
+    document.getElementById('pageInfo').style.display = 'inline-block';
+    document.getElementById('pageInfoBottom').style.display = 'inline-block';
+    document.getElementById('pageSize').style.display = 'inline-block';
+    document.querySelector('.page-size-selector label').style.display = 'inline-block';
+    
+    // Restore button visibility
     document.getElementById('showAllBtn').style.display = 'inline-block';
     document.getElementById('showAllBtnBottom').style.display = 'inline-block';
     document.getElementById('showPaginationBtn').style.display = 'none';
     document.getElementById('showPaginationBtnBottom').style.display = 'none';
-    
-    // Show pagination controls
-    document.getElementById('topPagination').style.display = 'flex';
-    document.getElementById('bottomPagination').style.display = 'flex';
     
     // Remove item count display
     const itemCount = document.getElementById('allItemsCount');
@@ -5141,8 +5234,11 @@ function showPaginationView() {{
         itemCount.remove();
     }}
     
-    // Reload the first page
+    // Reload the first page with current page size
     loadPageData(1, itemsPerPage);
+    
+    // Show message
+    showToast('Switched to pagination view');
 }}
 
 </script>
@@ -5160,9 +5256,52 @@ function showPaginationView() {{
 def box_country_list():
     return send_from_directory('.', 'box_country_list.html')
 
+# @app.route('/get-json', methods=['GET'])
+# def get_json():
+#     return jsonify(load_json())
+
 @app.route('/get-json', methods=['GET'])
 def get_json():
-    return jsonify(load_json())
+    # Support both paginated and non-paginated requests
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 20, type=int)
+    ajax = request.args.get('ajax', False, type=bool)
+    
+    all_data = load_json()
+    total_items = len(all_data)
+    
+    # If it's an AJAX request for pagination, return paginated data
+    if ajax:
+        total_pages = (total_items + per_page - 1) // per_page
+        start_idx = (page - 1) * per_page
+        end_idx = start_idx + per_page
+        current_page_data = all_data[start_idx:end_idx]
+        
+        return jsonify({
+            'data': current_page_data,
+            'pagination': {
+                'current_page': page,
+                'per_page': per_page,
+                'total_items': total_items,
+                'total_pages': total_pages,
+                'has_prev': page > 1,
+                'has_next': page < total_pages
+            }
+        })
+    
+    # Regular request returns all data
+    return jsonify(all_data)
+
+
+@app.route('/get-all-json', methods=['GET'])
+def get_all_json():
+    """Get all JSON data without pagination for Show All mode"""
+    try:
+        all_data = load_json()
+        return jsonify(all_data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route('/update-json', methods=['POST'])
 def update_json():
@@ -5374,6 +5513,119 @@ def merge_images():
             "format": output_format
         }), 200
         
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/get-countries', methods=['GET'])
+def get_countries_list():
+    """API endpoint to get countries list for dropdowns"""
+    try:
+        countries = load_countries()
+        return jsonify(countries)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/update-json', methods=['POST'])
+def update_json_endpoint():
+    """Update the JSON file with new data"""
+    try:
+        data = request.get_json()
+        save_json(data)
+        return jsonify({"message": "JSON file updated successfully!"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+@app.route('/upload-json', methods=['POST'])
+def upload_json_endpoint():
+    """Upload and replace JSON file"""
+    if 'file' not in request.files:
+        return jsonify({"error": "No file provided"}), 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"error": "No file selected"}), 400
+
+    if file and file.filename.endswith('.json'):
+        try:
+            data = json.load(file)
+            save_json(data)
+            return jsonify({"message": "File uploaded and JSON data updated successfully!"})
+        except Exception as e:
+            return jsonify({"error": f"Error processing JSON file: {str(e)}"}), 400
+    else:
+        return jsonify({"error": "Invalid file type. Please upload a JSON file."}), 400
+    
+@app.route('/filter-json', methods=['POST'])
+def filter_json_endpoint():
+    """Filter JSON data based on criteria"""
+    try:
+        filters = request.get_json()
+        data = load_json()
+        
+        filtered_data = []
+        for item in data:
+            # Country filter
+            if filters.get('country') and filters['country'].lower() not in item.get('country', '').lower():
+                continue
+                
+            # Size filter
+            if filters.get('size') and filters['size'].lower() not in item.get('size', '').lower():
+                continue
+                
+            # Year range filter
+            year = item.get('year', '')
+            if year and year.isdigit():
+                year_num = int(year)
+                if filters.get('yearFrom') and year_num < int(filters['yearFrom']):
+                    continue
+                if filters.get('yearTo') and year_num > int(filters['yearTo']):
+                    continue
+            
+            filtered_data.append(item)
+            
+        return jsonify(filtered_data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+@app.route('/update-country', methods=['POST'])
+def update_country_endpoint():
+    """Update country and move image files"""
+    try:
+        data = request.get_json()
+        image = data.get("image")
+        old_country = data.get("old_country")
+        new_country = data.get("new_country")
+
+        if not image or not old_country or not new_country:
+            return jsonify({"error": "Missing parameters"}), 400
+
+        old_path = os.path.join(BASE_UPLOAD_FOLDER, old_country, image)
+        new_folder = os.path.join(BASE_UPLOAD_FOLDER, new_country)
+        new_path = os.path.join(new_folder, image)
+
+        os.makedirs(new_folder, exist_ok=True)
+
+        if os.path.exists(old_path):
+            os.rename(old_path, new_path)
+
+        # Update JSON
+        coins = load_json()
+        for entry in coins:
+            if entry["image"] == image and entry["country"] == old_country:
+                entry["country"] = new_country
+                break
+        save_json(coins)
+
+        return jsonify({"message": f"Country updated to {new_country} and file moved."}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/merge-images', methods=['POST'])
+def merge_images_endpoint():
+    """Merge two images together"""
+    try:
+        data = request.get_json()
+        # Your merge images logic here
+        return jsonify({"message": "Images merged successfully"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
