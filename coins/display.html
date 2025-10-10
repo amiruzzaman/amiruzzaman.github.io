@@ -2512,6 +2512,27 @@
         .distribution-chart .center-text {
             pointer-events: none;
         }
+
+        /* Donor highlight styles */
+        .donor-highlight {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 8px 12px;
+            margin: 5px 0;
+            font-weight: 600;
+            color: #856404;
+        }
+
+        .donor-highlight .detail-label {
+            color: #856404;
+            font-weight: 700;
+        }
+
+        .donor-highlight .detail-value {
+            color: #180ad8;
+            font-weight: 600;
+        }
     </style>
 </head>
 
@@ -3045,7 +3066,7 @@
         </span>
     </div>
     ` : ''}
-    <div class="detail-item">
+    <div class="detail-item donor-highlight">
         <span class="detail-label"><strong>Donor (${safeVal(currency_type) || "--"}):</strong></span>
         <span class="detail-value">${safeVal(donor) || "Unknown"}</span>
     </div>
