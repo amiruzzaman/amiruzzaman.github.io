@@ -38,30 +38,50 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
-        .display-button::before {
-            content: "";
-            width: 20px;
-            height: 20px;
-            background: 
-                linear-gradient(to right, #4CAF50 2px, transparent 2px),
-                linear-gradient(to right, #4CAF50 2px, transparent 2px),
-                linear-gradient(to bottom, #4CAF50 2px, transparent 2px),
-                linear-gradient(to bottom, #4CAF50 2px, transparent 2px);
-            background-size: 6px 6px;
-            background-position: 0 0, 0 12px, 0 0, 12px 0;
-            background-repeat: no-repeat;
+        .display-icon {
+            width: 24px;
+            height: 18px;
+            border: 2px solid #4CAF50;
+            border-radius: 2px;
+            position: relative;
             transition: all 0.3s ease;
         }
 
-        .display-button:hover::before {
-            background: 
-                linear-gradient(to right, #fff 2px, transparent 2px),
-                linear-gradient(to right, #fff 2px, transparent 2px),
-                linear-gradient(to bottom, #fff 2px, transparent 2px),
-                linear-gradient(to bottom, #fff 2px, transparent 2px);
-            background-size: 6px 6px;
-            background-position: 0 0, 0 12px, 0 0, 12px 0;
-            background-repeat: no-repeat;
+        .display-icon::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 2px;
+            background-color: #4CAF50;
+            transition: all 0.3s ease;
+        }
+
+        .display-icon::after {
+            content: "";
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 3px;
+            background-color: #4CAF50;
+            border-radius: 1px 1px 0 0;
+            transition: all 0.3s ease;
+        }
+
+        .display-button:hover .display-icon {
+            border-color: #fff;
+        }
+
+        .display-button:hover .display-icon::before {
+            background-color: #fff;
+        }
+
+        .display-button:hover .display-icon::after {
+            background-color: #fff;
         }
 
         .display-button .tooltip {
@@ -261,11 +281,15 @@
                 height: 40px;
             }
 
-            .display-button::before {
-                width: 16px;
-                height: 16px;
-                background-size: 5px 5px;
-                background-position: 0 0, 0 10px, 0 0, 10px 0;
+            .display-icon {
+                width: 20px;
+                height: 15px;
+            }
+
+            .display-icon::after {
+                bottom: -6px;
+                width: 5px;
+                height: 2px;
             }
         }
     </style>
@@ -273,7 +297,8 @@
 
 <body>
     <!-- Display button added here -->
-    <a href="/display.html" class="display-button">
+    <a href="display.html" class="display-button">
+        <div class="display-icon"></div>
         <span class="tooltip">Back to Display</span>
     </a>
 
