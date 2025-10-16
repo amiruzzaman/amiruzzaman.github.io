@@ -29,7 +29,8 @@
             color: var(--text-color);
             background-color: #f8fafc;
             min-height: 100vh;
-            padding-top: 40px; /* Space for fixed header */
+            padding-top: 40px;
+            /* Space for fixed header */
         }
 
         /* Progress header styling */
@@ -105,7 +106,8 @@
             overflow: hidden;
         }
 
-        th, td {
+        th,
+        td {
             padding: 14px 18px;
             text-align: center;
             border: 1px solid var(--border-color);
@@ -187,7 +189,8 @@
             border-color: var(--primary-color);
         }
 
-        .item-yes, .item-no {
+        .item-yes,
+        .item-no {
             padding: 12px 15px;
             margin: 0 8px;
             cursor: pointer;
@@ -234,11 +237,11 @@
             transition: all 0.2s;
         }
 
-        .item-yes.selected + .item-no + .item-score {
+        .item-yes.selected+.item-no+.item-score {
             color: var(--success-color);
         }
 
-        .item-no.selected + .item-score {
+        .item-no.selected+.item-score {
             color: var(--danger-color);
         }
 
@@ -300,7 +303,7 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.3) 100%);
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.3) 100%);
             transform: translateX(-100%);
             transition: transform 0.3s ease;
         }
@@ -358,7 +361,7 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.3) 100%);
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.3) 100%);
             transform: translateX(-100%);
             transition: transform 0.3s ease;
         }
@@ -579,9 +582,11 @@
             0% {
                 box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7);
             }
+
             70% {
                 box-shadow: 0 0 0 10px rgba(255, 152, 0, 0);
             }
+
             100% {
                 box-shadow: 0 0 0 0 rgba(255, 152, 0, 0);
             }
@@ -661,62 +666,63 @@
             body {
                 padding-top: 60px;
             }
-            
+
             .progress-header {
                 height: 60px;
                 flex-direction: column;
                 padding: 10px;
             }
-            
+
             .progress-container {
                 width: 100%;
                 margin: 5px 0;
             }
-            
+
             .progress-text {
                 text-align: center;
                 width: 100%;
             }
-            
+
             #container {
                 width: 95%;
                 padding: 20px;
                 margin: 15px auto;
             }
-            
+
             .part-container {
                 padding: 20px;
             }
-            
+
             .item-container {
                 flex-direction: column;
                 align-items: stretch;
                 padding: 15px;
             }
-            
-            .item-yes, .item-no {
+
+            .item-yes,
+            .item-no {
                 margin: 8px 0;
                 padding: 12px;
             }
-            
+
             .item-score {
                 margin: 10px 0 0 0;
                 width: auto;
                 text-align: center;
             }
-            
+
             .total-score-display {
                 top: 65px;
                 right: 10px;
                 font-size: 14px;
                 padding: 10px 15px;
             }
-            
+
             #edit-box {
                 width: 90%;
                 padding: 20px;
             }
-            
+
             #edit-buttons button {
                 min-width: 80px;
                 padding: 10px 12px;
@@ -727,7 +733,8 @@
                 align-items: center;
             }
 
-            .save-button, .reset-button {
+            .save-button,
+            .reset-button {
                 width: 100%;
                 justify-content: center;
             }
@@ -739,12 +746,13 @@
                 font-size: 14px;
                 padding: 12px;
             }
-            
-            .save-button, .reset-button {
+
+            .save-button,
+            .reset-button {
                 padding: 12px 20px 12px 16px;
                 font-size: 15px;
             }
-            
+
             .part-container {
                 padding: 15px;
             }
@@ -834,7 +842,7 @@
                 item.no.classList.remove('selected');
                 item.score.textContent = '0';
                 item.score.style.color = '';
-                
+
                 // Reset to original text
                 if (originalItemTexts[item.yes.id]) {
                     item.yes.textContent = originalItemTexts[item.yes.id];
@@ -852,39 +860,39 @@
 
             // Reset total display
             document.getElementById('totalScoreDisplay').textContent = `Total: 0/${maxPossibleScore}`;
-            
+
             // Reset progress bar
             updateProgressBar();
-            
+
             // Reset output area
             document.getElementById('paraID').value = '';
-            
+
             // Reset save button
             updateSaveButtonState();
-            
+
             // Remove any existing table
             const tableDiv = document.getElementById('json-table');
             if (tableDiv) {
                 tableDiv.remove();
             }
-            
+
             // Reset copy messages
             document.querySelectorAll('.copy-message').forEach(msg => {
                 msg.style.display = 'none';
             });
-            
+
             // Reset overall comment
             const commentInput = document.querySelector('.item-textareabox');
             if (commentInput) {
                 commentInput.value = "Overall: Your assignment report is off to a good start. There are a few sections that require more attention. Please refer to the comment/feedback above for further details.";
             }
-            
+
             // Reset filename
             const fileNameInput = document.querySelector('input[type="text"]');
             if (fileNameInput) {
                 fileNameInput.value = '';
             }
-            
+
             // Reset checkbox
             const checkbox = document.getElementById('additional-comment');
             if (checkbox) {
@@ -967,7 +975,7 @@
 
             // Update total display
             document.getElementById('totalScoreDisplay').textContent = `Total: ${totalEarned}/${maxPossibleScore}`;
-            
+
             // Update progress bar
             updateProgressBar();
         }
@@ -1004,17 +1012,17 @@
         function showCopyMessage(type, success) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `copy-message copy-${type}-message`;
-            messageDiv.textContent = success ? 
-                `${type === 'feedback' ? 'Feedback' : 'Scores'} copied to clipboard!` : 
+            messageDiv.textContent = success ?
+                `${type === 'feedback' ? 'Feedback' : 'Scores'} copied to clipboard!` :
                 `Failed to copy ${type === 'feedback' ? 'feedback' : 'scores'}. Please try again.`;
             messageDiv.style.display = 'block';
-            
+
             // Add to container
             const buttonsDiv = document.querySelector('.copy-buttons');
             if (buttonsDiv) {
                 buttonsDiv.parentNode.insertBefore(messageDiv, buttonsDiv.nextSibling);
             }
-            
+
             // Remove after 3 seconds
             setTimeout(() => {
                 messageDiv.style.opacity = '0';
@@ -1059,7 +1067,7 @@
                 itemYes.setAttribute('data-max', point);
                 itemYes.textContent = yes;
                 itemYes.id = `item-yes-${groupIndex}-${index}`;
-                
+
                 // Store original text
                 originalItemTexts[itemYes.id] = yes;
 
@@ -1069,7 +1077,7 @@
                 itemNo.setAttribute('data-max', point);
                 itemNo.textContent = no;
                 itemNo.id = `item-no-${groupIndex}-${index}`;
-                
+
                 // Store original text
                 originalItemTexts[itemNo.id] = no;
 
@@ -1222,7 +1230,7 @@
                 showCopyMessage('feedback', false);
                 return;
             }
-            
+
             navigator.clipboard.writeText(feedbackText)
                 .then(() => {
                     showCopyMessage('feedback', true);
@@ -1245,8 +1253,8 @@
             // Extract scores in order (excluding 'Total')
             const headers = Object.keys(jsonData).filter(header => header !== 'Total');
             const scores = headers.map(header => {
-                return typeof jsonData[header] === 'object' 
-                    ? jsonData[header]['Total'] 
+                return typeof jsonData[header] === 'object'
+                    ? jsonData[header]['Total']
                     : jsonData[header];
             });
 
@@ -1266,10 +1274,12 @@
                 });
         }
 
+        const jsonFileName = 'a2fall2025.json'; // Change this to match your actual JSON filename
+
         // Initialize the page
         document.addEventListener('DOMContentLoaded', function () {
             // Load rubric data
-            fetch('a2fall2025.json')
+            fetch(jsonFileName)
                 .then(response => response.json())
                 .then(data => {
                     const container = document.getElementById('container');
@@ -1456,13 +1466,13 @@
                         // Update output
                         resultsTextarea.value = outputText;
                         createTableFromJSON(jsonData);
-                        
+
                         // Create copy buttons if they don't exist
                         if (!document.querySelector('.copy-buttons')) {
                             createCopyButtons();
                         }
                     });
-                    
+
                     // Assemble the UI
                     container.append(
                         checkboxDiv,
@@ -1479,7 +1489,7 @@
 
                     // Create copy buttons (will be hidden until save)
                     createCopyButtons();
-                    
+
                     // Add reset button after copy buttons
                     container.appendChild(resetButton);
 
@@ -1539,6 +1549,24 @@
                 document.getElementById('edit-score').value = '0';
             });
         });
+    </script>
+    <script>
+        // Add this right after your fetch call starts
+
+
+        // Extract a nice display name from the filename
+        const baseName = jsonFileName.replace('.json', '')
+            .replace(/_/g, ' ')
+            .replace(/\b\w/g, l => l.toUpperCase());
+
+        // Update the page title
+        document.title = `Grading Rubric Tool - ${baseName}`;
+
+        // Optional: Also update the progress header to show what's being graded
+        const progressHeader = document.querySelector('.progress-header div:first-child');
+        if (progressHeader) {
+            progressHeader.textContent = `Grading: ${baseName}`;
+        }
     </script>
 </body>
 
