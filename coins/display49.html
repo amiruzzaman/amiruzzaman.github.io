@@ -3691,71 +3691,32 @@
 
 
         // Initializes the collapsible details section
+        // Fix the initDetailsToggle function
         function initDetailsToggle() {
             const toggle = document.querySelector('.details-toggle');
             const content = document.querySelector('.details-content');
             const continentMapContainer = document.getElementById('continent-map-container');
 
-            // Function to update URL with details parameter
-            function updateDetailsURL(isExpanded) {
-                const queryParams = new URLSearchParams(window.location.search);
-                const country = queryParams.get("country");
-                const coin = queryParams.get("coin");
-                
-                if (country && coin) {
-                    let newUrl = `?country=${country}&coin=${coin}`;
-                    if (isExpanded) {
-                        newUrl += '&details=yes';
-                    }
-                    history.replaceState(null, "", newUrl);
-                }
-            }
+            toggle.addEventListener('click', () => {
+                toggle.classList.toggle('collapsed');
+                content.classList.toggle('show');
+                const isContinentMapVisible = continentMapContainer.classList.toggle('show');
 
-            // Function to toggle details
-            function toggleDetails(shouldExpand) {
-                const isExpanding = shouldExpand !== undefined ? shouldExpand : !content.classList.contains('show');
-                
-                if (isExpanding) {
-                    toggle.classList.add('collapsed');
-                    content.classList.add('show');
-                    continentMapContainer.classList.add('show');
-                    const chevronIcon = toggle.querySelector('.fa-chevron-down, .fa-chevron-up');
-                    if (chevronIcon) {
-                        chevronIcon.classList.replace('fa-chevron-down', 'fa-chevron-up');
-                    }
-                    updateDetailsURL(true);
+                const chevronIcon = toggle.querySelector('.fa-chevron-down');
+                if (content.classList.contains('show')) {
+                    chevronIcon.classList.replace('fa-chevron-down', 'fa-chevron-up');
                 } else {
-                    toggle.classList.remove('collapsed');
-                    content.classList.remove('show');
-                    continentMapContainer.classList.remove('show');
-                    const chevronIcon = toggle.querySelector('.fa-chevron-down, .fa-chevron-up');
-                    if (chevronIcon) {
-                        chevronIcon.classList.replace('fa-chevron-up', 'fa-chevron-down');
-                    }
-                    updateDetailsURL(false);
+                    chevronIcon.classList.replace('fa-chevron-up', 'fa-chevron-down');
                 }
 
                 // Invalidate size of the continent map when its container becomes visible
-                if (isExpanding && continentMap) {
+                if (isContinentMapVisible && continentMap) {
+                    // Use a small timeout to ensure the CSS transition completes
                     setTimeout(() => {
                         continentMap.invalidateSize();
                     }, 300);
                 }
-            }
-
-            // Click event listener
-            toggle.addEventListener('click', () => {
-                toggleDetails();
             });
-
-            // Check URL parameter on load and expand if details=yes
-            const queryParams = new URLSearchParams(window.location.search);
-            if (queryParams.get("details") === "yes") {
-                // Small delay to ensure everything is loaded
-                setTimeout(() => {
-                    toggleDetails(true);
-                }, 500);
-            }
         }
 
         // Initializes the image modal for enlarged view
@@ -4038,6 +3999,7 @@
             });
         }
 
+
         window.onload = async () => {
             // Preload all data first. If it fails, log error and stop initialization.
             const preloadSuccess = await preloadData();
@@ -4046,11 +4008,10 @@
                 return; // Stop execution if data preload fails
             }
 
-            // Get country, coin, and details from URL query parameters
+            // Get country and coin from URL query parameters
             const queryParams = new URLSearchParams(window.location.search);
             const countryQuery = queryParams.get("country") || "default";
             const coinQuery = queryParams.get("coin"); // New: get specific coin parameter
-            const detailsQuery = queryParams.get("details"); // New: get details parameter
 
             // Get unique countries from cached coin data and sort them alphabetically
             const countries = [...new Set(cache.coinsData.map(coin => toTitleCase(coin.country)))].sort();
@@ -4073,25 +4034,7 @@
                     // Small delay to ensure country images are loaded first
                     setTimeout(() => {
                         navigateToSpecificCoin(coinQuery);
-                        
-                        // If details=yes is in URL, expand the details section after coin is loaded
-                        if (detailsQuery === "yes") {
-                            setTimeout(() => {
-                                const toggle = document.querySelector('.details-toggle');
-                                if (toggle && !document.querySelector('.details-content').classList.contains('show')) {
-                                    toggle.click();
-                                }
-                            }, 800);
-                        }
                     }, 100);
-                } else if (detailsQuery === "yes") {
-                    // If details=yes but no specific coin, still expand details
-                    setTimeout(() => {
-                        const toggle = document.querySelector('.details-toggle');
-                        if (toggle && !document.querySelector('.details-content').classList.contains('show')) {
-                            toggle.click();
-                        }
-                    }, 800);
                 }
             } else if (countries.length > 0) {
                 // If no country is specified, load images for the first available country
@@ -4120,7 +4063,6 @@
             initViewToggle();
             initBackToTop();
         };
-
     </script>
     <script type="text/javascript">
 
