@@ -661,40 +661,6 @@
             margin-bottom: 8px;
         }
 
-        /* Additional comment styling */
-        .additional-comment-container {
-            margin-top: 15px;
-            padding: 15px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            border: 1px dashed var(--border-color);
-        }
-
-        .additional-comment-label {
-            font-weight: 600;
-            color: var(--dark-color);
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .additional-comment-textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 14px;
-            min-height: 80px;
-            resize: vertical;
-            transition: all 0.2s;
-        }
-
-        .additional-comment-textarea:focus {
-            border-color: var(--primary-color);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-        }
-
         /* Responsive adjustments */
         @media (max-width: 768px) {
             body {
@@ -845,7 +811,6 @@
         let allItems = []; // Track all rubric items
         let jsonData = {}; // Store the JSON data for copying
         let originalItemTexts = {}; // Store original item texts for reset
-        let additionalComments = {}; // Store additional comments for each part
 
         /**
          * Updates the progress bar based on points earned
@@ -933,12 +898,6 @@
             if (checkbox) {
                 checkbox.checked = false;
             }
-
-            // Reset additional comments
-            document.querySelectorAll('.additional-comment-textarea').forEach(textarea => {
-                textarea.value = '';
-            });
-            additionalComments = {};
         }
 
         /**
@@ -1332,7 +1291,6 @@
                     subTotalEarnedScores = [];
                     allItems = [];
                     originalItemTexts = {};
-                    additionalComments = {};
 
                     // Create each part section
                     for (let part of parts) {
@@ -1369,26 +1327,6 @@
                             partContainer.appendChild(problemContainer);
                         }
 
-                        // Add additional comment section for each part
-                        const additionalCommentContainer = document.createElement('div');
-                        additionalCommentContainer.classList.add('additional-comment-container');
-
-                        const additionalCommentLabel = document.createElement('label');
-                        additionalCommentLabel.classList.add('additional-comment-label');
-                        additionalCommentLabel.textContent = 'Additional comments for this section (optional):';
-                        additionalCommentContainer.appendChild(additionalCommentLabel);
-
-                        const additionalCommentTextarea = document.createElement('textarea');
-                        additionalCommentTextarea.classList.add('additional-comment-textarea');
-                        additionalCommentTextarea.placeholder = 'Enter any additional comments for this section here...';
-                        additionalCommentContainer.appendChild(additionalCommentTextarea);
-
-                        // Store the comment when user types
-                        additionalCommentTextarea.addEventListener('input', function () {
-                            additionalComments[part] = this.value;
-                        });
-
-                        partContainer.appendChild(additionalCommentContainer);
                         container.appendChild(partContainer);
                     }
 
@@ -1525,19 +1463,6 @@
                                 outputText += "\n";
                             }
 
-                            // Add additional comments if provided
-                            const partKey = partTitle.split(':')[0].trim();
-                            if (additionalComments[partKey] && additionalComments[partKey].trim() !== '') {
-                                outputText += "Additional comment\n";
-                                const comments = additionalComments[partKey].trim().split('\n');
-                                comments.forEach(comment => {
-                                    if (comment.trim() !== '') {
-                                        outputText += `- ${comment.trim()}\n`;
-                                    }
-                                });
-                                outputText += "\n";
-                            }
-
                             // Add spacing between sections
                             outputText += "\n";
 
@@ -1646,6 +1571,7 @@
     </script>
     <script>
         // Add this right after your fetch call starts
+
 
         // Extract a nice display name from the filename
         const baseName = jsonFileName.replace('.json', '')
