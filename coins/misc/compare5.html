@@ -311,27 +311,12 @@
             console.log('Comparison image: ', comparisonItem.size, comparisonSize);
             console.log('Comparison item:', comparisonItem);
 
-            // Add this helper function at the top of your script (inside <script> tags)
-            function getImageBasePath() {
-                // Check if we're running locally or on server
-                const isLocal = window.location.hostname === 'localhost' ||
-                    window.location.hostname === '127.0.0.1' ||
-                    window.location.protocol === 'file:';
-
-                // For local development, use relative path
-                // For server, use absolute path from root
-                return isLocal ? 'images' : '/images';
-            }
-
-            // Then in your renderComparison function, update the image src attributes:
-            const imageBasePath = getImageBasePath();
-
             // Render coin cards
             container.innerHTML = `
             <div class="coin-card current-coin">
                 <h3>Current Coin</h3>
                 <div class="image-container">
-                    <img src="${imageBasePath}/${data.currentCoin.country}/${data.currentCoin.image}" 
+                    <img src="${getImagePath(data.currentCoin.country, data.currentCoin.image)}" 
                          alt="${data.currentCoin.note}" 
                          class="coin-image"
                          style="max-width: ${currentDisplayDims.imageWidth}px; max-height: ${currentDisplayDims.imageHeight}px;"
@@ -363,7 +348,7 @@
             <div class="coin-card">
                 <h3>${comparisonLabel}</h3>
                 <div class="image-container">
-                    <img src="${imageBasePath}/${comparisonItem.country}/${comparisonItem.image}" 
+                    <img src="${getImagePath(comparisonItem.country, comparisonItem.image)}" 
                          alt="${comparisonItem.note}" 
                          class="coin-image"
                          style="max-width: ${comparisonDisplayDims.imageWidth}px; max-height: ${comparisonDisplayDims.imageHeight}px;"
@@ -543,23 +528,6 @@
 
         // Then in your HTML generation:
         //<img src="${getImagePath(data.currentCoin.country, data.currentCoin.image)}" 
-        // Add this function at the top of your script
-        function getBasePath() {
-            // If running on server with base path
-            if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-                const path = window.location.pathname;
-                // Extract base path if app is in subdirectory
-                const basePath = path.substring(0, path.lastIndexOf('/'));
-                return basePath || '';
-            }
-            return '';
-        }
-
-
-        // console.log('Localhost check:', window.location.hostname);
-        // console.log('Image base path:', getImageBasePath());
-        // console.log('Current coin image path:', `${imageBasePath}/${data.currentCoin.country}/${data.currentCoin.image}`);
-        // console.log('Comparison image path:', `${imageBasePath}/${comparisonItem.country}/${comparisonItem.image}`);
     </script>
 </body>
 
