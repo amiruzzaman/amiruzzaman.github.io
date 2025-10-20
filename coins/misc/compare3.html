@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coin Comparison</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #dfe6e9 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 30px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+
+        .header .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            margin-top: 10px;
+        }
+
+        .comparison-container {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            margin-bottom: 40px;
+        }
+
+        .coin-card {
+            flex: 1;
+            text-align: center;
+            padding: 20px;
+            background: var(--light-color);
+            border-radius: var(--border-radius);
+            border: 1px solid #e0e0e0;
+        }
+
+        .coin-card h3 {
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .coin-card.current-coin h3 {
+            border-bottom-color: var(--accent-color);
+        }
+
+        .image-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .coin-image {
+            background: white;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .coin-image:hover {
+            transform: scale(1.02);
+        }
+
+        .size-info {
+            font-size: 14px;
+            color: var(--secondary-color);
+            background: white;
+            padding: 8px 12px;
+            border-radius: var(--border-radius);
+            border: 1px solid #e0e0e0;
+        }
+
+        .coin-details {
+            text-align: left;
+        }
+
+        .detail-item {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        .size-comparison {
+            margin-top: 30px;
+            padding: 20px;
+            background: var(--light-color);
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+
+        .size-comparison h3 {
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+
+        .size-visualization {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 40px;
+            margin-top: 30px;
+            height: 250px;
+            position: relative;
+        }
+
+        .size-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .size-rectangle {
+            background: linear-gradient(135deg, var(--primary-color), #2980b9);
+            border: 2px solid var(--primary-color);
+            border-radius: 4px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .size-rectangle.current-coin {
+            background: linear-gradient(135deg, var(--accent-color), #c0392b);
+            border-color: var(--accent-color);
+        }
+
+        .size-label {
+            text-align: center;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-top: 10px;
+        }
+
+        .size-dimensions {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .comparison-note {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f4fc;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .comparison-container {
+                flex-direction: column;
+            }
+
+            .size-visualization {
+                flex-direction: column;
+                height: auto;
+                align-items: center;
+                gap: 20px;
+            }
+
+            .size-item {
+                flex-direction: row;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-balance-scale"></i> Coin Size Comparison</h1>
+            <p>Side-by-side visual comparison with US $2 Bill</p>
+            <a href="#" class="btn-back" onclick="window.close()">
+                <i class="fas fa-arrow-left"></i> Back to Collection
+            </a>
+        </div>
+
+        <div class="comparison-container" id="comparison-container">
+            <!-- Content will be populated by JavaScript -->
+        </div>
+
+        <div class="size-comparison">
+            <h3>Size Comparison Visualization</h3>
+            <p>Visual representation showing relative sizes (to scale)</p>
+            <div class="size-visualization" id="size-visualization">
+                <!-- Size visualization will be populated by JavaScript -->
+            </div>
+
+            <div class="comparison-note">
+                <p><strong>Note:</strong> The visual comparison shows the actual relative sizes based on millimeter
+                    dimensions.
+                    Both front and back sides are represented in the height calculation (height × 2) to give a better
+                    sense of overall size.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get comparison data from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const dataParam = urlParams.get('data');
+
+        if (dataParam) {
+            const comparisonData = JSON.parse(decodeURIComponent(dataParam));
+            renderComparison(comparisonData);
+        } else {
+            document.getElementById('comparison-container').innerHTML =
+                '<p>Error: No comparison data provided.</p>';
+        }
+
+        function renderComparison(data) {
+            const container = document.getElementById('comparison-container');
+            const sizeViz = document.getElementById('size-visualization');
+
+            // Parse sizes
+            const currentSize = parseSize(data.currentCoin.size);
+            const usBillSize = parseSize(data.usTwoDollarBill.size);
+
+            // Calculate display dimensions
+            const currentDisplayDims = calculateDisplayDimensions(currentSize);
+            const usBillDisplayDims = calculateDisplayDimensions(usBillSize);
+
+            console.log('current image: ', data.currentCoin.size, currentSize);
+            console.log('US image: ', data.usTwoDollarBill.size, usBillSize);
+
+            // Render coin cards
+            container.innerHTML = `
+                <div class="coin-card current-coin">
+                    <h3>Current Coin</h3>
+                    <div class="image-container">
+                        <img src="images/${data.currentCoin.country}/${data.currentCoin.image}" 
+                             alt="${data.currentCoin.note}" 
+                             class="coin-image"
+                             style="max-width: ${currentDisplayDims.imageWidth}px; max-height: ${currentDisplayDims.imageHeight}px;"
+                             onerror="this.src='https://placehold.co/300x200/cccccc/333333?text=Image+Not+Found'">
+                        <div class="size-info">
+                            <strong>Actual Size:</strong> ${data.currentCoin.size || 'N/A'} mm
+                            ${currentSize ? `<br>Visual Size: ${Math.round(currentDisplayDims.visWidth)} × ${Math.round(currentDisplayDims.visHeight)} mm` : ''}
+                        </div>
+                    </div>
+                    <div class="coin-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Country:</span> ${data.currentCoin.country}
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Size:</span> ${data.currentCoin.size || 'N/A'} mm
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type:</span> ${data.currentCoin.currency_type || 'N/A'}
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Year:</span> ${data.currentCoin.year || 'N/A'}
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Note:</span> ${data.currentCoin.note || 'N/A'}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="coin-card">
+                    <h3>US $2 Bill</h3>
+                    <div class="image-container">
+                        <img src="images/United States of America/${data.usTwoDollarBill.image}" 
+                             alt="${data.usTwoDollarBill.note}" 
+                             class="coin-image"
+                             style="max-width: ${usBillDisplayDims.imageWidth}px; max-height: ${usBillDisplayDims.imageHeight}px;"
+                             onerror="this.src='https://placehold.co/300x200/cccccc/333333?text=Image+Not+Found'">
+                        <div class="size-info">
+                            <strong>Actual Size:</strong> ${data.usTwoDollarBill.size} mm
+                            ${usBillSize ? `<br>Visual Size: ${Math.round(usBillDisplayDims.visWidth)} × ${Math.round(usBillDisplayDims.visHeight)} mm` : ''}
+                        </div>
+                    </div>
+                    <div class="coin-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Country:</span> ${data.usTwoDollarBill.country}
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Size:</span> ${data.usTwoDollarBill.size} mm
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Type:</span> ${data.usTwoDollarBill.currency_type}
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Year:</span> ${data.usTwoDollarBill.year}
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Note:</span> ${data.usTwoDollarBill.note}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Render size comparison visualization
+            renderSizeComparison(data, sizeViz, currentDisplayDims, usBillDisplayDims);
+        }
+
+        function calculateDisplayDimensions(sizeData) {
+            if (!sizeData) {
+                return {
+                    imageWidth: 300,
+                    imageHeight: 200,
+                    visWidth: 100,
+                    visHeight: 100
+                };
+            }
+
+            // For visualization: width = actual width, height = actual height × 2
+            const visWidth = sizeData.width;
+            const visHeight = sizeData.height * 2;
+
+            // For images: scale down but maintain proportions
+            const maxImageDimension = 300;
+            const scaleFactor = maxImageDimension / Math.max(visWidth, visHeight);
+
+            const imageWidth = sizeData.width * scaleFactor;
+            const imageHeight = sizeData.height * scaleFactor;
+
+            return {
+                imageWidth: imageWidth,
+                imageHeight: imageHeight,
+                visWidth: visWidth,
+                visHeight: visHeight
+            };
+        }
+
+        function renderSizeComparison(data, container, currentDims, usBillDims) {
+            const currentSize = parseSize(data.currentCoin.size);
+            const usBillSize = parseSize(data.usTwoDollarBill.size);
+
+            if (!currentSize || !usBillSize) {
+                container.innerHTML = '<p>Size data not available for visual comparison</p>';
+                return;
+            }
+
+            // Use the actual dimensions (width × height) for visualization
+            const currentActualWidth = currentSize.width;
+            const currentActualHeight = currentSize.height;
+            const usBillActualWidth = usBillSize.width;
+            const usBillActualHeight = usBillSize.height;
+
+            // Find maximum dimensions for scaling
+            const maxWidth = Math.max(currentActualWidth, usBillActualWidth);
+            const maxHeight = Math.max(currentActualHeight, usBillActualHeight);
+            const maxDimension = Math.max(maxWidth, maxHeight);
+
+            // Scale factor for visualization (pixels per mm)
+            const scale = 150 / maxDimension;
+
+            // Calculate visualization dimensions using actual sizes
+            const currentWidth = currentActualWidth * scale;
+            const currentHeight = currentActualHeight * scale;
+            const usBillWidth = usBillActualWidth * scale;
+            const usBillHeight = usBillActualHeight * scale;
+
+            console.log(data.currentCoin.size);
+
+            container.innerHTML = `
+                <div class="size-item">
+                    <div class="size-rectangle current-coin" 
+                         style="width: ${currentWidth}px; height: ${currentHeight}px;">
+                        <div style="color: white; font-weight: bold; text-align: center; padding: 5px;">
+                            ${Math.round(currentActualWidth)} × ${Math.round(currentActualHeight)} mm
+                        </div>
+                    </div>
+                    <div class="size-label">
+                        Current Coin<br>
+                        <div class="size-dimensions">
+                            Actual: ${data.currentCoin.size} mm<br>
+                            Visual: ${Math.round(currentActualWidth)} × ${Math.round(currentActualHeight)} mm
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="size-item">
+                    <div class="size-rectangle" 
+                         style="width: ${usBillWidth}px; height: ${usBillHeight}px;">
+                        <div style="color: white; font-weight: bold; text-align: center; padding: 5px;">
+                            ${Math.round(usBillActualWidth)} × ${Math.round(usBillActualHeight)} mm
+                        </div>
+                    </div>
+                    <div class="size-label">
+                        US $2 Bill<br>
+                        <div class="size-dimensions">
+                            Actual: ${data.usTwoDollarBill.size} mm<br>
+                            Visual: ${Math.round(usBillActualWidth)} × ${Math.round(usBillActualHeight)} mm
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function parseSize(sizeString) {
+            if (!sizeString) return null;
+            console.log('parseSize: ', sizeString);
+            // Handle various separator formats: "144 x 60", "144×60", "144,60", "144 60"
+            const separators = ['×', 'x', ',', ' '];
+            let parts = [];
+
+            for (let separator of separators) {
+                if (sizeString.includes(separator)) {
+                    parts = sizeString.split(separator).map(part => parseFloat(part.trim()));
+                    if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                        return { width: parts[0], height: parts[1] };
+                    }
+                    break;
+                }
+            }
+
+            // If no separator found, try parsing as single value
+            const value = parseFloat(sizeString);
+            if (!isNaN(value)) {
+                return { width: value, height: value }; // Assume square for single values
+            }
+
+            return null;
+        }
+        /*
+        function parseSize(sizeString) {
+            console.log('parseSize: ', sizeString);
+            if (!sizeString) return null;
+
+            // Handle both "156 × 66.3" and single value formats
+            if (sizeString.includes('×')) {
+                const parts = sizeString.split('×').map(part => parseFloat(part.trim()));
+                if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                    return { width: parts[0], height: parts[1] };
+                }
+            } else {
+                const value = parseFloat(sizeString);
+                if (!isNaN(value)) {
+                    return { width: value, height: value }; // Assume square for single values
+                }
+            }
+
+            return null;
+        }
+        */
+    </script>
+</body>
+
+</html>

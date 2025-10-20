@@ -2515,8 +2515,10 @@
 
         /* Donor highlight styles */
         .donor-highlight {
-            background-color: #33a2ec;/*#fff3cd;*/
-            border: 1px solid #33a2ec;/*#ffeaa7;*/
+            background-color: #33a2ec;
+            /*#fff3cd;*/
+            border: 1px solid #33a2ec;
+            /*#ffeaa7;*/
             border-radius: 4px;
             padding: 8px 12px;
             margin: 5px 0;
@@ -2530,8 +2532,58 @@
         }
 
         .donor-highlight .detail-value {
-            color: #FFDE59;/*#180ad8;*/
+            color: #FFDE59;
+            /*#180ad8;*/
             font-weight: 600;
+        }
+    </style>
+    <style>
+        /* Comparison Button Styles */
+        .compare-button-wrapper {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+        }
+
+        .btn-compare {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border-radius: 50%;
+            background: var(--accent-color);
+            border-color: #c0392b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--box-shadow);
+        }
+
+        .btn-compare i {
+            color: white;
+            font-size: 18px;
+        }
+
+        .btn-compare:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        /* Responsive adjustment */
+        @media (max-width: 900px) {
+            .compare-button-wrapper {
+                top: 15px;
+                left: 15px;
+            }
+
+            .btn-compare {
+                width: 35px;
+                height: 35px;
+            }
+
+            .btn-compare i {
+                font-size: 16px;
+            }
         }
     </style>
 </head>
@@ -2542,6 +2594,12 @@
             <div class="home-button-wrapper">
                 <a href="index.html" class="btn btn-home"><i class="fas fa-home"></i> Home</a>
                 <div id="summary-container" class="summary"></div>
+            </div>
+            <!-- ADD THIS COMPARISON BUTTON -->
+            <div class="compare-button-wrapper">
+                <button id="compare-btn" class="btn btn-compare" title="Compare with US $2 Bill">
+                    <i class="fas fa-balance-scale"></i>
+                </button>
             </div>
             <div class="box-list-button-wrapper">
                 <a href="box_country_list.html" class="btn btn-box-list" title="Box Country List" target="_blank">
@@ -3701,7 +3759,7 @@
                 const queryParams = new URLSearchParams(window.location.search);
                 const country = queryParams.get("country");
                 const coin = queryParams.get("coin");
-                
+
                 if (country && coin) {
                     let newUrl = `?country=${country}&coin=${coin}`;
                     if (isExpanded) {
@@ -3714,7 +3772,7 @@
             // Function to toggle details
             function toggleDetails(shouldExpand) {
                 const isExpanding = shouldExpand !== undefined ? shouldExpand : !content.classList.contains('show');
-                
+
                 if (isExpanding) {
                     toggle.classList.add('collapsed');
                     content.classList.add('show');
@@ -4073,7 +4131,7 @@
                     // Small delay to ensure country images are loaded first
                     setTimeout(() => {
                         navigateToSpecificCoin(coinQuery);
-                        
+
                         // If details=yes is in URL, expand the details section after coin is loaded
                         if (detailsQuery === "yes") {
                             setTimeout(() => {
@@ -4119,6 +4177,7 @@
             initSearch();
             initViewToggle();
             initBackToTop();
+            initComparisonButton(); // ADD THIS LINE
         };
 
     </script>
@@ -5542,6 +5601,61 @@
                 const newUrl = `?country=${country}&coin=${cleanCoinName}`;
                 history.replaceState(null, "", newUrl);
             }
+        }
+    </script>
+    <script>
+        // Add this function to handle the comparison
+        function initComparisonButton() {
+            const compareBtn = document.getElementById('compare-btn');
+
+            compareBtn.addEventListener('click', function () {
+                if (currentCountryCoins.length === 0 || currentImageIndex === undefined) {
+                    alert('No coin selected for comparison');
+                    return;
+                }
+
+                const currentCoin = currentCountryCoins[currentImageIndex];
+                const queryParams = new URLSearchParams(window.location.search);
+                const country = queryParams.get("country");
+
+                if (!currentCoin || !country) {
+                    alert('Cannot get current coin information');
+                    return;
+                }
+
+                // Open comparison page with current coin data
+                openComparisonPage(currentCoin, country);
+            });
+        }
+
+        function openComparisonPage(currentCoin, country) {
+            // Prepare data for the comparison page
+            const comparisonData = {
+                currentCoin: {
+                    image: currentCoin.image,
+                    country: country,
+                    size: currentCoin.size,
+                    note: currentCoin.note,
+                    currency_type: currentCoin.currency_type,
+                    year: currentCoin.year,
+                    donor_name: currentCoin.donor_name
+                },
+                usTwoDollarBill: {
+                    image: "c2a33246cd384e3f8a31155694524584.jpg",
+                    country: "United States of America",
+                    size: "156 × 66.3", // Standard US $2 bill size in mm
+                    note: "US $2 Bill",
+                    currency_type: "paper-bill",
+                    year: "1976", // Common year for $2 bills
+                    donor_name: "US Government"
+                }
+            };
+
+            // Encode data for URL
+            const encodedData = encodeURIComponent(JSON.stringify(comparisonData));
+
+            // Open comparison page
+            window.open(`compare.html?data=${encodedData}`, '_blank');
         }
     </script>
 
