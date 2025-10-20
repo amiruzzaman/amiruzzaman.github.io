@@ -319,8 +319,22 @@
                     window.location.protocol === 'file:';
 
                 // For local development, use relative path
-                // For server, use absolute path from root
-                return isLocal ? 'images' : '/images';
+                if (isLocal) {
+                    return 'images';
+                }
+
+                // Server configurations mapping
+                const serverConfigs = {
+                    'amiruzzaman.github.io': 'https://amiruzzaman.github.io/coins/image',
+                    'your-custom-domain.com': 'https://your-custom-domain.com/assets/images',
+                    'another-domain.net': '/static/images',
+                    // Add more domains as needed
+                };
+
+                const currentHost = window.location.hostname;
+
+                // Return configured path or default fallback
+                return serverConfigs[currentHost] || '/images';
             }
 
             // Then in your renderComparison function, update the image src attributes:
@@ -528,18 +542,24 @@
             return null;
         }
 
-        function getImagePath(country, image) {
-            // Try absolute path first (for server)
-            if (image) {
-                // Check if we're on server or local
-                if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-                    return `/images/${country}/${image}`;
-                } else {
-                    return `images/${country}/${image}`;
-                }
+        // Add this function at the top of your script
+        function getImagePath(country, imageFilename) {
+            if (!imageFilename) {
+                return 'https://placehold.co/300x200/cccccc/333333?text=Image+Not+Found';
             }
-            return 'https://placehold.co/300x200/cccccc/333333?text=Image+Not+Found';
+
+            // Check if we're on GitHub Pages server
+            const isGitHubPages = window.location.hostname === 'amiruzzaman.github.io';
+
+            if (isGitHubPages) {
+                // GitHub Pages URL structure
+                return `https://amiruzzaman.github.io/coins/image/${country}/${imageFilename}`;
+            } else {
+                // Local development - use relative path
+                return `images/${country}/${imageFilename}`;
+            }
         }
+
 
         // Then in your HTML generation:
         //<img src="${getImagePath(data.currentCoin.country, data.currentCoin.image)}" 
