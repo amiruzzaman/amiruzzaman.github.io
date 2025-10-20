@@ -316,7 +316,7 @@
             <div class="coin-card current-coin">
                 <h3>Current Coin</h3>
                 <div class="image-container">
-                    <img src="${getImagePath(data.currentCoin.country, data.currentCoin.image)}" 
+                    <img src="images/${data.currentCoin.country}/${data.currentCoin.image}" 
                          alt="${data.currentCoin.note}" 
                          class="coin-image"
                          style="max-width: ${currentDisplayDims.imageWidth}px; max-height: ${currentDisplayDims.imageHeight}px;"
@@ -348,7 +348,7 @@
             <div class="coin-card">
                 <h3>${comparisonLabel}</h3>
                 <div class="image-container">
-                    <img src="${getImagePath(comparisonItem.country, comparisonItem.image)}" 
+                    <img src="images/${comparisonItem.country}/${comparisonItem.image}" 
                          alt="${comparisonItem.note}" 
                          class="coin-image"
                          style="max-width: ${comparisonDisplayDims.imageWidth}px; max-height: ${comparisonDisplayDims.imageHeight}px;"
@@ -512,22 +512,6 @@
 
             return null;
         }
-
-        function getImagePath(country, image) {
-            // Try absolute path first (for server)
-            if (image) {
-                // Check if we're on server or local
-                if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-                    return `/images/${country}/${image}`;
-                } else {
-                    return `images/${country}/${image}`;
-                }
-            }
-            return 'https://placehold.co/300x200/cccccc/333333?text=Image+Not+Found';
-        }
-
-        // Then in your HTML generation:
-        //<img src="${getImagePath(data.currentCoin.country, data.currentCoin.image)}" 
     </script>
 </body>
 
