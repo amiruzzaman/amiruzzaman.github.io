@@ -311,42 +311,12 @@
             console.log('Comparison image: ', comparisonItem.size, comparisonSize);
             console.log('Comparison item:', comparisonItem);
 
-            // Add this helper function at the top of your script (inside <script> tags)
-            function getImageBasePath() {
-                // Check if we're running locally or on server
-                const isLocal = window.location.hostname === 'localhost' ||
-                    window.location.hostname === '127.0.0.1' ||
-                    window.location.protocol === 'file:';
-
-                // For local development, use relative path
-                if (isLocal) {
-                    return 'images';
-                }
-
-                // Server configurations mapping
-                const serverConfigs = {
-                    'amiruzzaman.github.io': 'https://amiruzzaman.github.io/coins/images',
-                    'your-custom-domain.com': 'https://your-custom-domain.com/assets/images',
-                    'another-domain.net': '/static/images',
-                    // Add more domains as needed
-                };
-
-                const currentHost = window.location.hostname;
-
-                // Return configured path or default fallback
-                return serverConfigs[currentHost] || '/images';
-            }
-
-            // Then in your renderComparison function, update the image src attributes:
-            const imageBasePath = getImageBasePath();
-            console.log('imageBasePath: ', imageBasePath);
-
             // Render coin cards
             container.innerHTML = `
             <div class="coin-card current-coin">
                 <h3>Current Coin</h3>
                 <div class="image-container">
-                    <img src="${imageBasePath}/${data.currentCoin.country}/${data.currentCoin.image}" 
+                    <img src="images/${titleCase(data.currentCoin.country)}/${data.currentCoin.image}" 
                          alt="${data.currentCoin.note}" 
                          class="coin-image"
                          style="max-width: ${currentDisplayDims.imageWidth}px; max-height: ${currentDisplayDims.imageHeight}px;"
@@ -378,7 +348,7 @@
             <div class="coin-card">
                 <h3>${comparisonLabel}</h3>
                 <div class="image-container">
-                    <img src="${imageBasePath}/${comparisonItem.country}/${comparisonItem.image}" 
+                    <img src="images/${titleCase(comparisonItem.country)}/${comparisonItem.image}" 
                          alt="${comparisonItem.note}" 
                          class="coin-image"
                          style="max-width: ${comparisonDisplayDims.imageWidth}px; max-height: ${comparisonDisplayDims.imageHeight}px;"
@@ -543,44 +513,16 @@
             return null;
         }
 
-        // Add this function at the top of your script
-        function getImagePath(country, imageFilename) {
-            if (!imageFilename) {
-                return 'https://placehold.co/300x200/cccccc/333333?text=Image+Not+Found';
+        function titleCase(str) {
+            var splitStr = str.toLowerCase().split(' ');
+            for (var i = 0; i < splitStr.length; i++) {
+                // You do not need to check if i is larger than splitStr length, as your for does that for you
+                // Assign it back to the array
+                splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
             }
-
-            // Check if we're on GitHub Pages server
-            const isGitHubPages = window.location.hostname === 'amiruzzaman.github.io';
-
-            if (isGitHubPages) {
-                // GitHub Pages URL structure
-                return `https://amiruzzaman.github.io/coins/image/${country}/${imageFilename}`;
-            } else {
-                // Local development - use relative path
-                return `images/${country}/${imageFilename}`;
-            }
+            // Directly return the joined string
+            return splitStr.join(' ');
         }
-
-
-        // Then in your HTML generation:
-        //<img src="${getImagePath(data.currentCoin.country, data.currentCoin.image)}" 
-        // Add this function at the top of your script
-        function getBasePath() {
-            // If running on server with base path
-            if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-                const path = window.location.pathname;
-                // Extract base path if app is in subdirectory
-                const basePath = path.substring(0, path.lastIndexOf('/'));
-                return basePath || '';
-            }
-            return '';
-        }
-
-
-        // console.log('Localhost check:', window.location.hostname);
-        // console.log('Image base path:', getImageBasePath());
-        // console.log('Current coin image path:', `${imageBasePath}/${data.currentCoin.country}/${data.currentCoin.image}`);
-        // console.log('Comparison image path:', `${imageBasePath}/${comparisonItem.country}/${comparisonItem.image}`);
     </script>
 </body>
 
