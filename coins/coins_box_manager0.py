@@ -6,7 +6,7 @@ import webbrowser
 # File Paths and Constants
 # ==========================
 INPUT_JSON = "images/coins.json"   # your input path
-OUTPUT_JSON = "images/coins.json"  # Changed to save back to the same file
+OUTPUT_JSON = "coins.updated.json"
 OUTPUT_HTML = "coins_table.html"
 HOST = "https://amiruzzaman.github.io/coins"  # base host URL
 
