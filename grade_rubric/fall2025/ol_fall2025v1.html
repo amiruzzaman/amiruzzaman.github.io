@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grading Rubric Tool</title>
     <style>
-        /* All existing CSS styles remain exactly the same */
+        /* Base styles */
         :root {
             --primary-color: #3498db;
             --secondary-color: #2c3e50;
@@ -30,8 +30,10 @@
             background-color: #f8fafc;
             min-height: 100vh;
             padding-top: 40px;
+            /* Space for fixed header */
         }
 
+        /* Progress header styling */
         .progress-header {
             position: fixed;
             top: 0;
@@ -68,6 +70,7 @@
             text-align: right;
         }
 
+        /* Container layout */
         #container {
             width: 90%;
             max-width: 1200px;
@@ -78,6 +81,7 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
 
+        /* Notice box styling */
         #notice {
             width: 90%;
             max-width: 1000px;
@@ -91,6 +95,7 @@
             box-shadow: 0 2px 5px var(--shadow-color);
         }
 
+        /* Table styling */
         table {
             width: 100%;
             max-width: 800px;
@@ -123,6 +128,7 @@
             background-color: #f1f5f9;
         }
 
+        /* Problem and part containers */
         .part-container {
             margin-bottom: 35px;
             padding: 25px;
@@ -147,6 +153,7 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
         }
 
+        /* Headings */
         h3 {
             color: var(--secondary-color);
             margin-top: 0;
@@ -164,6 +171,7 @@
             font-weight: 500;
         }
 
+        /* Rubric item styling */
         .item-container {
             display: flex;
             margin-bottom: 15px;
@@ -249,6 +257,7 @@
             border: 1px solid var(--border-color);
         }
 
+        /* Total score display */
         .total-score-display {
             position: fixed;
             top: 50px;
@@ -266,6 +275,7 @@
             gap: 5px;
         }
 
+        /* Save button */
         .save-button {
             padding: 14px 28px 14px 20px;
             background-color: var(--secondary-color);
@@ -323,6 +333,7 @@
             fill: currentColor;
         }
 
+        /* Reset button */
         .reset-button {
             padding: 14px 28px 14px 20px;
             background-color: var(--danger-color);
@@ -371,6 +382,7 @@
             fill: currentColor;
         }
 
+        /* Text areas and inputs */
         .item-textareabox {
             width: 100%;
             padding: 15px;
@@ -407,6 +419,7 @@
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
 
+        /* Checkbox styling */
         input[type="checkbox"] {
             margin-right: 10px;
             width: 16px;
@@ -414,6 +427,7 @@
             accent-color: var(--primary-color);
         }
 
+        /* Output area */
         #paraID {
             width: 100%;
             max-width: 1000px;
@@ -429,6 +443,7 @@
             line-height: 1.5;
         }
 
+        /* Edit modal styling */
         #edit-box {
             visibility: hidden;
             position: fixed;
@@ -544,6 +559,7 @@
             background-color: #d1f2eb;
         }
 
+        /* Overlay */
         #overlay {
             visibility: hidden;
             position: fixed;
@@ -556,6 +572,7 @@
             backdrop-filter: blur(4px);
         }
 
+        /* Unselected highlight animation */
         .unselected-highlight {
             animation: pulse 2s infinite;
             position: relative;
@@ -575,6 +592,7 @@
             }
         }
 
+        /* Copy buttons styling */
         .copy-buttons {
             display: flex;
             gap: 10px;
@@ -613,18 +631,15 @@
             fill: currentColor;
         }
 
-        /* NEW: Copy notification message styles */
+        /* Copy feedback message styling */
         .copy-message {
-            width: 100%;
-            padding: 12px 20px;
+            padding: 10px 15px;
             border-radius: 6px;
-            margin: 10px auto;
+            margin: 5px auto;
             max-width: 1000px;
             text-align: center;
-            font-weight: 600;
+            font-weight: 500;
             display: none;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
         }
 
         .copy-feedback-message {
@@ -639,18 +654,14 @@
             border-left: 4px solid #4caf50;
         }
 
-        .copy-error-message {
-            background-color: #ffebee;
-            color: #b71c1c;
-            border-left: 4px solid #f44336;
-        }
-
+        /* Labels and text elements */
         div:not([class]) {
             font-weight: 500;
             color: var(--dark-color);
             margin-bottom: 8px;
         }
 
+        /* Additional comment styling */
         .additional-comment-container {
             margin-top: 15px;
             padding: 15px;
@@ -763,6 +774,7 @@
             }
         }
 
+        /* Additional small screen adjustments */
         @media (max-width: 480px) {
             #notice {
                 font-size: 14px;
@@ -1039,40 +1051,24 @@
          * Shows a copy message
          */
         function showCopyMessage(type, success) {
-            // Remove any existing messages of the same type
-            const existingMessages = document.querySelectorAll(`.copy-${type}-message`);
-            existingMessages.forEach(msg => msg.remove());
-
-            // Create new message
             const messageDiv = document.createElement('div');
             messageDiv.className = `copy-message copy-${type}-message`;
-
-            if (success) {
-                messageDiv.textContent = type === 'feedback'
-                    ? '✓ Feedback copied to clipboard!'
-                    : '✓ Scores copied to clipboard!';
-            } else {
-                messageDiv.className += ' copy-error-message';
-                messageDiv.textContent = type === 'feedback'
-                    ? '✗ Failed to copy feedback. Please try again.'
-                    : '✗ Failed to copy scores. Please try again.';
-            }
-
+            messageDiv.textContent = success ?
+                `${type === 'feedback' ? 'Feedback' : 'Scores'} copied to clipboard!` :
+                `Failed to copy ${type === 'feedback' ? 'feedback' : 'scores'}. Please try again.`;
             messageDiv.style.display = 'block';
 
-            // Add to container right above the buttons
+            // Add to container
             const buttonsDiv = document.querySelector('.copy-buttons');
             if (buttonsDiv) {
-                buttonsDiv.parentNode.insertBefore(messageDiv, buttonsDiv);
+                buttonsDiv.parentNode.insertBefore(messageDiv, buttonsDiv.nextSibling);
             }
 
             // Remove after 3 seconds
             setTimeout(() => {
                 messageDiv.style.opacity = '0';
                 setTimeout(() => {
-                    if (messageDiv.parentNode) {
-                        messageDiv.remove();
-                    }
+                    messageDiv.remove();
                 }, 500);
             }, 3000);
         }
@@ -1647,14 +1643,19 @@
                 document.getElementById('edit-score').value = '0';
             });
         });
+    </script>
+    <script>
+        // Add this right after your fetch call starts
 
-        // Update page title based on JSON filename
+        // Extract a nice display name from the filename
         const baseName = jsonFileName.replace('.json', '')
             .replace(/_/g, ' ')
             .replace(/\b\w/g, l => l.toUpperCase());
 
+        // Update the page title
         document.title = `Grading Rubric Tool - ${baseName}`;
 
+        // Optional: Also update the progress header to show what's being graded
         const progressHeader = document.querySelector('.progress-header div:first-child');
         if (progressHeader) {
             progressHeader.textContent = `Grading: ${baseName}`;
