@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="#">
     <title>Coin Comparison</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -65,8 +64,7 @@
         .comparison-container {
             display: flex;
             gap: 30px;
-            align-items: stretch;
-            /* Changed to stretch for equal height */
+            align-items: flex-start;
             margin-bottom: 40px;
         }
 
@@ -77,10 +75,6 @@
             background: var(--light-color);
             border-radius: var(--border-radius);
             border: 1px solid #e0e0e0;
-            display: flex;
-            flex-direction: column;
-            min-height: 600px;
-            /* Fixed minimum height */
         }
 
         .coin-card h3 {
@@ -100,10 +94,6 @@
             align-items: center;
             gap: 15px;
             margin-bottom: 20px;
-            flex: 1;
-            /* Take available space */
-            justify-content: center;
-            /* Center content vertically */
         }
 
         .coin-image {
@@ -113,11 +103,6 @@
             border: 1px solid #e0e0e0;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease;
-            max-width: 300px;
-            /* Fixed max dimensions */
-            max-height: 200px;
-            width: auto;
-            height: auto;
         }
 
         .coin-image:hover {
@@ -131,58 +116,21 @@
             padding: 8px 12px;
             border-radius: var(--border-radius);
             border: 1px solid #e0e0e0;
-            min-height: 60px;
-            /* Fixed height for size info */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
         }
 
         .coin-details {
             text-align: left;
-            min-height: 200px;
-            /* Fixed height for details */
         }
 
         .detail-item {
             margin-bottom: 10px;
             padding-bottom: 10px;
             border-bottom: 1px solid #e0e0e0;
-            min-height: 40px;
-            /* Fixed height for each detail item */
-            display: flex;
-            align-items: center;
         }
 
         .detail-label {
             font-weight: bold;
             color: var(--secondary-color);
-            min-width: 80px;
-        }
-
-        .country-selector {
-            background: none;
-            border: none;
-            font-size: inherit;
-            color: inherit;
-            cursor: pointer;
-            padding: 2px 4px;
-            border-radius: 4px;
-            transition: background-color 0.2s;
-        }
-
-        .country-selector:hover {
-            background-color: rgba(52, 152, 219, 0.1);
-        }
-
-        .country-select {
-            width: 100%;
-            padding: 4px 8px;
-            border: 1px solid var(--primary-color);
-            border-radius: 4px;
-            font-size: inherit;
-            background-color: white;
         }
 
         .size-comparison {
@@ -253,80 +201,9 @@
             border-left: 4px solid var(--primary-color);
         }
 
-        .thumbnails-container {
-            margin-top: 30px;
-            padding: 20px;
-            background: var(--light-color);
-            border-radius: var(--border-radius);
-            text-align: center;
-            width: 100%;
-        }
-
-        .thumbnails-title {
-            font-weight: bold;
-            color: var(--secondary-color);
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .thumbnails-scroll {
-            display: flex;
-            overflow-x: auto;
-            gap: 10px;
-            padding: 10px 0;
-            scrollbar-width: thin;
-            scrollbar-color: var(--primary-color) #f0f0f0;
-        }
-
-        .thumbnails-scroll::-webkit-scrollbar {
-            height: 8px;
-        }
-
-        .thumbnails-scroll::-webkit-scrollbar-track {
-            background: #f0f0f0;
-            border-radius: 4px;
-        }
-
-        .thumbnails-scroll::-webkit-scrollbar-thumb {
-            background: var(--primary-color);
-            border-radius: 4px;
-        }
-
-        .thumbnail {
-            flex: 0 0 auto;
-            width: 80px;
-            height: 60px;
-            border: 2px solid transparent;
-            border-radius: 4px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .thumbnail:hover {
-            transform: scale(1.05);
-            border-color: var(--primary-color);
-        }
-
-        .thumbnail.active {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 2px var(--accent-color);
-        }
-
-        .thumbnail img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
         @media (max-width: 768px) {
             .comparison-container {
                 flex-direction: column;
-            }
-
-            .coin-card {
-                min-height: 500px;
-                /* Smaller fixed height for mobile */
             }
 
             .size-visualization {
@@ -358,14 +235,6 @@
             <!-- Content will be populated by JavaScript -->
         </div>
 
-        <div class="thumbnails-container" id="main-thumbnails-container">
-            <div class="thumbnails-title" id="thumbnails-title">Other Coins/Bills from <span
-                    id="current-country-name"></span></div>
-            <div class="thumbnails-scroll" id="main-thumbnails-scroll">
-                <!-- Thumbnails will be populated by JavaScript -->
-            </div>
-        </div>
-
         <div class="size-comparison">
             <h3>Size Comparison Visualization</h3>
             <p>Visual representation showing relative sizes (to scale)</p>
@@ -383,34 +252,17 @@
     </div>
 
     <script>
-        // Global variables
-        let allCoinsData = [];
-        let currentComparisonData = null;
-
         // Get comparison data from URL
         const urlParams = new URLSearchParams(window.location.search);
         const dataParam = urlParams.get('data');
 
-        // Load coins data and initialize
-        fetch('images/coins.json')
-            .then(response => response.json())
-            .then(data => {
-                allCoinsData = data;
-                if (dataParam) {
-                    currentComparisonData = JSON.parse(decodeURIComponent(dataParam));
-                    renderComparison(currentComparisonData);
-                } else {
-                    document.getElementById('comparison-container').innerHTML =
-                        '<p>Error: No comparison data provided.</p>';
-                }
-            })
-            .catch(error => {
-                console.error('Error loading coins data:', error);
-                if (dataParam) {
-                    currentComparisonData = JSON.parse(decodeURIComponent(dataParam));
-                    renderComparison(currentComparisonData);
-                }
-            });
+        if (dataParam) {
+            const comparisonData = JSON.parse(decodeURIComponent(dataParam));
+            renderComparison(comparisonData);
+        } else {
+            document.getElementById('comparison-container').innerHTML =
+                '<p>Error: No comparison data provided.</p>';
+        }
 
         function renderComparison(data) {
             const container = document.getElementById('comparison-container');
@@ -447,11 +299,11 @@
                 comparisonLabel = "US $2 Bill";
             }
 
-            // Parse sizes with default fallbacks
-            const currentSize = parseSize(data.currentCoin.size) || { width: 150, height: 75 }; // Default size
-            const comparisonSize = parseSize(comparisonItem.size) || { width: 150, height: 75 }; // Default size
+            // Parse sizes
+            const currentSize = parseSize(data.currentCoin.size);
+            const comparisonSize = parseSize(comparisonItem.size);
 
-            // Calculate display dimensions with consistent sizing
+            // Calculate display dimensions
             const currentDisplayDims = calculateDisplayDimensions(currentSize);
             const comparisonDisplayDims = calculateDisplayDimensions(comparisonSize);
 
@@ -459,10 +311,7 @@
             console.log('Comparison image: ', comparisonItem.size, comparisonSize);
             console.log('Comparison item:', comparisonItem);
 
-            // Get unique countries for dropdown
-            const countries = [...new Set(allCoinsData.map(coin => coin.country))].sort();
-
-            // Render coin cards with consistent structure
+            // Render coin cards
             container.innerHTML = `
             <div class="coin-card current-coin">
                 <h3>Current Coin</h3>
@@ -479,13 +328,7 @@
                 </div>
                 <div class="coin-details">
                     <div class="detail-item">
-                        <span class="detail-label">Country:</span> 
-                        <span class="country-display" id="current-country-display">${data.currentCoin.country}</span>
-                        <select class="country-select" id="current-country-select" style="display: none;">
-                            ${countries.map(country =>
-                `<option value="${country}" ${country === data.currentCoin.country ? 'selected' : ''}>${country}</option>`
-            ).join('')}
-                        </select>
+                        <span class="detail-label">Country:</span> ${data.currentCoin.country}
                     </div>
                     <div class="detail-item">
                         <span class="detail-label">Size:</span> ${data.currentCoin.size || 'N/A'} mm
@@ -517,13 +360,7 @@
                 </div>
                 <div class="coin-details">
                     <div class="detail-item">
-                        <span class="detail-label">Country:</span> 
-                        <span class="country-display" id="comparison-country-display">${comparisonItem.country}</span>
-                        <select class="country-select" id="comparison-country-select" style="display: none;">
-                            ${countries.map(country =>
-                `<option value="${country}" ${country === comparisonItem.country ? 'selected' : ''}>${country}</option>`
-            ).join('')}
-                        </select>
+                        <span class="detail-label">Country:</span> ${comparisonItem.country}
                     </div>
                     <div class="detail-item">
                         <span class="detail-label">Size:</span> ${comparisonItem.size} mm
@@ -547,107 +384,6 @@
 
             // Render size comparison visualization
             renderSizeComparison(data, sizeViz, currentDisplayDims, comparisonDisplayDims, isCoin, comparisonLabel, comparisonItem);
-
-            // Render thumbnails for current country only
-            renderThumbnails(data.currentCoin.country, data.currentCoin);
-
-            // Add event listeners for country selection
-            setupCountrySelectors();
-        }
-
-        function setupCountrySelectors() {
-            // Current coin country selector
-            const currentDisplay = document.getElementById('current-country-display');
-            const currentSelect = document.getElementById('current-country-select');
-
-            currentDisplay.addEventListener('click', function () {
-                currentDisplay.style.display = 'none';
-                currentSelect.style.display = 'inline-block';
-                currentSelect.focus();
-            });
-
-            currentSelect.addEventListener('change', function () {
-                const newCountry = this.value;
-                currentDisplay.textContent = newCountry;
-                currentDisplay.style.display = 'inline';
-                this.style.display = 'none';
-
-                // Update thumbnails for new country
-                renderThumbnails(newCountry);
-            });
-
-            currentSelect.addEventListener('blur', function () {
-                currentDisplay.style.display = 'inline';
-                this.style.display = 'none';
-            });
-
-            // Comparison item country selector - removed thumbnail functionality
-            const comparisonDisplay = document.getElementById('comparison-country-display');
-            const comparisonSelect = document.getElementById('comparison-country-select');
-
-            comparisonDisplay.addEventListener('click', function () {
-                comparisonDisplay.style.display = 'none';
-                comparisonSelect.style.display = 'inline-block';
-                comparisonSelect.focus();
-            });
-
-            comparisonSelect.addEventListener('change', function () {
-                const newCountry = this.value;
-                comparisonDisplay.textContent = newCountry;
-                comparisonDisplay.style.display = 'inline';
-                this.style.display = 'none';
-            });
-
-            comparisonSelect.addEventListener('blur', function () {
-                comparisonDisplay.style.display = 'inline';
-                this.style.display = 'none';
-            });
-        }
-
-        function renderThumbnails(country, activeCoin = null) {
-            const titleElement = document.getElementById('thumbnails-title');
-            const container = document.getElementById('main-thumbnails-scroll');
-
-            if (!container) return;
-
-            // Update title
-            titleElement.innerHTML = `Other Coins/Bills from <span id="current-country-name">${country}</span>`;
-
-            // Filter coins by country
-            const countryCoins = allCoinsData.filter(coin => coin.country === country);
-
-            if (countryCoins.length === 0) {
-                container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No coins found for this country</div>';
-                return;
-            }
-
-            let html = '';
-
-            countryCoins.forEach(coin => {
-                const isActive = activeCoin && coin.image === activeCoin.image;
-                html += `
-                    <div class="thumbnail ${isActive ? 'active' : ''}" data-coin='${JSON.stringify(coin).replace(/'/g, "&#39;")}'>
-                        <img src="images/${titleCase(coin.country)}/${coin.image}" 
-                             alt="${coin.note}"
-                             onerror="this.src='https://placehold.co/80x60/cccccc/333333?text=Image+Not+Found'">
-                    </div>
-                `;
-            });
-
-            container.innerHTML = html;
-
-            // Add click event listeners to thumbnails
-            container.querySelectorAll('.thumbnail').forEach(thumb => {
-                thumb.addEventListener('click', function () {
-                    const coinData = JSON.parse(this.getAttribute('data-coin').replace(/&#39;/g, "'"));
-
-                    // Update the current coin data
-                    currentComparisonData.currentCoin = coinData;
-
-                    // Re-render the comparison
-                    renderComparison(currentComparisonData);
-                });
-            });
         }
 
         function calculateDisplayDimensions(sizeData) {
@@ -680,8 +416,8 @@
         }
 
         function renderSizeComparison(data, container, currentDims, comparisonDims, isCoin, comparisonLabel, comparisonItem) {
-            const currentSize = parseSize(data.currentCoin.size) || { width: 150, height: 75 };
-            const comparisonSize = parseSize(comparisonItem.size) || { width: 150, height: 75 };
+            const currentSize = parseSize(data.currentCoin.size);
+            const comparisonSize = parseSize(comparisonItem.size);
 
             if (!currentSize || !comparisonSize) {
                 container.innerHTML = '<p>Size data not available for visual comparison</p>';
@@ -752,10 +488,7 @@
         }
 
         function parseSize(sizeString) {
-            if (!sizeString || sizeString === "0" || sizeString === "0 x 0" || sizeString === "0×0") {
-                return null;
-            }
-
+            if (!sizeString) return null;
             console.log('parseSize: ', sizeString);
             // Handle various separator formats: "144 x 60", "144×60", "144,60", "144 60"
             const separators = ['×', 'x', ',', ' '];
@@ -764,7 +497,7 @@
             for (let separator of separators) {
                 if (sizeString.includes(separator)) {
                     parts = sizeString.split(separator).map(part => parseFloat(part.trim()));
-                    if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1]) && parts[0] > 0 && parts[1] > 0) {
+                    if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
                         return { width: parts[0], height: parts[1] };
                     }
                     break;
@@ -773,7 +506,7 @@
 
             // If no separator found, try parsing as single value
             const value = parseFloat(sizeString);
-            if (!isNaN(value) && value > 0) {
+            if (!isNaN(value)) {
                 return { width: value, height: value }; // Assume square for single values
             }
 
