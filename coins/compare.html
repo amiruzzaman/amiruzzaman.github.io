@@ -421,7 +421,7 @@
                 (!data.currentCoin.size.includes('×') &&
                     !data.currentCoin.size.includes('x'));
 
-            console.log('Is coin:', isCoin, 'Currency type:', data.currentCoin.currency_type, 'Size:', data.currentCoin.size);
+            console.log('Is coin:', isCoin, 'Currency type:', data.currentCoin.currency_type, 'Size:', data.currentCoin.size, data.currentCoin);
 
             // Use appropriate comparison item
             let comparisonItem, comparisonLabel;
@@ -480,7 +480,7 @@
                 <div class="coin-details">
                     <div class="detail-item">
                         <span class="detail-label">Country:</span> 
-                        <span class="country-display" id="current-country-display">${data.currentCoin.country}</span>
+                        <span class="country-display" id="current-country-display">${titleCase(data.currentCoin.country)}</span>
                         <select class="country-select" id="current-country-select" style="display: none;">
                             ${countries.map(country =>
                 `<option value="${country}" ${country === data.currentCoin.country ? 'selected' : ''}>${country}</option>`
@@ -611,10 +611,11 @@
             if (!container) return;
 
             // Update title
-            titleElement.innerHTML = `Other Coins/Bills from <span id="current-country-name">${country}</span>`;
+            titleElement.innerHTML = `Other Coins/Bills from <span id="current-country-name">${titleCase(country)}</span>`;
 
             // Filter coins by country
-            const countryCoins = allCoinsData.filter(coin => coin.country === country);
+            const countryCoins = allCoinsData.filter(coin => coin.country === titleCase(country));
+            console.log('country: ', country);
 
             if (countryCoins.length === 0) {
                 container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No coins found for this country</div>';
