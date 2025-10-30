@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WCU CS Server Login Instructions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #003366;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        #loginCommand {
+            background-color: #e6f3ff;
+            border: 1px solid #b3d9ff;
+            padding: 10px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+
+        .tab {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+            margin-top: 20px;
+        }
+
+        .tab button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            color: #003366;
+        }
+
+        .tab button:hover {
+            background-color: #ddd;
+        }
+
+        .tab button.active {
+            background-color: #003366;
+            color: white;
+        }
+
+        .tabcontent {
+            display: none;
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            border-top: none;
+        }
+
+        .image-container {
+            max-width: 100%;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .image-container img,
+        canvas {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        pre {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            overflow-x: auto;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .warning {
+            color: #d73a49;
+            font-weight: bold;
+        }
+
+        .highlight {
+            font-family: 'Courier New', monospace;
+            background-color: #f0f0f0;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        .user-highlight {
+            color: #0066cc;
+            font-weight: bold;
+        }
+
+        .badgerctf-message,
+        .roadrunner-message {
+            background-color: #ffeeba;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 10px;
+            margin-top: 20px;
+            border-radius: 4px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>WCU CS Server Login Instructions</h1>
+        <form id="loginForm">
+            <label for="username">Please Enter Your WCU Email Address:</label>
+            <input type="text" id="username" name="username" placeholder="Enter your WCU email address" required>
+
+            <label for="server">Server:</label>
+            <select id="server" name="server">
+                <option value="sulu.cs.wcupa.edu">sulu.cs.wcupa.edu</option>
+                <option value="molly.cs.wcupa.edu">molly.cs.wcupa.edu (GPU Server)</option>
+                <option value="badgerctf">BadgerCTF (Cybersecurity Courses) </option>
+                <option value="roadrunner">Roadrunner (Web development Courses) </option>
+                <option value="bones.cs.wcupa.edu">bones.cs.wcupa.edu (Faculty Only)</option>
+            </select>
+        </form>
+
+        <div id="loginCommand">
+            <h3>Login Command:</h3>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <p id="commandText" style="flex: 1; margin: 0;"></p>
+                <button id="copyButton" type="button"
+                    style="padding: 8px 12px; border: none; background-color: #003366; color: white; border-radius: 4px; cursor: pointer;">Copy</button>
+            </div>
+            <p id="copyMessage" style="margin-top: 8px; display: none; font-weight: bold;"></p>
+        </div>
+
+
+        <div id="badgerctfMessage" class="badgerctf-message">
+            Please visit <a href="./badgerctf.html">badgerctf.html</a>
+        </div>
+
+        <div id="roadrunnerMessage" class="roadrunner-message">
+            Please visit <a href="./roadrunner.html">roadrunner.html</a>
+        </div>
+
+        <div id="instructionsContent">
+            <div class="tab">
+                <button class="tablinks active" onclick="openTab(event, 'Instructions')">Instructions</button>
+                <button class="tablinks" onclick="openTab(event, 'Miscellaneous')">Miscellaneous</button>
+            </div>
+
+            <div id="Instructions" class="tabcontent" style="display:block;">
+                <h2>How to connect to <span id="serverName1">the server</span></h2>
+                <p id="serverDescription">This guide will help you connect to the <span
+                        id="serverName2">sulu.cs.wcupa.edu</span> server using your WCU account. This is a
+                    general-purpose server for student and faculty use in the Computer Science Department.</p>
+                <p id="facultyWarning" class="warning" style="display: none;">Note: This server is for faculty use only.
+                    It serves as the primary server for faculty course websites and lab materials.</p>
+
+                <h3>Prerequisites</h3>
+                <ol>
+                    <li>Your WCU username (full username, including the @wcupa.edu part) and password</li>
+                    <li>An SSH client (built-in on Mac and Linux, PuTTY for Windows)</li>
+                    <li>DUO Multi-Factor Authentication (MFA) set up on your account</li>
+                </ol>
+
+                <h3>Connection Steps</h3>
+                <ol>
+                    <li>Open your SSH client:
+                        <ul>
+                            <li>On Mac or Linux: Open Terminal</li>
+                            <li>On Windows: Open PuTTY</li>
+                        </ul>
+                    </li>
+                    <li>Use the following connection details:
+                        <ul>
+                            <li>Hostname: <span id="serverName3" class="highlight">sulu.cs.wcupa.edu</span></li>
+                            <li>Port: <span class="highlight">54322</span> (Note: This is a non-standard port for
+                                enhanced security)</li>
+                            <li>Username: <span id="displayUsername" class="user-highlight">Your WCU username</span>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>For Mac/Linux users, use this command:
+                        <pre><code id="sshCommand">ssh -p 54322 your-username@sulu.cs.wcupa.edu</code></pre>
+                    </li>
+                    <li>For Windows users using PuTTY:
+                        <ul>
+                            <li>Enter <span id="serverName4" class="highlight">sulu.cs.wcupa.edu</span> in the Host Name
+                                field</li>
+                            <li>Enter <span class="highlight">54322</span> in the Port field</li>
+                            <li>Select SSH as the connection type</li>
+                            <li>Click "Open"</li>
+                        </ul>
+                        <div class="image-container">
+                            <canvas id="puttyCanvas"></canvas>
+                        </div>
+                    </li>
+                    <li>When prompted, enter your WCU password.</li>
+                    <li>You will then receive a DUO MFA request. Approve this request to complete your login.
+                        <div class="image-container">
+                            <img src="./img/duo.png" alt="Duo" />
+                        </div>
+                    </li>
+                </ol>
+            </div>
+
+            <div id="Miscellaneous" class="tabcontent">
+                <h2>Miscellaneous Information</h2>
+                <ol>
+                    <li>A special application named "Fail2Ban" has been installed and configured on the server. This
+                        application is used to detect and prevent brute force login attempts. If a user tries to login
+                        with a bad username and password for 5 repeated attempts, the user's IP address will be blocked
+                        for 10 minutes. After 10 minutes, they will be unblocked and can try to login again.</li>
+                    <li>When using a SSH file transfer client to transfer files to and from the server, please set the
+                        simultaneous file count to "1" in order to eliminate Duo MFA prompts for each file. For example,
+                        if you are using FileZilla, you would want to configure the following:</li>
+                </ol>
+                <div class="image-container">
+                    <img src="./img/filezilla.png" alt="FileZilla Configuration" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Copy button functionality
+        const copyButton = document.getElementById('copyButton');
+        const copyMessage = document.getElementById('copyMessage');
+        const commandTextElement = document.getElementById('commandText');
+
+        copyButton.addEventListener('click', async () => {
+            const textToCopy = commandTextElement.textContent.trim();
+            if (!textToCopy) {
+                copyMessage.textContent = "No command to copy.";
+                copyMessage.style.color = "red";
+                copyMessage.style.display = "block";
+                return;
+            }
+
+            try {
+                await navigator.clipboard.writeText(textToCopy);
+                copyMessage.textContent = "Copied!";
+                copyMessage.style.color = "green";
+                copyMessage.style.display = "block";
+            } catch (err) {
+                console.error("Clipboard error:", err);
+                copyMessage.textContent = "Failed to copy!";
+                copyMessage.style.color = "red";
+                copyMessage.style.display = "block";
+            }
+
+            // Hide message after 2 seconds
+            setTimeout(() => {
+                copyMessage.style.display = "none";
+            }, 2000);
+        });
+
+
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        function updateInstructions() {
+            var inputUsername = document.getElementById('username').value.trim();
+            var server = document.getElementById('server').value;
+
+            // Ensure the username always ends with @wcupa.edu
+            var fullUsername = inputUsername.endsWith('@wcupa.edu') ? inputUsername : inputUsername + '@wcupa.edu';
+
+            var command = '';
+            var badgerctfMessage = document.getElementById('badgerctfMessage');
+            var roadrunnerMessage = document.getElementById('roadrunnerMessage');
+            var loginCommand = document.getElementById('loginCommand');
+            var instructionsContent = document.getElementById('instructionsContent');
+
+            if (server === 'badgerctf') {
+                badgerctfMessage.style.display = 'block';
+                roadrunnerMessage.style.display = 'none';
+                loginCommand.style.display = 'none';
+                instructionsContent.style.display = 'none';
+            } else if (server === 'roadrunner') {
+                badgerctfMessage.style.display = 'none';
+                roadrunnerMessage.style.display = 'block';
+                loginCommand.style.display = 'none';
+                instructionsContent.style.display = 'none';
+            } else {
+                command = `ssh -p 54322 ${fullUsername}@${server}`;
+                badgerctfMessage.style.display = 'none';
+                roadrunnerMessage.style.display = 'none';
+                loginCommand.style.display = 'block';
+                instructionsContent.style.display = 'block';
+            }
+
+            // Safely update elements
+            safelySetTextContent('commandText', command);
+            safelySetTextContent('serverName1', server);
+            safelySetTextContent('serverName2', server);
+            safelySetTextContent('serverName3', server);
+            safelySetTextContent('serverName4', server);
+            safelySetTextContent('sshCommand', command);
+
+            // Update the displayed username
+            var displayUsernameElements = document.getElementsByClassName('user-highlight');
+            for (var i = 0; i < displayUsernameElements.length; i++) {
+                displayUsernameElements[i].textContent = fullUsername;
+            }
+
+            // Update server description and display faculty warning if necessary
+            if (server === 'bones.cs.wcupa.edu') {
+                safelySetTextContent('serverDescription', `This guide will help you connect to the ${server} server using your WCU account. This is a general-purpose server for faculty only use in the Computer Science Department.`);
+                var facultyWarning = document.getElementById('facultyWarning');
+                if (facultyWarning) facultyWarning.style.display = 'block';
+            } else if (server !== 'badgerctf' && server !== 'roadrunner') {
+                safelySetTextContent('serverDescription', `This guide will help you connect to the ${server} server using your WCU account. This is a general-purpose server for student and faculty use in the Computer Science Department.`);
+                var facultyWarning = document.getElementById('facultyWarning');
+                if (facultyWarning) facultyWarning.style.display = 'none';
+            }
+
+            // Update PuTTY image
+            if (server !== 'badgerctf' && server !== 'roadrunner') {
+                updatePuttyImage(server);
+            }
+        }
+
+        function safelySetTextContent(id, text) {
+            var element = document.getElementById(id);
+            if (element) {
+                element.textContent = text;
+            } else {
+                console.warn(`Element with id '${id}' not found`);
+            }
+        }
+
+        function updatePuttyImage(serverName) {
+            const canvas = document.getElementById('puttyCanvas');
+            if (!canvas) {
+                console.warn("PuTTY canvas not found");
+                return;
+            }
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            img.onload = function () {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+
+                // Draw the server name
+                ctx.font = '16px Arial';
+                ctx.fillStyle = 'black';
+                ctx.fillText(serverName, 290, 190); // Adjust these coordinates as needed
+            };
+            img.src = './img/canvas.png'; // Make sure this path is correct
+        }
+
+        function autoCompleteEmail() {
+            var input = document.getElementById('username');
+            if (!input) {
+                console.warn("Username input not found");
+                return;
+            }
+            var value = input.value;
+            var cursorPosition = input.selectionStart;
+
+            // Remove any existing "@wcupa.edu" from the input
+            var username = value.replace(/@wcupa\.edu$/, '');
+
+            // Add "@wcupa.edu" to the end of the input
+            input.value = username + '@wcupa.edu';
+
+            // Adjust cursor position if it was at the end
+            if (cursorPosition === value.length) {
+                input.setSelectionRange(username.length, username.length);
+            } else {
+                input.setSelectionRange(cursorPosition, cursorPosition);
+            }
+
+            updateInstructions();
+        }
+
+        document.getElementById('username').addEventListener('input', autoCompleteEmail);
+        document.getElementById('server').addEventListener('change', updateInstructions);
+
+        // Initialize with default values
+        updateInstructions();
+    </script>
+</body>
+
+</html>
