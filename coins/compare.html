@@ -572,8 +572,18 @@
                 currentDisplay.style.display = 'inline';
                 this.style.display = 'none';
 
-                // Update thumbnails for new country
-                renderThumbnails(newCountry);
+                // Find the first coin from the new country
+                const countryCoins = allCoinsData.filter(coin => coin.country === newCountry);
+                if (countryCoins.length > 0) {
+                    // Update the current coin data with the first coin from the new country
+                    currentComparisonData.currentCoin = countryCoins[0];
+                    
+                    // Re-render the comparison with the new coin
+                    renderComparison(currentComparisonData);
+                } else {
+                    // If no coins found for the country, just update thumbnails
+                    renderThumbnails(newCountry);
+                }
             });
 
             currentSelect.addEventListener('blur', function () {
@@ -625,12 +635,15 @@
             let html = '';
 
             countryCoins.forEach(coin => {
-                const isActive = activeCoin && coin.image === activeCoin.image;
+                // Check if this coin is the active one by comparing key properties
+                const isActive = activeCoin && 
+                                coin.image === activeCoin.image && 
+                                coin.country === activeCoin.country;
                 html += `
                     <div class="thumbnail ${isActive ? 'active' : ''}" data-coin='${JSON.stringify(coin).replace(/'/g, "&#39;")}'>
                         <img src="images/${titleCase(coin.country)}/${coin.image}" 
-                             alt="${coin.note}"
-                             onerror="this.src='https://placehold.co/80x60/cccccc/333333?text=Image+Not+Found'">
+                            alt="${coin.note}"
+                            onerror="this.src='https://placehold.co/80x60/cccccc/333333?text=Image+Not+Found'">
                     </div>
                 `;
             });
