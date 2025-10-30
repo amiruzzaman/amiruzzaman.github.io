@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>US Outline GeoJSON — Working Example</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- ✅ Leaflet CSS (no integrity attribute) -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+
+  <style>
+    html, body { height: 100%; margin: 0; font-family: system-ui, sans-serif; }
+    #map { height: calc(100vh - 70px); width: 100%; }
+    header {
+      height: 70px;
+      background: #f8f9fa;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      border-bottom: 1px solid #ddd;
+      box-sizing: border-box;
+    }
+    h1 { font-size: 16px; margin: 0; font-weight: 600; }
+    .controls { display: flex; align-items: center; gap: 10px; }
+    .btn {
+      background: #0b6efd;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn.secondary { background: #6c757d; }
+    input[type=file] { display: none; }
+    #status { font-size: 13px; color: #555; }
+    .legend {
+      background: rgba(255,255,255,0.9);
+      padding: 6px 8px;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      font-size: 13px;
+    }
+    .swatch {
+      display: inline-block;
+      width: 18px;
+      height: 12px;
+      background: rgba(255,165,0,0.25);
+      border: 1px solid #ff8c00;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div>
+      <h1>US Outline GeoJSON Map</h1>
+      <div style="font-size:13px;color:#444;">
+        Loads <code>us_outline.geojson</code> from same folder or lets you upload it.
+      </div>
+    </div>
+    <div class="controls">
+      <label class="btn secondary" id="reloadBtn">Reload</label>
+      <label class="btn" id="uploadLabel">
+        Upload
+        <input id="fileInput" type="file" accept=".json,.geojson,application/geo+json" />
+      </label>
+      <span id="status">Loading…</span>
+    </div>
+  </header>
+
+  <div id="map"></div>
+
+  <!-- ✅ Leaflet JS (no integrity attribute) -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    (function() {
+      const FILENAME = 'us_outline.geojson';
+      const map = L.map('map').setView([39.5, -98.35], 4);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+
+      const statusEl = document.getElementById('status');
+      const fileInput = document.getElementById('fileInput');
+      const reloadBtn = document.getElementById('reloadBtn');
+
+      const geojsonLayer = L.geoJSON(null, {
+        style: {
+          color: '#ff8c00',
+          weight: 2,
+          fillColor: 'rgba(255,165,0,0.25)',
+          fillOpacity: 0.25
+        },
+        onEachFeature: (feature, layer) => {
+          let props = feature.properties;
+          if (props) {
+            const content = Object.entries(props)
+              .slice(0, 6)
+              .map(([k,v]) => `<strong>${k}</strong>: ${v}`)
+              .join('<br>');
+            layer.bindPopup(content);
+          }
+        }
+      }).addTo(map);
+
+      // Legend
+      // Legend
+const legend = L.control({ position: 'topright' });
+legend.onAdd = function() {
+  const div = L.DomUtil.create('div', 'legend');
+  div.innerHTML = '<span class="swatch"></span> US Outline';
+  return div;
+};
+legend.addTo(map);
+
+
+      function setStatus(msg) {
+        statusEl.textContent = msg;
+      }
+
+      async function loadGeoJSON() {
+        setStatus('Loading ' + FILENAME + '...');
+        geojsonLayer.clearLayers();
+        try {
+          const res = await fetch(FILENAME, { cache: 'no-store' });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const data = await res.json();
+          geojsonLayer.addData(data);
+          map.fitBounds(geojsonLayer.getBounds());
+          setStatus('Loaded ' + FILENAME);
+        } catch (err) {
+          console.warn(err);
+          setStatus('Failed to load. Try uploading instead.');
+        }
+      }
+
+      fileInput.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = evt => {
+          try {
+            const data = JSON.parse(evt.target.result);
+            geojsonLayer.clearLayers();
+            geojsonLayer.addData(data);
+            map.fitBounds(geojsonLayer.getBounds());
+            setStatus('Loaded from ' + file.name);
+          } catch {
+            setStatus('Invalid GeoJSON file');
+          }
+        };
+        reader.readAsText(file);
+        fileInput.value = '';
+      });
+
+      reloadBtn.addEventListener('click', loadGeoJSON);
+
+      // Try to load the file automatically
+      loadGeoJSON();
+    })();
+  </script>
+</body>
+</html>
