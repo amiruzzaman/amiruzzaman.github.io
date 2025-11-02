@@ -197,7 +197,14 @@
             border-bottom: 1px solid #ccc;
         }
 
+        .row {
+            display: flex;
+            border-bottom: 1px solid #eee;
+        }
 
+        .row:last-child {
+            border-bottom: none;
+        }
 
         .cell {
             flex: 1;
@@ -284,30 +291,6 @@
                 width: 5px;
                 height: 2px;
             }
-        }
-    </style>
-    <style>
-        .row {
-            display: flex;
-            border-bottom: 1px solid #eee;
-        }
-
-        .row:last-child {
-            border-bottom: none;
-        }
-
-        .row:nth-child(even) {
-            background-color: #f8f9fa;
-        }
-
-        .row:nth-child(odd) {
-            background-color: #b6d1c1;
-        }
-
-        .row:hover {
-            background-color: #d36f18;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
         }
     </style>
 </head>
