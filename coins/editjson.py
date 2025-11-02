@@ -265,6 +265,12 @@ def root_index():
 @app.route('/display.html')
 def display_html():
     return send_from_directory('.', 'display.html')
+    
+
+# Serve ./compare.html
+@app.route('/compare.html')
+def compare_html():
+    return send_from_directory('.', 'compare.html')
 
 
 # Serve ./countries.continents.json
