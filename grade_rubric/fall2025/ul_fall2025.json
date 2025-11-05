@@ -1,208 +1,268 @@
 {
-  "part1": {
+  "Part 0": {
     "title": "Requirements",
     "problems": [
       [
         {
-          "yes": "You used Overleaf and LaTeX for your report.",
-          "no": "You did not use Overleaf and LaTeX for your report.",
+          "yes": "Overleaf and LaTeX used for report",
+          "no": "Overleaf and LaTeX not used for report",
           "point": 2
         },
         {
-          "yes": "You included a valid GitHub commit hash and it works.",
-          "no": "You did not include a valid GitHub commit hash.",
+          "yes": "Valid GitHub hash provided",
+          "no": "GitHub hash missing or invalid",
           "point": 2
         },
         {
-          "yes": "You provided clear instructions to run your code (packages or init).",
-          "no": "You did not provide clear instructions to run your code.",
+          "yes": "Instructions to run code provided in DOCSTRING file",
+          "no": "Instructions missing or not in DOCSTRING file",
           "point": 2
         },
         {
-          "yes": "Your report is a PDF file.",
-          "no": "Your report is not submitted as a PDF.",
+          "yes": "Document is a PDF",
+          "no": "Document is not a PDF",
           "point": 1
         },
         {
-          "yes": "Your report is 8 pages or less.",
-          "no": "Your report exceeded 8 pages.",
+          "yes": "Report is 8 pages or less",
+          "no": "Report exceeds 8 pages",
           "point": 1
         },
         {
-          "yes": "Your graphs and text are legible at 100% zoom.",
-          "no": "Your graphs or text are not legible at 100% zoom.",
+          "yes": "Graphs and text are legible at 100% zoom",
+          "no": "Graphs/text not legible - 3 or more graphs hard to read",
           "point": 1
         },
         {
-          "yes": "You used consistent and proper reference formatting (APA, MLA, or IEEE).",
-          "no": "You did not maintain consistent reference formatting or lacked external citations.",
+          "yes": "Proper references with consistent formatting (APA, MLA, or IEEE)",
+          "no": "References inconsistent or missing citations beyond course material",
           "point": 1
         }
       ]
     ]
   },
-  "part2": {
+  "Part 1": {
     "title": "Hypothesis",
     "problems": [
       [
         {
-          "yes": "You stated an explicit hypothesis for what you expect in the report.",
-          "no": "You did not state an explicit hypothesis.",
+          "yes": "Explicit hypothesis stated for what is expected in the report",
+          "no": "No explicit hypothesis stated",
           "point": 2
         },
         {
-          "yes": "Your hypothesis is grounded in evidence from lecture, paper, or theory.",
-          "no": "Your hypothesis lacks grounding in evidence or theory.",
+          "yes": "Evidence to support hypothesis from lecture, paper, or known theory",
+          "no": "No evidence provided to support hypothesis",
           "point": 2
         },
         {
-          "yes": "You followed up on the hypothesis in the discussion or conclusion.",
-          "no": "You did not follow up on your hypothesis in the discussion or conclusion.",
+          "yes": "Follow-up with hypothesis in discussion or conclusion",
+          "no": "No follow-up on hypothesis in discussion/conclusion",
           "point": 2
         },
         {
-          "yes": "You provided direct evidence in your results to support or refute your hypothesis.",
-          "no": "You did not provide direct evidence supporting or refuting your hypothesis.",
+          "yes": "Direct evidence from report to support if hypothesis was met or not",
+          "no": "No direct evidence provided to evaluate hypothesis",
           "point": 2
         }
       ]
     ]
   },
-  "part3": {
+  "Part 2": {
     "title": "Step 1: Clustering for Two Datasets",
     "problems": [
       [
         {
-          "yes": "You clearly described hyperparameter selection (number of clusters) for each dataset.",
-          "no": "You did not describe how you selected the number of clusters for each dataset.",
-          "point": 4
-        },
-        {
-          "yes": "You provided visualization or demonstration of clustering results.",
-          "no": "You did not include visualization or demonstration of clustering results.",
+          "yes": "Explained how hyperparameters were chosen for EM (number of clusters) - Dataset 1",
+          "no": "No explanation for EM hyperparameter selection - Dataset 1",
           "point": 2
         },
         {
-          "yes": "You provided meaningful analysis of results, describing cluster shape and limitations.",
-          "no": "You did not provide meaningful analysis or mention limitations of clustering results.",
+          "yes": "Explained how hyperparameters were chosen for EM (number of clusters) - Dataset 2",
+          "no": "No explanation for EM hyperparameter selection - Dataset 2",
+          "point": 2
+        },
+        {
+          "yes": "Explained how hyperparameters were chosen for K-Means (number of clusters) - Dataset 1",
+          "no": "No explanation for K-Means hyperparameter selection - Dataset 1",
+          "point": 2
+        },
+        {
+          "yes": "Explained how hyperparameters were chosen for K-Means (number of clusters) - Dataset 2",
+          "no": "No explanation for K-Means hyperparameter selection - Dataset 2",
+          "point": 2
+        },
+        {
+          "yes": "Visualization or demonstration of clustering results",
+          "no": "No visualization/demonstration of clustering results",
+          "point": 4
+        },
+        {
+          "yes": "Meaningful results with descriptive shape of clusters and limitations addressed - Dataset 1",
+          "no": "No meaningful discussion of cluster results or limitations - Dataset 1",
+          "point": 4
+        },
+        {
+          "yes": "Meaningful results with descriptive shape of clusters and limitations addressed - Dataset 2",
+          "no": "No meaningful discussion of cluster results or limitations - Dataset 2",
           "point": 4
         }
       ]
     ]
   },
-  "part4": {
+  "Part 3": {
     "title": "Step 2: Dimensionality Reduction for Two Datasets",
     "problems": [
       [
         {
-          "yes": "You clearly described how you chose the number of components for each DR method (PCA, ICA, RP).",
-          "no": "You did not describe how you chose the number of components for DR methods.",
+          "yes": "RP: Justified number of components with reconstruction error",
+          "no": "RP: No justification for number of components",
           "point": 4
         },
         {
-          "yes": "You provided supporting results such as eigenvalues, explained variance, or kurtosis.",
-          "no": "You did not provide supporting results for DR method selection.",
+          "yes": "RP: Visualization or demonstration of results",
+          "no": "RP: No visualization/demonstration of results",
           "point": 2
         },
         {
-          "yes": "You provided visualizations or demonstrations of DR results.",
-          "no": "You did not include visualization or demonstration of DR results.",
+          "yes": "RP: Meaningful results with interpretation and limitations",
+          "no": "RP: No meaningful interpretation or limitations discussed",
           "point": 2
         },
         {
-          "yes": "You analyzed transformed features, interpreting component meaning and limitations.",
-          "no": "You did not analyze or interpret transformed features or mention limitations.",
-          "point": 2
-        }
-      ]
-    ]
-  },
-  "part5": {
-    "title": "Step 3: Dimensionality Reduction, then Clustering for Two Datasets",
-    "problems": [
-      [
-        {
-          "yes": "You provided visual demonstrations of DR+Clustering performance and reselected optimal clusters.",
-          "no": "You did not provide visual demonstrations or reselect clusters after DR.",
+          "yes": "PCA: Justified number of components with eigenvalues/explained variance",
+          "no": "PCA: No justification for number of components",
           "point": 4
         },
         {
-          "yes": "You provided comparative analysis between methods (e.g., PCA vs ICA).",
-          "no": "You did not provide comparative analysis between DR+Clustering methods.",
-          "point": 3
-        }
-      ]
-    ]
-  },
-  "part6": {
-    "title": "Step 4: Dimensionality Reduction on Neural Network (One Dataset)",
-    "problems": [
-      [
-        {
-          "yes": "You reported performance change due to DR with supporting results.",
-          "no": "You did not report or provide results for DR impact on NN performance.",
+          "yes": "PCA: Visualization or demonstration of results",
+          "no": "PCA: No visualization/demonstration of results",
           "point": 2
         },
         {
-          "yes": "You analyzed wall clock time or speed change (or equivalent metric).",
-          "no": "You did not analyze change in wall clock time or speed.",
+          "yes": "PCA: Meaningful results with interpretation and limitations",
+          "no": "PCA: No meaningful interpretation or limitations discussed",
           "point": 2
-        }
-      ]
-    ]
-  },
-  "part7": {
-    "title": "Step 5: Clustering on Neural Network (One Dataset)",
-    "problems": [
-      [
-        {
-          "yes": "You reported performance change due to clustering on NN with supporting results.",
-          "no": "You did not report or provide results for clustering impact on NN performance.",
-          "point": 3
         },
         {
-          "yes": "You analyzed wall clock time or speed change (or equivalent metric).",
-          "no": "You did not analyze change in wall clock time or speed.",
-          "point": 3
-        }
-      ]
-    ]
-  },
-  "part8": {
-    "title": "Conclusion",
-    "problems": [
-      [
-        {
-          "yes": "You summarized key findings and connected results across datasets and methods.",
-          "no": "You did not summarize findings or connect results across datasets.",
-          "point": 3
+          "yes": "ICA: Justified number of components with kurtosis",
+          "no": "ICA: No justification for number of components",
+          "point": 4
         },
         {
-          "yes": "You discussed limitations and proposed future work.",
-          "no": "You did not discuss limitations or propose future work.",
+          "yes": "ICA: Visualization or demonstration of results",
+          "no": "ICA: No visualization/demonstration of results",
+          "point": 2
+        },
+        {
+          "yes": "ICA: Meaningful results with interpretation and limitations",
+          "no": "ICA: No meaningful interpretation or limitations discussed",
           "point": 2
         }
       ]
     ]
   },
-  "part9": {
-    "title": "Extra Credit: Non-linear Manifold Learning Algorithm",
+  "Part 4": {
+    "title": "Step 3: DR then Clustering for Two Datasets",
     "problems": [
       [
         {
-          "yes": "You implemented a Non-linear Manifold Learning Algorithm with visualization and deep insights.",
-          "no": "You did not provide visualization or deep insights for Non-linear Manifold Learning.",
+          "yes": "Dataset 1: Visual demonstration of performance with optimal clusters reselected after DR",
+          "no": "Dataset 1: No visual demonstration or clusters not reselected after DR",
+          "point": 4
+        },
+        {
+          "yes": "Dataset 1: Comparative analysis between methods with rationale",
+          "no": "Dataset 1: No comparative analysis between methods",
+          "point": 3
+        },
+        {
+          "yes": "Dataset 2: Visual demonstration of performance with optimal clusters reselected after DR",
+          "no": "Dataset 2: No visual demonstration or clusters not reselected after DR",
+          "point": 4
+        },
+        {
+          "yes": "Dataset 2: Comparative analysis between methods with rationale",
+          "no": "Dataset 2: No comparative analysis between methods",
+          "point": 3
+        }
+      ]
+    ]
+  },
+  "Part 5": {
+    "title": "Step 4: DR on Neural Network for One Dataset",
+    "problems": [
+      [
+        {
+          "yes": "RP: Change in performance discussed with supporting results",
+          "no": "RP: No discussion of performance change or supporting results",
+          "point": 2
+        },
+        {
+          "yes": "RP: Change in wall clock time/speed or alternative evaluation metric",
+          "no": "RP: No discussion of timing/speed or alternative evaluation",
+          "point": 2
+        },
+        {
+          "yes": "PCA: Change in performance discussed with supporting results",
+          "no": "PCA: No discussion of performance change or supporting results",
+          "point": 2
+        },
+        {
+          "yes": "PCA: Change in wall clock time/speed or alternative evaluation metric",
+          "no": "PCA: No discussion of timing/speed or alternative evaluation",
+          "point": 2
+        },
+        {
+          "yes": "ICA: Change in performance discussed with supporting results",
+          "no": "ICA: No discussion of performance change or supporting results",
+          "point": 2
+        },
+        {
+          "yes": "ICA: Change in wall clock time/speed or alternative evaluation metric",
+          "no": "ICA: No discussion of timing/speed or alternative evaluation",
+          "point": 2
+        }
+      ]
+    ]
+  },
+  "Part 6": {
+    "title": "Step 5: Clustering on Neural Network for One Dataset",
+    "problems": [
+      [
+        {
+          "yes": "EM: Change in performance discussed with supporting results",
+          "no": "EM: No discussion of performance change or supporting results",
+          "point": 3
+        },
+        {
+          "yes": "EM: Change in wall clock time/speed or alternative evaluation metric",
+          "no": "EM: No discussion of timing/speed or alternative evaluation",
+          "point": 3
+        },
+        {
+          "yes": "K-Means: Change in performance discussed with supporting results",
+          "no": "K-Means: No discussion of performance change or supporting results",
+          "point": 3
+        },
+        {
+          "yes": "K-Means: Change in wall clock time/speed or alternative evaluation metric",
+          "no": "K-Means: No discussion of timing/speed or alternative evaluation",
+          "point": 3
+        }
+      ]
+    ]
+  },
+  "Part 7": {
+    "title": "EC: Non-linear Manifold Learning",
+    "problems": [
+      [
+        {
+          "yes": "Non-linear Manifold Learning Algorithm explained with visualization and significant insights",
+          "no": "No implementation of Non-linear Manifold Learning Algorithm",
           "point": 5
         }
       ]
-    ]
-  },
-  "deductions": {
-    "rules": [
-      {
-        "description": "If any section contains a list with four or more bullet points, apply a 50-point deduction (single penalty).",
-        "penalty": 50
-      }
     ]
   }
 }

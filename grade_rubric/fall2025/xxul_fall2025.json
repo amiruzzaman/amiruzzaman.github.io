@@ -1,0 +1,208 @@
+{
+  "part1": {
+    "title": "Requirements",
+    "problems": [
+      [
+        {
+          "yes": "You used Overleaf and LaTeX for your report.",
+          "no": "You did not use Overleaf and LaTeX for your report.",
+          "point": 2
+        },
+        {
+          "yes": "You included a valid GitHub commit hash and it works.",
+          "no": "You did not include a valid GitHub commit hash.",
+          "point": 2
+        },
+        {
+          "yes": "You provided clear instructions to run your code (packages or init).",
+          "no": "You did not provide clear instructions to run your code.",
+          "point": 2
+        },
+        {
+          "yes": "Your report is a PDF file.",
+          "no": "Your report is not submitted as a PDF.",
+          "point": 1
+        },
+        {
+          "yes": "Your report is 8 pages or less.",
+          "no": "Your report exceeded 8 pages.",
+          "point": 1
+        },
+        {
+          "yes": "Your graphs and text are legible at 100% zoom.",
+          "no": "Your graphs or text are not legible at 100% zoom.",
+          "point": 1
+        },
+        {
+          "yes": "You used consistent and proper reference formatting (APA, MLA, or IEEE).",
+          "no": "You did not maintain consistent reference formatting or lacked external citations.",
+          "point": 1
+        }
+      ]
+    ]
+  },
+  "part2": {
+    "title": "Hypothesis",
+    "problems": [
+      [
+        {
+          "yes": "You stated an explicit hypothesis for what you expect in the report.",
+          "no": "You did not state an explicit hypothesis.",
+          "point": 2
+        },
+        {
+          "yes": "Your hypothesis is grounded in evidence from lecture, paper, or theory.",
+          "no": "Your hypothesis lacks grounding in evidence or theory.",
+          "point": 2
+        },
+        {
+          "yes": "You followed up on the hypothesis in the discussion or conclusion.",
+          "no": "You did not follow up on your hypothesis in the discussion or conclusion.",
+          "point": 2
+        },
+        {
+          "yes": "You provided direct evidence in your results to support or refute your hypothesis.",
+          "no": "You did not provide direct evidence supporting or refuting your hypothesis.",
+          "point": 2
+        }
+      ]
+    ]
+  },
+  "part3": {
+    "title": "Step 1: Clustering for Two Datasets",
+    "problems": [
+      [
+        {
+          "yes": "You clearly described hyperparameter selection (number of clusters) for each dataset.",
+          "no": "You did not describe how you selected the number of clusters for each dataset.",
+          "point": 4
+        },
+        {
+          "yes": "You provided visualization or demonstration of clustering results.",
+          "no": "You did not include visualization or demonstration of clustering results.",
+          "point": 2
+        },
+        {
+          "yes": "You provided meaningful analysis of results, describing cluster shape and limitations.",
+          "no": "You did not provide meaningful analysis or mention limitations of clustering results.",
+          "point": 4
+        }
+      ]
+    ]
+  },
+  "part4": {
+    "title": "Step 2: Dimensionality Reduction for Two Datasets",
+    "problems": [
+      [
+        {
+          "yes": "You clearly described how you chose the number of components for each DR method (PCA, ICA, RP).",
+          "no": "You did not describe how you chose the number of components for DR methods.",
+          "point": 4
+        },
+        {
+          "yes": "You provided supporting results such as eigenvalues, explained variance, or kurtosis.",
+          "no": "You did not provide supporting results for DR method selection.",
+          "point": 2
+        },
+        {
+          "yes": "You provided visualizations or demonstrations of DR results.",
+          "no": "You did not include visualization or demonstration of DR results.",
+          "point": 2
+        },
+        {
+          "yes": "You analyzed transformed features, interpreting component meaning and limitations.",
+          "no": "You did not analyze or interpret transformed features or mention limitations.",
+          "point": 2
+        }
+      ]
+    ]
+  },
+  "part5": {
+    "title": "Step 3: Dimensionality Reduction, then Clustering for Two Datasets",
+    "problems": [
+      [
+        {
+          "yes": "You provided visual demonstrations of DR+Clustering performance and reselected optimal clusters.",
+          "no": "You did not provide visual demonstrations or reselect clusters after DR.",
+          "point": 4
+        },
+        {
+          "yes": "You provided comparative analysis between methods (e.g., PCA vs ICA).",
+          "no": "You did not provide comparative analysis between DR+Clustering methods.",
+          "point": 3
+        }
+      ]
+    ]
+  },
+  "part6": {
+    "title": "Step 4: Dimensionality Reduction on Neural Network (One Dataset)",
+    "problems": [
+      [
+        {
+          "yes": "You reported performance change due to DR with supporting results.",
+          "no": "You did not report or provide results for DR impact on NN performance.",
+          "point": 2
+        },
+        {
+          "yes": "You analyzed wall clock time or speed change (or equivalent metric).",
+          "no": "You did not analyze change in wall clock time or speed.",
+          "point": 2
+        }
+      ]
+    ]
+  },
+  "part7": {
+    "title": "Step 5: Clustering on Neural Network (One Dataset)",
+    "problems": [
+      [
+        {
+          "yes": "You reported performance change due to clustering on NN with supporting results.",
+          "no": "You did not report or provide results for clustering impact on NN performance.",
+          "point": 3
+        },
+        {
+          "yes": "You analyzed wall clock time or speed change (or equivalent metric).",
+          "no": "You did not analyze change in wall clock time or speed.",
+          "point": 3
+        }
+      ]
+    ]
+  },
+  "part8": {
+    "title": "Conclusion",
+    "problems": [
+      [
+        {
+          "yes": "You summarized key findings and connected results across datasets and methods.",
+          "no": "You did not summarize findings or connect results across datasets.",
+          "point": 3
+        },
+        {
+          "yes": "You discussed limitations and proposed future work.",
+          "no": "You did not discuss limitations or propose future work.",
+          "point": 2
+        }
+      ]
+    ]
+  },
+  "part9": {
+    "title": "Extra Credit: Non-linear Manifold Learning Algorithm",
+    "problems": [
+      [
+        {
+          "yes": "You implemented a Non-linear Manifold Learning Algorithm with visualization and deep insights.",
+          "no": "You did not provide visualization or deep insights for Non-linear Manifold Learning.",
+          "point": 5
+        }
+      ]
+    ]
+  },
+  "deductions": {
+    "rules": [
+      {
+        "description": "If any section contains a list with four or more bullet points, apply a 50-point deduction (single penalty).",
+        "penalty": 50
+      }
+    ]
+  }
+}
