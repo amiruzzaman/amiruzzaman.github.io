@@ -10,6 +10,8 @@ from flask import Flask, flash, request, redirect, render_template, url_for, ses
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
 
+from datetime import datetime
+
 # Add these imports at the top of editjson.py
 import base64
 from PIL import Image, ImageOps
@@ -121,8 +123,12 @@ def update_json_file(country, image, note, donor_name, currency_type, size, year
         "donor_name": donor_name,
         "currency_type": currency_type,
         "size": size,
-        "year": year
+        "year": year,
+        # New tag added here:
+        "timestamp": datetime.now().isoformat()
     }
+    # Example of what the 'timestamp' value looks like: '2025-11-16T16:08:02.123456'
+    
     
     # Add hidden_note if provided
     if hidden_note:
@@ -154,7 +160,9 @@ def add_to_json(country, image, note, donor_name, currency_type, size, year):
         'donor_name': donor_name,
         'currency_type': currency_type,
         'size': size,
-        'year': year
+        'year': year,
+        # New tag added here:
+        "timestamp": datetime.now().isoformat()
     })
     write_json_file(data)
 
