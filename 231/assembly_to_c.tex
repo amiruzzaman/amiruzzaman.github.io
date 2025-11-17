@@ -1,0 +1,305 @@
+% ReverseEngineering_Assembly_to_C_beamer.tex
+% LaTeX Beamer lecture: Reverse engineering assembly -> C
+
+\documentclass{beamer}
+
+\usetheme{Madrid}
+
+\usecolortheme{dove}
+
+\setbeamertemplate{navigation symbols}{}
+
+\usepackage[T1]{fontenc}
+
+% --- FIX: Only include one inputenc package, and utf8 is the modern standard. ---
+\usepackage[utf8]{inputenc}
+
+\usepackage{listings}
+
+\usepackage{courier}
+
+\usepackage{graphicx}
+
+\usepackage{caption}
+
+\usepackage{hyperref}
+
+\lstset{
+basicstyle=\ttfamily\footnotesize,
+breaklines=true,
+frame=single,
+numbers=left,
+numberstyle=\tiny,
+showstringspaces=false,
+tabsize=2
+}
+
+\lstdefinelanguage{asmintel}{
+morekeywords={mov,add,sub,mul,div,call,ret,jmp,je,jne,jg,jl,push,pop,lea},
+sensitive=true,
+}
+
+\title{Reverse Engineering: From Assembly to C}
+\author{Prepared by Amir (with ChatGPT)}
+\date{\today}
+
+\begin{document}
+
+% --- TITLE PAGE ---
+\begin{frame}[fragile]
+\titlepage
+\end{frame}
+
+% --- OUTLINE ---
+\begin{frame}[fragile]{Outline}
+\tableofcontents
+\end{frame}
+
+% --- SECTION: Motivation & Tools ---
+\section{Motivation \& Tools}
+
+\begin{frame}[fragile]{Why reverse engineer?}
+\begin{itemize}
+\item Recover high-level intent from binaries (**security auditing**, bug hunting, verifying third-party libraries)
+\item Understand **calling conventions**, ABI, optimization effects
+\item Learn how compilers translate C to assembly
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Common tools}
+\begin{itemize}
+\item **objdump**, readelf, nm, strings
+\item **Ghidra**, IDA Pro, Binary Ninja (GUI decompilers)
+\item radare2 / rizin (CLI reversing)
+\item gcc/clang for compiling small examples, \texttt{objdump -d} for disassembly
+\end{itemize}
+\end{frame}
+
+% --- SECTION: Assembly basics ---
+\section{Assembly basics}
+
+\begin{frame}[fragile]{x86\_64 quickly}
+\begin{itemize}
+\item Registers: \texttt{rax, rbx, rcx, rdx, rsi, rdi, rbp, rsp, r8--r15}
+\item Typical calling convention (System V AMD64):
+\begin{itemize}
+\item args: \texttt{rdi, rsi, rdx, rcx, r8, r9}
+\item return: \texttt{rax}
+\end{itemize}
+\item Stack grows down; \texttt{rbp} often used as frame pointer (when enabled)
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Reading a small assembly function}
+Disassembly (Intel-like pseudocode):
+\begin{lstlisting}[language=asmintel]
+push rbp
+mov rbp, rsp
+mov DWORD PTR [rbp-4], edi
+mov eax, DWORD PTR [rbp-4]
+add eax, 5
+pop rbp
+ret
+\end{lstlisting}
+Homework: convert this to C.
+\end{frame}
+
+\begin{frame}[fragile]{Solution: mapping to C}
+Assembly corresponds to:
+\begin{lstlisting}[language=C]
+int add5(int x) {
+return x + 5;
+}
+\end{lstlisting}
+Explanation:
+\begin{itemize}
+\item parameter in \texttt{edi} (first int arg)
+\item result returned in \texttt{eax}
+\end{itemize}
+\end{frame}
+
+% --- SECTION: Patterns and idioms ---
+\section{Patterns and idioms}
+
+\begin{frame}[fragile]{Common idioms}
+\begin{itemize}
+\item Prologue/epilogue: \texttt{push rbp; mov rbp, rsp} ... \texttt{pop rbp; ret}
+\item Local variables: stored at **negative offsets from \texttt{rbp}**
+\item Loops: compare + conditional jump (e.g., \texttt{cmp; jne/jle/jg})
+\item Function calls: \texttt{call} and cleanup depends on convention
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Example: loop in assembly}
+Assembly:
+\begin{lstlisting}[language=asmintel]
+push rbp
+mov rbp, rsp
+mov DWORD PTR [rbp-4], 0    ; i = 0
+jmp .L2
+.L3:
+mov eax, DWORD PTR [rbp-4]
+add eax, 1
+mov DWORD PTR [rbp-4], eax
+.L2:
+mov eax, DWORD PTR [rbp-4]
+cmp eax, 10
+jl .L3
+pop rbp
+ret
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Loop -> C}
+Equivalent C:
+\begin{lstlisting}[language=C]
+void count_to_10() {
+int i = 0;
+while (i < 10) {
+i = i + 1;
+}
+}
+\end{lstlisting}
+Notes: the compiler uses increments and compares; optimizations may inline or unroll.
+\end{frame}
+
+% --- SECTION: Calling conventions and stack frames ---
+\section{Calling conventions and stack frames}
+
+\begin{frame}[fragile]{Calling convention reminders}
+\begin{itemize}
+\item Integer args in **registers** (rdi, rsi, rdx, ...)
+\item Caller-saved vs callee-saved registers
+\item Watch out for optimizations: **tail calls**, inlining, frame-pointer omission
+\end{itemize}
+\end{frame}
+
+% --- SECTION: Longer example: string copy ---
+\section{Longer example: string copy}
+
+\begin{frame}[fragile]{Assembly: simplified strcpy-like}
+\begin{lstlisting}[language=asmintel]
+; char *strcpy_simple(char *dst, const char *src)
+push rbp
+mov rbp, rsp
+mov QWORD PTR [rbp-16], rdi   ; dst
+mov QWORD PTR [rbp-24], rsi   ; src
+mov rax, QWORD PTR [rbp-16]
+mov rcx, QWORD PTR [rbp-24]
+.Lloop:
+mov dl, BYTE PTR [rcx]
+mov BYTE PTR [rax], dl
+inc rcx
+inc rax
+test dl, dl
+jne .Lloop
+mov rax, QWORD PTR [rbp-16]
+pop rbp
+ret
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{C equivalent: strcpy-like}
+\begin{lstlisting}[language=C]
+char *strcpy_simple(char *dst, const char *src) {
+char *d = dst;
+const char *s = src;
+while (1) {
+char c = *s;
+*d = c;
+s++; d++;
+if (c == '\0') break;
+}
+return dst;
+}
+\end{lstlisting}
+\end{frame}
+
+% --- SECTION: Reverse engineering workflow ---
+\section{Reverse engineering workflow}
+
+\begin{frame}[fragile]{Practical workflow}
+\begin{enumerate}
+\item Obtain binary and symbols (if available)
+\item Use \texttt{objdump -d} or **Ghidra** to get disassembly
+\item Identify functions, calling conventions, and constants
+\item Rename variables and functions as you infer meaning
+\item Reconstruct high-level control flow and types
+\end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]{Quick tips}
+\begin{itemize}
+\item Look for **string references** (\texttt{strings}, cross-reference in disassembler)
+\item Identify library calls (e.g., calls to \texttt{printf}, \texttt{malloc})
+\item Use type inference: size of memory ops (byte/word/dword/qword) suggests types
+\item Control-flow graphs help reconstruct structured code
+\end{itemize}
+\end{frame}
+
+% --- SECTION: Exercises ---
+\section{Exercises}
+
+\begin{frame}[fragile]{Exercise 1}
+Disassembly:
+\begin{lstlisting}[language=asmintel]
+push rbp
+mov rbp, rsp
+mov eax, edi
+cdqe
+idiv esi
+pop rbp
+ret
+\end{lstlisting}
+Task: propose a C prototype and implementation.
+\end{frame}
+
+\begin{frame}[fragile]{Exercise 1 -- solution (one possible)}
+\begin{lstlisting}[language=C]
+long div_signed(int a, int b) {
+return (long)a / (long)b; // note: idiv uses rax/rdx - sign extension
+}
+\end{lstlisting}
+Explanation: \texttt{cdqe} sign-extends \texttt{eax} into \texttt{rax}; \texttt{idiv esi} divides \texttt{rax} by \texttt{esi}.
+\end{frame}
+
+% --- SECTION: Advanced topics ---
+\section{Advanced topics}
+
+\begin{frame}[fragile]{Optimizations and pitfalls}
+\begin{itemize}
+\item Compiler optimizations can reorder, inline, or eliminate variables
+\item Omitted frame pointer makes local offsets harder to follow
+\item Position-independent code (PIC) uses **RIP-relative addressing**
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Further resources}
+\begin{itemize}
+\item "**Practical Reverse Engineering**" (book)
+\item Ghidra tutorials and official docs
+\item x86-64 System V ABI specification
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Wrap-up}
+\begin{itemize}
+\item Practice by compiling small C examples and inspecting disassembly
+\item Reconstruct control flow, map registers -> variables, and test hypotheses
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Appendix: commands}
+\begin{lstlisting}
+compile
+gcc -O0 -g -o ex example.c
+
+disassemble
+objdump -d -M intel ex > ex.dis
+
+show strings
+strings ex
+\end{lstlisting}
+\end{frame}
+
+\end{document}
