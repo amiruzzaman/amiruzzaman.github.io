@@ -299,32 +299,6 @@
       }
     }
   </style>
-  <style>
-    .new-badge {
-      display: inline-block;
-      margin-left: 8px;
-      background: #e74c3c;
-      color: #fff;
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 10px;
-      font-weight: bold;
-      vertical-align: middle;
-      animation: blink 1.2s infinite;
-    }
-
-    @keyframes blink {
-
-      0%,
-      100% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: 0.4;
-      }
-    }
-  </style>
 </head>
 
 <body>
@@ -371,22 +345,9 @@
       .then(response => response.json())
       .then(data => {
         originalData = data;
-
-        // Find latest timestamp country
-        const validTimestampData = data.filter(item => item.timestamp);
-        const latestEntry = validTimestampData.reduce((latest, item) => {
-          return new Date(item.timestamp) > new Date(latest.timestamp) ? item : latest;
-        });
-
-        window.latestCountry = latestEntry.country; // expose globally
-
         combinedData = combineData(originalData);
-
-        // DEFAULT SORT A-Z
-        combinedData.sort((a, b) => a.country.localeCompare(b.country));
-
         renderTable(combinedData);
-        renderSummary(originalData);
+        renderSummary(originalData); // Render summary from original data to get all counts
       })
       .catch(error => console.error('Error fetching JSON:', error));
 
@@ -439,20 +400,15 @@
       const tbody = document.querySelector('#data-table tbody');
       tbody.innerHTML = '';
       data.forEach(row => {
-        const isLatest = (row.country === window.latestCountry);
-
-        const latestBadge = isLatest ? `<span class="new-badge">NEW</span>` : "";
-
         const tr = document.createElement('tr');
         tr.innerHTML = `
-      <td><a href="display.html?country=${encodeURIComponent(row.country)}"><i class="fas fa-search"></i> ${row.country}</a> ${latestBadge}</td>
-      <td><i class="${row.currency_type.includes('coin') ? 'fas fa-coins' : 'fas fa-money-bill-alt'}"></i> ${swapCoinAndBill(row.currency_type)}</td>
-      <td><i class="fas fa-user-tie"></i> ${row.donor_name}</td>
-    `;
+          <td><a href="display.html?country=${encodeURIComponent(row.country)}"><i class="fas fa-search"></i> ${row.country}</a></td>
+          <td><i class="${row.currency_type.includes('coin') ? 'fas fa-coins' : 'fas fa-money-bill-alt'}"></i> ${swapCoinAndBill(row.currency_type)}</td>
+          <td><i class="fas fa-user-tie"></i> ${row.donor_name}</td>
+        `;
         tbody.appendChild(tr);
       });
     }
-
 
     // Replace the existing renderSummary with this one
     function renderSummary(data) {
