@@ -1,0 +1,633 @@
+% 50-slide Beamer presentation: C <-> Assembly examples
+% Author: Amir
+% Theme: Madrid (user wrote "mardid"; using the standard Madrid theme)
+\documentclass{beamer}
+\usetheme{Madrid}
+\usecolortheme{seagull}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\lstset{
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  numbers=left,
+  numberstyle=\tiny,
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2,
+  frame=single
+}
+\title{C \textrightarrow{} Assembly and Assembly \textrightarrow{} C}
+\author{Amir}
+\date{\today}
+\begin{document}
+
+\frame{\titlepage}
+
+
+% Slide X: Generating Assembly with gcc -S
+\begin{frame}[fragile]{Generating Assembly with \texttt{gcc -S}}
+\begin{itemize}
+    \item The \texttt{-S} flag tells GCC to **stop after producing assembly**.
+    \item Useful for understanding how C code is lowered into machine-level instructions.
+    \item Command format:
+\end{itemize}
+
+\begin{lstlisting}[language=bash]
+gcc -S filename.c
+\end{lstlisting}
+
+\begin{itemize}
+    \item Produces a file named \texttt{filename.s} containing assembly code.
+    \item No object file (\texttt{.o}) or executable is generated at this stage.
+\end{itemize}
+\end{frame}
+
+% Slide Y: What You See in the .s File
+\begin{frame}[fragile]{What Appears in the \texttt{.s} Assembly File}
+\begin{itemize}
+    \item The generated \texttt{.s} file includes:
+    \begin{itemize}
+        \item Function prologues/epilogues
+        \item Stack frame setup and teardown
+        \item Register usage
+        \item Instructions corresponding to expressions and control flow
+    \end{itemize}
+
+    \item Example:
+\end{itemize}
+
+\begin{lstlisting}[language=C]
+int add(int x, int y) {
+    return x + y;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language={[x86masm]Assembler}]
+add:
+    pushq   %rbp
+    movq    %rsp, %rbp
+    movl    %edi, -4(%rbp)
+    movl    %esi, -8(%rbp)
+    movl    -4(%rbp), %eax
+    addl    -8(%rbp), %eax
+    popq    %rbp
+    ret
+\end{lstlisting}
+
+\end{frame}
+
+
+% Slide 1: single variable (C)
+\begin{frame}[fragile]{1. C: single variable - declaration and initialization}
+\begin{lstlisting}
+// single.c
+#include <stdio.h>
+int main() {
+  int x = 42;
+  printf("x = %d\n", x);
+  return 0;
+}
+\end{lstlisting}
+\end{frame}
+
+% Slide 2: single variable (Assembly) - AT&T (gcc -S)
+\begin{frame}[fragile]{2. Assembly (gcc -S): single variable}
+\begin{lstlisting}
+# single.s  (x86-64, AT&T syntax produced by gcc -S)
+.globl main
+main:
+  pushq %rbp
+  movq %rsp, %rbp
+  movl $42, -4(%rbp)
+  movl -4(%rbp), %edi
+  leaq .LC0(%rip), %rsi
+  xorl %eax, %eax
+  call printf@PLT
+  movl $0, %eax
+  popq %rbp
+  ret
+.LC0:
+  .string "x = %d\n"
+\end{lstlisting}
+\end{frame}
+
+% Slide 3: mapping explanation (code-free but fragile per request)
+\begin{frame}[fragile]{3. Mapping: C variables to stack slots / registers}
+\begin{lstlisting}
+// Conceptual mapping:
+// int x --> allocated at -4(%rbp)
+// printf call uses calling convention: first arg in %edi (format) or %rdi for x86-64 System V
+// Note: compiler optimizations can put 'x' in a register instead of stack
+\end{lstlisting}
+\end{frame}
+
+% Slide 4: printf example in C
+\begin{frame}[fragile]{4. C: printf with expressions}
+\begin{lstlisting}
+#include <stdio.h>
+int main() {
+  int a = 5, b = 7;
+  printf("sum = %d\n", a + b);
+  return 0;
+}
+\end{lstlisting}
+\end{frame}
+
+% Slide 5: printf compiled to assembly
+\begin{frame}[fragile]{5. Assembly: printf with expression}
+\begin{lstlisting}
+# sum.s
+main:
+  pushq %rbp
+  movq %rsp, %rbp
+  movl $5, -4(%rbp)
+  movl $7, -8(%rbp)
+  movl -4(%rbp), %edx   # a
+  movl -8(%rbp), %eax   # b
+  addl %edx, %eax       # eax = a + b
+  movl %eax, %esi       # second arg (sum)
+  leaq .LC0(%rip), %rdi # format string
+  xorl %eax, %eax
+  call printf@PLT
+  ...
+\end{lstlisting}
+\end{frame}
+
+% Slide 6: scanf in C
+\begin{frame}[fragile]{6. C: scanf example}
+\begin{lstlisting}
+#include <stdio.h>
+int main() {
+  int x;
+  scanf("%d", &x);
+  printf("you entered %d\n", x);
+  return 0;
+}
+\end{lstlisting}
+\end{frame}
+
+% Slide 7: scanf assembly
+\begin{frame}[fragile]{7. Assembly: scanf usage (stack \& addresses)}
+\begin{lstlisting}
+# scanf.s
+# &x is passed to scanf as pointer
+leaq -4(%rbp), %rsi    # address of x -> second argument for scanf
+leaq .LC0(%rip), %rdi  # format string
+xorl %eax, %eax
+call scanf@PLT
+\end{lstlisting}
+\end{frame}
+
+% Slide 8: multiple variables in C
+\begin{frame}[fragile]{8. C: multiple variables}
+\begin{lstlisting}
+#include <stdio.h>
+int main(){
+  int x=1,y=2,z=3;
+  printf("%d %d %d\n", x,y,z);
+  return 0;
+}
+\end{lstlisting}
+\end{frame}
+
+% Slide 9: multiple variables assembly
+\begin{frame}[fragile]{9. Assembly: multiple variables}
+\begin{lstlisting}
+# multiple.s
+movl $1, -4(%rbp)
+movl $2, -8(%rbp)
+movl $3, -12(%rbp)
+# load for printf: push/pop or move to registers
+movl -12(%rbp), %edx # z
+movl -8(%rbp), %esi  # y
+movl -4(%rbp), %edi  # x
+leaq .LC0(%rip), %rax
+# call printf
+\end{lstlisting}
+\end{frame}
+
+% Slide 10: if condition in C
+\begin{frame}[fragile]{10. C: if condition}
+\begin{lstlisting}
+#include <stdio.h>
+int main(){
+  int n = 5;
+  if(n > 0) printf("positive\n");
+  else printf("non-positive\n");
+}
+\end{lstlisting}
+\end{frame}
+
+% Slide 11: if condition assembly
+\begin{frame}[fragile]{11. Assembly: conditional branch}
+\begin{lstlisting}
+# if.s
+movl $5, -4(%rbp)
+movl -4(%rbp), %eax
+cmpl $0, %eax
+jg .Lpositive
+# else
+leaq .Lelse(%rip), %rdi
+call puts@PLT
+jmp .Lend
+.Lpositive:
+leaq .Lpos(%rip), %rdi
+call puts@PLT
+.Lend:
+\end{lstlisting}
+\end{frame}
+
+% Slide 12: ternary operator (C)
+\begin{frame}[fragile]{12. C: ternary operator}
+\begin{lstlisting}
+int a=10,b=20;
+int m = (a>b) ? a : b;
+// m holds max
+\end{lstlisting}
+\end{frame}
+
+% Slide 13: ternary assembly
+\begin{frame}[fragile]{13. Assembly: ternary -> conditional move / branches}
+\begin{lstlisting}
+movl a(%rip), %eax
+cmpl b(%rip), %eax
+cmovle %ebx, %eax  # conditional move (if available)
+# else use branch/jump
+\end{lstlisting}
+\end{frame}
+
+% Slide 14: for loop in C
+\begin{frame}[fragile]{14. C: for loop}
+\begin{lstlisting}
+for(int i=0;i<5;i++){
+  printf("%d\n", i);
+}
+\end{lstlisting}
+\end{frame}
+
+% Slide 15: for loop assembly
+\begin{frame}[fragile]{15. Assembly: for loop}
+\begin{lstlisting}
+movl $0, -4(%rbp)    # i = 0
+.Lloop:
+movl -4(%rbp), %eax
+cmpl $5, %eax
+jge .Lend
+# body: call printf
+incl -4(%rbp)
+jmp .Lloop
+.Lend:
+\end{lstlisting}
+\end{frame}
+
+% Slide 16: while loop in C
+\begin{frame}[fragile]{16. C: while loop}
+\begin{lstlisting}
+int i=0;
+while(i<10){
+  i+=2;
+}
+\end{lstlisting}
+\end{frame}
+
+% Slide 17: while loop assembly
+\begin{frame}[fragile]{17. Assembly: while loop}
+\begin{lstlisting}
+movl $0, -4(%rbp)
+.Lwstart:
+movl -4(%rbp), %eax
+cmpl $10, %eax
+jge .Lwend
+addl $2, -4(%rbp)
+jmp .Lwstart
+.Lwend:
+\end{lstlisting}
+\end{frame}
+
+% Slide 18: switch in C
+\begin{frame}[fragile]{18. C: switch statement}
+\begin{lstlisting}
+switch(x){
+ case 0: puts("zero"); break;
+ case 1: puts("one"); break;
+ default: puts("other");
+}
+\end{lstlisting}
+\end{frame}
+
+% Slide 19: switch assembly (jump table)
+\begin{frame}[fragile]{19. Assembly: switch -> jump table}
+\begin{lstlisting}
+# compiler may produce jump table:
+cmpl $1, %eax
+ja .Ldefault
+jmp *(.LJTI8_. + %rax*8)
+\end{lstlisting}
+\end{frame}
+
+% Slide 20: functions in C
+\begin{frame}[fragile]{20. C: function call}
+\begin{lstlisting}
+int add(int a,int b){
+  return a + b;
+}
+int main(){
+  printf("%d\n", add(2,3));
+}
+\end{lstlisting}
+\end{frame}
+
+% Slide 21: function assembly (prologue/epilogue)
+\begin{frame}[fragile]{21. Assembly: function prologue/epilogue}
+\begin{lstlisting}
+# add.s
+add:
+  pushq %rbp
+  movq %rsp, %rbp
+  movl %edi, -4(%rbp) # a
+  movl %esi, -8(%rbp) # b
+  movl -4(%rbp), %edx
+  addl -8(%rbp), %edx
+  movl %edx, %eax
+  popq %rbp
+  ret
+\end{lstlisting}
+\end{frame}
+
+% Slide 22: returning values (registers)
+\begin{frame}[fragile]{22. Returning values: registers}
+\begin{lstlisting}
+// On x86-64 System V: return value in %eax (or %rax for 64-bit)
+int f(){ return 123; }
+// assembly: movl $123, %eax ; ret
+\end{lstlisting}
+\end{frame}
+
+% Slide 23: stack and local arrays (C)
+\begin{frame}[fragile]{23. C: local array on stack}
+\begin{lstlisting}
+int main(){
+  int a[3] = {1,2,3};
+  printf("%d\n", a[1]);
+}
+\end{lstlisting}
+\end{frame}
+
+% Slide 24: array access assembly
+\begin{frame}[fragile]{24. Assembly: array addressing}
+\begin{lstlisting}
+# a is at -12(%rbp)
+movl -8(%rbp), %eax   # load a[1]
+# or compute address: leaq -12(%rbp), %rax ; movl 4(%rax), %eax
+\end{lstlisting}
+\end{frame}
+
+% Slide 25: pointers in C
+\begin{frame}[fragile]{25. C: pointers example}
+\begin{lstlisting}
+int main(){
+  int x=10;
+  int *p = &x;
+  *p = 20;
+  printf("x=%d\n", x);
+}
+\end{lstlisting}
+\end{frame}
+
+% Slide 26: pointer assembly
+\begin{frame}[fragile]{26. Assembly: pointers and dereference}
+\begin{lstlisting}
+leaq -4(%rbp), %rax  # address of x
+movq %rax, -16(%rbp) # store pointer p
+movq -16(%rbp), %rax
+movl $20, (%rax)     # *p = 20
+\end{lstlisting}
+\end{frame}
+
+% Slide 27: malloc and heap (C)
+\begin{frame}[fragile]{27. C: malloc example}
+\begin{lstlisting}
+#include <stdlib.h>
+int *p = malloc(sizeof(int));
+*p = 5;
+free(p);
+\end{lstlisting}
+\end{frame}
+
+% Slide 28: malloc assembly (call to malloc)
+\begin{frame}[fragile]{28. Assembly: calling malloc/free}
+\begin{lstlisting}
+movl $4, %edi    # size argument to malloc
+call malloc@PLT
+# returned pointer in %rax
+movq %rax, -8(%rbp)
+\end{lstlisting}
+\end{frame}
+
+% Slide 29: structs in C
+\begin{frame}[fragile]{29. C: struct usage}
+\begin{lstlisting}
+struct Point { int x; int y; };
+struct Point p = {1,2};
+printf("%d,%d\n", p.x, p.y);
+\end{lstlisting}
+\end{frame}
+
+% Slide 30: struct assembly layout
+\begin{frame}[fragile]{30. Assembly: struct layout and access}
+\begin{lstlisting}
+# struct p at -8(%rbp)
+movl -8(%rbp), %eax    # p.x
+movl -4(%rbp), %edx    # p.y  (offsets depend on layout)
+\end{lstlisting}
+\end{frame}
+
+% Slide 31: recursion in C
+\begin{frame}[fragile]{31. C: recursion example (factorial)}
+\begin{lstlisting}
+int fact(int n){
+ if(n<=1) return 1;
+ return n * fact(n-1);
+}
+\end{lstlisting}
+\end{frame}
+
+% Slide 32: recursion assembly (call stack growth)
+\begin{frame}[fragile]{32. Assembly: recursion - call stack}
+\begin{lstlisting}
+# Each call pushes return address and local frame; args in %edi, return in %eax
+call fact
+# compiler may optimize tail recursion (not in this example)
+\end{lstlisting}
+\end{frame}
+
+% Slide 33: volatile and optimization hints
+\begin{frame}[fragile]{33. C: volatile and compiler optimizations}
+\begin{lstlisting}
+volatile int flag = 0;
+// prevents compiler from optimizing away reads/writes
+\end{lstlisting}
+\end{frame}
+
+% Slide 34: inline assembly example in C
+\begin{frame}[fragile]{34. C: inline assembly (GCC)}
+\begin{lstlisting}
+int x=1;
+asm ("incl %0" : "+r" (x)); // increments x
+\end{lstlisting}
+\end{frame}
+
+% Slide 35: calling external functions (C <-> asm)
+\begin{frame}[fragile]{35. Assembly: calling a C function from asm}
+\begin{lstlisting}
+# extern printf
+leaq .LC0(%rip), %rdi
+call printf@PLT
+\end{lstlisting}
+\end{frame}
+
+% Slide 36: writing a small .s file and compiling
+\begin{frame}[fragile]{36. Assembling and linking}
+\begin{lstlisting}
+# assemble: gcc -c single.s -o single.o
+# link: gcc single.o -o single
+# or compile C and view assembly: gcc -S single.c -o single.s
+\end{lstlisting}
+\end{frame}
+
+% Slide 37: optimization differences
+\begin{frame}[fragile]{37. Example: -O0 vs -O2}
+\begin{lstlisting}
+// -O0: many stack slots, obvious moves
+// -O2: registers, inlined functions
+// Always compare gcc -S -O0 and gcc -S -O2 to learn differences
+\end{lstlisting}
+\end{frame}
+
+% Slide 38: getchar and putchar (C)
+\begin{frame}[fragile]{38. C: getchar/putchar}
+\begin{lstlisting}
+int c = getchar();
+putchar(c);
+\end{lstlisting}
+\end{frame}
+
+% Slide 39: getchar assembly (syscall or libc)
+\begin{frame}[fragile]{39. Assembly: getchar -> call libc}
+\begin{lstlisting}
+call getchar@PLT
+# return in %eax
+\end{lstlisting}
+\end{frame}
+
+% Slide 40: formatting and varargs (printf internals)
+\begin{frame}[fragile]{40. printf varargs and calling convention}
+\begin{lstlisting}
+// printf("%d %d", a, b):
+// first arg (format) in %rdi, then %rsi, %rdx, %rcx, ...
+\end{lstlisting}
+\end{frame}
+
+% Slide 41: mixing C and assembly files in a project
+\begin{frame}[fragile]{41. Mixed project: example}
+\begin{lstlisting}
+// myfunc.s defines _myfunc
+// main.c declares: extern int myfunc(int);
+// compile: gcc -c myfunc.s ; gcc -c main.c ; gcc myfunc.o main.o -o app
+\end{lstlisting}
+\end{frame}
+
+% Slide 42: example: implementing add in assembly and call from C
+\begin{frame}[fragile]{42. Assembly add called from C}
+\begin{lstlisting}
+# add.s
+.globl add
+add:
+  movl %edi, %eax
+  addl %esi, %eax
+  ret
+\end{lstlisting}
+\end{frame}
+
+% Slide 43: main.c calling add
+\begin{frame}[fragile]{43. main.c that calls add}
+\begin{lstlisting}
+#include <stdio.h>
+extern int add(int,int);
+int main(){
+  printf("%d\n", add(4,5));
+}
+\end{lstlisting}
+\end{frame}
+
+% Slide 44: debug with objdump / gdb
+\begin{frame}[fragile]{44. Debugging: objdump and gdb}
+\begin{lstlisting}
+objdump -d a.out   # disassemble
+gdb a.out
+(gdb) disassemble main
+(gdb) break main
+\end{lstlisting}
+\end{frame}
+
+% Slide 45: system calls (Linux x86-64) from assembly
+\begin{frame}[fragile]{45. Assembly: direct syscall (write)}
+\begin{lstlisting}
+movq $1,%rax   # syscall write
+movq $1,%rdi   # fd=1 stdout
+leaq msg(%rip),%rsi
+movq $len,%rdx
+syscall
+\end{lstlisting}
+\end{frame}
+
+% Slide 46: calling convention differences (Windows vs Linux)
+\begin{frame}[fragile]{46. Calling conventions}
+\begin{lstlisting}
+// System V (Linux x86-64): rdi, rsi, rdx, rcx, r8, r9
+// Windows x64: rcx, rdx, r8, r9
+\end{lstlisting}
+\end{frame}
+
+% Slide 47: inline assembly pitfalls and portability
+\begin{frame}[fragile]{47. Inline asm portability}
+\begin{lstlisting}
+// Inline asm is compiler-specific and fragile across architectures
+// Prefer separate asm files for portability and clarity
+\end{lstlisting}
+\end{frame}
+
+% Slide 48: exercises for students (convert these samples)
+\begin{frame}[fragile]{48. Exercises}
+\begin{lstlisting}
+1) Convert simple loop C->asm
+2) Write assembly that calls printf
+3) Translate recursion sample both ways
+4) Observe -O0 vs -O2 assembly differences
+\end{lstlisting}
+\end{frame}
+
+% Slide 49: cheatsheet (registers & common opcodes)
+\begin{frame}[fragile]{49. Cheatsheet}
+\begin{lstlisting}
+Registers: %rax, %rbx, %rcx, %rdx, %rsi, %rdi, %rbp, %rsp
+Common opcodes: mov, add, sub, imul, idiv, call, ret, cmp, jmp
+\end{lstlisting}
+\end{frame}
+
+% Slide 50: summary and next steps
+\begin{frame}[fragile]{50. Summary \& next steps}
+\begin{lstlisting}
+// Summary:
+// - Use gcc -S to view generated assembly
+// - Use objdump/gdb to inspect binaries
+// - Practice writing small .s routines and link with C
+// Next: cover x86 calling ABI in depth and optimization effects
+\end{lstlisting}
+\end{frame}
+
+\end{document}
