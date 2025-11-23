@@ -3747,7 +3747,6 @@
             }
         });
 
-
         // Initializes the collapsible details section
         function initDetailsToggle() {
             const toggle = document.querySelector('.details-toggle');
@@ -3806,15 +3805,23 @@
                 toggleDetails();
             });
 
-            // Check URL parameter on load and expand if details=yes
+            // Check URL parameter on load - DEFAULT TO COLLAPSED unless details=yes
             const queryParams = new URLSearchParams(window.location.search);
             if (queryParams.get("details") === "yes") {
                 // Small delay to ensure everything is loaded
                 setTimeout(() => {
                     toggleDetails(true);
                 }, 500);
+            } else {
+                // Ensure details are collapsed by default
+                setTimeout(() => {
+                    if (content.classList.contains('show')) {
+                        toggleDetails(false);
+                    }
+                }, 100);
             }
         }
+
 
         // Initializes the image modal for enlarged view
         function initImageModal() {
@@ -3906,7 +3913,6 @@
             currentImageIndex = index;
         }
 
-
         function changeModalImage(direction) {
             if (currentCountryCoins.length > 0) {
                 currentImageIndex = (currentImageIndex + direction + currentCountryCoins.length) % currentCountryCoins.length;
@@ -3927,7 +3933,7 @@
                 // ADD DONOR INFO UPDATE
                 document.getElementById('modal-donor').textContent = coin.donor_name || 'Unknown';
 
-                // FIX: Update URL when navigating in modal
+                // FIX: Update URL when navigating in modal, preserving details
                 updateURLWithCurrentCoin();
             }
         }
@@ -4131,25 +4137,7 @@
                     // Small delay to ensure country images are loaded first
                     setTimeout(() => {
                         navigateToSpecificCoin(coinQuery);
-
-                        // If details=yes is in URL, expand the details section after coin is loaded
-                        if (detailsQuery === "yes") {
-                            setTimeout(() => {
-                                const toggle = document.querySelector('.details-toggle');
-                                if (toggle && !document.querySelector('.details-content').classList.contains('show')) {
-                                    toggle.click();
-                                }
-                            }, 800);
-                        }
                     }, 100);
-                } else if (detailsQuery === "yes") {
-                    // If details=yes but no specific coin, still expand details
-                    setTimeout(() => {
-                        const toggle = document.querySelector('.details-toggle');
-                        if (toggle && !document.querySelector('.details-content').classList.contains('show')) {
-                            toggle.click();
-                        }
-                    }, 800);
                 }
             } else if (countries.length > 0) {
                 // If no country is specified, load images for the first available country
@@ -4177,7 +4165,7 @@
             initSearch();
             initViewToggle();
             initBackToTop();
-            initComparisonButton(); // ADD THIS LINE
+            initComparisonButton();
         };
 
     </script>
@@ -4197,7 +4185,6 @@
             // Optional logging
             console.log("Updated Title:", newTitle);
         }
-
 
         // NEW: Function to navigate to a specific coin by image filename
         function navigateToSpecificCoin(coinFilename) {
@@ -4223,17 +4210,25 @@
                 // Navigate to the specific coin
                 updateImageDisplay(coinIndex, currentCountryCoins);
 
-                // Update URL to include both country and coin
+                // Update URL to include both country and coin, preserving details
                 const queryParams = new URLSearchParams(window.location.search);
                 const country = queryParams.get("country");
+                const details = queryParams.get("details"); // Get current details state
                 const cleanCoinName = currentCountryCoins[coinIndex].image.split('.')[0];
-                history.replaceState(null, "", `?country=${country}&coin=${cleanCoinName}`);
+
+                let newUrl = `?country=${country}&coin=${cleanCoinName}`;
+                if (details === "yes") {
+                    newUrl += '&details=yes';
+                }
+
+                history.replaceState(null, "", newUrl);
 
                 console.log(`Navigated to coin: ${currentCountryCoins[coinIndex].image}`);
             } else {
                 console.warn(`Coin not found: ${coinFilename}`);
             }
         }
+
 
         // --- URL-in-Note support ---
         function formatNoteWithURLs(text) {
@@ -5594,11 +5589,18 @@
 
             const queryParams = new URLSearchParams(window.location.search);
             const country = queryParams.get("country");
+            const details = queryParams.get("details"); // Get current details state
             const currentCoin = currentCountryCoins[currentImageIndex];
 
             if (country && currentCoin) {
                 const cleanCoinName = currentCoin.image.split('.')[0];
-                const newUrl = `?country=${country}&coin=${cleanCoinName}`;
+                let newUrl = `?country=${country}&coin=${cleanCoinName}`;
+
+                // Preserve the details parameter if it was present
+                if (details === "yes") {
+                    newUrl += '&details=yes';
+                }
+
                 history.replaceState(null, "", newUrl);
             }
         }
