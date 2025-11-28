@@ -4,7 +4,11 @@
     "predefined_comments": [
       "Please check formatting consistency in your references.",
       "Ensure all required files are submitted in the correct format.",
-      "DOCSTRING should include clearer environment setup instructions."
+      "DOCSTRING should include clearer environment setup instructions.",
+      "Good work! Very clean DOCSTRING and provided information we needed.",
+      "I am not taking points out for this, but make sure that next time you add detailed instructions to run your code. Some extra effort will help us know you are helping us to run your code to verify your experiment.",
+      "For your plots and graphs, please increase the font size next time so that labels and titles are easier to read.",
+      "Some of your figures are difficult to read due to their small size. I will not deduct any points for this issue this time. However, please pay attention to making your images, figures, and plots clearer in the future. You may consider increasing the size of legend text or other annotations to improve readability."
     ],
     "problems": [
       [
@@ -50,7 +54,8 @@
   "Part 1": {
     "title": "Hypothesis",
     "predefined_comments": [
-      "Please check formatting consistency in your references."
+      "You could strengthen your hypotheses by grounding them in course materials or relevant outside sources. This would provide a stronger theoretical basis and demonstrate how your hypotheses connect to established knowledge.",
+      "You should refer to some of your results to support or refute your hypotheses. Consider incorporating this approach to improve your report in the future."
     ],
     "problems": [
       [
@@ -80,9 +85,13 @@
 
   "Part 2": {
     "title": "MDP Overview and Discretization",
-     "predefined_comments": [
-      "Please check formatting consistency in your references."
-    ],
+    "predefined_comments": [
+  "Good contrast between discrete Blackjack and continuous CartPole state spaces.",
+  "Consider adding specific examples of how continuous CartPole values map to discrete states.",
+  "Your discretization justification would benefit from quantitative analysis of bin size trade-offs.",
+  "Well-explained termination conditions and reward structures for both environments.",
+  "The MDP descriptions are accurate but could be more comprehensive with state transition details."
+],
     "problems": [
       [
         {
@@ -154,8 +163,12 @@
 "Part 3": {
   "title": "Value Iteration and Policy Iteration",
   "predefined_comments": [
-    "Please check formatting consistency in your references."
-  ],
+  "Good comparison of VI vs PI convergence behavior and computational trade-offs.",
+  "Consider analyzing why the algorithms produced different/same policies for each environment.",
+  "Your hyperparameter analysis would benefit from clearer connections to convergence speed and policy quality.",
+  "Well-documented convergence plots with appropriate metrics (ΔV, policy changes).",
+  "The theoretical explanations are solid but could better connect to your empirical results."
+],
   "problems": [
     [
       {
@@ -251,8 +264,12 @@
   "Part 4": {
     "title": "SARSA and Q-Learning",
      "predefined_comments": [
-      "Please check formatting consistency in your references."
-    ],
+  "Good explanation of on-policy vs off-policy differences between SARSA and Q-Learning.",
+  "Consider analyzing how exploration strategy choices affected final policy quality in each environment.",
+  "Your hyperparameter analysis would benefit from clearer connections to learning stability and convergence.",
+  "Well-documented learning curves showing performance trends and algorithm comparison.",
+  "The behavioral implications of on/off-policy learning could be more thoroughly discussed."
+],
     "problems": [
       [
         {
@@ -291,8 +308,12 @@
   "Part 5": {
     "title": "Extra Credit: DQN or Rainbow Component",
      "predefined_comments": [
-      "Please check formatting consistency in your references."
-    ],
+  "Good implementation of DQN with proper components (replay buffer, target network).",
+  "Consider analyzing how the Rainbow component improved performance compared to baseline DQN.",
+  "Your comparison with SARSA would benefit from discussing sample efficiency differences.",
+  "Well-documented implementation showing understanding of deep RL concepts.",
+  "The ablation study could more clearly quantify the impact of each component."
+],
     "problems": [
       [
         {
