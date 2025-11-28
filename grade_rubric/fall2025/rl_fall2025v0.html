@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grading Rubric Tool</title>
     <style>
+        /* All existing CSS styles remain exactly the same */
         :root {
             --primary-color: #3498db;
             --secondary-color: #2c3e50;
@@ -99,7 +101,8 @@
             overflow: hidden;
         }
 
-        th, td {
+        th,
+        td {
             padding: 14px 18px;
             text-align: center;
             border: 1px solid var(--border-color);
@@ -178,7 +181,8 @@
             border-color: var(--primary-color);
         }
 
-        .item-yes, .item-no {
+        .item-yes,
+        .item-no {
             padding: 12px 15px;
             margin: 0 8px;
             cursor: pointer;
@@ -609,6 +613,7 @@
             fill: currentColor;
         }
 
+        /* NEW: Copy notification message styles */
         .copy-message {
             width: 100%;
             padding: 12px 20px;
@@ -679,29 +684,6 @@
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
 
-        /* Loading indicator */
-        .loading-indicator {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            padding: 40px;
-        }
-
-        .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: var(--primary-color);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
         /* Responsive adjustments */
         @media (max-width: 768px) {
             body {
@@ -740,7 +722,8 @@
                 padding: 15px;
             }
 
-            .item-yes, .item-no {
+            .item-yes,
+            .item-no {
                 margin: 8px 0;
                 padding: 12px;
             }
@@ -773,7 +756,8 @@
                 align-items: center;
             }
 
-            .save-button, .reset-button {
+            .save-button,
+            .reset-button {
                 width: 100%;
                 justify-content: center;
             }
@@ -785,7 +769,8 @@
                 padding: 12px;
             }
 
-            .save-button, .reset-button {
+            .save-button,
+            .reset-button {
                 padding: 12px 20px 12px 16px;
                 font-size: 15px;
             }
@@ -801,26 +786,22 @@
 <body>
     <!-- Progress header -->
     <div class="progress-header">
-        <div id="rubric-title">Loading Rubric...</div>
+        <div>Grading Progress:</div>
         <div class="progress-container">
             <div class="progress-bar" id="progressBar"></div>
         </div>
-        <div class="progress-text" id="progressText">0% (0/0)</div>
+        <div class="progress-text" id="progressText">0% (0/105)</div>
     </div>
 
     <!-- Total score display -->
-    <div class="total-score-display" id="totalScoreDisplay">Total: 0/0</div>
+    <div class="total-score-display" id="totalScoreDisplay">Total: 0/105</div>
 
     <!-- Instructions notice -->
-    <p id="notice">Click to select "Yes" (green) or "No" (red) for each item. Double-click any item to edit. "No" selections can be adjusted.</p>
+    <p id="notice">Click to select "Yes" (green) or "No" (red) for each item. Double-click any item to edit. "No"
+        selections can be adjusted.</p>
 
     <!-- Main content container -->
-    <div id="container">
-        <div class="loading-indicator">
-            <div class="spinner"></div>
-            <p>Loading rubric data from <span id="loading-file-name">rl_fall2025.json</span>...</p>
-        </div>
-    </div>
+    <div id="container"></div>
 
     <!-- Edit modal (hidden by default) -->
     <div id="edit-box">
@@ -844,7 +825,7 @@
     <script>
         // Global variables
         let selectedItem = null;
-        let maxPossibleScore = 0; // Will be calculated from JSON
+        const maxPossibleScore = 105; // Fixed total points
         let saveButton;
         let resetButton;
         let subTotalMaxScores = []; // Array to store max subtotal points
@@ -853,9 +834,6 @@
         let jsonData = {}; // Store the JSON data for copying
         let originalItemTexts = {}; // Store original item texts for reset
         let additionalComments = {}; // Store additional comments for each part
-
-        // Configuration - change this to use a different JSON file
-        const jsonFileName = 'rl_fall2025.json';
 
         /**
          * Updates the progress bar based on points earned
@@ -1343,70 +1321,17 @@
                 });
         }
 
-        /**
-         * Calculate total possible score from JSON data
-         */
-        function calculateTotalPossibleScore(data) {
-            let total = 0;
-            const parts = Object.keys(data);
-            
-            parts.forEach(part => {
-                const problems = data[part].problems;
-                problems.forEach(problemGroup => {
-                    problemGroup.forEach(problem => {
-                        total += parseInt(problem.point);
-                    });
-                });
-            });
-            
-            return total;
-        }
 
-        /**
-         * Update page title and progress header with JSON filename
-         */
-        function updatePageTitle() {
-            const baseName = jsonFileName.replace('.json', '')
-                .replace(/_/g, ' ')
-                .replace(/\b\w/g, l => l.toUpperCase());
-
-            document.title = `Grading Rubric Tool - ${baseName}`;
-            document.getElementById('rubric-title').textContent = `Grading: ${baseName}`;
-            document.getElementById('loading-file-name').textContent = jsonFileName;
-        }
+        const jsonFileName = 'rl_fall2025.json'; // Change this to match your actual JSON filename
 
         // Initialize the page
         document.addEventListener('DOMContentLoaded', function () {
-            // Update page title first
-            updatePageTitle();
-
             // Load rubric data
             fetch(jsonFileName)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
-                    // Remove loading indicator
                     const container = document.getElementById('container');
-                    container.innerHTML = '';
-                    
-                    // Calculate total possible score
-                    maxPossibleScore = calculateTotalPossibleScore(data);
-                    
-                    // Update total score display
-                    document.getElementById('totalScoreDisplay').textContent = `Total: 0/${maxPossibleScore}`;
-                    
                     const parts = Object.keys(data);
-
-                    // Store predefined comments per part
-                    const predefinedCommentMap = {};
-                    parts.forEach(part => {
-                        predefinedCommentMap[part] = data[part].predefined_comments || [];
-                    });
-
                     let groupIndex = 0;
 
                     // Initialize arrays
@@ -1450,66 +1375,22 @@
                             renderProblem(problemContainer, problems[0], groupIndex++);
                             partContainer.appendChild(problemContainer);
                         }
-                        // Additional comment section container
+
+                        // Add additional comment section for each part
                         const additionalCommentContainer = document.createElement('div');
                         additionalCommentContainer.classList.add('additional-comment-container');
 
-                        // Label
                         const additionalCommentLabel = document.createElement('label');
                         additionalCommentLabel.classList.add('additional-comment-label');
                         additionalCommentLabel.textContent = 'Additional comments for this section (optional):';
                         additionalCommentContainer.appendChild(additionalCommentLabel);
 
-                        // Textarea input
                         const additionalCommentTextarea = document.createElement('textarea');
                         additionalCommentTextarea.classList.add('additional-comment-textarea');
                         additionalCommentTextarea.placeholder = 'Enter any additional comments for this section here...';
                         additionalCommentContainer.appendChild(additionalCommentTextarea);
 
-                        // Dropdown for predefined comments
-                        const predefinedSelect = document.createElement('select');
-                        predefinedSelect.style.marginTop = "10px";
-                        predefinedSelect.style.padding = "8px";
-                        predefinedSelect.style.border = "1px solid #ccc";
-                        predefinedSelect.style.borderRadius = "6px";
-
-                        const defaultOption = document.createElement('option');
-                        defaultOption.textContent = "-- Select predefined comment --";
-                        defaultOption.value = "";
-                        predefinedSelect.appendChild(defaultOption);
-
-                        // Insert options from JSON
-                        (predefinedCommentMap[part] || []).forEach(comment => {
-                            const opt = document.createElement('option');
-                            opt.value = comment;
-                            opt.textContent = comment;
-                            predefinedSelect.appendChild(opt);
-                        });
-
-                        additionalCommentContainer.appendChild(predefinedSelect);
-
-                        // Button to insert chosen comment
-                        const insertButton = document.createElement('button');
-                        insertButton.textContent = "Insert";
-                        insertButton.style.marginLeft = "10px";
-                        insertButton.style.padding = "6px 14px";
-                        insertButton.style.borderRadius = "6px";
-                        insertButton.style.border = "1px solid #888";
-                        insertButton.style.background = "#f1f1f1";
-                        insertButton.style.cursor = "pointer";
-
-                        insertButton.addEventListener('click', function () {
-                            if (predefinedSelect.value !== "") {
-                                additionalCommentTextarea.value += 
-                                    (additionalCommentTextarea.value.trim() ? "\n" : "") + 
-                                    predefinedSelect.value;
-                                additionalComments[part] = additionalCommentTextarea.value;
-                            }
-                        });
-
-                        additionalCommentContainer.appendChild(insertButton);
-
-                        // Save typed comment
+                        // Store the comment when user types
                         additionalCommentTextarea.addEventListener('input', function () {
                             additionalComments[part] = this.value;
                         });
@@ -1715,19 +1596,6 @@
 
                     // Initialize button state
                     updateSaveButtonState();
-                    
-                    // Initialize progress bar
-                    updateProgressBar();
-                })
-                .catch(error => {
-                    console.error('Error loading JSON file:', error);
-                    document.getElementById('container').innerHTML = `
-                        <div style="color: red; text-align: center; padding: 20px;">
-                            <h3>Error loading rubric data</h3>
-                            <p>${error.message}</p>
-                            <p>Please check that '${jsonFileName}' exists in the same directory as this HTML file.</p>
-                        </div>
-                    `;
                 });
 
             // Edit modal handlers
@@ -1782,6 +1650,19 @@
                 document.getElementById('edit-score').value = '0';
             });
         });
+
+        // Update page title based on JSON filename
+        const baseName = jsonFileName.replace('.json', '')
+            .replace(/_/g, ' ')
+            .replace(/\b\w/g, l => l.toUpperCase());
+
+        document.title = `Grading Rubric Tool - ${baseName}`;
+
+        const progressHeader = document.querySelector('.progress-header div:first-child');
+        if (progressHeader) {
+            progressHeader.textContent = `Grading: ${baseName}`;
+        }
     </script>
 </body>
+
 </html>

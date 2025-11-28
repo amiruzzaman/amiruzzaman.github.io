@@ -1,11 +1,6 @@
 {
   "Part 0": {
     "title": "Requirements",
-    "predefined_comments": [
-      "Please check formatting consistency in your references.",
-      "Ensure all required files are submitted in the correct format.",
-      "DOCSTRING should include clearer environment setup instructions."
-    ],
     "problems": [
       [
         {
@@ -49,9 +44,6 @@
 
   "Part 1": {
     "title": "Hypothesis",
-    "predefined_comments": [
-      "Please check formatting consistency in your references."
-    ],
     "problems": [
       [
         {
@@ -80,9 +72,6 @@
 
   "Part 2": {
     "title": "MDP Overview and Discretization",
-     "predefined_comments": [
-      "Please check formatting consistency in your references."
-    ],
     "problems": [
       [
         {
@@ -151,108 +140,105 @@
     ]
   },
 
-"Part 3": {
-  "title": "Value Iteration and Policy Iteration",
-  "predefined_comments": [
-    "Please check formatting consistency in your references."
-  ],
-  "problems": [
-    [
-      {
-        "yes": "You described Bellman optimality updates for Value Iteration.",
-        "no": "You did not correctly describe Value Iteration.",
-        "point": 2
-      },
-      {
-        "yes": "You described the policy evaluation and greedy improvement loop in Policy Iteration.",
-        "no": "You did not correctly describe Policy Iteration.",
-        "point": 2
-      },
-      {
-        "yes": "You discussed convergence guarantees for VI and PI on finite MDPs.",
-        "no": "You did not discuss convergence guarantees.",
-        "point": 2
-      },
-      {
-        "yes": "You contrasted VI vs PI computational tradeoffs.",
-        "no": "You did not contrast VI and PI.",
-        "point": 2
-      },
-      {
-        "yes": "You provided a VI–Blackjack convergence plot (ΔV vs iteration).",
-        "no": "You did not provide a VI–Blackjack convergence plot.",
-        "point": 2
-      },
-      {
-        "yes": "You provided a PI–Blackjack policy-change plot.",
-        "no": "You did not provide a PI–Blackjack policy-change plot.",
-        "point": 2
-      },
-      {
-        "yes": "You provided a VI–CartPole convergence plot (ΔV with discretization noted).",
-        "no": "You did not provide a VI–CartPole convergence plot.",
-        "point": 2
-      },
-      {
-        "yes": "You provided a PI–CartPole policy-change plot.",
-        "no": "You did not provide a PI–CartPole policy-change plot.",
-        "point": 2
-      },
-      {
-        "yes": "You explored hyperparameter variation (θ, γ) with 3+ values.",
-        "no": "You did not explore hyperparameter variation sufficiently.",
-        "point": 2
-      },
-      {
-        "yes": "You explained why PI often converges in fewer iterations.",
-        "no": "You did not explain PI's faster convergence.",
-        "point": 2
-      },
-      {
-        "yes": "You reported iteration counts and explicit convergence criteria.",
-        "no": "You did not report iteration counts or criteria.",
-        "point": 1
-      },
-      {
-        "yes": "You provided quantitative analysis connected to theory.",
-        "no": "Your convergence analysis was not theoretically grounded.",
-        "point": 2
-      },
-      {
-        "yes": "You stated whether VI and PI produced the same policy.",
-        "no": "You did not state whether VI and PI produced the same policy.",
-        "point": 2
-      },
-      {
-        "yes": "You explained differences (if any) due to tie-breaking, rounding, or tolerances.",
-        "no": "You did not explain policy differences.",
-        "point": 1
-      },
-      {
-        "yes": "You referenced a visualization comparing the policies.",
-        "no": "You did not include a policy comparison visualization.",
-        "point": 1
-      },
-      {
-        "yes": "You acknowledged discretization errors for CartPole.",
-        "no": "You did not acknowledge discretization error.",
-        "point": 1
-      },
-      {
-        "yes": "You discussed bin trade-offs with quantitative reasoning.",
-        "no": "You did not discuss discretization trade-offs meaningfully.",
-        "point": 2
-      }
+  "Part 3": {
+    "title": "Value Iteration and Policy Iteration",
+    "problems": [
+      [
+        {
+          "yes": "You described Bellman optimality updates for Value Iteration.",
+          "no": "You did not correctly describe Value Iteration.",
+          "point": 2
+        },
+        {
+          "yes": "You described the policy evaluation and greedy improvement loop in Policy Iteration.",
+          "no": "You did not correctly describe Policy Iteration.",
+          "point": 2
+        },
+        {
+          "yes": "You discussed convergence guarantees for VI and PI on finite MDPs.",
+          "no": "You did not discuss convergence guarantees.",
+          "point": 2
+        },
+        {
+          "yes": "You contrasted VI vs PI computational tradeoffs.",
+          "no": "You did not contrast VI and PI.",
+          "point": 2
+        },
+
+        {
+          "yes": "You provided a VI–Blackjack convergence plot (ΔV vs iteration).",
+          "no": "You did not provide a VI–Blackjack convergence plot.",
+          "point": 2
+        },
+        {
+          "yes": "You provided a PI–Blackjack policy-change plot.",
+          "no": "You did not provide a PI–Blackjack policy-change plot.",
+          "point": 2
+        },
+        {
+          "yes": "You provided a VI–CartPole convergence plot (ΔV with discretization noted).",
+          "no": "You did not provide a VI–CartPole convergence plot.",
+          "point": 2
+        },
+        {
+          "yes": "You provided a PI–CartPole policy-change plot.",
+          "no": "You did not provide a PI–CartPole policy-change plot.",
+          "point": 2
+        },
+
+        {
+          "yes": "You explored hyperparameter variation (θ, γ) with 3+ values.",
+          "no": "You did not explore hyperparameter variation sufficiently.",
+          "point": 2
+        },
+        {
+          "yes": "You explained why PI often converges in fewer iterations.",
+          "no": "You did not explain PI's faster convergence.",
+          "point": 2
+        },
+        {
+          "yes": "You reported iteration counts and explicit convergence criteria.",
+          "no": "You did not report iteration counts or criteria.",
+          "point": 1
+        },
+        {
+          "yes": "You provided quantitative analysis connected to theory.",
+          "no": "Your convergence analysis was not theoretically grounded.",
+          "point": 2
+        },
+
+        {
+          "yes": "You stated whether VI and PI produced the same policy.",
+          "no": "You did not state whether VI and PI produced the same policy.",
+          "point": 2
+        },
+        {
+          "yes": "You explained differences (if any) due to tie-breaking, rounding, or tolerances.",
+          "no": "You did not explain policy differences.",
+          "point": 1
+        },
+        {
+          "yes": "You referenced a visualization comparing the policies.",
+          "no": "You did not include a policy comparison visualization.",
+          "point": 1
+        },
+
+        {
+          "yes": "You acknowledged discretization errors for CartPole.",
+          "no": "You did not acknowledge discretization error.",
+          "point": 1
+        },
+        {
+          "yes": "You discussed bin trade-offs with quantitative reasoning.",
+          "no": "You did not discuss discretization trade-offs meaningfully.",
+          "point": 2
+        }
+      ]
     ]
-  ]
-}
-,
+  },
 
   "Part 4": {
     "title": "SARSA and Q-Learning",
-     "predefined_comments": [
-      "Please check formatting consistency in your references."
-    ],
     "problems": [
       [
         {
@@ -290,9 +276,6 @@
 
   "Part 5": {
     "title": "Extra Credit: DQN or Rainbow Component",
-     "predefined_comments": [
-      "Please check formatting consistency in your references."
-    ],
     "problems": [
       [
         {

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grading Rubric Tool</title>
+    <title>Grading Rubric Tool - RL Fall2025</title>
     <style>
         :root {
             --primary-color: #3498db;
@@ -679,29 +679,6 @@
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
 
-        /* Loading indicator */
-        .loading-indicator {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            padding: 40px;
-        }
-
-        .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: var(--primary-color);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
         /* Responsive adjustments */
         @media (max-width: 768px) {
             body {
@@ -801,26 +778,21 @@
 <body>
     <!-- Progress header -->
     <div class="progress-header">
-        <div id="rubric-title">Loading Rubric...</div>
+        <div>Grading: RL Fall2025</div>
         <div class="progress-container">
             <div class="progress-bar" id="progressBar"></div>
         </div>
-        <div class="progress-text" id="progressText">0% (0/0)</div>
+        <div class="progress-text" id="progressText">0% (0/105)</div>
     </div>
 
     <!-- Total score display -->
-    <div class="total-score-display" id="totalScoreDisplay">Total: 0/0</div>
+    <div class="total-score-display" id="totalScoreDisplay">Total: 0/105</div>
 
     <!-- Instructions notice -->
     <p id="notice">Click to select "Yes" (green) or "No" (red) for each item. Double-click any item to edit. "No" selections can be adjusted.</p>
 
     <!-- Main content container -->
-    <div id="container">
-        <div class="loading-indicator">
-            <div class="spinner"></div>
-            <p>Loading rubric data from <span id="loading-file-name">rl_fall2025.json</span>...</p>
-        </div>
-    </div>
+    <div id="container"></div>
 
     <!-- Edit modal (hidden by default) -->
     <div id="edit-box">
@@ -844,7 +816,7 @@
     <script>
         // Global variables
         let selectedItem = null;
-        let maxPossibleScore = 0; // Will be calculated from JSON
+        const maxPossibleScore = 105; // Fixed total points
         let saveButton;
         let resetButton;
         let subTotalMaxScores = []; // Array to store max subtotal points
@@ -854,8 +826,301 @@
         let originalItemTexts = {}; // Store original item texts for reset
         let additionalComments = {}; // Store additional comments for each part
 
-        // Configuration - change this to use a different JSON file
-        const jsonFileName = 'rl_fall2025.json';
+        // Embedded JSON data
+        const rubricData = {
+            "Part 0": {
+                "title": "Requirements",
+                "predefined_comments": [
+                    "Please check formatting consistency in your references.",
+                    "Ensure all required files are submitted in the correct format.",
+                    "DOCSTRING should include clearer environment setup instructions."
+                ],
+                "problems": [
+                    [
+                        {
+                            "yes": "You wrote the report in LaTeX on Overleaf and the project exists.",
+                            "no": "You did not write the report in LaTeX on Overleaf or the project is missing.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You provided a valid GitHub commit hash from GT Enterprise GitHub.",
+                            "no": "You did not provide a valid GitHub commit hash (repo URL alone does not count).",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You provided clear instructions in the DOCSTRING for running the code (environment, commands, initialization details).",
+                            "no": "Your DOCSTRING file does not include required instructions to run the code.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "Your DOCSTRING reproducibility file is submitted as a PDF.",
+                            "no": "Your DOCSTRING reproducibility file is not a PDF.",
+                            "point": 1
+                        },
+                        {
+                            "yes": "Your report is 8 pages or fewer.",
+                            "no": "Your report exceeds 8 pages.",
+                            "point": 1
+                        },
+                        {
+                            "yes": "Your graphs and text are legible at 100% zoom.",
+                            "no": "Your graphs and/or text are not legible at 100% zoom.",
+                            "point": 1
+                        },
+                        {
+                            "yes": "Your references use a consistent format (APA, MLA, IEEE) and include at least one external source beyond course materials.",
+                            "no": "Your references are inconsistent, incorrectly formatted, or lack external sources.",
+                            "point": 1
+                        }
+                    ]
+                ]
+            },
+            "Part 1": {
+                "title": "Hypothesis",
+                "predefined_comments": [
+                    "Please check formatting consistency in your references."
+                ],
+                "problems": [
+                    [
+                        {
+                            "yes": "You stated at least one clear, testable hypothesis about algorithm–environment behavior.",
+                            "no": "You did not provide a clear, testable hypothesis.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You provided explicit evidence grounding your hypothesis (lecture content, RL theory, Sutton & Barto, or a paper).",
+                            "no": "You did not ground the hypothesis in prior evidence or theory.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You returned to the hypothesis in the discussion or conclusion and evaluated whether it held.",
+                            "no": "You did not follow up on your hypothesis in the discussion or conclusion.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You cited specific experimental evidence (plots, tables, metrics) when revisiting the hypothesis.",
+                            "no": "You did not cite specific evidence when discussing whether the hypothesis held.",
+                            "point": 2
+                        }
+                    ]
+                ]
+            },
+            "Part 2": {
+                "title": "MDP Overview and Discretization",
+                "predefined_comments": [
+                    "Please check formatting consistency in your references."
+                ],
+                "problems": [
+                    [
+                        {
+                            "yes": "You correctly described the Blackjack state tuple (player sum, dealer up card, usable-ace flag).",
+                            "no": "You did not correctly describe the Blackjack state tuple.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You correctly described the Blackjack action space: hit / stick.",
+                            "no": "You did not correctly describe the Blackjack action space.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You correctly described the Blackjack reward structure: +1 win, 0 draw, -1 loss.",
+                            "no": "You did not correctly describe the Blackjack reward structure.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You explained the episodic nature of Blackjack and how episodes terminate.",
+                            "no": "You did not explain the episodic nature or termination in Blackjack.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You listed the four continuous CartPole state variables.",
+                            "no": "You did not correctly list the CartPole state variables.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You described the CartPole action space (left/right force).",
+                            "no": "You did not correctly describe the CartPole action space.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You described the CartPole reward (+1 per timestep until failure).",
+                            "no": "You did not correctly describe the CartPole reward.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You described the CartPole termination conditions (angle/position thresholds).",
+                            "no": "You did not describe CartPole termination conditions.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You highlighted the discrete vs continuous nature of Blackjack vs CartPole.",
+                            "no": "You did not highlight discrete vs continuous differences.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You explained why discretization is required for CartPole and not Blackjack.",
+                            "no": "You did not explain the implications of discretization.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You described your discretization method (bins, clamping, mapping).",
+                            "no": "You did not describe your discretization method.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You justified your bin choices with fidelity/runtime trade-offs.",
+                            "no": "You did not justify your discretization choices.",
+                            "point": 2
+                        }
+                    ]
+                ]
+            },
+            "Part 3": {
+                "title": "Value Iteration and Policy Iteration",
+                "predefined_comments": [
+                    "Please check formatting consistency in your references."
+                ],
+                "problems": [
+                    [
+                        {
+                            "yes": "You described Bellman optimality updates for Value Iteration.",
+                            "no": "You did not correctly describe Value Iteration.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You described the policy evaluation and greedy improvement loop in Policy Iteration.",
+                            "no": "You did not correctly describe Policy Iteration.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You discussed convergence guarantees for VI and PI on finite MDPs.",
+                            "no": "You did not discuss convergence guarantees.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You contrasted VI vs PI computational tradeoffs.",
+                            "no": "You did not contrast VI and PI.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You provided a VI–Blackjack convergence plot (ΔV vs iteration).",
+                            "no": "You did not provide a VI–Blackjack convergence plot.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You provided a PI–Blackjack policy-change plot.",
+                            "no": "You did not provide a PI–Blackjack policy-change plot.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You provided a VI–CartPole convergence plot (ΔV with discretization noted).",
+                            "no": "You did not provide a VI–CartPole convergence plot.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You provided a PI–CartPole policy-change plot.",
+                            "no": "You did not provide a PI–CartPole policy-change plot.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You explored hyperparameter variation (θ, γ) with 3+ values.",
+                            "no": "You did not explore hyperparameter variation sufficiently.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You explained why PI often converges in fewer iterations.",
+                            "no": "You did not explain PI's faster convergence.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You reported iteration counts and explicit convergence criteria.",
+                            "no": "You did not report iteration counts or criteria.",
+                            "point": 1
+                        },
+                        {
+                            "yes": "You provided quantitative analysis connected to theory.",
+                            "no": "Your convergence analysis was not theoretically grounded.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You stated whether VI and PI produced the same policy.",
+                            "no": "You did not state whether VI and PI produced the same policy.",
+                            "point": 2
+                        },
+                        {
+                            "yes": "You explained differences (if any) due to tie-breaking, rounding, or tolerances.",
+                            "no": "You did not explain policy differences.",
+                            "point": 1
+                        },
+                        {
+                            "yes": "You referenced a visualization comparing the policies.",
+                            "no": "You did not include a policy comparison visualization.",
+                            "point": 1
+                        },
+                        {
+                            "yes": "You acknowledged discretization errors for CartPole.",
+                            "no": "You did not acknowledge discretization error.",
+                            "point": 1
+                        },
+                        {
+                            "yes": "You discussed bin trade-offs with quantitative reasoning.",
+                            "no": "You did not discuss discretization trade-offs meaningfully.",
+                            "point": 2
+                        }
+                    ]
+                ]
+            },
+            "Part 4": {
+                "title": "SARSA and Q-Learning",
+                "predefined_comments": [
+                    "Please check formatting consistency in your references."
+                ],
+                "problems": [
+                    [
+                        {
+                            "yes": "You correctly described the SARSA and Q-Learning update rules and their on-/off-policy nature with behavioral implications.",
+                            "no": "You did not correctly describe SARSA/Q-Learning or their on-/off-policy behavior.",
+                            "point": 4
+                        },
+                        {
+                            "yes": "You included four plots (SARSA/Q-Learning × Blackjack/CartPole) with performance trajectories and stability diagnostics.",
+                            "no": "You did not include required learning and stability plots.",
+                            "point": 8
+                        },
+                        {
+                            "yes": "You described an exploration strategy (e.g., epsilon schedule) with explicit parameters and justified its effects with evidence.",
+                            "no": "You did not describe or justify your exploration strategy adequately.",
+                            "point": 6
+                        },
+                        {
+                            "yes": "You compared SARSA vs Q-Learning behaviors and connected differences to theory, exploration schedule, and VI/PI.",
+                            "no": "You did not provide meaningful SARSA vs Q-Learning policy analysis.",
+                            "point": 6
+                        },
+                        {
+                            "yes": "You conducted hyperparameter sensitivity analysis across α, γ, and exploration parameters, with discussion of robustness.",
+                            "no": "Your hyperparameter sensitivity analysis was missing or insufficient.",
+                            "point": 4
+                        }
+                    ]
+                ]
+            },
+            "Part 5": {
+                "title": "Extra Credit: DQN or Rainbow Component",
+                "predefined_comments": [
+                    "Please check formatting consistency in your references."
+                ],
+                "problems": [
+                    [
+                        {
+                            "yes": "You implemented a working DQN with replay buffer and target network. Also, at least one Rainbow component or ablation, with SARSA comparisons.",
+                            "no": "You did not provide a substantive DQN or Rainbow-style implementation.",
+                            "point": 5
+                        }
+                    ]
+                ]
+            }
+        };
 
         /**
          * Updates the progress bar based on points earned
@@ -1343,394 +1608,330 @@
                 });
         }
 
-        /**
-         * Calculate total possible score from JSON data
-         */
-        function calculateTotalPossibleScore(data) {
-            let total = 0;
-            const parts = Object.keys(data);
-            
-            parts.forEach(part => {
-                const problems = data[part].problems;
-                problems.forEach(problemGroup => {
-                    problemGroup.forEach(problem => {
-                        total += parseInt(problem.point);
-                    });
-                });
-            });
-            
-            return total;
-        }
-
-        /**
-         * Update page title and progress header with JSON filename
-         */
-        function updatePageTitle() {
-            const baseName = jsonFileName.replace('.json', '')
-                .replace(/_/g, ' ')
-                .replace(/\b\w/g, l => l.toUpperCase());
-
-            document.title = `Grading Rubric Tool - ${baseName}`;
-            document.getElementById('rubric-title').textContent = `Grading: ${baseName}`;
-            document.getElementById('loading-file-name').textContent = jsonFileName;
-        }
-
         // Initialize the page
         document.addEventListener('DOMContentLoaded', function () {
-            // Update page title first
-            updatePageTitle();
+            const data = rubricData;
+            const container = document.getElementById('container');
+            const parts = Object.keys(data);
 
-            // Load rubric data
-            fetch(jsonFileName)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+            // Store predefined comments per part
+            const predefinedCommentMap = {};
+            parts.forEach(part => {
+                predefinedCommentMap[part] = data[part].predefined_comments || [];
+            });
+
+            let groupIndex = 0;
+
+            // Initialize arrays
+            subTotalMaxScores = [];
+            subTotalEarnedScores = [];
+            allItems = [];
+            originalItemTexts = {};
+            additionalComments = {};
+
+            // Create each part section
+            for (let part of parts) {
+                const partContainer = document.createElement('div');
+                partContainer.classList.add('part-container');
+
+                // Part title
+                const h3 = document.createElement('h3');
+                h3.textContent = `${part}: ${data[part].title}`;
+                partContainer.appendChild(h3);
+
+                // Create problem containers
+                const problems = data[part].problems;
+                if (problems.length > 1) {
+                    // Multiple problems in this part
+                    for (let i = 0; i < problems.length; i++) {
+                        const problemContainer = document.createElement('div');
+                        problemContainer.classList.add('problem-container');
+
+                        // Problem title
+                        const h4 = document.createElement('h4');
+                        h4.textContent = `Problem ${i + 1}`;
+                        problemContainer.appendChild(h4);
+
+                        // Render problem items
+                        renderProblem(problemContainer, problems[i], groupIndex++);
+                        partContainer.appendChild(problemContainer);
                     }
-                    return response.json();
-                })
-                .then(data => {
-                    // Remove loading indicator
-                    const container = document.getElementById('container');
-                    container.innerHTML = '';
-                    
-                    // Calculate total possible score
-                    maxPossibleScore = calculateTotalPossibleScore(data);
-                    
-                    // Update total score display
-                    document.getElementById('totalScoreDisplay').textContent = `Total: 0/${maxPossibleScore}`;
-                    
-                    const parts = Object.keys(data);
+                } else {
+                    // Single problem in this part
+                    const problemContainer = document.createElement('div');
+                    problemContainer.classList.add('problem-container');
+                    renderProblem(problemContainer, problems[0], groupIndex++);
+                    partContainer.appendChild(problemContainer);
+                }
+                // Additional comment section container
+                const additionalCommentContainer = document.createElement('div');
+                additionalCommentContainer.classList.add('additional-comment-container');
 
-                    // Store predefined comments per part
-                    const predefinedCommentMap = {};
-                    parts.forEach(part => {
-                        predefinedCommentMap[part] = data[part].predefined_comments || [];
-                    });
+                // Label
+                const additionalCommentLabel = document.createElement('label');
+                additionalCommentLabel.classList.add('additional-comment-label');
+                additionalCommentLabel.textContent = 'Additional comments for this section (optional):';
+                additionalCommentContainer.appendChild(additionalCommentLabel);
 
-                    let groupIndex = 0;
+                // Textarea input
+                const additionalCommentTextarea = document.createElement('textarea');
+                additionalCommentTextarea.classList.add('additional-comment-textarea');
+                additionalCommentTextarea.placeholder = 'Enter any additional comments for this section here...';
+                additionalCommentContainer.appendChild(additionalCommentTextarea);
 
-                    // Initialize arrays
-                    subTotalMaxScores = [];
-                    subTotalEarnedScores = [];
-                    allItems = [];
-                    originalItemTexts = {};
-                    additionalComments = {};
+                // Dropdown for predefined comments
+                const predefinedSelect = document.createElement('select');
+                predefinedSelect.style.marginTop = "10px";
+                predefinedSelect.style.padding = "8px";
+                predefinedSelect.style.border = "1px solid #ccc";
+                predefinedSelect.style.borderRadius = "6px";
 
-                    // Create each part section
-                    for (let part of parts) {
-                        const partContainer = document.createElement('div');
-                        partContainer.classList.add('part-container');
+                const defaultOption = document.createElement('option');
+                defaultOption.textContent = "-- Select predefined comment --";
+                defaultOption.value = "";
+                predefinedSelect.appendChild(defaultOption);
 
-                        // Part title
-                        const h3 = document.createElement('h3');
-                        h3.textContent = `${part}: ${data[part].title}`;
-                        partContainer.appendChild(h3);
-
-                        // Create problem containers
-                        const problems = data[part].problems;
-                        if (problems.length > 1) {
-                            // Multiple problems in this part
-                            for (let i = 0; i < problems.length; i++) {
-                                const problemContainer = document.createElement('div');
-                                problemContainer.classList.add('problem-container');
-
-                                // Problem title
-                                const h4 = document.createElement('h4');
-                                h4.textContent = `Problem ${i + 1}`;
-                                problemContainer.appendChild(h4);
-
-                                // Render problem items
-                                renderProblem(problemContainer, problems[i], groupIndex++);
-                                partContainer.appendChild(problemContainer);
-                            }
-                        } else {
-                            // Single problem in this part
-                            const problemContainer = document.createElement('div');
-                            problemContainer.classList.add('problem-container');
-                            renderProblem(problemContainer, problems[0], groupIndex++);
-                            partContainer.appendChild(problemContainer);
-                        }
-                        // Additional comment section container
-                        const additionalCommentContainer = document.createElement('div');
-                        additionalCommentContainer.classList.add('additional-comment-container');
-
-                        // Label
-                        const additionalCommentLabel = document.createElement('label');
-                        additionalCommentLabel.classList.add('additional-comment-label');
-                        additionalCommentLabel.textContent = 'Additional comments for this section (optional):';
-                        additionalCommentContainer.appendChild(additionalCommentLabel);
-
-                        // Textarea input
-                        const additionalCommentTextarea = document.createElement('textarea');
-                        additionalCommentTextarea.classList.add('additional-comment-textarea');
-                        additionalCommentTextarea.placeholder = 'Enter any additional comments for this section here...';
-                        additionalCommentContainer.appendChild(additionalCommentTextarea);
-
-                        // Dropdown for predefined comments
-                        const predefinedSelect = document.createElement('select');
-                        predefinedSelect.style.marginTop = "10px";
-                        predefinedSelect.style.padding = "8px";
-                        predefinedSelect.style.border = "1px solid #ccc";
-                        predefinedSelect.style.borderRadius = "6px";
-
-                        const defaultOption = document.createElement('option');
-                        defaultOption.textContent = "-- Select predefined comment --";
-                        defaultOption.value = "";
-                        predefinedSelect.appendChild(defaultOption);
-
-                        // Insert options from JSON
-                        (predefinedCommentMap[part] || []).forEach(comment => {
-                            const opt = document.createElement('option');
-                            opt.value = comment;
-                            opt.textContent = comment;
-                            predefinedSelect.appendChild(opt);
-                        });
-
-                        additionalCommentContainer.appendChild(predefinedSelect);
-
-                        // Button to insert chosen comment
-                        const insertButton = document.createElement('button');
-                        insertButton.textContent = "Insert";
-                        insertButton.style.marginLeft = "10px";
-                        insertButton.style.padding = "6px 14px";
-                        insertButton.style.borderRadius = "6px";
-                        insertButton.style.border = "1px solid #888";
-                        insertButton.style.background = "#f1f1f1";
-                        insertButton.style.cursor = "pointer";
-
-                        insertButton.addEventListener('click', function () {
-                            if (predefinedSelect.value !== "") {
-                                additionalCommentTextarea.value += 
-                                    (additionalCommentTextarea.value.trim() ? "\n" : "") + 
-                                    predefinedSelect.value;
-                                additionalComments[part] = additionalCommentTextarea.value;
-                            }
-                        });
-
-                        additionalCommentContainer.appendChild(insertButton);
-
-                        // Save typed comment
-                        additionalCommentTextarea.addEventListener('input', function () {
-                            additionalComments[part] = this.value;
-                        });
-
-                        partContainer.appendChild(additionalCommentContainer);
-                        container.appendChild(partContainer);
-                    }
-
-                    // Create save button
-                    saveButton = document.createElement('button');
-                    saveButton.classList.add('save-button');
-                    saveButton.innerHTML = `
-                        <svg viewBox="0 0 24 24">
-                            <path d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z"/>
-                        </svg>
-                        Save
-                    `;
-                    saveButton.disabled = true;
-
-                    // Create reset button
-                    resetButton = document.createElement('button');
-                    resetButton.classList.add('reset-button');
-                    resetButton.innerHTML = `
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12,16.5C9.5,16.5 7.5,14.5 7.5,12C7.5,9.5 9.5,7.5 12,7.5C14.5,7.5 16.5,9.5 16.5,12C16.5,14.5 14.5,16.5 12,16.5M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M19.23,15.26L20.5,16.5L16.5,20.5L15.23,19.23L17.73,16.73L15,14L17,12L19.23,15.26Z"/>
-                        </svg>
-                        Reset All
-                    `;
-                    resetButton.addEventListener('click', resetAllSelections);
-
-                    // Overall comment
-                    const commentDiv = document.createElement('div');
-                    commentDiv.textContent = "Overall";
-                    const textAreaDiv = document.createElement('div');
-                    const commentInput = document.createElement('textarea');
-                    commentInput.classList.add('item-textareabox');
-                    commentInput.value = "Overall: Your assignment report is off to a good start. There are a few sections that require more attention. Please refer to the comment/feedback above for further details.";
-                    textAreaDiv.appendChild(commentInput);
-
-                    // Filename input
-                    const fileNameLabel = document.createElement('div');
-                    fileNameLabel.textContent = "Filename";
-                    const fileNameInput = document.createElement('input');
-                    fileNameInput.type = "text";
-
-                    // Output area
-                    const outputDiv = document.createElement('div');
-                    outputDiv.style.height = '100px';
-                    outputDiv.textContent = 'Final grade by item will appear below';
-                    outputDiv.style.color = "green";
-
-                    // Results textarea
-                    const resultsTextarea = document.createElement('textarea');
-                    resultsTextarea.id = "paraID";
-
-                    // Additional comment checkbox
-                    const checkboxDiv = document.createElement('div');
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.id = 'additional-comment';
-                    const checkboxLabel = document.createElement('label');
-                    checkboxLabel.htmlFor = 'additional-comment';
-                    checkboxLabel.textContent = 'Include additional comment about page management!';
-                    checkboxDiv.append(checkbox, checkboxLabel);
-
-                    // Save button handler
-                    saveButton.addEventListener('click', function () {
-                        if (!allItemsSelected()) {
-                            alert('Please select all items before saving.');
-                            findAndScrollToFirstUnselected();
-                            return;
-                        }
-
-                        let outputText = '';
-                        let totalScore = 0;
-                        jsonData = {};
-                        let partIndex = 0;
-
-                        // Process each part
-                        const partContainers = document.querySelectorAll('.part-container');
-                        partContainers.forEach(part => {
-                            const partTitle = part.querySelector('h3').textContent;
-                            let partScore = 0;
-                            const positiveComments = [];
-                            const negativeComments = [];
-
-                            // Initialize jsonData for this part
-                            jsonData[partTitle] = {};
-
-                            // Process each problem in this part
-                            const problems = part.querySelectorAll('.problem-container');
-                            problems.forEach(problem => {
-                                const problemTitle = problem.querySelector('h4')?.textContent || '';
-
-                                let problemScore = 0;
-                                const items = problem.querySelectorAll('.item-container');
-                                items.forEach(item => {
-                                    const itemYes = item.querySelector('.item-yes');
-                                    const itemNo = item.querySelector('.item-no');
-                                    const itemScore = item.querySelector('.item-score').textContent;
-                                    const isPositive = itemYes.classList.contains('selected');
-                                    const commentText = isPositive ? itemYes.textContent : itemNo.textContent;
-
-                                    // Categorize comments
-                                    if (isPositive) {
-                                        positiveComments.push(commentText);
-                                    } else {
-                                        negativeComments.push(commentText);
-                                    }
-
-                                    problemScore += parseInt(itemScore);
-                                });
-
-                                partScore += problemScore;
-                                jsonData[partTitle][problemTitle || 'main'] = problemScore;
-                            });
-
-                            // Get the part's max score
-                            const partMaxScore = subTotalMaxScores[partIndex];
-
-                            // Add part header with score
-                            outputText += `## ${partTitle} (${partScore}/${partMaxScore})\n\n`;
-
-                            // Add positive comments section if there are any
-                            if (positiveComments.length > 0) {
-                                outputText += "What you did well\n\n";
-                                positiveComments.forEach(comment => {
-                                    outputText += `- ${comment}\n`;
-                                });
-                                outputText += "\n";
-                            }
-
-                            // Add negative comments section if there are any
-                            if (negativeComments.length > 0) {
-                                outputText += "What needs improvement\n\n";
-                                negativeComments.forEach(comment => {
-                                    outputText += `- ${comment}\n`;
-                                });
-                                outputText += "\n";
-                            }
-
-                            // Add additional comments if provided
-                            const partKey = partTitle.split(':')[0].trim();
-                            if (additionalComments[partKey] && additionalComments[partKey].trim() !== '') {
-                                outputText += "Additional comment\n";
-                                const comments = additionalComments[partKey].trim().split('\n');
-                                comments.forEach(comment => {
-                                    if (comment.trim() !== '') {
-                                        outputText += `- ${comment.trim()}\n`;
-                                    }
-                                });
-                                outputText += "\n";
-                            }
-
-                            // Add spacing between sections
-                            outputText += "\n";
-
-                            totalScore += partScore;
-                            // Store just the earned score number for the table
-                            jsonData[partTitle]['Total'] = partScore.toString();
-                            partIndex++;
-                        });
-
-                        // Add overall comment
-                        outputText += `${commentInput.value}\n`;
-                        if (checkbox.checked) {
-                            outputText += "You could have done a better job in managing your empty spaces in your report, which would have allowed you to add more discussions on your results and comparisons.\n";
-                        }
-
-                        // Add total score
-                        outputText += `\nTotal score: ${totalScore}/${maxPossibleScore}\n`;
-                        jsonData['Total'] = totalScore.toString();
-
-                        // Update output
-                        resultsTextarea.value = outputText;
-                        createTableFromJSON(jsonData);
-
-                        // Create copy buttons if they don't exist
-                        if (!document.querySelector('.copy-buttons')) {
-                            createCopyButtons();
-                        }
-                    });
-
-                    // Assemble the UI
-                    container.append(
-                        checkboxDiv,
-                        commentDiv,
-                        textAreaDiv,
-                        fileNameLabel,
-                        fileNameInput,
-                        document.createElement('br'),
-                        saveButton,
-                        document.createElement('br'),
-                        outputDiv,
-                        resultsTextarea
-                    );
-
-                    // Create copy buttons (will be hidden until save)
-                    createCopyButtons();
-
-                    // Add reset button after copy buttons
-                    container.appendChild(resetButton);
-
-                    // Initialize button state
-                    updateSaveButtonState();
-                    
-                    // Initialize progress bar
-                    updateProgressBar();
-                })
-                .catch(error => {
-                    console.error('Error loading JSON file:', error);
-                    document.getElementById('container').innerHTML = `
-                        <div style="color: red; text-align: center; padding: 20px;">
-                            <h3>Error loading rubric data</h3>
-                            <p>${error.message}</p>
-                            <p>Please check that '${jsonFileName}' exists in the same directory as this HTML file.</p>
-                        </div>
-                    `;
+                // Insert options from JSON
+                (predefinedCommentMap[part] || []).forEach(comment => {
+                    const opt = document.createElement('option');
+                    opt.value = comment;
+                    opt.textContent = comment;
+                    predefinedSelect.appendChild(opt);
                 });
 
-            // Edit modal handlers
+                additionalCommentContainer.appendChild(predefinedSelect);
+
+                // Button to insert chosen comment
+                const insertButton = document.createElement('button');
+                insertButton.textContent = "Insert";
+                insertButton.style.marginLeft = "10px";
+                insertButton.style.padding = "6px 14px";
+                insertButton.style.borderRadius = "6px";
+                insertButton.style.border = "1px solid #888";
+                insertButton.style.background = "#f1f1f1";
+                insertButton.style.cursor = "pointer";
+
+                insertButton.addEventListener('click', function () {
+                    if (predefinedSelect.value !== "") {
+                        additionalCommentTextarea.value += 
+                            (additionalCommentTextarea.value.trim() ? "\n" : "") + 
+                            predefinedSelect.value;
+                        additionalComments[part] = additionalCommentTextarea.value;
+                    }
+                });
+
+                additionalCommentContainer.appendChild(insertButton);
+
+                // Save typed comment
+                additionalCommentTextarea.addEventListener('input', function () {
+                    additionalComments[part] = this.value;
+                });
+
+                partContainer.appendChild(additionalCommentContainer);
+                container.appendChild(partContainer);
+            }
+
+            // Create save button
+            saveButton = document.createElement('button');
+            saveButton.classList.add('save-button');
+            saveButton.innerHTML = `
+                <svg viewBox="0 0 24 24">
+                    <path d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z"/>
+                </svg>
+                Save
+            `;
+            saveButton.disabled = true;
+
+            // Create reset button
+            resetButton = document.createElement('button');
+            resetButton.classList.add('reset-button');
+            resetButton.innerHTML = `
+                <svg viewBox="0 0 24 24">
+                    <path d="M12,16.5C9.5,16.5 7.5,14.5 7.5,12C7.5,9.5 9.5,7.5 12,7.5C14.5,7.5 16.5,9.5 16.5,12C16.5,14.5 14.5,16.5 12,16.5M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M19.23,15.26L20.5,16.5L16.5,20.5L15.23,19.23L17.73,16.73L15,14L17,12L19.23,15.26Z"/>
+                </svg>
+                Reset All
+            `;
+            resetButton.addEventListener('click', resetAllSelections);
+
+            // Overall comment
+            const commentDiv = document.createElement('div');
+            commentDiv.textContent = "Overall";
+            const textAreaDiv = document.createElement('div');
+            const commentInput = document.createElement('textarea');
+            commentInput.classList.add('item-textareabox');
+            commentInput.value = "Overall: Your assignment report is off to a good start. There are a few sections that require more attention. Please refer to the comment/feedback above for further details.";
+            textAreaDiv.appendChild(commentInput);
+
+            // Filename input
+            const fileNameLabel = document.createElement('div');
+            fileNameLabel.textContent = "Filename";
+            const fileNameInput = document.createElement('input');
+            fileNameInput.type = "text";
+
+            // Output area
+            const outputDiv = document.createElement('div');
+            outputDiv.style.height = '100px';
+            outputDiv.textContent = 'Final grade by item will appear below';
+            outputDiv.style.color = "green";
+
+            // Results textarea
+            const resultsTextarea = document.createElement('textarea');
+            resultsTextarea.id = "paraID";
+
+            // Additional comment checkbox
+            const checkboxDiv = document.createElement('div');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = 'additional-comment';
+            const checkboxLabel = document.createElement('label');
+            checkboxLabel.htmlFor = 'additional-comment';
+            checkboxLabel.textContent = 'Include additional comment about page management!';
+            checkboxDiv.append(checkbox, checkboxLabel);
+
+            // Save button handler
+            saveButton.addEventListener('click', function () {
+                if (!allItemsSelected()) {
+                    alert('Please select all items before saving.');
+                    findAndScrollToFirstUnselected();
+                    return;
+                }
+
+                let outputText = '';
+                let totalScore = 0;
+                jsonData = {};
+                let partIndex = 0;
+
+                // Process each part
+                const partContainers = document.querySelectorAll('.part-container');
+                partContainers.forEach(part => {
+                    const partTitle = part.querySelector('h3').textContent;
+                    let partScore = 0;
+                    const positiveComments = [];
+                    const negativeComments = [];
+
+                    // Initialize jsonData for this part
+                    jsonData[partTitle] = {};
+
+                    // Process each problem in this part
+                    const problems = part.querySelectorAll('.problem-container');
+                    problems.forEach(problem => {
+                        const problemTitle = problem.querySelector('h4')?.textContent || '';
+
+                        let problemScore = 0;
+                        const items = problem.querySelectorAll('.item-container');
+                        items.forEach(item => {
+                            const itemYes = item.querySelector('.item-yes');
+                            const itemNo = item.querySelector('.item-no');
+                            const itemScore = item.querySelector('.item-score').textContent;
+                            const isPositive = itemYes.classList.contains('selected');
+                            const commentText = isPositive ? itemYes.textContent : itemNo.textContent;
+
+                            // Categorize comments
+                            if (isPositive) {
+                                positiveComments.push(commentText);
+                            } else {
+                                negativeComments.push(commentText);
+                            }
+
+                            problemScore += parseInt(itemScore);
+                        });
+
+                        partScore += problemScore;
+                        jsonData[partTitle][problemTitle || 'main'] = problemScore;
+                    });
+
+                    // Get the part's max score
+                    const partMaxScore = subTotalMaxScores[partIndex];
+
+                    // Add part header with score
+                    outputText += `## ${partTitle} (${partScore}/${partMaxScore})\n\n`;
+
+                    // Add positive comments section if there are any
+                    if (positiveComments.length > 0) {
+                        outputText += "What you did well\n\n";
+                        positiveComments.forEach(comment => {
+                            outputText += `- ${comment}\n`;
+                        });
+                        outputText += "\n";
+                    }
+
+                    // Add negative comments section if there are any
+                    if (negativeComments.length > 0) {
+                        outputText += "What needs improvement\n\n";
+                        negativeComments.forEach(comment => {
+                            outputText += `- ${comment}\n`;
+                        });
+                        outputText += "\n";
+                    }
+
+                    // Add additional comments if provided
+                    const partKey = partTitle.split(':')[0].trim();
+                    if (additionalComments[partKey] && additionalComments[partKey].trim() !== '') {
+                        outputText += "Additional comment\n";
+                        const comments = additionalComments[partKey].trim().split('\n');
+                        comments.forEach(comment => {
+                            if (comment.trim() !== '') {
+                                outputText += `- ${comment.trim()}\n`;
+                            }
+                        });
+                        outputText += "\n";
+                    }
+
+                    // Add spacing between sections
+                    outputText += "\n";
+
+                    totalScore += partScore;
+                    // Store just the earned score number for the table
+                    jsonData[partTitle]['Total'] = partScore.toString();
+                    partIndex++;
+                });
+
+                // Add overall comment
+                outputText += `${commentInput.value}\n`;
+                if (checkbox.checked) {
+                    outputText += "You could have done a better job in managing your empty spaces in your report, which would have allowed you to add more discussions on your results and comparisons.\n";
+                }
+
+                // Add total score
+                outputText += `\nTotal score: ${totalScore}/${maxPossibleScore}\n`;
+                jsonData['Total'] = totalScore.toString();
+
+                // Update output
+                resultsTextarea.value = outputText;
+                createTableFromJSON(jsonData);
+
+                // Create copy buttons if they don't exist
+                if (!document.querySelector('.copy-buttons')) {
+                    createCopyButtons();
+                }
+            });
+
+            // Assemble the UI
+            container.append(
+                checkboxDiv,
+                commentDiv,
+                textAreaDiv,
+                fileNameLabel,
+                fileNameInput,
+                document.createElement('br'),
+                saveButton,
+                document.createElement('br'),
+                outputDiv,
+                resultsTextarea
+            );
+
+            // Create copy buttons (will be hidden until save)
+            createCopyButtons();
+
+            // Add reset button after copy buttons
+            container.appendChild(resetButton);
+
+            // Initialize button state
+            updateSaveButtonState();
+        });
+
+        // Edit modal handlers
+        document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('edit-save').addEventListener('click', function () {
                 const editBox = document.getElementById('edit-box');
                 const editText = document.getElementById('edit-text');
