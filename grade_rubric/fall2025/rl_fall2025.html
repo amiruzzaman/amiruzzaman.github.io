@@ -1295,18 +1295,20 @@
                 return;
             }
 
-            // Extract scores in order (excluding 'Total')
+            // Get all part names except Total
             const headers = Object.keys(jsonData).filter(header => header !== 'Total');
+
+            // Extract only the earned score for each part
             const scores = headers.map(header => {
                 return typeof jsonData[header] === 'object'
                     ? jsonData[header]['Total']
                     : jsonData[header];
             });
 
-            // Add total score at the end
-            scores.push(jsonData['Total']);
+            // DO NOT add total score – skip it completely
+            // (scores.push(jsonData['Total']) is intentionally removed)
 
-            // Format as space-separated string
+            // Format as tab-separated
             const scoresText = scores.join('\t');
 
             navigator.clipboard.writeText(scoresText)
@@ -1318,6 +1320,7 @@
                     showCopyMessage('scores', false);
                 });
         }
+
 
         const jsonFileName = 'rl_fall2025.json'; // Change this to match your actual JSON filename
 
