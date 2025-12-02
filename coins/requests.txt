@@ -130,6 +130,71 @@ Please check the attached file. Please do not change any existing features. The 
 mass_edit_year_coins_json.py
 please give me python code that reads the ./images/coins.json file, and checks each json object for the note field. If the note section has a four-digit number in (), for example, (1945), then using that information update the year field for that particular object year field as year = 1945, if not found, then leave it as is, and check the next json object.
 ***************************************************
+
+create a html, css, javascript based page all code in the single file. that reads following file and displays a tabular view to show which countries name is found in each file and which one has some or all missing. 
+Countries name is coming from 
+
+/static/countries.json file
+Object style:  {"name": "Afghanistan", "code": "AF"},
+
+
+Now check the name against the following file
+
+/images/coins.json
+
+Object style:
+
+ {
+        "country": "Brunei Darussalam",
+        "image": "b3c8b6c5-253d-4b5f-ac5a-4a7f7281c9d4.jpg",
+        "note": "1 Ringgit. Composition polymer. The person on the note is Sultan Sir Hassanal Bolkiah. https://en.wikipedia.org/wiki/Hassanal_Bolkiah",
+        "donor_name": "Kazim Jafri",
+        "currency_type": "paper-bill",
+        "size": "141 x 69",
+        "year": "2008",
+        "hidden_note": "https://en.numista.com/203434",
+        "url": "https://amiruzzaman.github.io/coins/display.html?country=Brunei%20Darussalam&coin=b3c8b6c5-253d-4b5f-ac5a-4a7f7281c9d4",
+        "box": "8"
+    }
+/countries.continents.json
+
+object style:
+ {
+                "countryCode": "BL",
+                "countryName": "Saint Barthélemy",
+                "currencyCode": "EUR",
+                "population": "8450",
+                "capital": "Gustavia",
+                "continentName": "North America"
+            }
+/countries.json
+Object style:
+  {
+    "name": "Afghanistan",
+    "code": "AF",
+    "capital": "Kabul",
+    "region": "AS",
+    "currency": {
+      "code": "AFN",
+      "name": "Afghan afghani",
+      "symbol": "؋"
+    },
+    "language": {
+      "code": "ps",
+      "name": "Pashto"
+    },
+    "flag": "https://restcountries.eu/data/afg.svg",
+    "full_name": "Afghanistan"
+  }
+/geojson/country_geojson_mapping.json
+object style:
+ {
+        "country_name": "Botswana",
+        "file_name": "geojson/BWA.geojson"
+    }
+/continents.geojson
+Object style:
+{ "type": "Feature", "properties": { "CONTINENT": "Asia" }, "geometry":
 ***************************************************
 ***************************************************
 ***************************************************

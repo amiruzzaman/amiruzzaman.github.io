@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Country Data Comparison</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: #bdc3c7;
+            font-size: 1.1rem;
+        }
+
+        .controls {
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            font-size: 18px;
+        }
+
+        .search-hint {
+            text-align: center;
+            color: #666;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            padding: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .country-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .status-found {
+            color: #27ae60;
+            font-weight: 600;
+        }
+
+        .status-missing {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        .status-partial {
+            color: #f39c12;
+            font-weight: 600;
+        }
+
+        .file-column {
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .icon-found {
+            background: #27ae60;
+            color: white;
+        }
+
+        .icon-missing {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .color-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .color-found {
+            background: #27ae60;
+        }
+
+        .color-missing {
+            background: #e74c3c;
+        }
+
+        .color-partial {
+            background: #f39c12;
+        }
+
+        .file-header {
+            font-size: 0.85rem;
+            color: #bdc3c7;
+            margin-top: 5px;
+        }
+
+        .continent-info {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 1.1rem;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                padding: 15px;
+            }
+
+            th,
+            td {
+                padding: 10px 8px;
+                font-size: 0.9rem;
+            }
+
+            .file-column {
+                min-width: 80px;
+            }
+
+            .table-container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🌍 Country Data Comparison</h1>
+            <p class="subtitle">Comparing country data across multiple JSON files</p>
+        </header>
+
+        <div class="controls">
+            <div class="search-container">
+                <div class="search-icon">🔍</div>
+                <input type="text" class="search-box" placeholder="Search countries by name or code..."
+                    id="searchInput">
+            </div>
+            <p class="search-hint">Type to filter countries. All countries shown by default.</p>
+        </div>
+
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="total-countries">0</div>
+                <div class="stat-label">Total Countries</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="complete-data">0</div>
+                <div class="stat-label">Complete Data</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="partial-data">0</div>
+                <div class="stat-label">Partial Data</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="missing-data">0</div>
+                <div class="stat-label">Missing Some Data</div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="color-box color-found"></div>
+                <span>Found in file</span>
+            </div>
+            <div class="legend-item">
+                <div class="color-box color-missing"></div>
+                <span>Missing from file</span>
+            </div>
+            <div class="legend-item">
+                <div class="color-box color-partial"></div>
+                <span>Some data missing</span>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <p>Loading country data...</p>
+            </div>
+
+            <div class="no-results" id="noResults">
+                <p>No countries found matching your search.</p>
+                <p>Try a different search term.</p>
+            </div>
+
+            <table id="countryTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>Country Name</th>
+                        <th class="file-column">
+                            Countries List
+                            <div class="file-header">/static/countries.json</div>
+                        </th>
+                        <th class="file-column">
+                            Coins Data
+                            <div class="file-header">/images/coins.json</div>
+                        </th>
+                        <th class="file-column">
+                            Continents Data
+                            <div class="file-header">/countries.continents.json</div>
+                        </th>
+                        <th class="file-column">
+                            Full Country Data
+                            <div class="file-header">/countries.json</div>
+                        </th>
+                        <th class="file-column">
+                            GeoJSON Mapping
+                            <div class="file-header">/geojson/country_geojson_mapping.json</div>
+                        </th>
+                        <th class="file-column">
+                            Overall Status
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Data will be populated here -->
+                </tbody>
+            </table>
+        </div>
+
+        <footer>
+            <p>Comparing data from 5 different JSON files | Last updated: <span id="currentDate"></span></p>
+        </footer>
+    </div>
+
+    <script>
+        // Set current date in footer
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        // Global data storage
+        let allCountries = [];
+
+        // File URLs (relative paths as specified)
+        const fileUrls = {
+            countriesList: '/static/countries.json',
+            coinsData: '/images/coins.json',
+            continentsData: '/countries.continents.json',
+            fullCountryData: '/countries.json',
+            geojsonMapping: '/geojson/country_geojson_mapping.json'
+        };
+
+        // Status tracking
+        const stats = {
+            total: 0,
+            complete: 0,
+            missing: 0,
+            partial: 0
+        };
+
+        // Load all JSON files
+        async function loadAllData() {
+            try {
+                const [
+                    countriesList,
+                    coinsData,
+                    continentsData,
+                    fullCountryData,
+                    geojsonMapping
+                ] = await Promise.all([
+                    fetch(fileUrls.countriesList).then(res => res.json()),
+                    fetch(fileUrls.coinsData).then(res => res.json()),
+                    fetch(fileUrls.continentsData).then(res => res.json()),
+                    fetch(fileUrls.fullCountryData).then(res => res.json()),
+                    fetch(fileUrls.geojsonMapping).then(res => res.json())
+                ]);
+
+                console.log('Continents data structure:', continentsData); // Debug log
+                processData(countriesList, coinsData, continentsData, fullCountryData, geojsonMapping);
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('loading').innerHTML =
+                    '<p style="color: #e74c3c;">Error loading data. Please check that all JSON files are accessible.</p>' +
+                    '<p style="color: #666; font-size: 0.9rem; margin-top: 10px;">' + error.message + '</p>';
+            }
+        }
+
+        // Process and compare all data
+        function processData(countriesList, coinsData, continentsData, fullCountryData, geojsonMapping) {
+            // Create a map for quick lookup of country names from all sources
+            const countryMap = new Map();
+
+            // Helper function to normalize country names for comparison
+            function normalizeName(name) {
+                if (!name) return '';
+                return name.toLowerCase()
+                    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove accents
+                    .replace(/[^\w\s]/g, '')  // Remove special characters
+                    .replace(/\s+/g, ' ')     // Normalize spaces
+                    .trim();
+            }
+
+            // Process countries list (primary source)
+            if (Array.isArray(countriesList)) {
+                countriesList.forEach(country => {
+                    if (country && country.name) {
+                        const normalizedName = normalizeName(country.name);
+                        countryMap.set(normalizedName, {
+                            originalName: country.name,
+                            code: country.code || '',
+                            countriesList: true,
+                            coinsData: false,
+                            continentsData: false,
+                            fullCountryData: false,
+                            geojsonMapping: false,
+                            continent: ''
+                        });
+                    }
+                });
+            }
+
+            // Check coins data
+            if (Array.isArray(coinsData)) {
+                coinsData.forEach(coin => {
+                    if (coin && coin.country) {
+                        const normalizedName = normalizeName(coin.country);
+                        if (countryMap.has(normalizedName)) {
+                            countryMap.get(normalizedName).coinsData = true;
+                        } else {
+                            // Add country if not in primary list
+                            countryMap.set(normalizedName, {
+                                originalName: coin.country,
+                                code: '',
+                                countriesList: false,
+                                coinsData: true,
+                                continentsData: false,
+                                fullCountryData: false,
+                                geojsonMapping: false,
+                                continent: ''
+                            });
+                        }
+                    }
+                });
+            }
+
+            // Check continents data - NEW FIXED VERSION
+            if (continentsData && continentsData.countries && continentsData.countries.country) {
+                const continentsArray = continentsData.countries.country;
+
+                if (Array.isArray(continentsArray)) {
+                    continentsArray.forEach(country => {
+                        if (country && country.countryName) {
+                            const normalizedName = normalizeName(country.countryName);
+                            if (countryMap.has(normalizedName)) {
+                                const countryData = countryMap.get(normalizedName);
+                                countryData.continentsData = true;
+                                if (country.continentName) {
+                                    countryData.continent = country.continentName;
+                                }
+                            } else {
+                                countryMap.set(normalizedName, {
+                                    originalName: country.countryName,
+                                    code: country.countryCode || '',
+                                    countriesList: false,
+                                    coinsData: false,
+                                    continentsData: true,
+                                    fullCountryData: false,
+                                    geojsonMapping: false,
+                                    continent: country.continentName || ''
+                                });
+                            }
+                        }
+                    });
+                }
+            }
+
+            // Check full country data
+            if (Array.isArray(fullCountryData)) {
+                fullCountryData.forEach(country => {
+                    if (country && country.name) {
+                        const normalizedName = normalizeName(country.name);
+                        if (countryMap.has(normalizedName)) {
+                            countryMap.get(normalizedName).fullCountryData = true;
+                        } else {
+                            countryMap.set(normalizedName, {
+                                originalName: country.name,
+                                code: country.code || '',
+                                countriesList: false,
+                                coinsData: false,
+                                continentsData: false,
+                                fullCountryData: true,
+                                geojsonMapping: false,
+                                continent: ''
+                            });
+                        }
+                    }
+                });
+            }
+
+            // Check geojson mapping
+            if (Array.isArray(geojsonMapping)) {
+                geojsonMapping.forEach(item => {
+                    if (item && item.country_name) {
+                        const normalizedName = normalizeName(item.country_name);
+                        if (countryMap.has(normalizedName)) {
+                            countryMap.get(normalizedName).geojsonMapping = true;
+                        } else {
+                            countryMap.set(normalizedName, {
+                                originalName: item.country_name,
+                                code: '',
+                                countriesList: false,
+                                coinsData: false,
+                                continentsData: false,
+                                fullCountryData: false,
+                                geojsonMapping: true,
+                                continent: ''
+                            });
+                        }
+                    }
+                });
+            }
+
+            // Convert map to array and calculate overall status
+            allCountries = Array.from(countryMap.values())
+                .map(country => {
+                    const foundCount = [
+                        country.countriesList,
+                        country.coinsData,
+                        country.continentsData,
+                        country.fullCountryData,
+                        country.geojsonMapping
+                    ].filter(Boolean).length;
+
+                    let overallStatus = 'partial'; // Default to partial
+                    if (foundCount === 5) {
+                        overallStatus = 'complete';
+                    } else if (foundCount === 1) { // If only found in one file
+                        overallStatus = 'missing';
+                    }
+
+                    return {
+                        ...country,
+                        foundCount,
+                        overallStatus,
+                        searchText: (country.originalName + ' ' + country.code + ' ' + country.continent).toLowerCase()
+                    };
+                })
+                .sort((a, b) => a.originalName.localeCompare(b.originalName));
+
+            // Calculate statistics
+            stats.total = allCountries.length;
+            stats.complete = allCountries.filter(c => c.overallStatus === 'complete').length;
+            stats.missing = allCountries.filter(c => c.overallStatus === 'missing').length;
+            stats.partial = allCountries.filter(c => c.overallStatus === 'partial').length;
+
+            // Update stats display
+            updateStats();
+
+            // Hide loading and show table
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('countryTable').style.display = 'table';
+
+            // Render all countries initially
+            renderTable(allCountries);
+
+            // Setup search functionality
+            setupSearch();
+        }
+
+        // Update statistics display
+        function updateStats() {
+            document.getElementById('total-countries').textContent = stats.total;
+            document.getElementById('complete-data').textContent = stats.complete;
+            document.getElementById('missing-data').textContent = stats.missing;
+            document.getElementById('partial-data').textContent = stats.partial;
+        }
+
+        // Render the table with data
+        function renderTable(countries) {
+            const tableBody = document.getElementById('tableBody');
+            const noResults = document.getElementById('noResults');
+
+            if (countries.length === 0) {
+                tableBody.innerHTML = '';
+                document.getElementById('countryTable').style.display = 'none';
+                noResults.style.display = 'block';
+                return;
+            }
+
+            noResults.style.display = 'none';
+            document.getElementById('countryTable').style.display = 'table';
+
+            tableBody.innerHTML = '';
+
+            countries.forEach(country => {
+                const row = document.createElement('tr');
+
+                // Country name cell - now includes continent if available
+                const nameCell = document.createElement('td');
+                let countryInfo = `<div class="country-name">${country.originalName}</div>`;
+
+                if (country.code) {
+                    countryInfo += `<small style="color: #666; font-family: monospace; display: block;">${country.code}</small>`;
+                }
+
+                if (country.continent) {
+                    countryInfo += `<div class="continent-info">${country.continent}</div>`;
+                }
+
+                nameCell.innerHTML = countryInfo;
+
+                // Helper function to create status cell
+                function createStatusCell(isFound, label) {
+                    const cell = document.createElement('td');
+                    cell.className = 'file-column';
+                    cell.title = label;
+                    if (isFound) {
+                        cell.innerHTML = '<span class="icon icon-found">✓</span>';
+                        cell.classList.add('status-found');
+                    } else {
+                        cell.innerHTML = '<span class="icon icon-missing">✗</span>';
+                        cell.classList.add('status-missing');
+                    }
+                    return cell;
+                }
+
+                // Overall status cell
+                const overallCell = document.createElement('td');
+                overallCell.className = 'file-column';
+                let statusText = '';
+                let statusClass = '';
+                switch (country.overallStatus) {
+                    case 'complete':
+                        statusText = '<span class="status-found">Complete</span>';
+                        statusClass = 'status-found';
+                        break;
+                    case 'partial':
+                        statusText = `<span class="status-partial">${country.foundCount}/5</span>`;
+                        statusClass = 'status-partial';
+                        break;
+                    case 'missing':
+                        statusText = `<span class="status-missing">${country.foundCount}/5</span>`;
+                        statusClass = 'status-missing';
+                        break;
+                }
+                overallCell.innerHTML = statusText;
+
+                // Build row with all file status cells
+                row.appendChild(nameCell);
+                row.appendChild(createStatusCell(country.countriesList, 'Countries List'));
+                row.appendChild(createStatusCell(country.coinsData, 'Coins Data'));
+                row.appendChild(createStatusCell(country.continentsData, 'Continents Data'));
+                row.appendChild(createStatusCell(country.fullCountryData, 'Full Country Data'));
+                row.appendChild(createStatusCell(country.geojsonMapping, 'GeoJSON Mapping'));
+                row.appendChild(overallCell);
+
+                // Add row class for overall status
+                row.classList.add(statusClass);
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Setup search functionality
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            let searchTimeout;
+
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    const searchTerm = e.target.value.toLowerCase().trim();
+
+                    if (searchTerm === '') {
+                        // Show all countries when search is empty
+                        renderTable(allCountries);
+                    } else {
+                        // Filter countries based on search term
+                        const filteredCountries = allCountries.filter(country =>
+                            country.searchText.includes(searchTerm)
+                        );
+                        renderTable(filteredCountries);
+                    }
+                }, 300); // Debounce for 300ms
+            });
+
+            // Clear search button (optional enhancement)
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    searchInput.value = '';
+                    renderTable(allCountries);
+                    searchInput.focus();
+                }
+            });
+
+            // Focus on search input when page loads
+            searchInput.focus();
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', loadAllData);
+    </script>
+</body>
+
+</html>
