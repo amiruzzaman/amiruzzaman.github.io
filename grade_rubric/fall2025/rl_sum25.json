@@ -1,0 +1,308 @@
+{
+  "Part 0": {
+    "title": "Requirements",
+    "predefined_comments": [
+      "Please check formatting consistency in your references.",
+      "Ensure all required files are submitted in the correct format.",
+      "DOCSTRING should include clearer environment setup instructions.",
+      "Good work! Very clean DOCSTRING and provided information we needed.",
+      "I am not taking points out for this, but make sure that next time you add detailed instructions to run your code. Some extra effort will help us know you are helping us to run your code to verify your experiment.",
+      "For your plots and graphs, please increase the font size next time so that labels and titles are easier to read.",
+      "Some of your figures are difficult to read due to their small size. I will not deduct any points for this issue this time. However, please pay attention to making your images, figures, and plots clearer in the future. You may consider increasing the size of legend text or other annotations to improve readability."
+    ],
+    "problems": [
+      [
+        {
+          "yes": "You used LaTeX on Overleaf and the project exists and is accessible.",
+          "no": "You did not use LaTeX/Overleaf or the project is missing/inaccessible.",
+          "point": 2
+        },
+        {
+          "yes": "You provided a valid GitHub commit hash from GT Enterprise GitHub (not just a repo URL).",
+          "no": "You did not provide a valid GitHub commit hash.",
+          "point": 2
+        },
+        {
+          "yes": "You provided clear instructions in the DOCSTRING file for running the code (environment, commands, initialization).",
+          "no": "Your DOCSTRING does not include required instructions to run the code.",
+          "point": 2
+        },
+        {
+          "yes": "Your DOCSTRING reproducibility file is submitted as a PDF.",
+          "no": "Your DOCSTRING file is not a PDF.",
+          "point": 1
+        },
+        {
+          "yes": "Your report is 8 pages or fewer.",
+          "no": "Your report exceeds 8 pages.",
+          "point": 1
+        },
+        {
+          "yes": "Your graphs and text are legible at 100% zoom on Canvas (no need to zoom).",
+          "no": "Three or more graphs are hard to read (axis, legend, labels unclear) at 100% zoom.",
+          "point": 1
+        },
+        {
+          "yes": "Your references use a consistent format (APA, MLA, IEEE) and include at least one external source beyond course materials.",
+          "no": "References are inconsistent, incorrectly formatted, or lack an external source.",
+          "point": 1
+        }
+      ]
+    ]
+  },
+  "Part 1": {
+    "title": "MDP Overview and Discretization",
+    "predefined_comments": [
+      "Good contrast between discrete Blackjack and continuous CartPole state spaces.",
+      "Consider adding specific examples of how continuous CartPole values map to discrete states.",
+      "Your discretization justification would benefit from quantitative analysis of bin size trade-offs.",
+      "Well-explained termination conditions and reward structures for both environments.",
+      "The MDP descriptions are accurate but could be more comprehensive with state transition details."
+    ],
+    "problems": [
+      [
+        {
+          "yes": "You correctly described the Blackjack state tuple (player sum, dealer up card, usable ace flag).",
+          "no": "You did not correctly describe the Blackjack state tuple.",
+          "point": 1
+        },
+        {
+          "yes": "You correctly described the Blackjack action space: hit / stick.",
+          "no": "You did not correctly describe the Blackjack action space.",
+          "point": 1
+        },
+        {
+          "yes": "You correctly described the Blackjack reward structure: +1 win, 0 draw, -1 loss.",
+          "no": "You did not correctly describe the Blackjack reward structure.",
+          "point": 1
+        },
+        {
+          "yes": "You explained the episodic nature of Blackjack and how episodes terminate.",
+          "no": "You did not explain the episodic nature or termination in Blackjack.",
+          "point": 2
+        },
+        {
+          "yes": "You listed the four continuous CartPole state variables (position, velocity, angle, angular velocity).",
+          "no": "You did not correctly list the CartPole state variables.",
+          "point": 1
+        },
+        {
+          "yes": "You described the CartPole action space (left/right force).",
+          "no": "You did not correctly describe the CartPole action space.",
+          "point": 1
+        },
+        {
+          "yes": "You described the CartPole reward (+1 per timestep until failure).",
+          "no": "You did not correctly describe the CartPole reward.",
+          "point": 1
+        },
+        {
+          "yes": "You described the CartPole termination conditions (angle ±12°, position ±2.4).",
+          "no": "You did not describe CartPole termination conditions.",
+          "point": 2
+        },
+        {
+          "yes": "You highlighted the discrete vs continuous nature of Blackjack vs CartPole.",
+          "no": "You did not highlight discrete vs continuous differences.",
+          "point": 1
+        },
+        {
+          "yes": "You explained why discretization is required for CartPole and not Blackjack.",
+          "no": "You did not explain the implications of discretization.",
+          "point": 1
+        },
+        {
+          "yes": "You described your discretization method (bins per dimension, mapping).",
+          "no": "You did not describe your discretization method.",
+          "point": 1
+        },
+        {
+          "yes": "You justified your bin choices with fidelity vs runtime/memory trade-offs.",
+          "no": "You did not justify your discretization choices.",
+          "point": 2
+        }
+      ]
+    ]
+  },
+  "Part 2": {
+    "title": "Value Iteration and Policy Iteration",
+    "predefined_comments": [
+      "Good comparison of VI vs PI convergence behavior and computational trade-offs.",
+      "Consider analyzing why the algorithms produced different/same policies for each environment.",
+      "Your hyperparameter analysis would benefit from clearer connections to convergence speed and policy quality.",
+      "Well-documented convergence plots with appropriate metrics (ΔV, policy changes).",
+      "The theoretical explanations are solid but could better connect to your empirical results."
+    ],
+    "problems": [
+      [
+        {
+          "yes": "You described Value Iteration: iterative Bellman optimality updates until convergence.",
+          "no": "You did not correctly describe Value Iteration.",
+          "point": 2
+        },
+        {
+          "yes": "You described Policy Iteration: policy evaluation + greedy improvement loop.",
+          "no": "You did not correctly describe Policy Iteration.",
+          "point": 2
+        },
+        {
+          "yes": "You discussed convergence guarantees for VI and PI on finite MDPs.",
+          "no": "You did not discuss convergence guarantees.",
+          "point": 2
+        },
+        {
+          "yes": "You contrasted VI vs PI computational tradeoffs (update style, per-iteration cost).",
+          "no": "You did not contrast VI and PI.",
+          "point": 2
+        },
+        {
+          "yes": "You provided a VI–Blackjack convergence plot (ΔV vs iteration).",
+          "no": "You did not provide a VI–Blackjack convergence plot.",
+          "point": 2
+        },
+        {
+          "yes": "You provided a PI–Blackjack policy-change plot.",
+          "no": "You did not provide a PI–Blackjack policy-change plot.",
+          "point": 2
+        },
+        {
+          "yes": "You provided a VI–CartPole convergence plot (ΔV vs iteration with discretization note).",
+          "no": "You did not provide a VI–CartPole convergence plot.",
+          "point": 2
+        },
+        {
+          "yes": "You provided a PI–CartPole policy-change plot.",
+          "no": "You did not provide a PI–CartPole policy-change plot.",
+          "point": 2
+        },
+        {
+          "yes": "You explored hyperparameter variation (θ, γ) with 3+ values each (or at least 2 values each).",
+          "no": "You did not explore hyperparameter variation sufficiently.",
+          "point": 2
+        },
+        {
+          "yes": "You explained why PI often converges in fewer iterations (greedy improvement).",
+          "no": "You did not explain PI's faster convergence.",
+          "point": 2
+        },
+        {
+          "yes": "You reported iteration counts and explicit convergence criteria (ΔV<ε or no policy changes).",
+          "no": "You did not report iteration counts or criteria.",
+          "point": 1
+        },
+        {
+          "yes": "You provided quantitative analysis connected to theory and addressed anomalies.",
+          "no": "Your convergence analysis was not theoretically grounded.",
+          "point": 2
+        },
+        {
+          "yes": "You stated whether VI and PI produced the same policy.",
+          "no": "You did not state whether VI and PI produced the same policy.",
+          "point": 2
+        },
+        {
+          "yes": "You explained differences (if any) due to tie-breaking, rounding, or tolerances.",
+          "no": "You did not explain policy differences.",
+          "point": 1
+        },
+        {
+          "yes": "You referenced a visualization comparing the policies (heatmap, table).",
+          "no": "You did not include a policy comparison visualization.",
+          "point": 1
+        },
+        {
+          "yes": "You acknowledged discretization errors for CartPole.",
+          "no": "You did not acknowledge discretization error.",
+          "point": 1
+        },
+        {
+          "yes": "You discussed bin trade-offs with quantitative or reasoned example.",
+          "no": "You did not discuss discretization trade-offs meaningfully.",
+          "point": 2
+        }
+      ]
+    ]
+  },
+  "Part 3": {
+    "title": "On-Policy Control with SARSA",
+    "predefined_comments": [
+      "Good explanation of on-policy vs off-policy differences between SARSA and Q-Learning.",
+      "Consider analyzing how exploration strategy choices affected final policy quality in each environment.",
+      "Your hyperparameter analysis would benefit from clearer connections to learning stability and convergence.",
+      "Well-documented learning curves showing performance trends and algorithm comparison.",
+      "The behavioral implications of on/off-policy learning could be more thoroughly discussed."
+    ],
+    "problems": [
+      [
+        {
+          "yes": "You correctly described the SARSA update rule and its on-policy nature with behavioral implications.",
+          "no": "You did not correctly describe SARSA or its on-policy behavior.",
+          "point": 4
+        },
+        {
+          "yes": "You included at least four complementary plots (SARSA on both environments: performance + stability diagnostic each).",
+          "no": "You did not include required learning and stability plots.",
+          "point": 8
+        },
+        {
+          "yes": "You described an exploration strategy (e.g., epsilon schedule) with explicit parameters and justified its effects with evidence.",
+          "no": "You did not describe or justify your exploration strategy adequately.",
+          "point": 6
+        },
+        {
+          "yes": "You compared SARSA policy to VI/PI baselines with visualizations and causal analysis for both environments.",
+          "no": "You did not provide meaningful policy analysis vs DP baselines.",
+          "point": 6
+        },
+        {
+          "yes": "You conducted hyperparameter sensitivity analysis across α, γ, and exploration parameters, with discussion of robustness.",
+          "no": "Your hyperparameter sensitivity analysis was missing or insufficient.",
+          "point": 4
+        }
+      ]
+    ]
+  },
+  "Part 4": {
+    "title": "Reflection and Integration",
+    "predefined_comments": [
+      "Good discussion of implementation challenges and proposed improvements.",
+      "Consider linking challenges more directly to environment differences (stochastic vs near-deterministic).",
+      "Your synthesis would benefit from clearer cross-algorithm comparisons and evidence anchoring.",
+      "Well-structured reflection with actionable insights and transferable lessons.",
+      "The integration of results across algorithms is solid but could be more data-driven."
+    ],
+    "problems": [
+      [
+        {
+          "yes": "You described specific technical challenges with root causes and actionable improvements.",
+          "no": "You did not adequately describe challenges or improvements.",
+          "point": 8
+        },
+        {
+          "yes": "You synthesized results across algorithms (VI, PI, SARSA) with evidence anchoring and mechanistic explanations.",
+          "no": "Your synthesis was missing or insufficiently integrated.",
+          "point": 9
+        }
+      ]
+    ]
+  },
+  "Part 5": {
+    "title": "Extra Credit: DQN on CartPole",
+    "predefined_comments": [
+      "Good implementation of DQN with proper components (replay buffer, target network).",
+      "Consider analyzing how the Rainbow component improved performance compared to baseline DQN.",
+      "Your comparison with SARSA would benefit from discussing sample efficiency differences.",
+      "Well-documented implementation showing understanding of deep RL concepts.",
+      "The ablation study could more clearly quantify the impact of each component."
+    ],
+    "problems": [
+      [
+        {
+          "yes": "You implemented a working DQN with replay buffer and target network, with clear comparison to SARSA and quantitative analysis.",
+          "no": "You did not provide a substantive DQN implementation.",
+          "point": 5
+        }
+      ]
+    ]
+  }
+}
