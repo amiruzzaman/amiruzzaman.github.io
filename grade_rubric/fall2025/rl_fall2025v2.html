@@ -159,43 +159,6 @@
             margin: 20px 0 15px 0;
             font-size: 1.25em;
             font-weight: 500;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .problem-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .problem-action-btn {
-            padding: 6px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            background-color: white;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .select-all-yes {
-            color: var(--success-color);
-            border-color: var(--success-color);
-        }
-
-        .select-all-yes:hover {
-            background-color: #e8f6ef;
-        }
-
-        .select-all-no {
-            color: var(--danger-color);
-            border-color: var(--danger-color);
-        }
-
-        .select-all-no:hover {
-            background-color: #fdedec;
         }
 
         .item-container {
@@ -225,8 +188,6 @@
             transition: all 0.2s;
             font-size: 14px;
             font-weight: 500;
-            word-break: break-word;
-            overflow-wrap: break-word;
         }
 
         .item-yes {
@@ -262,7 +223,6 @@
             border-radius: 6px;
             border: 1px solid var(--border-color);
             transition: all 0.2s;
-            flex-shrink: 0;
         }
 
         .item-yes.selected+.item-no+.item-score {
@@ -438,22 +398,6 @@
         }
 
         input[type="text"]:focus {
-            border-color: var(--primary-color);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-        }
-
-        input[type="number"] {
-            padding: 12px 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            width: 100px;
-            margin: 8px 0 20px 0;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-
-        input[type="number"]:focus {
             border-color: var(--primary-color);
             outline: none;
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
@@ -708,8 +652,6 @@
             background-color: #f9f9f9;
             border-radius: 8px;
             border: 1px dashed var(--border-color);
-            overflow-wrap: break-word;
-            word-break: break-word;
         }
 
         .additional-comment-label {
@@ -729,99 +671,12 @@
             min-height: 80px;
             resize: vertical;
             transition: all 0.2s;
-            box-sizing: border-box;
-            overflow-wrap: break-word;
-            word-break: break-word;
         }
 
         .additional-comment-textarea:focus {
             border-color: var(--primary-color);
             outline: none;
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-        }
-
-        .overall-comment-container {
-            display: flex;
-            gap: 15px;
-            align-items: flex-start;
-            margin: 15px 0;
-        }
-
-        .overall-comment-textarea {
-            flex: 1;
-            padding: 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 14px;
-            min-height: 120px;
-            resize: vertical;
-            transition: all 0.2s;
-            box-sizing: border-box;
-        }
-
-        .overall-comment-textarea:focus {
-            border-color: var(--primary-color);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-        }
-
-        .page-count-container {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            min-width: 150px;
-        }
-
-        .page-count-label {
-            font-weight: 600;
-            color: var(--dark-color);
-            font-size: 14px;
-        }
-
-        .page-count-input {
-            padding: 10px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 14px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .page-count-input:focus {
-            border-color: var(--primary-color);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-        }
-
-        .to-top-button {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            z-index: 1000;
-            transition: all 0.3s;
-        }
-
-        .to-top-button:hover {
-            background-color: #2980b9;
-            transform: translateY(-2px);
-        }
-
-        .to-top-button svg {
-            width: 24px;
-            height: 24px;
-            fill: currentColor;
         }
 
         /* Loading indicator */
@@ -879,17 +734,6 @@
                 padding: 20px;
             }
 
-            .problem-actions {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 5px;
-                margin-top: 10px;
-            }
-
-            .problem-action-btn {
-                width: 100%;
-            }
-
             .item-container {
                 flex-direction: column;
                 align-items: stretch;
@@ -933,26 +777,6 @@
                 width: 100%;
                 justify-content: center;
             }
-
-            .overall-comment-container {
-                flex-direction: column;
-            }
-
-            .page-count-container {
-                width: 100%;
-            }
-
-            .to-top-button {
-                bottom: 10px;
-                right: 10px;
-                width: 40px;
-                height: 40px;
-            }
-
-            .to-top-button svg {
-                width: 20px;
-                height: 20px;
-            }
         }
 
         @media (max-width: 480px) {
@@ -968,12 +792,6 @@
 
             .part-container {
                 padding: 15px;
-            }
-
-            h4 {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
             }
         }
     </style>
@@ -994,7 +812,7 @@
     <div class="total-score-display" id="totalScoreDisplay">Total: 0/0</div>
 
     <!-- Instructions notice -->
-    <p id="notice">Click to select "Yes" (green) or "No" (red) for each item. Double-click any item to edit. "No" selections can be adjusted. Use "Select All Yes/No" buttons for each problem.</p>
+    <p id="notice">Click to select "Yes" (green) or "No" (red) for each item. Double-click any item to edit. "No" selections can be adjusted.</p>
 
     <!-- Main content container -->
     <div id="container">
@@ -1023,13 +841,6 @@
     <div id="overlay"></div>
     <p id="notice" style="height: 30px;"></p>
 
-    <!-- Back to top button -->
-    <button class="to-top-button" id="toTopButton">
-        <svg viewBox="0 0 24 24">
-            <path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z"/>
-        </svg>
-    </button>
-
     <script>
         // Global variables
         let selectedItem = null;
@@ -1042,7 +853,6 @@
         let jsonData = {}; // Store the JSON data for copying
         let originalItemTexts = {}; // Store original item texts for reset
         let additionalComments = {}; // Store additional comments for each part
-        let pageCount = ''; // Store page count for overall comment
 
         // Configuration - change this to use a different JSON file
         const jsonFileName = 'rl_fall2025.json';
@@ -1116,17 +926,11 @@
                 msg.style.display = 'none';
             });
 
-            // Reset overall comment and page count
-            const commentTextarea = document.querySelector('.overall-comment-textarea');
-            if (commentTextarea) {
-                commentTextarea.value = "Overall: Your assignment report is off to a good start. There are a few sections that require more attention. Please refer to the comment/feedback above for further details.";
+            // Reset overall comment
+            const commentInput = document.querySelector('.item-textareabox');
+            if (commentInput) {
+                commentInput.value = "Overall: Your assignment report is off to a good start. There are a few sections that require more attention. Please refer to the comment/feedback above for further details.";
             }
-
-            const pageCountInput = document.querySelector('.page-count-input');
-            if (pageCountInput) {
-                pageCountInput.value = '';
-            }
-            pageCount = '';
 
             // Reset filename
             const fileNameInput = document.querySelector('input[type="text"]');
@@ -1293,46 +1097,6 @@
                     }
                 }, 500);
             }, 3000);
-        }
-
-        /**
-         * Selects all items in a problem as "Yes"
-         */
-        function selectAllYes(problemContainer) {
-            const items = problemContainer.querySelectorAll('.item-container');
-            items.forEach(item => {
-                const itemYes = item.querySelector('.item-yes');
-                const itemNo = item.querySelector('.item-no');
-                const itemScore = item.querySelector('.item-score');
-                
-                itemYes.classList.add('selected');
-                itemNo.classList.remove('selected');
-                itemScore.textContent = itemYes.getAttribute('data-max');
-                itemScore.style.color = 'green';
-            });
-            
-            updateAllScores();
-            updateSaveButtonState();
-        }
-
-        /**
-         * Selects all items in a problem as "No"
-         */
-        function selectAllNo(problemContainer) {
-            const items = problemContainer.querySelectorAll('.item-container');
-            items.forEach(item => {
-                const itemYes = item.querySelector('.item-yes');
-                const itemNo = item.querySelector('.item-no');
-                const itemScore = item.querySelector('.item-score');
-                
-                itemNo.classList.add('selected');
-                itemYes.classList.remove('selected');
-                itemScore.textContent = '0';
-                itemScore.style.color = 'red';
-            });
-            
-            updateAllScores();
-            updateSaveButtonState();
         }
 
         /**
@@ -1616,12 +1380,6 @@
             // Update page title first
             updatePageTitle();
 
-            // Back to top button functionality
-            const toTopButton = document.getElementById('toTopButton');
-            toTopButton.addEventListener('click', function() {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-
             // Load rubric data
             fetch(jsonFileName)
                 .then(response => {
@@ -1676,29 +1434,9 @@
                                 const problemContainer = document.createElement('div');
                                 problemContainer.classList.add('problem-container');
 
-                                // Problem title with action buttons
+                                // Problem title
                                 const h4 = document.createElement('h4');
                                 h4.textContent = `Problem ${i + 1}`;
-                                
-                                // Add action buttons container
-                                const actionButtons = document.createElement('div');
-                                actionButtons.className = 'problem-actions';
-                                
-                                // Select All Yes button
-                                const selectAllYesBtn = document.createElement('button');
-                                selectAllYesBtn.className = 'problem-action-btn select-all-yes';
-                                selectAllYesBtn.textContent = 'Select All Yes';
-                                selectAllYesBtn.addEventListener('click', () => selectAllYes(problemContainer));
-                                
-                                // Select All No button
-                                const selectAllNoBtn = document.createElement('button');
-                                selectAllNoBtn.className = 'problem-action-btn select-all-no';
-                                selectAllNoBtn.textContent = 'Select All No';
-                                selectAllNoBtn.addEventListener('click', () => selectAllNo(problemContainer));
-                                
-                                actionButtons.append(selectAllYesBtn, selectAllNoBtn);
-                                h4.appendChild(actionButtons);
-                                
                                 problemContainer.appendChild(h4);
 
                                 // Render problem items
@@ -1709,32 +1447,6 @@
                             // Single problem in this part
                             const problemContainer = document.createElement('div');
                             problemContainer.classList.add('problem-container');
-                            
-                            // Problem title with action buttons
-                            const h4 = document.createElement('h4');
-                            h4.textContent = `Problem 1`;
-                            
-                            // Add action buttons container
-                            const actionButtons = document.createElement('div');
-                            actionButtons.className = 'problem-actions';
-                            
-                            // Select All Yes button
-                            const selectAllYesBtn = document.createElement('button');
-                            selectAllYesBtn.className = 'problem-action-btn select-all-yes';
-                            selectAllYesBtn.textContent = 'Select All Yes';
-                            selectAllYesBtn.addEventListener('click', () => selectAllYes(problemContainer));
-                            
-                            // Select All No button
-                            const selectAllNoBtn = document.createElement('button');
-                            selectAllNoBtn.className = 'problem-action-btn select-all-no';
-                            selectAllNoBtn.textContent = 'Select All No';
-                            selectAllNoBtn.addEventListener('click', () => selectAllNo(problemContainer));
-                            
-                            actionButtons.append(selectAllYesBtn, selectAllNoBtn);
-                            h4.appendChild(actionButtons);
-                            
-                            problemContainer.appendChild(h4);
-                            
                             renderProblem(problemContainer, problems[0], groupIndex++);
                             partContainer.appendChild(problemContainer);
                         }
@@ -1828,46 +1540,14 @@
                     `;
                     resetButton.addEventListener('click', resetAllSelections);
 
-                    // Overall comment section
+                    // Overall comment
                     const commentDiv = document.createElement('div');
                     commentDiv.textContent = "Overall";
-                    
-                    // Container for comment and page count
-                    const overallContainer = document.createElement('div');
-                    overallContainer.className = 'overall-comment-container';
-                    
-                    // Comment textarea
-                    const commentTextarea = document.createElement('textarea');
-                    commentTextarea.className = 'overall-comment-textarea';
-                    commentTextarea.value = "Overall: Your assignment report is off to a good start. There are a few sections that require more attention. Please refer to the comment/feedback above for further details.";
-                    
-                    // Page count section
-                    const pageCountContainer = document.createElement('div');
-                    pageCountContainer.className = 'page-count-container';
-                    
-                    const pageCountLabel = document.createElement('div');
-                    pageCountLabel.className = 'page-count-label';
-                    pageCountLabel.textContent = 'Report Page Count (optional):';
-                    
-                    const pageCountInput = document.createElement('input');
-                    pageCountInput.type = 'number';
-                    pageCountInput.className = 'page-count-input';
-                    pageCountInput.placeholder = 'e.g., 5';
-                    pageCountInput.min = '0';
-                    
-                    pageCountInput.addEventListener('input', function() {
-                        pageCount = this.value;
-                        // Update comment with page count if entered
-                        const baseComment = "Overall: Your assignment report is off to a good start. There are a few sections that require more attention. Please refer to the comment/feedback above for further details.";
-                        if (pageCount && !isNaN(pageCount) && parseInt(pageCount) > 0) {
-                            commentTextarea.value = `${baseComment} Your report was ${pageCount} pages long.`;
-                        } else {
-                            commentTextarea.value = baseComment;
-                        }
-                    });
-                    
-                    pageCountContainer.append(pageCountLabel, pageCountInput);
-                    overallContainer.append(commentTextarea, pageCountContainer);
+                    const textAreaDiv = document.createElement('div');
+                    const commentInput = document.createElement('textarea');
+                    commentInput.classList.add('item-textareabox');
+                    commentInput.value = "Overall: Your assignment report is off to a good start. There are a few sections that require more attention. Please refer to the comment/feedback above for further details.";
+                    textAreaDiv.appendChild(commentInput);
 
                     // Filename input
                     const fileNameLabel = document.createElement('div');
@@ -1994,7 +1674,7 @@
                         });
 
                         // Add overall comment
-                        outputText += `${commentTextarea.value}\n`;
+                        outputText += `${commentInput.value}\n`;
                         if (checkbox.checked) {
                             outputText += "You could have done a better job in managing your empty spaces in your report, which would have allowed you to add more discussions on your results and comparisons.\n";
                         }
@@ -2017,7 +1697,7 @@
                     container.append(
                         checkboxDiv,
                         commentDiv,
-                        overallContainer,
+                        textAreaDiv,
                         fileNameLabel,
                         fileNameInput,
                         document.createElement('br'),
