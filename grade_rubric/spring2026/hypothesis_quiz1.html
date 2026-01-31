@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Feedback System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .feedback-area {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 5px;
+            margin-right: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .question-item {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            transition: background-color 0.3s;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+
+        .question-item.partial-correct {
+            background-color: #fff3e0; /* Light orange for partial/mixed */
+        }
+
+        .question-item.correct {
+            background-color: #e8f5e9; /* Light green */
+        }
+
+        .question-item.incorrect {
+            background-color: #ffebee; /* Light red */
+        }
+
+        .question-label {
+            margin-bottom: 10px;
+            display: block;
+            font-weight: bold;
+        }
+
+        #total-points {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .div-table {
+            display: table;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .div-table-row {
+            display: table-row;
+        }
+
+        .div-table-col {
+            display: table-cell;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .div-table-header {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #feedback-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+        }
+
+        #selected-feedback {
+            white-space: pre-wrap; /* Preserve line breaks */
+            width: 100%;
+            min-height: 150px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: white;
+            font-family: inherit;
+            font-size: inherit;
+        }
+
+        .score-correct {
+            background-color: #e8f5e9; /* Light green */
+        }
+
+        .score-partial {
+            background-color: #fff3e0; /* Light orange */
+        }
+
+        .score-incorrect {
+            background-color: #ffebee; /* Light red */
+        }
+
+        #feedback-display.correct {
+            background-color: #e8f5e9; /* Light green */
+        }
+
+        #feedback-display.partial {
+            background-color: #fff3e0; /* Light orange */
+        }
+
+        #feedback-display.incorrect {
+            background-color: #ffebee; /* Light red */
+        }
+
+        .checkbox-group {
+            margin-bottom: 10px;
+        }
+
+        .checkbox-label {
+            margin-right: 15px;
+        }
+
+        .feedback-section {
+            margin-top: 15px;
+        }
+
+        .feedback-section h4 {
+            margin-top: 0;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .feedback-controls {
+            margin-top: 10px;
+        }
+
+        .feedback-controls button {
+            background-color: #2196F3;
+        }
+
+        .feedback-controls button:hover {
+            background-color: #0b7dda;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Enhanced Quiz Feedback System</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 20px;">
+            Select "What you did well" and/or "What needs improvement" for each question. You can select both, one, or none.
+        </p>
+
+        <div id="questions-container"></div>
+
+        <div id="feedback-display" class="feedback-display">
+            <h3>Saved Feedback:</h3>
+
+            <!-- Div table for individual scores -->
+            <div class="div-table" id="scores-table">
+                <div class="div-table-row div-table-header">
+                    <div class="div-table-col">Question</div>
+                    <div class="div-table-col">Score</div>
+                </div>
+                <!-- Individual scores will be populated here -->
+            </div>
+
+            <p id="total-points"></p>
+
+            <!-- Display all selected feedback here -->
+            <div id="feedback-container">
+                <h4>All Selected Feedback (Editable):</h4>
+                <textarea id="selected-feedback" class="feedback-area"></textarea>
+            </div>
+
+            <div class="feedback-controls">
+                <button onclick="copyFeedback()" id="copyButton">Copy All Feedback</button>
+                <button onclick="copyScores()" id="copyScoresButton">Copy Scores</button>
+                <button onclick="resetFeedbackDisplay()" id="resetFeedbackButton">Reset Feedback Display</button>
+            </div>
+        </div>
+
+        <button onclick="resetAll()">Reset All</button>
+    </div>
+
+    <script>
+        const defaultQuestionsData = [
+            {
+                question: "Q 1: Authors, ICML scope/positioning, and Test of Time context",
+                feedback: {
+                    correct: "You have correctly identified the authors and provided some brief background of each and connected at least one to them with their notable work, such as Google DeepMind. You also tied their background to why the team is credible for this topic.",
+                    incorrect: "You could have Googled the name of the authors to find more meaningful information."
+                },
+                points: 0
+            },
+            {
+                question: "Q 2: The gap Rule 6 lens",
+                feedback: {
+                    correct: "You provided a concise and testable claim tied to inputs mechanism and expected outcome. You wrote, \"...\"",
+                    incorrect: "The gaps you listed is very vague. To strengthen your answer, you could have refer to the paper and taken some direct quotes from the authors."
+                },
+                points: 0
+            },
+            {
+                question: "Q 3: Paper hypothesis",
+                feedback: {
+                    correct: "You provided a concise and testable claim tied to inputs mechanism and expected outcome. You wrote \"...\"",
+                    incorrect: "Your have included vague or unfalsifiable statements that do not map to metrics or experiments. You needed to specify the measurable outcome and where it will be tested, and explain how the mechanism links to the expected effect."
+                },
+                points: 0
+            },
+            {
+                question: "Q 4: Lookups with at least two peer reviewed citations",
+                feedback: {
+                    correct: "You named couple specific concepts you needed to study and cited peer reviewed sources",
+                    incorrect: "You needed to cite at least two peer-reviewed articles for this. Arxiv is not peer-reviewed venue."
+                },
+                points: 0
+            },
+            {
+                question: "Q 5: Limitations with reasoning",
+                feedback: {
+                    correct: "You identified at least one limitation and explained why it matters and under what conditions it appears.",
+                    incorrect: "You have listed limitations without providing rationale or supporting evidence."
+                },
+                points: 0
+            },
+            {
+                question: "Q 6: Next steps concise options grounded in reasoning",
+                feedback: {
+                    correct: "You proposed at least two specific follow-up actions that directly address the findings or limitations.",
+                    incorrect: "Your suggestions were too generic and not tied to evidence or mechanisms. You should include evaluations on domain-shifted data or harder benchmarks, propose architectural or training changes for identified failure modes, and consider data curation, higher-frequency modeling, and robustness interventions. You also need to state the expected effect and how it will be tested."
+                },
+                points: 0
+            },
+            {
+                question: "Q 7: Your single hypothesis to investigate",
+                feedback: {
+                    correct: "You stated one testable hypothesis and provided a measurable outcome along with an evaluation plan.",
+                    incorrect: "Your work needs a clear goal statement, a baseline with an evaluation protocol, a motivating mechanism, and a defined threshold for support."
+                },
+                points: 0
+            }
+        ];
+
+        let questionsData = [...defaultQuestionsData]; // Copy of default data
+        let scores = [0, 0, 0, 0, 0, 0, 0]; // Track scores for each question (7 questions)
+        let feedbackEdited = false; // Track if feedback has been manually edited
+
+        // Load questions into the DOM
+        function loadQuestions(questions) {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            questions.forEach((questionData, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-item';
+                questionDiv.id = `question-${index}`;
+
+                questionDiv.innerHTML = `
+                    <label class="question-label">${questionData.question}</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="correct-${index}" value="correct" onchange="toggleFeedback(${index}, 'correct')">
+                            What you did well
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="incorrect-${index}" value="incorrect" onchange="toggleFeedback(${index}, 'incorrect')">
+                            What needs improvement
+                        </label>
+                    </div>
+                    <div class="feedback-section">
+                        <div id="correct-feedback-section-${index}" class="hidden">
+                            <h4>What you did well:</h4>
+                            <textarea id="correct-feedback-${index}" class="feedback-area" onblur="saveFeedback(${index}, 'correct')">${questionData.feedback.correct}</textarea>
+                        </div>
+                        <div id="incorrect-feedback-section-${index}" class="hidden">
+                            <h4>What needs improvement:</h4>
+                            <textarea id="incorrect-feedback-${index}" class="feedback-area" onblur="saveFeedback(${index}, 'incorrect')">${questionData.feedback.incorrect}</textarea>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(questionDiv);
+            });
+        }
+
+        // Toggle feedback textareas based on checkbox selection
+        function toggleFeedback(index, feedbackType) {
+            const checkbox = document.getElementById(`${feedbackType}-${index}`);
+            const feedbackSection = document.getElementById(`${feedbackType}-feedback-section-${index}`);
+            const questionDiv = document.getElementById(`question-${index}`);
+            
+            // Show/hide the feedback section based on checkbox state
+            if (checkbox.checked) {
+                feedbackSection.classList.remove('hidden');
+            } else {
+                feedbackSection.classList.add('hidden');
+            }
+            
+            // Update the question item styling based on selections
+            updateQuestionStyling(index);
+            
+            // Update the feedback display
+            updateFeedbackDisplay();
+        }
+
+        // Update the styling of a question item based on selections
+        function updateQuestionStyling(index) {
+            const questionDiv = document.getElementById(`question-${index}`);
+            const correctChecked = document.getElementById(`correct-${index}`).checked;
+            const incorrectChecked = document.getElementById(`incorrect-${index}`).checked;
+            
+            // Remove all styling classes
+            questionDiv.classList.remove('correct', 'incorrect', 'partial-correct');
+            
+            // Apply appropriate styling based on selections
+            if (correctChecked && !incorrectChecked) {
+                questionDiv.classList.add('correct');
+            } else if (!correctChecked && incorrectChecked) {
+                questionDiv.classList.add('incorrect');
+            } else if (correctChecked && incorrectChecked) {
+                questionDiv.classList.add('partial-correct');
+            }
+        }
+
+        // Save the feedback when the user clicks outside the textarea
+        function saveFeedback(index, feedbackType) {
+            const feedbackTextarea = document.getElementById(`${feedbackType}-feedback-${index}`);
+            const feedback = feedbackTextarea.value;
+            
+            // Save the feedback to the questionsData array
+            questionsData[index].feedback[feedbackType] = feedback;
+            
+            // Update feedback display for all questions
+            updateFeedbackDisplay();
+        }
+
+        // Calculate total points and display all selected feedback
+        function updateFeedbackDisplay() {
+            let totalPoints = 0;
+            let feedbackContent = '';
+            const scoresTable = document.getElementById('scores-table');
+            const selectedFeedback = document.getElementById('selected-feedback');
+            const feedbackDisplay = document.getElementById('feedback-display');
+
+            // Clear previous individual scores
+            scoresTable.innerHTML = `
+                <div class="div-table-row div-table-header">
+                    <div class="div-table-col">Question</div>
+                    <div class="div-table-col">Score</div>
+                </div>
+            `;
+
+            // Remove any existing color classes from feedback display
+            feedbackDisplay.classList.remove('correct', 'incorrect', 'partial');
+
+            let correctCount = 0;
+            let incorrectCount = 0;
+            let partialCount = 0;
+
+            questionsData.forEach((questionData, index) => {
+                const correctChecked = document.getElementById(`correct-${index}`).checked;
+                const incorrectChecked = document.getElementById(`incorrect-${index}`).checked;
+                
+                // Extract question text without the "Q {#}:" prefix
+                const questionText = questionData.question.split(':').slice(1).join(':').trim();
+                
+                let score = 0;
+                let feedbackText = '';
+                
+                // Determine score and feedback based on selections
+                if (correctChecked && !incorrectChecked) {
+                    // Only "What you did well" selected - full credit
+                    score = 1;
+                    correctCount++;
+                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat you did well\n${questionData.feedback.correct}`;
+                } else if (!correctChecked && incorrectChecked) {
+                    // Only "What needs improvement" selected - half credit
+                    score = 0.5;
+                    incorrectCount++;
+                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat needs improvement\n${questionData.feedback.incorrect}`;
+                } else if (correctChecked && incorrectChecked) {
+                    // Both selected - partial credit (0.50)
+                    score = 0.50;
+                    partialCount++;
+                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat you did well\n${questionData.feedback.correct}\n\nWhat needs improvement\n${questionData.feedback.incorrect}`;
+                } else {
+                    // Neither selected - no credit
+                    score = 0;
+                }
+
+                // Update score for the question
+                scores[index] = score;
+                totalPoints += score;
+
+                // Add to feedback content if there's a score
+                if (score > 0) {
+                    feedbackContent += feedbackText + '\n\n';
+                }
+
+                // Add score row to the table
+                const scoreRow = document.createElement('div');
+                scoreRow.className = 'div-table-row';
+                if (score === 1) {
+                    scoreRow.classList.add('score-correct');
+                } else if (score === 0.75) {
+                    scoreRow.classList.add('score-partial');
+                } else if (score === 0.5) {
+                    scoreRow.classList.add('score-incorrect');
+                }
+                
+                scoreRow.innerHTML = `
+                    <div class="div-table-col">Question ${index + 1}</div>
+                    <div class="div-table-col">${score}</div>
+                `;
+                scoresTable.appendChild(scoreRow);
+            });
+
+            // Set background color for feedback display based on selections
+            if (correctCount > 0 && incorrectCount === 0 && partialCount === 0) {
+                feedbackDisplay.classList.add('correct');
+            } else if (incorrectCount > 0 && correctCount === 0 && partialCount === 0) {
+                feedbackDisplay.classList.add('incorrect');
+            } else if (partialCount > 0) {
+                feedbackDisplay.classList.add('partial');
+            }
+
+            // Add total points row
+            const totalRow = document.createElement('div');
+            totalRow.className = 'div-table-row';
+            totalRow.innerHTML = `
+                <div class="div-table-col"><strong>Total</strong></div>
+                <div class="div-table-col"><strong>${totalPoints.toFixed(2)} / ${questionsData.length}</strong></div>
+            `;
+            scoresTable.appendChild(totalRow);
+
+            // Update selected feedback display only if not manually edited
+            if (!feedbackEdited) {
+                selectedFeedback.value = feedbackContent;
+            }
+
+            // Display total points
+            const totalPointsDisplay = document.getElementById('total-points');
+            totalPointsDisplay.textContent = `Total Points: ${totalPoints.toFixed(2)} / ${questionsData.length}`;
+        }
+
+        // Reset the feedback display to show all selected feedback
+        function resetFeedbackDisplay() {
+            feedbackEdited = false;
+            updateFeedbackDisplay();
+            const resetButton = document.getElementById("resetFeedbackButton");
+            resetButton.innerHTML = "Feedback Reset!";
+            resetButton.style.background = '#4CAF50';
+            setTimeout(() => {
+                resetButton.innerHTML = "Reset Feedback Display";
+                resetButton.style.background = '#4CAF50';
+            }, 2000);
+        }
+
+        // Copy all feedback to clipboard
+        function copyFeedback() {
+            const selectedFeedback = document.getElementById('selected-feedback');
+            const feedbackContent = selectedFeedback.value;
+
+            const textArea = document.createElement('textarea');
+            textArea.value = feedbackContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            const copyButton = document.getElementById("copyButton");
+            copyButton.innerHTML = "Copied!";
+            copyButton.style.background = '#EE4B2B';
+            setTimeout(() => {
+                copyButton.innerHTML = "Copy All Feedback";
+                copyButton.style.background = '#4CAF50';
+            }, 2000);
+        }
+
+        // Copy scores to clipboard in tab-separated format
+        function copyScores() {
+            let scoresContent = scores.join('\t'); // Tab-separated values
+
+            const textArea = document.createElement('textarea');
+            textArea.value = scoresContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            const copyScoresButton = document.getElementById("copyScoresButton");
+            copyScoresButton.innerHTML = "Copied!";
+            copyScoresButton.style.background = '#EE4B2B';
+            setTimeout(() => {
+                copyScoresButton.innerHTML = "Copy Scores";
+                copyScoresButton.style.background = '#4CAF50';
+            }, 2000);
+        }
+
+        // Reset all feedback, scores, and selections to the default stage
+        function resetAll() {
+            questionsData = [...defaultQuestionsData]; // Reset to default data
+            scores = [0, 0, 0, 0, 0, 0, 0]; // Reset scores
+            feedbackEdited = false; // Reset edit flag
+            
+            // Uncheck all checkboxes and hide feedback sections
+            for (let i = 0; i < questionsData.length; i++) {
+                document.getElementById(`correct-${i}`).checked = false;
+                document.getElementById(`incorrect-${i}`).checked = false;
+                document.getElementById(`correct-feedback-section-${i}`).classList.add('hidden');
+                document.getElementById(`incorrect-feedback-section-${i}`).classList.add('hidden');
+                
+                // Reset question styling
+                const questionDiv = document.getElementById(`question-${i}`);
+                questionDiv.classList.remove('correct', 'incorrect', 'partial-correct');
+            }
+            
+            // Reset feedback display background
+            document.getElementById('feedback-display').classList.remove('correct', 'incorrect', 'partial');
+
+            const copyButton = document.getElementById("copyButton");
+            copyButton.innerHTML = "Copy All Feedback";
+            copyButton.style.background = '#4CAF50';
+
+            const copyScoresButton = document.getElementById("copyScoresButton");
+            copyScoresButton.innerHTML = "Copy Scores";
+            copyScoresButton.style.background = '#4CAF50';
+
+            const resetButton = document.getElementById("resetFeedbackButton");
+            resetButton.innerHTML = "Reset Feedback Display";
+            resetButton.style.background = '#4CAF50';
+
+            // Clear feedback and scores display
+            updateFeedbackDisplay();
+        }
+
+        // Load default questions on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadQuestions(questionsData);
+
+            // Add event listener to track manual edits to feedback
+            document.getElementById('selected-feedback').addEventListener('input', function () {
+                feedbackEdited = true;
+            });
+        });
+    </script>
+</body>
+
+</html>

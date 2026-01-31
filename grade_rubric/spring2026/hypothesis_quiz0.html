@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Feedback System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .feedback-area {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .question-item {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            transition: background-color 0.3s;
+        }
+
+        .question-item.correct {
+            background-color: #e8f5e9;
+            /* Light green */
+        }
+
+        .question-item.incorrect {
+            background-color: #ffebee;
+            /* Light red */
+        }
+
+        .question-label {
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        #total-points {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .div-table {
+            display: table;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .div-table-row {
+            display: table-row;
+        }
+
+        .div-table-col {
+            display: table-cell;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .div-table-header {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #feedback-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+        }
+
+        #selected-feedback {
+            white-space: pre-wrap;
+            /* Preserve line breaks */
+            width: 100%;
+            min-height: 150px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: white;
+            font-family: inherit;
+            font-size: inherit;
+        }
+
+        .score-correct {
+            background-color: #e8f5e9;
+            /* Light green */
+        }
+
+        .score-incorrect {
+            background-color: #ffebee;
+            /* Light red */
+        }
+
+        #feedback-display.correct {
+            background-color: #e8f5e9;
+            /* Light green */
+        }
+
+        #feedback-display.incorrect {
+            background-color: #ffebee;
+            /* Light red */
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Quiz Feedback System</h1>
+
+        <div id="questions-container"></div>
+
+        <div id="feedback-display" class="feedback-display">
+            <h3>Saved Feedback:</h3>
+
+            <!-- Div table for individual scores -->
+            <div class="div-table" id="scores-table">
+                <div class="div-table-row div-table-header">
+                    <div class="div-table-col">Question</div>
+                    <div class="div-table-col">Score</div>
+                </div>
+                <!-- Individual scores will be populated here -->
+            </div>
+
+            <p id="total-points"></p>
+
+            <!-- Display all selected feedback here -->
+            <div id="feedback-container">
+                <h4>All Selected Feedback (Editable):</h4>
+                <textarea id="selected-feedback" class="feedback-area"></textarea>
+            </div>
+
+            <button onclick="copyFeedback()" id="copyButton">Copy All Feedback</button>
+            <button onclick="copyScores()" id="copyScoresButton">Copy Scores</button>
+            <button onclick="resetFeedbackDisplay()" id="resetFeedbackButton">Reset Feedback Display</button>
+        </div>
+
+        <button onclick="resetAll()">Reset All</button>
+    </div>
+
+    <script>
+        const defaultQuestionsData = [
+            {
+                question: "Q 1: Authors, ICML scope/positioning, and Test of Time context",
+                feedback: {
+                    correct: "You have correctly identified the authors and provided some brief background of each and connected at least one to them with their notable work, such as Google DeepMind. You also tied their background to why the team is credible for this topic. ",
+                    incorrect: "You could have Googled the name of the authors to find more meaningful information."
+                },
+                points: 0
+            },
+            {
+                question: "Q 2: The gap Rule 6 lens",
+                feedback: {
+                    correct: "You provided a concise and testable claim tied to inputs mechanism and expected outcome. You wrote, \"...\" ",
+                    incorrect: "The gaps you listed is very vague. To strengthen your answer, you could have refer to the paper and taken some direct quotes from the authors."
+                },
+                points: 0
+            },
+            {
+                question: "Q 3: Paper hypothesis",
+                feedback: {
+                    correct: "You provided a concise and testable claim tied to inputs mechanism and expected outcome. You wrote \"...\"",
+                    incorrect: "Your have included vague or unfalsifiable statements that do not map to metrics or experiments. You needed to specify the measurable outcome and where it will be tested, and explain how the mechanism links to the expected effect. "
+                },
+                points: 0
+            },
+            {
+                question: "Q 4: Lookups with at least two peer reviewed citations",
+                feedback: {
+                    correct: "You named couple specific concepts you needed to study and cited peer reviewed sources",
+                    incorrect: "You needed to cite at least two peer-reviewed articles for this. Arxiv is not peer-reviewed venue."
+                },
+                points: 0
+            },
+            {
+                question: "Q 5: Limitations with reasoning",
+                feedback: {
+                    correct: "You identified at least one limitation and explained why it matters and under what conditions it appears.",
+                    incorrect: "You have listed limitations without providing rationale or supporting evidence."
+                },
+                points: 0
+            },
+            {
+                question: "Q 6: Next steps concise options grounded in reasoning ",
+                feedback: {
+                    correct: "You proposed at least two specific follow-up actions that directly address the findings or limitations.",
+                    incorrect: "Your suggestions were too generic and not tied to evidence or mechanisms. You should include evaluations on domain-shifted data or harder benchmarks, propose architectural or training changes for identified failure modes, and consider data curation, higher-frequency modeling, and robustness interventions. You also need to state the expected effect and how it will be tested."
+                },
+                points: 0
+            },
+            {
+                question: "Q 7: Your single hypothesis to investigate",
+                feedback: {
+                    correct: "You stated one testable hypothesis and provided a measurable outcome along with an evaluation plan.",
+                    incorrect: "Your work needs a clear goal statement, a baseline with an evaluation protocol, a motivating mechanism, and a defined threshold for support."
+                },
+                points: 0
+            }
+        ];
+
+        let questionsData = [...defaultQuestionsData]; // Copy of default data
+        let currentFeedbackTextarea = null;
+        let scores = [0, 0, 0, 0, 0, 0, 0, 0]; // Track scores for each question
+        let feedbackEdited = false; // Track if feedback has been manually edited
+
+        // Load questions into the DOM
+        function loadQuestions(questions) {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            questions.forEach((questionData, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-item';
+
+                questionDiv.innerHTML = `
+                    <label class="question-label">${questionData.question}</label>
+                    <input type="radio" name="question-${index}" value="correct" onclick="showFeedback(${index}, 'correct')"> Correct
+                    <input type="radio" name="question-${index}" value="incorrect" onclick="showFeedback(${index}, 'incorrect')"> Incorrect
+                    <textarea id="feedback-${index}" class="feedback-area hidden" onblur="saveFeedback(${index})"></textarea>
+                `;
+
+                container.appendChild(questionDiv);
+            });
+        }
+
+        // Show feedback for the selected radio button and hide the textarea for the other
+        function showFeedback(index, feedbackType) {
+            const feedbackTextarea = document.getElementById(`feedback-${index}`);
+            const questionDiv = feedbackTextarea.closest('.question-item');
+
+            // Remove any existing color classes
+            questionDiv.classList.remove('correct', 'incorrect');
+
+            // Add the appropriate color class
+            if (feedbackType === 'correct') {
+                questionDiv.classList.add('correct');
+            } else {
+                questionDiv.classList.add('incorrect');
+            }
+
+            feedbackTextarea.classList.remove('hidden');
+            feedbackTextarea.value = questionsData[index].feedback[feedbackType];
+            feedbackTextarea.setAttribute('data-feedback-type', feedbackType);
+
+            // If the user had previously selected another feedback field, save it
+            if (currentFeedbackTextarea && currentFeedbackTextarea !== feedbackTextarea) {
+                currentFeedbackTextarea.blur(); // Trigger blur event to save the previous feedback
+            }
+            currentFeedbackTextarea = feedbackTextarea;
+        }
+
+        // Save the feedback when the user clicks outside the textarea
+        function saveFeedback(index) {
+            const feedbackTextarea = document.getElementById(`feedback-${index}`);
+            const feedback = feedbackTextarea.value;
+            const feedbackType = feedbackTextarea.getAttribute('data-feedback-type');
+
+            // Save the feedback to the questionsData array
+            questionsData[index].feedback[feedbackType] = feedback;
+
+            // Hide the textarea
+            feedbackTextarea.classList.add('hidden');
+
+            // Update feedback display for all questions
+            updateFeedbackDisplay();
+        }
+
+        // Calculate total points and display all selected feedback
+        function updateFeedbackDisplay() {
+            let totalPoints = 0;
+            let feedbackContent = '';
+            const scoresTable = document.getElementById('scores-table');
+            const selectedFeedback = document.getElementById('selected-feedback');
+            const feedbackDisplay = document.getElementById('feedback-display');
+
+            // Clear previous individual scores
+            scoresTable.innerHTML = `
+                <div class="div-table-row div-table-header">
+                    <div class="div-table-col">Question</div>
+                    <div class="div-table-col">Score</div>
+                </div>
+            `;
+
+            // Remove any existing color classes from feedback display
+            feedbackDisplay.classList.remove('correct', 'incorrect');
+
+            let hasCorrect = false;
+            let hasIncorrect = false;
+
+            questionsData.forEach((questionData, index) => {
+                const correctRadio = document.querySelector(`input[name="question-${index}"][value="correct"]`);
+                const incorrectRadio = document.querySelector(`input[name="question-${index}"][value="incorrect"]`);
+
+                let score = 0;
+                let feedbackText = '';
+
+                // Extract question text without the "Q {#}:" prefix
+                const questionText = questionData.question.split(':').slice(1).join(':').trim();
+
+                if (correctRadio && correctRadio.checked) {
+                    score = 1;
+                    hasCorrect = true;
+                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat you did well\n${questionData.feedback.correct}`;
+                } else if (incorrectRadio && incorrectRadio.checked) {
+                    score = 0.5;
+                    hasIncorrect = true;
+                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat needs improvement\n${questionData.feedback.incorrect}`;
+                }
+
+                // Update score for the question
+                scores[index] = score;
+                totalPoints += score;
+
+                // Add to feedback content if there's a score
+                if (score > 0) {
+                    feedbackContent += feedbackText + '\n\n';
+                }
+
+                // Add score row to the table
+                const scoreRow = document.createElement('div');
+                scoreRow.className = 'div-table-row';
+                if (score === 1) {
+                    scoreRow.classList.add('score-correct');
+                } else if (score === 0.5) {
+                    scoreRow.classList.add('score-incorrect');
+                }
+                scoreRow.innerHTML = `
+                    <div class="div-table-col">Question ${index + 1}</div>
+                    <div class="div-table-col">${score}</div>
+                `;
+                scoresTable.appendChild(scoreRow);
+            });
+
+            // Set background color for feedback display based on selections
+            if (hasCorrect && hasIncorrect) {
+                // Mixed - no specific color
+            } else if (hasCorrect) {
+                feedbackDisplay.classList.add('correct');
+            } else if (hasIncorrect) {
+                feedbackDisplay.classList.add('incorrect');
+            }
+
+            // Add total points row
+            const totalRow = document.createElement('div');
+            totalRow.className = 'div-table-row';
+            totalRow.innerHTML = `
+                <div class="div-table-col">Total</div>
+                <div class="div-table-col">${totalPoints}</div>
+            `;
+            scoresTable.appendChild(totalRow);
+
+            // Update selected feedback display only if not manually edited
+            if (!feedbackEdited) {
+                selectedFeedback.value = feedbackContent;
+            }
+
+            // Display total points
+            const totalPointsDisplay = document.getElementById('total-points');
+            totalPointsDisplay.textContent = `Total Points: ${totalPoints}`;
+        }
+
+        // Reset the feedback display to show all selected feedback
+        function resetFeedbackDisplay() {
+            feedbackEdited = false;
+            updateFeedbackDisplay();
+            const resetButton = document.getElementById("resetFeedbackButton");
+            resetButton.innerHTML = "Feedback Reset!";
+            resetButton.style.background = '#4CAF50';
+            setTimeout(() => {
+                resetButton.innerHTML = "Reset Feedback Display";
+                resetButton.style.background = '#4CAF50';
+            }, 2000);
+        }
+
+        // Copy all feedback to clipboard
+        function copyFeedback() {
+            const selectedFeedback = document.getElementById('selected-feedback');
+            const feedbackContent = selectedFeedback.value;
+
+            const textArea = document.createElement('textarea');
+            textArea.value = feedbackContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            const copyButton = document.getElementById("copyButton");
+            copyButton.innerHTML = "Copied!";
+            copyButton.style.background = '#EE4B2B';
+            setTimeout(() => {
+                copyButton.innerHTML = "Copy All Feedback";
+                copyButton.style.background = '#4CAF50';
+            }, 2000);
+        }
+
+        // Copy scores to clipboard in tab-separated format
+        function copyScores() {
+            let scoresContent = scores.join('\t'); // Tab-separated values
+
+            const textArea = document.createElement('textarea');
+            textArea.value = scoresContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            const copyScoresButton = document.getElementById("copyScoresButton");
+            copyScoresButton.innerHTML = "Copied!";
+            copyScoresButton.style.background = '#EE4B2B';
+            setTimeout(() => {
+                copyScoresButton.innerHTML = "Copy Scores";
+                copyScoresButton.style.background = '#4CAF50';
+            }, 2000);
+        }
+
+        // Reset all feedback, scores, and selections to the default stage
+        function resetAll() {
+            questionsData = [...defaultQuestionsData]; // Reset to default data
+            scores = [0, 0, 0, 0, 0, 0, 0, 0]; // Reset scores
+            feedbackEdited = false; // Reset edit flag
+            loadQuestions(questionsData); // Reload questions
+
+            // Reset all question backgrounds
+            document.querySelectorAll('.question-item').forEach(item => {
+                item.classList.remove('correct', 'incorrect');
+            });
+
+            // Reset feedback display background
+            document.getElementById('feedback-display').classList.remove('correct', 'incorrect');
+
+            const copyButton = document.getElementById("copyButton");
+            copyButton.innerHTML = "Copy All Feedback";
+            copyButton.style.background = '#4CAF50';
+
+            const copyScoresButton = document.getElementById("copyScoresButton");
+            copyScoresButton.innerHTML = "Copy Scores";
+            copyScoresButton.style.background = '#4CAF50';
+
+            const resetButton = document.getElementById("resetFeedbackButton");
+            resetButton.innerHTML = "Reset Feedback Display";
+            resetButton.style.background = '#4CAF50';
+
+            // Clear feedback and scores display
+            updateFeedbackDisplay();
+        }
+
+        // Load default questions on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadQuestions(questionsData);
+
+            // Add event listener to track manual edits to feedback
+            document.getElementById('selected-feedback').addEventListener('input', function () {
+                feedbackEdited = true;
+            });
+        });
+    </script>
+</body>
+
+</html>

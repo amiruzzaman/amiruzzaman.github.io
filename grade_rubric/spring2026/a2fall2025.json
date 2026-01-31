@@ -1,0 +1,246 @@
+{
+  "part1": {
+    "title": "Requirements",
+    "problems": [
+      [
+        {
+          "yes": "You have provided your DOCSTRING file, and provided instructions to run your code.",
+          "no": "You did not provide a DOCSTRING file and instructions to run your code.",
+          "point": 2
+        },
+        {
+          "yes": "You have used Overleaf and LaTeX for your report.",
+          "no": "You did not use Overleaf and LaTeX for your report.",
+          "point": 2
+        },
+        {
+          "yes": "You have provided the exact commit hash for your GitHub.",
+          "no": "You did not provide commit hash for your GitHub for us to consider.",
+          "point": 2
+        },
+        {
+          "yes": "Your report is a PDF document.",
+          "no": "Your report is not a PDF document.",
+          "point": 1
+        },
+        {
+          "yes": "Great job! Your report met the page limit requirement. Keep up the concise and focused writing.",
+          "no": "Your report exceeded the 8-page limit. For future reports, please aim to keep it within the required length by focusing on key points and being concise.",
+          "point": 1
+        },
+        {
+          "yes": "Your graphs/figures are readable. Good job!",
+          "no": "Your figures/graphs are not readable, it requires us to zoom while we are trying to read the graphs/figures.",
+          "point": 1
+        },
+        {
+          "yes": "You have used proper reference style in your report.",
+          "no": "You did not follow the proper reference style for your report. You could have consistently follow either APA, MLA or IEEE reference style.",
+          "point": 1
+        }
+      ]
+    ]
+  },
+  "part2": {
+    "title": "Hypothesis",
+    "problems": [
+      [
+        {
+          "yes": "You clearly stated an explicit hypothesis, helping to establish a focused narrative for the report.",
+          "no": "You needed to state an explicit hypothesis for what you expect in the report.",
+          "point": 3
+        },
+        {
+          "yes": "You build your hypothesis using evidence from lecture, paper, or generally known theory.",
+          "no": "Your hypothesis is not grounded by evidence. You should have provided explicit evidence to support the claim of your hypothesis.",
+          "point": 2
+        },
+        {
+          "yes": "You followed up with the hypothesis in your discussion/conclusion.",
+          "no": "You cannot just state a hypothesis since it needs to follow through from a narrative perspective at the end of your report.",
+          "point": 2
+        },
+        {
+          "yes": "You have provided direct evidence to support whether your hypothesis has been met.",
+          "no": "You didn't provide direct evidence to support whether your hypothesis has been met.",
+          "point": 3
+        }
+      ]
+    ]
+  },
+  "part3": {
+    "title": "Later Layers RO",
+    "problems": [
+      [
+        {
+          "yes": "You provided full, reproducible disclosures for Randomized Hill Climbing.",
+          "no": "We did not find complete disclosures for Randomized Hill Climbing (restart policy, step size schedule, perturbation operator, etc.).",
+          "point": 2
+        },
+        {
+          "yes": "You provided full, reproducible disclosures for Simulated Annealing.",
+          "no": "We did not find complete disclosures for Simulated Annealing (initial temperature, cooling schedule, perturbation operator, etc.).",
+          "point": 2
+        },
+        {
+          "yes": "You provided full, reproducible disclosures for Genetic Algorithm.",
+          "no": "We did not find complete disclosures for Genetic Algorithm (population size, selection method, crossover operator, mutation rate, etc.).",
+          "point": 2
+        },
+        {
+          "yes": "You maintained equal function evaluation budgets across all algorithms and provided proper budget accounting.",
+          "no": "You did not maintain equal function evaluation budgets across algorithms or failed to provide proper budget accounting.",
+          "point": 4
+        },
+        {
+          "yes": "You provided progress and diagnostics with best-so-far objective curves and failure rates.",
+          "no": "We did not find progress curves with readable captions or failure rate reporting.",
+          "point": 3
+        },
+        {
+          "yes": "You used layer-aware perturbation and variation design with proper bounds and constraints.",
+          "no": "We did not find evidence of layer-aware proposal scales or consistent bounds across algorithms.",
+          "point": 3
+        },
+        {
+          "yes": "You clearly stated initialization policy and used consistent warm starts across algorithms.",
+          "no": "We did not find clear initialization policy or consistent warm starts across algorithms.",
+          "point": 2
+        },
+        {
+          "yes": "You provided results table with winner callout and mechanism-level explanation.",
+          "no": "We did not find comparison tables with clear winner identification and explanation.",
+          "point": 2
+        },
+        {
+          "yes": "You provided comparative discussion of Randomized Optimization efficacy with compute-aware analysis.",
+          "no": "Your report is missing focused discussion on Randomized Optimization efficacy relative to baseline methods.",
+          "point": 4
+        }
+      ]
+    ]
+  },
+  "part4": {
+    "title": "Adam Ablations",
+    "problems": [
+      [
+        {
+          "yes": "You covered all seven required optimizers with matched budgets.",
+          "no": "You did not cover all seven required optimizers or failed to match budgets across methods.",
+          "point": 5
+        },
+        {
+          "yes": "You defined validation loss threshold and reported time/steps to reach threshold.",
+          "no": "We did not find validation loss threshold definition or time/steps to threshold reporting.",
+          "point": 3
+        },
+        {
+          "yes": "You provided sensitivity heatmaps over (α,β₁) and (α,β₂) for Adam family methods.",
+          "no": "We did not find sensitivity heatmaps for Adam family methods.",
+          "point": 3
+        },
+        {
+          "yes": "You reported validation trajectories with median and interquartile range over multiple seeds.",
+          "no": "We did not find stability analysis with multiple seed reporting.",
+          "point": 3
+        },
+        {
+          "yes": "You provided training vs. validation curves and discussed generalization gap.",
+          "no": "We did not find generalization gap analysis with training vs. validation curves.",
+          "point": 3
+        },
+        {
+          "yes": "You provided proper budget accounting with gradient evaluation counts and wall clock time.",
+          "no": "We did not find complete budget accounting for each run.",
+          "point": 2
+        },
+        {
+          "yes": "You provided comprehensive comparative discussion integrating evidence across optimizers and datasets.",
+          "no": "Your report is missing focused synthesis comparing speed, performance, stability, and sensitivity.",
+          "point": 7
+        }
+      ]
+    ]
+  },
+  "part5": {
+    "title": "Regularization Study",
+    "problems": [
+      [
+        {
+          "yes": "You maintained optimizer scope discipline using only standard Adam with best Part 2 hyperparameters.",
+          "no": "You performed optimizer retuning or variant substitution in Part 3.",
+          "point": 1
+        },
+        {
+          "yes": "You attempted all five required regularizers.",
+          "no": "You did not attempt all five required regularizers.",
+          "point": 5
+        },
+        {
+          "yes": "You compared baseline vs. best single vs. best combination regularizers.",
+          "no": "We did not find comparison between baseline, best single, and best combination regularizers.",
+          "point": 5
+        },
+        {
+          "yes": "You provided precise disclosures of regularizer values, placements, and policies.",
+          "no": "We did not find exact regularizer values, placements, or policy summaries.",
+          "point": 4
+        },
+        {
+          "yes": "You provided high-quality analysis with evidence including dispersion measures.",
+          "no": "Your analysis lacked evidence with dispersion measures or paired per-seed deltas.",
+          "point": 6
+        },
+        {
+          "yes": "You provided regularization sweep and mechanism-level explanations.",
+          "no": "We did not find regularization sweep comparison or mechanism-level explanations.",
+          "point": 3
+        }
+      ]
+    ]
+  },
+  "part6": {
+    "title": "Conclusion",
+    "problems": [
+      [
+        {
+          "yes": "You explicitly discussed Type I and Type II errors and tied them to operating points.",
+          "no": "You did not discuss Type I and Type II errors or their relationship to operating points.",
+          "point": 1
+        },
+        {
+          "yes": "You presented at least three evidence-backed takeaways comparing algorithms and datasets.",
+          "no": "You presented fewer than three concrete takeaways comparing algorithms and datasets.",
+          "point": 2
+        },
+        {
+          "yes": "You connected results to course concepts (generalization, bias-variance, error metrics).",
+          "no": "You did not connect results to relevant course concepts.",
+          "point": 1
+        },
+        {
+          "yes": "You acknowledged limitations and named one concrete next step.",
+          "no": "You did not acknowledge limitations or name concrete next steps.",
+          "point": 1
+        },
+        {
+          "yes": "Your conclusion is consistent with reported figures/tables and cites them directly.",
+          "no": "Your conclusion contradicts reported results or fails to cite figures/tables.",
+          "point": 1
+        }
+      ]
+    ]
+  },
+  "part7": {
+    "title": "EC",
+    "problems": [
+      [
+        {
+          "yes": "You successfully implemented all three required components with proper budget limits and comprehensive analysis.",
+          "no": "Not applicable",
+          "point": 5
+        }
+      ]
+    ]
+  }
+}

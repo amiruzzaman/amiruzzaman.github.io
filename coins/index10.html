@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>..::Amir's Coin Collection::..</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="#">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    /* General Styles */
+    :root {
+      --primary-color: #3498db;
+      --primary-dark: #2980b9;
+      --secondary-color: #2c3e50;
+      --accent-color: #e74c3c;
+      --accent-light: #f39c12;
+      --light-color: #f8f9fa;
+      --dark-color: #343a40;
+      --text-color: #2c3e50;
+      --text-light: #f8f9fa;
+      --border-color: #dfe6e9;
+      --border-radius: 8px;
+      --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      --gold-color: #FFD700;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #dfe6e9 100%);
+      color: var(--text-color);
+      font-family: 'Montserrat', sans-serif;
+      margin: 0;
+      padding: 40px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+    }
+
+    /* Search Bar */
+    .search-bar {
+      width: 80%;
+      font-size: 16px;
+      padding: 16px 24px 16px 48px;
+      border: 1px solid var(--border-color);
+      margin: 20px 0;
+      background-color: white;
+      color: var(--text-color);
+      border-radius: var(--border-radius);
+      position: relative;
+      box-shadow: var(--box-shadow);
+    }
+
+    .search-bar::before {
+      content: '\f002';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      font-size: 16px;
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--secondary-color);
+    }
+
+    /* Table Container */
+    .table-container {
+      width: 80vw;
+      margin: 0 auto;
+      overflow-x: auto;
+      padding: 10px;
+    }
+
+    /* Table */
+    .table {
+      width: 100%;
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      border-collapse: collapse;
+      margin-top: 20px;
+      display: table;
+    }
+
+    /* Header Row */
+    .table th {
+      background-color: var(--secondary-color);
+      color: var(--text-light);
+      text-align: left;
+      font-weight: 600;
+      text-transform: uppercase;
+      padding: 14px 24px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .table th:hover {
+      background-color: var(--dark-color);
+    }
+
+    .table th i {
+      margin-left: 8px;
+      color: var(--gold-color);
+    }
+
+    /* Table Body Rows */
+    .table tbody tr {
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .table tbody tr:nth-child(odd) {
+      background-color: white;
+    }
+
+    .table tbody tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+
+    .table tbody tr:hover {
+      background-color: #e9ecef;
+    }
+
+    /* Table Cells */
+    .table td {
+      padding: 14px 24px;
+      color: var(--text-color);
+      text-align: left;
+      overflow-wrap: break-word;
+    }
+
+    /* Links in Cells */
+    .table td a {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+
+    .table td a:hover {
+      color: var(--primary-dark);
+      text-decoration: underline;
+    }
+
+    /* Summary Section */
+    .summary {
+      width: 80vw;
+      margin-top: 40px;
+      padding: 20px 40px;
+      background-color: var(--secondary-color);
+      color: var(--text-light);
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .summary p {
+      margin: 8px 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .summary i {
+      margin-right: 10px;
+      color: var(--gold-color);
+      width: 20px;
+      text-align: center;
+    }
+
+    /* Footer */
+    footer {
+      width: 80vw;
+      margin-top: 60px;
+      text-align: center;
+      font-size: 1.1em;
+      color: var(--secondary-color);
+      padding: 20px 40px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    footer a {
+      color: var(--primary-color);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+      color: var(--primary-dark);
+    }
+
+    /* Top Banner Styling */
+    .top-banner {
+      width: 80%;
+      height: 24vh;
+      background-color: var(--secondary-color);
+      color: var(--text-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3vw;
+      font-weight: bold;
+      overflow: hidden;
+      position: relative;
+      padding: 1rem;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      margin-bottom: 30px;
+    }
+
+    /* Collage Container inside Banner */
+    .collage-container {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      padding: 0.5rem;
+    }
+
+    /* Image Collage Item */
+    .collage-item {
+      position: absolute;
+      transform: rotate(calc(var(--rotation, 0) * 1deg)) translate(-50%, -50%);
+      z-index: calc(var(--z-index, 0));
+      padding: 0.25rem;
+      transition: var(--transition);
+    }
+
+    .collage-item img {
+      width: auto;
+      height: auto;
+      max-width: 15vw;
+      max-height: 15vw;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      border: 2px solid var(--gold-color);
+      transition: var(--transition);
+    }
+
+    .collage-item img:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      color: var(--secondary-color);
+      margin: 20px 0;
+      font-weight: 600;
+    }
+
+    /* Media Queries for Responsiveness */
+    @media (max-width: 768px) {
+
+      .table-container,
+      .summary,
+      footer,
+      .top-banner {
+        width: 95vw;
+      }
+
+      .table {
+        display: block;
+        width: 100%;
+      }
+
+      .table tbody tr {
+        display: flex;
+        flex-direction: column;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .table td,
+      .table th {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 12px;
+      }
+
+      .table th {
+        font-size: 14px;
+      }
+
+      .summary {
+        padding: 16px;
+      }
+
+      footer {
+        padding: 16px;
+      }
+
+      .collage-item img {
+        max-width: 20vw;
+        max-height: 20vw;
+      }
+    }
+  </style>
+  <style>
+    .new-badge {
+      display: inline-block;
+      margin-left: 8px;
+      background: #e74c3c;
+      color: #fff;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-weight: bold;
+      vertical-align: middle;
+      animation: blink 1.2s infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.4;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="top-banner">
+    <div class="collage-container" id="collageContainer">
+    </div>
+  </div>
+
+  <h1><i class="fas fa-coins"></i> Coin Collection</h1>
+
+  <div>
+    <input type="text" id="search-input" class="search-bar"
+      placeholder="Search by country, currency, donor, year, note, or size">
+    <div class="table-container">
+      <table class="table" id="data-table">
+        <thead>
+          <tr>
+            <th data-key="country"><i class="fas fa-globe"></i> Country</th>
+            <th data-key="currency_type"><i class="fas fa-money-bill-wave"></i> Currency Type</th>
+            <th data-key="donor_name"><i class="fas fa-user"></i> Donor Name</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div id="summary-container" class="summary"></div>
+  </div>
+
+  <footer>
+    <p><i class="far fa-copyright"></i> 2025 Amiruzzaman coin collection. All rights reserved. |
+      <a href="privacy.html" target="_blank"><i class="fas fa-lock"></i> Privacy Policy</a>
+    </p>
+  </footer>
+
+  <script>
+    let originalData = [];
+    let combinedData = [];
+    let isAscending = true;
+    let lastSortedColumn = null;
+
+    // Fetch and process data
+    fetch('images/coins.json')
+      .then(response => response.json())
+      .then(data => {
+        originalData = data;
+
+        // Find latest timestamp country
+        const validTimestampData = data.filter(item => item.timestamp);
+        const latestEntry = validTimestampData.reduce((latest, item) => {
+          return new Date(item.timestamp) > new Date(latest.timestamp) ? item : latest;
+        });
+
+        window.latestCountry = latestEntry.country; // expose globally
+
+        combinedData = combineData(originalData);
+
+        // DEFAULT SORT A-Z
+        combinedData.sort((a, b) => a.country.localeCompare(b.country));
+
+        renderTable(combinedData);
+        renderSummary(originalData);
+      })
+      .catch(error => console.error('Error fetching JSON:', error));
+
+    // Combine duplicate countries (only those with images)
+    function combineData(data) {
+      const result = [];
+      const countryMap = new Map();
+
+      data.forEach(item => {
+        // Skip items without images
+        if (!item.image || item.image.trim() === "") return;
+
+        if (!countryMap.has(item.country)) {
+          // If country doesn't exist, add it to the map and result array
+          const newItem = {
+            ...item
+          };
+          newItem.currency_type = [item.currency_type];
+          newItem.donor_name = [item.donor_name];
+          countryMap.set(item.country, newItem);
+          result.push(newItem);
+        } else {
+          // If country exists, update the merged data
+          const existing = countryMap.get(item.country);
+          if (existing.currency_type.indexOf(item.currency_type) === -1) {
+            existing.currency_type.push(item.currency_type);
+          }
+          if (existing.donor_name.indexOf(item.donor_name) === -1) {
+            existing.donor_name.push(item.donor_name);
+          }
+        }
+      });
+      // Format the combined data back into strings for rendering
+      result.forEach(item => {
+        item.currency_type = item.currency_type.join(', ');
+        item.donor_name = item.donor_name.join(', ');
+      });
+      return result;
+    }
+
+    function swapCoinAndBill(input) {
+      if (input === "coin, paper-bill") {
+        return "paper-bill, coin";
+      }
+      return input;
+    }
+
+    // Render the table
+    function renderTable(data) {
+      const tbody = document.querySelector('#data-table tbody');
+      tbody.innerHTML = '';
+      data.forEach(row => {
+        const isLatest = (row.country === window.latestCountry);
+
+        const latestBadge = isLatest ? `<span class="new-badge">NEW</span>` : "";
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+      <td><a href="display.html?country=${encodeURIComponent(row.country)}"><i class="fas fa-search"></i> ${row.country}</a> ${latestBadge}</td>
+      <td><i class="${row.currency_type.includes('coin') ? 'fas fa-coins' : 'fas fa-money-bill-alt'}"></i> ${swapCoinAndBill(row.currency_type)}</td>
+      <td><i class="fas fa-user-tie"></i> ${row.donor_name}</td>
+    `;
+        tbody.appendChild(tr);
+      });
+    }
+
+
+    // Replace the existing renderSummary with this one
+    function renderSummary(data) {
+      const summary = document.getElementById('summary-container');
+
+      // Filter out countries with empty image fields
+      const countriesWithImages = new Set(
+        data
+          .filter(item => item.image && item.image.trim() !== "")
+          .map(item => item.country)
+      );
+
+      // Per-category: count each country at most once (only those with images)
+      const paperBillCountries = new Set();
+      const coinCountries = new Set();
+      const antiqueCountries = new Set();
+
+      data.forEach(item => {
+        // Skip items without images
+        if (!item.image || item.image.trim() === "") return;
+
+        const country = item.country;
+        if (!country) return;
+
+        // normalize currency_type -> array of tokens
+        const types = String(item.currency_type || '')
+          .toLowerCase()
+          .replace(/[-_]/g, ' ')       // "paper-bill" -> "paper bill"
+          .split(',')
+          .map(s => s.trim())
+          .filter(Boolean);
+
+        const hasPaperBill = types.some(t =>
+          t === 'paper bill' || t === 'banknote' || t === 'bank note' || t === 'paper note' || t === 'paper bills'
+        );
+        const hasCoin = types.some(t => t === 'coin' || t === 'coins');
+        const hasAntique = types.some(t => t === 'antique' || t === 'antiques');
+
+        if (hasPaperBill) paperBillCountries.add(country);
+        if (hasCoin) coinCountries.add(country);
+        if (hasAntique) antiqueCountries.add(country);
+      });
+
+      summary.innerHTML = `
+    <p><i class="fas fa-globe-americas"></i> Number of Countries: ${countriesWithImages.size}</p>
+    <p><i class="fas fa-money-bill-alt"></i> Number of Paper Bills: ${paperBillCountries.size}</p>
+    <p><i class="fas fa-coins"></i> Number of Coins: ${coinCountries.size}</p>
+    <p><i class="fas fa-history"></i> Number of Antiques: ${antiqueCountries.size}</p>
+  `;
+    }
+
+    // Add search functionality
+    document.getElementById('search-input').addEventListener('input', event => {
+      const query = event.target.value.toLowerCase();
+      const filteredData = originalData.filter(item => {
+        return (
+          item.country.toLowerCase().includes(query) ||
+          item.currency_type.toLowerCase().includes(query) ||
+          item.donor_name.toLowerCase().includes(query) ||
+          (item.note && item.note.toLowerCase().includes(query)) ||
+          (item.size && item.size.toLowerCase().includes(query)) ||
+          (item.year && item.year.toString().includes(query))
+        );
+      });
+      renderTable(combineData(filteredData));
+    });
+
+    // Add sorting functionality
+    document.querySelectorAll('#data-table th').forEach(th => {
+      th.addEventListener('click', () => {
+        const key = th.dataset.key;
+        const sortedData = [...combinedData].sort((a, b) => {
+          if (a[key] < b[key]) return isAscending ? -1 : 1;
+          if (a[key] > b[key]) return isAscending ? 1 : -1;
+          return 0;
+        });
+        isAscending = key === lastSortedColumn ? !isAscending : true;
+        lastSortedColumn = key;
+        renderTable(sortedData);
+
+        // Update sort indicator
+        document.querySelectorAll('#data-table th i.fa-sort').forEach(icon => {
+          icon.className = 'fas fa-sort';
+        });
+        const sortIcon = th.querySelector('i');
+        sortIcon.className = isAscending ? 'fas fa-sort-up' : 'fas fa-sort-down';
+      });
+    });
+
+    /*---------------------collage-----------------------*/
+    // prevent right click
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const collageContainer = document.getElementById('collageContainer');
+      const jsonFilePath = 'images/coins.json';
+
+      // Fetch JSON file and generate collage
+      fetch(jsonFilePath)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Failed to load JSON file');
+          }
+          return response.json();
+        })
+        .then((data) => {
+          data.forEach((item, index) => {
+            const { country, image } = item;
+
+            // Skip items with no image (null, undefined, or empty string)
+            if (!image || image.trim() === "") return;
+
+            // Create a collage item div
+            const collageItem = document.createElement('div');
+            collageItem.className = 'collage-item';
+
+            // Random positions within the banner
+            const randomX = Math.random() * 100;
+            const randomY = Math.random() * 100;
+
+            // Random rotation angle and z-index
+            collageItem.style.setProperty('--rotation', Math.floor(Math.random() * 20) - 10);
+            collageItem.style.setProperty('--z-index', index);
+
+            // Position the collage item
+            collageItem.style.left = `${randomX}%`;
+            collageItem.style.top = `${randomY}%`;
+
+            // Create a link element
+            const linkElement = document.createElement('a');
+            linkElement.href = `display.html?country=${country}`;
+
+            // Create an image element
+            const imgElement = document.createElement('img');
+            const formattedCountry = country
+              .toLowerCase()
+              .split(" ")
+              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(" ");
+
+            imgElement.src = `images/${formattedCountry}/${image}`;
+            imgElement.alt = `${country} image`;
+            imgElement.loading = "lazy";
+
+            // Append the image to the link
+            linkElement.appendChild(imgElement);
+
+            // Append the link to the collage item
+            collageItem.appendChild(linkElement);
+
+            // Append the collage item to the collage container
+            collageContainer.appendChild(collageItem);
+          });
+        })
+        .catch((error) => {
+          collageContainer.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+        });
+    });
+    /*-------------------end collage---------------------*/
+  </script>
+</body>
+
+</html>

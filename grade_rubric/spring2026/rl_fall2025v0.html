@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grading Rubric Tool</title>
+    <style>
+        /* All existing CSS styles remain exactly the same */
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --text-color: #2c3e50;
+            --text-light: #7f8c8d;
+            --border-color: #dfe6e9;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #f8fafc;
+            min-height: 100vh;
+            padding-top: 40px;
+        }
+
+        .progress-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .progress-container {
+            flex-grow: 1;
+            height: 20px;
+            background-color: #f1f1f1;
+            border-radius: 10px;
+            margin: 0 15px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-weight: bold;
+            min-width: 100px;
+            text-align: right;
+        }
+
+        #container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        #notice {
+            width: 90%;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 15px 20px;
+            background-color: var(--light-color);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 6px;
+            color: var(--text-color);
+            font-size: 15px;
+            box-shadow: 0 2px 5px var(--shadow-color);
+        }
+
+        table {
+            width: 100%;
+            max-width: 800px;
+            margin: 25px auto;
+            border-collapse: collapse;
+            box-shadow: 0 2px 10px var(--shadow-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 14px 18px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--secondary-color);
+            color: white;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        .part-container {
+            margin-bottom: 35px;
+            padding: 25px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--primary-color);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .part-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .problem-container {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+
+        h3 {
+            color: var(--secondary-color);
+            margin-top: 0;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        h4 {
+            color: var(--dark-color);
+            margin: 20px 0 15px 0;
+            font-size: 1.25em;
+            font-weight: 500;
+        }
+
+        .item-container {
+            display: flex;
+            margin-bottom: 15px;
+            align-items: center;
+            background: white;
+            padding: 12px 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .item-container:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        .item-yes,
+        .item-no {
+            padding: 12px 15px;
+            margin: 0 8px;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            flex: 1;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .item-yes {
+            background-color: #f8fafc;
+            color: var(--success-color);
+        }
+
+        .item-no {
+            background-color: #f8fafc;
+            color: var(--danger-color);
+        }
+
+        .item-yes.selected {
+            background-color: #e3f9e5;
+            border-color: #c8e6c9;
+            color: var(--success-color);
+        }
+
+        .item-no.selected {
+            background-color: #ffebee;
+            border-color: #ffcdd2;
+            color: var(--danger-color);
+        }
+
+        .item-score {
+            width: 60px;
+            text-align: center;
+            font-weight: bold;
+            margin-left: 15px;
+            font-size: 16px;
+            padding: 10px;
+            background: #f8fafc;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s;
+        }
+
+        .item-yes.selected+.item-no+.item-score {
+            color: var(--success-color);
+        }
+
+        .item-no.selected+.item-score {
+            color: var(--danger-color);
+        }
+
+        .sub-total-score {
+            font-weight: bold;
+            font-size: 17px;
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: var(--light-color);
+            border-radius: 8px;
+            text-align: right;
+            color: var(--dark-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .total-score-display {
+            position: fixed;
+            top: 50px;
+            right: 20px;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 14px 22px;
+            border-radius: 8px;
+            font-weight: bold;
+            z-index: 1001;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .save-button {
+            padding: 14px 28px 14px 20px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 30px 0 15px 0;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .save-button::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.3) 100%);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .save-button:hover::before {
+            transform: translateX(100%);
+        }
+
+        .save-button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .save-button.ready {
+            background-color: var(--success-color);
+        }
+
+        .save-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .save-button svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .reset-button {
+            padding: 14px 28px 14px 20px;
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px auto;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reset-button::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.3) 100%);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .reset-button:hover::before {
+            transform: translateX(100%);
+        }
+
+        .reset-button:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .reset-button svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .item-textareabox {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            min-height: 120px;
+            margin: 15px 0;
+            transition: all 0.2s;
+            resize: vertical;
+        }
+
+        .item-textareabox:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        input[type="text"] {
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            width: 100%;
+            max-width: 400px;
+            margin: 8px 0 20px 0;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        input[type="checkbox"] {
+            margin-right: 10px;
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary-color);
+        }
+
+        #paraID {
+            width: 100%;
+            max-width: 1000px;
+            margin: 25px auto;
+            padding: 18px;
+            font-size: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            resize: vertical;
+            min-height: 180px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            background-color: #f8fafc;
+            line-height: 1.5;
+        }
+
+        #edit-box {
+            visibility: hidden;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 500px;
+            max-width: 90vw;
+            border-radius: 12px;
+        }
+
+        #edit-text {
+            width: 100%;
+            min-height: 140px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            resize: vertical;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        #edit-text:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        #edit-score-container {
+            margin-bottom: 25px;
+        }
+
+        #edit-score-container label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        #edit-score {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        #edit-score:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        #edit-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        #edit-buttons button {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            flex: 1;
+            min-width: 100px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        #edit-clear {
+            background-color: var(--light-color);
+            color: var(--text-color);
+        }
+
+        #edit-clear:hover {
+            background-color: #dfe6e9;
+        }
+
+        #edit-zero {
+            background-color: #fef9e7;
+            color: #b7950b;
+        }
+
+        #edit-zero:hover {
+            background-color: #fcf3cf;
+        }
+
+        #edit-cancel {
+            background-color: #fdedec;
+            color: var(--danger-color);
+        }
+
+        #edit-cancel:hover {
+            background-color: #fadbd8;
+        }
+
+        #edit-save {
+            background-color: #e8f8f5;
+            color: var(--success-color);
+        }
+
+        #edit-save:hover {
+            background-color: #d1f2eb;
+        }
+
+        #overlay {
+            visibility: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            backdrop-filter: blur(4px);
+        }
+
+        .unselected-highlight {
+            animation: pulse 2s infinite;
+            position: relative;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 152, 0, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 152, 0, 0);
+            }
+        }
+
+        .copy-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px auto;
+            max-width: 1000px;
+            justify-content: center;
+        }
+
+        .copy-button {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .copy-button:hover {
+            background-color: #2980b9;
+            transform: translateY(-1px);
+        }
+
+        .copy-button:active {
+            transform: translateY(0);
+        }
+
+        .copy-button svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        /* NEW: Copy notification message styles */
+        .copy-message {
+            width: 100%;
+            padding: 12px 20px;
+            border-radius: 6px;
+            margin: 10px auto;
+            max-width: 1000px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .copy-feedback-message {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+            border-left: 4px solid #2196f3;
+        }
+
+        .copy-scores-message {
+            background-color: #e8f5e9;
+            color: #1b5e20;
+            border-left: 4px solid #4caf50;
+        }
+
+        .copy-error-message {
+            background-color: #ffebee;
+            color: #b71c1c;
+            border-left: 4px solid #f44336;
+        }
+
+        div:not([class]) {
+            font-weight: 500;
+            color: var(--dark-color);
+            margin-bottom: 8px;
+        }
+
+        .additional-comment-container {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px dashed var(--border-color);
+        }
+
+        .additional-comment-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .additional-comment-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            min-height: 80px;
+            resize: vertical;
+            transition: all 0.2s;
+        }
+
+        .additional-comment-textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 60px;
+            }
+
+            .progress-header {
+                height: 60px;
+                flex-direction: column;
+                padding: 10px;
+            }
+
+            .progress-container {
+                width: 100%;
+                margin: 5px 0;
+            }
+
+            .progress-text {
+                text-align: center;
+                width: 100%;
+            }
+
+            #container {
+                width: 95%;
+                padding: 20px;
+                margin: 15px auto;
+            }
+
+            .part-container {
+                padding: 20px;
+            }
+
+            .item-container {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 15px;
+            }
+
+            .item-yes,
+            .item-no {
+                margin: 8px 0;
+                padding: 12px;
+            }
+
+            .item-score {
+                margin: 10px 0 0 0;
+                width: auto;
+                text-align: center;
+            }
+
+            .total-score-display {
+                top: 65px;
+                right: 10px;
+                font-size: 14px;
+                padding: 10px 15px;
+            }
+
+            #edit-box {
+                width: 90%;
+                padding: 20px;
+            }
+
+            #edit-buttons button {
+                min-width: 80px;
+                padding: 10px 12px;
+            }
+
+            .copy-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .save-button,
+            .reset-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #notice {
+                font-size: 14px;
+                padding: 12px;
+            }
+
+            .save-button,
+            .reset-button {
+                padding: 12px 20px 12px 16px;
+                font-size: 15px;
+            }
+
+            .part-container {
+                padding: 15px;
+            }
+        }
+    </style>
+    <link rel="shortcut icon" href="#">
+</head>
+
+<body>
+    <!-- Progress header -->
+    <div class="progress-header">
+        <div>Grading Progress:</div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="progress-text" id="progressText">0% (0/105)</div>
+    </div>
+
+    <!-- Total score display -->
+    <div class="total-score-display" id="totalScoreDisplay">Total: 0/105</div>
+
+    <!-- Instructions notice -->
+    <p id="notice">Click to select "Yes" (green) or "No" (red) for each item. Double-click any item to edit. "No"
+        selections can be adjusted.</p>
+
+    <!-- Main content container -->
+    <div id="container"></div>
+
+    <!-- Edit modal (hidden by default) -->
+    <div id="edit-box">
+        <textarea id="edit-text"></textarea>
+        <div id="edit-score-container">
+            <label for="edit-score">Score (Max: <span id="edit-max-score">0</span>)</label>
+            <input id="edit-score" type="number" min="0" />
+        </div>
+        <div id="edit-buttons">
+            <button id="edit-clear">Clear Comment</button>
+            <button id="edit-zero">Set to 0</button>
+            <button id="edit-cancel">Cancel</button>
+            <button id="edit-save">Save</button>
+        </div>
+    </div>
+
+    <!-- Modal overlay -->
+    <div id="overlay"></div>
+    <p id="notice" style="height: 30px;"></p>
+
+    <script>
+        // Global variables
+        let selectedItem = null;
+        const maxPossibleScore = 105; // Fixed total points
+        let saveButton;
+        let resetButton;
+        let subTotalMaxScores = []; // Array to store max subtotal points
+        let subTotalEarnedScores = []; // Array to store earned subtotal points
+        let allItems = []; // Track all rubric items
+        let jsonData = {}; // Store the JSON data for copying
+        let originalItemTexts = {}; // Store original item texts for reset
+        let additionalComments = {}; // Store additional comments for each part
+
+        /**
+         * Updates the progress bar based on points earned
+         */
+        function updateProgressBar() {
+            let totalConsidered = 0;
+
+            // Add max points for any selected item (Yes or No)
+            allItems.forEach(item => {
+                if (item.yes.classList.contains('selected') || item.no.classList.contains('selected')) {
+                    totalConsidered += parseInt(item.maxScore); // always add max score regardless of earned score
+                }
+            });
+
+            // Calculate percentage
+            const percentage = Math.round((totalConsidered / maxPossibleScore) * 100);
+
+            // Update progress bar and text
+            document.getElementById("progressBar").style.width = percentage + "%";
+            document.getElementById("progressText").textContent = `${percentage}% (${totalConsidered}/${maxPossibleScore})`;
+        }
+
+        /**
+         * Resets all selections and scores
+         */
+        function resetAllSelections() {
+            allItems.forEach(item => {
+                item.yes.classList.remove('selected');
+                item.no.classList.remove('selected');
+                item.score.textContent = '0';
+                item.score.style.color = '';
+
+                // Reset to original text
+                if (originalItemTexts[item.yes.id]) {
+                    item.yes.textContent = originalItemTexts[item.yes.id];
+                }
+                if (originalItemTexts[item.no.id]) {
+                    item.no.textContent = originalItemTexts[item.no.id];
+                }
+            });
+
+            // Reset subtotal displays
+            document.querySelectorAll('.sub-total-score').forEach(div => {
+                const index = div.getAttribute('data-index');
+                div.textContent = `0/${subTotalMaxScores[index]}`;
+            });
+
+            // Reset total display
+            document.getElementById('totalScoreDisplay').textContent = `Total: 0/${maxPossibleScore}`;
+
+            // Reset progress bar
+            updateProgressBar();
+
+            // Reset output area
+            document.getElementById('paraID').value = '';
+
+            // Reset save button
+            updateSaveButtonState();
+
+            // Remove any existing table
+            const tableDiv = document.getElementById('json-table');
+            if (tableDiv) {
+                tableDiv.remove();
+            }
+
+            // Reset copy messages
+            document.querySelectorAll('.copy-message').forEach(msg => {
+                msg.style.display = 'none';
+            });
+
+            // Reset overall comment
+            const commentInput = document.querySelector('.item-textareabox');
+            if (commentInput) {
+                commentInput.value = "Overall: Your assignment report is off to a good start. There are a few sections that require more attention. Please refer to the comment/feedback above for further details.";
+            }
+
+            // Reset filename
+            const fileNameInput = document.querySelector('input[type="text"]');
+            if (fileNameInput) {
+                fileNameInput.value = '';
+            }
+
+            // Reset checkbox
+            const checkbox = document.getElementById('additional-comment');
+            if (checkbox) {
+                checkbox.checked = false;
+            }
+
+            // Reset additional comments
+            document.querySelectorAll('.additional-comment-textarea').forEach(textarea => {
+                textarea.value = '';
+            });
+            additionalComments = {};
+        }
+
+        /**
+         * Checks if all items are selected (either Yes or No)
+         */
+        function allItemsSelected() {
+            return allItems.every(item => {
+                return item.yes.classList.contains('selected') ||
+                    item.no.classList.contains('selected');
+            });
+        }
+
+        /**
+         * Finds and scrolls to first unselected item
+         */
+        function findAndScrollToFirstUnselected() {
+            for (let item of allItems) {
+                if (!item.yes.classList.contains('selected') &&
+                    !item.no.classList.contains('selected')) {
+                    item.container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    item.container.classList.add('unselected-highlight');
+                    setTimeout(() => {
+                        item.container.classList.remove('unselected-highlight');
+                    }, 2000);
+                    return item.container;
+                }
+            }
+            return null;
+        }
+
+        /**
+         * Updates the save button state
+         */
+        function updateSaveButtonState() {
+            if (saveButton) {
+                const allSelected = allItemsSelected();
+                saveButton.disabled = !allSelected;
+                if (allSelected) {
+                    saveButton.classList.add('ready');
+                    saveButton.title = "All items selected - ready to save!";
+                } else {
+                    saveButton.classList.remove('ready');
+                    saveButton.title = "Please select all items (Yes or No) before saving";
+                }
+            }
+        }
+
+        /**
+         * Updates all scores while maintaining fixed subtotals
+         */
+        function updateAllScores() {
+            let totalEarned = 0;
+            subTotalEarnedScores.fill(0);
+
+            // Group items by their problem container
+            const problemContainers = document.querySelectorAll('.problem-container');
+
+            problemContainers.forEach((problem, index) => {
+                let problemEarned = 0;
+                const items = problem.querySelectorAll('.item-container');
+
+                items.forEach(item => {
+                    const score = parseInt(item.querySelector('.item-score').textContent);
+                    problemEarned += score;
+                });
+
+                // Update subtotal display
+                const subTotalDiv = problem.querySelector('.sub-total-score');
+                subTotalDiv.textContent = `${problemEarned}/${subTotalMaxScores[index]}`;
+
+                // Update arrays
+                subTotalEarnedScores[index] = problemEarned;
+                totalEarned += problemEarned;
+            });
+
+            // Update total display
+            document.getElementById('totalScoreDisplay').textContent = `Total: ${totalEarned}/${maxPossibleScore}`;
+
+            // Update progress bar
+            updateProgressBar();
+        }
+
+        /**
+         * Opens the edit modal for any selected item
+         */
+        function editItem() {
+            const editBox = document.getElementById('edit-box');
+            const editText = document.getElementById('edit-text');
+            const editScore = document.getElementById('edit-score');
+            const editMaxScore = document.getElementById('edit-max-score');
+            const overlay = document.getElementById('overlay');
+
+            // Get max score based on item type
+            const maxScore = selectedItem.classList.contains('item-yes') ?
+                selectedItem.getAttribute('data-max') :
+                selectedItem.closest('.item-container').querySelector('.item-yes').getAttribute('data-max');
+
+            // Populate modal
+            editText.value = selectedItem.textContent;
+            editScore.value = selectedItem.closest('.item-container').querySelector('.item-score').textContent;
+            editScore.max = maxScore;
+            editMaxScore.textContent = maxScore;
+
+            // Show modal
+            editBox.style.visibility = 'visible';
+            overlay.style.visibility = 'visible';
+        }
+
+        /**
+         * Shows a copy message
+         */
+        function showCopyMessage(type, success) {
+            // Remove any existing messages of the same type
+            const existingMessages = document.querySelectorAll(`.copy-${type}-message`);
+            existingMessages.forEach(msg => msg.remove());
+
+            // Create new message
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `copy-message copy-${type}-message`;
+
+            if (success) {
+                messageDiv.textContent = type === 'feedback'
+                    ? '✓ Feedback copied to clipboard!'
+                    : '✓ Scores copied to clipboard!';
+            } else {
+                messageDiv.className += ' copy-error-message';
+                messageDiv.textContent = type === 'feedback'
+                    ? '✗ Failed to copy feedback. Please try again.'
+                    : '✗ Failed to copy scores. Please try again.';
+            }
+
+            messageDiv.style.display = 'block';
+
+            // Add to container right above the buttons
+            const buttonsDiv = document.querySelector('.copy-buttons');
+            if (buttonsDiv) {
+                buttonsDiv.parentNode.insertBefore(messageDiv, buttonsDiv);
+            }
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                messageDiv.style.opacity = '0';
+                setTimeout(() => {
+                    if (messageDiv.parentNode) {
+                        messageDiv.remove();
+                    }
+                }, 500);
+            }, 3000);
+        }
+
+        /**
+         * Renders a problem section with full edit capabilities
+         */
+        function renderProblem(container, problems, groupIndex) {
+            let problemMax = 0;
+
+            // Calculate maximum points for this problem
+            problems.forEach(problem => {
+                problemMax += parseInt(problem.point);
+            });
+
+            // Store in array
+            subTotalMaxScores[groupIndex] = problemMax;
+            subTotalEarnedScores[groupIndex] = 0;
+
+            // Create subtotal display
+            const subTotalDiv = document.createElement('div');
+            subTotalDiv.classList.add('sub-total-score');
+            subTotalDiv.setAttribute('data-index', groupIndex);
+            subTotalDiv.textContent = `0/${problemMax}`;
+            container.appendChild(subTotalDiv);
+
+            // Create each rubric item
+            problems.forEach((problem, index) => {
+                const { yes, no, point } = problem;
+
+                const itemContainer = document.createElement('div');
+                itemContainer.classList.add('item-container');
+
+                // Yes option
+                const itemYes = document.createElement('div');
+                itemYes.classList.add('item-yes');
+                itemYes.setAttribute('data-max', point);
+                itemYes.textContent = yes;
+                itemYes.id = `item-yes-${groupIndex}-${index}`;
+
+                // Store original text
+                originalItemTexts[itemYes.id] = yes;
+
+                // No option
+                const itemNo = document.createElement('div');
+                itemNo.classList.add('item-no');
+                itemNo.setAttribute('data-max', point);
+                itemNo.textContent = no;
+                itemNo.id = `item-no-${groupIndex}-${index}`;
+
+                // Store original text
+                originalItemTexts[itemNo.id] = no;
+
+                // Score display
+                const itemScore = document.createElement('div');
+                itemScore.classList.add('item-score');
+                itemScore.textContent = '0';
+
+                // Track this item
+                const itemData = {
+                    container: itemContainer,
+                    yes: itemYes,
+                    no: itemNo,
+                    score: itemScore,
+                    maxScore: point
+                };
+                allItems.push(itemData);
+
+                // Click handlers for both options
+                [itemYes, itemNo].forEach(item => {
+                    item.addEventListener('click', function () {
+                        if (!this.classList.contains('selected')) {
+                            // Select this option
+                            this.classList.add('selected');
+                            const otherOption = this.classList.contains('item-yes') ? itemNo : itemYes;
+                            otherOption.classList.remove('selected');
+
+                            // Set default score
+                            itemScore.textContent = this.classList.contains('item-yes') ?
+                                this.getAttribute('data-max') :
+                                '0';
+
+                            // Update colors
+                            itemScore.style.color = this.classList.contains('item-yes') ? 'green' : 'red';
+
+                            updateAllScores();
+                            updateSaveButtonState();
+                        }
+                    });
+
+                    // Double-click to edit any item
+                    item.addEventListener('dblclick', function () {
+                        selectedItem = this;
+                        editItem();
+                    });
+                });
+
+                itemContainer.append(itemYes, itemNo, itemScore);
+                container.appendChild(itemContainer);
+            });
+        }
+
+        /**
+         * Creates a table from JSON data showing only earned scores without "Total: " text
+         */
+        function createTableFromJSON(data) {
+            jsonData = data; // Store the data for copying
+            const container = document.getElementById('container');
+            let tableDiv = document.getElementById('json-table');
+
+            if (!tableDiv) {
+                tableDiv = document.createElement('div');
+                tableDiv.id = 'json-table';
+                container.appendChild(tableDiv);
+            }
+
+            tableDiv.innerHTML = '';
+
+            const table = document.createElement('table');
+            const headerRow = table.insertRow();
+
+            // Create headers (excluding 'Total' from headers)
+            const headers = Object.keys(data).filter(header => header !== 'Total');
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                headerRow.appendChild(th);
+            });
+
+            // Add Total header
+            const totalTh = document.createElement('th');
+            totalTh.textContent = 'Total';
+            headerRow.appendChild(totalTh);
+
+            // Create data row
+            const dataRow = table.insertRow();
+
+            // Add earned scores for each part
+            headers.forEach(header => {
+                const td = document.createElement('td');
+                // Get just the earned score number
+                const scoreValue = typeof data[header] === 'object'
+                    ? data[header]['Total']
+                    : data[header];
+                // Remove any "Total: " text if present
+                const cleanScore = scoreValue.toString().replace('Total: ', '');
+                td.textContent = cleanScore;
+                dataRow.appendChild(td);
+            });
+
+            // Add total score
+            const totalTd = document.createElement('td');
+            const totalScore = data['Total'].toString().replace('Total: ', '');
+            totalTd.textContent = totalScore;
+            dataRow.appendChild(totalTd);
+
+            tableDiv.appendChild(table);
+        }
+
+        /**
+         * Creates copy buttons for feedback and scores
+         */
+        function createCopyButtons() {
+            const container = document.getElementById('container');
+            const buttonsDiv = document.createElement('div');
+            buttonsDiv.className = 'copy-buttons';
+
+            // Copy feedback button
+            const copyFeedbackButton = document.createElement('button');
+            copyFeedbackButton.className = 'copy-button';
+            copyFeedbackButton.innerHTML = `
+                <svg viewBox="0 0 24 24">
+                    <path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"/>
+                </svg>
+                Copy Feedback
+            `;
+            copyFeedbackButton.addEventListener('click', copyFeedback);
+
+            // Copy scores button
+            const copyScoresButton = document.createElement('button');
+            copyScoresButton.className = 'copy-button';
+            copyScoresButton.innerHTML = `
+                <svg viewBox="0 0 24 24">
+                    <path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"/>
+                </svg>
+                Copy Scores
+            `;
+            copyScoresButton.addEventListener('click', copyScores);
+
+            buttonsDiv.append(copyFeedbackButton, copyScoresButton);
+            container.appendChild(buttonsDiv);
+        }
+
+        /**
+         * Copies the feedback text to clipboard
+         */
+        function copyFeedback() {
+            const feedbackText = document.getElementById('paraID').value;
+            if (!feedbackText) {
+                showCopyMessage('feedback', false);
+                return;
+            }
+
+            navigator.clipboard.writeText(feedbackText)
+                .then(() => {
+                    showCopyMessage('feedback', true);
+                })
+                .catch(err => {
+                    console.error('Failed to copy feedback: ', err);
+                    showCopyMessage('feedback', false);
+                });
+        }
+
+        /**
+         * Copies the scores in the requested format to clipboard
+         */
+        function copyScores() {
+            if (!jsonData || Object.keys(jsonData).length === 0) {
+                showCopyMessage('scores', false);
+                return;
+            }
+
+            // Get all part names except Total
+            const headers = Object.keys(jsonData).filter(header => header !== 'Total');
+
+            // Extract only the earned score for each part
+            const scores = headers.map(header => {
+                return typeof jsonData[header] === 'object'
+                    ? jsonData[header]['Total']
+                    : jsonData[header];
+            });
+
+            // DO NOT add total score – skip it completely
+            // (scores.push(jsonData['Total']) is intentionally removed)
+
+            // Format as tab-separated
+            const scoresText = scores.join('\t');
+
+            navigator.clipboard.writeText(scoresText)
+                .then(() => {
+                    showCopyMessage('scores', true);
+                })
+                .catch(err => {
+                    console.error('Failed to copy scores: ', err);
+                    showCopyMessage('scores', false);
+                });
+        }
+
+
+        const jsonFileName = 'rl_fall2025.json'; // Change this to match your actual JSON filename
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function () {
+            // Load rubric data
+            fetch(jsonFileName)
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('container');
+                    const parts = Object.keys(data);
+                    let groupIndex = 0;
+
+                    // Initialize arrays
+                    subTotalMaxScores = [];
+                    subTotalEarnedScores = [];
+                    allItems = [];
+                    originalItemTexts = {};
+                    additionalComments = {};
+
+                    // Create each part section
+                    for (let part of parts) {
+                        const partContainer = document.createElement('div');
+                        partContainer.classList.add('part-container');
+
+                        // Part title
+                        const h3 = document.createElement('h3');
+                        h3.textContent = `${part}: ${data[part].title}`;
+                        partContainer.appendChild(h3);
+
+                        // Create problem containers
+                        const problems = data[part].problems;
+                        if (problems.length > 1) {
+                            // Multiple problems in this part
+                            for (let i = 0; i < problems.length; i++) {
+                                const problemContainer = document.createElement('div');
+                                problemContainer.classList.add('problem-container');
+
+                                // Problem title
+                                const h4 = document.createElement('h4');
+                                h4.textContent = `Problem ${i + 1}`;
+                                problemContainer.appendChild(h4);
+
+                                // Render problem items
+                                renderProblem(problemContainer, problems[i], groupIndex++);
+                                partContainer.appendChild(problemContainer);
+                            }
+                        } else {
+                            // Single problem in this part
+                            const problemContainer = document.createElement('div');
+                            problemContainer.classList.add('problem-container');
+                            renderProblem(problemContainer, problems[0], groupIndex++);
+                            partContainer.appendChild(problemContainer);
+                        }
+
+                        // Add additional comment section for each part
+                        const additionalCommentContainer = document.createElement('div');
+                        additionalCommentContainer.classList.add('additional-comment-container');
+
+                        const additionalCommentLabel = document.createElement('label');
+                        additionalCommentLabel.classList.add('additional-comment-label');
+                        additionalCommentLabel.textContent = 'Additional comments for this section (optional):';
+                        additionalCommentContainer.appendChild(additionalCommentLabel);
+
+                        const additionalCommentTextarea = document.createElement('textarea');
+                        additionalCommentTextarea.classList.add('additional-comment-textarea');
+                        additionalCommentTextarea.placeholder = 'Enter any additional comments for this section here...';
+                        additionalCommentContainer.appendChild(additionalCommentTextarea);
+
+                        // Store the comment when user types
+                        additionalCommentTextarea.addEventListener('input', function () {
+                            additionalComments[part] = this.value;
+                        });
+
+                        partContainer.appendChild(additionalCommentContainer);
+                        container.appendChild(partContainer);
+                    }
+
+                    // Create save button
+                    saveButton = document.createElement('button');
+                    saveButton.classList.add('save-button');
+                    saveButton.innerHTML = `
+                        <svg viewBox="0 0 24 24">
+                            <path d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z"/>
+                        </svg>
+                        Save
+                    `;
+                    saveButton.disabled = true;
+
+                    // Create reset button
+                    resetButton = document.createElement('button');
+                    resetButton.classList.add('reset-button');
+                    resetButton.innerHTML = `
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12,16.5C9.5,16.5 7.5,14.5 7.5,12C7.5,9.5 9.5,7.5 12,7.5C14.5,7.5 16.5,9.5 16.5,12C16.5,14.5 14.5,16.5 12,16.5M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M19.23,15.26L20.5,16.5L16.5,20.5L15.23,19.23L17.73,16.73L15,14L17,12L19.23,15.26Z"/>
+                        </svg>
+                        Reset All
+                    `;
+                    resetButton.addEventListener('click', resetAllSelections);
+
+                    // Overall comment
+                    const commentDiv = document.createElement('div');
+                    commentDiv.textContent = "Overall";
+                    const textAreaDiv = document.createElement('div');
+                    const commentInput = document.createElement('textarea');
+                    commentInput.classList.add('item-textareabox');
+                    commentInput.value = "Overall: Your assignment report is off to a good start. There are a few sections that require more attention. Please refer to the comment/feedback above for further details.";
+                    textAreaDiv.appendChild(commentInput);
+
+                    // Filename input
+                    const fileNameLabel = document.createElement('div');
+                    fileNameLabel.textContent = "Filename";
+                    const fileNameInput = document.createElement('input');
+                    fileNameInput.type = "text";
+
+                    // Output area
+                    const outputDiv = document.createElement('div');
+                    outputDiv.style.height = '100px';
+                    outputDiv.textContent = 'Final grade by item will appear below';
+                    outputDiv.style.color = "green";
+
+                    // Results textarea
+                    const resultsTextarea = document.createElement('textarea');
+                    resultsTextarea.id = "paraID";
+
+                    // Additional comment checkbox
+                    const checkboxDiv = document.createElement('div');
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = 'additional-comment';
+                    const checkboxLabel = document.createElement('label');
+                    checkboxLabel.htmlFor = 'additional-comment';
+                    checkboxLabel.textContent = 'Include additional comment about page management!';
+                    checkboxDiv.append(checkbox, checkboxLabel);
+
+                    // Save button handler
+                    saveButton.addEventListener('click', function () {
+                        if (!allItemsSelected()) {
+                            alert('Please select all items before saving.');
+                            findAndScrollToFirstUnselected();
+                            return;
+                        }
+
+                        let outputText = '';
+                        let totalScore = 0;
+                        jsonData = {};
+                        let partIndex = 0;
+
+                        // Process each part
+                        const partContainers = document.querySelectorAll('.part-container');
+                        partContainers.forEach(part => {
+                            const partTitle = part.querySelector('h3').textContent;
+                            let partScore = 0;
+                            const positiveComments = [];
+                            const negativeComments = [];
+
+                            // Initialize jsonData for this part
+                            jsonData[partTitle] = {};
+
+                            // Process each problem in this part
+                            const problems = part.querySelectorAll('.problem-container');
+                            problems.forEach(problem => {
+                                const problemTitle = problem.querySelector('h4')?.textContent || '';
+
+                                let problemScore = 0;
+                                const items = problem.querySelectorAll('.item-container');
+                                items.forEach(item => {
+                                    const itemYes = item.querySelector('.item-yes');
+                                    const itemNo = item.querySelector('.item-no');
+                                    const itemScore = item.querySelector('.item-score').textContent;
+                                    const isPositive = itemYes.classList.contains('selected');
+                                    const commentText = isPositive ? itemYes.textContent : itemNo.textContent;
+
+                                    // Categorize comments
+                                    if (isPositive) {
+                                        positiveComments.push(commentText);
+                                    } else {
+                                        negativeComments.push(commentText);
+                                    }
+
+                                    problemScore += parseInt(itemScore);
+                                });
+
+                                partScore += problemScore;
+                                jsonData[partTitle][problemTitle || 'main'] = problemScore;
+                            });
+
+                            // Get the part's max score
+                            const partMaxScore = subTotalMaxScores[partIndex];
+
+                            // Add part header with score
+                            outputText += `## ${partTitle} (${partScore}/${partMaxScore})\n\n`;
+
+                            // Add positive comments section if there are any
+                            if (positiveComments.length > 0) {
+                                outputText += "What you did well\n\n";
+                                positiveComments.forEach(comment => {
+                                    outputText += `- ${comment}\n`;
+                                });
+                                outputText += "\n";
+                            }
+
+                            // Add negative comments section if there are any
+                            if (negativeComments.length > 0) {
+                                outputText += "What needs improvement\n\n";
+                                negativeComments.forEach(comment => {
+                                    outputText += `- ${comment}\n`;
+                                });
+                                outputText += "\n";
+                            }
+
+                            // Add additional comments if provided
+                            const partKey = partTitle.split(':')[0].trim();
+                            if (additionalComments[partKey] && additionalComments[partKey].trim() !== '') {
+                                outputText += "Additional comment\n";
+                                const comments = additionalComments[partKey].trim().split('\n');
+                                comments.forEach(comment => {
+                                    if (comment.trim() !== '') {
+                                        outputText += `- ${comment.trim()}\n`;
+                                    }
+                                });
+                                outputText += "\n";
+                            }
+
+                            // Add spacing between sections
+                            outputText += "\n";
+
+                            totalScore += partScore;
+                            // Store just the earned score number for the table
+                            jsonData[partTitle]['Total'] = partScore.toString();
+                            partIndex++;
+                        });
+
+                        // Add overall comment
+                        outputText += `${commentInput.value}\n`;
+                        if (checkbox.checked) {
+                            outputText += "You could have done a better job in managing your empty spaces in your report, which would have allowed you to add more discussions on your results and comparisons.\n";
+                        }
+
+                        // Add total score
+                        outputText += `\nTotal score: ${totalScore}/${maxPossibleScore}\n`;
+                        jsonData['Total'] = totalScore.toString();
+
+                        // Update output
+                        resultsTextarea.value = outputText;
+                        createTableFromJSON(jsonData);
+
+                        // Create copy buttons if they don't exist
+                        if (!document.querySelector('.copy-buttons')) {
+                            createCopyButtons();
+                        }
+                    });
+
+                    // Assemble the UI
+                    container.append(
+                        checkboxDiv,
+                        commentDiv,
+                        textAreaDiv,
+                        fileNameLabel,
+                        fileNameInput,
+                        document.createElement('br'),
+                        saveButton,
+                        document.createElement('br'),
+                        outputDiv,
+                        resultsTextarea
+                    );
+
+                    // Create copy buttons (will be hidden until save)
+                    createCopyButtons();
+
+                    // Add reset button after copy buttons
+                    container.appendChild(resetButton);
+
+                    // Initialize button state
+                    updateSaveButtonState();
+                });
+
+            // Edit modal handlers
+            document.getElementById('edit-save').addEventListener('click', function () {
+                const editBox = document.getElementById('edit-box');
+                const editText = document.getElementById('edit-text');
+                const editScore = document.getElementById('edit-score');
+                const maxScore = parseInt(document.getElementById('edit-score').max);
+                const overlay = document.getElementById('overlay');
+
+                // Validate score
+                const score = parseInt(editScore.value);
+                if (isNaN(score) || score < 0 || score > maxScore) {
+                    alert(`Please enter a score between 0 and ${maxScore}`);
+                    return;
+                }
+
+                // Update the selected item
+                selectedItem.textContent = editText.value;
+                const itemContainer = selectedItem.closest('.item-container');
+                const itemScoreElement = itemContainer.querySelector('.item-score');
+                itemScoreElement.textContent = score;
+
+                // Update styling based on selection
+                if (selectedItem.classList.contains('item-yes')) {
+                    selectedItem.classList.add('selected');
+                    itemContainer.querySelector('.item-no').classList.remove('selected');
+                    itemScoreElement.style.color = 'green';
+                } else {
+                    selectedItem.classList.add('selected');
+                    itemContainer.querySelector('.item-yes').classList.remove('selected');
+                    itemScoreElement.style.color = 'red';
+                }
+
+                // Close modal and update
+                editBox.style.visibility = 'hidden';
+                overlay.style.visibility = 'hidden';
+                updateAllScores();
+                updateSaveButtonState();
+            });
+
+            document.getElementById('edit-cancel').addEventListener('click', function () {
+                document.getElementById('edit-box').style.visibility = 'hidden';
+                document.getElementById('overlay').style.visibility = 'hidden';
+            });
+
+            document.getElementById('edit-clear').addEventListener('click', function () {
+                document.getElementById('edit-text').value = '';
+            });
+
+            document.getElementById('edit-zero').addEventListener('click', function () {
+                document.getElementById('edit-score').value = '0';
+            });
+        });
+
+        // Update page title based on JSON filename
+        const baseName = jsonFileName.replace('.json', '')
+            .replace(/_/g, ' ')
+            .replace(/\b\w/g, l => l.toUpperCase());
+
+        document.title = `Grading Rubric Tool - ${baseName}`;
+
+        const progressHeader = document.querySelector('.progress-header div:first-child');
+        if (progressHeader) {
+            progressHeader.textContent = `Grading: ${baseName}`;
+        }
+    </script>
+</body>
+
+</html>

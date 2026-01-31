@@ -360,259 +360,312 @@
     </p>
   </footer>
 
-  <script>
-    let originalData = [];
-    let combinedData = [];
-    let isAscending = true;
-    let lastSortedColumn = null;
+<script>
+  let originalData = [];
+  let combinedData = [];
+  let isAscending = true;
+  let lastSortedColumn = null;
 
-    // Fetch and process data
-    fetch('images/coins.json')
-      .then(response => response.json())
-      .then(data => {
-        originalData = data;
+  // Fetch and process data
+  fetch('images/coins.json')
+    .then(response => response.json())
+    .then(data => {
+      originalData = data;
 
-        // Find latest timestamp country
-        const validTimestampData = data.filter(item => item.timestamp);
-        const latestEntry = validTimestampData.reduce((latest, item) => {
-          return new Date(item.timestamp) > new Date(latest.timestamp) ? item : latest;
+      // Find all countries with the latest timestamp
+      const validTimestampData = data.filter(item => item.timestamp);
+      if (validTimestampData.length > 0) {
+        // Find the latest date
+        const latestDate = validTimestampData.reduce((latest, item) => {
+          const itemDate = new Date(item.timestamp);
+          const latestDate = new Date(latest.timestamp);
+          return itemDate > latestDate ? item : latest;
         });
+        
+        // Get the latest timestamp
+        const latestTimestamp = new Date(latestDate.timestamp);
+        
+        // Find all countries with this latest timestamp
+        window.latestCountries = validTimestampData
+          .filter(item => {
+            const itemDate = new Date(item.timestamp);
+            return itemDate.getTime() === latestTimestamp.getTime();
+          })
+          .map(item => item.country);
+      } else {
+        window.latestCountries = [];
+      }
 
-        window.latestCountry = latestEntry.country; // expose globally
+      combinedData = combineData(originalData);
 
-        combinedData = combineData(originalData);
+      // DEFAULT SORT A-Z
+      combinedData.sort((a, b) => a.country.localeCompare(b.country));
 
-        // DEFAULT SORT A-Z
-        combinedData.sort((a, b) => a.country.localeCompare(b.country));
+      renderTable(combinedData);
+      renderSummary(originalData);
+    })
+    .catch(error => console.error('Error fetching JSON:', error));
 
-        renderTable(combinedData);
-        renderSummary(originalData);
-      })
-      .catch(error => console.error('Error fetching JSON:', error));
+  // Combine duplicate countries (only those with images)
+  function combineData(data) {
+    const result = [];
+    const countryMap = new Map();
 
-    // Combine duplicate countries (only those with images)
-    function combineData(data) {
-      const result = [];
-      const countryMap = new Map();
+    data.forEach(item => {
+      // Skip items without images
+      if (!item.image || item.image.trim() === "") return;
 
-      data.forEach(item => {
-        // Skip items without images
-        if (!item.image || item.image.trim() === "") return;
-
-        if (!countryMap.has(item.country)) {
-          // If country doesn't exist, add it to the map and result array
-          const newItem = {
-            ...item
-          };
-          newItem.currency_type = [item.currency_type];
-          newItem.donor_name = [item.donor_name];
-          countryMap.set(item.country, newItem);
-          result.push(newItem);
-        } else {
-          // If country exists, update the merged data
-          const existing = countryMap.get(item.country);
-          if (existing.currency_type.indexOf(item.currency_type) === -1) {
-            existing.currency_type.push(item.currency_type);
-          }
-          if (existing.donor_name.indexOf(item.donor_name) === -1) {
-            existing.donor_name.push(item.donor_name);
+      if (!countryMap.has(item.country)) {
+        // If country doesn't exist, add it to the map and result array
+        const newItem = {
+          ...item
+        };
+        newItem.currency_type = [item.currency_type];
+        newItem.donor_name = [item.donor_name];
+        // Store the original timestamp
+        newItem.original_timestamp = item.timestamp;
+        countryMap.set(item.country, newItem);
+        result.push(newItem);
+      } else {
+        // If country exists, update the merged data
+        const existing = countryMap.get(item.country);
+        if (existing.currency_type.indexOf(item.currency_type) === -1) {
+          existing.currency_type.push(item.currency_type);
+        }
+        if (existing.donor_name.indexOf(item.donor_name) === -1) {
+          existing.donor_name.push(item.donor_name);
+        }
+        // Update timestamp if this one is newer
+        if (item.timestamp) {
+          const existingTime = new Date(existing.original_timestamp || 0);
+          const newTime = new Date(item.timestamp);
+          if (newTime > existingTime) {
+            existing.original_timestamp = item.timestamp;
           }
         }
-      });
-      // Format the combined data back into strings for rendering
-      result.forEach(item => {
-        item.currency_type = item.currency_type.join(', ');
-        item.donor_name = item.donor_name.join(', ');
-      });
-      return result;
-    }
-
-    function swapCoinAndBill(input) {
-      if (input === "coin, paper-bill") {
-        return "paper-bill, coin";
       }
-      return input;
+    });
+    
+    // Format the combined data back into strings for rendering
+    result.forEach(item => {
+      item.currency_type = item.currency_type.join(', ');
+      item.donor_name = item.donor_name.join(', ');
+    });
+    
+    return result;
+  }
+
+  function swapCoinAndBill(input) {
+    if (input === "coin, paper-bill") {
+      return "paper-bill, coin";
     }
+    return input;
+  }
 
-    // Render the table
-    function renderTable(data) {
-      const tbody = document.querySelector('#data-table tbody');
-      tbody.innerHTML = '';
+  // Render the table
+  function renderTable(data) {
+    const tbody = document.querySelector('#data-table tbody');
+    tbody.innerHTML = '';
+    
+    // Find the latest timestamp from the combined data
+    const countriesWithTimestamps = data.filter(item => item.original_timestamp);
+    if (countriesWithTimestamps.length > 0) {
+      // Find the latest date in the combined data
+      const latestCombinedDate = countriesWithTimestamps.reduce((latest, item) => {
+        const itemDate = new Date(item.original_timestamp);
+        const latestDate = new Date(latest.original_timestamp);
+        return itemDate > latestDate ? item : latest;
+      });
+      
+      const latestTimestamp = new Date(latestCombinedDate.original_timestamp);
+      
+      // Now check each row against this latest timestamp
       data.forEach(row => {
-        const isLatest = (row.country === window.latestCountry);
-
+        const rowDate = row.original_timestamp ? new Date(row.original_timestamp) : null;
+        const isLatest = rowDate && rowDate.getTime() === latestTimestamp.getTime();
         const latestBadge = isLatest ? `<span class="new-badge">NEW</span>` : "";
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-      <td><a href="display.html?country=${encodeURIComponent(row.country)}"><i class="fas fa-search"></i> ${row.country}</a> ${latestBadge}</td>
-      <td><i class="${row.currency_type.includes('coin') ? 'fas fa-coins' : 'fas fa-money-bill-alt'}"></i> ${swapCoinAndBill(row.currency_type)}</td>
-      <td><i class="fas fa-user-tie"></i> ${row.donor_name}</td>
-    `;
+          <td><a href="display.html?country=${encodeURIComponent(row.country)}"><i class="fas fa-search"></i> ${row.country}</a> ${latestBadge}</td>
+          <td><i class="${row.currency_type.includes('coin') ? 'fas fa-coins' : 'fas fa-money-bill-alt'}"></i> ${swapCoinAndBill(row.currency_type)}</td>
+          <td><i class="fas fa-user-tie"></i> ${row.donor_name}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } else {
+      // No timestamps, render without badges
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><a href="display.html?country=${encodeURIComponent(row.country)}"><i class="fas fa-search"></i> ${row.country}</a></td>
+          <td><i class="${row.currency_type.includes('coin') ? 'fas fa-coins' : 'fas fa-money-bill-alt'}"></i> ${swapCoinAndBill(row.currency_type)}</td>
+          <td><i class="fas fa-user-tie"></i> ${row.donor_name}</td>
+        `;
         tbody.appendChild(tr);
       });
     }
+  }
 
+  // Render summary statistics
+  function renderSummary(data) {
+    const summary = document.getElementById('summary-container');
 
-    // Replace the existing renderSummary with this one
-    function renderSummary(data) {
-      const summary = document.getElementById('summary-container');
+    // Filter out countries with empty image fields
+    const countriesWithImages = new Set(
+      data
+        .filter(item => item.image && item.image.trim() !== "")
+        .map(item => item.country)
+    );
 
-      // Filter out countries with empty image fields
-      const countriesWithImages = new Set(
-        data
-          .filter(item => item.image && item.image.trim() !== "")
-          .map(item => item.country)
+    // Per-category: count each country at most once (only those with images)
+    const paperBillCountries = new Set();
+    const coinCountries = new Set();
+    const antiqueCountries = new Set();
+
+    data.forEach(item => {
+      // Skip items without images
+      if (!item.image || item.image.trim() === "") return;
+
+      const country = item.country;
+      if (!country) return;
+
+      // normalize currency_type -> array of tokens
+      const types = String(item.currency_type || '')
+        .toLowerCase()
+        .replace(/[-_]/g, ' ')       // "paper-bill" -> "paper bill"
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      const hasPaperBill = types.some(t =>
+        t === 'paper bill' || t === 'banknote' || t === 'bank note' || t === 'paper note' || t === 'paper bills'
       );
+      const hasCoin = types.some(t => t === 'coin' || t === 'coins');
+      const hasAntique = types.some(t => t === 'antique' || t === 'antiques');
 
-      // Per-category: count each country at most once (only those with images)
-      const paperBillCountries = new Set();
-      const coinCountries = new Set();
-      const antiqueCountries = new Set();
-
-      data.forEach(item => {
-        // Skip items without images
-        if (!item.image || item.image.trim() === "") return;
-
-        const country = item.country;
-        if (!country) return;
-
-        // normalize currency_type -> array of tokens
-        const types = String(item.currency_type || '')
-          .toLowerCase()
-          .replace(/[-_]/g, ' ')       // "paper-bill" -> "paper bill"
-          .split(',')
-          .map(s => s.trim())
-          .filter(Boolean);
-
-        const hasPaperBill = types.some(t =>
-          t === 'paper bill' || t === 'banknote' || t === 'bank note' || t === 'paper note' || t === 'paper bills'
-        );
-        const hasCoin = types.some(t => t === 'coin' || t === 'coins');
-        const hasAntique = types.some(t => t === 'antique' || t === 'antiques');
-
-        if (hasPaperBill) paperBillCountries.add(country);
-        if (hasCoin) coinCountries.add(country);
-        if (hasAntique) antiqueCountries.add(country);
-      });
-
-      summary.innerHTML = `
-    <p><i class="fas fa-globe-americas"></i> Number of Countries: ${countriesWithImages.size}</p>
-    <p><i class="fas fa-money-bill-alt"></i> Number of Paper Bills: ${paperBillCountries.size}</p>
-    <p><i class="fas fa-coins"></i> Number of Coins: ${coinCountries.size}</p>
-    <p><i class="fas fa-history"></i> Number of Antiques: ${antiqueCountries.size}</p>
-  `;
-    }
-
-    // Add search functionality
-    document.getElementById('search-input').addEventListener('input', event => {
-      const query = event.target.value.toLowerCase();
-      const filteredData = originalData.filter(item => {
-        return (
-          item.country.toLowerCase().includes(query) ||
-          item.currency_type.toLowerCase().includes(query) ||
-          item.donor_name.toLowerCase().includes(query) ||
-          (item.note && item.note.toLowerCase().includes(query)) ||
-          (item.size && item.size.toLowerCase().includes(query)) ||
-          (item.year && item.year.toString().includes(query))
-        );
-      });
-      renderTable(combineData(filteredData));
+      if (hasPaperBill) paperBillCountries.add(country);
+      if (hasCoin) coinCountries.add(country);
+      if (hasAntique) antiqueCountries.add(country);
     });
 
-    // Add sorting functionality
-    document.querySelectorAll('#data-table th').forEach(th => {
-      th.addEventListener('click', () => {
-        const key = th.dataset.key;
-        const sortedData = [...combinedData].sort((a, b) => {
-          if (a[key] < b[key]) return isAscending ? -1 : 1;
-          if (a[key] > b[key]) return isAscending ? 1 : -1;
-          return 0;
-        });
-        isAscending = key === lastSortedColumn ? !isAscending : true;
-        lastSortedColumn = key;
-        renderTable(sortedData);
+    summary.innerHTML = `
+      <p><i class="fas fa-globe-americas"></i> Number of Countries: ${countriesWithImages.size}</p>
+      <p><i class="fas fa-money-bill-alt"></i> Number of Paper Bills: ${paperBillCountries.size}</p>
+      <p><i class="fas fa-coins"></i> Number of Coins: ${coinCountries.size}</p>
+      <p><i class="fas fa-history"></i> Number of Antiques: ${antiqueCountries.size}</p>
+    `;
+  }
 
-        // Update sort indicator
-        document.querySelectorAll('#data-table th i.fa-sort').forEach(icon => {
-          icon.className = 'fas fa-sort';
-        });
-        const sortIcon = th.querySelector('i');
-        sortIcon.className = isAscending ? 'fas fa-sort-up' : 'fas fa-sort-down';
+  // Add search functionality
+  document.getElementById('search-input').addEventListener('input', event => {
+    const query = event.target.value.toLowerCase();
+    const filteredData = originalData.filter(item => {
+      return (
+        item.country.toLowerCase().includes(query) ||
+        item.currency_type.toLowerCase().includes(query) ||
+        item.donor_name.toLowerCase().includes(query) ||
+        (item.note && item.note.toLowerCase().includes(query)) ||
+        (item.size && item.size.toLowerCase().includes(query)) ||
+        (item.year && item.year.toString().includes(query))
+      );
+    });
+    renderTable(combineData(filteredData));
+  });
+
+  // Add sorting functionality
+  document.querySelectorAll('#data-table th').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.key;
+      const sortedData = [...combinedData].sort((a, b) => {
+        if (a[key] < b[key]) return isAscending ? -1 : 1;
+        if (a[key] > b[key]) return isAscending ? 1 : -1;
+        return 0;
       });
+      isAscending = key === lastSortedColumn ? !isAscending : true;
+      lastSortedColumn = key;
+      renderTable(sortedData);
+
+      // Update sort indicator
+      document.querySelectorAll('#data-table th i.fa-sort').forEach(icon => {
+        icon.className = 'fas fa-sort';
+      });
+      const sortIcon = th.querySelector('i');
+      sortIcon.className = isAscending ? 'fas fa-sort-up' : 'fas fa-sort-down';
     });
+  });
 
-    /*---------------------collage-----------------------*/
-    // prevent right click
-    document.addEventListener('contextmenu', event => event.preventDefault());
+  /*---------------------collage-----------------------*/
+  // prevent right click
+  document.addEventListener('contextmenu', event => event.preventDefault());
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const collageContainer = document.getElementById('collageContainer');
-      const jsonFilePath = 'images/coins.json';
+  document.addEventListener('DOMContentLoaded', () => {
+    const collageContainer = document.getElementById('collageContainer');
+    const jsonFilePath = 'images/coins.json';
 
-      // Fetch JSON file and generate collage
-      fetch(jsonFilePath)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error('Failed to load JSON file');
-          }
-          return response.json();
-        })
-        .then((data) => {
-          data.forEach((item, index) => {
-            const { country, image } = item;
+    // Fetch JSON file and generate collage
+    fetch(jsonFilePath)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Failed to load JSON file');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        data.forEach((item, index) => {
+          const { country, image } = item;
 
-            // Skip items with no image (null, undefined, or empty string)
-            if (!image || image.trim() === "") return;
+          // Skip items with no image (null, undefined, or empty string)
+          if (!image || image.trim() === "") return;
 
-            // Create a collage item div
-            const collageItem = document.createElement('div');
-            collageItem.className = 'collage-item';
+          // Create a collage item div
+          const collageItem = document.createElement('div');
+          collageItem.className = 'collage-item';
 
-            // Random positions within the banner
-            const randomX = Math.random() * 100;
-            const randomY = Math.random() * 100;
+          // Random positions within the banner
+          const randomX = Math.random() * 100;
+          const randomY = Math.random() * 100;
 
-            // Random rotation angle and z-index
-            collageItem.style.setProperty('--rotation', Math.floor(Math.random() * 20) - 10);
-            collageItem.style.setProperty('--z-index', index);
+          // Random rotation angle and z-index
+          collageItem.style.setProperty('--rotation', Math.floor(Math.random() * 20) - 10);
+          collageItem.style.setProperty('--z-index', index);
 
-            // Position the collage item
-            collageItem.style.left = `${randomX}%`;
-            collageItem.style.top = `${randomY}%`;
+          // Position the collage item
+          collageItem.style.left = `${randomX}%`;
+          collageItem.style.top = `${randomY}%`;
 
-            // Create a link element
-            const linkElement = document.createElement('a');
-            linkElement.href = `display.html?country=${country}`;
+          // Create a link element
+          const linkElement = document.createElement('a');
+          linkElement.href = `display.html?country=${country}`;
 
-            // Create an image element
-            const imgElement = document.createElement('img');
-            const formattedCountry = country
-              .toLowerCase()
-              .split(" ")
-              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-              .join(" ");
+          // Create an image element
+          const imgElement = document.createElement('img');
+          const formattedCountry = country
+            .toLowerCase()
+            .split(" ")
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ");
 
-            imgElement.src = `images/${formattedCountry}/${image}`;
-            imgElement.alt = `${country} image`;
-            imgElement.loading = "lazy";
+          imgElement.src = `images/${formattedCountry}/${image}`;
+          imgElement.alt = `${country} image`;
+          imgElement.loading = "lazy";
 
-            // Append the image to the link
-            linkElement.appendChild(imgElement);
+          // Append the image to the link
+          linkElement.appendChild(imgElement);
 
-            // Append the link to the collage item
-            collageItem.appendChild(linkElement);
+          // Append the link to the collage item
+          collageItem.appendChild(linkElement);
 
-            // Append the collage item to the collage container
-            collageContainer.appendChild(collageItem);
-          });
-        })
-        .catch((error) => {
-          collageContainer.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+          // Append the collage item to the collage container
+          collageContainer.appendChild(collageItem);
         });
-    });
-    /*-------------------end collage---------------------*/
-  </script>
+      })
+      .catch((error) => {
+        collageContainer.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+      });
+  });
+  /*-------------------end collage---------------------*/
+</script>
 </body>
 
 </html>

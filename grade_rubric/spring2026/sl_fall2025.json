@@ -1,0 +1,372 @@
+{
+  "grading_rubric": {
+    "total_points": 100,
+    "extra_credit_points": 5,
+    "sections": [
+      {
+        "main_section": "1) Requirements ( /10)",
+        "positive_items": {
+          "points_available": 10,
+          "items": [
+            {
+              "description": "Overleaf + LaTeX used; final PDF submitted",
+              "points": 1
+            },
+            {
+              "description": "GitHub commit hash provided and resolves",
+              "points": 1
+            },
+            {
+              "description": "DOCSTRING-GTusername has runnable instructions (env/deps/entry point)",
+              "points": 2
+            },
+            {
+              "description": "Report length ≤ 8 pages (main text)",
+              "points": 1
+            },
+            {
+              "description": "Figures/text legible at 100% zoom (≤2 hard-to-read plots)",
+              "points": 2
+            },
+            {
+              "description": "References are consistent (MLA/APA/IEEE OK) and include ≥1 source beyond course material",
+              "points": 3
+            }
+          ]
+        },
+        "negative_items": {
+          "items": [
+            "Missing/invalid GitHub hash or repo not runnable from instructions",
+            "Instructions live only on GitHub, not in the DOCSTRING (deduct)",
+            ">8 pages; note for future reports",
+            "≥3 figures hard to read at 100%",
+            "References inconsistent; lacks outside literature; style includes body text in bibliography"
+          ]
+        },
+        "feedback_section": "Feedback on Section: <free-text>"
+      },
+      {
+        "main_section": "2) Problem Description ( /6)",
+        "subsections": [
+          {
+            "subsection": "Hotel Booking Demand ( /3)",
+            "positive_items": {
+              "points_available": 3,
+              "items": [
+                {
+                  "description": "Brief but clear ML framing (structure, noise)",
+                  "points": 0.5
+                },
+                {
+                  "description": "Noted class imbalance, missingness/outliers, continuous vs categorical mix",
+                  "points": 1
+                },
+                {
+                  "description": "Justified classification vs regression target(s) for this dataset",
+                  "points": 1.5
+                }
+              ]
+            },
+            "negative_items": {
+              "items": [
+                "Deeper EDA on missing data/outliers or target imbalance",
+                "Clearer rationale for chosen target(s) and why alternatives weren't used"
+              ]
+            },
+            "feedback_section": "Feedback on Section: <free-text>"
+          },
+          {
+            "subsection": "US Accidents ( /3)",
+            "positive_items": {
+              "points_available": 3,
+              "items": [
+                {
+                  "description": "Clear ML relevance (spatiotemporal, weather/POI enrichment)",
+                  "points": 0.5
+                },
+                {
+                  "description": "Mentioned imbalance, feature types, possible reporting bias",
+                  "points": 1
+                },
+                {
+                  "description": "Justified classification vs regression target(s) for this dataset",
+                  "points": 1.5
+                }
+              ]
+            },
+            "negative_items": {
+              "items": [
+                "Sparse EDA; needs more on missingness or post-event fields (leakage risk)",
+                "Stronger justification of target framing and constraints"
+              ]
+            },
+            "feedback_section": "Feedback on Section: <free-text>"
+          }
+        ]
+      },
+      {
+        "main_section": "3) Hypothesis ( /10)",
+        "subsections": [
+          {
+            "subsection": "Initial Hypothesis ( /5)",
+            "positive_items": {
+              "points_available": 5,
+              "items": [
+                {
+                  "description": "Explicit hypothesis states expected algorithm ordering/behaviors",
+                  "points": 2
+                },
+                {
+                  "description": "Grounded in lecture/paper/theory or minimal EDA evidence",
+                  "points": 3
+                }
+              ]
+            },
+            "negative_items": {
+              "items": [
+                "Hypothesis vague or unfalsifiable",
+                "Lacks citation or tie-in to course material / literature"
+              ]
+            },
+            "feedback_section": "Feedback on Section: <free-text>"
+          },
+          {
+            "subsection": "Follow-Through ( /5)",
+            "positive_items": {
+              "points_available": 5,
+              "items": [
+                {
+                  "description": "Returned to hypothesis in Discussion/Conclusion",
+                  "points": 2
+                },
+                {
+                  "description": "Cited specific numbers/figures/tables to support or refute",
+                  "points": 3
+                }
+              ]
+            },
+            "negative_items": {
+              "items": [
+                "Conclusion does not explicitly resolve the hypothesis",
+                "References trends qualitatively without quantitative evidence"
+              ]
+            },
+            "feedback_section": "Feedback on Section: <free-text>"
+          }
+        ]
+      },
+      {
+        "main_section": "4) Algorithms ( /68 total = 17 per algorithm)",
+        "subsections": [
+          {
+            "subsection": "4.1 Decision Trees ( /17)",
+            "positive_items": {
+              "points_available": 17,
+              "items": [
+                {
+                  "description": "Error metrics justified for tasks (classification vs regression)",
+                  "points": 2
+                },
+                {
+                  "description": "Learning Curves — Hotel: Valid LC + bias/variance trends + iterative improvements",
+                  "points": 3
+                },
+                {
+                  "description": "Learning Curves — US Accidents: Valid LC + trends + iterative adjustments",
+                  "points": 3
+                },
+                {
+                  "description": "Model Complexity — Hotel: Valid validation curve + interpretation + refinement",
+                  "points": 4
+                },
+                {
+                  "description": "Model Complexity — US Accidents: Valid MC plot + interpretation + refinement",
+                  "points": 5
+                }
+              ]
+            },
+            "negative_items": {
+              "items": [
+                "Missing/incorrect metrics; no rationale for classification vs regression errors",
+                "No pruning or no ccp_alpha path; depth/leaf sizing unexamined",
+                "LC/MC plots missing for one/both datasets or axes/curves incomplete",
+                "Trends listed without linking to data or DT properties"
+              ]
+            },
+            "feedback_section": "Feedback on Section: <free-text>"
+          },
+          {
+            "subsection": "4.2 k-Nearest Neighbors ( /17)",
+            "positive_items": {
+              "points_available": 17,
+              "items": [
+                {
+                  "description": "Error metrics justified",
+                  "points": 2
+                },
+                {
+                  "description": "Learning Curves — Hotel: Valid LC + bias/variance patterns + iterative tuning",
+                  "points": 3
+                },
+                {
+                  "description": "Learning Curves — US Accidents: Valid LC + trends + curse of dimensionality discussion",
+                  "points": 3
+                },
+                {
+                  "description": "Model Complexity — Hotel: MC plot vs k + interpretation + justification",
+                  "points": 4
+                },
+                {
+                  "description": "Model Complexity — US Accidents: MC plot + interpretation + data property ties",
+                  "points": 5
+                }
+              ]
+            },
+            "negative_items": {
+              "items": [
+                "Features not scaled; metric/weighting not discussed",
+                "Only one value of k considered; MC plot missing",
+                "No discussion of imbalance effects in neighborhoods"
+              ]
+            },
+            "feedback_section": "Feedback on Section: <free-text>"
+          },
+          {
+            "subsection": "4.3 Support Vector Machines ( /17)",
+            "positive_items": {
+              "points_available": 17,
+              "items": [
+                {
+                  "description": "Error metrics justified",
+                  "points": 2
+                },
+                {
+                  "description": "Learning Curves — Hotel: Valid LC + bias/variance + iterative C/γ/degree tuning",
+                  "points": 3
+                },
+                {
+                  "description": "Learning Curves — US Accidents: Valid LC + trends + kernel choice connection",
+                  "points": 3
+                },
+                {
+                  "description": "Model Complexity — Hotel: MC plot vs C/γ/degree + interpretation + kernel justification",
+                  "points": 4
+                },
+                {
+                  "description": "Model Complexity — US Accidents: MC plot + interpretation + data trait ties",
+                  "points": 5
+                }
+              ]
+            },
+            "negative_items": {
+              "items": [
+                "Features not scaled; only one kernel (need ≥2 kernels)",
+                "Probabilities reported without calibration rationale",
+                "MC/LC missing or not linked to SVM inductive biases"
+              ]
+            },
+            "feedback_section": "Feedback on Section: <free-text>"
+          },
+          {
+            "subsection": "4.4 Neural Networks ( /17)",
+            "positive_items": {
+              "points_available": 17,
+              "items": [
+                {
+                  "description": "Error metrics justified",
+                  "points": 2
+                },
+                {
+                  "description": "Learning Curves — Hotel: Valid data-size LC + epoch LC + bias/variance + regularization",
+                  "points": 3
+                },
+                {
+                  "description": "Learning Curves — US Accidents: Valid LC + trends + scale/imbalance discussion",
+                  "points": 3
+                },
+                {
+                  "description": "Model Complexity — Hotel: MC plot vs hyperparameter + interpretation + architecture justification",
+                  "points": 4
+                },
+                {
+                  "description": "Model Complexity — US Accidents: MC plot + interpretation + dataset complexity ties",
+                  "points": 5
+                }
+              ]
+            },
+            "negative_items": {
+              "items": [
+                "Missing epoch-wise LC; only final scores shown",
+                "No standardization of inputs; heads/losses mismatched to task",
+                "No calibration when thresholding; imbalance untreated"
+              ]
+            },
+            "feedback_section": "Feedback on Section: <free-text>"
+          }
+        ]
+      },
+      {
+        "main_section": "5) Conclusion ( /6)",
+        "positive_items": {
+          "points_available": 6,
+          "items": [
+            {
+              "description": "Clear wrap-up with Type I/II tied to thresholds or residuals",
+              "points": 1.5
+            },
+            {
+              "description": "≥3 evidence-backed takeaways comparing algorithms & datasets",
+              "points": 1.5
+            },
+            {
+              "description": "Connects to course concepts (generalization, CV, bias–variance, proper metrics)",
+              "points": 1.5
+            },
+            {
+              "description": "Notes limitations and one concrete next step; cites figures/tables",
+              "points": 1.5
+            }
+          ]
+        },
+        "negative_items": {
+          "items": [
+            "Too generic; lacks Type I/II or concrete, numbered takeaways",
+            "Weak linkage to course concepts; limited cross-dataset comparison"
+          ]
+        },
+        "feedback_section": "Feedback on Section: <free-text>"
+      },
+      {
+        "main_section": "Extra Credit: Neural Network Activation Tests (up to 5)",
+        "positive_items": {
+          "points_available": 5,
+          "items": [
+            {
+              "description": "NN only, SGD only, one dataset, four activations; all non-activation factors held constant",
+              "points": 1
+            },
+            {
+              "description": "Validation curves (loss + primary metric), comparison table, 3+ seeds (mean±std)",
+              "points": 2
+            },
+            {
+              "description": "Insightful analysis: convergence speed/stability, calibration/residuals, trade-offs",
+              "points": 2
+            }
+          ]
+        },
+        "negative_items": {
+          "items": [
+            "Missing activations / uncontrolled changes (LR/init/reg) / incomplete curves or metrics",
+            "Descriptive commentary without diagnosing stability or trade-offs"
+          ]
+        },
+        "feedback_section": "Feedback on Section: <free-text>"
+      }
+    ],
+    "general_feedback": {
+      "section": "General Feedback",
+      "content": "<free-text>"
+    }
+  }
+}
