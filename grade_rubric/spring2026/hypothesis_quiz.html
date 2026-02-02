@@ -232,19 +232,7 @@
             Select "What you did well" and/or "What needs improvement" for each question.
         </p>
 
-        <div class="general-options">
-            <h3>General Options</h3>
-            <div class="checkbox-group">
-                <label class="checkbox-label">
-                    <input type="checkbox" id="add-general-comment" onchange="updateFeedbackDisplay()">
-                    Add General Submission Comment
-                </label>
-                <label class="checkbox-label">
-                    <input type="checkbox" id="add-n-to-score">
-                    Include "N" in Score Copy
-                </label>
-            </div>
-        </div>
+
 
         <div id="questions-container"></div>
 
@@ -259,6 +247,20 @@
             </div>
 
             <p id="total-points"></p>
+
+            <div class="general-options">
+                <h3>General Options</h3>
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="add-general-comment" onchange="updateFeedbackDisplay()">
+                        Add General Submission Comment
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="add-n-to-score" checked>
+                        Include "N" in Score Copy
+                    </label>
+                </div>
+            </div>
 
             <div id="feedback-container">
                 <h4>All Selected Feedback (Editable):</h4>
