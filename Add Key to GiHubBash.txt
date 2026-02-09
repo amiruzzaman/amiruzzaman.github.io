@@ -1,0 +1,56 @@
+Go to 
+
+cd "D:\A Need to Save in HDD\github\Amir"
+
+Add key
+
+ssh-add /C/Users/mamiruzz/.ssh/id_rsa
+
+
+git clone https://github.com/amiruzzaman/amiruzzaman.github.io
+
+cd amiruzzaman.github.io/
+
+
+git add .
+
+git commit -m "copied hypothesis_quiz2.html"
+
+**************************************************
+what is this error and how to resolve? 
+
+Problem:
+$ ssh-add /C/Users/mamiruzz/.ssh/amir_lab_laptop.ppk 
+
+Error loading key "/C/Users/mamiruzz/.ssh/amir_lab_laptop.ppk": 
+error in libcrypto
+
+
+Step 1: Convert the Key
+
+    Open PuTTYgen on your Windows machine.
+
+    Click File > Load private key and select your amir_lab_laptop.ppk file.
+
+    Go to the top menu and select Conversions > Export OpenSSH key (force new format).
+
+    Save the file without an extension (e.g., just name it amir_lab_laptop) in your .ssh folder.
+
+Solution:
+ssh-add /C/Users/mamiruzz/.ssh/amir_lab_laptop
+Identity added: /C/Users/mamiruzz/.ssh/amir_lab_laptop (rsa-key-20200210)
+
+
+
+Problem:
+$ git push
+remote: Permission to amiruzzaman/amiruzzaman.github.io.git denied to wcupa2021.
+fatal: unable to access 'https://github.com/amiruzzaman/amiruzzaman.github.io/': The requested URL returned error: 403
+
+Solution:
+git remote set-url origin git@github.com:amiruzzaman/amiruzzaman.github.io.git
+
+
+
+commit
+$ git commit -am "updated hypothesis_quiz.html"
