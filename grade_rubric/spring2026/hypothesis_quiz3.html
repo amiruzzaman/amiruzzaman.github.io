@@ -36,17 +36,6 @@
             margin-top: 10px;
         }
 
-        .quote-input {
-            width: 100%;
-            padding: 8px;
-            font-size: 14px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-top: 5px;
-            margin-bottom: 10px;
-            box-sizing: border-box;
-        }
-
         button {
             padding: 5px 10px;
             background-color: #4CAF50;
@@ -219,23 +208,6 @@
             font-style: italic;
         }
 
-        .quote-section {
-            margin-top: 10px;
-            margin-bottom: 10px;
-            padding: 8px;
-            background-color: #f9f9f9;
-            border: 1px dashed #ddd;
-            border-radius: 4px;
-        }
-
-        .quote-section label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #555;
-            font-size: 14px;
-        }
-
         /* Styles for the new general options */
         .general-options {
             background-color: #ebf5ff;
@@ -259,6 +231,8 @@
         <p style="text-align: center; color: #666; margin-bottom: 20px;">
             Select "What you did well" and/or "What needs improvement" for each question.
         </p>
+
+
 
         <div id="questions-container"></div>
 
@@ -296,7 +270,6 @@
             <div class="feedback-controls">
                 <button onclick="copyFeedback()" id="copyButton">Copy All Feedback</button>
                 <button onclick="copyScores()" id="copyScoresButton">Copy Scores</button>
-                <button onclick="copyAllZeros()" id="copyZerosButton">Copy All Zeros</button>
                 <button onclick="resetFeedbackDisplay()" id="resetFeedbackButton">Reset Feedback Display</button>
             </div>
         </div>
@@ -313,8 +286,7 @@
                     incorrect: "You could have Googled the name of the authors to find more meaningful information."
                 },
                 points: 0,
-                dualSelectionScore: 0.5,
-                quote: ""
+                dualSelectionScore: 0.5
             },
             {
                 question: "Q 2: The gap Rule 6 lens",
@@ -323,8 +295,7 @@
                     incorrect: "Too vague. Paper specifically addresses poisoning attacks against SVMs using gradient ascent on validation error."
                 },
                 points: 0,
-                dualSelectionScore: 0.5,
-                quote: ""
+                dualSelectionScore: 0.5
             },
             {
                 question: "Q 3: Paper hypothesis",
@@ -333,8 +304,7 @@
                     incorrect: "Too general. Hypothesis specifically uses SVM's KKT conditions and incremental learning for attack optimization."
                 },
                 points: 0,
-                dualSelectionScore: 0.5,
-                quote: ""
+                dualSelectionScore: 0.5
             },
             {
                 question: "Q 4: Lookups with at least two peer reviewed citations",
@@ -343,8 +313,7 @@
                     incorrect: "Missing specific citations from paper's references section. Need at least two peer-reviewed works."
                 },
                 points: 0,
-                dualSelectionScore: 0.5,
-                quote: ""
+                dualSelectionScore: 0.5
             },
             {
                 question: "Q 5: Limitations with reasoning",
@@ -353,8 +322,7 @@
                     incorrect: "Didn't connect limitations to paper sections. Limitations are in Sections 2.3, 3, and 4 with practical implications."
                 },
                 points: 0,
-                dualSelectionScore: 0.5,
-                quote: ""
+                dualSelectionScore: 0.5
             },
             {
                 question: "Q 6: Next steps concise options grounded in reasoning",
@@ -363,8 +331,7 @@
                     incorrect: "Too generic. Should reference paper's Section 4: structural constraints, multi-point optimization, label constraints."
                 },
                 points: 0,
-                dualSelectionScore: 0.5,
-                quote: ""
+                dualSelectionScore: 0.5
             },
             {
                 question: "Q 7: Your single hypothesis to investigate",
@@ -373,12 +340,11 @@
                     incorrect: "Lacks specificity. Need clear variables, expected outcomes, and evaluation protocol for testing."
                 },
                 points: 0,
-                dualSelectionScore: 0.5,
-                quote: ""
+                dualSelectionScore: 0.5
             }
         ];
 
-        let questionsData = JSON.parse(JSON.stringify(defaultQuestionsData)); // Deep copy
+        let questionsData = [...defaultQuestionsData];
         let scores = [0, 0, 0, 0, 0, 0, 0];
         let feedbackEdited = false;
 
@@ -391,17 +357,6 @@
                 questionDiv.id = `question-${index}`;
                 questionDiv.innerHTML = `
                     <label class="question-label">${questionData.question}</label>
-                    
-                    <div class="quote-section">
-                        <label for="quote-${index}">Student's Answer Quote (optional):</label>
-                        <input type="text" 
-                               id="quote-${index}" 
-                               class="quote-input" 
-                               placeholder="Enter a quote from the student's answer..."
-                               value="${questionData.quote || ''}"
-                               onblur="saveQuote(${index})">
-                    </div>
-                    
                     <div class="checkbox-group">
                         <label class="checkbox-label">
                             <input type="checkbox" id="correct-${index}" value="correct" onchange="toggleFeedback(${index}, 'correct')">
@@ -433,12 +388,6 @@
                 `;
                 container.appendChild(questionDiv);
             });
-        }
-
-        function saveQuote(index) {
-            const quoteInput = document.getElementById(`quote-${index}`);
-            questionsData[index].quote = quoteInput.value.trim();
-            updateFeedbackDisplay();
         }
 
         function toggleFeedback(index, feedbackType) {
@@ -517,22 +466,21 @@
 
                 let score = 0;
                 let feedbackText = '';
-                let quoteText = questionData.quote ? ` You wrote, "${questionData.quote}."` : '';
 
                 if (correctChecked && !incorrectChecked) {
                     score = 1;
                     correctCount++;
-                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat you did well\n${questionData.feedback.correct}${quoteText}`;
+                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat you did well\n${questionData.feedback.correct}`;
                 } else if (!correctChecked && incorrectChecked) {
                     score = 0.5;
                     incorrectCount++;
-                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat needs improvement\n${questionData.feedback.incorrect}${quoteText}`;
+                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat needs improvement\n${questionData.feedback.incorrect}`;
                 } else if (correctChecked && incorrectChecked) {
                     score = questionData.dualSelectionScore;
                     partialCount++;
                     const scoreSelector = document.getElementById(`dual-score-${index}`);
                     const val = scoreSelector ? scoreSelector.value : "0.5";
-                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat you did well\n${questionData.feedback.correct}${quoteText}\n\nWhat needs improvement\n${questionData.feedback.incorrect}${quoteText}\n\nNote: Both types selected - score set to ${val} point(s)`;
+                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat you did well\n${questionData.feedback.correct}\n\nWhat needs improvement\n${questionData.feedback.incorrect}\n\nNote: Both types selected - score set to ${val} point(s)`;
                 }
 
                 scores[index] = score;
@@ -618,67 +566,23 @@
             setTimeout(() => { btn.innerHTML = "Copy Scores"; btn.style.background = '#2196F3'; }, 2000);
         }
 
-        function copyAllZeros() {
-            let zerosContent = '0\t'.repeat(questionsData.length - 1) + '0';
-            const nCheckbox = document.getElementById('add-n-to-score');
-
-            // Add N if the checkbox is checked
-            if (nCheckbox.checked) {
-                zerosContent += '\tN';
-            }
-
-            const textArea = document.createElement('textarea');
-            textArea.value = zerosContent;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-            const btn = document.getElementById("copyZerosButton");
-            btn.innerHTML = "Copied!";
-            btn.style.background = '#EE4B2B';
-            setTimeout(() => { btn.innerHTML = "Copy All Zeros"; btn.style.background = '#2196F3'; }, 2000);
-        }
-
         function resetAll() {
-            // Reset to deep copy of default data
             questionsData = JSON.parse(JSON.stringify(defaultQuestionsData));
             scores = [0, 0, 0, 0, 0, 0, 0];
             feedbackEdited = false;
             document.getElementById('add-general-comment').checked = false;
-            document.getElementById('add-n-to-score').checked = true; // Reset to default checked state
+            document.getElementById('add-n-to-score').checked = false;
 
-            // Reset all checkboxes and textareas
             for (let i = 0; i < questionsData.length; i++) {
-                const correctCheckbox = document.getElementById(`correct-${i}`);
-                const incorrectCheckbox = document.getElementById(`incorrect-${i}`);
-                const correctTextarea = document.getElementById(`correct-feedback-${i}`);
-                const incorrectTextarea = document.getElementById(`incorrect-feedback-${i}`);
-                const quoteInput = document.getElementById(`quote-${i}`);
-
-                if (correctCheckbox) correctCheckbox.checked = false;
-                if (incorrectCheckbox) incorrectCheckbox.checked = false;
-
-                if (correctTextarea) correctTextarea.value = defaultQuestionsData[i].feedback.correct;
-                if (incorrectTextarea) incorrectTextarea.value = defaultQuestionsData[i].feedback.incorrect;
-                if (quoteInput) quoteInput.value = '';
-
-                // Reset visibility
+                document.getElementById(`correct-${i}`).checked = false;
+                document.getElementById(`incorrect-${i}`).checked = false;
                 document.getElementById(`correct-feedback-section-${i}`).classList.add('hidden');
                 document.getElementById(`incorrect-feedback-section-${i}`).classList.add('hidden');
                 document.getElementById(`score-selector-${i}`).classList.add('hidden');
-
-                // Reset score selector
-                const scoreSelector = document.getElementById(`dual-score-${i}`);
-                if (scoreSelector) scoreSelector.value = "0.5";
-
-                // Reset question styling
+                const sel = document.getElementById(`dual-score-${i}`);
+                if (sel) sel.value = "0.5";
                 document.getElementById(`question-${i}`).classList.remove('correct', 'incorrect', 'partial-correct');
             }
-
-            // Clear feedback textarea
-            document.getElementById('selected-feedback').value = '';
-
-            // Update display
             updateFeedbackDisplay();
         }
 

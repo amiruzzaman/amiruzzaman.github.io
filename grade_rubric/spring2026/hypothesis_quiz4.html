@@ -36,17 +36,6 @@
             margin-top: 10px;
         }
 
-        .quote-input {
-            width: 100%;
-            padding: 8px;
-            font-size: 14px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-top: 5px;
-            margin-bottom: 10px;
-            box-sizing: border-box;
-        }
-
         button {
             padding: 5px 10px;
             background-color: #4CAF50;
@@ -219,23 +208,6 @@
             font-style: italic;
         }
 
-        .quote-section {
-            margin-top: 10px;
-            margin-bottom: 10px;
-            padding: 8px;
-            background-color: #f9f9f9;
-            border: 1px dashed #ddd;
-            border-radius: 4px;
-        }
-
-        .quote-section label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #555;
-            font-size: 14px;
-        }
-
         /* Styles for the new general options */
         .general-options {
             background-color: #ebf5ff;
@@ -313,8 +285,7 @@
                     incorrect: "You could have Googled the name of the authors to find more meaningful information."
                 },
                 points: 0,
-                dualSelectionScore: 0.5,
-                quote: ""
+                dualSelectionScore: 0.5
             },
             {
                 question: "Q 2: The gap Rule 6 lens",
@@ -323,8 +294,7 @@
                     incorrect: "Too vague. Paper specifically addresses poisoning attacks against SVMs using gradient ascent on validation error."
                 },
                 points: 0,
-                dualSelectionScore: 0.5,
-                quote: ""
+                dualSelectionScore: 0.5
             },
             {
                 question: "Q 3: Paper hypothesis",
@@ -333,8 +303,7 @@
                     incorrect: "Too general. Hypothesis specifically uses SVM's KKT conditions and incremental learning for attack optimization."
                 },
                 points: 0,
-                dualSelectionScore: 0.5,
-                quote: ""
+                dualSelectionScore: 0.5
             },
             {
                 question: "Q 4: Lookups with at least two peer reviewed citations",
@@ -343,8 +312,7 @@
                     incorrect: "Missing specific citations from paper's references section. Need at least two peer-reviewed works."
                 },
                 points: 0,
-                dualSelectionScore: 0.5,
-                quote: ""
+                dualSelectionScore: 0.5
             },
             {
                 question: "Q 5: Limitations with reasoning",
@@ -353,8 +321,7 @@
                     incorrect: "Didn't connect limitations to paper sections. Limitations are in Sections 2.3, 3, and 4 with practical implications."
                 },
                 points: 0,
-                dualSelectionScore: 0.5,
-                quote: ""
+                dualSelectionScore: 0.5
             },
             {
                 question: "Q 6: Next steps concise options grounded in reasoning",
@@ -363,8 +330,7 @@
                     incorrect: "Too generic. Should reference paper's Section 4: structural constraints, multi-point optimization, label constraints."
                 },
                 points: 0,
-                dualSelectionScore: 0.5,
-                quote: ""
+                dualSelectionScore: 0.5
             },
             {
                 question: "Q 7: Your single hypothesis to investigate",
@@ -373,8 +339,7 @@
                     incorrect: "Lacks specificity. Need clear variables, expected outcomes, and evaluation protocol for testing."
                 },
                 points: 0,
-                dualSelectionScore: 0.5,
-                quote: ""
+                dualSelectionScore: 0.5
             }
         ];
 
@@ -391,17 +356,6 @@
                 questionDiv.id = `question-${index}`;
                 questionDiv.innerHTML = `
                     <label class="question-label">${questionData.question}</label>
-                    
-                    <div class="quote-section">
-                        <label for="quote-${index}">Student's Answer Quote (optional):</label>
-                        <input type="text" 
-                               id="quote-${index}" 
-                               class="quote-input" 
-                               placeholder="Enter a quote from the student's answer..."
-                               value="${questionData.quote || ''}"
-                               onblur="saveQuote(${index})">
-                    </div>
-                    
                     <div class="checkbox-group">
                         <label class="checkbox-label">
                             <input type="checkbox" id="correct-${index}" value="correct" onchange="toggleFeedback(${index}, 'correct')">
@@ -433,12 +387,6 @@
                 `;
                 container.appendChild(questionDiv);
             });
-        }
-
-        function saveQuote(index) {
-            const quoteInput = document.getElementById(`quote-${index}`);
-            questionsData[index].quote = quoteInput.value.trim();
-            updateFeedbackDisplay();
         }
 
         function toggleFeedback(index, feedbackType) {
@@ -517,22 +465,21 @@
 
                 let score = 0;
                 let feedbackText = '';
-                let quoteText = questionData.quote ? ` You wrote, "${questionData.quote}."` : '';
 
                 if (correctChecked && !incorrectChecked) {
                     score = 1;
                     correctCount++;
-                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat you did well\n${questionData.feedback.correct}${quoteText}`;
+                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat you did well\n${questionData.feedback.correct}`;
                 } else if (!correctChecked && incorrectChecked) {
                     score = 0.5;
                     incorrectCount++;
-                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat needs improvement\n${questionData.feedback.incorrect}${quoteText}`;
+                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat needs improvement\n${questionData.feedback.incorrect}`;
                 } else if (correctChecked && incorrectChecked) {
                     score = questionData.dualSelectionScore;
                     partialCount++;
                     const scoreSelector = document.getElementById(`dual-score-${index}`);
                     const val = scoreSelector ? scoreSelector.value : "0.5";
-                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat you did well\n${questionData.feedback.correct}${quoteText}\n\nWhat needs improvement\n${questionData.feedback.incorrect}${quoteText}\n\nNote: Both types selected - score set to ${val} point(s)`;
+                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat you did well\n${questionData.feedback.correct}\n\nWhat needs improvement\n${questionData.feedback.incorrect}\n\nNote: Both types selected - score set to ${val} point(s)`;
                 }
 
                 scores[index] = score;
@@ -653,14 +600,12 @@
                 const incorrectCheckbox = document.getElementById(`incorrect-${i}`);
                 const correctTextarea = document.getElementById(`correct-feedback-${i}`);
                 const incorrectTextarea = document.getElementById(`incorrect-feedback-${i}`);
-                const quoteInput = document.getElementById(`quote-${i}`);
 
                 if (correctCheckbox) correctCheckbox.checked = false;
                 if (incorrectCheckbox) incorrectCheckbox.checked = false;
 
                 if (correctTextarea) correctTextarea.value = defaultQuestionsData[i].feedback.correct;
                 if (incorrectTextarea) incorrectTextarea.value = defaultQuestionsData[i].feedback.incorrect;
-                if (quoteInput) quoteInput.value = '';
 
                 // Reset visibility
                 document.getElementById(`correct-feedback-section-${i}`).classList.add('hidden');
