@@ -763,7 +763,8 @@
                     partialCount++;
                     const scoreSelector = document.getElementById(`dual-score-${index}`);
                     const val = scoreSelector ? scoreSelector.value : "0.5";
-                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat you did well\n${questionData.feedback.correct}\n\nWhat needs improvement\n${questionData.feedback.incorrect}\n\nNote: Both types selected - score set to ${val} point(s)`;
+                    //feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat you did well\n${questionData.feedback.correct}\n\nWhat needs improvement\n${questionData.feedback.incorrect}\n\nNote: Both types selected - score set to ${val} point(s)`;
+                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat you did well\n${questionData.feedback.correct}\n\nWhat needs improvement\n${questionData.feedback.incorrect}`;
                 }
 
                 scores[index] = score;
