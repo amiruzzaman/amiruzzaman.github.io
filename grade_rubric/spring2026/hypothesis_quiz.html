@@ -260,6 +260,50 @@
             font-size: 16px;
             color: #0b7dda;
         }
+
+        .bulk-select-controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .bulk-select-controls h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .bulk-select-controls button {
+            margin: 0 5px 5px 5px;
+        }
+
+        .select-all-correct-btn {
+            background-color: #28a745;
+        }
+
+        .select-all-correct-btn:hover {
+            background-color: #218838;
+        }
+
+        .select-all-incorrect-btn {
+            background-color: #dc3545;
+        }
+
+        .select-all-incorrect-btn:hover {
+            background-color: #c82333;
+        }
+
+        .clear-all-selections-btn {
+            background-color: #6c757d;
+        }
+
+        .clear-all-selections-btn:hover {
+            background-color: #5a6268;
+        }
     </style>
 </head>
 
@@ -269,6 +313,15 @@
         <p style="text-align: center; color: #666; margin-bottom: 20px;">
             Select "What you did well" and/or "What needs improvement" for each question.
         </p>
+
+        <div class="bulk-select-controls">
+            <h3>Bulk Selection Controls</h3>
+            <button onclick="selectAllCorrect()" class="select-all-correct-btn">Select All as "What you did well" (1
+                point each)</button>
+            <button onclick="selectAllIncorrect()" class="select-all-incorrect-btn">Select All as "What needs
+                improvement" (0.5 points each)</button>
+            <button onclick="clearAllSelections()" class="clear-all-selections-btn">Clear All Selections</button>
+        </div>
 
         <div id="questions-container"></div>
 
@@ -446,6 +499,102 @@
             });
         }
 
+        function selectAllCorrect() {
+            for (let i = 0; i < questionsData.length; i++) {
+                // Set correct checked, incorrect unchecked
+                const correctCheckbox = document.getElementById(`correct-${i}`);
+                const incorrectCheckbox = document.getElementById(`incorrect-${i}`);
+
+                if (correctCheckbox && !correctCheckbox.checked) {
+                    correctCheckbox.checked = true;
+                    incorrectCheckbox.checked = false;
+
+                    // Show correct feedback section
+                    document.getElementById(`correct-feedback-section-${i}`).classList.remove('hidden');
+                    document.getElementById(`incorrect-feedback-section-${i}`).classList.add('hidden');
+                    document.getElementById(`score-selector-${i}`).classList.add('hidden');
+
+                    // Update question styling
+                    document.getElementById(`question-${i}`).classList.remove('correct', 'incorrect', 'partial-correct');
+                    document.getElementById(`question-${i}`).classList.add('correct');
+                }
+            }
+            updateFeedbackDisplay();
+
+            // Show confirmation
+            const btn = document.querySelector('.select-all-correct-btn');
+            const originalText = btn.textContent;
+            btn.textContent = 'All selected as "correct"!';
+            btn.style.background = '#28a745';
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '';
+            }, 1500);
+        }
+
+        function selectAllIncorrect() {
+            for (let i = 0; i < questionsData.length; i++) {
+                // Set incorrect checked, correct unchecked
+                const correctCheckbox = document.getElementById(`correct-${i}`);
+                const incorrectCheckbox = document.getElementById(`incorrect-${i}`);
+
+                if (incorrectCheckbox && !incorrectCheckbox.checked) {
+                    incorrectCheckbox.checked = true;
+                    correctCheckbox.checked = false;
+
+                    // Show incorrect feedback section
+                    document.getElementById(`incorrect-feedback-section-${i}`).classList.remove('hidden');
+                    document.getElementById(`correct-feedback-section-${i}`).classList.add('hidden');
+                    document.getElementById(`score-selector-${i}`).classList.add('hidden');
+
+                    // Update question styling
+                    document.getElementById(`question-${i}`).classList.remove('correct', 'incorrect', 'partial-correct');
+                    document.getElementById(`question-${i}`).classList.add('incorrect');
+                }
+            }
+            updateFeedbackDisplay();
+
+            // Show confirmation
+            const btn = document.querySelector('.select-all-incorrect-btn');
+            const originalText = btn.textContent;
+            btn.textContent = 'All selected as "incorrect"!';
+            btn.style.background = '#dc3545';
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '';
+            }, 1500);
+        }
+
+        function clearAllSelections() {
+            for (let i = 0; i < questionsData.length; i++) {
+                // Uncheck both boxes
+                const correctCheckbox = document.getElementById(`correct-${i}`);
+                const incorrectCheckbox = document.getElementById(`incorrect-${i}`);
+
+                if (correctCheckbox) correctCheckbox.checked = false;
+                if (incorrectCheckbox) incorrectCheckbox.checked = false;
+
+                // Hide feedback sections
+                document.getElementById(`correct-feedback-section-${i}`).classList.add('hidden');
+                document.getElementById(`incorrect-feedback-section-${i}`).classList.add('hidden');
+                document.getElementById(`score-selector-${i}`).classList.add('hidden');
+
+                // Reset question styling
+                document.getElementById(`question-${i}`).classList.remove('correct', 'incorrect', 'partial-correct');
+            }
+            updateFeedbackDisplay();
+
+            // Show confirmation
+            const btn = document.querySelector('.clear-all-selections-btn');
+            const originalText = btn.textContent;
+            btn.textContent = 'All selections cleared!';
+            btn.style.background = '#6c757d';
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '';
+            }, 1500);
+        }
+
         function saveQuote(index) {
             const quoteInput = document.getElementById(`quote-${index}`);
             questionsData[index].quote = quoteInput.value.trim();
@@ -467,10 +616,6 @@
 
         function updateFeedbackTextWithQuote(index) {
             const quote = questionsData[index].quote;
-
-            // Get the original feedback text (without any previous quote)
-            const originalCorrect = defaultQuestionsData[index].feedback.correct;
-            const originalIncorrect = defaultQuestionsData[index].feedback.incorrect;
 
             // Get current textareas
             const correctTextarea = document.getElementById(`correct-feedback-${index}`);
@@ -618,8 +763,7 @@
                     partialCount++;
                     const scoreSelector = document.getElementById(`dual-score-${index}`);
                     const val = scoreSelector ? scoreSelector.value : "0.5";
-                    //feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat you did well\n${questionData.feedback.correct}\n\nWhat needs improvement\n${questionData.feedback.incorrect}\n\nNote: Both types selected - score set to ${val} point(s)`;
-                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat you did well\n${questionData.feedback.correct}\n\nWhat needs improvement\n${questionData.feedback.incorrect}`;
+                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat you did well\n${questionData.feedback.correct}\n\nWhat needs improvement\n${questionData.feedback.incorrect}\n\nNote: Both types selected - score set to ${val} point(s)`;
                 }
 
                 scores[index] = score;
