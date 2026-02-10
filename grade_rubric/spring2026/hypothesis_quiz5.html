@@ -236,16 +236,6 @@
             font-size: 14px;
         }
 
-        .quote-preview {
-            font-style: italic;
-            color: #666;
-            margin-top: 5px;
-            padding: 5px;
-            background-color: #f8f9fa;
-            border-left: 3px solid #6c757d;
-            font-size: 13px;
-        }
-
         /* Styles for the new general options */
         .general-options {
             background-color: #ebf5ff;
@@ -410,7 +400,6 @@
                                placeholder="Enter a quote from the student's answer..."
                                value="${questionData.quote || ''}"
                                onblur="saveQuote(${index})">
-                        ${questionData.quote ? `<div class="quote-preview">Current quote: "${questionData.quote}"</div>` : ''}
                     </div>
                     
                     <div class="checkbox-group">
@@ -449,83 +438,7 @@
         function saveQuote(index) {
             const quoteInput = document.getElementById(`quote-${index}`);
             questionsData[index].quote = quoteInput.value.trim();
-
-            // Update quote preview
-            const quotePreview = quoteInput.parentNode.querySelector('.quote-preview');
-            if (quotePreview) {
-                quotePreview.textContent = questionsData[index].quote ? `Current quote: "${questionsData[index].quote}"` : '';
-            } else if (questionsData[index].quote) {
-                const newPreview = document.createElement('div');
-                newPreview.className = 'quote-preview';
-                newPreview.textContent = `Current quote: "${questionsData[index].quote}"`;
-                quoteInput.parentNode.appendChild(newPreview);
-            }
-
-            // Automatically update the feedback textareas with the quote at the end
-            updateFeedbackTextWithQuote(index);
-        }
-
-        function updateFeedbackTextWithQuote(index) {
-            const quote = questionsData[index].quote;
-
-            // Get the original feedback text (without any previous quote)
-            const originalCorrect = defaultQuestionsData[index].feedback.correct;
-            const originalIncorrect = defaultQuestionsData[index].feedback.incorrect;
-
-            // Get current textareas
-            const correctTextarea = document.getElementById(`correct-feedback-${index}`);
-            const incorrectTextarea = document.getElementById(`incorrect-feedback-${index}`);
-
-            if (quote) {
-                // Build new text with quote at the end
-                const quoteSentence = ` You wrote, "${quote}".`;
-
-                // Update correct feedback if it exists and doesn't already have this exact quote
-                if (correctTextarea) {
-                    // Check if the textarea contains the original text (might have been edited)
-                    let currentText = correctTextarea.value;
-
-                    // If text doesn't end with the quote sentence, add it
-                    if (!currentText.includes(quoteSentence)) {
-                        // Remove any existing quote from previous saves
-                        currentText = currentText.replace(/\s*You wrote, "[^"]*"\./g, '');
-
-                        // Add the new quote at the end
-                        correctTextarea.value = currentText.trim() + quoteSentence;
-                        saveFeedback(index, 'correct');
-                    }
-                }
-
-                // Update incorrect feedback if it exists and doesn't already have this exact quote
-                if (incorrectTextarea) {
-                    let currentText = incorrectTextarea.value;
-
-                    // If text doesn't end with the quote sentence, add it
-                    if (!currentText.includes(quoteSentence)) {
-                        // Remove any existing quote from previous saves
-                        currentText = currentText.replace(/\s*You wrote, "[^"]*"\./g, '');
-
-                        // Add the new quote at the end
-                        incorrectTextarea.value = currentText.trim() + quoteSentence;
-                        saveFeedback(index, 'incorrect');
-                    }
-                }
-            } else {
-                // If quote is empty, remove any existing quote sentences
-                if (correctTextarea) {
-                    let currentText = correctTextarea.value;
-                    currentText = currentText.replace(/\s*You wrote, "[^"]*"\./g, '');
-                    correctTextarea.value = currentText.trim();
-                    saveFeedback(index, 'correct');
-                }
-
-                if (incorrectTextarea) {
-                    let currentText = incorrectTextarea.value;
-                    currentText = currentText.replace(/\s*You wrote, "[^"]*"\./g, '');
-                    incorrectTextarea.value = currentText.trim();
-                    saveFeedback(index, 'incorrect');
-                }
-            }
+            updateFeedbackDisplay();
         }
 
         function toggleFeedback(index, feedbackType) {
@@ -604,22 +517,22 @@
 
                 let score = 0;
                 let feedbackText = '';
+                let quoteText = questionData.quote ? ` You wrote, "${questionData.quote}."` : '';
 
                 if (correctChecked && !incorrectChecked) {
                     score = 1;
                     correctCount++;
-                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat you did well\n${questionData.feedback.correct}`;
+                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat you did well\n${questionData.feedback.correct}${quoteText}`;
                 } else if (!correctChecked && incorrectChecked) {
                     score = 0.5;
                     incorrectCount++;
-                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat needs improvement\n${questionData.feedback.incorrect}`;
+                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat needs improvement\n${questionData.feedback.incorrect}${quoteText}`;
                 } else if (correctChecked && incorrectChecked) {
                     score = questionData.dualSelectionScore;
                     partialCount++;
                     const scoreSelector = document.getElementById(`dual-score-${index}`);
                     const val = scoreSelector ? scoreSelector.value : "0.5";
-                    //feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat you did well\n${questionData.feedback.correct}\n\nWhat needs improvement\n${questionData.feedback.incorrect}\n\nNote: Both types selected - score set to ${val} point(s)`;
-                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat you did well\n${questionData.feedback.correct}\n\nWhat needs improvement\n${questionData.feedback.incorrect}`;
+                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat you did well\n${questionData.feedback.correct}${quoteText}\n\nWhat needs improvement\n${questionData.feedback.incorrect}${quoteText}\n\nNote: Both types selected - score set to ${val} point(s)`;
                 }
 
                 scores[index] = score;
@@ -745,14 +658,9 @@
                 if (correctCheckbox) correctCheckbox.checked = false;
                 if (incorrectCheckbox) incorrectCheckbox.checked = false;
 
-                // Reset to original feedback text (without quotes)
                 if (correctTextarea) correctTextarea.value = defaultQuestionsData[i].feedback.correct;
                 if (incorrectTextarea) incorrectTextarea.value = defaultQuestionsData[i].feedback.incorrect;
                 if (quoteInput) quoteInput.value = '';
-
-                // Reset quote preview
-                const quotePreview = document.querySelector(`#quote-${i}`)?.parentNode.querySelector('.quote-preview');
-                if (quotePreview) quotePreview.remove();
 
                 // Reset visibility
                 document.getElementById(`correct-feedback-section-${i}`).classList.add('hidden');
