@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rubric Grading – Total includes Extra Credit</title>
+    <title>Rubric Grading – Custom Greeting & Extended Other Scores</title>
     <style>
         :root {
             --positive-color: #e8f5e9;
@@ -423,7 +423,7 @@
     <div class="container">
         <div class="rubric-section">
             <h1>Rubric Grading Interface</h1>
-            <!-- global additional comment with name placeholder -->
+            <!-- global additional comment with name placeholder (new feature 1 refined) -->
             <div class="global-comment-box">
                 <label for="studentName"><strong>📝 Student name (for greeting):</strong></label>
                 <div class="global-comment-row">
@@ -443,7 +443,7 @@
                 <button id="resetBtn">Reset All</button>
             </div>
 
-            <!-- Grouped copy buttons -->
+            <!-- Grouped copy buttons (new features 2-5) -->
             <div class="group-copy-btns">
                 <button id="copyA1toA4">📋 A1–A4 (4+3+2+3)</button>
                 <button id="copyBscore">📋 B score (5 5 5)</button>
@@ -467,7 +467,7 @@
                 <tbody id="summaryBody"></tbody>
                 <tfoot>
                     <tr class="total-row">
-                        <td>Total (incl. extra credit)</td>
+                        <td>Total</td>
                         <td id="totalPoints">0</td>
                         <td id="maxPoints">100</td>
                     </tr>
@@ -948,14 +948,14 @@
             else { section.negative_items.items[itemIndex] = newText; }
         }
 
-        function updateSummary() { /* MODIFIED: totalPoints includes extra credit */
+        function updateSummary() { /* original */
             const summaryBody = document.getElementById('summaryBody'); summaryBody.innerHTML = '';
-            let mainTotal = 0;
-            let extraCreditPoints = 0, extraCreditMaxPoints = 0;
+            let totalPoints = 0, totalMaxPoints = 0, hasExtraCredit = false, extraCreditPoints = 0, extraCreditMaxPoints = 0;
             const extraCreditBody = document.getElementById('extraCreditBody'); extraCreditBody.innerHTML = '';
             rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
                 const sectionId = `section-${sectionIndex}`;
                 const isExtraCredit = section.main_section.includes('Extra Credit');
+                if (isExtraCredit) hasExtraCredit = true;
                 const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
                 let sectionPoints = 0; const maxPoints = section.points_available;
                 if (section.positive_items) {
@@ -969,25 +969,19 @@
                     const row = document.createElement('tr'); row.innerHTML = `<td>${section.main_section.split('(')[0].trim()}</td><td>${sectionPoints.toFixed(0)}</td><td>${maxPoints}</td>`;
                     extraCreditBody.appendChild(row);
                 } else {
-                    mainTotal += sectionPoints;
+                    totalPoints += sectionPoints;
                     const row = document.createElement('tr'); row.innerHTML = `<td>${section.main_section.split('(')[0].trim()}</td><td>${sectionPoints.toFixed(0)}</td><td>${maxPoints}</td>`;
                     summaryBody.appendChild(row);
                 }
                 const headerElement = document.querySelector(`[data-id="${sectionId}-header"]`);
                 if (headerElement) headerElement.textContent = `${section.main_section.split('(')[0].trim()} (${sectionPoints.toFixed(0)}/${maxPoints})`;
             });
-
-            // total includes main + extra credit
-            const totalWithExtra = mainTotal + extraCreditPoints;
-            document.getElementById('totalPoints').textContent = totalWithExtra.toFixed(0);
-            document.getElementById('maxPoints').textContent = rubricData.grading_rubric.total_points; // base 100 (extra credit is additional)
-
-            if (extraCreditPoints > 0 || extraCreditMaxPoints > 0) {
+            document.getElementById('totalPoints').textContent = totalPoints.toFixed(0);
+            document.getElementById('maxPoints').textContent = rubricData.grading_rubric.total_points;
+            if (hasExtraCredit) {
                 document.getElementById('extraCreditSection').classList.remove('hidden');
                 const extraTotal = document.createElement('tr'); extraTotal.className = 'total-row'; extraTotal.innerHTML = `<td><strong>Extra Credit Total</strong></td><td><strong>${extraCreditPoints.toFixed(0)}</strong></td><td><strong>${extraCreditMaxPoints}</strong></td>`;
                 extraCreditBody.appendChild(extraTotal);
-            } else {
-                document.getElementById('extraCreditSection').classList.add('hidden');
             }
         }
 
@@ -1043,11 +1037,9 @@
             });
             const generalTA = document.getElementById('general-feedback');
             if (generalTA && generalTA.value) feedback += `\nGeneral Feedback:\n${generalTA.value}\n\n`;
-
-            // total includes extra credit
             const totalPoints = document.getElementById('totalPoints').textContent;
             const maxPoints = document.getElementById('maxPoints').textContent;
-            feedback += `Total Score: ${totalPoints}/${maxPoints} (includes extra credit)`;
+            feedback += `Total Score: ${totalPoints}/${maxPoints}`;
             outputSection.textContent = feedback;
             outputSection.classList.remove('hidden');
             copyBtn.classList.remove('hidden');
@@ -1069,7 +1061,7 @@
             updateSummary();
         }
 
-        function copyScores() { /* original all raw (does not include extra credit in total, but we keep as original) */
+        function copyScores() { /* original all raw */
             let scores = [];
             rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
                 if (!section.main_section.includes('Extra Credit')) {
@@ -1085,11 +1077,11 @@
                     scores.push(sp.toFixed(0));
                 }
             });
-            scores.push(document.getElementById('totalPoints').textContent); // now includes extra credit
-            navigator.clipboard.writeText(scores.join('\t')).then(() => alert('Raw scores copied (total includes extra credit)!'));
+            scores.push(document.getElementById('totalPoints').textContent);
+            navigator.clipboard.writeText(scores.join('\t')).then(() => alert('Raw scores copied!'));
         }
 
-        // Grouped copy functions (unchanged, but total in summary already fixed)
+        // Grouped copy functions
         function setupGroupCopyButtons() {
             document.getElementById('copyA1toA4').addEventListener('click', () => {
                 const sec = rubricData.grading_rubric.sections[0];

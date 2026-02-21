@@ -1,0 +1,368 @@
+here is the rubric data, next I will share the report to grade using this rubric. You have to list what is there and points for each section. If something is missing then per section add comments saying how they could have improved. Writing style should, "You could have improved ..." or "It would have been a good idea for you to ... to improve ..."
+
+
+const rubricData = {
+            "grading_rubric": {
+                "total_points": 100,
+                "extra_credit_points": 5,
+                "sections": [
+                    {
+                        "main_section": "A) Compliance, Page Limit, and Reproducibility (12 points)",
+                        "points_available": 12,
+                        "positive_items": {
+                            "points_available": 12,
+                            "items": [
+                                {
+                                    "description": "Adult task is correct (binary classification on income) - target and labels match spec, used consistently in plots/metrics",
+                                    "points": 2
+                                },
+                                {
+                                    "description": "Wine task is correct (multiclass classification on quality) - quality treated as discrete classes, Macro-F1 reported",
+                                    "points": 2
+                                },
+                                {
+                                    "description": "Runs DT, kNN, SVM (at least two kernels), and NN (SGD only; scikit-learn and PyTorch) on both datasets",
+                                    "points": 3
+                                },
+                                {
+                                    "description": "Overleaf project link is included and is read-only",
+                                    "points": 1
+                                },
+                                {
+                                    "description": "Report complies with the page limit and required content is within the graded portion",
+                                    "points": 1
+                                },
+                                {
+                                    "description": "Git commit hash is provided and repository is accessible to course staff",
+                                    "points": 1
+                                },
+                                {
+                                    "description": "Run instructions are complete enough to reproduce outputs on a standard Linux machine (clear commands, environment requirements, seeds provided)",
+                                    "points": 2
+                                }
+                            ]
+                        },
+                        "negative_items": {
+                            "items": [
+                                "Wrong target for Adult, different dataset, or unclear label mapping",
+                                "Wine treated as regression or binarized without authorization",
+                                "Any algorithm family missing or only run on one dataset",
+                                "Missing, broken, or requires edit permissions for Overleaf link",
+                                "Exceeds page limit or required content beyond what will be graded",
+                                "Missing, invalid, or inaccessible git hash",
+                                "Instructions missing or clearly insufficient to reproduce results"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    },
+                    {
+                        "main_section": "B) EDA and Hypotheses (15 points)",
+                        "points_available": 15,
+                        "positive_items": {
+                            "points_available": 15,
+                            "items": [
+                                {
+                                    "description": "EDA includes core facts for both datasets: shape, feature types, missingness, and class counts; supports later choices (metrics, preprocessing, model expectations)",
+                                    "points": 5
+                                },
+                                {
+                                    "description": "At least one hypothesis per dataset stated after EDA and before tuned results; predicts algorithm performance/trade-offs and is testable",
+                                    "points": 5
+                                },
+                                {
+                                    "description": "Hypotheses revisited and evaluated using reported results (LC, MC, metrics); connects outcomes back to hypothesis and explains surprises",
+                                    "points": 5
+                                }
+                            ]
+                        },
+                        "negative_items": {
+                            "items": [
+                                "EDA is absent, superficial, or incorrect",
+                                "Hypothesis is just a goal or stated after results",
+                                "Hypotheses never revisited or ignored in discussion"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    },
+                    {
+                        "main_section": "C) Evaluation Design, Cross-Validation, and Sanity (15 points)",
+                        "points_available": 15,
+                        "positive_items": {
+                            "points_available": 15,
+                            "items": [
+                                {
+                                    "description": "Test set is held out and used only once for final reporting; split explicit and test set not used for tuning",
+                                    "points": 3
+                                },
+                                {
+                                    "description": "Hyperparameter tuning uses training-only validation (cross-validation or fixed validation split); tuning method and data used clearly stated",
+                                    "points": 3
+                                },
+                                {
+                                    "description": "Validation procedure appropriate and reproducible; reports split strategy (fold count or train/val ratio), stratification, and aggregation method",
+                                    "points": 4
+                                },
+                                {
+                                    "description": "Includes at least one baseline or sanity check and investigates unusually strong results; baseline (e.g., majority-class) or Leakage/Evaluation Debug subsection when warranted",
+                                    "points": 5
+                                }
+                            ]
+                        },
+                        "negative_items": {
+                            "items": [
+                                "Hyperparameters chosen based on test performance",
+                                "Validation unclear or appears to include test data",
+                                "Validation referenced without enough detail to verify (e.g., 'we used CV' only)",
+                                "No sanity checks reported and near-perfect metrics not questioned"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    },
+                    {
+                        "main_section": "D) Decision Trees (DT) (13 points)",
+                        "points_available": 13,
+                        "positive_items": {
+                            "points_available": 13,
+                            "items": [
+                                {
+                                    "description": "Uses at least one complexity control (max_depth, min_samples_leaf, ccp_alpha); explicitly identifies control and why it prevents overfitting",
+                                    "points": 3
+                                },
+                                {
+                                    "description": "Includes DT learning curve (train and validation vs training size) with interpretation",
+                                    "points": 3
+                                },
+                                {
+                                    "description": "Includes DT model-complexity curve over pruning/regularization parameter with interpretation",
+                                    "points": 3
+                                },
+                                {
+                                    "description": "Reports Adult and Wine final test metrics and confusion matrices for DT",
+                                    "points": 2
+                                },
+                                {
+                                    "description": "Reports DT runtime (fit and predict) and notes at least one trade-off",
+                                    "points": 1
+                                },
+                                {
+                                    "description": "DT hyperparameter exploration meaningful (multiple values tested, final choice justified by MC curve evidence)",
+                                    "points": 1
+                                }
+                            ]
+                        },
+                        "negative_items": {
+                            "items": [
+                                "No complexity control used",
+                                "Missing learning curve or model-complexity curve",
+                                "Missing final metrics or confusion matrices",
+                                "No runtime reporting or trade-off discussion",
+                                "Hyperparameter exploration insufficient or not justified"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    },
+                    {
+                        "main_section": "E) k-Nearest Neighbors (kNN) (13 points)",
+                        "points_available": 13,
+                        "positive_items": {
+                            "points_available": 13,
+                            "items": [
+                                {
+                                    "description": "Tests meaningfully different k values and justifies the chosen region",
+                                    "points": 3
+                                },
+                                {
+                                    "description": "Includes kNN learning curve with interpretation",
+                                    "points": 3
+                                },
+                                {
+                                    "description": "Includes kNN model-complexity curve (validation vs k) with interpretation",
+                                    "points": 3
+                                },
+                                {
+                                    "description": "Reports Adult and Wine final test metrics and confusion matrices for kNN",
+                                    "points": 2
+                                },
+                                {
+                                    "description": "Reports kNN runtime (fit and predict) and discusses predict-time cost",
+                                    "points": 1
+                                },
+                                {
+                                    "description": "kNN hyperparameter exploration meaningful (multiple k values tested, final k justified by MC evidence)",
+                                    "points": 1
+                                }
+                            ]
+                        },
+                        "negative_items": {
+                            "items": [
+                                "Insufficient exploration of k values",
+                                "Missing learning curve or model-complexity curve",
+                                "Missing final metrics or confusion matrices",
+                                "No runtime reporting or predict-time cost discussion",
+                                "Hyperparameter exploration insufficient or not justified"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    },
+                    {
+                        "main_section": "F) Support Vector Machines (SVM) (14 points)",
+                        "points_available": 14,
+                        "positive_items": {
+                            "points_available": 14,
+                            "items": [
+                                {
+                                    "description": "Uses at least two kernels per dataset (linear and RBF minimum)",
+                                    "points": 3
+                                },
+                                {
+                                    "description": "Includes SVM learning curve with interpretation",
+                                    "points": 3
+                                },
+                                {
+                                    "description": "Includes SVM model-complexity curve (vary C and γ) with interpretation",
+                                    "points": 3
+                                },
+                                {
+                                    "description": "Reports Adult and Wine final test metrics and confusion matrices for SVM",
+                                    "points": 2
+                                },
+                                {
+                                    "description": "Reports SVM runtime (fit and predict) and notes kernel trade-offs",
+                                    "points": 1
+                                },
+                                {
+                                    "description": "SVM hyperparameter exploration meaningful and interpretable for both kernels; explores C (and γ for RBF) with enough values to support justified conclusion",
+                                    "points": 2
+                                }
+                            ]
+                        },
+                        "negative_items": {
+                            "items": [
+                                "Less than two kernels used per dataset",
+                                "Missing learning curve or model-complexity curve",
+                                "Missing final metrics or confusion matrices",
+                                "No runtime reporting or kernel trade-off discussion",
+                                "Hyperparameter exploration insufficient for one/both kernels"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    },
+                    {
+                        "main_section": "G) Neural Networks (SGD-only; scikit-learn and PyTorch) (14 points)",
+                        "points_available": 14,
+                        "positive_items": {
+                            "points_available": 14,
+                            "items": [
+                                {
+                                    "description": "SGD-only rule followed; training setup documented (learning rate, batch size, epochs, regularization); optimizer explicitly SGD, no disallowed methods",
+                                    "points": 2
+                                },
+                                {
+                                    "description": "Includes epoch curve (train and validation loss or metric) with interpretation",
+                                    "points": 2
+                                },
+                                {
+                                    "description": "Includes NN learning curve with interpretation",
+                                    "points": 2
+                                },
+                                {
+                                    "description": "Includes NN model-complexity curve varying one key hyperparameter with interpretation",
+                                    "points": 2
+                                },
+                                {
+                                    "description": "Reports Adult and Wine final NN test metrics and confusion matrices",
+                                    "points": 2
+                                },
+                                {
+                                    "description": "Required scikit-learn versus PyTorch NN comparison present for each dataset with fair interpretation",
+                                    "points": 2
+                                },
+                                {
+                                    "description": "NN hyperparameter exploration meaningful (multiple values tested, final choice justified with MC and epoch evidence)",
+                                    "points": 2
+                                }
+                            ]
+                        },
+                        "negative_items": {
+                            "items": [
+                                "SGD-only rule violated or setup undocumented",
+                                "Missing epoch curve, learning curve, or model-complexity curve",
+                                "Missing final metrics or confusion matrices",
+                                "Missing sklearn vs PyTorch comparison",
+                                "Hyperparameter exploration insufficient or not justified"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    },
+                    {
+                        "main_section": "H) Interpretation and Writing (4 points)",
+                        "points_available": 4,
+                        "positive_items": {
+                            "points_available": 4,
+                            "items": [
+                                {
+                                    "description": "Cross-model synthesis compares algorithms across both datasets using evidence-backed takeaways",
+                                    "points": 2
+                                },
+                                {
+                                    "description": "Writing interprets figures (why it happened), not only reporting numbers",
+                                    "points": 1
+                                },
+                                {
+                                    "description": "Includes at least two peer-reviewed sources and includes AI/LLM disclosure if used",
+                                    "points": 1
+                                }
+                            ]
+                        },
+                        "negative_items": {
+                            "items": [
+                                "Weak or missing cross-dataset algorithm comparison",
+                                "Writing style reports numbers without interpretation",
+                                "Insufficient peer-reviewed sources or missing AI disclosure"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    },
+                    {
+                        "main_section": "Extra Credit: Activation Function Study (up to 5 points)",
+                        "points_available": 5,
+                        "positive_items": {
+                            "points_available": 5,
+                            "items": [
+                                {
+                                    "description": "Evaluates four activation functions (ReLU, GELU, SiLU/Swish, tanh) using same architecture, preprocessing, regularization, training protocol; SGD-only, one dataset",
+                                    "points": 1
+                                },
+                                {
+                                    "description": "Includes epoch-wise validation curves for all four activations (same training budget)",
+                                    "points": 2
+                                },
+                                {
+                                    "description": "Includes final comparison table of metrics (runtime and convergence notes)",
+                                    "points": 1
+                                },
+                                {
+                                    "description": "Provides concise interpretation of convergence stability and trade-offs under SGD",
+                                    "points": 1
+                                }
+                            ]
+                        },
+                        "negative_items": {
+                            "items": [
+                                "Missing activations / uncontrolled changes (LR/init/reg) / incomplete curves or metrics",
+                                "Descriptive commentary without diagnosing stability or trade-offs"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    }
+                ],
+                "general_feedback": {
+                    "section": "General Feedback",
+                    "content": "<free-text>"
+                },
+                "verification_notes": {
+                    "section": "Verification Step (TA spot-check; not always required)",
+                    "content": "TAs may perform brief verification when: (1) results appear suspiciously strong, (2) methodology unclear, or (3) reproducibility claims inconsistent.\n- GitHub verification: Confirm commit hash exists and corresponds to submitted results/figures.\n- Overleaf verification: Confirm read-only Overleaf link exists with reasonable revision history.\nIf submission fails verification materially, escalate to Head TA."
+                }
+            }
+        };

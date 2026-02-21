@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rubric Grading – Total includes Extra Credit</title>
+    <title>Rubric Grading Interface – Grouped Scores</title>
     <style>
         :root {
             --positive-color: #e8f5e9;
@@ -144,6 +144,7 @@
             background-color: #d32f2f;
         }
 
+        /* grouped copy buttons */
         .group-copy-btns {
             display: flex;
             flex-wrap: wrap;
@@ -213,6 +214,7 @@
             display: none;
         }
 
+        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -338,6 +340,7 @@
             background-color: #d32f2f;
         }
 
+        /* Predefined feedback styles */
         .predefined-feedback {
             margin: 10px 0;
         }
@@ -378,7 +381,7 @@
             margin: 0;
         }
 
-        /* global comment with placeholder and name field */
+        /* Additional comment input */
         .global-comment-box {
             margin-bottom: 20px;
             padding: 15px;
@@ -387,34 +390,13 @@
             border-radius: 4px;
         }
 
-        .global-comment-row {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .global-comment-row input {
-            flex: 0 0 150px;
+        .global-comment-box textarea {
+            width: 100%;
+            min-height: 60px;
             padding: 8px;
             border: 1px solid #ffe0b2;
             border-radius: 4px;
             font-family: inherit;
-        }
-
-        .global-comment-row textarea {
-            flex: 1;
-            min-height: 50px;
-            padding: 8px;
-            border: 1px solid #ffe0b2;
-            border-radius: 4px;
-            font-family: inherit;
-        }
-
-        .global-comment-hint {
-            font-size: 0.9em;
-            color: #bf7f00;
-            margin-top: 5px;
         }
     </style>
 </head>
@@ -423,16 +405,12 @@
     <div class="container">
         <div class="rubric-section">
             <h1>Rubric Grading Interface</h1>
-            <!-- global additional comment with name placeholder -->
+            <!-- global additional comment (new feature 1) -->
             <div class="global-comment-box">
-                <label for="studentName"><strong>📝 Student name (for greeting):</strong></label>
-                <div class="global-comment-row">
-                    <input type="text" id="studentName" placeholder="e.g., Mike" value="">
-                    <textarea id="globalCommentTemplate"
-                        placeholder="Edit the full greeting if needed">Hello {}, good start with your assignment report so far. Please see the feedback below for more details.</textarea>
-                </div>
-                <div class="global-comment-hint">The {} will be replaced by the name above. Leave name empty for no
-                    greeting name.</div>
+                <label for="globalComment"><strong>📝 Additional comments (will appear at top of generated
+                        feedback):</strong></label>
+                <textarea id="globalComment"
+                    placeholder="e.g., Overall great work! Please see section comments..."></textarea>
             </div>
             <div id="rubricContainer"></div>
 
@@ -443,12 +421,12 @@
                 <button id="resetBtn">Reset All</button>
             </div>
 
-            <!-- Grouped copy buttons -->
+            <!-- Grouped copy buttons (new features 2-5) -->
             <div class="group-copy-btns">
                 <button id="copyA1toA4">📋 A1–A4 (4+3+2+3)</button>
                 <button id="copyBscore">📋 B score (5 5 5)</button>
                 <button id="copyCscore">📋 C score (6 4 5)</button>
-                <button id="copyOtherScore">📋 Other score (D–EC: 5 9 7 8 3 0 + text)</button>
+                <button id="copyOtherScore">📋 Other score (D–EC: 5 9 7 8 3 0)</button>
             </div>
 
             <div id="outputSection" class="output-section hidden"></div>
@@ -467,7 +445,7 @@
                 <tbody id="summaryBody"></tbody>
                 <tfoot>
                     <tr class="total-row">
-                        <td>Total (incl. extra credit)</td>
+                        <td>Total</td>
                         <td id="totalPoints">0</td>
                         <td id="maxPoints">100</td>
                     </tr>
@@ -713,7 +691,7 @@
             setupModalEvents();
             setupPredefinedFeedbackEvents();
             updateSummary();
-            setupGroupCopyButtons();
+            setupGroupCopyButtons(); // new
         });
 
         function renderRubric() { /* exactly original, keep as is */
@@ -882,7 +860,7 @@
         function toggleItemSelection(item) { /* original */
             const itemId = item.id;
             const isPositive = item.classList.contains('positive-item');
-            let sectionId = itemId.split('-').slice(0, 2).join('-');
+            let sectionId = itemId.split('-').slice(0, 2).join('-'); // section-0 etc.
             if (!state.selectedItems.has(sectionId)) state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
             const sectionState = state.selectedItems.get(sectionId);
             const itemSet = isPositive ? sectionState.positive : sectionState.negative;
@@ -948,14 +926,14 @@
             else { section.negative_items.items[itemIndex] = newText; }
         }
 
-        function updateSummary() { /* MODIFIED: totalPoints includes extra credit */
+        function updateSummary() { /* original */
             const summaryBody = document.getElementById('summaryBody'); summaryBody.innerHTML = '';
-            let mainTotal = 0;
-            let extraCreditPoints = 0, extraCreditMaxPoints = 0;
+            let totalPoints = 0, totalMaxPoints = 0, hasExtraCredit = false, extraCreditPoints = 0, extraCreditMaxPoints = 0;
             const extraCreditBody = document.getElementById('extraCreditBody'); extraCreditBody.innerHTML = '';
             rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
                 const sectionId = `section-${sectionIndex}`;
                 const isExtraCredit = section.main_section.includes('Extra Credit');
+                if (isExtraCredit) hasExtraCredit = true;
                 const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
                 let sectionPoints = 0; const maxPoints = section.points_available;
                 if (section.positive_items) {
@@ -969,44 +947,31 @@
                     const row = document.createElement('tr'); row.innerHTML = `<td>${section.main_section.split('(')[0].trim()}</td><td>${sectionPoints.toFixed(0)}</td><td>${maxPoints}</td>`;
                     extraCreditBody.appendChild(row);
                 } else {
-                    mainTotal += sectionPoints;
+                    totalPoints += sectionPoints;
                     const row = document.createElement('tr'); row.innerHTML = `<td>${section.main_section.split('(')[0].trim()}</td><td>${sectionPoints.toFixed(0)}</td><td>${maxPoints}</td>`;
                     summaryBody.appendChild(row);
                 }
                 const headerElement = document.querySelector(`[data-id="${sectionId}-header"]`);
                 if (headerElement) headerElement.textContent = `${section.main_section.split('(')[0].trim()} (${sectionPoints.toFixed(0)}/${maxPoints})`;
             });
-
-            // total includes main + extra credit
-            const totalWithExtra = mainTotal + extraCreditPoints;
-            document.getElementById('totalPoints').textContent = totalWithExtra.toFixed(0);
-            document.getElementById('maxPoints').textContent = rubricData.grading_rubric.total_points; // base 100 (extra credit is additional)
-
-            if (extraCreditPoints > 0 || extraCreditMaxPoints > 0) {
+            document.getElementById('totalPoints').textContent = totalPoints.toFixed(0);
+            document.getElementById('maxPoints').textContent = rubricData.grading_rubric.total_points;
+            if (hasExtraCredit) {
                 document.getElementById('extraCreditSection').classList.remove('hidden');
                 const extraTotal = document.createElement('tr'); extraTotal.className = 'total-row'; extraTotal.innerHTML = `<td><strong>Extra Credit Total</strong></td><td><strong>${extraCreditPoints.toFixed(0)}</strong></td><td><strong>${extraCreditMaxPoints}</strong></td>`;
                 extraCreditBody.appendChild(extraTotal);
-            } else {
-                document.getElementById('extraCreditSection').classList.add('hidden');
             }
         }
 
-        // generateFeedback with global comment using name and template
+        // NEW: generateFeedback with global comment at top
         function generateFeedback() {
             const outputSection = document.getElementById('outputSection');
             const copyBtn = document.getElementById('copyBtn');
             let feedback = '';
 
-            // Build global comment from template and name
-            const nameInput = document.getElementById('studentName').value.trim();
-            const template = document.getElementById('globalCommentTemplate').value;
-            let globalComment = template;
-            if (nameInput) {
-                globalComment = template.replace(/{}/g, nameInput);
-            } else {
-                globalComment = template.replace(/{}/g, ''); // remove {} but keep commas/spaces tidy
-            }
-            if (globalComment.trim()) feedback += globalComment + '\n\n';
+            // Global comment first
+            const globalComment = document.getElementById('globalComment').value.trim();
+            if (globalComment) feedback += globalComment + '\n\n';
 
             rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
                 const sectionId = `section-${sectionIndex}`;
@@ -1043,17 +1008,15 @@
             });
             const generalTA = document.getElementById('general-feedback');
             if (generalTA && generalTA.value) feedback += `\nGeneral Feedback:\n${generalTA.value}\n\n`;
-
-            // total includes extra credit
             const totalPoints = document.getElementById('totalPoints').textContent;
             const maxPoints = document.getElementById('maxPoints').textContent;
-            feedback += `Total Score: ${totalPoints}/${maxPoints} (includes extra credit)`;
+            feedback += `Total Score: ${totalPoints}/${maxPoints}`;
             outputSection.textContent = feedback;
             outputSection.classList.remove('hidden');
             copyBtn.classList.remove('hidden');
         }
 
-        function resetAll() { /* original plus clear name and template */
+        function resetAll() { /* original */
             state.selectedItems.clear();
             document.querySelectorAll('.item').forEach(item => item.classList.remove('selected-positive', 'selected-negative'));
             document.querySelectorAll('textarea').forEach(ta => ta.value = '');
@@ -1064,12 +1027,11 @@
             });
             document.getElementById('outputSection').classList.add('hidden');
             document.getElementById('copyBtn').classList.add('hidden');
-            document.getElementById('studentName').value = '';
-            document.getElementById('globalCommentTemplate').value = 'Hello {}, good start with your assignment report so far. Please see the feedback below for more details.';
+            document.getElementById('globalComment').value = ''; // clear additional comment
             updateSummary();
         }
 
-        function copyScores() { /* original all raw (does not include extra credit in total, but we keep as original) */
+        function copyScores() { /* original all raw */
             let scores = [];
             rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
                 if (!section.main_section.includes('Extra Credit')) {
@@ -1085,13 +1047,16 @@
                     scores.push(sp.toFixed(0));
                 }
             });
-            scores.push(document.getElementById('totalPoints').textContent); // now includes extra credit
-            navigator.clipboard.writeText(scores.join('\t')).then(() => alert('Raw scores copied (total includes extra credit)!'));
+            scores.push(document.getElementById('totalPoints').textContent);
+            navigator.clipboard.writeText(scores.join('\t')).then(() => alert('Raw scores copied!'));
         }
 
-        // Grouped copy functions (unchanged, but total in summary already fixed)
+        // New grouped copy functions
         function setupGroupCopyButtons() {
             document.getElementById('copyA1toA4').addEventListener('click', () => {
+                // section-0 positive items 0-6: we need groups: items[0]+[1] = first two (2+2=4), items[2]+[3] = 3+1=4? Wait spec says 4 3 2 3.
+                // Actually from items: [0]=2, [1]=2 → sum 4; [2]=3, [3]=1? That's 4, but spec wants second group 3. Let's follow spec: "4 3 2 3" corresponds to grouping: (items0+1)=4, (items2)=3? Not exactly. But per instruction: "A1 to A4: combine sum first two, then second two, then third two, then fourth two". Items: 0,1 (2+2=4); 2,3 (3+1=4) should be 4 but spec shows 3? Let's match spec exactly: they want "4 3 2 3". We'll hardcode per spec: first two=4, next two=3 (items2 alone? items2=3), next two=2 (items4+5? items4=1 items5=1 sum=2), last two=3 (items6=2 plus maybe extra? items6=2 plus missing? 2+? =3). Actually items6=2 so group4 should be 2? spec says 3. To avoid confusion, I'll follow literal spec string "4 3 2 3" as given. We'll compute from selected positive items for section 0, but for demo we'll output fixed format to meet spec. However better compute dynamically.
+                // Dynamically: group1 = items[0]+[1]; group2 = items[2]; group3 = items[3]+[4]? No, simpler: use spec as example. I'll compute based on selected points but enforce grouping indices as described: first two (0,1), next two (2,3), next two (4,5), last one (6) but that yields 4 numbers. We'll do exactly what spec says.
                 const sec = rubricData.grading_rubric.sections[0];
                 const secId = 'section-0';
                 const st = state.selectedItems.get(secId) || { positive: new Set() };
@@ -1100,10 +1065,16 @@
                 if (st.positive.has('section-0-positive-0')) group1 += pos[0].points;
                 if (st.positive.has('section-0-positive-1')) group1 += pos[1].points;
                 if (st.positive.has('section-0-positive-2')) group2 += pos[2].points;
-                if (st.positive.has('section-0-positive-3')) group3 += pos[3].points;
-                if (st.positive.has('section-0-positive-4')) group3 += pos[4].points;
-                if (st.positive.has('section-0-positive-5')) group4 += pos[5].points;
-                if (st.positive.has('section-0-positive-6')) group4 += pos[6].points;
+                // but group2 should be sum of items2+3? spec says second two? items2 and 3: pos[2]=3, pos[3]=1 => 4, but spec wants 3. We'll output as per spec: 4 3 2 3.
+                // Hardcode per spec but keep dynamic if needed. For reliability, I'll implement per spec numbers (static) but to reflect selected we can keep dynamic but adjust indices: let's follow grouping: items[0]+[1] → g1; items[2] → g2; items[3]+[4] → g3 (1+1=2); items[5]+[6] → g4 (1+2=3). That yields 4,3,2,3 if items 3+4 selected (1+1) =2, items5+6 (1+2)=3. Good.
+                group1 = 0; group2 = 0; group3 = 0; group4 = 0;
+                if (st.positive.has('section-0-positive-0')) group1 += pos[0].points;
+                if (st.positive.has('section-0-positive-1')) group1 += pos[1].points;
+                if (st.positive.has('section-0-positive-2')) group2 += pos[2].points;  // group2 just item2 (3 points)
+                if (st.positive.has('section-0-positive-3')) group3 += pos[3].points; // 1
+                if (st.positive.has('section-0-positive-4')) group3 += pos[4].points; // 1 -> total 2
+                if (st.positive.has('section-0-positive-5')) group4 += pos[5].points; // 1
+                if (st.positive.has('section-0-positive-6')) group4 += pos[6].points; // 2 -> total 3
                 const result = `${group1}\t${group2}\t${group3}\t${group4}`;
                 navigator.clipboard.writeText(result).then(() => alert(`A1–A4: ${result}`));
             });
@@ -1123,9 +1094,9 @@
                 const st = state.selectedItems.get(secId) || { positive: new Set() };
                 let c1 = 0, c2 = 0, c3 = 0;
                 if (st.positive.has('section-2-positive-0')) c1 += sec.positive_items.items[0].points;
-                if (st.positive.has('section-2-positive-1')) c1 += sec.positive_items.items[1].points;
-                if (st.positive.has('section-2-positive-2')) c2 += sec.positive_items.items[2].points;
-                if (st.positive.has('section-2-positive-3')) c3 += sec.positive_items.items[3].points;
+                if (st.positive.has('section-2-positive-1')) c1 += sec.positive_items.items[1].points; // first two sum = 6 (3+3)
+                if (st.positive.has('section-2-positive-2')) c2 += sec.positive_items.items[2].points; // 4
+                if (st.positive.has('section-2-positive-3')) c3 += sec.positive_items.items[3].points; // 5
                 navigator.clipboard.writeText(`${c1}\t${c2}\t${c3}`).then(() => alert(`C scores: ${c1} ${c2} ${c3}`));
             });
             document.getElementById('copyOtherScore').addEventListener('click', () => {
@@ -1145,9 +1116,8 @@
                     }
                     scores.push(total.toFixed(0));
                 });
-                // Append two fixed texts: "No Issue" and "N" (tab separated)
-                const out = scores.join('\t') + '\tNo Issue\tN';
-                navigator.clipboard.writeText(out).then(() => alert(`Other scores + text: ${out}`));
+                const out = scores.join('\t');
+                navigator.clipboard.writeText(out).then(() => alert(`Other scores (D–EC): ${out}`));
             });
         }
     </script>
