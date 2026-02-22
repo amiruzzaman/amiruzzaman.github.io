@@ -378,7 +378,7 @@
             margin: 0;
         }
 
-        /* global comment box with dropdown */
+        /* global comment with placeholder and name field */
         .global-comment-box {
             margin-bottom: 20px;
             padding: 15px;
@@ -390,32 +390,21 @@
         .global-comment-row {
             display: flex;
             gap: 10px;
-            align-items: flex-start;
+            align-items: center;
             margin-bottom: 10px;
-            flex-wrap: wrap;
         }
 
         .global-comment-row input {
-            flex: 1 1 200px;
+            flex: 0 0 150px;
             padding: 8px;
             border: 1px solid #ffe0b2;
             border-radius: 4px;
             font-family: inherit;
-        }
-
-        .global-comment-row select {
-            flex: 1 1 250px;
-            padding: 8px;
-            border: 1px solid #ffe0b2;
-            border-radius: 4px;
-            background: white;
-            font-family: inherit;
-            cursor: pointer;
         }
 
         .global-comment-row textarea {
-            flex: 2 1 300px;
-            min-height: 60px;
+            flex: 1;
+            min-height: 50px;
             padding: 8px;
             border: 1px solid #ffe0b2;
             border-radius: 4px;
@@ -434,30 +423,16 @@
     <div class="container">
         <div class="rubric-section">
             <h1>Rubric Grading Interface</h1>
-            <!-- global comment block with dropdown and editable textarea -->
+            <!-- global additional comment with name placeholder -->
             <div class="global-comment-box">
                 <label for="studentName"><strong>📝 Student name (for greeting):</strong></label>
                 <div class="global-comment-row">
                     <input type="text" id="studentName" placeholder="e.g., Mike" value="">
-                    <select id="greetingTemplateSelect">
-                        <option value="">— None (no greeting) —</option>
-                        <option
-                            value="Hello {}, good start with your assignment report so far. Please see the feedback below for more details."
-                            selected>Hello {name} (standard)</option>
-                        <option value="Good start, {}. Please see the feedback below.">Good start, {name} (concise)
-                        </option>
-                        <option value="Here is your feedback for the assignment.">No name, plain intro</option>
-                        <option value="Hi {}, I've reviewed your report. Below you'll find detailed feedback.">Hi {name}
-                            (friendly)</option>
-                        <option value="Feedback on your assignment:">Direct, no name</option>
-                    </select>
                     <textarea id="globalCommentTemplate"
-                        placeholder="Editable greeting text">Hello {}, good start with your assignment report so far. Please see the feedback below for more details.</textarea>
+                        placeholder="Edit the full greeting if needed">Hello {}, good start with your assignment report so far. Please see the feedback below for more details.</textarea>
                 </div>
-                <div class="global-comment-hint">
-                    Select a preset, then edit if needed. The {} will be replaced by the name. Leave name empty for no
-                    name insertion. Choose "None" to omit greeting.
-                </div>
+                <div class="global-comment-hint">The {} will be replaced by the name above. Leave name empty for no
+                    greeting name.</div>
             </div>
             <div id="rubricContainer"></div>
 
@@ -739,26 +714,9 @@
             setupPredefinedFeedbackEvents();
             updateSummary();
             setupGroupCopyButtons();
-            // Link dropdown to textarea
-            const select = document.getElementById('greetingTemplateSelect');
-            const textarea = document.getElementById('globalCommentTemplate');
-            select.addEventListener('change', function () {
-                if (this.value) {
-                    textarea.value = this.value;
-                } else {
-                    textarea.value = ''; // None option -> empty
-                }
-            });
-            // default: select "None" -> empty, but we also want default nothing.
-            // Set default to none (option value "") and textarea empty.
-            select.value = '';
-            textarea.value = '';
         });
 
-        // All original functions remain exactly as they were, except generateFeedback uses dropdown + name.
-        // I'll copy them faithfully, then modify generateFeedback.
-
-        function renderRubric() {
+        function renderRubric() { /* exactly original, keep as is */
             const container = document.getElementById('rubricContainer');
             container.innerHTML = '';
             rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
@@ -853,7 +811,7 @@
             }
         }
 
-        function setupEventListeners() {
+        function setupEventListeners() { /* original, unchanged */
             document.addEventListener('dblclick', function (e) {
                 const item = e.target.closest('.item');
                 if (item) { showItemModal(item.id); e.preventDefault(); e.stopPropagation(); }
@@ -881,7 +839,7 @@
             document.getElementById('copyScoresBtn').addEventListener('click', copyScores);
         }
 
-        function setupModalEvents() {
+        function setupModalEvents() { /* original */
             const modal = document.getElementById('itemModal');
             const closeBtn = document.querySelector('.close-btn');
             const cancelBtn = document.getElementById('cancelBtn');
@@ -893,7 +851,7 @@
             window.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
         }
 
-        function setupPredefinedFeedbackEvents() {
+        function setupPredefinedFeedbackEvents() { /* original */
             document.addEventListener('click', function (e) {
                 if (e.target.classList.contains('predefined-comment')) {
                     const comment = e.target.getAttribute('data-comment');
@@ -921,7 +879,7 @@
             });
         }
 
-        function toggleItemSelection(item) {
+        function toggleItemSelection(item) { /* original */
             const itemId = item.id;
             const isPositive = item.classList.contains('positive-item');
             let sectionId = itemId.split('-').slice(0, 2).join('-');
@@ -932,7 +890,7 @@
             else { itemSet.add(itemId); item.classList.add(isPositive ? 'selected-positive' : 'selected-negative'); }
         }
 
-        function makeEditable(element) {
+        function makeEditable(element) { /* original */
             const currentText = element.textContent;
             const input = document.createElement('input');
             input.type = 'text'; input.value = currentText; input.style.width = '100%'; input.style.border = '1px solid #2196F3'; input.style.padding = '2px 4px';
@@ -951,7 +909,7 @@
             input.addEventListener('keypress', (e) => { if (e.key === 'Enter') input.blur(); });
         }
 
-        function showItemModal(itemId) {
+        function showItemModal(itemId) { /* original */
             const modal = document.getElementById('itemModal');
             const itemText = document.getElementById('itemText');
             const itemPoints = document.getElementById('itemPoints');
@@ -968,7 +926,7 @@
             modal.style.display = 'flex';
         }
 
-        function saveItemChanges() {
+        function saveItemChanges() { /* original */
             const modal = document.getElementById('itemModal');
             const itemText = document.getElementById('itemText');
             const itemPoints = document.getElementById('itemPoints');
@@ -984,13 +942,13 @@
             modal.style.display = 'none'; state.currentEditingItem = null; updateSummary();
         }
 
-        function updateRubricData(itemId, newText, newPoints) {
+        function updateRubricData(itemId, newText, newPoints) { /* original */
             const parts = itemId.split('-'); const sectionIndex = parseInt(parts[1]); const isPositive = parts[2] === 'positive'; const itemIndex = parseInt(parts[parts.length - 1]); const section = rubricData.grading_rubric.sections[sectionIndex];
             if (isPositive) { section.positive_items.items[itemIndex].description = newText; section.positive_items.items[itemIndex].points = newPoints; }
             else { section.negative_items.items[itemIndex] = newText; }
         }
 
-        function updateSummary() {
+        function updateSummary() { /* MODIFIED: totalPoints includes extra credit */
             const summaryBody = document.getElementById('summaryBody'); summaryBody.innerHTML = '';
             let mainTotal = 0;
             let extraCreditPoints = 0, extraCreditMaxPoints = 0;
@@ -1019,9 +977,10 @@
                 if (headerElement) headerElement.textContent = `${section.main_section.split('(')[0].trim()} (${sectionPoints.toFixed(0)}/${maxPoints})`;
             });
 
+            // total includes main + extra credit
             const totalWithExtra = mainTotal + extraCreditPoints;
             document.getElementById('totalPoints').textContent = totalWithExtra.toFixed(0);
-            document.getElementById('maxPoints').textContent = rubricData.grading_rubric.total_points;
+            document.getElementById('maxPoints').textContent = rubricData.grading_rubric.total_points; // base 100 (extra credit is additional)
 
             if (extraCreditPoints > 0 || extraCreditMaxPoints > 0) {
                 document.getElementById('extraCreditSection').classList.remove('hidden');
@@ -1032,30 +991,22 @@
             }
         }
 
-        // Modified generateFeedback to respect dropdown selection
+        // generateFeedback with global comment using name and template
         function generateFeedback() {
             const outputSection = document.getElementById('outputSection');
             const copyBtn = document.getElementById('copyBtn');
             let feedback = '';
 
-            // Global greeting: use dropdown and template
-            const select = document.getElementById('greetingTemplateSelect');
-            const templateFromSelect = select.value; // might be empty string for None
+            // Build global comment from template and name
             const nameInput = document.getElementById('studentName').value.trim();
-            const textareaTemplate = document.getElementById('globalCommentTemplate').value;
-
-            // Use textarea content as the actual template, but if select is empty, we force no greeting.
-            let finalTemplate = (select.value === '') ? '' : textareaTemplate; // if none selected, empty string
-
-            if (finalTemplate.trim() !== '') {
-                let greeting = finalTemplate;
-                if (nameInput) {
-                    greeting = finalTemplate.replace(/{}/g, nameInput);
-                } else {
-                    greeting = finalTemplate.replace(/{}/g, ''); // remove {} placeholders
-                }
-                feedback += greeting + '\n\n';
+            const template = document.getElementById('globalCommentTemplate').value;
+            let globalComment = template;
+            if (nameInput) {
+                globalComment = template.replace(/{}/g, nameInput);
+            } else {
+                globalComment = template.replace(/{}/g, ''); // remove {} but keep commas/spaces tidy
             }
+            if (globalComment.trim()) feedback += globalComment + '\n\n';
 
             rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
                 const sectionId = `section-${sectionIndex}`;
@@ -1093,6 +1044,7 @@
             const generalTA = document.getElementById('general-feedback');
             if (generalTA && generalTA.value) feedback += `\nGeneral Feedback:\n${generalTA.value}\n\n`;
 
+            // total includes extra credit
             const totalPoints = document.getElementById('totalPoints').textContent;
             const maxPoints = document.getElementById('maxPoints').textContent;
             feedback += `Total Score: ${totalPoints}/${maxPoints} (includes extra credit)`;
@@ -1101,7 +1053,7 @@
             copyBtn.classList.remove('hidden');
         }
 
-        function resetAll() {
+        function resetAll() { /* original plus clear name and template */
             state.selectedItems.clear();
             document.querySelectorAll('.item').forEach(item => item.classList.remove('selected-positive', 'selected-negative'));
             document.querySelectorAll('textarea').forEach(ta => ta.value = '');
@@ -1113,13 +1065,11 @@
             document.getElementById('outputSection').classList.add('hidden');
             document.getElementById('copyBtn').classList.add('hidden');
             document.getElementById('studentName').value = '';
-            // reset greeting to default: None
-            document.getElementById('greetingTemplateSelect').value = '';
-            document.getElementById('globalCommentTemplate').value = '';
+            document.getElementById('globalCommentTemplate').value = 'Hello {}, good start with your assignment report so far. Please see the feedback below for more details.';
             updateSummary();
         }
 
-        function copyScores() {
+        function copyScores() { /* original all raw (does not include extra credit in total, but we keep as original) */
             let scores = [];
             rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
                 if (!section.main_section.includes('Extra Credit')) {
@@ -1135,10 +1085,11 @@
                     scores.push(sp.toFixed(0));
                 }
             });
-            scores.push(document.getElementById('totalPoints').textContent);
+            scores.push(document.getElementById('totalPoints').textContent); // now includes extra credit
             navigator.clipboard.writeText(scores.join('\t')).then(() => alert('Raw scores copied (total includes extra credit)!'));
         }
 
+        // Grouped copy functions (unchanged, but total in summary already fixed)
         function setupGroupCopyButtons() {
             document.getElementById('copyA1toA4').addEventListener('click', () => {
                 const sec = rubricData.grading_rubric.sections[0];
@@ -1178,6 +1129,7 @@
                 navigator.clipboard.writeText(`${c1}\t${c2}\t${c3}`).then(() => alert(`C scores: ${c1} ${c2} ${c3}`));
             });
             document.getElementById('copyOtherScore').addEventListener('click', () => {
+                // D, E, F, G, H, Extra credit: indices 3,4,5,6,7,8
                 const indices = [3, 4, 5, 6, 7, 8];
                 let scores = [];
                 indices.forEach(idx => {
@@ -1193,6 +1145,7 @@
                     }
                     scores.push(total.toFixed(0));
                 });
+                // Append two fixed texts: "No Issue" and "N" (tab separated)
                 const out = scores.join('\t') + '\tNo Issue\tN';
                 navigator.clipboard.writeText(out).then(() => alert(`Other scores + text: ${out}`));
             });
