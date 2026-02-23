@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rubric · positive/negative toggle</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: #f5f7fc;
+            margin: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .rubric-container {
+            max-width: 1400px;
+            width: 100%;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.2);
+            padding: 2rem 1.8rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 0 0 0.25rem 0;
+            color: #0b1b3a;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e6edf4;
+            padding-bottom: 1rem;
+        }
+
+        .toggle-btn {
+            background: #1a2b4c;
+            color: white;
+            border: none;
+            padding: 0.7rem 1.8rem;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 8px rgba(0, 20, 40, 0.2);
+            transition: 0.2s;
+        }
+
+        .toggle-btn:hover {
+            background: #223a60;
+            transform: scale(1.02);
+        }
+
+        .toggle-btn:active {
+            background: #0f1e30;
+            transform: scale(0.98);
+        }
+
+        .score-chip {
+            background: #eef2f9;
+            color: #0b1b3a;
+            border-radius: 30px;
+            padding: 0.25rem 1rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        /* sections grid */
+        .sections-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        .section-card {
+            background: #ffffff;
+            border: 1px solid #dde5ef;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 6px 12px -8px #b0c0d0;
+        }
+
+        .section-title-row {
+            background: #f0f4fc;
+            padding: 1rem 1.8rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 1rem;
+            border-bottom: 1px solid #d0ddee;
+        }
+
+        .section-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #0b2b4e;
+        }
+
+        .section-points {
+            background: #ffffffc0;
+            border-radius: 30px;
+            padding: 0.2rem 1.2rem;
+            font-weight: 600;
+            color: #1e3b63;
+            border: 1px solid #b8cae0;
+            font-size: 0.95rem;
+        }
+
+        /* positive items table style */
+        .positive-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #ffffff;
+        }
+
+        .positive-table th {
+            text-align: left;
+            padding: 1rem 1.8rem 0.5rem 1.8rem;
+            font-weight: 600;
+            color: #1b4b3b;
+            background: #f9fffc;
+            border-bottom: 1px solid #bcd9cc;
+            font-size: 1rem;
+            letter-spacing: 0.3px;
+        }
+
+        .positive-table td {
+            padding: 0.75rem 1.8rem;
+            border-bottom: 1px solid #e2eaf1;
+            vertical-align: top;
+        }
+
+        .positive-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .positive-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .positive-desc {
+            flex: 1;
+            color: #102a41;
+            line-height: 1.4;
+        }
+
+        .positive-points {
+            font-weight: 600;
+            background: #e2f0e8;
+            padding: 0.2rem 1rem;
+            border-radius: 30px;
+            color: #005f46;
+            white-space: nowrap;
+            font-size: 0.9rem;
+            min-width: 65px;
+            text-align: center;
+        }
+
+        /* negative items – collapsible block */
+        .negative-section {
+            background: #fef8f5;
+            border-top: 2px dashed #f0cdc0;
+            transition: all 0.2s ease;
+        }
+
+        .negative-header {
+            padding: 0.8rem 1.8rem;
+            font-weight: 600;
+            color: #a43c2c;
+            background: #ffefea;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            cursor: pointer;
+            border-bottom: 1px solid #f0cdc0;
+        }
+
+        .negative-header span {
+            font-size: 1rem;
+            letter-spacing: 0.2px;
+        }
+
+        .negative-icon {
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        .negative-items-list {
+            padding: 0.6rem 1.8rem 0.8rem 1.8rem;
+            margin: 0;
+            list-style-type: none;
+        }
+
+        .negative-items-list li {
+            padding: 0.45rem 0 0.45rem 1.6rem;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23b33f2f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>') left center no-repeat;
+            background-size: 16px;
+            color: #692315;
+            border-bottom: 1px solid #ffe1d5;
+        }
+
+        .negative-items-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feedback-placeholder {
+            padding: 0.8rem 1.8rem 0.8rem 2.5rem;
+            background: #fbfbfd;
+            color: #3f546d;
+            font-style: italic;
+            border-top: 1px dashed #ced9e8;
+            font-size: 0.95rem;
+        }
+
+        .general-feedback {
+            margin-top: 30px;
+            background: #e7edf8;
+            padding: 1.2rem 2rem;
+            border-radius: 18px;
+            color: #1b3050;
+        }
+
+        .verification-note {
+            background: #f3f0e5;
+            border-radius: 18px;
+            padding: 1.2rem 2rem;
+            margin-top: 20px;
+            border-left: 5px solid #b09b6f;
+            font-size: 0.9rem;
+        }
+
+        .footer-total {
+            display: flex;
+            justify-content: flex-end;
+            font-weight: 600;
+            margin-top: 2rem;
+            font-size: 1.1rem;
+            background: #f0f6ff;
+            padding: 1rem 2rem;
+            border-radius: 40px;
+        }
+
+        .hide-negatives .negative-section {
+            display: none;
+        }
+
+        button:focus-visible {
+            outline: 3px solid #9bb8f0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="rubric-container" id="rubricApp">
+        <div class="header-bar">
+            <h1>
+                📋 grading rubric
+                <span class="score-chip">total {{totalPoints}} + ec {{extraCredit}}</span>
+            </h1>
+            <button class="toggle-btn" id="toggleNegBtn">
+                <span class="negative-icon">👎</span> <span id="toggleBtnText">hide negative comments</span>
+            </button>
+        </div>
+
+        <!-- sections will be injected by js -->
+        <div id="sectionsContainer" class="sections-grid"></div>
+
+        <!-- general feedback & verification (static but filled via js) -->
+        <div id="generalFeedbackArea" class="general-feedback"></div>
+        <div id="verificationArea" class="verification-note"></div>
+
+        <div class="footer-total">
+            ⚖️ extra credit included · max {{totalWithEC}} pts
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            // ----- raw rubric data (exactly as provided) -----
+            const rubricData = {
+                "grading_rubric": {
+                    "total_points": 100,
+                    "extra_credit_points": 5,
+                    "sections": [
+                        {
+                            "main_section": "A) Compliance, Page Limit, and Reproducibility (12 points)",
+                            "points_available": 12,
+                            "positive_items": {
+                                "points_available": 12,
+                                "items": [
+                                    { "description": "Adult task is correct (binary classification on income) - target and labels match spec, used consistently in plots/metrics", "points": 2 },
+                                    { "description": "Wine task is correct (multiclass classification on quality) - quality treated as discrete classes, Macro-F1 reported", "points": 2 },
+                                    { "description": "Runs DT, kNN, SVM (at least two kernels), and NN (SGD only; scikit-learn and PyTorch) on both datasets", "points": 3 },
+                                    { "description": "Overleaf project link is included and is read-only", "points": 1 },
+                                    { "description": "Report complies with the page limit and required content is within the graded portion", "points": 1 },
+                                    { "description": "Git commit hash is provided and repository is accessible to course staff", "points": 1 },
+                                    { "description": "Run instructions are complete enough to reproduce outputs on a standard Linux machine (clear commands, environment requirements, seeds provided)", "points": 2 }
+                                ]
+                            },
+                            "negative_items": {
+                                "items": [
+                                    "Wrong target for Adult, different dataset, or unclear label mapping",
+                                    "Wine treated as regression or binarized without authorization",
+                                    "Any algorithm family missing or only run on one dataset",
+                                    "Missing, broken, or requires edit permissions for Overleaf link",
+                                    "Exceeds page limit or required content beyond what will be graded",
+                                    "Missing, invalid, or inaccessible git hash",
+                                    "Instructions missing or clearly insufficient to reproduce results"
+                                ]
+                            },
+                            "feedback_section": "Feedback on Section: <free-text>"
+                        },
+                        {
+                            "main_section": "B) EDA and Hypotheses (15 points)",
+                            "points_available": 15,
+                            "positive_items": {
+                                "points_available": 15,
+                                "items": [
+                                    { "description": "EDA includes core facts for both datasets: shape, feature types, missingness, and class counts; supports later choices (metrics, preprocessing, model expectations)", "points": 5 },
+                                    { "description": "At least one hypothesis per dataset stated after EDA and before tuned results; predicts algorithm performance/trade-offs and is testable", "points": 5 },
+                                    { "description": "Hypotheses revisited and evaluated using reported results (LC, MC, metrics); connects outcomes back to hypothesis and explains surprises", "points": 5 }
+                                ]
+                            },
+                            "negative_items": {
+                                "items": [
+                                    "EDA is absent, superficial, or incorrect",
+                                    "Hypothesis is just a goal or stated after results",
+                                    "Hypotheses never revisited or ignored in discussion"
+                                ]
+                            },
+                            "feedback_section": "Feedback on Section: <free-text>"
+                        },
+                        {
+                            "main_section": "C) Evaluation Design, Cross-Validation, and Sanity (15 points)",
+                            "points_available": 15,
+                            "positive_items": {
+                                "points_available": 15,
+                                "items": [
+                                    { "description": "Test set is held out and used only once for final reporting; split explicit and test set not used for tuning", "points": 3 },
+                                    { "description": "Hyperparameter tuning uses training-only validation (cross-validation or fixed validation split); tuning method and data used clearly stated", "points": 3 },
+                                    { "description": "Validation procedure appropriate and reproducible; reports split strategy (fold count or train/val ratio), stratification, and aggregation method", "points": 4 },
+                                    { "description": "Includes at least one baseline or sanity check and investigates unusually strong results; baseline (e.g., majority-class) or Leakage/Evaluation Debug subsection when warranted", "points": 5 }
+                                ]
+                            },
+                            "negative_items": {
+                                "items": [
+                                    "Hyperparameters chosen based on test performance",
+                                    "Validation unclear or appears to include test data",
+                                    "Validation referenced without enough detail to verify (e.g., 'we used CV' only)",
+                                    "No sanity checks reported and near-perfect metrics not questioned"
+                                ]
+                            },
+                            "feedback_section": "Feedback on Section: <free-text>"
+                        },
+                        {
+                            "main_section": "D) Decision Trees (DT) (13 points)",
+                            "points_available": 13,
+                            "positive_items": {
+                                "points_available": 13,
+                                "items": [
+                                    { "description": "Uses at least one complexity control (max_depth, min_samples_leaf, ccp_alpha); explicitly identifies control and why it prevents overfitting", "points": 3 },
+                                    { "description": "Includes DT learning curve (train and validation vs training size) with interpretation", "points": 3 },
+                                    { "description": "Includes DT model-complexity curve over pruning/regularization parameter with interpretation", "points": 3 },
+                                    { "description": "Reports Adult and Wine final test metrics and confusion matrices for DT", "points": 2 },
+                                    { "description": "Reports DT runtime (fit and predict) and notes at least one trade-off", "points": 1 },
+                                    { "description": "DT hyperparameter exploration meaningful (multiple values tested, final choice justified by MC curve evidence)", "points": 1 }
+                                ]
+                            },
+                            "negative_items": {
+                                "items": [
+                                    "No complexity control used",
+                                    "Missing learning curve or model-complexity curve",
+                                    "Missing final metrics or confusion matrices",
+                                    "No runtime reporting or trade-off discussion",
+                                    "Hyperparameter exploration insufficient or not justified"
+                                ]
+                            },
+                            "feedback_section": "Feedback on Section: <free-text>"
+                        },
+                        {
+                            "main_section": "E) k-Nearest Neighbors (kNN) (13 points)",
+                            "points_available": 13,
+                            "positive_items": {
+                                "points_available": 13,
+                                "items": [
+                                    { "description": "Tests meaningfully different k values and justifies the chosen region", "points": 3 },
+                                    { "description": "Includes kNN learning curve with interpretation", "points": 3 },
+                                    { "description": "Includes kNN model-complexity curve (validation vs k) with interpretation", "points": 3 },
+                                    { "description": "Reports Adult and Wine final test metrics and confusion matrices for kNN", "points": 2 },
+                                    { "description": "Reports kNN runtime (fit and predict) and discusses predict-time cost", "points": 1 },
+                                    { "description": "kNN hyperparameter exploration meaningful (multiple k values tested, final k justified by MC evidence)", "points": 1 }
+                                ]
+                            },
+                            "negative_items": {
+                                "items": [
+                                    "Insufficient exploration of k values",
+                                    "Missing learning curve or model-complexity curve",
+                                    "Missing final metrics or confusion matrices",
+                                    "No runtime reporting or predict-time cost discussion",
+                                    "Hyperparameter exploration insufficient or not justified"
+                                ]
+                            },
+                            "feedback_section": "Feedback on Section: <free-text>"
+                        },
+                        {
+                            "main_section": "F) Support Vector Machines (SVM) (14 points)",
+                            "points_available": 14,
+                            "positive_items": {
+                                "points_available": 14,
+                                "items": [
+                                    { "description": "Uses at least two kernels per dataset (linear and RBF minimum)", "points": 3 },
+                                    { "description": "Includes SVM learning curve with interpretation", "points": 3 },
+                                    { "description": "Includes SVM model-complexity curve (vary C and γ) with interpretation", "points": 3 },
+                                    { "description": "Reports Adult and Wine final test metrics and confusion matrices for SVM", "points": 2 },
+                                    { "description": "Reports SVM runtime (fit and predict) and notes kernel trade-offs", "points": 1 },
+                                    { "description": "SVM hyperparameter exploration meaningful and interpretable for both kernels; explores C (and γ for RBF) with enough values to support justified conclusion", "points": 2 }
+                                ]
+                            },
+                            "negative_items": {
+                                "items": [
+                                    "Less than two kernels used per dataset",
+                                    "Missing learning curve or model-complexity curve",
+                                    "Missing final metrics or confusion matrices",
+                                    "No runtime reporting or kernel trade-off discussion",
+                                    "Hyperparameter exploration insufficient for one/both kernels"
+                                ]
+                            },
+                            "feedback_section": "Feedback on Section: <free-text>"
+                        },
+                        {
+                            "main_section": "G) Neural Networks (SGD-only; scikit-learn and PyTorch) (14 points)",
+                            "points_available": 14,
+                            "positive_items": {
+                                "points_available": 14,
+                                "items": [
+                                    { "description": "SGD-only rule followed; training setup documented (learning rate, batch size, epochs, regularization); optimizer explicitly SGD, no disallowed methods", "points": 2 },
+                                    { "description": "Includes epoch curve (train and validation loss or metric) with interpretation", "points": 2 },
+                                    { "description": "Includes NN learning curve with interpretation", "points": 2 },
+                                    { "description": "Includes NN model-complexity curve varying one key hyperparameter with interpretation", "points": 2 },
+                                    { "description": "Reports Adult and Wine final NN test metrics and confusion matrices", "points": 2 },
+                                    { "description": "Required scikit-learn versus PyTorch NN comparison present for each dataset with fair interpretation", "points": 2 },
+                                    { "description": "NN hyperparameter exploration meaningful (multiple values tested, final choice justified with MC and epoch evidence)", "points": 2 }
+                                ]
+                            },
+                            "negative_items": {
+                                "items": [
+                                    "SGD-only rule violated or setup undocumented",
+                                    "Missing epoch curve, learning curve, or model-complexity curve",
+                                    "Missing final metrics or confusion matrices",
+                                    "Missing sklearn vs PyTorch comparison",
+                                    "Hyperparameter exploration insufficient or not justified"
+                                ]
+                            },
+                            "feedback_section": "Feedback on Section: <free-text>"
+                        },
+                        {
+                            "main_section": "H) Interpretation and Writing (4 points)",
+                            "points_available": 4,
+                            "positive_items": {
+                                "points_available": 4,
+                                "items": [
+                                    { "description": "Cross-model synthesis compares algorithms across both datasets using evidence-backed takeaways", "points": 2 },
+                                    { "description": "Writing interprets figures (why it happened), not only reporting numbers", "points": 1 },
+                                    { "description": "Includes at least two peer-reviewed sources and includes AI/LLM disclosure if used", "points": 1 }
+                                ]
+                            },
+                            "negative_items": {
+                                "items": [
+                                    "Weak or missing cross-dataset algorithm comparison",
+                                    "Writing style reports numbers without interpretation",
+                                    "Insufficient peer-reviewed sources or missing AI disclosure"
+                                ]
+                            },
+                            "feedback_section": "Feedback on Section: <free-text>"
+                        },
+                        {
+                            "main_section": "Extra Credit: Activation Function Study (up to 5 points)",
+                            "points_available": 5,
+                            "positive_items": {
+                                "points_available": 5,
+                                "items": [
+                                    { "description": "Evaluates four activation functions (ReLU, GELU, SiLU/Swish, tanh) using same architecture, preprocessing, regularization, training protocol; SGD-only, one dataset", "points": 1 },
+                                    { "description": "Includes epoch-wise validation curves for all four activations (same training budget)", "points": 2 },
+                                    { "description": "Includes final comparison table of metrics (runtime and convergence notes)", "points": 1 },
+                                    { "description": "Provides concise interpretation of convergence stability and trade-offs under SGD", "points": 1 }
+                                ]
+                            },
+                            "negative_items": {
+                                "items": [
+                                    "Missing activations / uncontrolled changes (LR/init/reg) / incomplete curves or metrics",
+                                    "Descriptive commentary without diagnosing stability or trade-offs"
+                                ]
+                            },
+                            "feedback_section": "Feedback on Section: <free-text>"
+                        }
+                    ],
+                    "general_feedback": {
+                        "section": "General Feedback",
+                        "content": "<free-text>"
+                    },
+                    "verification_notes": {
+                        "section": "Verification Step (TA spot-check; not always required)",
+                        "content": "TAs may perform brief verification when: (1) results appear suspiciously strong, (2) methodology unclear, or (3) reproducibility claims inconsistent.\n- GitHub verification: Confirm commit hash exists and corresponds to submitted results/figures.\n- Overleaf verification: Confirm read-only Overleaf link exists with reasonable revision history.\nIf submission fails verification materially, escalate to Head TA."
+                    }
+                }
+            };
+
+            // ----- helper variables -----
+            const rubric = rubricData.grading_rubric;
+            const totalPoints = rubric.total_points;
+            const extraCredit = rubric.extra_credit_points;
+            const totalWithEC = totalPoints + extraCredit;
+
+            // state for negative toggle
+            let negativesVisible = true;  // start visible
+
+            // ----- render function (fills the dynamic areas) -----
+            function renderApp() {
+                const sectionsContainer = document.getElementById('sectionsContainer');
+                const generalArea = document.getElementById('generalFeedbackArea');
+                const verificationArea = document.getElementById('verificationArea');
+                const toggleBtnText = document.getElementById('toggleBtnText');
+
+                // update toggle button text based on state
+                toggleBtnText.innerText = negativesVisible ? 'hide negative comments' : 'show negative comments';
+
+                // apply class to container to hide if needed (simple css class toggling)
+                const appDiv = document.getElementById('rubricApp');
+                if (negativesVisible) {
+                    appDiv.classList.remove('hide-negatives');
+                } else {
+                    appDiv.classList.add('hide-negatives');
+                }
+
+                // build sections html
+                let sectionsHtml = '';
+
+                rubric.sections.forEach(section => {
+                    const mainTitle = section.main_section;
+                    const pointsAvail = section.points_available;
+                    const posItems = section.positive_items.items;
+                    const negItems = section.negative_items.items || [];
+                    const feedbackPlaceholder = section.feedback_section || 'Feedback on Section: <free-text>';
+
+                    // positive items table
+                    let positiveRows = '';
+                    posItems.forEach(item => {
+                        positiveRows += `
+                        <tr>
+                            <td>
+                                <div class="positive-item">
+                                    <span class="positive-desc">${item.description}</span>
+                                    <span class="positive-points">${item.points} pt${item.points !== 1 ? 's' : ''}</span>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    });
+
+                    // negative items list
+                    let negativeList = '';
+                    if (negItems.length > 0) {
+                        negItems.forEach(n => {
+                            negativeList += `<li>${n}</li>`;
+                        });
+                    } else {
+                        negativeList = '<li style="list-style:none; background:none; padding-left:0; color:#755;">(no specific negative comments)</li>';
+                    }
+
+                    // build full card
+                    sectionsHtml += `
+                    <div class="section-card">
+                        <div class="section-title-row">
+                            <span class="section-name">${mainTitle}</span>
+                            <span class="section-points">${pointsAvail} pts</span>
+                        </div>
+                        <!-- positive items table -->
+                        <table class="positive-table">
+                            <thead><tr><th>✅ positive criteria (${posItems.length})</th></tr></thead>
+                            <tbody>
+                                ${positiveRows}
+                            </tbody>
+                        </table>
+                        <!-- negative block (collapsible via css) -->
+                        <div class="negative-section">
+                            <div class="negative-header">
+                                <span class="negative-icon">👎</span>
+                                <span>negative indicators · click to toggle not needed (global button)</span>
+                            </div>
+                            <ul class="negative-items-list">
+                                ${negativeList}
+                            </ul>
+                        </div>
+                        <div class="feedback-placeholder">
+                            📝 ${feedbackPlaceholder}
+                        </div>
+                    </div>
+                `;
+                });
+
+                sectionsContainer.innerHTML = sectionsHtml;
+
+                // general feedback & verification
+                generalArea.innerHTML = `<strong>${rubric.general_feedback.section}</strong><br>${rubric.general_feedback.content}`;
+                verificationArea.innerHTML = `<strong>${rubric.verification_notes.section}</strong><br>${rubric.verification_notes.content.replace(/\n/g, '<br>')}`;
+
+                // update footer dynamic placeholders
+                const footerSpans = document.querySelectorAll('.footer-total');
+                // there is only one footer div, we replace its inner html with updated values
+                if (footerSpans.length) {
+                    footerSpans[0].innerHTML = `⚖️ extra credit included · max ${totalWithEC} pts`;
+                }
+                // also header chip
+                const chip = document.querySelector('.score-chip');
+                if (chip) {
+                    chip.innerText = `total ${totalPoints} + ec ${extraCredit}`;
+                }
+            }
+
+            // ----- toggle function -----
+            function toggleNegatives() {
+                negativesVisible = !negativesVisible;
+                renderApp();  // re-render to update classes and button text
+            }
+
+            // ----- initial render & event binding -----
+            window.addEventListener('DOMContentLoaded', () => {
+                // initial render
+                renderApp();
+
+                // bind toggle button
+                const toggleBtn = document.getElementById('toggleNegBtn');
+                toggleBtn.addEventListener('click', toggleNegatives);
+
+                // optional: clicking on negative header does nothing extra (we use only global)
+                // but we want to keep header passive.
+            });
+        })();
+    </script>
+    <!-- small inline fix for double template braces in footer: after js replaces it's fine -->
+</body>
+
+</html>
