@@ -55,51 +55,6 @@
             font-weight: bold;
             cursor: pointer;
             border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-        }
-
-        .section-header span {
-            flex: 1;
-        }
-
-        .section-buttons {
-            display: flex;
-            gap: 6px;
-            margin-left: 10px;
-        }
-
-        .section-buttons button {
-            background-color: #6c757d;
-            padding: 4px 10px;
-            font-size: 12px;
-            border-radius: 12px;
-            border: none;
-            color: white;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .section-buttons button:hover {
-            background-color: #5a6268;
-        }
-
-        .section-buttons .select-positive-btn {
-            background-color: #2e7d32;
-        }
-
-        .section-buttons .select-positive-btn:hover {
-            background-color: #1b5e20;
-        }
-
-        .section-buttons .select-negative-btn {
-            background-color: #c62828;
-        }
-
-        .section-buttons .select-negative-btn:hover {
-            background-color: #b71c1c;
         }
 
         .subsection-header {
@@ -614,8 +569,7 @@
     </div>
 
     <script>
-        let extraCreditPointsValue = 0;
-        // Rubric data with negative items expanded to match positive count
+        // Rubric data (identical to original)
         const rubricData = {
             "grading_rubric": {
                 "total_points": 100,
@@ -660,13 +614,7 @@
                                 { "description": "Hypotheses revisited and evaluated using reported results (LC, MC, metrics); connects outcomes back to hypothesis and explains surprises", "points": 5 }
                             ]
                         },
-                        "negative_items": {
-                            "items": [
-                                "EDA is absent, superficial, or incorrect",
-                                "Hypothesis is just a goal or stated after results",
-                                "Hypotheses never revisited or ignored in discussion"
-                            ]
-                        },
+                        "negative_items": { "items": ["EDA is absent, superficial, or incorrect", "Hypothesis is just a goal or stated after results", "Hypotheses never revisited or ignored in discussion"] },
                         "feedback_section": "Feedback on Section: <free-text>"
                     },
                     {
@@ -681,14 +629,7 @@
                                 { "description": "Includes at least one baseline or sanity check and investigates unusually strong results; baseline (e.g., majority-class) or Leakage/Evaluation Debug subsection when warranted", "points": 5 }
                             ]
                         },
-                        "negative_items": {
-                            "items": [
-                                "Hyperparameters chosen based on test performance",
-                                "Validation unclear or appears to include test data",
-                                "Validation referenced without enough detail to verify (e.g., 'we used CV' only)",
-                                "No sanity checks reported and near-perfect metrics not questioned"
-                            ]
-                        },
+                        "negative_items": { "items": ["Hyperparameters chosen based on test performance", "Validation unclear or appears to include test data", "Validation referenced without enough detail to verify (e.g., 'we used CV' only)", "No sanity checks reported and near-perfect metrics not questioned"] },
                         "feedback_section": "Feedback on Section: <free-text>"
                     },
                     {
@@ -705,16 +646,7 @@
                                 { "description": "DT hyperparameter exploration meaningful (multiple values tested, final choice justified by MC curve evidence)", "points": 1 }
                             ]
                         },
-                        "negative_items": {
-                            "items": [
-                                "No complexity control used",
-                                "Missing learning curve or model-complexity curve",
-                                "Missing final metrics or confusion matrices",
-                                "No runtime reporting or trade-off discussion",
-                                "Hyperparameter exploration insufficient or not justified",
-                                "DT complexity control not clearly linked to overfitting prevention"
-                            ]
-                        },
+                        "negative_items": { "items": ["No complexity control used", "Missing learning curve or model-complexity curve", "Missing final metrics or confusion matrices", "No runtime reporting or trade-off discussion", "Hyperparameter exploration insufficient or not justified"] },
                         "feedback_section": "Feedback on Section: <free-text>"
                     },
                     {
@@ -731,16 +663,7 @@
                                 { "description": "kNN hyperparameter exploration meaningful (multiple k values tested, final k justified by MC evidence)", "points": 1 }
                             ]
                         },
-                        "negative_items": {
-                            "items": [
-                                "Insufficient exploration of k values",
-                                "Missing learning curve or model-complexity curve",
-                                "Missing final metrics or confusion matrices",
-                                "No runtime reporting or predict-time cost discussion",
-                                "Hyperparameter exploration insufficient or not justified",
-                                "kNN complexity curve missing interpretation of under/overfitting"
-                            ]
-                        },
+                        "negative_items": { "items": ["Insufficient exploration of k values", "Missing learning curve or model-complexity curve", "Missing final metrics or confusion matrices", "No runtime reporting or predict-time cost discussion", "Hyperparameter exploration insufficient or not justified"] },
                         "feedback_section": "Feedback on Section: <free-text>"
                     },
                     {
@@ -757,16 +680,7 @@
                                 { "description": "SVM hyperparameter exploration meaningful and interpretable for both kernels; explores C (and γ for RBF) with enough values to support justified conclusion", "points": 2 }
                             ]
                         },
-                        "negative_items": {
-                            "items": [
-                                "Less than two kernels used per dataset",
-                                "Missing learning curve or model-complexity curve",
-                                "Missing final metrics or confusion matrices",
-                                "No runtime reporting or kernel trade-off discussion",
-                                "Hyperparameter exploration insufficient for one/both kernels",
-                                "SVM model-complexity curve missing interpretation for C/gamma"
-                            ]
-                        },
+                        "negative_items": { "items": ["Less than two kernels used per dataset", "Missing learning curve or model-complexity curve", "Missing final metrics or confusion matrices", "No runtime reporting or kernel trade-off discussion", "Hyperparameter exploration insufficient for one/both kernels"] },
                         "feedback_section": "Feedback on Section: <free-text>"
                     },
                     {
@@ -784,17 +698,7 @@
                                 { "description": "NN hyperparameter exploration meaningful (multiple values tested, final choice justified with MC and epoch evidence)", "points": 2 }
                             ]
                         },
-                        "negative_items": {
-                            "items": [
-                                "SGD-only rule violated or setup undocumented",
-                                "Missing epoch curve, learning curve, or model-complexity curve",
-                                "Missing final metrics or confusion matrices",
-                                "Missing sklearn vs PyTorch comparison",
-                                "Hyperparameter exploration insufficient or not justified",
-                                "NN epoch curve missing or not interpreted",
-                                "Learning curve missing or lacks discussion of under/overfitting"
-                            ]
-                        },
+                        "negative_items": { "items": ["SGD-only rule violated or setup undocumented", "Missing epoch curve, learning curve, or model-complexity curve", "Missing final metrics or confusion matrices", "Missing sklearn vs PyTorch comparison", "Hyperparameter exploration insufficient or not justified"] },
                         "feedback_section": "Feedback on Section: <free-text>"
                     },
                     {
@@ -808,14 +712,7 @@
                                 { "description": "Includes at least two peer-reviewed sources and includes AI/LLM disclosure if used", "points": 1 }
                             ]
                         },
-                        "negative_items": {
-                            "items": [
-                                "Weak or missing cross-dataset algorithm comparison",
-                                "Writing style reports numbers without interpretation",
-                                "Insufficient peer-reviewed sources or missing AI disclosure",
-                                "Cross-model synthesis lacks evidence or is superficial"
-                            ]
-                        },
+                        "negative_items": { "items": ["Weak or missing cross-dataset algorithm comparison", "Writing style reports numbers without interpretation", "Insufficient peer-reviewed sources or missing AI disclosure"] },
                         "feedback_section": "Feedback on Section: <free-text>"
                     },
                     {
@@ -830,14 +727,7 @@
                                 { "description": "Provides concise interpretation of convergence stability and trade-offs under SGD", "points": 1 }
                             ]
                         },
-                        "negative_items": {
-                            "items": [
-                                "Missing activations / uncontrolled changes (LR/init/reg) / incomplete curves or metrics",
-                                "Descriptive commentary without diagnosing stability or trade-offs",
-                                "Epoch curves missing for one or more activations",
-                                "Comparison table missing runtime or convergence notes"
-                            ]
-                        },
+                        "negative_items": { "items": ["Missing activations / uncontrolled changes (LR/init/reg) / incomplete curves or metrics", "Descriptive commentary without diagnosing stability or trade-offs"] },
                         "feedback_section": "Feedback on Section: <free-text>"
                     }
                 ],
@@ -892,38 +782,6 @@
             textarea.value = '';
         });
 
-        // Helper to select all positives in a section
-        function selectAllPositives(sectionIndex) {
-            const sectionId = `section-${sectionIndex}`;
-            const section = rubricData.grading_rubric.sections[sectionIndex];
-            if (!section.positive_items) return;
-            if (!state.selectedItems.has(sectionId)) state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
-            const sectionState = state.selectedItems.get(sectionId);
-            section.positive_items.items.forEach((_, idx) => {
-                const itemId = `${sectionId}-positive-${idx}`;
-                sectionState.positive.add(itemId);
-                const el = document.getElementById(itemId);
-                if (el) el.classList.add('selected-positive');
-            });
-            updateSummary();
-        }
-
-        // Helper to select all negatives in a section
-        function selectAllNegatives(sectionIndex) {
-            const sectionId = `section-${sectionIndex}`;
-            const section = rubricData.grading_rubric.sections[sectionIndex];
-            if (!section.negative_items) return;
-            if (!state.selectedItems.has(sectionId)) state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
-            const sectionState = state.selectedItems.get(sectionId);
-            section.negative_items.items.forEach((_, idx) => {
-                const itemId = `${sectionId}-negative-${idx}`;
-                sectionState.negative.add(itemId);
-                const el = document.getElementById(itemId);
-                if (el) el.classList.add('selected-negative');
-            });
-            updateSummary();
-        }
-
         function renderRubric() {
             const container = document.getElementById('rubricContainer');
             container.innerHTML = '';
@@ -932,43 +790,8 @@
                 const sectionHeader = document.createElement('div');
                 sectionHeader.className = 'section-header';
                 sectionHeader.id = `header-${sectionId}`; // add id for navigation target
-
-                // Create left span for title
-                const titleSpan = document.createElement('span');
-                titleSpan.className = 'editable';
-                titleSpan.setAttribute('data-id', `${sectionId}-header`);
-                titleSpan.textContent = section.main_section;
-                sectionHeader.appendChild(titleSpan);
-
-                // Add select-all buttons
-                const btnDiv = document.createElement('div');
-                btnDiv.className = 'section-buttons';
-
-                if (section.positive_items && section.positive_items.items.length > 0) {
-                    const posBtn = document.createElement('button');
-                    posBtn.textContent = '✓ Positives';
-                    posBtn.className = 'select-positive-btn';
-                    posBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        selectAllPositives(sectionIndex);
-                    });
-                    btnDiv.appendChild(posBtn);
-                }
-
-                if (section.negative_items && section.negative_items.items.length > 0) {
-                    const negBtn = document.createElement('button');
-                    negBtn.textContent = '✗ Negatives';
-                    negBtn.className = 'select-negative-btn';
-                    negBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        selectAllNegatives(sectionIndex);
-                    });
-                    btnDiv.appendChild(negBtn);
-                }
-
-                sectionHeader.appendChild(btnDiv);
+                sectionHeader.innerHTML = `<span class="editable" data-id="${sectionId}-header">${section.main_section}</span>`;
                 container.appendChild(sectionHeader);
-
                 const sectionContent = document.createElement('div');
                 sectionContent.id = `${sectionId}-content`;
                 if (section.positive_items) {
@@ -1067,7 +890,7 @@
             });
             document.addEventListener('click', function (e) {
                 const header = e.target.closest('.section-header, .subsection-header');
-                if (header && !e.target.closest('button')) { // ignore button clicks
+                if (header) {
                     const contentId = header.id ? `${header.id}-content` : header.querySelector('span').getAttribute('data-id').replace('-header', '-content');
                     const content = document.getElementById(contentId);
                     if (content) content.style.display = content.style.display === 'none' ? 'block' : 'none';
@@ -1197,6 +1020,7 @@
             const headerElement = document.getElementById(headerId);
             if (headerElement) {
                 headerElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // highlight briefly
                 headerElement.classList.add('section-highlight');
                 setTimeout(() => headerElement.classList.remove('section-highlight'), 1500);
             }
@@ -1218,10 +1042,14 @@
                         if (section.positive_items.items[itemIndex]) sectionPoints += section.positive_items.items[itemIndex].points;
                     });
                 }
+                // create row with click handler for navigation
                 const row = document.createElement('tr');
+                // store sectionIndex in dataset
                 row.dataset.sectionIndex = sectionIndex;
+                // style cursor pointer
                 row.style.cursor = 'pointer';
                 row.addEventListener('click', (e) => {
+                    // prevent if clicking on points area maybe? but fine
                     scrollToSection(sectionIndex);
                 });
 
@@ -1229,13 +1057,10 @@
                     extraCreditPoints += sectionPoints; extraCreditMaxPoints = rubricData.grading_rubric.extra_credit_points;
                     row.innerHTML = `<td>${section.main_section.split('(')[0].trim()}</td><td>${sectionPoints.toFixed(0)}</td><td>${maxPoints}</td>`;
                     extraCreditBody.appendChild(row);
-                    //console.log('positive', isExtraCredit, extraCreditPoints);
-                    extraCreditPointsValue = extraCreditPoints;
                 } else {
                     mainTotal += sectionPoints;
                     row.innerHTML = `<td>${section.main_section.split('(')[0].trim()}</td><td>${sectionPoints.toFixed(0)}</td><td>${maxPoints}</td>`;
                     summaryBody.appendChild(row);
-                    //console.log('negative', isExtraCredit, extraCreditPoints);
                 }
                 const headerElement = document.querySelector(`[data-id="${sectionId}-header"]`);
                 if (headerElement) headerElement.textContent = `${section.main_section.split('(')[0].trim()} (${sectionPoints.toFixed(0)}/${maxPoints})`;
@@ -1313,12 +1138,7 @@
 
             const totalPoints = document.getElementById('totalPoints').textContent;
             const maxPoints = document.getElementById('maxPoints').textContent;
-            if (extraCreditPointsValue > 0) {
-                feedback += `Total Score: ${totalPoints}/${maxPoints} (includes extra credit)`;
-            } else {
-                feedback += `Total Score: ${totalPoints}/${maxPoints}`;
-            }
-            //console.log('positive  feedback', extraCreditPointsValue);
+            feedback += `Total Score: ${totalPoints}/${maxPoints} (includes extra credit)`;
             outputSection.textContent = feedback;
             outputSection.classList.remove('hidden');
             copyBtn.classList.remove('hidden');
