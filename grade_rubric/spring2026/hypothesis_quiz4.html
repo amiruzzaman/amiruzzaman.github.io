@@ -36,17 +36,6 @@
             margin-top: 10px;
         }
 
-        .quote-input {
-            width: 100%;
-            padding: 8px;
-            font-size: 14px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-top: 5px;
-            margin-bottom: 10px;
-            box-sizing: border-box;
-        }
-
         button {
             padding: 5px 10px;
             background-color: #4CAF50;
@@ -219,33 +208,6 @@
             font-style: italic;
         }
 
-        .quote-section {
-            margin-top: 10px;
-            margin-bottom: 10px;
-            padding: 8px;
-            background-color: #f9f9f9;
-            border: 1px dashed #ddd;
-            border-radius: 4px;
-        }
-
-        .quote-section label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #555;
-            font-size: 14px;
-        }
-
-        .quote-preview {
-            font-style: italic;
-            color: #666;
-            margin-top: 5px;
-            padding: 5px;
-            background-color: #f8f9fa;
-            border-left: 3px solid #6c757d;
-            font-size: 13px;
-        }
-
         /* Styles for the new general options */
         .general-options {
             background-color: #ebf5ff;
@@ -260,50 +222,6 @@
             font-size: 16px;
             color: #0b7dda;
         }
-
-        .bulk-select-controls {
-            margin-bottom: 20px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            text-align: center;
-        }
-
-        .bulk-select-controls h3 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            color: #333;
-            font-size: 16px;
-        }
-
-        .bulk-select-controls button {
-            margin: 0 5px 5px 5px;
-        }
-
-        .select-all-correct-btn {
-            background-color: #28a745;
-        }
-
-        .select-all-correct-btn:hover {
-            background-color: #218838;
-        }
-
-        .select-all-incorrect-btn {
-            background-color: #dc3545;
-        }
-
-        .select-all-incorrect-btn:hover {
-            background-color: #c82333;
-        }
-
-        .clear-all-selections-btn {
-            background-color: #6c757d;
-        }
-
-        .clear-all-selections-btn:hover {
-            background-color: #5a6268;
-        }
     </style>
 </head>
 
@@ -313,15 +231,6 @@
         <p style="text-align: center; color: #666; margin-bottom: 20px;">
             Select "What you did well" and/or "What needs improvement" for each question.
         </p>
-
-        <div class="bulk-select-controls">
-            <h3>Bulk Selection Controls</h3>
-            <button onclick="selectAllCorrect()" class="select-all-correct-btn">Select All as "What you did well" (1
-                point each)</button>
-            <button onclick="selectAllIncorrect()" class="select-all-incorrect-btn">Select All as "What needs
-                improvement" (0.5 points each)</button>
-            <button onclick="clearAllSelections()" class="clear-all-selections-btn">Clear All Selections</button>
-        </div>
 
         <div id="questions-container"></div>
 
@@ -376,8 +285,7 @@
                     incorrect: "You could have Googled the name of the authors to find more meaningful information."
                 },
                 points: 0,
-                dualSelectionScore: 0.5,
-                quote: ""
+                dualSelectionScore: 0.5
             },
             {
                 question: "Q 2: The gap Rule 6 lens",
@@ -386,8 +294,7 @@
                     incorrect: "Too vague. Paper specifically addresses poisoning attacks against SVMs using gradient ascent on validation error."
                 },
                 points: 0,
-                dualSelectionScore: 0.5,
-                quote: ""
+                dualSelectionScore: 0.5
             },
             {
                 question: "Q 3: Paper hypothesis",
@@ -396,8 +303,7 @@
                     incorrect: "Too general. Hypothesis specifically uses SVM's KKT conditions and incremental learning for attack optimization."
                 },
                 points: 0,
-                dualSelectionScore: 0.5,
-                quote: ""
+                dualSelectionScore: 0.5
             },
             {
                 question: "Q 4: Lookups with at least two peer reviewed citations",
@@ -406,8 +312,7 @@
                     incorrect: "Missing specific citations from paper's references section. Need at least two peer-reviewed works."
                 },
                 points: 0,
-                dualSelectionScore: 0.5,
-                quote: ""
+                dualSelectionScore: 0.5
             },
             {
                 question: "Q 5: Limitations with reasoning",
@@ -416,8 +321,7 @@
                     incorrect: "Didn't connect limitations to paper sections. Limitations are in Sections 2.3, 3, and 4 with practical implications."
                 },
                 points: 0,
-                dualSelectionScore: 0.5,
-                quote: ""
+                dualSelectionScore: 0.5
             },
             {
                 question: "Q 6: Next steps concise options grounded in reasoning",
@@ -426,8 +330,7 @@
                     incorrect: "Too generic. Should reference paper's Section 4: structural constraints, multi-point optimization, label constraints."
                 },
                 points: 0,
-                dualSelectionScore: 0.5,
-                quote: ""
+                dualSelectionScore: 0.5
             },
             {
                 question: "Q 7: Your single hypothesis to investigate",
@@ -436,8 +339,7 @@
                     incorrect: "Lacks specificity. Need clear variables, expected outcomes, and evaluation protocol for testing."
                 },
                 points: 0,
-                dualSelectionScore: 0.5,
-                quote: ""
+                dualSelectionScore: 0.5
             }
         ];
 
@@ -454,18 +356,6 @@
                 questionDiv.id = `question-${index}`;
                 questionDiv.innerHTML = `
                     <label class="question-label">${questionData.question}</label>
-                    
-                    <div class="quote-section">
-                        <label for="quote-${index}">Student's Answer Quote (optional):</label>
-                        <input type="text" 
-                               id="quote-${index}" 
-                               class="quote-input" 
-                               placeholder="Enter a quote from the student's answer..."
-                               value="${questionData.quote || ''}"
-                               onblur="saveQuote(${index})">
-                        ${questionData.quote ? `<div class="quote-preview">Current quote: "${questionData.quote}"</div>` : ''}
-                    </div>
-                    
                     <div class="checkbox-group">
                         <label class="checkbox-label">
                             <input type="checkbox" id="correct-${index}" value="correct" onchange="toggleFeedback(${index}, 'correct')">
@@ -497,180 +387,6 @@
                 `;
                 container.appendChild(questionDiv);
             });
-        }
-
-        function selectAllCorrect() {
-            for (let i = 0; i < questionsData.length; i++) {
-                // Set correct checked, incorrect unchecked
-                const correctCheckbox = document.getElementById(`correct-${i}`);
-                const incorrectCheckbox = document.getElementById(`incorrect-${i}`);
-
-                if (correctCheckbox && !correctCheckbox.checked) {
-                    correctCheckbox.checked = true;
-                    incorrectCheckbox.checked = false;
-
-                    // Show correct feedback section
-                    document.getElementById(`correct-feedback-section-${i}`).classList.remove('hidden');
-                    document.getElementById(`incorrect-feedback-section-${i}`).classList.add('hidden');
-                    document.getElementById(`score-selector-${i}`).classList.add('hidden');
-
-                    // Update question styling
-                    document.getElementById(`question-${i}`).classList.remove('correct', 'incorrect', 'partial-correct');
-                    document.getElementById(`question-${i}`).classList.add('correct');
-                }
-            }
-            updateFeedbackDisplay();
-
-            // Show confirmation
-            const btn = document.querySelector('.select-all-correct-btn');
-            const originalText = btn.textContent;
-            btn.textContent = 'All selected as "correct"!';
-            btn.style.background = '#28a745';
-            setTimeout(() => {
-                btn.textContent = originalText;
-                btn.style.background = '';
-            }, 1500);
-        }
-
-        function selectAllIncorrect() {
-            for (let i = 0; i < questionsData.length; i++) {
-                // Set incorrect checked, correct unchecked
-                const correctCheckbox = document.getElementById(`correct-${i}`);
-                const incorrectCheckbox = document.getElementById(`incorrect-${i}`);
-
-                if (incorrectCheckbox && !incorrectCheckbox.checked) {
-                    incorrectCheckbox.checked = true;
-                    correctCheckbox.checked = false;
-
-                    // Show incorrect feedback section
-                    document.getElementById(`incorrect-feedback-section-${i}`).classList.remove('hidden');
-                    document.getElementById(`correct-feedback-section-${i}`).classList.add('hidden');
-                    document.getElementById(`score-selector-${i}`).classList.add('hidden');
-
-                    // Update question styling
-                    document.getElementById(`question-${i}`).classList.remove('correct', 'incorrect', 'partial-correct');
-                    document.getElementById(`question-${i}`).classList.add('incorrect');
-                }
-            }
-            updateFeedbackDisplay();
-
-            // Show confirmation
-            const btn = document.querySelector('.select-all-incorrect-btn');
-            const originalText = btn.textContent;
-            btn.textContent = 'All selected as "incorrect"!';
-            btn.style.background = '#dc3545';
-            setTimeout(() => {
-                btn.textContent = originalText;
-                btn.style.background = '';
-            }, 1500);
-        }
-
-        function clearAllSelections() {
-            for (let i = 0; i < questionsData.length; i++) {
-                // Uncheck both boxes
-                const correctCheckbox = document.getElementById(`correct-${i}`);
-                const incorrectCheckbox = document.getElementById(`incorrect-${i}`);
-
-                if (correctCheckbox) correctCheckbox.checked = false;
-                if (incorrectCheckbox) incorrectCheckbox.checked = false;
-
-                // Hide feedback sections
-                document.getElementById(`correct-feedback-section-${i}`).classList.add('hidden');
-                document.getElementById(`incorrect-feedback-section-${i}`).classList.add('hidden');
-                document.getElementById(`score-selector-${i}`).classList.add('hidden');
-
-                // Reset question styling
-                document.getElementById(`question-${i}`).classList.remove('correct', 'incorrect', 'partial-correct');
-            }
-            updateFeedbackDisplay();
-
-            // Show confirmation
-            const btn = document.querySelector('.clear-all-selections-btn');
-            const originalText = btn.textContent;
-            btn.textContent = 'All selections cleared!';
-            btn.style.background = '#6c757d';
-            setTimeout(() => {
-                btn.textContent = originalText;
-                btn.style.background = '';
-            }, 1500);
-        }
-
-        function saveQuote(index) {
-            const quoteInput = document.getElementById(`quote-${index}`);
-            questionsData[index].quote = quoteInput.value.trim();
-
-            // Update quote preview
-            const quotePreview = quoteInput.parentNode.querySelector('.quote-preview');
-            if (quotePreview) {
-                quotePreview.textContent = questionsData[index].quote ? `Current quote: "${questionsData[index].quote}"` : '';
-            } else if (questionsData[index].quote) {
-                const newPreview = document.createElement('div');
-                newPreview.className = 'quote-preview';
-                newPreview.textContent = `Current quote: "${questionsData[index].quote}"`;
-                quoteInput.parentNode.appendChild(newPreview);
-            }
-
-            // Automatically update the feedback textareas with the quote at the end
-            updateFeedbackTextWithQuote(index);
-        }
-
-        function updateFeedbackTextWithQuote(index) {
-            const quote = questionsData[index].quote;
-
-            // Get current textareas
-            const correctTextarea = document.getElementById(`correct-feedback-${index}`);
-            const incorrectTextarea = document.getElementById(`incorrect-feedback-${index}`);
-
-            if (quote) {
-                // Build new text with quote at the end
-                const quoteSentence = ` You wrote, "${quote}".`;
-
-                // Update correct feedback if it exists and doesn't already have this exact quote
-                if (correctTextarea) {
-                    // Check if the textarea contains the original text (might have been edited)
-                    let currentText = correctTextarea.value;
-
-                    // If text doesn't end with the quote sentence, add it
-                    if (!currentText.includes(quoteSentence)) {
-                        // Remove any existing quote from previous saves
-                        currentText = currentText.replace(/\s*You wrote, "[^"]*"\./g, '');
-
-                        // Add the new quote at the end
-                        correctTextarea.value = currentText.trim() + quoteSentence;
-                        saveFeedback(index, 'correct');
-                    }
-                }
-
-                // Update incorrect feedback if it exists and doesn't already have this exact quote
-                if (incorrectTextarea) {
-                    let currentText = incorrectTextarea.value;
-
-                    // If text doesn't end with the quote sentence, add it
-                    if (!currentText.includes(quoteSentence)) {
-                        // Remove any existing quote from previous saves
-                        currentText = currentText.replace(/\s*You wrote, "[^"]*"\./g, '');
-
-                        // Add the new quote at the end
-                        incorrectTextarea.value = currentText.trim() + quoteSentence;
-                        saveFeedback(index, 'incorrect');
-                    }
-                }
-            } else {
-                // If quote is empty, remove any existing quote sentences
-                if (correctTextarea) {
-                    let currentText = correctTextarea.value;
-                    currentText = currentText.replace(/\s*You wrote, "[^"]*"\./g, '');
-                    correctTextarea.value = currentText.trim();
-                    saveFeedback(index, 'correct');
-                }
-
-                if (incorrectTextarea) {
-                    let currentText = incorrectTextarea.value;
-                    currentText = currentText.replace(/\s*You wrote, "[^"]*"\./g, '');
-                    incorrectTextarea.value = currentText.trim();
-                    saveFeedback(index, 'incorrect');
-                }
-            }
         }
 
         function toggleFeedback(index, feedbackType) {
@@ -763,8 +479,7 @@
                     partialCount++;
                     const scoreSelector = document.getElementById(`dual-score-${index}`);
                     const val = scoreSelector ? scoreSelector.value : "0.5";
-                    //feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat you did well\n${questionData.feedback.correct}\n\nWhat needs improvement\n${questionData.feedback.incorrect}\n\nNote: Both types selected - score set to ${val} point(s)`;
-                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat you did well\n${questionData.feedback.correct}\n\nWhat needs improvement\n${questionData.feedback.incorrect}`;
+                    feedbackText = `Q${index + 1} ${questionText} (${score}/1):\nWhat you did well\n${questionData.feedback.correct}\n\nWhat needs improvement\n${questionData.feedback.incorrect}\n\nNote: Both types selected - score set to ${val} point(s)`;
                 }
 
                 scores[index] = score;
@@ -885,19 +600,12 @@
                 const incorrectCheckbox = document.getElementById(`incorrect-${i}`);
                 const correctTextarea = document.getElementById(`correct-feedback-${i}`);
                 const incorrectTextarea = document.getElementById(`incorrect-feedback-${i}`);
-                const quoteInput = document.getElementById(`quote-${i}`);
 
                 if (correctCheckbox) correctCheckbox.checked = false;
                 if (incorrectCheckbox) incorrectCheckbox.checked = false;
 
-                // Reset to original feedback text (without quotes)
                 if (correctTextarea) correctTextarea.value = defaultQuestionsData[i].feedback.correct;
                 if (incorrectTextarea) incorrectTextarea.value = defaultQuestionsData[i].feedback.incorrect;
-                if (quoteInput) quoteInput.value = '';
-
-                // Reset quote preview
-                const quotePreview = document.querySelector(`#quote-${i}`)?.parentNode.querySelector('.quote-preview');
-                if (quotePreview) quotePreview.remove();
 
                 // Reset visibility
                 document.getElementById(`correct-feedback-section-${i}`).classList.add('hidden');

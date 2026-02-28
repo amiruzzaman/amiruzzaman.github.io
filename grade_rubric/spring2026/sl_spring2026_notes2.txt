@@ -1,0 +1,132 @@
+here is the rubric data if all are present, next I will share the report to grade using this rubric. You have to list what is there and points for each section. If something is missing then per section add comments saying how they could have improved. Writing style should, "You could have improved ..." or "It would have been a good idea for you to ... to improve ..."
+
+total 100 + ec 5
+
+
+show negative comments
+A) Compliance, Page Limit, and Reproducibility (12 points)
+12 pts
+✅ positive criteria (7)
+Adult task is correct (binary classification on income) - target and labels match spec, used consistently in plots/metrics
+2 pts
+Wine task is correct (multiclass classification on quality) - quality treated as discrete classes, Macro-F1 reported
+2 pts
+Runs DT, kNN, SVM (at least two kernels), and NN (SGD only; scikit-learn and PyTorch) on both datasets
+3 pts
+Overleaf project link is included and is read-only
+1 pt
+Report complies with the page limit and required content is within the graded portion
+1 pt
+Git commit hash is provided and repository is accessible to course staff
+1 pt
+Run instructions are complete enough to reproduce outputs on a standard Linux machine (clear commands, environment requirements, seeds provided)
+2 pts
+📝 Feedback on Section:
+B) EDA and Hypotheses (15 points)
+15 pts
+✅ positive criteria (3)
+EDA includes core facts for both datasets: shape, feature types, missingness, and class counts; supports later choices (metrics, preprocessing, model expectations)
+5 pts
+At least one hypothesis per dataset stated after EDA and before tuned results; predicts algorithm performance/trade-offs and is testable
+5 pts
+Hypotheses revisited and evaluated using reported results (LC, MC, metrics); connects outcomes back to hypothesis and explains surprises
+5 pts
+📝 Feedback on Section:
+C) Evaluation Design, Cross-Validation, and Sanity (15 points)
+15 pts
+✅ positive criteria (4)
+Test set is held out and used only once for final reporting; split explicit and test set not used for tuning
+3 pts
+Hyperparameter tuning uses training-only validation (cross-validation or fixed validation split); tuning method and data used clearly stated
+3 pts
+Validation procedure appropriate and reproducible; reports split strategy (fold count or train/val ratio), stratification, and aggregation method
+4 pts
+Includes at least one baseline or sanity check and investigates unusually strong results; baseline (e.g., majority-class) or Leakage/Evaluation Debug subsection when warranted
+5 pts
+📝 Feedback on Section:
+D) Decision Trees (DT) (13 points)
+13 pts
+✅ positive criteria (6)
+Uses at least one complexity control (max_depth, min_samples_leaf, ccp_alpha); explicitly identifies control and why it prevents overfitting
+3 pts
+Includes DT learning curve (train and validation vs training size) with interpretation
+3 pts
+Includes DT model-complexity curve over pruning/regularization parameter with interpretation
+3 pts
+Reports Adult and Wine final test metrics and confusion matrices for DT
+2 pts
+Reports DT runtime (fit and predict) and notes at least one trade-off
+1 pt
+DT hyperparameter exploration meaningful (multiple values tested, final choice justified by MC curve evidence)
+1 pt
+📝 Feedback on Section:
+E) k-Nearest Neighbors (kNN) (13 points)
+13 pts
+✅ positive criteria (6)
+Tests meaningfully different k values and justifies the chosen region
+3 pts
+Includes kNN learning curve with interpretation
+3 pts
+Includes kNN model-complexity curve (validation vs k) with interpretation
+3 pts
+Reports Adult and Wine final test metrics and confusion matrices for kNN
+2 pts
+Reports kNN runtime (fit and predict) and discusses predict-time cost
+1 pt
+kNN hyperparameter exploration meaningful (multiple k values tested, final k justified by MC evidence)
+1 pt
+📝 Feedback on Section:
+F) Support Vector Machines (SVM) (14 points)
+14 pts
+✅ positive criteria (6)
+Uses at least two kernels per dataset (linear and RBF minimum)
+3 pts
+Includes SVM learning curve with interpretation
+3 pts
+Includes SVM model-complexity curve (vary C and γ) with interpretation
+3 pts
+Reports Adult and Wine final test metrics and confusion matrices for SVM
+2 pts
+Reports SVM runtime (fit and predict) and notes kernel trade-offs
+1 pt
+SVM hyperparameter exploration meaningful and interpretable for both kernels; explores C (and γ for RBF) with enough values to support justified conclusion
+2 pts
+📝 Feedback on Section:
+G) Neural Networks (SGD-only; scikit-learn and PyTorch) (14 points)
+14 pts
+✅ positive criteria (7)
+SGD-only rule followed; training setup documented (learning rate, batch size, epochs, regularization); optimizer explicitly SGD, no disallowed methods
+2 pts
+Includes epoch curve (train and validation loss or metric) with interpretation
+2 pts
+Includes NN learning curve with interpretation
+2 pts
+Includes NN model-complexity curve varying one key hyperparameter with interpretation
+2 pts
+Reports Adult and Wine final NN test metrics and confusion matrices
+2 pts
+Required scikit-learn versus PyTorch NN comparison present for each dataset with fair interpretation
+2 pts
+NN hyperparameter exploration meaningful (multiple values tested, final choice justified with MC and epoch evidence)
+2 pts
+📝 Feedback on Section:
+H) Interpretation and Writing (4 points)
+4 pts
+✅ positive criteria (3)
+Cross-model synthesis compares algorithms across both datasets using evidence-backed takeaways
+2 pts
+Writing interprets figures (why it happened), not only reporting numbers
+1 pt
+Includes at least two peer-reviewed sources and includes AI/LLM disclosure if used
+1 pt
+📝 Feedback on Section:
+Extra Credit: Activation Function Study (up to 5 points)
+5 pts
+✅ positive criteria (4)
+Evaluates four activation functions (ReLU, GELU, SiLU/Swish, tanh) using same architecture, preprocessing, regularization, training protocol; SGD-only, one dataset
+1 pt
+Includes epoch-wise validation curves for all four activations (same training budget)
+2 pts
+Includes final comparison table of metrics (runtime and convergence notes)
+1 pt
+Provides concise interpretation of convergence stability and trade-offs under SGD
