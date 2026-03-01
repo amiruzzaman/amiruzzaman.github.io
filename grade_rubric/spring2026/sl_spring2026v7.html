@@ -937,65 +937,33 @@
             textarea.value = '';
         });
 
-        // Toggle select for positives: if any are selected, deselect all; otherwise select all.
-        function toggleSelectAllPositives(sectionIndex) {
+        function selectAllPositives(sectionIndex) {
             const sectionId = `section-${sectionIndex}`;
             const section = rubricData.grading_rubric.sections[sectionIndex];
             if (!section.positive_items) return;
             if (!state.selectedItems.has(sectionId)) state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
             const sectionState = state.selectedItems.get(sectionId);
-            const anySelected = section.positive_items.items.some((_, idx) => sectionState.positive.has(`${sectionId}-positive-${idx}`));
-
-            if (anySelected) {
-                // Deselect all positives
-                section.positive_items.items.forEach((_, idx) => {
-                    const itemId = `${sectionId}-positive-${idx}`;
-                    if (sectionState.positive.has(itemId)) {
-                        sectionState.positive.delete(itemId);
-                        const el = document.getElementById(itemId);
-                        if (el) el.classList.remove('selected-positive');
-                    }
-                });
-            } else {
-                // Select all positives
-                section.positive_items.items.forEach((_, idx) => {
-                    const itemId = `${sectionId}-positive-${idx}`;
-                    sectionState.positive.add(itemId);
-                    const el = document.getElementById(itemId);
-                    if (el) el.classList.add('selected-positive');
-                });
-            }
+            section.positive_items.items.forEach((_, idx) => {
+                const itemId = `${sectionId}-positive-${idx}`;
+                sectionState.positive.add(itemId);
+                const el = document.getElementById(itemId);
+                if (el) el.classList.add('selected-positive');
+            });
             updateSummary();
         }
 
-        // Toggle select for negatives: if any are selected, deselect all; otherwise select all.
-        function toggleSelectAllNegatives(sectionIndex) {
+        function selectAllNegatives(sectionIndex) {
             const sectionId = `section-${sectionIndex}`;
             const section = rubricData.grading_rubric.sections[sectionIndex];
             if (!section.negative_items) return;
             if (!state.selectedItems.has(sectionId)) state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
             const sectionState = state.selectedItems.get(sectionId);
-            const anySelected = section.negative_items.items.some((_, idx) => sectionState.negative.has(`${sectionId}-negative-${idx}`));
-
-            if (anySelected) {
-                // Deselect all negatives
-                section.negative_items.items.forEach((_, idx) => {
-                    const itemId = `${sectionId}-negative-${idx}`;
-                    if (sectionState.negative.has(itemId)) {
-                        sectionState.negative.delete(itemId);
-                        const el = document.getElementById(itemId);
-                        if (el) el.classList.remove('selected-negative');
-                    }
-                });
-            } else {
-                // Select all negatives
-                section.negative_items.items.forEach((_, idx) => {
-                    const itemId = `${sectionId}-negative-${idx}`;
-                    sectionState.negative.add(itemId);
-                    const el = document.getElementById(itemId);
-                    if (el) el.classList.add('selected-negative');
-                });
-            }
+            section.negative_items.items.forEach((_, idx) => {
+                const itemId = `${sectionId}-negative-${idx}`;
+                sectionState.negative.add(itemId);
+                const el = document.getElementById(itemId);
+                if (el) el.classList.add('selected-negative');
+            });
             updateSummary();
         }
 
@@ -1023,7 +991,7 @@
                     posBtn.className = 'select-positive-btn';
                     posBtn.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        toggleSelectAllPositives(sectionIndex);
+                        selectAllPositives(sectionIndex);
                     });
                     btnDiv.appendChild(posBtn);
                 }
@@ -1034,7 +1002,7 @@
                     negBtn.className = 'select-negative-btn';
                     negBtn.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        toggleSelectAllNegatives(sectionIndex);
+                        selectAllNegatives(sectionIndex);
                     });
                     btnDiv.appendChild(negBtn);
                 }

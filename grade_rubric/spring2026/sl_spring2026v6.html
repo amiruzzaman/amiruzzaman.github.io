@@ -8,11 +8,7 @@
     <style>
         :root {
             --positive-color: #e8f5e9;
-            --positive-selected: #81c784;
-            /* darker green */
             --negative-color: #ffebee;
-            --negative-selected: #e57373;
-            /* darker red */
             --border-color: #ddd;
             --header-bg: #f5f5f5;
         }
@@ -144,13 +140,11 @@
         }
 
         .selected-positive {
-            background-color: var(--positive-selected) !important;
-            font-weight: 500;
+            background-color: #c8e6c9;
         }
 
         .selected-negative {
-            background-color: var(--negative-selected) !important;
-            font-weight: 500;
+            background-color: #ffcdd2;
         }
 
         .feedback-textarea {
@@ -341,43 +335,6 @@
             font-weight: 500;
         }
 
-        .point-input-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .point-input-group input {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-family: inherit;
-        }
-
-        .point-input-group button {
-            padding: 8px 16px;
-            background-color: #2196F3;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 0;
-        }
-
-        .point-input-group button:hover {
-            background-color: #1976D2;
-        }
-
-        .point-input-group .reset-point-btn {
-            background-color: #ff9800;
-        }
-
-        .point-input-group .reset-point-btn:hover {
-            background-color: #fb8c00;
-        }
-
         .form-control {
             width: 100%;
             padding: 8px 12px;
@@ -475,6 +432,7 @@
             margin: 0;
         }
 
+        /* global comment box with dropdown */
         .global-comment-box {
             margin-bottom: 20px;
             padding: 15px;
@@ -524,6 +482,7 @@
             margin-top: 5px;
         }
 
+        /* highlight for targeted section */
         .section-highlight {
             animation: highlightPulse 1.5s ease-out;
         }
@@ -541,12 +500,6 @@
                 background-color: transparent;
             }
         }
-
-        .max-point-hint {
-            font-size: 0.9em;
-            color: #666;
-            margin-top: 4px;
-        }
     </style>
 </head>
 
@@ -554,6 +507,7 @@
     <div class="container">
         <div class="rubric-section">
             <h1>Rubric Grading Interface</h1>
+            <!-- global comment block with dropdown and editable textarea -->
             <div class="global-comment-box">
                 <label for="studentName"><strong>📝 Student name (for greeting):</strong></label>
                 <div class="global-comment-row">
@@ -587,6 +541,7 @@
                 <button id="resetBtn">Reset All</button>
             </div>
 
+            <!-- Grouped copy buttons -->
             <div class="group-copy-btns">
                 <button id="copyA1toA4">📋 A1–A4 (4+3+2+3)</button>
                 <button id="copyBscore">📋 B score (5 5 5)</button>
@@ -633,6 +588,7 @@
         </div>
     </div>
 
+    <!-- Modal for editing items -->
     <div id="itemModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -645,13 +601,8 @@
                     <textarea id="itemText" class="form-control" rows="3"></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="itemPoints">Points (max: <span id="maxPointDisplay"></span>)</label>
-                    <div class="point-input-group">
-                        <input type="number" id="itemPoints" class="form-control" step="1" min="0" value="0">
-                        <button type="button" id="incrementPoint">+1</button>
-                        <button type="button" id="decrementPoint">-1</button>
-                        <button type="button" id="resetPointBtn" class="reset-point-btn">Reset</button>
-                    </div>
+                    <label for="itemPoints">Points</label>
+                    <input type="number" id="itemPoints" class="form-control" step="0.1" min="0" value="0">
                 </div>
             </div>
             <div class="modal-footer">
@@ -664,7 +615,7 @@
 
     <script>
         let extraCreditPointsValue = 0;
-        // Rubric data (identical to original with expanded negatives)
+        // Rubric data with negative items expanded to match positive count
         const rubricData = {
             "grading_rubric": {
                 "total_points": 100,
@@ -895,6 +846,7 @@
             }
         };
 
+        // Predefined feedback (unchanged)
         const predefinedFeedback = {
             "requirements": ["For your plots and graphs, please increase the font size next time so that labels and titles are easier to read.", "Some of your figures are difficult to read due to their small size. I will not deduct any points for this issue this time. However, please pay attention to making your images, figures, and plots clearer in the future. You may consider increasing the size of legend text or other annotations to improve readability.", "You were allowed up to 8 pages for your report, so you could have included more discussion. Please make sure to read the requirements carefully to avoid missing important elements in the future."],
             "problem_description_hotel": ["More discussion of your exploratory data analysis (EDA) regarding outliers, noise, and class imbalance would have strengthened your report."],
@@ -910,6 +862,7 @@
             "general": ["You have a lot of empty spaces in your report, you could have managed them better and add more discussions on your results. You should consider using IEEE template for your reports, that will allow you to manage spaces better."]
         };
 
+        // State management
         const state = {
             selectedItems: new Map(),
             feedbackTexts: new Map(),
@@ -924,78 +877,50 @@
             setupPredefinedFeedbackEvents();
             updateSummary();
             setupGroupCopyButtons();
+            // Link dropdown to textarea
             const select = document.getElementById('greetingTemplateSelect');
             const textarea = document.getElementById('globalCommentTemplate');
             select.addEventListener('change', function () {
                 if (this.value) {
                     textarea.value = this.value;
                 } else {
-                    textarea.value = '';
+                    textarea.value = ''; // None option -> empty
                 }
             });
+            // default: select "None" -> empty
             select.value = '';
             textarea.value = '';
         });
 
-        // Toggle select for positives: if any are selected, deselect all; otherwise select all.
-        function toggleSelectAllPositives(sectionIndex) {
+        // Helper to select all positives in a section
+        function selectAllPositives(sectionIndex) {
             const sectionId = `section-${sectionIndex}`;
             const section = rubricData.grading_rubric.sections[sectionIndex];
             if (!section.positive_items) return;
             if (!state.selectedItems.has(sectionId)) state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
             const sectionState = state.selectedItems.get(sectionId);
-            const anySelected = section.positive_items.items.some((_, idx) => sectionState.positive.has(`${sectionId}-positive-${idx}`));
-
-            if (anySelected) {
-                // Deselect all positives
-                section.positive_items.items.forEach((_, idx) => {
-                    const itemId = `${sectionId}-positive-${idx}`;
-                    if (sectionState.positive.has(itemId)) {
-                        sectionState.positive.delete(itemId);
-                        const el = document.getElementById(itemId);
-                        if (el) el.classList.remove('selected-positive');
-                    }
-                });
-            } else {
-                // Select all positives
-                section.positive_items.items.forEach((_, idx) => {
-                    const itemId = `${sectionId}-positive-${idx}`;
-                    sectionState.positive.add(itemId);
-                    const el = document.getElementById(itemId);
-                    if (el) el.classList.add('selected-positive');
-                });
-            }
+            section.positive_items.items.forEach((_, idx) => {
+                const itemId = `${sectionId}-positive-${idx}`;
+                sectionState.positive.add(itemId);
+                const el = document.getElementById(itemId);
+                if (el) el.classList.add('selected-positive');
+            });
             updateSummary();
         }
 
-        // Toggle select for negatives: if any are selected, deselect all; otherwise select all.
-        function toggleSelectAllNegatives(sectionIndex) {
+        // Helper to select all negatives in a section
+        function selectAllNegatives(sectionIndex) {
             const sectionId = `section-${sectionIndex}`;
             const section = rubricData.grading_rubric.sections[sectionIndex];
             if (!section.negative_items) return;
             if (!state.selectedItems.has(sectionId)) state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
             const sectionState = state.selectedItems.get(sectionId);
-            const anySelected = section.negative_items.items.some((_, idx) => sectionState.negative.has(`${sectionId}-negative-${idx}`));
-
-            if (anySelected) {
-                // Deselect all negatives
-                section.negative_items.items.forEach((_, idx) => {
-                    const itemId = `${sectionId}-negative-${idx}`;
-                    if (sectionState.negative.has(itemId)) {
-                        sectionState.negative.delete(itemId);
-                        const el = document.getElementById(itemId);
-                        if (el) el.classList.remove('selected-negative');
-                    }
-                });
-            } else {
-                // Select all negatives
-                section.negative_items.items.forEach((_, idx) => {
-                    const itemId = `${sectionId}-negative-${idx}`;
-                    sectionState.negative.add(itemId);
-                    const el = document.getElementById(itemId);
-                    if (el) el.classList.add('selected-negative');
-                });
-            }
+            section.negative_items.items.forEach((_, idx) => {
+                const itemId = `${sectionId}-negative-${idx}`;
+                sectionState.negative.add(itemId);
+                const el = document.getElementById(itemId);
+                if (el) el.classList.add('selected-negative');
+            });
             updateSummary();
         }
 
@@ -1006,14 +931,16 @@
                 const sectionId = `section-${sectionIndex}`;
                 const sectionHeader = document.createElement('div');
                 sectionHeader.className = 'section-header';
-                sectionHeader.id = `header-${sectionId}`;
+                sectionHeader.id = `header-${sectionId}`; // add id for navigation target
 
+                // Create left span for title
                 const titleSpan = document.createElement('span');
                 titleSpan.className = 'editable';
                 titleSpan.setAttribute('data-id', `${sectionId}-header`);
                 titleSpan.textContent = section.main_section;
                 sectionHeader.appendChild(titleSpan);
 
+                // Add select-all buttons
                 const btnDiv = document.createElement('div');
                 btnDiv.className = 'section-buttons';
 
@@ -1023,7 +950,7 @@
                     posBtn.className = 'select-positive-btn';
                     posBtn.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        toggleSelectAllPositives(sectionIndex);
+                        selectAllPositives(sectionIndex);
                     });
                     btnDiv.appendChild(posBtn);
                 }
@@ -1034,7 +961,7 @@
                     negBtn.className = 'select-negative-btn';
                     negBtn.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        toggleSelectAllNegatives(sectionIndex);
+                        selectAllNegatives(sectionIndex);
                     });
                     btnDiv.appendChild(negBtn);
                 }
@@ -1140,7 +1067,7 @@
             });
             document.addEventListener('click', function (e) {
                 const header = e.target.closest('.section-header, .subsection-header');
-                if (header && !e.target.closest('button')) {
+                if (header && !e.target.closest('button')) { // ignore button clicks
                     const contentId = header.id ? `${header.id}-content` : header.querySelector('span').getAttribute('data-id').replace('-header', '-content');
                     const content = document.getElementById(contentId);
                     if (content) content.style.display = content.style.display === 'none' ? 'block' : 'none';
@@ -1162,45 +1089,10 @@
             const cancelBtn = document.getElementById('cancelBtn');
             const saveBtn = document.getElementById('saveBtn');
             const clearTextBtn = document.getElementById('clearTextBtn');
-            const incrementBtn = document.getElementById('incrementPoint');
-            const decrementBtn = document.getElementById('decrementPoint');
-            const resetPointBtn = document.getElementById('resetPointBtn');
-
             [closeBtn, cancelBtn].forEach(btn => btn.addEventListener('click', () => modal.style.display = 'none'));
-
-            incrementBtn.addEventListener('click', () => {
-                const input = document.getElementById('itemPoints');
-                input.value = (parseInt(input.value) || 0) + 1;
-            });
-
-            decrementBtn.addEventListener('click', () => {
-                const input = document.getElementById('itemPoints');
-                const current = parseInt(input.value) || 0;
-                if (current > 0) input.value = current - 1;
-            });
-
-            resetPointBtn.addEventListener('click', () => {
-                if (state.currentEditingItem) {
-                    const maxPoints = getItemMaxPoints(state.currentEditingItem.id);
-                    document.getElementById('itemPoints').value = maxPoints;
-                }
-            });
-
             saveBtn.addEventListener('click', saveItemChanges);
             clearTextBtn.addEventListener('click', () => document.getElementById('itemText').value = '');
             window.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
-        }
-
-        function getItemMaxPoints(itemId) {
-            const parts = itemId.split('-');
-            const sectionIndex = parseInt(parts[1]);
-            const isPositive = parts[2] === 'positive';
-            const itemIndex = parseInt(parts[parts.length - 1]);
-            const section = rubricData.grading_rubric.sections[sectionIndex];
-            if (isPositive && section.positive_items) {
-                return section.positive_items.items[itemIndex].points;
-            }
-            return 0;
         }
 
         function setupPredefinedFeedbackEvents() {
@@ -1238,13 +1130,8 @@
             if (!state.selectedItems.has(sectionId)) state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
             const sectionState = state.selectedItems.get(sectionId);
             const itemSet = isPositive ? sectionState.positive : sectionState.negative;
-            if (itemSet.has(itemId)) {
-                itemSet.delete(itemId);
-                item.classList.remove(isPositive ? 'selected-positive' : 'selected-negative');
-            } else {
-                itemSet.add(itemId);
-                item.classList.add(isPositive ? 'selected-positive' : 'selected-negative');
-            }
+            if (itemSet.has(itemId)) { itemSet.delete(itemId); item.classList.remove(isPositive ? 'selected-positive' : 'selected-negative'); }
+            else { itemSet.add(itemId); item.classList.add(isPositive ? 'selected-positive' : 'selected-negative'); }
         }
 
         function makeEditable(element) {
@@ -1270,19 +1157,16 @@
             const modal = document.getElementById('itemModal');
             const itemText = document.getElementById('itemText');
             const itemPoints = document.getElementById('itemPoints');
-            const maxPointSpan = document.getElementById('maxPointDisplay');
             const itemElement = document.getElementById(itemId);
             if (!itemElement) return;
             const textElement = itemElement.querySelector('.editable[data-id$="-text"]');
             const pointsElement = itemElement.querySelector('.editable[data-id$="-points"]');
             if (!textElement) return;
             itemText.value = textElement.textContent;
-            const maxPoints = getItemMaxPoints(itemId);
-            maxPointSpan.textContent = maxPoints;
             const isNegative = itemElement.classList.contains('negative-item');
             const pointsValue = pointsElement ? (isNegative ? -Math.abs(parseFloat(pointsElement.textContent) || 0) : parseFloat(pointsElement.textContent) || 0) : 0;
-            itemPoints.value = Math.abs(pointsValue);
-            state.currentEditingItem = { id: itemId, textElement, pointsElement, isNegative, maxPoints };
+            itemPoints.value = pointsValue;
+            state.currentEditingItem = { id: itemId, textElement, pointsElement, isNegative };
             modal.style.display = 'flex';
         }
 
@@ -1291,28 +1175,14 @@
             const itemText = document.getElementById('itemText');
             const itemPoints = document.getElementById('itemPoints');
             if (!state.currentEditingItem) return;
-            const { id, textElement, pointsElement, isNegative, maxPoints } = state.currentEditingItem;
+            const { id, textElement, pointsElement, isNegative } = state.currentEditingItem;
             textElement.textContent = itemText.value;
             if (pointsElement) {
-                const pointsValue = parseInt(itemPoints.value) || 0;
-                const clampedPoints = Math.min(pointsValue, maxPoints);
-                const displayPoints = isNegative ? -Math.abs(clampedPoints) : Math.abs(clampedPoints);
+                const pointsValue = parseFloat(itemPoints.value) || 0;
+                const displayPoints = isNegative ? -Math.abs(pointsValue) : Math.abs(pointsValue);
                 pointsElement.textContent = displayPoints;
                 updateRubricData(id, itemText.value, Math.abs(displayPoints));
             } else { updateRubricData(id, itemText.value, 0); }
-
-            // Auto-select the item when edited
-            const itemElement = document.getElementById(id);
-            if (itemElement && !itemElement.classList.contains(isNegative ? 'selected-negative' : 'selected-positive')) {
-                const isPos = itemElement.classList.contains('positive-item');
-                let sectionId = id.split('-').slice(0, 2).join('-');
-                if (!state.selectedItems.has(sectionId)) state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
-                const sectionState = state.selectedItems.get(sectionId);
-                const itemSet = isPos ? sectionState.positive : sectionState.negative;
-                itemSet.add(id);
-                itemElement.classList.add(isPos ? 'selected-positive' : 'selected-negative');
-            }
-
             modal.style.display = 'none'; state.currentEditingItem = null; updateSummary();
         }
 
@@ -1359,11 +1229,13 @@
                     extraCreditPoints += sectionPoints; extraCreditMaxPoints = rubricData.grading_rubric.extra_credit_points;
                     row.innerHTML = `<td>${section.main_section.split('(')[0].trim()}</td><td>${sectionPoints.toFixed(0)}</td><td>${maxPoints}</td>`;
                     extraCreditBody.appendChild(row);
+                    //console.log('positive', isExtraCredit, extraCreditPoints);
                     extraCreditPointsValue = extraCreditPoints;
                 } else {
                     mainTotal += sectionPoints;
                     row.innerHTML = `<td>${section.main_section.split('(')[0].trim()}</td><td>${sectionPoints.toFixed(0)}</td><td>${maxPoints}</td>`;
                     summaryBody.appendChild(row);
+                    //console.log('negative', isExtraCredit, extraCreditPoints);
                 }
                 const headerElement = document.querySelector(`[data-id="${sectionId}-header"]`);
                 if (headerElement) headerElement.textContent = `${section.main_section.split('(')[0].trim()} (${sectionPoints.toFixed(0)}/${maxPoints})`;
@@ -1446,48 +1318,26 @@
             } else {
                 feedback += `Total Score: ${totalPoints}/${maxPoints}`;
             }
+            //console.log('positive  feedback', extraCreditPointsValue);
             outputSection.textContent = feedback;
             outputSection.classList.remove('hidden');
             copyBtn.classList.remove('hidden');
         }
 
         function resetAll() {
-            // Reset selections
             state.selectedItems.clear();
             document.querySelectorAll('.item').forEach(item => item.classList.remove('selected-positive', 'selected-negative'));
-
-            // Reset all textareas (including feedback and global comment)
             document.querySelectorAll('textarea').forEach(ta => ta.value = '');
-
-            // Reset editable headers to original text
             document.querySelectorAll('.editable[data-id$="-header"]').forEach(header => {
                 const dataId = header.getAttribute('data-id');
                 const sectionIndex = parseInt(dataId.split('-')[1]);
                 header.textContent = rubricData.grading_rubric.sections[sectionIndex].main_section;
             });
-
-            // Reset point values in positive items to original points from rubricData
-            rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
-                if (section.positive_items) {
-                    section.positive_items.items.forEach((item, itemIndex) => {
-                        const pointSpan = document.querySelector(`[data-id="section-${sectionIndex}-positive-${itemIndex}-points"]`);
-                        if (pointSpan) {
-                            pointSpan.textContent = item.points; // reset to original points
-                        }
-                    });
-                }
-            });
-
-            // Hide output
             document.getElementById('outputSection').classList.add('hidden');
             document.getElementById('copyBtn').classList.add('hidden');
-
-            // Reset global greeting
             document.getElementById('studentName').value = '';
             document.getElementById('greetingTemplateSelect').value = '';
             document.getElementById('globalCommentTemplate').value = '';
-
-            // Update summary to reflect reset
             updateSummary();
         }
 
