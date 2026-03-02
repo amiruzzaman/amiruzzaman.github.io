@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rubric Grading – Total includes Extra Credit + Next Section</title>
+    <title>Rubric Grading – Total includes Extra Credit + Next Section Button</title>
     <style>
         :root {
             --positive-color: #e8f5e9;
@@ -43,25 +43,12 @@
         .summary-section {
             flex: 1;
             background: white;
-            padding: 10px;
+            padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             position: sticky;
-            top: 15px;
+            top: 20px;
             height: fit-content;
-            /* REDUCED FONT SIZE for summary area */
-            font-size: 0.85rem;
-        }
-
-        /* also shrink table cells slightly for better fit */
-        .summary-table th,
-        .summary-table td {
-            padding: 6px 6px;
-            font-size: 0.80rem;
-        }
-
-        .summary-table th {
-            background-color: var(--header-bg);
         }
 
         .section-header {
@@ -238,6 +225,10 @@
             padding: 8px 12px;
             text-align: left;
             border-bottom: 1px solid var(--border-color);
+        }
+
+        .summary-table th {
+            background-color: var(--header-bg);
         }
 
         .summary-table tbody tr {
@@ -635,7 +626,7 @@
         </div>
 
         <div class="summary-section">
-            <h2 style="font-size:1.2rem; margin-top:0;">Points Summary</h2>
+            <h2>Points Summary</h2>
             <table class="summary-table" id="summaryTable">
                 <thead>
                     <tr>
@@ -655,7 +646,7 @@
             </table>
 
             <div id="extraCreditSection" class="hidden">
-                <h3 style="font-size:1rem;">Extra Credit</h3>
+                <h3>Extra Credit</h3>
                 <table class="summary-table">
                     <thead>
                         <tr>
