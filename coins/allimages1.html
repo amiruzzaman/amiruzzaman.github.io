@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>coin gallery · fullpage slider + thumbnails</title>
+    <title>coin gallery · fullpage slider</title>
     <style>
         * {
             box-sizing: border-box;
@@ -21,7 +21,7 @@
             overflow: hidden;
         }
 
-        /* top bar: country selector + browse mode */
+        /* top bar: country selector */
         .country-bar {
             background: #1f2a3a;
             padding: 0.8rem 1.5rem;
@@ -90,42 +90,6 @@
             color: #c0d3ec;
         }
 
-        /* toggle / browse mode */
-        .browse-toggle {
-            background: #2b3e4e;
-            border-radius: 40px;
-            padding: 0.3rem 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border: 1px solid #5a7794;
-        }
-        .browse-toggle button {
-            background: #1f2e3c;
-            border: none;
-            color: #c6daf0;
-            padding: 6px 16px;
-            border-radius: 30px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-            border: 1px solid transparent;
-        }
-        .browse-toggle button.active-mode {
-            background: #4e7b9e;
-            color: white;
-            border-color: #aac9f0;
-        }
-        .browse-toggle button:first-child {
-            border-top-right-radius: 0;
-            border-bottom-right-radius: 0;
-        }
-        .browse-toggle button:last-child {
-            border-top-left-radius: 0;
-            border-bottom-left-radius: 0;
-        }
-
         /* main slider area */
         .slider-stage {
             flex: 1;
@@ -135,7 +99,7 @@
             background: #0b1219;
             padding: 0.5rem;
             position: relative;
-            touch-action: pan-y pinch-zoom;
+            touch-action: pan-y pinch-zoom; /* allow horizontal touch sliders */
         }
 
         .slider-viewport {
@@ -162,7 +126,7 @@
 
         .slider-image-frame img {
             max-width: 100%;
-            max-height: calc(100vh - 300px);   /* extra space for thumbnails + bar */
+            max-height: calc(100vh - 230px);   /* almost full page minus info panel */
             object-fit: contain;
             border-radius: 16px;
             transition: opacity 0.25s;
@@ -170,7 +134,7 @@
             box-shadow: 0 0 0 1px #3f5568;
         }
 
-        /* navigation arrows */
+        /* navigation arrows (large click zones) */
         .nav-arrow {
             position: absolute;
             top: 0;
@@ -185,6 +149,7 @@
             transition: 0.2s;
             z-index: 15;
             text-shadow: 0 2px 8px black;
+            background: linear-gradient(to right, transparent 50%, rgba(0,0,0,0.2) 90%);
         }
 
         .nav-arrow.left {
@@ -249,110 +214,55 @@
             border: 1px solid #617a9b;
         }
 
-        /* thumbnail strip */
-        .thumbnail-strip {
-            background: #0f1b24;
-            border-top: 2px solid #3f5568;
-            padding: 12px 16px;
-            display: flex;
-            gap: 12px;
-            overflow-x: auto;
-            overflow-y: hidden;
-            align-items: center;
-            white-space: nowrap;
-            scrollbar-width: thin;
-            scrollbar-color: #5b779b #1f2e3a;
-            z-index: 15;
-        }
-        .thumbnail-strip::-webkit-scrollbar {
-            height: 8px;
-        }
-        .thumbnail-strip::-webkit-scrollbar-track {
-            background: #1f2e3a;
-        }
-        .thumbnail-strip::-webkit-scrollbar-thumb {
-            background: #5b779b;
-            border-radius: 10px;
-        }
-
-        .thumbnail {
-            flex: 0 0 auto;
-            width: 100px;
-            height: 70px;
-            background: #20313e;
-            border-radius: 12px;
-            border: 2px solid transparent;
-            overflow: hidden;
-            cursor: pointer;
-            transition: 0.15s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 6px black;
-        }
-        .thumbnail:hover {
-            border-color: #9bbde2;
-            transform: scale(1.02);
-        }
-        .thumbnail.active-thumb {
-            border-color: #ffcf8a;
-            box-shadow: 0 0 0 2px #bd9f60;
-        }
-        .thumbnail img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;          /* all thumbnails same size, cover crop */
-            display: block;
-            background: #1d3241;
-        }
-        .no-thumb {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #1a2c38;
-            color: #96aebb;
-            font-size: 0.8rem;
-            text-align: center;
-        }
-
+        /* mobile adjustments */
         @media (max-width: 700px) {
-            .country-bar { padding: 0.4rem 0.8rem; gap:0.6rem; }
-            .country-label { font-size: 1.2rem; }
+            .country-bar { padding: 0.4rem 1rem; }
+            .country-label { font-size: 1.3rem; }
             .stats { display: none; }
-            .info-panel { padding: 0.6rem; gap: 1rem; }
+            .info-panel { padding: 0.8rem; gap: 1rem; }
             .info-value { font-size: 1rem; }
             .nav-arrow { width: 15%; font-size: 3.5rem; }
-            .thumbnail { width: 70px; height: 50px; }
+        }
+
+        /* no image fallback */
+        .no-image {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #1f2937;
+            color: #bbccdd;
+            width: 480px;
+            height: 320px;
+            border-radius: 48px;
+            font-size: 1.5rem;
+            border: 3px dashed #607080;
         }
     </style>
 </head>
 <body>
 
-<!-- top bar with country selector + browse mode toggle -->
+<!-- top bar with dynamic country label / selector -->
 <div class="country-bar" id="countryBar">
     <div id="countryDisplayLabel" class="country-label" tabindex="0">loading countries...</div>
     <div class="selector-container" id="selectorContainer" style="display: none;">
         <input type="text" id="countrySelectInput" placeholder="type to filter..." autocomplete="off">
         <select size="8" id="countrySelect"></select>
     </div>
-
-    <!-- browse mode toggle: country mode vs all coins mode -->
-    <div class="browse-toggle">
-        <button id="modeCountry" class="active-mode">🇺🇳 by country</button>
-        <button id="modeGlobal">🌍 all coins</button>
-    </div>
-
     <div class="stats" id="stats"><span id="totalCountries">0</span> countries · <span id="totalItems">0</span> items</div>
 </div>
 
 <!-- main slider area -->
 <div class="slider-stage" id="sliderStage">
+    <!-- left arrow (prev) -->
     <div class="nav-arrow left" id="prevArrow" aria-label="previous coin">‹</div>
+
     <div class="slider-viewport" id="sliderViewport">
-        <div class="slider-image-frame" id="imageFrame"></div>
+        <div class="slider-image-frame" id="imageFrame">
+            <!-- image will be injected here -->
+        </div>
     </div>
+
+    <!-- right arrow (next) -->
     <div class="nav-arrow right" id="nextArrow" aria-label="next coin">›</div>
 </div>
 
@@ -365,23 +275,14 @@
     <div class="counter" id="counter">0 / 0</div>
 </div>
 
-<!-- thumbnail strip (all images, uniform size) -->
-<div class="thumbnail-strip" id="thumbnailStrip"></div>
-
 <script>
     (function() {
         // ---------- GLOBALS ----------
-        let allCoins = [];                 // raw data from JSON (filtered with image)
-        let countries = [];                // unique country names sorted
-        let currentCountry = null;          // selected country (in country mode)
+        let allCoins = [];                 // raw data from JSON
+        let countries = [];                // unique country names
+        let currentCountry = null;          // selected country
         let countryItems = [];              // coins belonging to currentCountry
-        let currentIndex = 0;                // index within active list
-
-        // mode: 'country' or 'global'
-        let activeMode = 'country';          // default
-
-        // active list (what we navigate): either countryItems or allCoins
-        let activeList = countryItems;       // reference, updated on mode switch
+        let currentIndex = 0;                // index within countryItems
 
         // UI elements
         const displayLabel = document.getElementById('countryDisplayLabel');
@@ -399,13 +300,8 @@
         const prevArrow = document.getElementById('prevArrow');
         const nextArrow = document.getElementById('nextArrow');
         const sliderStage = document.getElementById('sliderStage');
-        const thumbnailStrip = document.getElementById('thumbnailStrip');
 
-        // mode buttons
-        const modeCountryBtn = document.getElementById('modeCountry');
-        const modeGlobalBtn = document.getElementById('modeGlobal');
-
-        // touch vars
+        // touch start X for swipe
         let touchStartX = 0;
         let touchEndX = 0;
         const minSwipeDistance = 50;
@@ -413,14 +309,15 @@
         // ---------- LOAD JSON ----------
         async function loadData() {
             try {
+                // coins.json is located in images/coins.json (as per spec)
                 const response = await fetch('images/coins.json');
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 allCoins = await response.json();
 
-                // filter out entries without image or country
+                // filter out entries without image or country (but keep all, just filter empty images later)
                 allCoins = allCoins.filter(c => c.country && c.country.trim() !== '' && c.image && c.image.trim() !== '');
 
-                // unique countries
+                // extract unique country list (trim and sort)
                 const countrySet = new Set();
                 allCoins.forEach(c => countrySet.add(c.country.trim()));
                 countries = Array.from(countrySet).sort((a,b) => a.localeCompare(b));
@@ -429,21 +326,15 @@
                 totalItemsSpan.textContent = allCoins.length;
 
                 if (countries.length === 0) throw new Error('no valid countries');
+                // set first country as default
+                switchCountry(countries[0]);
 
-                // initial: first country
-                currentCountry = countries[0];
-                switchCountry(currentCountry);
+                // populate select dropdown with all countries
                 populateSelect(countries);
-
-                // global mode list is allCoins, but we stay in country mode initially
-                setActiveMode('country');
-
-                // build thumbnails after data is ready
-                rebuildThumbnails();
 
             } catch (e) {
                 console.error('load error:', e);
-                displayLabel.textContent = '⚠️ error';
+                displayLabel.textContent = '⚠️ error loading';
                 imageFrame.innerHTML = `<div class="no-image">failed to load coins.json<br>check console</div>`;
             }
         }
@@ -458,7 +349,7 @@
             });
         }
 
-        // filter select options based on input
+        // filter select options based on input text (partial match, case-insensitive)
         function filterSelectOptions(filterText) {
             const term = filterText.trim().toLowerCase();
             const options = selectEl.options;
@@ -472,54 +363,29 @@
             if (firstMatchIndex !== -1) selectEl.selectedIndex = firstMatchIndex;
         }
 
-        // switch country (only relevant for country mode)
+        // switch to a given country (by name)
         function switchCountry(countryName) {
             if (!countryName) return;
             currentCountry = countryName;
             countryItems = allCoins.filter(c => c.country.trim() === countryName);
+            currentIndex = (countryItems.length > 0) ? 0 : -1;
+
             // update label
             displayLabel.textContent = countryName;
 
-            // if we are in country mode, reflect changes
-            if (activeMode === 'country') {
-                activeList = countryItems;
-                currentIndex = countryItems.length > 0 ? 0 : -1;
-                renderCurrentCoin();
-                rebuildThumbnails();     // thumbnails = all activeList
-            } else {
-                // global mode: still rebuild thumbnails from allCoins, but keep global index
-                rebuildThumbnails();
-            }
-
-            // hide selector
+            // hide selector, show label
             selectorContainer.style.display = 'none';
             displayLabel.style.display = 'inline-block';
-        }
 
-        // mode setter
-        function setActiveMode(mode) {
-            activeMode = mode;
-            if (mode === 'country') {
-                modeCountryBtn.classList.add('active-mode');
-                modeGlobalBtn.classList.remove('active-mode');
-                activeList = countryItems;      // may be empty if no country, but we handle
-                currentIndex = (countryItems.length > 0) ? 0 : -1;
-            } else {
-                modeGlobalBtn.classList.add('active-mode');
-                modeCountryBtn.classList.remove('active-mode');
-                activeList = allCoins;
-                // keep currentIndex within global bounds, but avoid invalid
-                if (currentIndex >= allCoins.length) currentIndex = allCoins.length-1;
-                if (currentIndex < 0 && allCoins.length>0) currentIndex = 0;
-            }
+            // refresh image & info
             renderCurrentCoin();
-            rebuildThumbnails();   // thumbnails always show full activeList
         }
 
-        // render current coin based on activeList[currentIndex]
+        // render current coin based on countryItems[currentIndex]
         function renderCurrentCoin() {
-            if (!activeList || activeList.length === 0 || currentIndex < 0 || currentIndex >= activeList.length) {
-                imageFrame.innerHTML = `<div class="no-image">🪙 no coins</div>`;
+            if (!currentCountry || countryItems.length === 0 || currentIndex < 0) {
+                // show empty / placeholder
+                imageFrame.innerHTML = `<div class="no-image">🪙 no coins for this country</div>`;
                 donorSpan.textContent = '—';
                 yearSpan.textContent = '—';
                 sizeSpan.textContent = '—';
@@ -528,97 +394,59 @@
                 return;
             }
 
-            const coin = activeList[currentIndex];
+            const coin = countryItems[currentIndex];
+            // build image path: images/{country name}/{image file}
+            // encode country and filename to be safe (spaces etc)
             const countryFolder = encodeURIComponent(coin.country.trim());
             const imageFile = encodeURIComponent(coin.image);
             const imagePath = `images/${countryFolder}/${imageFile}`;
 
+            // create image element
             const img = new Image();
             img.onload = () => {
+                // clear and append
                 imageFrame.innerHTML = '';
                 imageFrame.appendChild(img);
             };
-            img.onerror = () => {
-                imageFrame.innerHTML = `<div class="no-image">🖼️ missing<br>${coin.image}</div>`;
+            img.onerror = (e) => {
+                console.warn('image not found:', imagePath);
+                imageFrame.innerHTML = `<div class="no-image">🖼️ image missing<br>${coin.image}</div>`;
             };
             img.src = imagePath;
-            img.alt = `${coin.country} ${coin.note || ''}`;
+            img.alt = `${coin.country} ${coin.note || 'coin'}`;
 
+            // update info fields
             donorSpan.textContent = coin.donor_name || '—';
             yearSpan.textContent = coin.year && coin.year !== '0000' ? coin.year : '—';
             sizeSpan.textContent = coin.size && coin.size !== '00' ? coin.size : '—';
             let note = coin.note || '—';
             if (note.length > 80) note = note.substring(0,80)+'…';
             noteSpan.textContent = note;
-            counterSpan.textContent = `${currentIndex+1} / ${activeList.length}`;
-
-            // highlight corresponding thumbnail
-            document.querySelectorAll('.thumbnail').forEach((thumb, idx) => {
-                if (idx === currentIndex) thumb.classList.add('active-thumb');
-                else thumb.classList.remove('active-thumb');
-            });
-
-            // scroll thumbnail into view (rough)
-            const activeThumb = document.querySelector('.thumbnail.active-thumb');
-            if (activeThumb) {
-                activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-            }
-        }
-
-        // rebuild thumbnail strip based on activeList
-        function rebuildThumbnails() {
-            thumbnailStrip.innerHTML = '';
-            if (!activeList || activeList.length === 0) {
-                thumbnailStrip.innerHTML = '<div class="no-thumb" style="width:100%;">no items</div>';
-                return;
-            }
-
-            activeList.forEach((coin, idx) => {
-                const thumbDiv = document.createElement('div');
-                thumbDiv.className = 'thumbnail';
-                if (idx === currentIndex) thumbDiv.classList.add('active-thumb');
-
-                const countryFolder = encodeURIComponent(coin.country.trim());
-                const imageFile = encodeURIComponent(coin.image);
-                const imgPath = `images/${countryFolder}/${imageFile}`;
-
-                const img = document.createElement('img');
-                img.src = imgPath;
-                img.alt = coin.country;
-                img.onerror = () => {
-                    // fallback if thumb fails
-                    thumbDiv.innerHTML = '<span class="no-thumb">📀</span>';
-                };
-                thumbDiv.appendChild(img);
-
-                thumbDiv.addEventListener('click', () => {
-                    currentIndex = idx;
-                    renderCurrentCoin();
-                });
-
-                thumbnailStrip.appendChild(thumbDiv);
-            });
+            counterSpan.textContent = `${currentIndex+1} / ${countryItems.length}`;
         }
 
         // navigation
         function nextImage() {
-            if (activeList.length === 0) return;
-            currentIndex = (currentIndex + 1) % activeList.length;
-            renderCurrentCoin();
-        }
-        function prevImage() {
-            if (activeList.length === 0) return;
-            currentIndex = (currentIndex - 1 + activeList.length) % activeList.length;
+            if (countryItems.length === 0) return;
+            currentIndex = (currentIndex + 1) % countryItems.length;
             renderCurrentCoin();
         }
 
-        // ----- country label / selector -----
-        displayLabel.addEventListener('click', () => {
+        function prevImage() {
+            if (countryItems.length === 0) return;
+            currentIndex = (currentIndex - 1 + countryItems.length) % countryItems.length;
+            renderCurrentCoin();
+        }
+
+        // ----- UI: country label click / blur interaction -----
+        displayLabel.addEventListener('click', (e) => {
+            // hide label, show selector with input+select
             displayLabel.style.display = 'none';
             selectorContainer.style.display = 'block';
-            selectInput.value = '';
-            filterSelectOptions('');
+            selectInput.value = '';           // clear filter
+            filterSelectOptions('');            // show all options
             selectInput.focus();
+            // preselect current country in dropdown
             for (let i = 0; i < selectEl.options.length; i++) {
                 if (selectEl.options[i].value === currentCountry) {
                     selectEl.selectedIndex = i;
@@ -627,80 +455,110 @@
             }
         });
 
+        // function to commit selection and return to label
         function commitCountrySelection() {
             const selectedOption = selectEl.options[selectEl.selectedIndex];
             if (selectedOption && selectedOption.value) {
                 switchCountry(selectedOption.value);
             } else {
+                // fallback: revert to label, no change
                 displayLabel.style.display = 'inline-block';
                 selectorContainer.style.display = 'none';
             }
         }
 
-        selectInput.addEventListener('blur', () => {
+        // when input loses focus -> commit if click outside, but careful with select clicks
+        selectInput.addEventListener('blur', (e) => {
+            // if the related target is inside selectorContainer (like select), ignore temporary
             setTimeout(() => {
                 if (!selectorContainer.contains(document.activeElement)) {
+                    // if focus moved outside completely, commit & close
                     commitCountrySelection();
                 }
             }, 120);
         });
 
+        // on 'Enter' in input, commit
         selectInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 commitCountrySelection();
             } else if (e.key === 'Escape') {
+                // cancel: go back to label without changing
                 displayLabel.style.display = 'inline-block';
                 selectorContainer.style.display = 'none';
             }
         });
 
-        selectInput.addEventListener('input', (e) => filterSelectOptions(e.target.value));
-        selectEl.addEventListener('change', commitCountrySelection);
-
-        // mode buttons
-        modeCountryBtn.addEventListener('click', () => {
-            if (activeMode === 'country') return;
-            setActiveMode('country');
-        });
-        modeGlobalBtn.addEventListener('click', () => {
-            if (activeMode === 'global') return;
-            setActiveMode('global');
+        // filter as user types
+        selectInput.addEventListener('input', (e) => {
+            filterSelectOptions(e.target.value);
         });
 
-        // arrows
+        // select change -> optional (we could commit immediately, but better to wait for blur/enter)
+        // we can commit on change as well for convenience (but may confuse)
+        selectEl.addEventListener('change', (e) => {
+            // immediately commit on select (click or arrow+enter)
+            commitCountrySelection();
+        });
+
+        // to catch clicks on select (so they don't trigger blur wrongly)
+        selectEl.addEventListener('mousedown', (e) => {
+            // prevent immediate blur stealing? not necessary but safe
+        });
+
+        // also when label is focused and blurred? we keep it simple
+
+        // ---------- ARROWS ----------
         prevArrow.addEventListener('click', prevImage);
         nextArrow.addEventListener('click', nextImage);
 
-        // touch swipe
+        // ---------- TOUCH SWIPE ----------
         sliderStage.addEventListener('touchstart', (e) => {
             touchStartX = e.changedTouches[0].screenX;
         }, {passive: true});
+
         sliderStage.addEventListener('touchend', (e) => {
             if (touchStartX === 0) return;
             touchEndX = e.changedTouches[0].screenX;
             const diff = touchEndX - touchStartX;
             if (Math.abs(diff) > minSwipeDistance) {
-                diff > 0 ? prevImage() : nextImage();
+                if (diff > 0) {
+                    prevImage();   // swipe right -> prev
+                } else {
+                    nextImage();   // swipe left -> next
+                }
             }
+            // reset
             touchStartX = 0;
         }, {passive: true});
 
+        // keyboard left/right arrows
         window.addEventListener('keydown', (e) => {
+            // if the selector is open, we ignore arrow keys (so typing in input works)
             if (selectorContainer.style.display === 'block') return;
-            if (e.key === 'ArrowLeft') { e.preventDefault(); prevImage(); }
-            else if (e.key === 'ArrowRight') { e.preventDefault(); nextImage(); }
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevImage();
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                nextImage();
+            }
         });
 
-        // click outside selector
+        // load data
+        loadData();
+
+        // minor: when user clicks away from selector (document click) but we handled via blur
         document.addEventListener('click', function(e) {
             if (selectorContainer.style.display !== 'block') return;
+            // if click outside container, commit (but blur will handle usually)
             if (!selectorContainer.contains(e.target) && e.target !== displayLabel) {
                 commitCountrySelection();
             }
         });
 
-        loadData();
+        // handle edge: if no image but we need to show
     })();
 </script>
 </body>
