@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>coin gallery · fullpage slider + thumbnails</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #111;
+            font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #eee;
+            overflow: hidden;
+        }
+
+        /* top bar: country selector + browse mode */
+        .country-bar {
+            background: #1f2a3a;
+            padding: 0.8rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            border-bottom: 2px solid #3e5368;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+            z-index: 20;
+        }
+
+        .country-label {
+            font-size: 1.6rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            color: #f5e7c8;
+            background: #2e3d4e;
+            padding: 0.2rem 1.2rem;
+            border-radius: 40px;
+            border: 1px solid #6d8aab;
+            cursor: pointer;
+            transition: 0.2s;
+            user-select: none;
+            white-space: nowrap;
+        }
+        .country-label:hover {
+            background: #3d4f63;
+            border-color: #aac7f0;
+        }
+
+        .selector-container {
+            position: relative;
+            min-width: 260px;
+        }
+
+        #countrySelect {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            font-size: 1.3rem;
+            border-radius: 30px;
+            border: 1px solid #a0b9d6;
+            background: #1e2b36;
+            color: white;
+            outline: none;
+            box-shadow: 0 4px 12px black;
+        }
+
+        #countrySelect option {
+            background: #1e2b36;
+            color: #eee;
+        }
+
+        .hidden-input {
+            display: none;
+        }
+
+        .stats {
+            margin-left: auto;
+            display: flex;
+            gap: 2rem;
+            font-size: 1rem;
+            background: #0f1a24;
+            padding: 0.4rem 1.2rem;
+            border-radius: 30px;
+            color: #c0d3ec;
+        }
+
+        /* toggle / browse mode */
+        .browse-toggle {
+            background: #2b3e4e;
+            border-radius: 40px;
+            padding: 0.3rem 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid #5a7794;
+        }
+        .browse-toggle button {
+            background: #1f2e3c;
+            border: none;
+            color: #c6daf0;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid transparent;
+        }
+        .browse-toggle button.active-mode {
+            background: #4e7b9e;
+            color: white;
+            border-color: #aac9f0;
+        }
+        .browse-toggle button:first-child {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+        .browse-toggle button:last-child {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+        /* main slider area */
+        .slider-stage {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0b1219;
+            padding: 0.5rem;
+            position: relative;
+            touch-action: pan-y pinch-zoom;
+        }
+
+        .slider-viewport {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            user-select: none;
+        }
+
+        .slider-image-frame {
+            max-width: 100%;
+            max-height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0b1117;
+            border-radius: 28px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+            padding: 1rem;
+        }
+
+        .slider-image-frame img {
+            max-width: 100%;
+            max-height: calc(100vh - 300px);   /* extra space for thumbnails + bar */
+            object-fit: contain;
+            border-radius: 16px;
+            transition: opacity 0.25s;
+            background: #1e2a33;
+            box-shadow: 0 0 0 1px #3f5568;
+        }
+
+        /* navigation arrows */
+        .nav-arrow {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 18%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            color: rgba(255, 240, 200, 0.5);
+            cursor: pointer;
+            transition: 0.2s;
+            z-index: 15;
+            text-shadow: 0 2px 8px black;
+        }
+
+        .nav-arrow.left {
+            left: 0;
+            background: linear-gradient(to left, transparent, rgba(0,20,40,0.4));
+        }
+        .nav-arrow.right {
+            right: 0;
+            background: linear-gradient(to right, transparent, rgba(0,20,40,0.4));
+        }
+
+        .nav-arrow:hover {
+            color: #ffeedd;
+            background: rgba(20, 40, 70, 0.5);
+        }
+
+        /* bottom info panel */
+        .info-panel {
+            background: #18222e;
+            border-top: 2px solid #3f556b;
+            padding: 1rem 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem 3rem;
+            font-size: 1.2rem;
+            align-items: center;
+            z-index: 18;
+            box-shadow: 0 -6px 20px black;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: #9bb5d4;
+            letter-spacing: 0.8px;
+        }
+
+        .info-value {
+            font-weight: 500;
+            color: #f2e0c0;
+            font-size: 1.3rem;
+            word-break: break-word;
+        }
+
+        .note-value {
+            max-width: 400px;
+            font-size: 1.2rem;
+            color: #d6e2f5;
+        }
+
+        .counter {
+            margin-left: auto;
+            background: #2e3e52;
+            padding: 0.5rem 1.4rem;
+            border-radius: 36px;
+            font-size: 1.3rem;
+            border: 1px solid #617a9b;
+        }
+
+        /* thumbnail strip */
+        .thumbnail-strip {
+            background: #0f1b24;
+            border-top: 2px solid #3f5568;
+            padding: 12px 16px;
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            align-items: center;
+            white-space: nowrap;
+            scrollbar-width: thin;
+            scrollbar-color: #5b779b #1f2e3a;
+            z-index: 15;
+        }
+        .thumbnail-strip::-webkit-scrollbar {
+            height: 8px;
+        }
+        .thumbnail-strip::-webkit-scrollbar-track {
+            background: #1f2e3a;
+        }
+        .thumbnail-strip::-webkit-scrollbar-thumb {
+            background: #5b779b;
+            border-radius: 10px;
+        }
+
+        .thumbnail {
+            flex: 0 0 auto;
+            width: 100px;
+            height: 70px;
+            background: #20313e;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            overflow: hidden;
+            cursor: pointer;
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px black;
+        }
+        .thumbnail:hover {
+            border-color: #9bbde2;
+            transform: scale(1.02);
+        }
+        .thumbnail.active-thumb {
+            border-color: #ffcf8a;
+            box-shadow: 0 0 0 2px #bd9f60;
+        }
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;          /* all thumbnails same size, cover crop */
+            display: block;
+            background: #1d3241;
+        }
+        .no-thumb {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #1a2c38;
+            color: #96aebb;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        @media (max-width: 700px) {
+            .country-bar { padding: 0.4rem 0.8rem; gap:0.6rem; }
+            .country-label { font-size: 1.2rem; }
+            .stats { display: none; }
+            .info-panel { padding: 0.6rem; gap: 1rem; }
+            .info-value { font-size: 1rem; }
+            .nav-arrow { width: 15%; font-size: 3.5rem; }
+            .thumbnail { width: 70px; height: 50px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- top bar with country selector + browse mode toggle -->
+<div class="country-bar" id="countryBar">
+    <div id="countryDisplayLabel" class="country-label" tabindex="0">loading countries...</div>
+    <div class="selector-container" id="selectorContainer" style="display: none;">
+        <input type="text" id="countrySelectInput" placeholder="type to filter..." autocomplete="off">
+        <select size="8" id="countrySelect"></select>
+    </div>
+
+    <!-- browse mode toggle: country mode vs all coins mode -->
+    <div class="browse-toggle">
+        <button id="modeCountry" class="active-mode">🇺🇳 by country</button>
+        <button id="modeGlobal">🌍 all coins</button>
+    </div>
+
+    <div class="stats" id="stats"><span id="totalCountries">0</span> countries · <span id="totalItems">0</span> items</div>
+</div>
+
+<!-- main slider area -->
+<div class="slider-stage" id="sliderStage">
+    <div class="nav-arrow left" id="prevArrow" aria-label="previous coin">‹</div>
+    <div class="slider-viewport" id="sliderViewport">
+        <div class="slider-image-frame" id="imageFrame"></div>
+    </div>
+    <div class="nav-arrow right" id="nextArrow" aria-label="next coin">›</div>
+</div>
+
+<!-- bottom info panel -->
+<div class="info-panel" id="infoPanel">
+    <div class="info-item"><span class="info-label">donor</span><span class="info-value" id="donorName">—</span></div>
+    <div class="info-item"><span class="info-label">year</span><span class="info-value" id="coinYear">—</span></div>
+    <div class="info-item"><span class="info-label">size</span><span class="info-value" id="coinSize">—</span></div>
+    <div class="info-item" style="flex:2;"><span class="info-label">note</span><span class="info-value note-value" id="coinNote">—</span></div>
+    <div class="counter" id="counter">0 / 0</div>
+</div>
+
+<!-- thumbnail strip (all images, uniform size) -->
+<div class="thumbnail-strip" id="thumbnailStrip"></div>
+
+<script>
+    (function() {
+        // ---------- GLOBALS ----------
+        let allCoins = [];                 // raw data from JSON (filtered with image)
+        let countries = [];                // unique country names sorted
+        let currentCountry = null;          // selected country (in country mode)
+        let countryItems = [];              // coins belonging to currentCountry
+        let currentIndex = 0;                // index within active list
+
+        // mode: 'country' or 'global'
+        let activeMode = 'country';          // default
+
+        // active list (what we navigate): either countryItems or allCoins
+        let activeList = countryItems;       // reference, updated on mode switch
+
+        // UI elements
+        const displayLabel = document.getElementById('countryDisplayLabel');
+        const selectorContainer = document.getElementById('selectorContainer');
+        const selectInput = document.getElementById('countrySelectInput');
+        const selectEl = document.getElementById('countrySelect');
+        const totalCountriesSpan = document.getElementById('totalCountries');
+        const totalItemsSpan = document.getElementById('totalItems');
+        const donorSpan = document.getElementById('donorName');
+        const yearSpan = document.getElementById('coinYear');
+        const sizeSpan = document.getElementById('coinSize');
+        const noteSpan = document.getElementById('coinNote');
+        const counterSpan = document.getElementById('counter');
+        const imageFrame = document.getElementById('imageFrame');
+        const prevArrow = document.getElementById('prevArrow');
+        const nextArrow = document.getElementById('nextArrow');
+        const sliderStage = document.getElementById('sliderStage');
+        const thumbnailStrip = document.getElementById('thumbnailStrip');
+
+        // mode buttons
+        const modeCountryBtn = document.getElementById('modeCountry');
+        const modeGlobalBtn = document.getElementById('modeGlobal');
+
+        // touch vars
+        let touchStartX = 0;
+        let touchEndX = 0;
+        const minSwipeDistance = 50;
+
+        // ---------- LOAD JSON ----------
+        async function loadData() {
+            try {
+                const response = await fetch('images/coins.json');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                allCoins = await response.json();
+
+                // filter out entries without image or country
+                allCoins = allCoins.filter(c => c.country && c.country.trim() !== '' && c.image && c.image.trim() !== '');
+
+                // unique countries
+                const countrySet = new Set();
+                allCoins.forEach(c => countrySet.add(c.country.trim()));
+                countries = Array.from(countrySet).sort((a,b) => a.localeCompare(b));
+
+                totalCountriesSpan.textContent = countries.length;
+                totalItemsSpan.textContent = allCoins.length;
+
+                if (countries.length === 0) throw new Error('no valid countries');
+
+                // initial: first country
+                currentCountry = countries[0];
+                switchCountry(currentCountry);
+                populateSelect(countries);
+
+                // global mode list is allCoins, but we stay in country mode initially
+                setActiveMode('country');
+
+                // build thumbnails after data is ready
+                rebuildThumbnails();
+
+            } catch (e) {
+                console.error('load error:', e);
+                displayLabel.textContent = '⚠️ error';
+                imageFrame.innerHTML = `<div class="no-image">failed to load coins.json<br>check console</div>`;
+            }
+        }
+
+        function populateSelect(countryList) {
+            selectEl.innerHTML = '';
+            countryList.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = c;
+                selectEl.appendChild(opt);
+            });
+        }
+
+        // filter select options based on input
+        function filterSelectOptions(filterText) {
+            const term = filterText.trim().toLowerCase();
+            const options = selectEl.options;
+            let firstMatchIndex = -1;
+            for (let i = 0; i < options.length; i++) {
+                const opt = options[i];
+                const matches = term === '' || opt.value.toLowerCase().includes(term);
+                opt.style.display = matches ? '' : 'none';
+                if (matches && firstMatchIndex === -1) firstMatchIndex = i;
+            }
+            if (firstMatchIndex !== -1) selectEl.selectedIndex = firstMatchIndex;
+        }
+
+        // switch country (only relevant for country mode)
+        function switchCountry(countryName) {
+            if (!countryName) return;
+            currentCountry = countryName;
+            countryItems = allCoins.filter(c => c.country.trim() === countryName);
+            // update label
+            displayLabel.textContent = countryName;
+
+            // if we are in country mode, reflect changes
+            if (activeMode === 'country') {
+                activeList = countryItems;
+                currentIndex = countryItems.length > 0 ? 0 : -1;
+                renderCurrentCoin();
+                rebuildThumbnails();     // thumbnails = all activeList
+            } else {
+                // global mode: still rebuild thumbnails from allCoins, but keep global index
+                rebuildThumbnails();
+            }
+
+            // hide selector
+            selectorContainer.style.display = 'none';
+            displayLabel.style.display = 'inline-block';
+        }
+
+        // mode setter
+        function setActiveMode(mode) {
+            activeMode = mode;
+            if (mode === 'country') {
+                modeCountryBtn.classList.add('active-mode');
+                modeGlobalBtn.classList.remove('active-mode');
+                activeList = countryItems;      // may be empty if no country, but we handle
+                currentIndex = (countryItems.length > 0) ? 0 : -1;
+            } else {
+                modeGlobalBtn.classList.add('active-mode');
+                modeCountryBtn.classList.remove('active-mode');
+                activeList = allCoins;
+                // keep currentIndex within global bounds, but avoid invalid
+                if (currentIndex >= allCoins.length) currentIndex = allCoins.length-1;
+                if (currentIndex < 0 && allCoins.length>0) currentIndex = 0;
+            }
+            renderCurrentCoin();
+            rebuildThumbnails();   // thumbnails always show full activeList
+        }
+
+        // render current coin based on activeList[currentIndex]
+        function renderCurrentCoin() {
+            if (!activeList || activeList.length === 0 || currentIndex < 0 || currentIndex >= activeList.length) {
+                imageFrame.innerHTML = `<div class="no-image">🪙 no coins</div>`;
+                donorSpan.textContent = '—';
+                yearSpan.textContent = '—';
+                sizeSpan.textContent = '—';
+                noteSpan.textContent = '—';
+                counterSpan.textContent = `0 / 0`;
+                return;
+            }
+
+            const coin = activeList[currentIndex];
+            const countryFolder = encodeURIComponent(coin.country.trim());
+            const imageFile = encodeURIComponent(coin.image);
+            const imagePath = `images/${countryFolder}/${imageFile}`;
+
+            const img = new Image();
+            img.onload = () => {
+                imageFrame.innerHTML = '';
+                imageFrame.appendChild(img);
+            };
+            img.onerror = () => {
+                imageFrame.innerHTML = `<div class="no-image">🖼️ missing<br>${coin.image}</div>`;
+            };
+            img.src = imagePath;
+            img.alt = `${coin.country} ${coin.note || ''}`;
+
+            donorSpan.textContent = coin.donor_name || '—';
+            yearSpan.textContent = coin.year && coin.year !== '0000' ? coin.year : '—';
+            sizeSpan.textContent = coin.size && coin.size !== '00' ? coin.size : '—';
+            let note = coin.note || '—';
+            if (note.length > 80) note = note.substring(0,80)+'…';
+            noteSpan.textContent = note;
+            counterSpan.textContent = `${currentIndex+1} / ${activeList.length}`;
+
+            // highlight corresponding thumbnail
+            document.querySelectorAll('.thumbnail').forEach((thumb, idx) => {
+                if (idx === currentIndex) thumb.classList.add('active-thumb');
+                else thumb.classList.remove('active-thumb');
+            });
+
+            // scroll thumbnail into view (rough)
+            const activeThumb = document.querySelector('.thumbnail.active-thumb');
+            if (activeThumb) {
+                activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
+        }
+
+        // rebuild thumbnail strip based on activeList
+        function rebuildThumbnails() {
+            thumbnailStrip.innerHTML = '';
+            if (!activeList || activeList.length === 0) {
+                thumbnailStrip.innerHTML = '<div class="no-thumb" style="width:100%;">no items</div>';
+                return;
+            }
+
+            activeList.forEach((coin, idx) => {
+                const thumbDiv = document.createElement('div');
+                thumbDiv.className = 'thumbnail';
+                if (idx === currentIndex) thumbDiv.classList.add('active-thumb');
+
+                const countryFolder = encodeURIComponent(coin.country.trim());
+                const imageFile = encodeURIComponent(coin.image);
+                const imgPath = `images/${countryFolder}/${imageFile}`;
+
+                const img = document.createElement('img');
+                img.src = imgPath;
+                img.alt = coin.country;
+                img.onerror = () => {
+                    // fallback if thumb fails
+                    thumbDiv.innerHTML = '<span class="no-thumb">📀</span>';
+                };
+                thumbDiv.appendChild(img);
+
+                thumbDiv.addEventListener('click', () => {
+                    currentIndex = idx;
+                    renderCurrentCoin();
+                });
+
+                thumbnailStrip.appendChild(thumbDiv);
+            });
+        }
+
+        // navigation
+        function nextImage() {
+            if (activeList.length === 0) return;
+            currentIndex = (currentIndex + 1) % activeList.length;
+            renderCurrentCoin();
+        }
+        function prevImage() {
+            if (activeList.length === 0) return;
+            currentIndex = (currentIndex - 1 + activeList.length) % activeList.length;
+            renderCurrentCoin();
+        }
+
+        // ----- country label / selector -----
+        displayLabel.addEventListener('click', () => {
+            displayLabel.style.display = 'none';
+            selectorContainer.style.display = 'block';
+            selectInput.value = '';
+            filterSelectOptions('');
+            selectInput.focus();
+            for (let i = 0; i < selectEl.options.length; i++) {
+                if (selectEl.options[i].value === currentCountry) {
+                    selectEl.selectedIndex = i;
+                    break;
+                }
+            }
+        });
+
+        function commitCountrySelection() {
+            const selectedOption = selectEl.options[selectEl.selectedIndex];
+            if (selectedOption && selectedOption.value) {
+                switchCountry(selectedOption.value);
+            } else {
+                displayLabel.style.display = 'inline-block';
+                selectorContainer.style.display = 'none';
+            }
+        }
+
+        selectInput.addEventListener('blur', () => {
+            setTimeout(() => {
+                if (!selectorContainer.contains(document.activeElement)) {
+                    commitCountrySelection();
+                }
+            }, 120);
+        });
+
+        selectInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                commitCountrySelection();
+            } else if (e.key === 'Escape') {
+                displayLabel.style.display = 'inline-block';
+                selectorContainer.style.display = 'none';
+            }
+        });
+
+        selectInput.addEventListener('input', (e) => filterSelectOptions(e.target.value));
+        selectEl.addEventListener('change', commitCountrySelection);
+
+        // mode buttons
+        modeCountryBtn.addEventListener('click', () => {
+            if (activeMode === 'country') return;
+            setActiveMode('country');
+        });
+        modeGlobalBtn.addEventListener('click', () => {
+            if (activeMode === 'global') return;
+            setActiveMode('global');
+        });
+
+        // arrows
+        prevArrow.addEventListener('click', prevImage);
+        nextArrow.addEventListener('click', nextImage);
+
+        // touch swipe
+        sliderStage.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, {passive: true});
+        sliderStage.addEventListener('touchend', (e) => {
+            if (touchStartX === 0) return;
+            touchEndX = e.changedTouches[0].screenX;
+            const diff = touchEndX - touchStartX;
+            if (Math.abs(diff) > minSwipeDistance) {
+                diff > 0 ? prevImage() : nextImage();
+            }
+            touchStartX = 0;
+        }, {passive: true});
+
+        window.addEventListener('keydown', (e) => {
+            if (selectorContainer.style.display === 'block') return;
+            if (e.key === 'ArrowLeft') { e.preventDefault(); prevImage(); }
+            else if (e.key === 'ArrowRight') { e.preventDefault(); nextImage(); }
+        });
+
+        // click outside selector
+        document.addEventListener('click', function(e) {
+            if (selectorContainer.style.display !== 'block') return;
+            if (!selectorContainer.contains(e.target) && e.target !== displayLabel) {
+                commitCountrySelection();
+            }
+        });
+
+        loadData();
+    })();
+</script>
+</body>
+</html>
