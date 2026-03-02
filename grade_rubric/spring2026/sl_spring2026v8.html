@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rubric Grading – Total includes Extra Credit + Next Section Button</title>
+    <title>Rubric Grading – Total includes Extra Credit</title>
     <style>
         :root {
             --positive-color: #e8f5e9;
@@ -547,34 +547,6 @@
             color: #666;
             margin-top: 4px;
         }
-
-        /* next section button style */
-        .next-section-btn {
-            background-color: #03a9f4;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            padding: 6px 18px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(3, 169, 244, 0.3);
-            transition: all 0.2s;
-            margin-top: 8px;
-            margin-bottom: 4px;
-            display: inline-block;
-        }
-
-        .next-section-btn:hover {
-            background-color: #0288d1;
-            box-shadow: 0 4px 8px rgba(2, 136, 209, 0.4);
-            transform: translateY(-1px);
-        }
-
-        .next-section-container {
-            text-align: right;
-            margin-right: 10px;
-        }
     </style>
 </head>
 
@@ -1027,72 +999,6 @@
             updateSummary();
         }
 
-        // NEW: show/hide next-section buttons based on whether all positives in a section are selected
-        function updateNextSectionButtons() {
-            const sections = rubricData.grading_rubric.sections;
-            for (let i = 0; i < sections.length - 1; i++) { // no button for last section (or extra credit)
-                if (sections[i].main_section.includes('Extra Credit')) continue; // skip extra credit for next button
-                const sectionId = `section-${i}`;
-                const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
-                const posItems = sections[i].positive_items ? sections[i].positive_items.items : [];
-                let allPosSelected = true;
-                if (posItems.length === 0) allPosSelected = false; // no positives to select? don't show button.
-                else {
-                    for (let j = 0; j < posItems.length; j++) {
-                        if (!sectionState.positive.has(`${sectionId}-positive-${j}`)) {
-                            allPosSelected = false;
-                            break;
-                        }
-                    }
-                }
-                const containerId = `next-btn-container-${i}`;
-                let container = document.getElementById(containerId);
-                if (!container) {
-                    // create container right after the positive items list (before negatives/feedback)
-                    const posList = document.querySelector(`#${sectionId}-content .item-list`); // first item-list is positives
-                    if (posList && posList.nextSibling) {
-                        container = document.createElement('div');
-                        container.id = containerId;
-                        container.className = 'next-section-container';
-                        posList.parentNode.insertBefore(container, posList.nextSibling);
-                    } else {
-                        // fallback: after content div
-                        const contentDiv = document.getElementById(`${sectionId}-content`);
-                        if (contentDiv) {
-                            container = document.createElement('div');
-                            container.id = containerId;
-                            container.className = 'next-section-container';
-                            contentDiv.appendChild(container);
-                        }
-                    }
-                }
-                if (container) {
-                    if (allPosSelected && i < sections.length - 1 && !sections[i + 1].main_section.includes('Extra Credit')) {
-                        // create button if not exists
-                        let btn = document.getElementById(`next-btn-${i}`);
-                        if (!btn) {
-                            btn = document.createElement('button');
-                            btn.id = `next-btn-${i}`;
-                            btn.className = 'next-section-btn';
-                            btn.textContent = `➡️ Next: ${sections[i + 1].main_section.split('(')[0].trim()}`;
-                            btn.addEventListener('click', () => {
-                                const nextHeader = document.getElementById(`header-section-${i + 1}`);
-                                if (nextHeader) {
-                                    nextHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                    nextHeader.classList.add('section-highlight');
-                                    setTimeout(() => nextHeader.classList.remove('section-highlight'), 1500);
-                                }
-                            });
-                            container.innerHTML = ''; // replace old
-                            container.appendChild(btn);
-                        }
-                    } else {
-                        if (container) container.innerHTML = ''; // remove button
-                    }
-                }
-            }
-        }
-
         function renderRubric() {
             const container = document.getElementById('rubricContainer');
             container.innerHTML = '';
@@ -1152,7 +1058,6 @@
                     });
                     sectionContent.appendChild(positiveList);
                 }
-                // container for next button will be injected here via updateNextSectionButtons
                 if (section.negative_items) {
                     const negativeList = document.createElement('div');
                     negativeList.className = 'item-list';
@@ -1475,8 +1380,6 @@
             } else {
                 document.getElementById('extraCreditSection').classList.add('hidden');
             }
-            // Update next section buttons after summary update
-            updateNextSectionButtons();
         }
 
         function generateFeedback() {
@@ -1584,7 +1487,7 @@
             document.getElementById('greetingTemplateSelect').value = '';
             document.getElementById('globalCommentTemplate').value = '';
 
-            // Update summary to reflect reset (will also clear next buttons)
+            // Update summary to reflect reset
             updateSummary();
         }
 
