@@ -1,0 +1,104 @@
+{
+  "A. Compliance, Reproducibility and Fair Comparisons (TODO/10 points)": {
+    "positive": [
+      {"id": "A1", "text": "Scope compliance: Appropriate inclusion of Parts 1-3 for the Adult dataset and Part 1 for the Wine dataset.", "points": 2},
+      {"id": "A2", "text": "Fixed splits and leakage-safe preprocessing: Reported Train/Test/Val split where Preprocessing is reserved to Train only.", "points": 2},
+      {"id": "A3", "text": "Compute accounting is explicit and comparable: Gradient evals are reported, as are Fevals for RO and Wall Clock Time.", "points": 2},
+      {"id": "A4", "text": "Seed protocol and stability reporting is credible: Sufficient random seeds are tested and result dispersion/distribution is well documented.", "points": 2},
+      {"id": "A5", "text": "Reproducibility instructions are sufficient: Environment setup, commands and fixed seeds are acknowledged.", "points": 2}
+    ],
+    "negative": [
+      {"id": "A1", "text": "Scope compliance for Adult and Wine datasets was required."},
+      {"id": "A2", "text": "Expected Train/Test/Val split with preprocessing restricted to Train."},
+      {"id": "A3", "text": "Compute accounting should report gradient evals, Fevals, and wall clock time."},
+      {"id": "A4", "text": "Seed protocol and stability reporting should include multiple seeds and distribution reporting."},
+      {"id": "A5", "text": "Reproducibility instructions should include environment setup, commands, and fixed seeds."}
+    ]
+  },
+  "B. EDA and Hypothesis (TODO/8 points)": {
+    "positive": [
+      {"id": "B1", "text": "Single hypothesis with SL Report comparison and theory-grounded expectations.", "points": 4},
+      {"id": "B2", "text": "EDA comparison with SL Report baseline and discussion of differences.", "points": 4}
+    ],
+    "negative": [
+      {"id": "B1", "text": "Expected a single testable hypothesis grounded in theory with SL Report comparison."},
+      {"id": "B2", "text": "Expected comparison between this report’s EDA and the SL Report baseline."}
+    ]
+  },
+  "C. Part 1: Randomized Optimization on Last Layers (both datasets) (TODO/22 points)": {
+    "positive": [
+      {"id": "C1", "text": "Correct RO scope with last 1-3 layers unfrozen and parameter cap disclosed.", "points": 3},
+      {"id": "C2", "text": "RO objective defined as validation loss and evaluated deterministically.", "points": 3},
+      {"id": "C3", "text": "Complete operator disclosures for RHC, SA, and GA including policies and perturbation settings.", "points": 6},
+      {"id": "C4", "text": "RO progress curves and budget-matched comparisons provided.", "points": 6},
+      {"id": "C5", "text": "Dataset comparison interpretation provided.", "points": 4}
+    ],
+    "negative": [
+      {"id": "C1", "text": "Expected only last 1-3 layers unfrozen and parameter cap disclosed."},
+      {"id": "C2", "text": "RO objective should be validation loss with deterministic evaluation using model.eval()."},
+      {"id": "C3", "text": "Expected full operator disclosure for RHC, SA, and GA including policies and perturbations."},
+      {"id": "C4", "text": "Expected progress curves (best-so-far vs fevals) with budget comparisons."},
+      {"id": "C5", "text": "Expected dataset-dependent interpretation."}
+    ]
+  },
+  "D. Part 2: Adam Ablations on the Full Network (Adult dataset only) (TODO/24 points)": {
+    "positive": [
+      {"id": "D1", "text": "All 7 optimizers implemented on Adult dataset with hyperparameters and budgets.", "points": 7},
+      {"id": "D2", "text": "Time/steps to threshold defined and used consistently.", "points": 3},
+      {"id": "D3", "text": "Sensitivity heatmaps provided with fair budget comparisons.", "points": 6},
+      {"id": "D4", "text": "Seed stability demonstrated with distribution statistics.", "points": 4},
+      {"id": "D5", "text": "Generalization gap computed and interpreted.", "points": 4}
+    ],
+    "negative": [
+      {"id": "D1", "text": "Expected all 7 optimizers implemented with declared hyperparameters and budgets."},
+      {"id": "D2", "text": "Expected defined validation-loss threshold and reporting of time or steps to reach it."},
+      {"id": "D3", "text": "Expected hyperparameter sensitivity heatmaps with interpretation."},
+      {"id": "D4", "text": "Expected seed stability reporting with statistics like median and IQR."},
+      {"id": "D5", "text": "Expected computation and interpretation of the generalization gap."}
+    ]
+  },
+  "E. Part 3: Regularization Study (Standard Adam and Adult Dataset Only) (TODO/22 points)": {
+    "positive": [
+      {"id": "E1", "text": "Adam hyperparameters inherited from best Part 2 results.", "points": 6},
+      {"id": "E2", "text": "All four regularizers tested with reported values and placement.", "points": 4},
+      {"id": "E3", "text": "Budget-matched comparison between baseline and regularized models.", "points": 6},
+      {"id": "E4", "text": "Interpretation comparing Part 2 and Part 3 results.", "points": 6}
+    ],
+    "negative": [
+      {"id": "E1", "text": "Adam hyperparameters should be inherited from best Part 2 configuration."},
+      {"id": "E2", "text": "Expected testing and reporting of all four regularizers."},
+      {"id": "E3", "text": "Expected budget-matched comparison with seed protocol."},
+      {"id": "E4", "text": "Expected interpretation comparing optimizer ablation vs regularization."}
+    ]
+  },
+  "F. Synthesis and Conclusion (TODO/8 points)": {
+    "positive": [
+      {"id": "F1", "text": "Hypothesis revisited and resolved using evidence.", "points": 4},
+      {"id": "F2", "text": "Practical rule provided for choosing optimization vs regularization strategies.", "points": 4}
+    ],
+    "negative": [
+      {"id": "F1", "text": "Expected explicit conclusion on hypothesis supported by results."},
+      {"id": "F2", "text": "Expected a practical rule for prioritizing optimizer changes vs regularization vs RO tuning."}
+    ]
+  },
+  "G. Writing Quality, References, Integrity (TODO/6 points)": {
+    "positive": [
+      {"id": "G1", "text": "Visualizations used to support interpretation rather than summary.", "points": 3},
+      {"id": "G2", "text": "External peer-reviewed references included.", "points": 2},
+      {"id": "G3", "text": "AI use disclosure provided.", "points": 1}
+    ],
+    "negative": [
+      {"id": "G1", "text": "Expected visualizations to directly support reasoning about optimization behavior."},
+      {"id": "G2", "text": "Expected at least two peer-reviewed references."},
+      {"id": "G3", "text": "Expected AI disclosure statement."}
+    ]
+  },
+  "EC. Part 4: Integrated Best Combination (TODO/5 points)": {
+    "positive": [
+      {"id": "EC1", "text": "Integrated run using best Adam, regularizer, and RO method.", "points": 1},
+      {"id": "EC3", "text": "At least three integrated runs across seeds.", "points": 3},
+      {"id": "EC5", "text": "Integrated runs with compute tradeoff discussion.", "points": 5}
+    ],
+    "negative": []
+  }
+}

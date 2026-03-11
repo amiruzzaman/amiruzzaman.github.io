@@ -1,0 +1,232 @@
+{
+  "A": {
+    "title": "Compliance, Reproducibility and Fair Comparisons",
+    "problems": [
+      [
+        {
+          "yes": "Scope compliance: Appropriate inclusion of Parts 1-3 for the Adult dataset and Part 1 for the Wine dataset.",
+          "no": "Scope compliance for Adult and Wine datasets was required.",
+          "point": 2,
+          "key": "A1"
+        },
+        {
+          "yes": "Fixed splits and leakage-safe preprocessing: Reported Train/Test/Val split where Preprocessing is reserved to Train only.",
+          "no": "Expected Train/Test/Val split with preprocessing restricted to Train.",
+          "point": 2,
+          "key": "A2"
+        },
+        {
+          "yes": "Compute accounting is explicit and comparable: Gradient evals are reported, as are Fevals for RO and Wall Clock Time.",
+          "no": "Compute accounting should report gradient evals, Fevals, and wall clock time.",
+          "point": 2,
+          "key": "A3"
+        },
+        {
+          "yes": "Seed protocol and stability reporting is credible: Sufficient random seeds are tested and result dispersion/distribution is well documented.",
+          "no": "Seed protocol and stability reporting should include multiple seeds and distribution reporting.",
+          "point": 2,
+          "key": "A4"
+        },
+        {
+          "yes": "Reproducibility instructions are sufficient: Environment setup, commands and fixed seeds are acknowledged.",
+          "no": "Reproducibility instructions should include environment setup, commands, and fixed seeds.",
+          "point": 2,
+          "key": "A5"
+        }
+      ]
+    ]
+  },
+  "B": {
+    "title": "EDA and Hypothesis",
+    "problems": [
+      [
+        {
+          "yes": "Single hypothesis with SL Report comparison and theory-grounded expectations.",
+          "no": "Expected a single testable hypothesis grounded in theory with SL Report comparison.",
+          "point": 4,
+          "key": "B1"
+        },
+        {
+          "yes": "EDA comparison with SL Report baseline and discussion of differences.",
+          "no": "Expected comparison between this report's EDA and the SL Report baseline.",
+          "point": 4,
+          "key": "B2"
+        }
+      ]
+    ]
+  },
+  "C": {
+    "title": "Part 1: Randomized Optimization on Last Layers (both datasets)",
+    "problems": [
+      [
+        {
+          "yes": "Correct RO scope with last 1-3 layers unfrozen and parameter cap disclosed.",
+          "no": "Expected only last 1-3 layers unfrozen and parameter cap disclosed.",
+          "point": 3,
+          "key": "C1"
+        },
+        {
+          "yes": "RO objective defined as validation loss and evaluated deterministically.",
+          "no": "RO objective should be validation loss with deterministic evaluation using model.eval().",
+          "point": 3,
+          "key": "C2"
+        },
+        {
+          "yes": "Complete operator disclosures for RHC, SA, and GA including policies and perturbation settings.",
+          "no": "Expected full operator disclosure for RHC, SA, and GA including policies and perturbations.",
+          "point": 6,
+          "key": "C3"
+        },
+        {
+          "yes": "RO progress curves and budget-matched comparisons provided.",
+          "no": "Expected progress curves (best-so-far vs fevals) with budget comparisons.",
+          "point": 6,
+          "key": "C4"
+        },
+        {
+          "yes": "Dataset comparison interpretation provided.",
+          "no": "Expected dataset-dependent interpretation.",
+          "point": 4,
+          "key": "C5"
+        }
+      ]
+    ]
+  },
+  "D": {
+    "title": "Part 2: Adam Ablations on the Full Network (Adult dataset only)",
+    "problems": [
+      [
+        {
+          "yes": "All 7 optimizers implemented on Adult dataset with hyperparameters and budgets.",
+          "no": "Expected all 7 optimizers implemented with declared hyperparameters and budgets.",
+          "point": 7,
+          "key": "D1"
+        },
+        {
+          "yes": "Time/steps to threshold defined and used consistently.",
+          "no": "Expected defined validation-loss threshold and reporting of time or steps to reach it.",
+          "point": 3,
+          "key": "D2"
+        },
+        {
+          "yes": "Sensitivity heatmaps provided with fair budget comparisons.",
+          "no": "Expected hyperparameter sensitivity heatmaps with interpretation.",
+          "point": 6,
+          "key": "D3"
+        },
+        {
+          "yes": "Seed stability demonstrated with distribution statistics.",
+          "no": "Expected seed stability reporting with statistics like median and IQR.",
+          "point": 4,
+          "key": "D4"
+        },
+        {
+          "yes": "Generalization gap computed and interpreted.",
+          "no": "Expected computation and interpretation of the generalization gap.",
+          "point": 4,
+          "key": "D5"
+        }
+      ]
+    ]
+  },
+  "E": {
+    "title": "Part 3: Regularization Study (Standard Adam and Adult Dataset Only)",
+    "problems": [
+      [
+        {
+          "yes": "Adam hyperparameters inherited from best Part 2 results.",
+          "no": "Adam hyperparameters should be inherited from best Part 2 configuration.",
+          "point": 6,
+          "key": "E1"
+        },
+        {
+          "yes": "All four regularizers tested with reported values and placement.",
+          "no": "Expected testing and reporting of all four regularizers.",
+          "point": 4,
+          "key": "E2"
+        },
+        {
+          "yes": "Budget-matched comparison between baseline and regularized models.",
+          "no": "Expected budget-matched comparison with seed protocol.",
+          "point": 6,
+          "key": "E3"
+        },
+        {
+          "yes": "Interpretation comparing Part 2 and Part 3 results.",
+          "no": "Expected interpretation comparing optimizer ablation vs regularization.",
+          "point": 6,
+          "key": "E4"
+        }
+      ]
+    ]
+  },
+  "F": {
+    "title": "Synthesis and Conclusion",
+    "problems": [
+      [
+        {
+          "yes": "Hypothesis revisited and resolved using evidence.",
+          "no": "Expected explicit conclusion on hypothesis supported by results.",
+          "point": 4,
+          "key": "F1"
+        },
+        {
+          "yes": "Practical rule provided for choosing optimization vs regularization strategies.",
+          "no": "Expected a practical rule for prioritizing optimizer changes vs regularization vs RO tuning.",
+          "point": 4,
+          "key": "F2"
+        }
+      ]
+    ]
+  },
+  "G": {
+    "title": "Writing Quality, References, Integrity",
+    "problems": [
+      [
+        {
+          "yes": "Visualizations used to support interpretation rather than summary.",
+          "no": "Expected visualizations to directly support reasoning about optimization behavior.",
+          "point": 3,
+          "key": "G1"
+        },
+        {
+          "yes": "External peer-reviewed references included.",
+          "no": "Expected at least two peer-reviewed references.",
+          "point": 2,
+          "key": "G2"
+        },
+        {
+          "yes": "AI use disclosure provided.",
+          "no": "Expected AI disclosure statement.",
+          "point": 1,
+          "key": "G3"
+        }
+      ]
+    ]
+  },
+  "EC": {
+    "title": "Part 4: Integrated Best Combination",
+    "problems": [
+      [
+        {
+          "yes": "Integrated run using best Adam, regularizer, and RO method.",
+          "no": "Not applicable",
+          "point": 1,
+          "key": "EC1"
+        },
+        {
+          "yes": "At least three integrated runs across seeds.",
+          "no": "Not applicable",
+          "point": 3,
+          "key": "EC2"
+        },
+        {
+          "yes": "Integrated runs with compute tradeoff discussion.",
+          "no": "Not applicable",
+          "point": 5,
+          "key": "EC3"
+        }
+      ]
+    ]
+  }
+}

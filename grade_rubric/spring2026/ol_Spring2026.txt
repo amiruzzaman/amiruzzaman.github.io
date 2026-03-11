@@ -1,0 +1,164 @@
+Great job finishing the OL Report, [TODO]!
+Continuing from the previous assignment, please see the section-by-section feedback below, highlighting 'What you did well' and 'What needs improvement.' Please create a private Ed post if you'd like clarification on any grading or feedback we provide and we'll happily follow up there!
+
+====================
+
+A. Compliance, Reproducibility and Fair Comparisons (TODO/10 points)
+{
+What you did well:
++ A1. Scope compliance: Appropriate inclusion of Parts 1-3 for the Adult dataset and Part 1 for the Wine dataset. (Points: 2)
++ A2. Fixed splits and leakage-safe preprocessing: Reported Train/Test/Val split where Preprocessing is reserved to Train only. (Points: 2)
++ A3. Compute accounting is explicit and comparable: Gradient evals are reported, as are Fevals for RO and Wall Clock Time. (Points: 2)
++ A4. Seed protocol and stability reporting is credible: Sufficient random seeds are tested and result dispersion/distribution is well documented. (Points: 2)
++ A5. Reproducibility instructions are sufficient: Acknowledgment of environment setup, commands and fixed seeds are provided for reproducibility's sake. (Points: 2)
+
+What needs improvement:
+x A1. Scope compliance: Appropriate inclusion of Parts 1-3 for the Adult dataset and Part 1 for the Wine dataset was required.
+x A2. Fixed splits and leakage-safe preprocessing: Expected reported Train/Test/Val split and Preprocessing reserved to Train only.
+x A3. Compute accounting must be explicit and comparable: Gradient evals need reporting, as do Fevals for RO and Wall Clock Time need to be mentioned.
+x A4. Seed protocol and stability reporting must be credible: Sufficient random seeds should be tested and result dispersion/distribution be well documented.
+x A5. Reproducibility instructions must be sufficient: Necessary acknowledgment of environment setup, commands and fixed seeds provided for reproducibility's sake.
+
+General Feedback:
+TODO
+}
+
+====================
+
+B. EDA and Hypothesis (TODO/8 points)
+{
+What you did well:
++ B1. Single hypothesis with SL Report comparison: A single, testable, guiding hypothesis which is grounded in theory is provided and expectations are well-reasoned. Appropriate comparison to SL Report baseline is invoked. (Points: 4)
++ B2. SL Report-Consistent EDA Acknowledgement: Compares EDA baseline for this report with that of SL Report and highlights any substantive differences. (Points: 4)
+
+What needs improvement:
+x B1. Single hypothesis with SL Report comparison: A single, testable, guiding hypothesis which is grounded in theory is expected, along with well-reasoned predictions. Appropriate comparison to SL Report baseline must be invoked.
+x B2. SL Report-Consistent EDA Acknowledgement: Comparison to EDA baseline for this report with that of SL Report is expected, as is disclosure of any substantive differences.
+
+General Feedback:
+TODO
+}
+
+====================
+
+C. Part 1: Randomized Optimization on Last Layers (both datasets) (TODO/22 points)
+{
+What you did well:
++ C1. Correct RO Scope and Parameter Cap: All but last 1-3 layers appropriately frozen and trainable parameter cap is disclosed and falls within target/limit. (Points: 3)
++ C2. RO objective is well-defined and evaluated deterministically: Objective is suitably made validation loss and RO evals make use of model.eval(). (Points: 3)
++ C3. Operator disclosures complete and comparable: RHC incorporates restart and step-size policy, SA provides temperature and cooling schedule, GA utilizes population, selection, crossover, mutation and elitism policy. Perturbation distribution and scale as well as adaptation policy are disclosed across RHC, GA and SA. (Points: 6)
++ C4: RO progress curves and budget-matched comparisons: Best-so-far objective vs. fevals are provided and are contextualized with respect to algorithmic feval budget differences. (Points: 6)
++ C5: Dataset comparison interpretation: Dataset-dependent behavior is presented and teased apart with thoughtful interpretation. (Points: 4)
+
+What needs improvement:
+x C1. Abiding by RO Scope and Parameter Cap: Just last 1-3 layers were to remain unfrozen and a trainable parameter cap was disclosed and upheld.
+x C2. RO objective must be well-defined and evaluated deterministically: Objective shoudl be validation loss and RO evals must make use of model.eval().
+x C3. Operator disclosures need be complete and comparable: RHC must incorporate restart and step-size policy, SA must provide temperature and cooling schedule, GA must utilize population, selection, crossover, mutation and elitism policy. Perturbation distribution and scale, as well as adaptation policy, must be disclosed across the three RO algorithms.
+x C4: RO progres curves and budget-matched comparisons required: Best-so-far objective vs. fevals must be provided with acknowledgment of algorithmic feval budget differences and cross-comparison affordances.
+x C5: Dataset comparison interpretation: Dataset-dependent behavior must be presented and teased apart via thoughtful interpretation.
+
+General Feedback:
+TODO
+}
+
+====================
+
+D. Part 2: Adam Ablations on the Full Network (Adult dataset only) (TODO/24 points)
+{
+What you did well:
++ D1. All 7 optimizers implemented on Adult dataset: Complete run per optimizer with declaration of hyperparamters and budgets is provided. (Points: 7)
++ D2. Time/steps to threshold is defined and used consistently: Fixed validation-loss threshold is declared and time or steps to reach this threshold is provided. Over-budget instances failing to reach the threshold are included and marked as such. (Points: 3)
++ D3. Sensitivity heatmaps are provided and fair with regard to budget comparison: Coarse grid hyperparameter sensitivity heatmaps are provided pairwise for hyperparameters and stability regions are interpreted. (Points: 6)
++ D4. Seed stability is demonstrated: This distribution is reported via median + IQR or similar and variance and stability are explicitly discussed. (Points: 4)
++ D5. Generalization gap is computed with interpretation: For matched budgets, train and validation behavior is reported and goodness of fit is discussed. (Points: 4)
+
+What needs improvement:
+x D1. All 7 optimizers must be implemented on Adult dataset: Complete run per optimizer with declaration of hyperparamters and budgest must be provided.
+x D2. Time/steps to threshold must be defined and used consistently: Fixed validation-loss threshold needs to be declared and time or steps to reach this threshold provided. Over-budget instances failing to reach the threshold should be included and marked as such.
+x D3. Sensitivity heatmaps must be provided and fair with regard to budget comparison: Coarse grid hyperparameter sensitivity heatmaps need be provided, pairwise, for hyperparameters with stability regions interpretation.
+x D4. Seed stability must be demonstrated: This distribution need be reported via median + IQR or similar and variance and stability should be explicitly discussed.
+x D5. Generalization gap must be computed with interpretation: For matched budgets, train and validation behavior should be reported with discussion of goodness of fit.
+
+General Feedback:
+TODO
+}
+
+====================
+
+E. Part 3: Regularization Study (Standard Adam and Adult Dataset Only) (TODO/22 points)
+{
+What you did well:
++ E1. Adam constraint with fixed hyperparameters is honored: Adam hyperparameters are appropriately inherited from the best results on Part 2, where only your regularizer changes. (Points: 6)
++ E2. All four regularizers tested and results disclosed: Values, placements and regularizer policies are reported for each of the four regularizers. (Points: 4)
++ E3. Budget-matched comparison, baseline v. best single v. best combination: Adhered to same compute budget and seed protocol where 'with vs. without' regularization improvements are disclosed for validation and test. (Points: 6)
++ E4. Regularization Study Interpretation, bounding the effect on test performance vs. performing optimizer ablation: Provided adequate cross-comparison between overall results from Part 2 and Part 3 with interpretation. (Points: 6)
+
+What needs improvement:
+x E1. Adam constraint with fixed hyperparameters must be respected: Adam hyperparameters should be inherited from the best results on Part 2 where, for consistency, only your regularizer may change.
+x E2. All four regularizers should be tested and results disclosed: Values, placements and regularizer policies must be reported for each of the four regularizers.
+x E3. Budget-matched comparison, baseline v. best single v. best combination: The same compute budget and seed protocol should have been adhere to where 'with vs. without' regularization improvements need to be disclosed for validation and test.
+x E4. Regularization Study Interpretation, should bound the effect on test performance as compared with performing optimizer ablation: We expected cross-comparison between overall results from Part 2 and Part 3 with interpretation.
+
+General Feedback:
+TODO
+}
+
+====================
+
+F. Synthesis and Conclusion (TODO/8 points)
+{
+What you did well:
++ F1. Hypothesis Revisitation and Resolution with Evidence: You explicitly draw conclusions on your main hypothesis and provide results to defend your claim. (Points: 4)
++ F2. Practical Optimization/Regularization Decision Rule Formulation: You provide a concise rule drawing from your results as to when one should opt for regularization versus optimizer changes versus late-stage RO tail tuning and defend this rule with evidence. (Points: 4)
+
+What needs improvement:
+x F1. Hypothesis Revisitation and Resolution with Evidence: We had hoped you would explicitly draw conclusions on your main hypothesis and cite results to defend your claim one way or the other.
+x F2. Practical Optimization/Regularization Decision Rule Formulation: We had hoped you would provide a concise rule drawing from your results (and defended by their assertion) as to when to prioritize optimizater changes versus regularization versus late-stage RO tail tuning.
+
+General Feedback:
+TODO
+}
+
+====================
+
+G. Writing Quality, References, Integrity (TODO/6 points)
+{
+What you did well:
++ G1. Interpretation over summary: Each supporting visualization is called upon in your paper and plays a role in your reasoning about optimization behavior. (Points: 3)
++ G2. External references drawn from beyond course material: You cite and appropriately reference at least two peer-reviewed references in going about your RO study and evaluation thereof. (Points: 2)
++ G3. AI Use Statement included to ensure compliance: You provide disclosure not just of tools used but the way in which and extent to which they are used. (Points: 1)
+
+What needs improvement:
+x G1. Interpretation over summary: Each supporting visualization should not only be called upon in your paper but play a role in your reasoning about optimization behavior.
+x G2. External references drawn from beyond course material: You cite and appropriately reference at least two peer-reviewed references in going about your RO study and evaluation thereof.
+x G3.
+
+General Feedback:
+TODO
+}
+
+====================
+
+EC. Part 4: Integrated Best Combination (TODO/5 points)
+{
+What you did well:
++ 1pt EC earned: Well done in performing one integrated run using your best Adam settings from Part 2, in tandem with your best Part 3 regularizer and your Part 1 RO method. You check all the requirements in terms of providing compute budget and comparing your integrated run against the best Part 2 adam baseline with similar budget constraints. (Points: 1)
++ 3pts EC earned: Well done in performing at least three integrated runs on your random seeds using your best Adam settings from Part 2, in tandem with your best Part 3 regularizer and your Part 1 RO method. You check all the requirements in terms of providing compute budget and comparing your integrated runs against the best Part 2 adam baseline with similar budget constraints. (Points: 3)
++ 5pts EC earned:  Well done in performing at least three integrated runs on your random seeds using your best Adam settings from Part 2, in tandem with your best Part 3 regularizer and your Part 1 RO method. You check all the requirements in terms of providing compute budget and comparing your integrated runs against the best Part 2 adam baseline with similar budget constraints. You go the extra mile for providing discussion of compute tradeoffs (such as comparing test metric vs. total compute, covering gradient steps, RO fevals and wall clock time) and addressing whether under these budget constraints the gains of your integrated approach are practical or worthwhile. (Points: 5)
+
+General Feedback:
+TODO
+}
+
+====================
+
+Overall Summary:
+{
+And with that, you're on to the next one -- the UL Report! Give yourself some credit for another report in the books, [TODO]! As follows is more holistic feedback taking an overall look at your report, where your strengths were and where you could improve in future (be it on the OL Reviewer Response or the UL Report):
+
+What you did well:
++ TODO
+
+What needs improvement:
+x TODO
+}
