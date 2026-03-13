@@ -863,7 +863,7 @@
         (function () {
             // ---- GLOBALS ----
             let selectedItem = null;
-            const maxPossibleScore = 105; // Single source of truth
+            const maxPossibleScore = 100; // Single source of truth
             let saveButton;
             let resetButton;
             let subTotalMaxScores = [];
@@ -883,6 +883,75 @@
 
                 if (maxScoreDisplay) maxScoreDisplay.textContent = maxPossibleScore;
                 if (totalMaxScore) totalMaxScore.textContent = maxPossibleScore;
+            }
+
+            // Function to copy scores for a specific section
+            function copySectionScores(partKey) {
+                const partContainer = document.getElementById(`part-${partKey}`);
+                if (!partContainer) return;
+
+                const problems = partContainer.querySelectorAll('.problem-container');
+                let sectionScores = [];
+
+                problems.forEach(problem => {
+                    const items = problem.querySelectorAll('.item-container');
+                    items.forEach(item => {
+                        const score = item.querySelector('.item-score').textContent;
+                        sectionScores.push(score);
+                    });
+                });
+
+                const scoresText = sectionScores.join('\t');
+
+                navigator.clipboard.writeText(scoresText)
+                    .then(() => {
+                        const msg = document.createElement('div');
+                        msg.className = 'copy-message copy-scores-message';
+                        msg.textContent = `✓ Section ${partKey} scores copied to clipboard!`;
+                        msg.style.display = 'block';
+                        document.querySelector('.section-copy-buttons').parentNode.insertBefore(msg, document.querySelector('.section-copy-buttons'));
+                        setTimeout(() => msg.remove(), 3000);
+                    })
+                    .catch(() => alert(`Failed to copy section ${partKey} scores`));
+            }
+
+            // Function to update section copy buttons
+            function updateSectionCopyButtons() {
+                const partContainers = document.querySelectorAll('.part-container');
+                const buttonContainer = document.getElementById('section-copy-buttons');
+                if (!buttonContainer) return;
+
+                let buttonsHtml = '';
+
+                partContainers.forEach((partContainer) => {
+                    const h3 = partContainer.querySelector('h3');
+                    if (!h3) return;
+
+                    const title = h3.textContent;
+                    const partKey = title.split(':')[0].trim();
+                    const isComplete = areSectionItemsSelected(partContainer);
+
+                    if (isComplete) {
+                        buttonsHtml += `<button class="copy-button section-copy-btn" data-section="${partKey}" style="background-color: var(--success-color); margin: 0 5px;">
+                        📋 Copy ${partKey}
+                    </button>`;
+                    }
+                });
+
+                if (buttonsHtml) {
+                    buttonContainer.innerHTML = buttonsHtml;
+                    buttonContainer.style.display = 'flex';
+
+                    // Add click handlers to the new buttons
+                    document.querySelectorAll('.section-copy-btn').forEach(btn => {
+                        btn.addEventListener('click', function () {
+                            const section = this.getAttribute('data-section');
+                            copySectionScores(section);
+                        });
+                    });
+                } else {
+                    buttonContainer.style.display = 'none';
+                }
             }
 
             // ---- helper functions ----
@@ -956,6 +1025,9 @@
                 if (grandTotalValue) {
                     grandTotalValue.innerHTML = `${grandTotal}/${maxPossibleScore}`;
                 }
+
+                // Update section copy buttons
+                updateSectionCopyButtons();
             }
 
             // Function to highlight completed sections
@@ -1469,6 +1541,25 @@
                 // Update max score displays on load
                 updateMaxScoreDisplays();
 
+                // Create section copy buttons container
+                const copyButtonsDiv = document.querySelector('.copy-buttons');
+                if (copyButtonsDiv) {
+                    const sectionCopyDiv = document.createElement('div');
+                    sectionCopyDiv.id = 'section-copy-buttons';
+                    sectionCopyDiv.className = 'copy-buttons';
+                    sectionCopyDiv.style.marginTop = '10px';
+                    sectionCopyDiv.style.marginBottom = '10px';
+                    sectionCopyDiv.style.display = 'none';
+
+                    // Insert before the reset button
+                    const resetBtn = document.querySelector('.reset-button');
+                    if (resetBtn) {
+                        resetBtn.parentNode.insertBefore(sectionCopyDiv, resetBtn);
+                    } else {
+                        copyButtonsDiv.parentNode.insertBefore(sectionCopyDiv, copyButtonsDiv.nextSibling);
+                    }
+                }
+
                 fetch('ol_spring2026.json')
                     .then(response => response.json())
                     .then(data => {
@@ -1821,7 +1912,15 @@
 
                         copyButtonsDiv.append(copyFeedbackBtn, copyScoresBtn);
 
-                        container.append(checkboxDiv, fileNameLabel, fileNameInput, document.createElement('br'), saveButton, document.createElement('br'), outputDiv, resultsTextarea, copyButtonsDiv, resetButton);
+                        // Create section copy buttons container
+                        const sectionCopyDiv = document.createElement('div');
+                        sectionCopyDiv.id = 'section-copy-buttons';
+                        sectionCopyDiv.className = 'copy-buttons';
+                        sectionCopyDiv.style.marginTop = '10px';
+                        sectionCopyDiv.style.marginBottom = '10px';
+                        sectionCopyDiv.style.display = 'none';
+
+                        container.append(checkboxDiv, fileNameLabel, fileNameInput, document.createElement('br'), saveButton, document.createElement('br'), outputDiv, resultsTextarea, copyButtonsDiv, sectionCopyDiv, resetButton);
 
                         updateSaveButtonState();
                         updateSectionNavigation(); // Initialize section highlighting
