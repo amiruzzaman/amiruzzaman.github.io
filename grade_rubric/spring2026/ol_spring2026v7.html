@@ -782,38 +782,6 @@
         .reset-button {
             margin-top: 30px;
         }
-
-        /* Completed section styling in side panel */
-        .section-total-item.completed {
-            background-color: #e8f5e9;
-            border-left: 4px solid #4caf50;
-            transition: all 0.3s ease;
-        }
-
-        .section-total-item.completed .section-score {
-            background-color: #4caf50;
-            color: white;
-            font-weight: bold;
-        }
-
-        /* Add a subtle animation when sections become complete */
-        @keyframes completePulse {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.02);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        .section-total-item.completed {
-            animation: completePulse 0.5s ease;
-        }
     </style>
 
 </head>
@@ -906,15 +874,15 @@
                 let html = '';
                 let grandTotal = 0;
 
-                partContainers.forEach((partContainer) => {
-                    const h3 = partContainer.querySelector('h3');
+                partContainers.forEach((part) => {
+                    const h3 = part.querySelector('h3');
                     if (!h3) return;
 
                     const title = h3.textContent;
                     const partKey = title.split(':')[0].trim();
 
                     let partEarned = 0;
-                    const problems = partContainer.querySelectorAll('.problem-container');
+                    const problems = part.querySelectorAll('.problem-container');
                     problems.forEach(problem => {
                         const items = problem.querySelectorAll('.item-container');
                         items.forEach(item => {
@@ -937,15 +905,9 @@
 
                     grandTotal += partEarned;
 
-                    // Check if this section is complete
-                    const isSectionComplete = areSectionItemsSelected(partContainer);
-
-                    // Add different styling based on completion status
-                    const badge = isSectionComplete ? ' ✓' : '';
-
-                    html += `<div class="section-total-item" style="${isSectionComplete ? 'background-color: #e8f5e9; border-left: 4px solid #4caf50; transition: all 0.3s ease;' : ''}">
-                    <span class="section-label">${partKey}${badge}</span>
-                    <span class="section-score" style="${isSectionComplete ? 'background-color: #4caf50; color: white; font-weight: bold;' : ''}">${partEarned}/${partMax}</span>
+                    html += `<div class="section-total-item">
+                    <span class="section-label">${partKey}</span>
+                    <span class="section-score">${partEarned}/${partMax}</span>
                 </div>`;
                 });
 
@@ -996,18 +958,19 @@
 
             function updateSectionNavigation() {
                 const partContainers = document.querySelectorAll('.part-container');
-                partContainers.forEach((partContainer, index) => {
-                    const nextBtn = partContainer.querySelector('.next-section');
-                    const topBtn = partContainer.querySelector('.top-button');
-                    const bottomBtn = partContainer.querySelector('.bottom-button');
-                    const isComplete = areSectionItemsSelected(partContainer);
+                partContainers.forEach((part, index) => {
+                    const nextBtn = part.querySelector('.next-section');
+                    const topBtn = part.querySelector('.top-button');
+                    const bottomBtn = part.querySelector('.bottom-button');
+                    const isComplete = areSectionItemsSelected(part);
 
                     // Highlight section if complete
-                    highlightSection(partContainer, isComplete);
+                    highlightSection(part, isComplete);
 
                     if (isComplete) {
                         if (nextBtn) {
                             nextBtn.style.display = 'inline-block';
+                            // Enable and style the next button
                             nextBtn.style.opacity = '1';
                             nextBtn.style.pointerEvents = 'auto';
                         }
@@ -1039,9 +1002,6 @@
                         }
                     }
                 });
-
-                // Update side panel to reflect section completion
-                updateSideSummaryPanel();
             }
 
             // Updated scrollToSection function that properly scrolls to the next section
@@ -1091,45 +1051,18 @@
             }
 
             function selectAllYes(partContainer) {
-                const isEC = partContainer.id.includes('EC');
                 const items = partContainer.querySelectorAll('.item-container');
-
-                if (isEC) {
-                    // For EC: Only first item gets YES, rest get NO
-                    items.forEach((item, index) => {
-                        const yes = item.querySelector('.item-yes');
-                        const no = item.querySelector('.item-no');
-                        const score = item.querySelector('.item-score');
-
-                        if (index === 0) {
-                            // First item gets YES
-                            yes.classList.add('selected');
-                            no.classList.remove('selected');
-                            score.textContent = yes.getAttribute('data-max');
-                            score.style.color = 'green';
-                        } else {
-                            // All other items get NO
-                            no.classList.add('selected');
-                            yes.classList.remove('selected');
-                            score.textContent = '0';
-                            score.style.color = 'red';
-                        }
-                    });
-                } else {
-                    // Normal behavior for non-EC sections
-                    items.forEach(item => {
-                        const yes = item.querySelector('.item-yes');
-                        const no = item.querySelector('.item-no');
-                        const score = item.querySelector('.item-score');
-                        if (!yes.classList.contains('selected')) {
-                            yes.classList.add('selected');
-                            no.classList.remove('selected');
-                            score.textContent = yes.getAttribute('data-max');
-                            score.style.color = 'green';
-                        }
-                    });
-                }
-
+                items.forEach(item => {
+                    const yes = item.querySelector('.item-yes');
+                    const no = item.querySelector('.item-no');
+                    const score = item.querySelector('.item-score');
+                    if (!yes.classList.contains('selected')) {
+                        yes.classList.add('selected');
+                        no.classList.remove('selected');
+                        score.textContent = yes.getAttribute('data-max');
+                        score.style.color = 'green';
+                    }
+                });
                 updateAllScores();
                 updateSaveButtonState();
                 updateSectionNavigation();
@@ -1320,65 +1253,19 @@
                     [itemYes, itemNo].forEach(item => {
                         item.addEventListener('click', function () {
                             if (!this.classList.contains('selected')) {
-                                // Check if this is an EC section
-                                const parentPartContainer = this.closest('.part-container');
-                                const isEC = parentPartContainer && parentPartContainer.id.includes('EC');
-
-                                if (isEC) {
-                                    // For EC section: special handling
-                                    const currentItemContainer = this.closest('.item-container');
-                                    const allItemsInSection = parentPartContainer.querySelectorAll('.item-container');
-
-                                    if (this.classList.contains('item-yes')) {
-                                        // If clicking YES on any EC item:
-                                        // 1. Select this YES
-                                        // 2. Set all other EC items to NO
-                                        this.classList.add('selected');
-                                        this.closest('.item-container').querySelector('.item-no').classList.remove('selected');
-
-                                        // Set all other EC items to NO
-                                        allItemsInSection.forEach(otherItem => {
-                                            if (otherItem !== currentItemContainer) {
-                                                const otherYes = otherItem.querySelector('.item-yes');
-                                                const otherNo = otherItem.querySelector('.item-no');
-                                                const otherScore = otherItem.querySelector('.item-score');
-
-                                                otherYes.classList.remove('selected');
-                                                otherNo.classList.add('selected');
-                                                otherScore.textContent = '0';
-                                                otherScore.style.color = 'red';
-                                            }
-                                        });
-
-                                        // Set this item's score
-                                        const score = this.closest('.item-container').querySelector('.item-score');
-                                        score.textContent = this.getAttribute('data-max');
-                                        score.style.color = 'green';
-                                    } else {
-                                        // If clicking NO on an EC item
-                                        this.classList.add('selected');
-                                        this.closest('.item-container').querySelector('.item-yes').classList.remove('selected');
-                                        const score = this.closest('.item-container').querySelector('.item-score');
-                                        score.textContent = '0';
-                                        score.style.color = 'red';
-                                    }
-                                } else {
-                                    // Normal behavior for non-EC sections
-                                    this.classList.add('selected');
-                                    const otherOption = this.classList.contains('item-yes') ? itemNo : itemYes;
-                                    otherOption.classList.remove('selected');
-                                    itemScore.textContent = this.classList.contains('item-yes') ? this.getAttribute('data-max') : '0';
-                                    itemScore.style.color = this.classList.contains('item-yes') ? 'green' : 'red';
-                                }
-
+                                this.classList.add('selected');
+                                const otherOption = this.classList.contains('item-yes') ? itemNo : itemYes;
+                                otherOption.classList.remove('selected');
+                                itemScore.textContent = this.classList.contains('item-yes') ? this.getAttribute('data-max') : '0';
+                                itemScore.style.color = this.classList.contains('item-yes') ? 'green' : 'red';
                                 updateAllScores();
                                 updateSaveButtonState();
 
                                 // Check if this section is now complete and auto-scroll if needed
-                                const parentSection = this.closest('.part-container');
-                                if (parentSection && areSectionItemsSelected(parentSection)) {
+                                const partContainer = this.closest('.part-container');
+                                if (partContainer && areSectionItemsSelected(partContainer)) {
                                     const partContainers = document.querySelectorAll('.part-container');
-                                    const currentIndex = Array.from(partContainers).indexOf(parentSection);
+                                    const currentIndex = Array.from(partContainers).indexOf(partContainer);
                                     setTimeout(() => {
                                         scrollToSection(currentIndex + 1);
                                     }, 500);
@@ -1678,11 +1565,11 @@
 
                             const partContainers = document.querySelectorAll('.part-container');
 
-                            partContainers.forEach((partContainer, idx) => {
-                                const partTitle = partContainer.querySelector('h3').textContent;
+                            partContainers.forEach((part, idx) => {
+                                const partTitle = part.querySelector('h3').textContent;
                                 const partKey = partTitle.split(':')[0].trim();
                                 let partMaxScore = 0;
-                                const problems = partContainer.querySelectorAll('.problem-container');
+                                const problems = part.querySelectorAll('.problem-container');
 
                                 problems.forEach(problem => {
                                     const items = problem.querySelectorAll('.item-container');
@@ -1724,61 +1611,38 @@
                                 const partLetter = titleParts[0].trim();
                                 const partFullTitle = titleParts[1] ? titleParts[1].trim() : '';
 
-                                // For EC section: special handling
+                                // For EC section: if ALL items are "No", skip the entire section
                                 if (partKey === 'EC') {
                                     const totalECItems = positiveComments.length + negativeComments.length;
                                     const allNoSelected = negativeComments.length === totalECItems && totalECItems > 0;
-                                    const anyYesSelected = positiveComments.length > 0;
 
                                     if (allNoSelected) {
-                                        // Skip this entire EC section - don't add to output or total
+                                        // Skip this entire EC section
                                         return; // Skip adding this section
                                     }
-
-                                    if (anyYesSelected) {
-                                        // Only include the YES items, completely ignore NO items
-                                        outputText += `${partLetter}. ${partFullTitle} (${partScore}/${displayMax})\n{\n`;
-
-                                        if (positiveComments.length > 0) {
-                                            outputText += "What you did well:\n";
-                                            positiveComments.forEach((comment, i) => outputText += `+ ${partLetter}${i + 1}. ${comment.text}\n`);
-                                            outputText += "\n";
-                                        }
-
-                                        // NO comments are intentionally omitted for EC
-
-                                        if ((additionalComments[partKey] || '').trim()) {
-                                            outputText += "General Feedback:\n" + additionalComments[partKey] + "\n";
-                                        }
-
-                                        outputText += "}\n\n";
-                                        totalScore += partScore;
-                                        jsonData[partTitle]['Total'] = partScore.toString();
-                                    }
-                                } else {
-                                    // Normal handling for non-EC sections
-                                    outputText += `${partLetter}. ${partFullTitle} (${partScore}/${displayMax})\n{\n`;
-
-                                    if (positiveComments.length > 0) {
-                                        outputText += "What you did well:\n";
-                                        positiveComments.forEach((comment, i) => outputText += `+ ${partLetter}${i + 1}. ${comment.text}\n`);
-                                        outputText += "\n";
-                                    }
-
-                                    if (negativeComments.length > 0) {
-                                        outputText += "What needs improvement:\n";
-                                        negativeComments.forEach((comment, i) => outputText += `x ${partLetter}${i + 1}. ${comment.text}\n`);
-                                        outputText += "\n";
-                                    }
-
-                                    if ((additionalComments[partKey] || '').trim()) {
-                                        outputText += "General Feedback:\n" + additionalComments[partKey] + "\n";
-                                    }
-
-                                    outputText += "}\n\n";
-                                    totalScore += partScore;
-                                    jsonData[partTitle]['Total'] = partScore.toString();
                                 }
+
+                                outputText += `${partLetter}. ${partFullTitle} (${partScore}/${displayMax})\n{\n`;
+
+                                if (positiveComments.length > 0) {
+                                    outputText += "What you did well:\n";
+                                    positiveComments.forEach((comment, i) => outputText += `+ ${partLetter}${i + 1}. ${comment.text}\n`);
+                                    outputText += "\n";
+                                }
+
+                                if (negativeComments.length > 0) {
+                                    outputText += "What needs improvement:\n";
+                                    negativeComments.forEach((comment, i) => outputText += `x ${partLetter}${i + 1}. ${comment.text}\n`);
+                                    outputText += "\n";
+                                }
+
+                                if ((additionalComments[partKey] || '').trim()) {
+                                    outputText += "General Feedback:\n" + additionalComments[partKey] + "\n";
+                                }
+
+                                outputText += "}\n\n";
+                                totalScore += partScore;
+                                jsonData[partTitle]['Total'] = partScore.toString();
                             });
 
                             if (extraCheckbox.checked) {
@@ -1867,10 +1731,10 @@
                     updateSaveButtonState();
 
                     // Check if section is now complete and auto-scroll
-                    const parentSection = selectedItem.closest('.part-container');
-                    if (parentSection && areSectionItemsSelected(parentSection)) {
+                    const partContainer = selectedItem.closest('.part-container');
+                    if (partContainer && areSectionItemsSelected(partContainer)) {
                         const partContainers = document.querySelectorAll('.part-container');
-                        const currentIndex = Array.from(partContainers).indexOf(parentSection);
+                        const currentIndex = Array.from(partContainers).indexOf(partContainer);
                         setTimeout(() => {
                             scrollToSection(currentIndex + 1);
                         }, 500);
