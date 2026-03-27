@@ -5,13 +5,18 @@ import requests
 import logging
 import io
 from threading import Lock
-from PIL import Image, ImageOps
+from PIL import Image
 from flask import Flask, flash, request, redirect, render_template, url_for, session, send_from_directory, jsonify, send_file
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
 
 from datetime import datetime
 
+# Add these imports at the top of editjson.py
+import base64
+from PIL import Image, ImageOps
+
+#app = Flask(__name__, static_url_path='/static')
 app = Flask(__name__, static_url_path='/static', static_folder='static')
 
 # Add this after your directory definitions
@@ -1213,7 +1218,7 @@ def upload_file():
 
 @app.route('/upload-form')
 def upload_form_page():
-    """Serve the upload form page with image merging functionality and copy from existing feature"""
+    """Serve the upload form page with image merging functionality"""
     return '''
 <!DOCTYPE html>
 <html lang="en">
@@ -1380,16 +1385,6 @@ def upload_form_page():
             box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
         }
 
-        .btn-info {
-            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-        }
-
-        .btn-info:hover {
-            background: linear-gradient(135deg, #138496 0%, #117a8b 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(23, 162, 184, 0.3);
-        }
-
         .image-preview {
             max-width: 100%;
             max-height: 200px;
@@ -1472,56 +1467,6 @@ def upload_form_page():
             padding-top: 20px;
             border-top: 1px solid #eaeaea;
         }
-
-        /* Copy from existing styles */
-        .copy-section {
-            margin-bottom: 20px;
-            padding: 15px;
-            background-color: #e9ecef;
-            border-radius: 8px;
-            border-left: 4px solid #28a745;
-        }
-
-        .copy-section h4 {
-            margin-bottom: 10px;
-            color: #28a745;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .copy-section select {
-            width: 100%;
-            padding: 8px 12px;
-            border-radius: 4px;
-            border: 1px solid #ced4da;
-            margin-bottom: 10px;
-        }
-
-        .copy-btn {
-            padding: 8px 16px;
-            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .copy-btn:hover {
-            background: linear-gradient(135deg, #1e7e34 0%, #155724 100%);
-            transform: translateY(-1px);
-        }
-
-        .copy-info {
-            font-size: 12px;
-            color: #6c757d;
-            margin-top: 8px;
-        }
     </style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
@@ -1537,19 +1482,6 @@ def upload_form_page():
         </div>
         
         <h1>Upload New Collection Item</h1>
-        
-        <!-- NEW: Copy from existing section -->
-        <div class="copy-section" id="copySection" style="display: none;">
-            <h4><i class="fas fa-copy"></i> Copy from Existing Item</h4>
-            <select id="existingItemsSelect">
-                <option value="">Select an existing item to copy from</option>
-            </select>
-            <button id="copyExistingBtn" class="copy-btn"><i class="fas fa-copy"></i> Copy Data</button>
-            <div class="copy-info">
-                <i class="fas fa-info-circle"></i> This will pre-fill the form with data from an existing item. 
-                You'll still need to upload a new image.
-            </div>
-        </div>
         
         <form id="uploadForm">
             <div class="form-group">
@@ -1662,26 +1594,13 @@ def upload_form_page():
         let mergeImage1 = null;
         let mergeImage2 = null;
         let countriesData = [];
-        let allJsonData = []; // Store all JSON data for copy functionality
 
         // Load countries on page load
         document.addEventListener('DOMContentLoaded', function() {
             loadCountries();
-            loadAllJsonData();
             setupEventListeners();
             setupImageMerging();
         });
-
-        function loadAllJsonData() {
-            fetch('/get-all-json')
-                .then(response => response.json())
-                .then(data => {
-                    allJsonData = data;
-                })
-                .catch(error => {
-                    console.error("Error loading JSON data:", error);
-                });
-        }
 
         function loadCountries() {
             fetch('/get-countries')
@@ -1715,81 +1634,6 @@ def upload_form_page():
             });
         }
 
-        // NEW: When country is selected, check for existing items and show copy section
-        function setupCountryCopyListener() {
-            const countrySelect = document.getElementById('country');
-            const copySection = document.getElementById('copySection');
-            const existingItemsSelect = document.getElementById('existingItemsSelect');
-            
-            countrySelect.addEventListener('change', function() {
-                const selectedCountry = this.value;
-                
-                if (!selectedCountry) {
-                    copySection.style.display = 'none';
-                    return;
-                }
-                
-                // Find existing items for this country
-                const existingItems = allJsonData.filter(item => item.country === selectedCountry);
-                
-                if (existingItems.length > 0) {
-                    // Populate the dropdown with existing items
-                    existingItemsSelect.innerHTML = '<option value="">Select an existing item to copy from</option>';
-                    existingItems.forEach((item, index) => {
-                        const option = document.createElement('option');
-                        option.value = index;
-                        // Create a descriptive label
-                        let label = `${item.currency_type || 'Unknown type'} - ${item.donor_name || 'Unknown donor'}`;
-                        if (item.year) label += ` (${item.year})`;
-                        if (item.size) label += ` - ${item.size}`;
-                        option.textContent = label;
-                        option.dataset.item = JSON.stringify(item);
-                        existingItemsSelect.appendChild(option);
-                    });
-                    copySection.style.display = 'block';
-                } else {
-                    copySection.style.display = 'none';
-                }
-            });
-        }
-        
-        // NEW: Copy data from selected existing item
-        function setupCopyButton() {
-            const copyBtn = document.getElementById('copyExistingBtn');
-            const existingItemsSelect = document.getElementById('existingItemsSelect');
-            
-            copyBtn.addEventListener('click', function() {
-                const selectedOption = existingItemsSelect.options[existingItemsSelect.selectedIndex];
-                if (!selectedOption.value || !selectedOption.dataset.item) {
-                    showToast('Please select an item to copy from', 'error');
-                    return;
-                }
-                
-                const itemToCopy = JSON.parse(selectedOption.dataset.item);
-                
-                // Fill the form with copied data (excluding image)
-                document.getElementById('currencyType').value = itemToCopy.currency_type || 'coin';
-                document.getElementById('donorName').value = itemToCopy.donor_name || '';
-                document.getElementById('note').value = itemToCopy.note || '';
-                document.getElementById('size').value = itemToCopy.size || '';
-                document.getElementById('year').value = itemToCopy.year || '';
-                document.getElementById('hiddenNote').value = itemToCopy.hidden_note || '';
-                
-                // Show success message
-                showToast(`Copied data from existing item for ${itemToCopy.country}`, 'success');
-                
-                // Optionally highlight the filled fields
-                const fields = ['currencyType', 'donorName', 'note', 'size', 'year'];
-                fields.forEach(field => {
-                    const element = document.getElementById(field);
-                    element.style.backgroundColor = '#e8f5e9';
-                    setTimeout(() => {
-                        element.style.backgroundColor = '';
-                    }, 1000);
-                });
-            });
-        }
-
         function setupEventListeners() {
             const dropArea = document.getElementById('imageDropArea');
             const fileInput = document.getElementById('imageInput');
@@ -1811,10 +1655,6 @@ def upload_form_page():
             dropArea.addEventListener('drop', handleDrop, false);
             fileInput.addEventListener('change', handleFileSelect, false);
             document.getElementById('uploadForm').addEventListener('submit', handleFormSubmit);
-            
-            // Setup copy functionality
-            setupCountryCopyListener();
-            setupCopyButton();
         }
 
         function setupImageMerging() {
@@ -2213,11 +2053,6 @@ def upload_form_page():
             document.getElementById('imageDropArea').innerHTML = '<p>Drag & drop an image here or click to select</p>';
             uploadedFile = null;
             clearMergeAreas();
-            // Keep the copy section visible but reset selection
-            const existingItemsSelect = document.getElementById('existingItemsSelect');
-            if (existingItemsSelect) {
-                existingItemsSelect.selectedIndex = 0;
-            }
         }
 
         function showToast(message, type = 'success') {
@@ -5809,13 +5644,4 @@ def merge_images_endpoint():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    import webbrowser
-    import threading
-    import time
-    
-    def open_browser():
-        time.sleep(1.5)
-        webbrowser.open('http://localhost:5000/upload-form')  # Opens the upload form
-    
-    threading.Thread(target=open_browser, daemon=True).start()
     app.run(host='0.0.0.0', port=5000, debug=True)
