@@ -95,14 +95,14 @@
             }
         }
 
-        /* SIMPLE MODAL - GUARANTEED VISIBLE */
+        /* MODAL - STAYS OPEN */
         .country-modal {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.95);
             backdrop-filter: blur(8px);
             z-index: 10000;
             display: none;
@@ -115,17 +115,18 @@
             background: #0f1f2e;
             border-radius: 28px;
             width: 100%;
-            max-width: 400px;
-            max-height: 80vh;
+            max-width: 450px;
+            max-height: 85vh;
             border: 2px solid #ffd966;
             box-shadow: 0 25px 50px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            pointer-events: auto;
         }
         
         .country-modal-header {
-            padding: 1rem;
+            padding: 1.2rem;
             border-bottom: 1px solid #3b577b;
             display: flex;
             justify-content: space-between;
@@ -135,7 +136,7 @@
         
         .country-modal-header h3 {
             color: #ffd966;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             margin: 0;
         }
         
@@ -143,29 +144,32 @@
             background: none;
             border: none;
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             cursor: pointer;
-            width: 32px;
-            height: 32px;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
+            transition: 0.2s;
         }
         
-        .close-modal:hover {
-            background: rgba(255,255,255,0.1);
+        .close-modal:active {
+            background: rgba(255,255,255,0.2);
+            transform: scale(0.95);
         }
         
         .country-modal-body {
-            padding: 1rem;
+            padding: 1.2rem;
             flex: 1;
             overflow-y: auto;
+            min-height: 300px;
         }
         
         .country-search {
             width: 100%;
-            padding: 0.7rem;
+            padding: 0.8rem;
             font-size: 1rem;
             border-radius: 30px;
             border: none;
@@ -184,11 +188,11 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
         }
         
         .country-item {
-            padding: 12px;
+            padding: 14px;
             background: #112433;
             border-radius: 16px;
             cursor: pointer;
@@ -196,12 +200,12 @@
             color: #e2eaf5;
             font-size: 1rem;
             border: 1px solid transparent;
+            text-align: left;
         }
         
-        .country-item:hover {
-            background: #1f3a4f;
-            border-color: #ffd966;
-            transform: translateX(4px);
+        .country-item:active {
+            background: #31658c;
+            transform: scale(0.98);
         }
         
         .country-item.selected {
@@ -211,7 +215,7 @@
         }
         
         .modal-buttons {
-            padding: 1rem;
+            padding: 1rem 1.2rem;
             border-top: 1px solid #3b577b;
             display: flex;
             gap: 1rem;
@@ -219,11 +223,17 @@
         }
         
         .modal-buttons button {
-            padding: 0.5rem 1.2rem;
+            padding: 0.6rem 1.5rem;
             border-radius: 40px;
             border: none;
             cursor: pointer;
             font-weight: 500;
+            font-size: 0.95rem;
+            transition: 0.2s;
+        }
+        
+        .modal-buttons button:active {
+            transform: scale(0.97);
         }
         
         .btn-cancel {
@@ -374,6 +384,9 @@
                 max-width: 95%;
                 max-height: 85vh;
             }
+            .country-item {
+                padding: 12px;
+            }
         }
     </style>
 </head>
@@ -388,7 +401,7 @@
     <div class="stats"><span id="totalCountries">0</span> · <span id="totalItems">0</span></div>
 </div>
 
-<!-- SIMPLE MODAL - DEFINITELY VISIBLE -->
+<!-- MODAL - STABLE AND WON'T AUTO-CLOSE -->
 <div id="countryModal" class="country-modal">
     <div class="country-modal-content">
         <div class="country-modal-header">
@@ -447,23 +460,31 @@
         const totalItemsSpan = document.getElementById('totalItems');
         
         let selectedCountryValue = null;
+        let isModalOpen = false;
         
         function toTitleCase(str) {
             if (!str) return '';
             return str.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
         }
         
-        // Open modal - always visible
+        // Open modal - prevent any auto-close
         function openModal() {
+            console.log('Opening modal'); // Debug log
             selectedCountryValue = currentCountry;
             renderCountryList('');
             modal.style.display = 'flex';
+            isModalOpen = true;
             document.body.style.overflow = 'hidden';
-            searchInput.focus();
+            // Focus on search input after a tiny delay
+            setTimeout(() => {
+                searchInput.focus();
+            }, 50);
         }
         
         function closeModal() {
+            console.log('Closing modal'); // Debug log
             modal.style.display = 'none';
+            isModalOpen = false;
             document.body.style.overflow = '';
         }
         
@@ -477,7 +498,9 @@
                 div.className = 'country-item';
                 if (country === selectedCountryValue) div.classList.add('selected');
                 div.textContent = country;
-                div.onclick = () => {
+                div.onclick = (e) => {
+                    e.stopPropagation();
+                    // Remove selected class from all
                     document.querySelectorAll('.country-item').forEach(item => item.classList.remove('selected'));
                     div.classList.add('selected');
                     selectedCountryValue = country;
@@ -491,6 +514,7 @@
         }
         
         function confirmSelection() {
+            console.log('Confirming selection:', selectedCountryValue);
             if (selectedCountryValue && activeMode === 'country') {
                 if (selectedCountryValue !== currentCountry) {
                     switchCountry(selectedCountryValue);
@@ -654,26 +678,53 @@
             renderCurrentCoin();
         }
         
-        // Event listeners
-        displayLabel.addEventListener('click', openModal);
-        closeModalBtn.addEventListener('click', closeModal);
-        cancelModalBtn.addEventListener('click', closeModal);
-        confirmModalBtn.addEventListener('click', confirmSelection);
+        // Event listeners with stopPropagation to prevent accidental closes
+        displayLabel.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openModal();
+        });
+        
+        closeModalBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeModal();
+        });
+        
+        cancelModalBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeModal();
+        });
+        
+        confirmModalBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            confirmSelection();
+        });
         
         searchInput.addEventListener('input', (e) => {
+            e.stopPropagation();
             renderCountryList(e.target.value);
         });
         
+        // Only close when clicking the overlay, not the content
         modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeModal();
+            if (e.target === modal) {
+                closeModal();
+            }
         });
         
+        // Prevent clicks inside modal from closing it
+        const modalContent = document.querySelector('.country-modal-content');
+        if (modalContent) {
+            modalContent.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+        
         document.addEventListener('keydown', (e) => {
-            if (modal.style.display === 'flex') {
+            if (isModalOpen) {
                 if (e.key === 'Escape') {
                     e.preventDefault();
                     closeModal();
-                } else if (e.key === 'Enter') {
+                } else if (e.key === 'Enter' && document.activeElement !== searchInput) {
                     e.preventDefault();
                     confirmSelection();
                 }
