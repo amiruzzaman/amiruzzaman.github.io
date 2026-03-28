@@ -21,17 +21,15 @@
             overflow: hidden;
         }
 
-        /* Top bar - mobile first */
+        /* Top bar - SIMPLE FLEX ROW */
         .top-bar {
             background: #121c28;
-            padding: 10px 12px;
+            padding: 10px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
             gap: 8px;
             border-bottom: 1px solid #2a3e54;
             flex-shrink: 0;
-            flex-wrap: nowrap;
         }
 
         .country-selector {
@@ -45,9 +43,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            flex-shrink: 1;
-            min-width: 0;
-            max-width: 140px;
+            max-width: 130px;
         }
 
         .mode-buttons {
@@ -55,7 +51,6 @@
             background: #1f3142;
             border-radius: 40px;
             padding: 2px;
-            flex-shrink: 0;
         }
 
         .mode-btn {
@@ -67,7 +62,6 @@
             font-size: 12px;
             font-weight: 600;
             cursor: pointer;
-            white-space: nowrap;
         }
 
         .mode-btn.active {
@@ -80,8 +74,7 @@
             padding: 5px 10px;
             border-radius: 40px;
             font-size: 11px;
-            white-space: nowrap;
-            flex-shrink: 0;
+            margin-left: auto;
         }
 
         /* Main image area */
@@ -93,54 +86,27 @@
             background: radial-gradient(circle at center, #15222e, #040a12);
             position: relative;
             min-height: 0;
-            overflow: hidden;
         }
 
         .image-wrapper {
             background: rgba(0,0,0,0.5);
-            border-radius: 24px;
+            border-radius: 20px;
             padding: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: auto;
-            height: auto;
             max-width: 95%;
-            max-height: 85%;
+            max-height: 90%;
         }
 
         .image-wrapper img {
             display: block;
             border-radius: 12px;
-            object-fit: contain;
             max-width: 100%;
-            max-height: 100%;
+            max-height: 55vh;
             width: auto;
             height: auto;
-        }
-
-        /* Mobile image sizing */
-        @media (max-width: 767px) {
-            .image-wrapper {
-                max-width: 95%;
-                max-height: 80%;
-                padding: 12px;
-            }
-            .image-wrapper img {
-                max-height: 50vh;
-            }
-        }
-
-        /* Desktop image sizing */
-        @media (min-width: 768px) {
-            .image-wrapper {
-                max-width: 85%;
-                max-height: 85%;
-                padding: 24px;
-            }
-            .image-wrapper img {
-                max-height: 70vh;
-            }
+            object-fit: contain;
         }
 
         .nav-arrow {
@@ -152,18 +118,6 @@
             cursor: pointer;
             padding: 15px;
             z-index: 10;
-            transition: 0.2s;
-        }
-
-        @media (min-width: 768px) {
-            .nav-arrow {
-                font-size: 48px;
-                padding: 20px;
-            }
-            .nav-arrow:hover {
-                color: rgba(255,255,255,0.9);
-                font-size: 56px;
-            }
         }
 
         .nav-left { left: 0; }
@@ -175,18 +129,9 @@
             padding: 8px 12px;
             display: flex;
             flex-wrap: wrap;
-            gap: 8px 12px;
+            gap: 6px 12px;
             border-top: 1px solid #2a3e54;
-            font-size: 11px;
             flex-shrink: 0;
-        }
-
-        @media (min-width: 768px) {
-            .info-panel {
-                padding: 10px 16px;
-                gap: 12px 20px;
-                font-size: 12px;
-            }
         }
 
         .info-item {
@@ -200,22 +145,10 @@
             color: #8aa9c9;
         }
 
-        @media (min-width: 768px) {
-            .info-label {
-                font-size: 10px;
-            }
-        }
-
         .info-value {
             font-size: 11px;
             font-weight: 500;
             color: #f7e9d4;
-        }
-
-        @media (min-width: 768px) {
-            .info-value {
-                font-size: 14px;
-            }
         }
 
         .country-name {
@@ -231,14 +164,6 @@
             font-size: 11px;
             display: flex;
             align-items: center;
-            white-space: nowrap;
-        }
-
-        @media (min-width: 768px) {
-            .counter {
-                padding: 4px 12px;
-                font-size: 13px;
-            }
         }
 
         /* Thumbnails */
@@ -252,51 +177,15 @@
             flex-shrink: 0;
         }
 
-        @media (min-width: 768px) {
-            .thumbnails {
-                padding: 10px 16px;
-                gap: 10px;
-            }
-        }
-
-        .thumbnails::-webkit-scrollbar {
-            height: 4px;
-        }
-        
-        @media (min-width: 768px) {
-            .thumbnails::-webkit-scrollbar {
-                height: 6px;
-            }
-        }
-
-        .thumbnails::-webkit-scrollbar-track {
-            background: #1d3143;
-            border-radius: 3px;
-        }
-
-        .thumbnails::-webkit-scrollbar-thumb {
-            background: #6a8bb8;
-            border-radius: 3px;
-        }
-
         .thumb {
+            width: 50px;
+            height: 45px;
             background: #1f3343;
             border-radius: 8px;
             border: 2px solid transparent;
             overflow: hidden;
             cursor: pointer;
             flex-shrink: 0;
-            transition: 0.1s;
-            width: 50px;
-            height: 45px;
-        }
-
-        @media (min-width: 768px) {
-            .thumb {
-                width: 70px;
-                height: 60px;
-                border-radius: 10px;
-            }
         }
 
         .thumb.active {
@@ -321,21 +210,20 @@
             display: none;
             align-items: center;
             justify-content: center;
-            padding: 16px;
         }
 
         .modal-box {
             background: #0f1f2e;
             border-radius: 24px;
-            width: 100%;
-            max-width: 400px;
+            width: 90%;
+            max-width: 350px;
             max-height: 80vh;
             border: 2px solid #ffd966;
             overflow: hidden;
         }
 
         .modal-header {
-            padding: 14px 16px;
+            padding: 14px;
             border-bottom: 1px solid #2a3e54;
             display: flex;
             justify-content: space-between;
@@ -353,12 +241,7 @@
             color: white;
             font-size: 22px;
             cursor: pointer;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 0 8px;
         }
 
         .modal-body {
@@ -367,18 +250,12 @@
 
         .modal-search {
             width: 100%;
-            padding: 10px 12px;
-            font-size: 14px;
+            padding: 10px;
             border-radius: 30px;
             border: none;
             background: #10212e;
             color: white;
             margin-bottom: 12px;
-            outline: 1px solid #3b5777;
-        }
-
-        .modal-search:focus {
-            outline: 2px solid #ffd966;
         }
 
         .modal-list {
@@ -393,7 +270,6 @@
             margin-bottom: 8px;
             cursor: pointer;
             text-align: center;
-            font-size: 14px;
         }
 
         .modal-item.selected {
@@ -402,40 +278,22 @@
         }
 
         .modal-buttons {
-            padding: 12px 16px;
+            padding: 12px;
             border-top: 1px solid #2a3e54;
             display: flex;
-            gap: 12px;
+            gap: 10px;
             justify-content: flex-end;
         }
 
         .modal-buttons button {
-            padding: 8px 20px;
+            padding: 8px 18px;
             border-radius: 40px;
             border: none;
             cursor: pointer;
-            font-weight: 500;
-            font-size: 13px;
         }
 
         .btn-cancel { background: #2a3e54; color: white; }
         .btn-confirm { background: #ffd966; color: #1f3142; font-weight: bold; }
-
-        /* Hide stats on very small screens, but keep buttons visible */
-        @media (max-width: 480px) {
-            .stats {
-                display: none;
-            }
-            .country-selector {
-                max-width: 120px;
-                font-size: 12px;
-                padding: 6px 10px;
-            }
-            .mode-btn {
-                padding: 5px 10px;
-                font-size: 11px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -473,7 +331,7 @@
             <button id="closeModal" class="modal-close">✕</button>
         </div>
         <div class="modal-body">
-            <input type="text" id="searchCountry" class="modal-search" placeholder="Search country..." autocomplete="off">
+            <input type="text" id="searchCountry" class="modal-search" placeholder="Search..." autocomplete="off">
             <div id="countryList" class="modal-list"></div>
         </div>
         <div class="modal-buttons">
@@ -519,6 +377,7 @@
     let tempSelectedCountry = '';
 
     function toTitleCase(str) {
+        if (!str) return '';
         return str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
     }
 
@@ -527,7 +386,7 @@
         renderCountryList('');
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
-        searchInput.focus();
+        setTimeout(() => searchInput.focus(), 50);
     }
 
     function hideModal() {
@@ -605,7 +464,6 @@
         
         const coin = currentList[currentIndex];
         
-        // Update the country button to match current coin's country (for "All Coins" mode)
         if (!isCountryMode && coin.country !== currentCountry) {
             currentCountry = coin.country;
             countryBtn.textContent = currentCountry;
@@ -628,11 +486,9 @@
             imageWrapper.appendChild(img);
         };
         img.onerror = () => {
-            imageWrapper.innerHTML = '<div style="padding:20px;">Image missing</div>';
+            imageWrapper.innerHTML = '<div style="padding:20px;">Missing</div>';
         };
         img.src = imgPath;
-        img.style.display = 'block';
-        img.style.borderRadius = '12px';
         
         document.querySelectorAll('.thumb').forEach((t, i) => {
             t.classList.toggle('active', i === currentIndex);
