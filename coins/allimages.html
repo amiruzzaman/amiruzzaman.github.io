@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>coin gallery · fixed mobile selector</title>
+    <title>coin gallery · mobile fixed</title>
     <style>
         * {
             box-sizing: border-box;
@@ -13,276 +13,212 @@
 
         body {
             background: #0b1015;
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
             height: 100vh;
             display: flex;
             flex-direction: column;
             color: #eef3fa;
             overflow: hidden;
-            font-weight: 400;
         }
 
-        .country-bar {
+        /* Top bar */
+        .top-bar {
             background: rgba(18, 28, 40, 0.95);
-            backdrop-filter: blur(6px);
-            padding: 0.7rem 1rem;
+            padding: 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 0.6rem;
-            flex-wrap: wrap;
+            gap: 8px;
             border-bottom: 1px solid #3f556e;
-            box-shadow: 0 4px 18px rgba(0,0,0,0.7);
             z-index: 20;
         }
 
-        .country-label {
-            font-size: 1rem;
-            font-weight: 500;
-            color: #f3e7d3;
+        .country-btn {
             background: #1f3142;
-            padding: 0.4rem 1rem;
+            padding: 8px 16px;
             border-radius: 40px;
             border: 1px solid #6d8db2;
+            color: #f3e7d3;
+            font-size: 14px;
+            font-weight: 500;
             cursor: pointer;
-            transition: 0.2s;
-            user-select: none;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 45%;
-            flex-shrink: 1;
-        }
-        
-        .country-label:active {
-            transform: scale(0.98);
         }
 
-        .browse-toggle {
+        .mode-buttons {
             background: #1f3142;
             border-radius: 40px;
-            padding: 0.15rem;
             display: flex;
-            border: 1px solid #47688b;
-            flex-shrink: 0;
+            padding: 2px;
         }
-        
-        .browse-toggle button {
+
+        .mode-btn {
             background: transparent;
             border: none;
             color: #bed3ec;
-            padding: 6px 14px;
+            padding: 6px 12px;
             border-radius: 40px;
-            font-size: 0.85rem;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.2s;
         }
-        
-        .browse-toggle button.active-mode {
+
+        .mode-btn.active {
             background: #31658c;
             color: white;
         }
 
         .stats {
-            font-size: 0.75rem;
             background: #0e1d2c;
-            padding: 0.3rem 0.8rem;
+            padding: 4px 12px;
             border-radius: 40px;
-            color: #c4dcf5;
+            font-size: 11px;
             white-space: nowrap;
         }
-        
-        @media (max-width: 560px) {
-            .stats {
-                display: none;
-            }
-            .browse-toggle button {
-                padding: 5px 10px;
-                font-size: 0.75rem;
-            }
-            .country-label {
-                font-size: 0.85rem;
-                padding: 0.35rem 0.8rem;
-                max-width: 40%;
-            }
+
+        @media (max-width: 600px) {
+            .stats { display: none; }
+            .country-btn { font-size: 12px; padding: 6px 12px; }
+            .mode-btn { padding: 5px 10px; font-size: 11px; }
         }
 
-        /* MODAL - SIMPLE AND RELIABLE */
-        .country-modal {
+        /* MODAL - ALWAYS VISIBLE WHEN OPEN */
+        .modal {
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.92);
-            backdrop-filter: blur(8px);
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
             z-index: 10000;
             display: none;
             align-items: center;
             justify-content: center;
             padding: 20px;
         }
-        
-        .country-modal-content {
+
+        .modal-content {
             background: #0f1f2e;
-            border-radius: 28px;
+            border-radius: 24px;
             width: 100%;
-            max-width: 450px;
-            max-height: 85vh;
+            max-width: 400px;
+            max-height: 80vh;
             border: 2px solid #ffd966;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
-        
-        .country-modal-header {
-            padding: 1.2rem;
+
+        .modal-header {
+            padding: 16px;
             border-bottom: 1px solid #3b577b;
             display: flex;
             justify-content: space-between;
             align-items: center;
             background: #1a2c3e;
         }
-        
-        .country-modal-header h3 {
+
+        .modal-header h3 {
             color: #ffd966;
-            font-size: 1.3rem;
-            margin: 0;
+            font-size: 18px;
         }
-        
-        .close-modal {
+
+        .modal-close {
             background: none;
             border: none;
             color: white;
-            font-size: 1.8rem;
+            font-size: 24px;
             cursor: pointer;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            transition: 0.2s;
         }
-        
-        .close-modal:active {
-            background: rgba(255,255,255,0.2);
-        }
-        
-        .country-modal-body {
-            padding: 1.2rem;
-            flex: 1;
+
+        .modal-body {
+            padding: 16px;
             overflow-y: auto;
+            flex: 1;
         }
-        
-        .country-search {
+
+        .modal-search {
             width: 100%;
-            padding: 0.8rem;
-            font-size: 1rem;
+            padding: 12px;
+            font-size: 16px;
             border-radius: 30px;
             border: none;
             background: #10212e;
             color: white;
-            outline: 1px solid #3b5777;
-            margin-bottom: 1rem;
+            margin-bottom: 12px;
         }
-        
-        .country-search:focus {
-            outline: 2px solid #ffd966;
-        }
-        
+
         .country-list {
             max-height: 400px;
             overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
         }
-        
-        .country-item {
+
+        .country-option {
             padding: 14px;
             background: #112433;
-            border-radius: 16px;
+            border-radius: 12px;
+            margin-bottom: 8px;
             cursor: pointer;
-            transition: 0.15s;
-            color: #e2eaf5;
-            font-size: 1rem;
-            border: 1px solid transparent;
-            text-align: left;
+            text-align: center;
+            font-size: 16px;
         }
-        
-        .country-item:active {
+
+        .country-option.selected {
             background: #31658c;
+            border: 1px solid #ffd966;
         }
-        
-        .country-item.selected {
-            background: #31658c;
-            border-color: #ffd966;
-            color: white;
-        }
-        
+
         .modal-buttons {
-            padding: 1rem 1.2rem;
+            padding: 12px 16px;
             border-top: 1px solid #3b577b;
             display: flex;
-            gap: 1rem;
+            gap: 12px;
             justify-content: flex-end;
         }
-        
+
         .modal-buttons button {
-            padding: 0.6rem 1.5rem;
+            padding: 10px 20px;
             border-radius: 40px;
             border: none;
             cursor: pointer;
             font-weight: 500;
-            font-size: 0.95rem;
-        }
-        
-        .btn-cancel {
-            background: #2a3e54;
-            color: #e2eaf5;
-        }
-        
-        .btn-confirm {
-            background: #ffd966;
-            color: #1f3142;
-            font-weight: bold;
-        }
-        
-        .btn-cancel:active, .btn-confirm:active {
-            transform: scale(0.97);
         }
 
-        /* Slider styles */
-        .slider-stage {
+        .btn-cancel { background: #2a3e54; color: white; }
+        .btn-confirm { background: #ffd966; color: #1f3142; font-weight: bold; }
+
+        /* Slider */
+        .slider {
             flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
             background: radial-gradient(circle at 30% 40%, #15222e, #040a12);
-            padding: 0.5rem;
             position: relative;
-            min-height: 0;
         }
 
-        .slider-image-frame {
-            max-width: 100%;
-            max-height: 100%;
+        .image-container {
+            max-width: 95%;
+            max-height: 95%;
             display: flex;
             align-items: center;
             justify-content: center;
             background: rgba(10, 18, 28, 0.7);
-            border-radius: 28px;
-            padding: 0.8rem;
+            border-radius: 24px;
+            padding: 16px;
         }
 
-        .slider-image-frame img {
+        .image-container img {
             max-width: 100%;
             max-height: calc(100vh - 280px);
             object-fit: contain;
-            border-radius: 20px;
+            border-radius: 16px;
         }
 
         .nav-arrow {
@@ -293,33 +229,25 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
+            font-size: 48px;
             color: rgba(240, 230, 200, 0.5);
             cursor: pointer;
-            z-index: 15;
+            z-index: 10;
         }
 
-        .nav-arrow.left {
-            left: 0;
-        }
-        .nav-arrow.right {
-            right: 0;
-        }
-        
-        .nav-arrow:active {
-            color: white;
-        }
+        .nav-left { left: 0; }
+        .nav-right { right: 0; }
 
+        /* Info panel */
         .info-panel {
-            background: #101c2ad9;
+            background: rgba(16, 28, 42, 0.85);
             backdrop-filter: blur(8px);
             border-top: 1px solid #47648b;
-            padding: 0.5rem 0.8rem;
+            padding: 8px 12px;
             display: flex;
             flex-wrap: wrap;
-            gap: 0.5rem;
-            font-size: 0.8rem;
-            align-items: center;
+            gap: 8px;
+            font-size: 12px;
         }
 
         .info-item {
@@ -328,129 +256,121 @@
         }
 
         .info-label {
-            font-size: 0.6rem;
+            font-size: 10px;
             text-transform: uppercase;
             color: #acc4e3;
         }
 
         .info-value {
-            font-weight: 500;
             color: #f7e9d4;
-            font-size: 0.85rem;
-        }
-        
-        .country-name-value {
-            color: #ffd966;
-            font-weight: bold;
+            font-size: 13px;
         }
 
-        .note-value {
-            max-width: 200px;
-            font-size: 0.8rem;
+        .country-highlight {
+            color: #ffd966;
+            font-weight: bold;
         }
 
         .counter {
             margin-left: auto;
             background: #1b3145;
-            padding: 0.2rem 0.8rem;
+            padding: 4px 12px;
             border-radius: 40px;
-            font-size: 0.8rem;
-            white-space: nowrap;
+            font-size: 12px;
         }
 
-        .thumbnail-strip {
-            background: #0f1b28e0;
-            backdrop-filter: blur(4px);
+        /* Thumbnails */
+        .thumbnails {
+            background: rgba(15, 27, 40, 0.88);
             border-top: 1px solid #3b577b;
-            padding: 8px 12px;
+            padding: 8px;
             display: flex;
             gap: 8px;
             overflow-x: auto;
         }
 
-        .thumbnail {
+        .thumb {
             flex: 0 0 auto;
-            width: 65px;
-            height: 55px;
+            width: 60px;
+            height: 50px;
             background: #1f3343;
-            border-radius: 12px;
+            border-radius: 10px;
             border: 2px solid transparent;
             overflow: hidden;
             cursor: pointer;
         }
-        
-        .thumbnail.active-thumb {
+
+        .thumb.active {
             border-color: #ffd966;
         }
-        
-        .thumbnail img {
+
+        .thumb img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-        }
-        
-        @media (max-width: 680px) {
-            .thumbnail {
-                width: 55px;
-                height: 50px;
-            }
-            .slider-image-frame img {
-                max-height: calc(100vh - 300px);
-            }
-            .country-modal-content {
-                max-width: 95%;
-            }
         }
     </style>
 </head>
 <body>
 
-<div class="country-bar">
-    <div id="countryDisplayLabel" class="country-label">loading...</div>
-    <div class="browse-toggle">
-        <button id="modeCountry" class="active-mode">🇺🇳 Country</button>
-        <button id="modeGlobal">🌍 All Coins</button>
+<div class="top-bar">
+    <div id="countryButton" class="country-btn">loading...</div>
+    <div class="mode-buttons">
+        <button id="modeCountryBtn" class="mode-btn active">Country</button>
+        <button id="modeAllBtn" class="mode-btn">All</button>
     </div>
-    <div class="stats"><span id="totalCountries">0</span> · <span id="totalItems">0</span></div>
+    <div class="stats"><span id="statCountries">0</span> · <span id="statItems">0</span></div>
 </div>
 
 <!-- MODAL -->
-<div id="countryModal" class="country-modal">
-    <div class="country-modal-content">
-        <div class="country-modal-header">
-            <h3>🌍 Select Country</h3>
-            <button class="close-modal" id="closeModalBtn">✕</button>
+<div id="countryModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Select Country</h3>
+            <button id="modalCloseBtn" class="modal-close">✕</button>
         </div>
-        <div class="country-modal-body">
-            <input type="text" id="countrySearchInput" class="country-search" placeholder="🔍 Search country..." autocomplete="off">
-            <div id="countryListContainer" class="country-list"></div>
+        <div class="modal-body">
+            <input type="text" id="searchInput" class="modal-search" placeholder="Search country..." autocomplete="off">
+            <div id="countryList" class="country-list"></div>
         </div>
         <div class="modal-buttons">
-            <button class="btn-cancel" id="cancelModalBtn">Cancel</button>
-            <button class="btn-confirm" id="confirmModalBtn">Select</button>
+            <button id="modalCancelBtn" class="btn-cancel">Cancel</button>
+            <button id="modalConfirmBtn" class="btn-confirm">Select</button>
         </div>
     </div>
 </div>
 
-<div class="slider-stage" id="sliderStage">
-    <div class="nav-arrow left" id="prevArrow">‹</div>
-    <div class="slider-image-frame" id="imageFrame"></div>
-    <div class="nav-arrow right" id="nextArrow">›</div>
+<div class="slider">
+    <div id="prevArrow" class="nav-arrow nav-left">‹</div>
+    <div id="imageContainer" class="image-container"></div>
+    <div id="nextArrow" class="nav-arrow nav-right">›</div>
 </div>
 
 <div class="info-panel">
     <div class="info-item">
-        <span class="info-label">country</span>
-        <span class="info-value country-name-value" id="currentCountryName">—</span>
+        <span class="info-label">Country</span>
+        <span id="displayCountry" class="info-value country-highlight">—</span>
     </div>
-    <div class="info-item"><span class="info-label">donor</span><span class="info-value" id="donorName">—</span></div>
-    <div class="info-item"><span class="info-label">year</span><span class="info-value" id="coinYear">—</span></div>
-    <div class="info-item"><span class="info-label">size</span><span class="info-value" id="coinSize">—</span></div>
-    <div class="info-item" style="flex:2;"><span class="info-label">note</span><span class="info-value note-value" id="coinNote">—</span></div>
-    <div class="counter" id="counter">0 / 0</div>
+    <div class="info-item">
+        <span class="info-label">Donor</span>
+        <span id="displayDonor" class="info-value">—</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Year</span>
+        <span id="displayYear" class="info-value">—</span>
+    </div>
+    <div class="info-item">
+        <span class="info-label">Size</span>
+        <span id="displaySize" class="info-value">—</span>
+    </div>
+    <div class="info-item" style="flex:2;">
+        <span class="info-label">Note</span>
+        <span id="displayNote" class="info-value">—</span>
+    </div>
+    <div id="counter" class="counter">0/0</div>
 </div>
 
-<div class="thumbnail-strip" id="thumbnailStrip"></div>
+<div id="thumbnails" class="thumbnails"></div>
 
 <script>
     (function() {
@@ -460,320 +380,297 @@
         let currentCountry = null;
         let countryItems = [];
         let currentIndex = 0;
-        let activeMode = 'country';
-        let activeList = [];
+        let currentMode = 'country'; // 'country' or 'all'
+        let currentList = [];
         
         // DOM elements
-        const displayLabel = document.getElementById('countryDisplayLabel');
+        const countryBtn = document.getElementById('countryButton');
         const modal = document.getElementById('countryModal');
-        const searchInput = document.getElementById('countrySearchInput');
-        const countryListContainer = document.getElementById('countryListContainer');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        const cancelModalBtn = document.getElementById('cancelModalBtn');
-        const confirmModalBtn = document.getElementById('confirmModalBtn');
-        const modeCountryBtn = document.getElementById('modeCountry');
-        const modeGlobalBtn = document.getElementById('modeGlobal');
-        const totalCountriesSpan = document.getElementById('totalCountries');
-        const totalItemsSpan = document.getElementById('totalItems');
-        const currentCountryNameSpan = document.getElementById('currentCountryName');
+        const searchInput = document.getElementById('searchInput');
+        const countryListDiv = document.getElementById('countryList');
+        const modalCloseBtn = document.getElementById('modalCloseBtn');
+        const modalCancelBtn = document.getElementById('modalCancelBtn');
+        const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+        const modeCountryBtn = document.getElementById('modeCountryBtn');
+        const modeAllBtn = document.getElementById('modeAllBtn');
+        const statCountries = document.getElementById('statCountries');
+        const statItems = document.getElementById('statItems');
+        const displayCountry = document.getElementById('displayCountry');
+        const displayDonor = document.getElementById('displayDonor');
+        const displayYear = document.getElementById('displayYear');
+        const displaySize = document.getElementById('displaySize');
+        const displayNote = document.getElementById('displayNote');
+        const counter = document.getElementById('counter');
+        const imageContainer = document.getElementById('imageContainer');
+        const thumbnailsDiv = document.getElementById('thumbnails');
+        const prevArrow = document.getElementById('prevArrow');
+        const nextArrow = document.getElementById('nextArrow');
         
-        let selectedCountryValue = null;
+        let selectedCountryTemp = null;
         
         function toTitleCase(str) {
             if (!str) return '';
             return str.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
         }
         
-        // Open modal
-        function openModal() {
-            selectedCountryValue = currentCountry;
+        // Show modal
+        function showModal() {
+            selectedCountryTemp = currentCountry;
             renderCountryList('');
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
             setTimeout(() => {
                 if (searchInput) searchInput.focus();
-            }, 100);
+            }, 50);
         }
         
-        function closeModal() {
+        // Hide modal
+        function hideModal() {
             modal.style.display = 'none';
             document.body.style.overflow = '';
         }
         
-        function renderCountryList(filterText) {
-            const term = filterText.toLowerCase();
+        // Render country list
+        function renderCountryList(filter) {
+            const term = filter.toLowerCase();
             const filtered = countries.filter(c => c.toLowerCase().includes(term));
             
-            countryListContainer.innerHTML = '';
+            countryListDiv.innerHTML = '';
             filtered.forEach(country => {
                 const div = document.createElement('div');
-                div.className = 'country-item';
-                if (country === selectedCountryValue) div.classList.add('selected');
+                div.className = 'country-option';
+                if (country === selectedCountryTemp) div.classList.add('selected');
                 div.textContent = country;
                 div.onclick = () => {
-                    document.querySelectorAll('.country-item').forEach(item => item.classList.remove('selected'));
+                    document.querySelectorAll('.country-option').forEach(opt => opt.classList.remove('selected'));
                     div.classList.add('selected');
-                    selectedCountryValue = country;
+                    selectedCountryTemp = country;
                 };
-                countryListContainer.appendChild(div);
+                countryListDiv.appendChild(div);
             });
             
             if (filtered.length === 0) {
-                countryListContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #888;">No countries found</div>';
+                countryListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">No countries found</div>';
             }
         }
         
+        // Confirm selection
         function confirmSelection() {
-            if (selectedCountryValue && activeMode === 'country') {
-                if (selectedCountryValue !== currentCountry) {
-                    switchCountry(selectedCountryValue);
+            if (selectedCountryTemp && selectedCountryTemp !== currentCountry) {
+                currentCountry = selectedCountryTemp;
+                countryItems = allCoins.filter(c => c.country === currentCountry);
+                countryBtn.textContent = currentCountry;
+                
+                if (currentMode === 'country') {
+                    currentList = [...countryItems];
+                    currentIndex = currentList.length > 0 ? 0 : -1;
+                    renderCurrentCoin();
+                    renderThumbnails();
                 }
             }
-            closeModal();
+            hideModal();
         }
         
+        // Load JSON
         async function loadData() {
             try {
                 const response = await fetch('images/coins.json');
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                if (!response.ok) throw new Error('Failed to load');
                 allCoins = await response.json();
                 
-                allCoins = allCoins.filter(c => c.country && c.country.trim() !== '' && c.image && c.image.trim() !== '');
-                allCoins = allCoins.map(coin => ({ ...coin, country: toTitleCase(coin.country.trim()) }));
+                allCoins = allCoins.filter(c => c.country && c.country.trim() !== '' && c.image);
+                allCoins = allCoins.map(c => ({ ...c, country: toTitleCase(c.country.trim()) }));
                 
                 const countrySet = new Set();
                 allCoins.forEach(c => countrySet.add(c.country));
-                countries = Array.from(countrySet).sort((a,b) => a.localeCompare(b));
+                countries = Array.from(countrySet).sort();
                 
-                totalCountriesSpan.textContent = countries.length;
-                totalItemsSpan.textContent = allCoins.length;
+                statCountries.textContent = countries.length;
+                statItems.textContent = allCoins.length;
                 
-                if (countries.length === 0) throw new Error('no valid countries');
-                
-                currentCountry = countries[0];
-                switchCountry(currentCountry);
-                setActiveMode('country');
-                
+                if (countries.length > 0) {
+                    currentCountry = countries[0];
+                    countryItems = allCoins.filter(c => c.country === currentCountry);
+                    countryBtn.textContent = currentCountry;
+                    currentList = [...countryItems];
+                    currentIndex = currentList.length > 0 ? 0 : -1;
+                    renderCurrentCoin();
+                    renderThumbnails();
+                }
             } catch (e) {
-                console.error('load error:', e);
-                displayLabel.textContent = '⚠️ error';
-                document.getElementById('imageFrame').innerHTML = `<div style="color:#ccc; padding:2rem;">failed to load coins.json</div>`;
+                console.error(e);
+                countryBtn.textContent = 'Error';
+                imageContainer.innerHTML = '<div style="padding:20px;">Failed to load data</div>';
             }
         }
         
-        function switchCountry(countryName) {
-            if (!countryName) return;
-            currentCountry = countryName;
-            countryItems = allCoins.filter(c => c.country === countryName);
-            displayLabel.textContent = countryName;
-            
-            if (activeMode === 'country') {
-                activeList = [...countryItems];
-                currentIndex = countryItems.length > 0 ? 0 : -1;
-                renderCurrentCoin();
-                rebuildThumbnails();
-            } else {
-                rebuildThumbnails();
-            }
-        }
-        
-        function setActiveMode(mode) {
-            activeMode = mode;
-            if (mode === 'country') {
-                modeCountryBtn.classList.add('active-mode');
-                modeGlobalBtn.classList.remove('active-mode');
-                activeList = [...countryItems];
-                if (activeList.length === 0) currentIndex = -1;
-                else if (currentIndex >= activeList.length) currentIndex = activeList.length - 1;
-                else if (currentIndex < 0 && activeList.length > 0) currentIndex = 0;
-                // Show the country label
-                displayLabel.style.display = 'inline-block';
-            } else {
-                modeGlobalBtn.classList.add('active-mode');
-                modeCountryBtn.classList.remove('active-mode');
-                activeList = [...allCoins];
-                if (currentIndex >= allCoins.length) currentIndex = allCoins.length-1;
-                if (currentIndex < 0 && allCoins.length>0) currentIndex = 0;
-                if (activeList.length === 0) currentIndex = -1;
-                // Still show the label but maybe change text
-                displayLabel.style.display = 'inline-block';
-            }
-            renderCurrentCoin();
-            rebuildThumbnails();
-        }
-        
+        // Render current coin
         function renderCurrentCoin() {
-            const imageFrame = document.getElementById('imageFrame');
-            const donorSpan = document.getElementById('donorName');
-            const yearSpan = document.getElementById('coinYear');
-            const sizeSpan = document.getElementById('coinSize');
-            const noteSpan = document.getElementById('coinNote');
-            const counterSpan = document.getElementById('counter');
-            
-            if (!activeList || activeList.length === 0 || currentIndex < 0 || currentIndex >= activeList.length) {
-                imageFrame.innerHTML = `<div style="color:#aaa; padding:2rem; text-align:center;">🪙 no coins</div>`;
-                donorSpan.textContent = '—';
-                yearSpan.textContent = '—';
-                sizeSpan.textContent = '—';
-                noteSpan.textContent = '—';
-                counterSpan.textContent = `0 / 0`;
-                currentCountryNameSpan.textContent = '—';
+            if (!currentList.length || currentIndex < 0) {
+                imageContainer.innerHTML = '<div style="padding:20px;">No coins</div>';
                 return;
             }
             
-            const coin = activeList[currentIndex];
-            const imagePath = `images/${encodeURIComponent(coin.country)}/${encodeURIComponent(coin.image)}`;
+            const coin = currentList[currentIndex];
+            displayCountry.textContent = coin.country;
+            displayDonor.textContent = coin.donor_name || '—';
+            displayYear.textContent = (coin.year && coin.year !== '0000') ? coin.year : '—';
+            displaySize.textContent = (coin.size && coin.size !== '00') ? coin.size : '—';
+            let note = coin.note || '—';
+            if (note.length > 80) note = note.substring(0, 77) + '…';
+            displayNote.textContent = note;
+            counter.textContent = `${currentIndex + 1}/${currentList.length}`;
             
-            // Show the country name in the info panel
-            currentCountryNameSpan.textContent = coin.country;
-            
-            const img = document.createElement('img');
+            const imgPath = `images/${encodeURIComponent(coin.country)}/${encodeURIComponent(coin.image)}`;
+            const img = new Image();
             img.onload = () => {
-                imageFrame.innerHTML = '';
-                imageFrame.appendChild(img);
+                imageContainer.innerHTML = '';
+                img.style.maxWidth = '100%';
+                img.style.maxHeight = '100%';
+                imageContainer.appendChild(img);
             };
             img.onerror = () => {
-                imageFrame.innerHTML = `<div style="color:#aaa; padding:1rem;">missing image</div>`;
+                imageContainer.innerHTML = '<div style="padding:20px;">Image missing</div>';
             };
-            img.src = imagePath;
-            img.alt = coin.country;
+            img.src = imgPath;
             
-            donorSpan.textContent = coin.donor_name || '—';
-            yearSpan.textContent = coin.year && coin.year !== '0000' ? coin.year : '—';
-            sizeSpan.textContent = coin.size && coin.size !== '00' ? coin.size : '—';
-            let note = coin.note || '—';
-            if (note.length > 85) note = note.substring(0,82)+'…';
-            noteSpan.textContent = note;
-            counterSpan.textContent = `${currentIndex+1} / ${activeList.length}`;
-            
-            document.querySelectorAll('.thumbnail').forEach((thumb, idx) => {
-                thumb.classList.toggle('active-thumb', idx === currentIndex);
+            // Update thumbnail highlight
+            document.querySelectorAll('.thumb').forEach((thumb, idx) => {
+                thumb.classList.toggle('active', idx === currentIndex);
             });
             
-            const activeThumb = document.querySelector('.thumbnail.active-thumb');
+            // Scroll active thumbnail into view
+            const activeThumb = document.querySelector('.thumb.active');
             if (activeThumb) {
                 activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
             }
         }
         
-        function rebuildThumbnails() {
-            const thumbnailStrip = document.getElementById('thumbnailStrip');
-            thumbnailStrip.innerHTML = '';
-            if (!activeList || activeList.length === 0) {
-                thumbnailStrip.innerHTML = '<div style="width:100%; text-align:center; padding:10px;">no items</div>';
+        // Render thumbnails
+        function renderThumbnails() {
+            thumbnailsDiv.innerHTML = '';
+            if (!currentList.length) {
+                thumbnailsDiv.innerHTML = '<div style="padding:10px;">No items</div>';
                 return;
             }
             
-            activeList.forEach((coin, idx) => {
-                const thumbDiv = document.createElement('div');
-                thumbDiv.className = 'thumbnail';
-                if (idx === currentIndex) thumbDiv.classList.add('active-thumb');
+            currentList.forEach((coin, idx) => {
+                const thumb = document.createElement('div');
+                thumb.className = 'thumb';
+                if (idx === currentIndex) thumb.classList.add('active');
                 
                 const img = document.createElement('img');
                 img.src = `images/${encodeURIComponent(coin.country)}/${encodeURIComponent(coin.image)}`;
                 img.alt = coin.country;
                 img.onerror = () => {
-                    thumbDiv.innerHTML = '<span style="padding:10px;">📀</span>';
+                    thumb.innerHTML = '<span style="display:flex;align-items:center;justify-content:center;height:100%;">📀</span>';
                 };
-                thumbDiv.appendChild(img);
-                thumbDiv.onclick = () => {
+                thumb.appendChild(img);
+                thumb.onclick = () => {
                     currentIndex = idx;
                     renderCurrentCoin();
                 };
-                thumbnailStrip.appendChild(thumbDiv);
+                thumbnailsDiv.appendChild(thumb);
             });
         }
         
-        function nextImage() {
-            if (!activeList.length) return;
-            currentIndex = (currentIndex + 1) % activeList.length;
+        // Navigation
+        function nextCoin() {
+            if (!currentList.length) return;
+            currentIndex = (currentIndex + 1) % currentList.length;
             renderCurrentCoin();
         }
         
-        function prevImage() {
-            if (!activeList.length) return;
-            currentIndex = (currentIndex - 1 + activeList.length) % activeList.length;
+        function prevCoin() {
+            if (!currentList.length) return;
+            currentIndex = (currentIndex - 1 + currentList.length) % currentList.length;
             renderCurrentCoin();
         }
         
-        // Event listeners - SIMPLE AND DIRECT
-        displayLabel.onclick = function(e) {
+        // Switch mode
+        function setMode(mode) {
+            currentMode = mode;
+            if (mode === 'country') {
+                modeCountryBtn.classList.add('active');
+                modeAllBtn.classList.remove('active');
+                currentList = [...countryItems];
+                currentIndex = currentList.length > 0 ? 0 : -1;
+                countryBtn.style.display = 'flex';
+            } else {
+                modeAllBtn.classList.add('active');
+                modeCountryBtn.classList.remove('active');
+                currentList = [...allCoins];
+                currentIndex = currentList.length > 0 ? 0 : -1;
+                countryBtn.style.display = 'flex';
+            }
+            renderCurrentCoin();
+            renderThumbnails();
+        }
+        
+        // Event listeners - using direct assignment for reliability
+        countryBtn.onclick = function(e) {
             e.stopPropagation();
-            openModal();
+            showModal();
         };
         
-        closeModalBtn.onclick = function(e) {
-            e.stopPropagation();
-            closeModal();
-        };
-        
-        cancelModalBtn.onclick = function(e) {
-            e.stopPropagation();
-            closeModal();
-        };
-        
-        confirmModalBtn.onclick = function(e) {
-            e.stopPropagation();
-            confirmSelection();
-        };
+        modalCloseBtn.onclick = function() { hideModal(); };
+        modalCancelBtn.onclick = function() { hideModal(); };
+        modalConfirmBtn.onclick = function() { confirmSelection(); };
         
         searchInput.oninput = function(e) {
             renderCountryList(e.target.value);
         };
         
-        // Close modal when clicking overlay
+        // Close modal when clicking outside
         modal.onclick = function(e) {
-            if (e.target === modal) {
-                closeModal();
-            }
+            if (e.target === modal) hideModal();
         };
         
-        // Mode buttons
         modeCountryBtn.onclick = function() {
-            if (activeMode === 'country') return;
-            setActiveMode('country');
+            if (currentMode !== 'country') setMode('country');
         };
         
-        modeGlobalBtn.onclick = function() {
-            if (activeMode === 'global') return;
-            setActiveMode('global');
+        modeAllBtn.onclick = function() {
+            if (currentMode !== 'all') setMode('all');
         };
         
-        // Navigation
-        document.getElementById('prevArrow').onclick = prevImage;
-        document.getElementById('nextArrow').onclick = nextImage;
+        prevArrow.onclick = prevCoin;
+        nextArrow.onclick = nextCoin;
         
-        // Keyboard
+        // Keyboard navigation
         document.onkeydown = function(e) {
             if (modal.style.display === 'flex') {
                 if (e.key === 'Escape') {
                     e.preventDefault();
-                    closeModal();
+                    hideModal();
                 } else if (e.key === 'Enter' && document.activeElement !== searchInput) {
                     e.preventDefault();
                     confirmSelection();
                 }
             } else {
-                if (e.key === 'ArrowLeft') { e.preventDefault(); prevImage(); }
-                else if (e.key === 'ArrowRight') { e.preventDefault(); nextImage(); }
+                if (e.key === 'ArrowLeft') { e.preventDefault(); prevCoin(); }
+                else if (e.key === 'ArrowRight') { e.preventDefault(); nextCoin(); }
             }
         };
         
         // Touch swipe
-        let touchStartX = 0;
-        const sliderStage = document.getElementById('sliderStage');
-        sliderStage.ontouchstart = function(e) {
-            touchStartX = e.changedTouches[0].screenX;
+        let touchStart = 0;
+        const slider = document.querySelector('.slider');
+        slider.ontouchstart = function(e) {
+            touchStart = e.touches[0].clientX;
         };
-        sliderStage.ontouchend = function(e) {
-            if (touchStartX === 0) return;
-            const diff = e.changedTouches[0].screenX - touchStartX;
+        slider.ontouchend = function(e) {
+            if (!touchStart) return;
+            const touchEnd = e.changedTouches[0].clientX;
+            const diff = touchEnd - touchStart;
             if (Math.abs(diff) > 50) {
-                diff > 0 ? prevImage() : nextImage();
+                if (diff > 0) prevCoin();
+                else nextCoin();
             }
-            touchStartX = 0;
+            touchStart = 0;
         };
         
+        // Start
         loadData();
     })();
 </script>
