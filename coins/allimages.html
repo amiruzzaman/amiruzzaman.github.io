@@ -93,63 +93,67 @@
         .image-wrapper {
             background: rgba(0,0,0,0.5);
             border-radius: 24px;
-            padding: 20px;
+            padding: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
+            width: auto;
+            height: auto;
         }
 
         .image-wrapper img {
             display: block;
             border-radius: 12px;
             object-fit: contain;
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
         }
 
-        /* Desktop specific image sizing */
+        /* Base responsive image sizing */
+        .image-wrapper {
+            max-width: 95%;
+            max-height: 85%;
+        }
+        
+        .image-wrapper img {
+            max-height: 55vh;
+        }
+
+        /* Desktop specific */
         @media (min-width: 1024px) {
             .image-wrapper {
                 max-width: 85%;
                 max-height: 85%;
                 padding: 24px;
             }
-            
             .image-wrapper img {
-                max-width: 100%;
                 max-height: 70vh;
-                width: auto;
-                height: auto;
             }
         }
 
-        /* Tablet sizing */
+        /* Tablet */
         @media (min-width: 768px) and (max-width: 1023px) {
             .image-wrapper {
                 max-width: 90%;
                 max-height: 90%;
                 padding: 20px;
             }
-            
             .image-wrapper img {
-                max-width: 100%;
-                max-height: 60vh;
-                width: auto;
-                height: auto;
+                max-height: 65vh;
             }
         }
 
-        /* Mobile sizing */
+        /* Mobile - ensure touch targets are good */
         @media (max-width: 767px) {
             .image-wrapper {
                 max-width: 95%;
-                max-height: 95%;
+                max-height: 80%;
                 padding: 12px;
             }
-            
             .image-wrapper img {
-                max-width: 100%;
                 max-height: 50vh;
-                width: auto;
-                height: auto;
             }
         }
 
@@ -172,6 +176,14 @@
 
         .nav-left { left: 0; }
         .nav-right { right: 0; }
+
+        /* Mobile nav arrows */
+        @media (max-width: 767px) {
+            .nav-arrow {
+                font-size: 36px;
+                padding: 15px;
+            }
+        }
 
         /* Info panel */
         .info-panel {
@@ -217,6 +229,21 @@
             align-items: center;
         }
 
+        /* Mobile info panel */
+        @media (max-width: 767px) {
+            .info-panel {
+                padding: 8px 12px;
+                gap: 8px 12px;
+            }
+            .info-value {
+                font-size: 11px;
+            }
+            .counter {
+                font-size: 11px;
+                padding: 3px 10px;
+            }
+        }
+
         /* Thumbnails */
         .thumbnails {
             background: rgba(15, 27, 40, 0.9);
@@ -243,8 +270,6 @@
         }
 
         .thumb {
-            width: 70px;
-            height: 60px;
             background: #1f3343;
             border-radius: 10px;
             border: 2px solid transparent;
@@ -252,6 +277,22 @@
             cursor: pointer;
             flex-shrink: 0;
             transition: 0.1s;
+        }
+
+        /* Desktop thumbnails */
+        @media (min-width: 768px) {
+            .thumb {
+                width: 70px;
+                height: 60px;
+            }
+        }
+
+        /* Mobile thumbnails */
+        @media (max-width: 767px) {
+            .thumb {
+                width: 55px;
+                height: 50px;
+            }
         }
 
         .thumb:hover {
@@ -387,25 +428,11 @@
         .btn-cancel { background: #2a3e54; color: white; }
         .btn-confirm { background: #ffd966; color: #1f3142; font-weight: bold; }
 
-        /* Responsive adjustments for thumbnails */
-        @media (max-width: 768px) {
-            .thumb { width: 55px; height: 50px; }
-            .info-value { font-size: 12px; }
-            .nav-arrow { font-size: 36px; padding: 15px; }
-        }
-
+        /* Hide stats on very small screens */
         @media (max-width: 600px) {
             .stats { display: none; }
             .country-selector { font-size: 12px; padding: 6px 12px; max-width: 140px; }
             .mode-btn { padding: 4px 10px; font-size: 11px; }
-            .counter { font-size: 11px; }
-        }
-
-        /* Extra large desktop screens */
-        @media (min-width: 1600px) {
-            .image-wrapper img {
-                max-height: 65vh;
-            }
         }
     </style>
 </head>
