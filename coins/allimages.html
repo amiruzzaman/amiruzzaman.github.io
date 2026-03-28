@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>coin gallery · mobile fixed</title>
+    <title>coin gallery · fully working mobile</title>
     <style>
         * {
             box-sizing: border-box;
@@ -31,6 +31,7 @@
             gap: 8px;
             border-bottom: 1px solid #3f556e;
             z-index: 20;
+            flex-shrink: 0;
         }
 
         .country-btn {
@@ -46,6 +47,11 @@
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 45%;
+            flex-shrink: 1;
+        }
+        
+        .country-btn:active {
+            transform: scale(0.97);
         }
 
         .mode-buttons {
@@ -53,6 +59,7 @@
             border-radius: 40px;
             display: flex;
             padding: 2px;
+            flex-shrink: 0;
         }
 
         .mode-btn {
@@ -77,6 +84,7 @@
             border-radius: 40px;
             font-size: 11px;
             white-space: nowrap;
+            flex-shrink: 0;
         }
 
         @media (max-width: 600px) {
@@ -85,7 +93,7 @@
             .mode-btn { padding: 5px 10px; font-size: 11px; }
         }
 
-        /* MODAL - ALWAYS VISIBLE WHEN OPEN */
+        /* MODAL - STAYS SEPARATE FROM MAIN CONTENT */
         .modal {
             position: fixed;
             top: 0;
@@ -136,6 +144,10 @@
             height: 36px;
             border-radius: 50%;
         }
+        
+        .modal-close:active {
+            background: rgba(255,255,255,0.1);
+        }
 
         .modal-body {
             padding: 16px;
@@ -152,6 +164,11 @@
             background: #10212e;
             color: white;
             margin-bottom: 12px;
+            outline: 1px solid #3b5777;
+        }
+        
+        .modal-search:focus {
+            outline: 2px solid #ffd966;
         }
 
         .country-list {
@@ -167,6 +184,12 @@
             cursor: pointer;
             text-align: center;
             font-size: 16px;
+            transition: 0.1s;
+        }
+        
+        .country-option:active {
+            transform: scale(0.98);
+            background: #31658c;
         }
 
         .country-option.selected {
@@ -189,6 +212,10 @@
             cursor: pointer;
             font-weight: 500;
         }
+        
+        .modal-buttons button:active {
+            transform: scale(0.97);
+        }
 
         .btn-cancel { background: #2a3e54; color: white; }
         .btn-confirm { background: #ffd966; color: #1f3142; font-weight: bold; }
@@ -201,6 +228,7 @@
             justify-content: center;
             background: radial-gradient(circle at 30% 40%, #15222e, #040a12);
             position: relative;
+            min-height: 0;
         }
 
         .image-container {
@@ -234,6 +262,10 @@
             cursor: pointer;
             z-index: 10;
         }
+        
+        .nav-arrow:active {
+            color: white;
+        }
 
         .nav-left { left: 0; }
         .nav-right { right: 0; }
@@ -248,6 +280,7 @@
             flex-wrap: wrap;
             gap: 8px;
             font-size: 12px;
+            flex-shrink: 0;
         }
 
         .info-item {
@@ -277,6 +310,7 @@
             padding: 4px 12px;
             border-radius: 40px;
             font-size: 12px;
+            white-space: nowrap;
         }
 
         /* Thumbnails */
@@ -287,6 +321,7 @@
             display: flex;
             gap: 8px;
             overflow-x: auto;
+            flex-shrink: 0;
         }
 
         .thumb {
@@ -299,6 +334,10 @@
             overflow: hidden;
             cursor: pointer;
         }
+        
+        .thumb:active {
+            transform: scale(0.95);
+        }
 
         .thumb.active {
             border-color: #ffd966;
@@ -308,6 +347,11 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+        }
+        
+        @media (max-width: 680px) {
+            .thumb { width: 55px; height: 48px; }
+            .image-container img { max-height: calc(100vh - 300px); }
         }
     </style>
 </head>
@@ -322,15 +366,15 @@
     <div class="stats"><span id="statCountries">0</span> · <span id="statItems">0</span></div>
 </div>
 
-<!-- MODAL -->
+<!-- MODAL - SEPARATE FROM MAIN CONTENT, WILL NOT DISAPPEAR -->
 <div id="countryModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>Select Country</h3>
+            <h3>🌍 Select Country</h3>
             <button id="modalCloseBtn" class="modal-close">✕</button>
         </div>
         <div class="modal-body">
-            <input type="text" id="searchInput" class="modal-search" placeholder="Search country..." autocomplete="off">
+            <input type="text" id="searchInput" class="modal-search" placeholder="🔍 Search country..." autocomplete="off">
             <div id="countryList" class="country-list"></div>
         </div>
         <div class="modal-buttons">
@@ -421,7 +465,7 @@
             document.body.style.overflow = 'hidden';
             setTimeout(() => {
                 if (searchInput) searchInput.focus();
-            }, 50);
+            }, 100);
         }
         
         // Hide modal
@@ -441,11 +485,13 @@
                 div.className = 'country-option';
                 if (country === selectedCountryTemp) div.classList.add('selected');
                 div.textContent = country;
-                div.onclick = () => {
-                    document.querySelectorAll('.country-option').forEach(opt => opt.classList.remove('selected'));
-                    div.classList.add('selected');
-                    selectedCountryTemp = country;
-                };
+                div.onclick = (function(c) {
+                    return function() {
+                        document.querySelectorAll('.country-option').forEach(opt => opt.classList.remove('selected'));
+                        this.classList.add('selected');
+                        selectedCountryTemp = c;
+                    };
+                })(country);
                 countryListDiv.appendChild(div);
             });
             
@@ -506,12 +552,19 @@
         
         // Render current coin
         function renderCurrentCoin() {
-            if (!currentList.length || currentIndex < 0) {
-                imageContainer.innerHTML = '<div style="padding:20px;">No coins</div>';
+            if (!currentList.length || currentIndex < 0 || currentIndex >= currentList.length) {
+                imageContainer.innerHTML = '<div style="padding:20px; text-align:center;">No coins</div>';
+                displayCountry.textContent = '—';
+                displayDonor.textContent = '—';
+                displayYear.textContent = '—';
+                displaySize.textContent = '—';
+                displayNote.textContent = '—';
+                counter.textContent = '0/0';
                 return;
             }
             
             const coin = currentList[currentIndex];
+            // Always show the country name - this is the key fix for "all coins" mode
             displayCountry.textContent = coin.country;
             displayDonor.textContent = coin.donor_name || '—';
             displayYear.textContent = (coin.year && coin.year !== '0000') ? coin.year : '—';
@@ -527,10 +580,11 @@
                 imageContainer.innerHTML = '';
                 img.style.maxWidth = '100%';
                 img.style.maxHeight = '100%';
+                img.style.borderRadius = '16px';
                 imageContainer.appendChild(img);
             };
             img.onerror = () => {
-                imageContainer.innerHTML = '<div style="padding:20px;">Image missing</div>';
+                imageContainer.innerHTML = '<div style="padding:20px; text-align:center;">📷 Image missing</div>';
             };
             img.src = imgPath;
             
@@ -550,7 +604,7 @@
         function renderThumbnails() {
             thumbnailsDiv.innerHTML = '';
             if (!currentList.length) {
-                thumbnailsDiv.innerHTML = '<div style="padding:10px;">No items</div>';
+                thumbnailsDiv.innerHTML = '<div style="padding:10px; text-align:center;">No items</div>';
                 return;
             }
             
@@ -566,10 +620,12 @@
                     thumb.innerHTML = '<span style="display:flex;align-items:center;justify-content:center;height:100%;">📀</span>';
                 };
                 thumb.appendChild(img);
-                thumb.onclick = () => {
-                    currentIndex = idx;
-                    renderCurrentCoin();
-                };
+                thumb.onclick = (function(i) {
+                    return function() {
+                        currentIndex = i;
+                        renderCurrentCoin();
+                    };
+                })(idx);
                 thumbnailsDiv.appendChild(thumb);
             });
         }
@@ -595,19 +651,17 @@
                 modeAllBtn.classList.remove('active');
                 currentList = [...countryItems];
                 currentIndex = currentList.length > 0 ? 0 : -1;
-                countryBtn.style.display = 'flex';
             } else {
                 modeAllBtn.classList.add('active');
                 modeCountryBtn.classList.remove('active');
                 currentList = [...allCoins];
                 currentIndex = currentList.length > 0 ? 0 : -1;
-                countryBtn.style.display = 'flex';
             }
             renderCurrentCoin();
             renderThumbnails();
         }
         
-        // Event listeners - using direct assignment for reliability
+        // Event listeners - using direct assignment
         countryBtn.onclick = function(e) {
             e.stopPropagation();
             showModal();
