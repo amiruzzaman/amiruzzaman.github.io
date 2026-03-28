@@ -50,8 +50,12 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 40%;
+            max-width: 45%;
             flex-shrink: 1;
+        }
+        
+        .country-label:active {
+            transform: scale(0.98);
         }
 
         .browse-toggle {
@@ -67,9 +71,9 @@
             background: transparent;
             border: none;
             color: #bed3ec;
-            padding: 5px 12px;
+            padding: 6px 14px;
             border-radius: 40px;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
             transition: 0.2s;
@@ -93,16 +97,25 @@
             .stats {
                 display: none;
             }
+            .browse-toggle button {
+                padding: 5px 10px;
+                font-size: 0.75rem;
+            }
+            .country-label {
+                font-size: 0.85rem;
+                padding: 0.35rem 0.8rem;
+                max-width: 40%;
+            }
         }
 
-        /* MODAL - STAYS OPEN */
+        /* MODAL - SIMPLE AND RELIABLE */
         .country-modal {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.95);
+            background: rgba(0, 0, 0, 0.92);
             backdrop-filter: blur(8px);
             z-index: 10000;
             display: none;
@@ -122,7 +135,6 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            pointer-events: auto;
         }
         
         .country-modal-header {
@@ -157,14 +169,12 @@
         
         .close-modal:active {
             background: rgba(255,255,255,0.2);
-            transform: scale(0.95);
         }
         
         .country-modal-body {
             padding: 1.2rem;
             flex: 1;
             overflow-y: auto;
-            min-height: 300px;
         }
         
         .country-search {
@@ -205,7 +215,6 @@
         
         .country-item:active {
             background: #31658c;
-            transform: scale(0.98);
         }
         
         .country-item.selected {
@@ -229,11 +238,6 @@
             cursor: pointer;
             font-weight: 500;
             font-size: 0.95rem;
-            transition: 0.2s;
-        }
-        
-        .modal-buttons button:active {
-            transform: scale(0.97);
         }
         
         .btn-cancel {
@@ -245,6 +249,10 @@
             background: #ffd966;
             color: #1f3142;
             font-weight: bold;
+        }
+        
+        .btn-cancel:active, .btn-confirm:active {
+            transform: scale(0.97);
         }
 
         /* Slider styles */
@@ -297,6 +305,10 @@
         .nav-arrow.right {
             right: 0;
         }
+        
+        .nav-arrow:active {
+            color: white;
+        }
 
         .info-panel {
             background: #101c2ad9;
@@ -325,6 +337,11 @@
             font-weight: 500;
             color: #f7e9d4;
             font-size: 0.85rem;
+        }
+        
+        .country-name-value {
+            color: #ffd966;
+            font-weight: bold;
         }
 
         .note-value {
@@ -382,10 +399,6 @@
             }
             .country-modal-content {
                 max-width: 95%;
-                max-height: 85vh;
-            }
-            .country-item {
-                padding: 12px;
             }
         }
     </style>
@@ -395,13 +408,13 @@
 <div class="country-bar">
     <div id="countryDisplayLabel" class="country-label">loading...</div>
     <div class="browse-toggle">
-        <button id="modeCountry" class="active-mode">Country</button>
-        <button id="modeGlobal">All Coins</button>
+        <button id="modeCountry" class="active-mode">🇺🇳 Country</button>
+        <button id="modeGlobal">🌍 All Coins</button>
     </div>
     <div class="stats"><span id="totalCountries">0</span> · <span id="totalItems">0</span></div>
 </div>
 
-<!-- MODAL - STABLE AND WON'T AUTO-CLOSE -->
+<!-- MODAL -->
 <div id="countryModal" class="country-modal">
     <div class="country-modal-content">
         <div class="country-modal-header">
@@ -426,6 +439,10 @@
 </div>
 
 <div class="info-panel">
+    <div class="info-item">
+        <span class="info-label">country</span>
+        <span class="info-value country-name-value" id="currentCountryName">—</span>
+    </div>
     <div class="info-item"><span class="info-label">donor</span><span class="info-value" id="donorName">—</span></div>
     <div class="info-item"><span class="info-label">year</span><span class="info-value" id="coinYear">—</span></div>
     <div class="info-item"><span class="info-label">size</span><span class="info-value" id="coinSize">—</span></div>
@@ -458,33 +475,28 @@
         const modeGlobalBtn = document.getElementById('modeGlobal');
         const totalCountriesSpan = document.getElementById('totalCountries');
         const totalItemsSpan = document.getElementById('totalItems');
+        const currentCountryNameSpan = document.getElementById('currentCountryName');
         
         let selectedCountryValue = null;
-        let isModalOpen = false;
         
         function toTitleCase(str) {
             if (!str) return '';
             return str.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
         }
         
-        // Open modal - prevent any auto-close
+        // Open modal
         function openModal() {
-            console.log('Opening modal'); // Debug log
             selectedCountryValue = currentCountry;
             renderCountryList('');
             modal.style.display = 'flex';
-            isModalOpen = true;
             document.body.style.overflow = 'hidden';
-            // Focus on search input after a tiny delay
             setTimeout(() => {
-                searchInput.focus();
-            }, 50);
+                if (searchInput) searchInput.focus();
+            }, 100);
         }
         
         function closeModal() {
-            console.log('Closing modal'); // Debug log
             modal.style.display = 'none';
-            isModalOpen = false;
             document.body.style.overflow = '';
         }
         
@@ -498,9 +510,7 @@
                 div.className = 'country-item';
                 if (country === selectedCountryValue) div.classList.add('selected');
                 div.textContent = country;
-                div.onclick = (e) => {
-                    e.stopPropagation();
-                    // Remove selected class from all
+                div.onclick = () => {
                     document.querySelectorAll('.country-item').forEach(item => item.classList.remove('selected'));
                     div.classList.add('selected');
                     selectedCountryValue = country;
@@ -514,7 +524,6 @@
         }
         
         function confirmSelection() {
-            console.log('Confirming selection:', selectedCountryValue);
             if (selectedCountryValue && activeMode === 'country') {
                 if (selectedCountryValue !== currentCountry) {
                     switchCountry(selectedCountryValue);
@@ -577,12 +586,17 @@
                 if (activeList.length === 0) currentIndex = -1;
                 else if (currentIndex >= activeList.length) currentIndex = activeList.length - 1;
                 else if (currentIndex < 0 && activeList.length > 0) currentIndex = 0;
+                // Show the country label
+                displayLabel.style.display = 'inline-block';
             } else {
                 modeGlobalBtn.classList.add('active-mode');
                 modeCountryBtn.classList.remove('active-mode');
                 activeList = [...allCoins];
                 if (currentIndex >= allCoins.length) currentIndex = allCoins.length-1;
                 if (currentIndex < 0 && allCoins.length>0) currentIndex = 0;
+                if (activeList.length === 0) currentIndex = -1;
+                // Still show the label but maybe change text
+                displayLabel.style.display = 'inline-block';
             }
             renderCurrentCoin();
             rebuildThumbnails();
@@ -603,11 +617,15 @@
                 sizeSpan.textContent = '—';
                 noteSpan.textContent = '—';
                 counterSpan.textContent = `0 / 0`;
+                currentCountryNameSpan.textContent = '—';
                 return;
             }
             
             const coin = activeList[currentIndex];
             const imagePath = `images/${encodeURIComponent(coin.country)}/${encodeURIComponent(coin.image)}`;
+            
+            // Show the country name in the info panel
+            currentCountryNameSpan.textContent = coin.country;
             
             const img = document.createElement('img');
             img.onload = () => {
@@ -678,49 +696,56 @@
             renderCurrentCoin();
         }
         
-        // Event listeners with stopPropagation to prevent accidental closes
-        displayLabel.addEventListener('click', (e) => {
+        // Event listeners - SIMPLE AND DIRECT
+        displayLabel.onclick = function(e) {
             e.stopPropagation();
             openModal();
-        });
+        };
         
-        closeModalBtn.addEventListener('click', (e) => {
+        closeModalBtn.onclick = function(e) {
             e.stopPropagation();
             closeModal();
-        });
+        };
         
-        cancelModalBtn.addEventListener('click', (e) => {
+        cancelModalBtn.onclick = function(e) {
             e.stopPropagation();
             closeModal();
-        });
+        };
         
-        confirmModalBtn.addEventListener('click', (e) => {
+        confirmModalBtn.onclick = function(e) {
             e.stopPropagation();
             confirmSelection();
-        });
+        };
         
-        searchInput.addEventListener('input', (e) => {
-            e.stopPropagation();
+        searchInput.oninput = function(e) {
             renderCountryList(e.target.value);
-        });
+        };
         
-        // Only close when clicking the overlay, not the content
-        modal.addEventListener('click', (e) => {
+        // Close modal when clicking overlay
+        modal.onclick = function(e) {
             if (e.target === modal) {
                 closeModal();
             }
-        });
+        };
         
-        // Prevent clicks inside modal from closing it
-        const modalContent = document.querySelector('.country-modal-content');
-        if (modalContent) {
-            modalContent.addEventListener('click', (e) => {
-                e.stopPropagation();
-            });
-        }
+        // Mode buttons
+        modeCountryBtn.onclick = function() {
+            if (activeMode === 'country') return;
+            setActiveMode('country');
+        };
         
-        document.addEventListener('keydown', (e) => {
-            if (isModalOpen) {
+        modeGlobalBtn.onclick = function() {
+            if (activeMode === 'global') return;
+            setActiveMode('global');
+        };
+        
+        // Navigation
+        document.getElementById('prevArrow').onclick = prevImage;
+        document.getElementById('nextArrow').onclick = nextImage;
+        
+        // Keyboard
+        document.onkeydown = function(e) {
+            if (modal.style.display === 'flex') {
                 if (e.key === 'Escape') {
                     e.preventDefault();
                     closeModal();
@@ -732,35 +757,22 @@
                 if (e.key === 'ArrowLeft') { e.preventDefault(); prevImage(); }
                 else if (e.key === 'ArrowRight') { e.preventDefault(); nextImage(); }
             }
-        });
-        
-        modeCountryBtn.addEventListener('click', () => {
-            if (activeMode === 'country') return;
-            setActiveMode('country');
-        });
-        
-        modeGlobalBtn.addEventListener('click', () => {
-            if (activeMode === 'global') return;
-            setActiveMode('global');
-        });
-        
-        document.getElementById('prevArrow').addEventListener('click', prevImage);
-        document.getElementById('nextArrow').addEventListener('click', nextImage);
+        };
         
         // Touch swipe
         let touchStartX = 0;
         const sliderStage = document.getElementById('sliderStage');
-        sliderStage.addEventListener('touchstart', (e) => {
+        sliderStage.ontouchstart = function(e) {
             touchStartX = e.changedTouches[0].screenX;
-        });
-        sliderStage.addEventListener('touchend', (e) => {
+        };
+        sliderStage.ontouchend = function(e) {
             if (touchStartX === 0) return;
             const diff = e.changedTouches[0].screenX - touchStartX;
             if (Math.abs(diff) > 50) {
                 diff > 0 ? prevImage() : nextImage();
             }
             touchStartX = 0;
-        });
+        };
         
         loadData();
     })();
