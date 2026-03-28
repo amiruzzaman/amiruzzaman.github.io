@@ -1,44 +1,32 @@
+# Update your workflow to use this more reliable approach
 name: Send Gmail Notification on Pages Build/Deploy
 
 on:
-  # This workflow runs after the built-in "pages build and deployment" workflow
+  # Alternative: Run on workflow_run for ANY workflow named with 'pages'
   workflow_run:
-    workflows: ["pages build and deployment"]
+    workflows: ["*"]  # Temporarily use wildcard to debug
     types:
       - completed
 
 jobs:
   send-email:
     runs-on: ubuntu-latest
-    # This 'if' statement ensures the email is only sent when the Pages deployment finishes,
-    # regardless of success or failure.
-    if: ${{ github.event.workflow_run.conclusion != 'skipped' }}
+    # Only run if the completed workflow is a Pages deployment
+    if: ${{ contains(github.event.workflow_run.name, 'pages') || contains(github.event.workflow_run.name, 'Pages') }}
     steps:
       - name: Send Gmail Email
         uses: dawidd6/action-send-mail@v3
         with:
-          # Gmail SMTP server settings
           server_address: smtp.gmail.com
           server_port: 465
-          # Email credentials (Stored as GitHub Secrets)
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
-          # Email content
           subject: GitHub Pages Deployment for ${{ github.repository }} - ${{ github.event.workflow_run.conclusion }}
           to: ${{ secrets.EMAIL_TO }}
           from: GitHub Actions
-          # HTML body for a nicer-looking email
           body: |
-            <!DOCTYPE html>
-            <html>
-            <body>
-              <h2>GitHub Pages Deployment Update</h2>
-              <p><strong>Repository:</strong> <a href="https://github.com/${{ github.repository }}">${{ github.repository }}</a></p>
-              <p><strong>Status:</strong> ${{ github.event.workflow_run.conclusion }}</p>
-              <p><strong>Triggered by:</strong> ${{ github.actor }}</p>
-              <p><strong>Commit:</strong> ${{ github.event.workflow_run.head_sha }}</p>
-              <p><strong>View the run:</strong> <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}">Click here for details</a></p>
-              <hr>
-              <p>This is an automated notification from GitHub Actions.</p>
-            </body>
-            </html>
+            Repository: ${{ github.repository }}
+            Status: ${{ github.event.workflow_run.conclusion }}
+            Workflow: ${{ github.event.workflow_run.name }}
+            Commit: ${{ github.event.workflow_run.head_sha }}
+            View run: https://github.com/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}
