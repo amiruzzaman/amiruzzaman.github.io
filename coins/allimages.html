@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>coin gallery · refined fullpage slider + thumbnails</title>
+    <title>coin gallery · fixed mobile selector</title>
     <style>
         * {
             box-sizing: border-box;
@@ -20,10 +20,8 @@
             color: #eef3fa;
             overflow: hidden;
             font-weight: 400;
-            position: relative;
         }
 
-        /* smoother gradients, modern glass touch */
         .country-bar {
             background: rgba(18, 28, 40, 0.95);
             backdrop-filter: blur(6px);
@@ -36,13 +34,11 @@
             border-bottom: 1px solid #3f556e;
             box-shadow: 0 4px 18px rgba(0,0,0,0.7);
             z-index: 20;
-            position: relative;
         }
 
         .country-label {
-            font-size: 1.2rem;
+            font-size: 1rem;
             font-weight: 500;
-            letter-spacing: 0.3px;
             color: #f3e7d3;
             background: #1f3142;
             padding: 0.4rem 1rem;
@@ -52,189 +48,169 @@
             transition: 0.2s;
             user-select: none;
             white-space: nowrap;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-            flex-shrink: 1;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 45%;
-        }
-        .country-label:hover {
-            background: #2c4056;
-            border-color: #b4d0f0;
-            transform: scale(1.02);
+            max-width: 40%;
+            flex-shrink: 1;
         }
 
-        /* toggle modern */
         .browse-toggle {
             background: #1f3142;
             border-radius: 40px;
             padding: 0.15rem;
             display: flex;
-            gap: 0px;
             border: 1px solid #47688b;
-            box-shadow: inset 0 1px 3px #00000055;
             flex-shrink: 0;
         }
+        
         .browse-toggle button {
             background: transparent;
             border: none;
             color: #bed3ec;
-            padding: 5px 14px;
+            padding: 5px 12px;
             border-radius: 40px;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             font-weight: 600;
             cursor: pointer;
             transition: 0.2s;
-            border: 1px solid transparent;
-            white-space: nowrap;
         }
+        
         .browse-toggle button.active-mode {
             background: #31658c;
             color: white;
-            border-color: #b5d2ff;
-            box-shadow: 0 2px 8px #00000077;
         }
 
         .stats {
-            margin-left: auto;
-            display: flex;
-            gap: 0.8rem;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             background: #0e1d2c;
-            padding: 0.3rem 1rem;
+            padding: 0.3rem 0.8rem;
             border-radius: 40px;
             color: #c4dcf5;
-            border: 1px solid #2e4b6b;
             white-space: nowrap;
         }
         
-        /* MODAL OVERLAY FOR SELECTOR - FIXED POSITIONING */
-        .selector-overlay {
+        @media (max-width: 560px) {
+            .stats {
+                display: none;
+            }
+        }
+
+        /* SIMPLE MODAL - GUARANTEED VISIBLE */
+        .country-modal {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(4px);
-            z-index: 999;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
             display: none;
             align-items: center;
             justify-content: center;
             padding: 20px;
         }
         
-        .selector-modal {
+        .country-modal-content {
             background: #0f1f2e;
-            border-radius: 32px;
+            border-radius: 28px;
             width: 100%;
-            max-width: 500px;
+            max-width: 400px;
             max-height: 80vh;
-            border: 2px solid #5f7ea0;
+            border: 2px solid #ffd966;
             box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-            overflow: hidden;
             display: flex;
             flex-direction: column;
-            animation: slideUp 0.3s ease;
+            overflow: hidden;
         }
         
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .selector-header {
-            padding: 1.2rem;
+        .country-modal-header {
+            padding: 1rem;
             border-bottom: 1px solid #3b577b;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: #1a2c3e;
         }
         
-        .selector-header h3 {
-            color: #f3e7d3;
+        .country-modal-header h3 {
+            color: #ffd966;
             font-size: 1.2rem;
             margin: 0;
         }
         
-        .close-selector {
+        .close-modal {
             background: none;
             border: none;
-            color: #acc4e3;
-            font-size: 1.8rem;
+            color: white;
+            font-size: 1.5rem;
             cursor: pointer;
-            padding: 0;
             width: 32px;
             height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            transition: 0.2s;
         }
         
-        .close-selector:hover {
+        .close-modal:hover {
             background: rgba(255,255,255,0.1);
-            color: white;
         }
         
-        .selector-content {
+        .country-modal-body {
             padding: 1rem;
             flex: 1;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            overflow-y: auto;
         }
         
-        #countrySelectInputModal {
+        .country-search {
             width: 100%;
-            padding: 0.8rem 1rem;
+            padding: 0.7rem;
             font-size: 1rem;
             border-radius: 30px;
             border: none;
             background: #10212e;
             color: white;
             outline: 1px solid #3b5777;
-            font-weight: 400;
             margin-bottom: 1rem;
         }
         
-        #countrySelectInputModal:focus {
-            outline: 2px solid #7fa3cc;
+        .country-search:focus {
+            outline: 2px solid #ffd966;
         }
         
-        #countrySelectModal {
-            width: 100%;
-            background: #0d1c2a;
-            color: #e2eaf5;
-            border: 1px solid #315072;
-            border-radius: 24px;
-            padding: 8px;
-            font-size: 1rem;
-            flex: 1;
+        .country-list {
+            max-height: 400px;
             overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
         
-        #countrySelectModal option {
+        .country-item {
             padding: 12px;
-            border-radius: 16px;
             background: #112433;
-            color: #f0f4fa;
+            border-radius: 16px;
             cursor: pointer;
-            margin: 2px 0;
+            transition: 0.15s;
+            color: #e2eaf5;
+            font-size: 1rem;
+            border: 1px solid transparent;
         }
         
-        #countrySelectModal option:hover {
+        .country-item:hover {
             background: #1f3a4f;
+            border-color: #ffd966;
+            transform: translateX(4px);
         }
         
-        .selector-actions {
+        .country-item.selected {
+            background: #31658c;
+            border-color: #ffd966;
+            color: white;
+        }
+        
+        .modal-buttons {
             padding: 1rem;
             border-top: 1px solid #3b577b;
             display: flex;
@@ -242,13 +218,12 @@
             justify-content: flex-end;
         }
         
-        .selector-actions button {
-            padding: 0.6rem 1.5rem;
+        .modal-buttons button {
+            padding: 0.5rem 1.2rem;
             border-radius: 40px;
             border: none;
             cursor: pointer;
             font-weight: 500;
-            transition: 0.2s;
         }
         
         .btn-cancel {
@@ -257,26 +232,12 @@
         }
         
         .btn-confirm {
-            background: #31658c;
-            color: white;
-        }
-        
-        .btn-cancel:hover, .btn-confirm:hover {
-            transform: scale(1.02);
-            filter: brightness(1.1);
-        }
-        
-        @media (max-width: 560px) {
-            .stats {
-                display: none;
-            }
-            .selector-modal {
-                max-width: 95%;
-                max-height: 85vh;
-            }
+            background: #ffd966;
+            color: #1f3142;
+            font-weight: bold;
         }
 
-        /* slider stage with smoother gradients */
+        /* Slider styles */
         .slider-stage {
             flex: 1;
             display: flex;
@@ -285,17 +246,7 @@
             background: radial-gradient(circle at 30% 40%, #15222e, #040a12);
             padding: 0.5rem;
             position: relative;
-            touch-action: pan-y pinch-zoom;
             min-height: 0;
-        }
-
-        .slider-viewport {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
         }
 
         .slider-image-frame {
@@ -305,11 +256,8 @@
             align-items: center;
             justify-content: center;
             background: rgba(10, 18, 28, 0.7);
-            backdrop-filter: blur(2px);
             border-radius: 28px;
-            box-shadow: 0 25px 45px rgba(0,0,0,0.8), 0 0 0 1px #3e5a78 inset;
             padding: 0.8rem;
-            transition: background 0.2s;
         }
 
         .slider-image-frame img {
@@ -317,13 +265,8 @@
             max-height: calc(100vh - 280px);
             object-fit: contain;
             border-radius: 20px;
-            transition: opacity 0.2s ease, transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
-            background: #172734;
-            box-shadow: 0 8px 18px black;
-            will-change: transform, opacity;
         }
 
-        /* navigation arrows softer */
         .nav-arrow {
             position: absolute;
             top: 0;
@@ -332,43 +275,29 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 4rem;
+            font-size: 3rem;
             color: rgba(240, 230, 200, 0.5);
             cursor: pointer;
-            transition: 0.2s;
             z-index: 15;
-            text-shadow: 0 2px 12px black;
-            font-weight: 300;
         }
 
         .nav-arrow.left {
             left: 0;
-            background: linear-gradient(to left, transparent, rgba(0,25,50,0.4));
         }
         .nav-arrow.right {
             right: 0;
-            background: linear-gradient(to right, transparent, rgba(0,25,50,0.4));
         }
 
-        .nav-arrow:hover {
-            color: #fff2dd;
-            background: rgba(20, 50, 85, 0.6);
-            font-size: 4.5rem;
-        }
-
-        /* bottom panel refined */
         .info-panel {
             background: #101c2ad9;
             backdrop-filter: blur(8px);
             border-top: 1px solid #47648b;
-            padding: 0.6rem 1rem;
+            padding: 0.5rem 0.8rem;
             display: flex;
             flex-wrap: wrap;
-            gap: 0.6rem 1.2rem;
-            font-size: 0.9rem;
+            gap: 0.5rem;
+            font-size: 0.8rem;
             align-items: center;
-            z-index: 18;
-            box-shadow: 0 -8px 24px black;
         }
 
         .info-item {
@@ -377,181 +306,113 @@
         }
 
         .info-label {
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             text-transform: uppercase;
             color: #acc4e3;
-            letter-spacing: 0.8px;
-            font-weight: 500;
         }
 
         .info-value {
             font-weight: 500;
             color: #f7e9d4;
-            font-size: 1rem;
-            word-break: break-word;
-            text-shadow: 0 1px 4px black;
+            font-size: 0.85rem;
         }
 
         .note-value {
-            max-width: 300px;
-            font-size: 0.9rem;
-            color: #e0edff;
+            max-width: 200px;
+            font-size: 0.8rem;
         }
 
         .counter {
             margin-left: auto;
             background: #1b3145;
-            padding: 0.2rem 1rem;
+            padding: 0.2rem 0.8rem;
             border-radius: 40px;
-            font-size: 0.9rem;
-            border: 1px solid #6f8fb2;
-            font-weight: 500;
-            box-shadow: 0 2px 8px black;
+            font-size: 0.8rem;
             white-space: nowrap;
         }
 
-        /* thumbnail strip */
         .thumbnail-strip {
             background: #0f1b28e0;
             backdrop-filter: blur(4px);
             border-top: 1px solid #3b577b;
-            padding: 10px 12px;
+            padding: 8px 12px;
             display: flex;
-            gap: 10px;
+            gap: 8px;
             overflow-x: auto;
-            overflow-y: hidden;
-            align-items: center;
-            white-space: nowrap;
-            scrollbar-width: thin;
-            scrollbar-color: #6a8bb8 #1d3143;
-            z-index: 15;
-        }
-        .thumbnail-strip::-webkit-scrollbar {
-            height: 5px;
-        }
-        .thumbnail-strip::-webkit-scrollbar-track {
-            background: #1d3143;
-            border-radius: 12px;
-        }
-        .thumbnail-strip::-webkit-scrollbar-thumb {
-            background: #6a8bb8;
-            border-radius: 12px;
         }
 
         .thumbnail {
             flex: 0 0 auto;
-            width: 80px;
-            height: 60px;
+            width: 65px;
+            height: 55px;
             background: #1f3343;
-            border-radius: 14px;
+            border-radius: 12px;
             border: 2px solid transparent;
             overflow: hidden;
             cursor: pointer;
-            transition: 0.15s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.7);
-            will-change: transform;
         }
-        .thumbnail:hover {
-            border-color: #b4d2fa;
-            transform: scale(1.05) translateY(-2px);
-        }
+        
         .thumbnail.active-thumb {
             border-color: #ffd966;
-            box-shadow: 0 0 0 2px #c9a756, 0 6px 12px black;
         }
+        
         .thumbnail img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            display: block;
-            background: #1a3142;
-            pointer-events: none;
-        }
-        .no-thumb {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #1f3343;
-            color: #adc3dc;
-            font-size: 0.7rem;
         }
         
         @media (max-width: 680px) {
             .thumbnail {
-                width: 65px;
-                height: 55px;
-            }
-            .info-panel {
-                padding: 0.5rem 0.8rem;
-                gap: 0.5rem 1rem;
-            }
-            .info-value {
-                font-size: 0.85rem;
-            }
-            .note-value {
-                font-size: 0.8rem;
-                max-width: 150px;
-            }
-            .counter {
-                font-size: 0.8rem;
-                padding: 0.15rem 0.8rem;
-            }
-            .nav-arrow {
-                width: 18%;
-                font-size: 3rem;
+                width: 55px;
+                height: 50px;
             }
             .slider-image-frame img {
                 max-height: calc(100vh - 300px);
+            }
+            .country-modal-content {
+                max-width: 95%;
+                max-height: 85vh;
             }
         }
     </style>
 </head>
 <body>
 
-<!-- top bar with country selector + browse mode toggle -->
-<div class="country-bar" id="countryBar">
-    <div id="countryDisplayLabel" class="country-label" tabindex="0">loading countries...</div>
+<div class="country-bar">
+    <div id="countryDisplayLabel" class="country-label">loading...</div>
     <div class="browse-toggle">
-        <button id="modeCountry" class="active-mode">🇺🇳 Country</button>
-        <button id="modeGlobal">🌍 All</button>
+        <button id="modeCountry" class="active-mode">Country</button>
+        <button id="modeGlobal">All Coins</button>
     </div>
-    <div class="stats" id="stats"><span id="totalCountries">0</span> · <span id="totalItems">0</span></div>
+    <div class="stats"><span id="totalCountries">0</span> · <span id="totalItems">0</span></div>
 </div>
 
-<!-- MODAL OVERLAY FOR COUNTRY SELECTOR - ALWAYS VISIBLE WHEN OPEN -->
-<div id="selectorOverlay" class="selector-overlay">
-    <div class="selector-modal">
-        <div class="selector-header">
-            <h3>Select Country</h3>
-            <button class="close-selector" id="closeSelectorBtn">✕</button>
+<!-- SIMPLE MODAL - DEFINITELY VISIBLE -->
+<div id="countryModal" class="country-modal">
+    <div class="country-modal-content">
+        <div class="country-modal-header">
+            <h3>🌍 Select Country</h3>
+            <button class="close-modal" id="closeModalBtn">✕</button>
         </div>
-        <div class="selector-content">
-            <input type="text" id="countrySelectInputModal" placeholder="🔍 search country..." autocomplete="off">
-            <select size="10" id="countrySelectModal"></select>
+        <div class="country-modal-body">
+            <input type="text" id="countrySearchInput" class="country-search" placeholder="🔍 Search country..." autocomplete="off">
+            <div id="countryListContainer" class="country-list"></div>
         </div>
-        <div class="selector-actions">
-            <button class="btn-cancel" id="cancelSelectBtn">Cancel</button>
-            <button class="btn-confirm" id="confirmSelectBtn">Select</button>
+        <div class="modal-buttons">
+            <button class="btn-cancel" id="cancelModalBtn">Cancel</button>
+            <button class="btn-confirm" id="confirmModalBtn">Select</button>
         </div>
     </div>
 </div>
 
-<!-- main slider area -->
 <div class="slider-stage" id="sliderStage">
-    <div class="nav-arrow left" id="prevArrow" aria-label="previous coin">‹</div>
-    <div class="slider-viewport" id="sliderViewport">
-        <div class="slider-image-frame" id="imageFrame"></div>
-    </div>
-    <div class="nav-arrow right" id="nextArrow" aria-label="next coin">›</div>
+    <div class="nav-arrow left" id="prevArrow">‹</div>
+    <div class="slider-image-frame" id="imageFrame"></div>
+    <div class="nav-arrow right" id="nextArrow">›</div>
 </div>
 
-<!-- bottom info panel -->
-<div class="info-panel" id="infoPanel">
+<div class="info-panel">
     <div class="info-item"><span class="info-label">donor</span><span class="info-value" id="donorName">—</span></div>
     <div class="info-item"><span class="info-label">year</span><span class="info-value" id="coinYear">—</span></div>
     <div class="info-item"><span class="info-label">size</span><span class="info-value" id="coinSize">—</span></div>
@@ -559,21 +420,11 @@
     <div class="counter" id="counter">0 / 0</div>
 </div>
 
-<!-- thumbnail strip -->
 <div class="thumbnail-strip" id="thumbnailStrip"></div>
 
 <script>
     (function() {
-        // UTILITY: proper case for country names
-        function toTitleCase(str) {
-            if (!str) return '';
-            return str.split(' ').map(word => {
-                if (word.length === 0) return word;
-                return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-            }).join(' ');
-        }
-
-        // GLOBALS
+        // Data
         let allCoins = [];
         let countries = [];
         let currentCountry = null;
@@ -581,122 +432,108 @@
         let currentIndex = 0;
         let activeMode = 'country';
         let activeList = [];
-
-        // UI elements
+        
+        // DOM elements
         const displayLabel = document.getElementById('countryDisplayLabel');
-        const selectorOverlay = document.getElementById('selectorOverlay');
-        const selectInputModal = document.getElementById('countrySelectInputModal');
-        const selectModal = document.getElementById('countrySelectModal');
-        const totalCountriesSpan = document.getElementById('totalCountries');
-        const totalItemsSpan = document.getElementById('totalItems');
-        const donorSpan = document.getElementById('donorName');
-        const yearSpan = document.getElementById('coinYear');
-        const sizeSpan = document.getElementById('coinSize');
-        const noteSpan = document.getElementById('coinNote');
-        const counterSpan = document.getElementById('counter');
-        const imageFrame = document.getElementById('imageFrame');
-        const prevArrow = document.getElementById('prevArrow');
-        const nextArrow = document.getElementById('nextArrow');
-        const sliderStage = document.getElementById('sliderStage');
-        const thumbnailStrip = document.getElementById('thumbnailStrip');
+        const modal = document.getElementById('countryModal');
+        const searchInput = document.getElementById('countrySearchInput');
+        const countryListContainer = document.getElementById('countryListContainer');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const cancelModalBtn = document.getElementById('cancelModalBtn');
+        const confirmModalBtn = document.getElementById('confirmModalBtn');
         const modeCountryBtn = document.getElementById('modeCountry');
         const modeGlobalBtn = document.getElementById('modeGlobal');
-        const closeSelectorBtn = document.getElementById('closeSelectorBtn');
-        const cancelSelectBtn = document.getElementById('cancelSelectBtn');
-        const confirmSelectBtn = document.getElementById('confirmSelectBtn');
-
-        // touch vars
-        let touchStartX = 0;
-        let touchEndX = 0;
-        const minSwipeDistance = 50;
+        const totalCountriesSpan = document.getElementById('totalCountries');
+        const totalItemsSpan = document.getElementById('totalItems');
         
-        let selectedCountryTemp = null;
+        let selectedCountryValue = null;
         
-        function openSelector() {
-            // Populate modal select
-            selectModal.innerHTML = '';
-            countries.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c;
-                opt.textContent = c;
-                if (c === currentCountry) opt.selected = true;
-                selectModal.appendChild(opt);
-            });
-            selectedCountryTemp = currentCountry;
-            selectInputModal.value = '';
-            filterSelectModalOptions('');
-            selectorOverlay.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-            selectInputModal.focus();
+        function toTitleCase(str) {
+            if (!str) return '';
+            return str.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
         }
         
-        function closeSelector() {
-            selectorOverlay.style.display = 'none';
+        // Open modal - always visible
+        function openModal() {
+            selectedCountryValue = currentCountry;
+            renderCountryList('');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            searchInput.focus();
+        }
+        
+        function closeModal() {
+            modal.style.display = 'none';
             document.body.style.overflow = '';
         }
         
-        function filterSelectModalOptions(filterText) {
-            const term = filterText.trim().toLowerCase();
-            const options = selectModal.options;
-            let firstMatchIndex = -1;
-            for (let i = 0; i < options.length; i++) {
-                const opt = options[i];
-                const matches = term === '' || opt.value.toLowerCase().includes(term);
-                opt.style.display = matches ? '' : 'none';
-                if (matches && firstMatchIndex === -1) firstMatchIndex = i;
+        function renderCountryList(filterText) {
+            const term = filterText.toLowerCase();
+            const filtered = countries.filter(c => c.toLowerCase().includes(term));
+            
+            countryListContainer.innerHTML = '';
+            filtered.forEach(country => {
+                const div = document.createElement('div');
+                div.className = 'country-item';
+                if (country === selectedCountryValue) div.classList.add('selected');
+                div.textContent = country;
+                div.onclick = () => {
+                    document.querySelectorAll('.country-item').forEach(item => item.classList.remove('selected'));
+                    div.classList.add('selected');
+                    selectedCountryValue = country;
+                };
+                countryListContainer.appendChild(div);
+            });
+            
+            if (filtered.length === 0) {
+                countryListContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #888;">No countries found</div>';
             }
-            if (firstMatchIndex !== -1) selectModal.selectedIndex = firstMatchIndex;
         }
         
         function confirmSelection() {
-            const selectedOption = selectModal.options[selectModal.selectedIndex];
-            if (selectedOption && selectedOption.value && activeMode === 'country') {
-                if (selectedOption.value !== currentCountry) {
-                    switchCountry(selectedOption.value);
+            if (selectedCountryValue && activeMode === 'country') {
+                if (selectedCountryValue !== currentCountry) {
+                    switchCountry(selectedCountryValue);
                 }
             }
-            closeSelector();
+            closeModal();
         }
-
+        
         async function loadData() {
             try {
                 const response = await fetch('images/coins.json');
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 allCoins = await response.json();
-
+                
                 allCoins = allCoins.filter(c => c.country && c.country.trim() !== '' && c.image && c.image.trim() !== '');
-
-                allCoins = allCoins.map(coin => ({
-                    ...coin,
-                    country: toTitleCase(coin.country.trim())
-                }));
-
+                allCoins = allCoins.map(coin => ({ ...coin, country: toTitleCase(coin.country.trim()) }));
+                
                 const countrySet = new Set();
                 allCoins.forEach(c => countrySet.add(c.country));
                 countries = Array.from(countrySet).sort((a,b) => a.localeCompare(b));
-
+                
                 totalCountriesSpan.textContent = countries.length;
                 totalItemsSpan.textContent = allCoins.length;
-
+                
                 if (countries.length === 0) throw new Error('no valid countries');
-
+                
                 currentCountry = countries[0];
                 switchCountry(currentCountry);
                 setActiveMode('country');
-
+                
             } catch (e) {
                 console.error('load error:', e);
                 displayLabel.textContent = '⚠️ error';
-                imageFrame.innerHTML = `<div style="color:#ccc; padding:2rem;">failed to load coins.json<br>check console</div>`;
+                document.getElementById('imageFrame').innerHTML = `<div style="color:#ccc; padding:2rem;">failed to load coins.json</div>`;
             }
         }
-
+        
         function switchCountry(countryName) {
             if (!countryName) return;
             currentCountry = countryName;
             countryItems = allCoins.filter(c => c.country === countryName);
             displayLabel.textContent = countryName;
-
+            
             if (activeMode === 'country') {
                 activeList = [...countryItems];
                 currentIndex = countryItems.length > 0 ? 0 : -1;
@@ -706,7 +543,7 @@
                 rebuildThumbnails();
             }
         }
-
+        
         function setActiveMode(mode) {
             activeMode = mode;
             if (mode === 'country') {
@@ -722,13 +559,19 @@
                 activeList = [...allCoins];
                 if (currentIndex >= allCoins.length) currentIndex = allCoins.length-1;
                 if (currentIndex < 0 && allCoins.length>0) currentIndex = 0;
-                if (activeList.length === 0) currentIndex = -1;
             }
             renderCurrentCoin();
             rebuildThumbnails();
         }
-
+        
         function renderCurrentCoin() {
+            const imageFrame = document.getElementById('imageFrame');
+            const donorSpan = document.getElementById('donorName');
+            const yearSpan = document.getElementById('coinYear');
+            const sizeSpan = document.getElementById('coinSize');
+            const noteSpan = document.getElementById('coinNote');
+            const counterSpan = document.getElementById('counter');
+            
             if (!activeList || activeList.length === 0 || currentIndex < 0 || currentIndex >= activeList.length) {
                 imageFrame.innerHTML = `<div style="color:#aaa; padding:2rem; text-align:center;">🪙 no coins</div>`;
                 donorSpan.textContent = '—';
@@ -738,38 +581,21 @@
                 counterSpan.textContent = `0 / 0`;
                 return;
             }
-
+            
             const coin = activeList[currentIndex];
-            const countryFolder = encodeURIComponent(coin.country);
-            const imageFile = encodeURIComponent(coin.image);
-            const imagePath = `images/${countryFolder}/${imageFile}`;
-
-            const img = new Image();
+            const imagePath = `images/${encodeURIComponent(coin.country)}/${encodeURIComponent(coin.image)}`;
+            
+            const img = document.createElement('img');
             img.onload = () => {
                 imageFrame.innerHTML = '';
-                img.style.opacity = '1';
                 imageFrame.appendChild(img);
             };
             img.onerror = () => {
-                imageFrame.innerHTML = `<div style="color:#aaa; padding:1rem;">🖼️ missing<br>${coin.image}</div>`;
+                imageFrame.innerHTML = `<div style="color:#aaa; padding:1rem;">missing image</div>`;
             };
             img.src = imagePath;
-            img.alt = `${coin.country} ${coin.note || ''}`;
-            img.style.opacity = '0';
-            img.style.transition = 'opacity 0.25s';
+            img.alt = coin.country;
             
-            if (img.complete && img.naturalWidth > 0) {
-                img.style.opacity = '1';
-                imageFrame.innerHTML = '';
-                imageFrame.appendChild(img);
-            } else {
-                img.onload = (e) => {
-                    e.target.style.opacity = '1';
-                    imageFrame.innerHTML = '';
-                    imageFrame.appendChild(img);
-                };
-            }
-
             donorSpan.textContent = coin.donor_name || '—';
             yearSpan.textContent = coin.year && coin.year !== '0000' ? coin.year : '—';
             sizeSpan.textContent = coin.size && coin.size !== '00' ? coin.size : '—';
@@ -777,53 +603,45 @@
             if (note.length > 85) note = note.substring(0,82)+'…';
             noteSpan.textContent = note;
             counterSpan.textContent = `${currentIndex+1} / ${activeList.length}`;
-
+            
             document.querySelectorAll('.thumbnail').forEach((thumb, idx) => {
                 thumb.classList.toggle('active-thumb', idx === currentIndex);
             });
-
+            
             const activeThumb = document.querySelector('.thumbnail.active-thumb');
             if (activeThumb) {
                 activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
             }
         }
-
+        
         function rebuildThumbnails() {
+            const thumbnailStrip = document.getElementById('thumbnailStrip');
             thumbnailStrip.innerHTML = '';
             if (!activeList || activeList.length === 0) {
-                thumbnailStrip.innerHTML = '<div class="no-thumb" style="width:100%; text-align:center;">✨ no items</div>';
+                thumbnailStrip.innerHTML = '<div style="width:100%; text-align:center; padding:10px;">no items</div>';
                 return;
             }
-
+            
             activeList.forEach((coin, idx) => {
                 const thumbDiv = document.createElement('div');
                 thumbDiv.className = 'thumbnail';
                 if (idx === currentIndex) thumbDiv.classList.add('active-thumb');
-
-                const countryFolder = encodeURIComponent(coin.country);
-                const imageFile = encodeURIComponent(coin.image);
-                const imgPath = `images/${countryFolder}/${imageFile}`;
-
+                
                 const img = document.createElement('img');
-                img.src = imgPath;
+                img.src = `images/${encodeURIComponent(coin.country)}/${encodeURIComponent(coin.image)}`;
                 img.alt = coin.country;
                 img.onerror = () => {
-                    thumbDiv.innerHTML = '<span class="no-thumb">📀</span>';
+                    thumbDiv.innerHTML = '<span style="padding:10px;">📀</span>';
                 };
                 thumbDiv.appendChild(img);
-
-                thumbDiv.addEventListener('click', (function(capturedIdx) {
-                    return function(ev) {
-                        ev.stopPropagation();
-                        currentIndex = capturedIdx;
-                        renderCurrentCoin();
-                    };
-                })(idx));
-
+                thumbDiv.onclick = () => {
+                    currentIndex = idx;
+                    renderCurrentCoin();
+                };
                 thumbnailStrip.appendChild(thumbDiv);
             });
         }
-
+        
         function nextImage() {
             if (!activeList.length) return;
             currentIndex = (currentIndex + 1) % activeList.length;
@@ -835,48 +653,36 @@
             currentIndex = (currentIndex - 1 + activeList.length) % activeList.length;
             renderCurrentCoin();
         }
-
-        // Event Listeners
-        displayLabel.addEventListener('click', (e) => {
-            e.stopPropagation();
-            openSelector();
+        
+        // Event listeners
+        displayLabel.addEventListener('click', openModal);
+        closeModalBtn.addEventListener('click', closeModal);
+        cancelModalBtn.addEventListener('click', closeModal);
+        confirmModalBtn.addEventListener('click', confirmSelection);
+        
+        searchInput.addEventListener('input', (e) => {
+            renderCountryList(e.target.value);
         });
         
-        closeSelectorBtn.addEventListener('click', closeSelector);
-        cancelSelectBtn.addEventListener('click', closeSelector);
-        confirmSelectBtn.addEventListener('click', confirmSelection);
-        
-        selectInputModal.addEventListener('input', (e) => filterSelectModalOptions(e.target.value));
-        
-        selectModal.addEventListener('change', () => {
-            // Update temp selection
-            const selected = selectModal.options[selectModal.selectedIndex];
-            if (selected) selectedCountryTemp = selected.value;
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
         });
         
-        selectModal.addEventListener('dblclick', () => {
-            confirmSelection();
-        });
-        
-        // Click outside modal to close
-        selectorOverlay.addEventListener('click', (e) => {
-            if (e.target === selectorOverlay) {
-                closeSelector();
-            }
-        });
-        
-        // Keyboard handling
         document.addEventListener('keydown', (e) => {
-            if (selectorOverlay.style.display !== 'flex') return;
-            if (e.key === 'Escape') {
-                e.preventDefault();
-                closeSelector();
-            } else if (e.key === 'Enter') {
-                e.preventDefault();
-                confirmSelection();
+            if (modal.style.display === 'flex') {
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    closeModal();
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    confirmSelection();
+                }
+            } else {
+                if (e.key === 'ArrowLeft') { e.preventDefault(); prevImage(); }
+                else if (e.key === 'ArrowRight') { e.preventDefault(); nextImage(); }
             }
         });
-
+        
         modeCountryBtn.addEventListener('click', () => {
             if (activeMode === 'country') return;
             setActiveMode('country');
@@ -886,30 +692,25 @@
             if (activeMode === 'global') return;
             setActiveMode('global');
         });
-
-        prevArrow.addEventListener('click', prevImage);
-        nextArrow.addEventListener('click', nextImage);
-
+        
+        document.getElementById('prevArrow').addEventListener('click', prevImage);
+        document.getElementById('nextArrow').addEventListener('click', nextImage);
+        
+        // Touch swipe
+        let touchStartX = 0;
+        const sliderStage = document.getElementById('sliderStage');
         sliderStage.addEventListener('touchstart', (e) => {
             touchStartX = e.changedTouches[0].screenX;
-        }, {passive: true});
-        
+        });
         sliderStage.addEventListener('touchend', (e) => {
             if (touchStartX === 0) return;
-            touchEndX = e.changedTouches[0].screenX;
-            const diff = touchEndX - touchStartX;
-            if (Math.abs(diff) > minSwipeDistance) {
+            const diff = e.changedTouches[0].screenX - touchStartX;
+            if (Math.abs(diff) > 50) {
                 diff > 0 ? prevImage() : nextImage();
             }
             touchStartX = 0;
-        }, {passive: true});
-
-        window.addEventListener('keydown', (e) => {
-            if (selectorOverlay.style.display === 'flex') return;
-            if (e.key === 'ArrowLeft') { e.preventDefault(); prevImage(); }
-            else if (e.key === 'ArrowRight') { e.preventDefault(); nextImage(); }
         });
-
+        
         loadData();
     })();
 </script>
