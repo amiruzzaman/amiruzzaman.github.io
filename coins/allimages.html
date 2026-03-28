@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>coin gallery · fully working mobile</title>
+    <title>coin gallery · fully responsive</title>
     <style>
         * {
             box-sizing: border-box;
@@ -21,10 +21,10 @@
             overflow: hidden;
         }
 
-        /* Top bar */
+        /* Top bar - fixed height */
         .top-bar {
             background: rgba(18, 28, 40, 0.95);
-            padding: 12px;
+            padding: 8px 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -32,21 +32,22 @@
             border-bottom: 1px solid #3f556e;
             z-index: 20;
             flex-shrink: 0;
+            min-height: 52px;
         }
 
         .country-btn {
             background: #1f3142;
-            padding: 8px 16px;
+            padding: 6px 14px;
             border-radius: 40px;
             border: 1px solid #6d8db2;
             color: #f3e7d3;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             cursor: pointer;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 45%;
+            max-width: 180px;
             flex-shrink: 1;
         }
         
@@ -66,11 +67,12 @@
             background: transparent;
             border: none;
             color: #bed3ec;
-            padding: 6px 12px;
+            padding: 5px 12px;
             border-radius: 40px;
             font-size: 12px;
             font-weight: 600;
             cursor: pointer;
+            white-space: nowrap;
         }
 
         .mode-btn.active {
@@ -80,20 +82,14 @@
 
         .stats {
             background: #0e1d2c;
-            padding: 4px 12px;
+            padding: 4px 10px;
             border-radius: 40px;
             font-size: 11px;
             white-space: nowrap;
             flex-shrink: 0;
         }
 
-        @media (max-width: 600px) {
-            .stats { display: none; }
-            .country-btn { font-size: 12px; padding: 6px 12px; }
-            .mode-btn { padding: 5px 10px; font-size: 11px; }
-        }
-
-        /* MODAL - STAYS SEPARATE FROM MAIN CONTENT */
+        /* MODAL */
         .modal {
             position: fixed;
             top: 0;
@@ -121,7 +117,7 @@
         }
 
         .modal-header {
-            padding: 16px;
+            padding: 14px 16px;
             border-bottom: 1px solid #3b577b;
             display: flex;
             justify-content: space-between;
@@ -131,22 +127,18 @@
 
         .modal-header h3 {
             color: #ffd966;
-            font-size: 18px;
+            font-size: 16px;
         }
 
         .modal-close {
             background: none;
             border: none;
             color: white;
-            font-size: 24px;
+            font-size: 22px;
             cursor: pointer;
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
-        }
-        
-        .modal-close:active {
-            background: rgba(255,255,255,0.1);
         }
 
         .modal-body {
@@ -157,8 +149,8 @@
 
         .modal-search {
             width: 100%;
-            padding: 12px;
-            font-size: 16px;
+            padding: 10px 12px;
+            font-size: 14px;
             border-radius: 30px;
             border: none;
             background: #10212e;
@@ -177,18 +169,16 @@
         }
 
         .country-option {
-            padding: 14px;
+            padding: 12px;
             background: #112433;
             border-radius: 12px;
             margin-bottom: 8px;
             cursor: pointer;
             text-align: center;
-            font-size: 16px;
-            transition: 0.1s;
+            font-size: 14px;
         }
         
         .country-option:active {
-            transform: scale(0.98);
             background: #31658c;
         }
 
@@ -201,26 +191,23 @@
             padding: 12px 16px;
             border-top: 1px solid #3b577b;
             display: flex;
-            gap: 12px;
+            gap: 10px;
             justify-content: flex-end;
         }
 
         .modal-buttons button {
-            padding: 10px 20px;
+            padding: 8px 18px;
             border-radius: 40px;
             border: none;
             cursor: pointer;
             font-weight: 500;
-        }
-        
-        .modal-buttons button:active {
-            transform: scale(0.97);
+            font-size: 13px;
         }
 
         .btn-cancel { background: #2a3e54; color: white; }
         .btn-confirm { background: #ffd966; color: #1f3142; font-weight: bold; }
 
-        /* Slider */
+        /* Slider container - takes available space */
         .slider {
             flex: 1;
             display: flex;
@@ -229,42 +216,46 @@
             background: radial-gradient(circle at 30% 40%, #15222e, #040a12);
             position: relative;
             min-height: 0;
+            overflow: hidden;
         }
 
         .image-container {
-            max-width: 95%;
-            max-height: 95%;
+            max-width: 90%;
+            max-height: 90%;
             display: flex;
             align-items: center;
             justify-content: center;
             background: rgba(10, 18, 28, 0.7);
-            border-radius: 24px;
-            padding: 16px;
+            border-radius: 20px;
+            padding: 12px;
         }
 
         .image-container img {
             max-width: 100%;
-            max-height: calc(100vh - 280px);
+            max-height: 100%;
             object-fit: contain;
-            border-radius: 16px;
+            border-radius: 12px;
         }
 
         .nav-arrow {
             position: absolute;
             top: 0;
             bottom: 0;
-            width: 15%;
+            width: 60px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 48px;
-            color: rgba(240, 230, 200, 0.5);
+            font-size: 42px;
+            color: rgba(240, 230, 200, 0.6);
             cursor: pointer;
             z-index: 10;
+            background: transparent;
+            transition: 0.2s;
         }
         
         .nav-arrow:active {
             color: white;
+            background: rgba(0,0,0,0.3);
         }
 
         .nav-left { left: 0; }
@@ -272,15 +263,16 @@
 
         /* Info panel */
         .info-panel {
-            background: rgba(16, 28, 42, 0.85);
+            background: rgba(16, 28, 42, 0.9);
             backdrop-filter: blur(8px);
             border-top: 1px solid #47648b;
             padding: 8px 12px;
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            font-size: 12px;
+            gap: 8px 16px;
+            align-items: center;
             flex-shrink: 0;
+            min-height: 70px;
         }
 
         .info-item {
@@ -289,14 +281,16 @@
         }
 
         .info-label {
-            font-size: 10px;
+            font-size: 9px;
             text-transform: uppercase;
             color: #acc4e3;
+            letter-spacing: 0.5px;
         }
 
         .info-value {
             color: #f7e9d4;
-            font-size: 13px;
+            font-size: 12px;
+            font-weight: 500;
         }
 
         .country-highlight {
@@ -311,32 +305,49 @@
             border-radius: 40px;
             font-size: 12px;
             white-space: nowrap;
+            flex-shrink: 0;
         }
 
         /* Thumbnails */
         .thumbnails {
-            background: rgba(15, 27, 40, 0.88);
+            background: rgba(15, 27, 40, 0.92);
             border-top: 1px solid #3b577b;
-            padding: 8px;
+            padding: 8px 12px;
             display: flex;
             gap: 8px;
             overflow-x: auto;
             flex-shrink: 0;
+            min-height: 68px;
+        }
+        
+        .thumbnails::-webkit-scrollbar {
+            height: 4px;
+        }
+        
+        .thumbnails::-webkit-scrollbar-track {
+            background: #1d3143;
+            border-radius: 4px;
+        }
+        
+        .thumbnails::-webkit-scrollbar-thumb {
+            background: #6a8bb8;
+            border-radius: 4px;
         }
 
         .thumb {
             flex: 0 0 auto;
-            width: 60px;
-            height: 50px;
+            width: 55px;
+            height: 52px;
             background: #1f3343;
             border-radius: 10px;
             border: 2px solid transparent;
             overflow: hidden;
             cursor: pointer;
+            transition: 0.1s;
         }
         
         .thumb:active {
-            transform: scale(0.95);
+            transform: scale(0.96);
         }
 
         .thumb.active {
@@ -349,9 +360,34 @@
             object-fit: cover;
         }
         
+        /* Responsive adjustments */
+        @media (min-width: 1024px) {
+            .thumb { width: 70px; height: 65px; }
+            .info-value { font-size: 14px; }
+            .info-label { font-size: 10px; }
+            .country-btn { font-size: 15px; padding: 8px 18px; max-width: 250px; }
+            .mode-btn { padding: 6px 16px; font-size: 13px; }
+        }
+        
         @media (max-width: 680px) {
-            .thumb { width: 55px; height: 48px; }
-            .image-container img { max-height: calc(100vh - 300px); }
+            .top-bar { padding: 6px 10px; }
+            .country-btn { font-size: 11px; padding: 5px 10px; max-width: 130px; }
+            .mode-btn { padding: 4px 8px; font-size: 10px; }
+            .stats { display: none; }
+            .info-panel { padding: 6px 10px; gap: 6px 12px; min-height: 62px; }
+            .info-value { font-size: 10px; }
+            .counter { font-size: 10px; padding: 3px 8px; }
+            .thumb { width: 48px; height: 45px; }
+            .thumbnails { padding: 6px 10px; min-height: 57px; }
+            .nav-arrow { width: 45px; font-size: 32px; }
+            .image-container { padding: 8px; }
+        }
+        
+        @media (max-width: 480px) {
+            .country-btn { max-width: 100px; font-size: 10px; }
+            .mode-btn { padding: 3px 6px; font-size: 9px; }
+            .info-item { min-width: 65px; }
+            .note-value { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         }
     </style>
 </head>
@@ -361,12 +397,12 @@
     <div id="countryButton" class="country-btn">loading...</div>
     <div class="mode-buttons">
         <button id="modeCountryBtn" class="mode-btn active">Country</button>
-        <button id="modeAllBtn" class="mode-btn">All</button>
+        <button id="modeAllBtn" class="mode-btn">All Coins</button>
     </div>
     <div class="stats"><span id="statCountries">0</span> · <span id="statItems">0</span></div>
 </div>
 
-<!-- MODAL - SEPARATE FROM MAIN CONTENT, WILL NOT DISAPPEAR -->
+<!-- MODAL -->
 <div id="countryModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -407,9 +443,9 @@
         <span class="info-label">Size</span>
         <span id="displaySize" class="info-value">—</span>
     </div>
-    <div class="info-item" style="flex:2;">
+    <div class="info-item" style="flex:2; min-width: 100px;">
         <span class="info-label">Note</span>
-        <span id="displayNote" class="info-value">—</span>
+        <span id="displayNote" class="info-value note-value">—</span>
     </div>
     <div id="counter" class="counter">0/0</div>
 </div>
@@ -424,7 +460,7 @@
         let currentCountry = null;
         let countryItems = [];
         let currentIndex = 0;
-        let currentMode = 'country'; // 'country' or 'all'
+        let currentMode = 'country';
         let currentList = [];
         
         // DOM elements
@@ -457,7 +493,6 @@
             return str.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
         }
         
-        // Show modal
         function showModal() {
             selectedCountryTemp = currentCountry;
             renderCountryList('');
@@ -465,16 +500,14 @@
             document.body.style.overflow = 'hidden';
             setTimeout(() => {
                 if (searchInput) searchInput.focus();
-            }, 100);
+            }, 50);
         }
         
-        // Hide modal
         function hideModal() {
             modal.style.display = 'none';
             document.body.style.overflow = '';
         }
         
-        // Render country list
         function renderCountryList(filter) {
             const term = filter.toLowerCase();
             const filtered = countries.filter(c => c.toLowerCase().includes(term));
@@ -500,7 +533,6 @@
             }
         }
         
-        // Confirm selection
         function confirmSelection() {
             if (selectedCountryTemp && selectedCountryTemp !== currentCountry) {
                 currentCountry = selectedCountryTemp;
@@ -517,7 +549,6 @@
             hideModal();
         }
         
-        // Load JSON
         async function loadData() {
             try {
                 const response = await fetch('images/coins.json');
@@ -550,7 +581,6 @@
             }
         }
         
-        // Render current coin
         function renderCurrentCoin() {
             if (!currentList.length || currentIndex < 0 || currentIndex >= currentList.length) {
                 imageContainer.innerHTML = '<div style="padding:20px; text-align:center;">No coins</div>';
@@ -564,13 +594,12 @@
             }
             
             const coin = currentList[currentIndex];
-            // Always show the country name - this is the key fix for "all coins" mode
             displayCountry.textContent = coin.country;
             displayDonor.textContent = coin.donor_name || '—';
             displayYear.textContent = (coin.year && coin.year !== '0000') ? coin.year : '—';
             displaySize.textContent = (coin.size && coin.size !== '00') ? coin.size : '—';
             let note = coin.note || '—';
-            if (note.length > 80) note = note.substring(0, 77) + '…';
+            if (note.length > 70) note = note.substring(0, 67) + '…';
             displayNote.textContent = note;
             counter.textContent = `${currentIndex + 1}/${currentList.length}`;
             
@@ -580,7 +609,7 @@
                 imageContainer.innerHTML = '';
                 img.style.maxWidth = '100%';
                 img.style.maxHeight = '100%';
-                img.style.borderRadius = '16px';
+                img.style.borderRadius = '12px';
                 imageContainer.appendChild(img);
             };
             img.onerror = () => {
@@ -588,19 +617,16 @@
             };
             img.src = imgPath;
             
-            // Update thumbnail highlight
             document.querySelectorAll('.thumb').forEach((thumb, idx) => {
                 thumb.classList.toggle('active', idx === currentIndex);
             });
             
-            // Scroll active thumbnail into view
             const activeThumb = document.querySelector('.thumb.active');
             if (activeThumb) {
                 activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
             }
         }
         
-        // Render thumbnails
         function renderThumbnails() {
             thumbnailsDiv.innerHTML = '';
             if (!currentList.length) {
@@ -630,7 +656,6 @@
             });
         }
         
-        // Navigation
         function nextCoin() {
             if (!currentList.length) return;
             currentIndex = (currentIndex + 1) % currentList.length;
@@ -643,7 +668,6 @@
             renderCurrentCoin();
         }
         
-        // Switch mode
         function setMode(mode) {
             currentMode = mode;
             if (mode === 'country') {
@@ -661,21 +685,20 @@
             renderThumbnails();
         }
         
-        // Event listeners - using direct assignment
+        // Event listeners
         countryBtn.onclick = function(e) {
             e.stopPropagation();
             showModal();
         };
         
-        modalCloseBtn.onclick = function() { hideModal(); };
-        modalCancelBtn.onclick = function() { hideModal(); };
-        modalConfirmBtn.onclick = function() { confirmSelection(); };
+        modalCloseBtn.onclick = hideModal;
+        modalCancelBtn.onclick = hideModal;
+        modalConfirmBtn.onclick = confirmSelection;
         
         searchInput.oninput = function(e) {
             renderCountryList(e.target.value);
         };
         
-        // Close modal when clicking outside
         modal.onclick = function(e) {
             if (e.target === modal) hideModal();
         };
@@ -691,7 +714,6 @@
         prevArrow.onclick = prevCoin;
         nextArrow.onclick = nextCoin;
         
-        // Keyboard navigation
         document.onkeydown = function(e) {
             if (modal.style.display === 'flex') {
                 if (e.key === 'Escape') {
@@ -707,7 +729,6 @@
             }
         };
         
-        // Touch swipe
         let touchStart = 0;
         const slider = document.querySelector('.slider');
         slider.ontouchstart = function(e) {
@@ -717,14 +738,13 @@
             if (!touchStart) return;
             const touchEnd = e.changedTouches[0].clientX;
             const diff = touchEnd - touchStart;
-            if (Math.abs(diff) > 50) {
+            if (Math.abs(diff) > 40) {
                 if (diff > 0) prevCoin();
                 else nextCoin();
             }
             touchStart = 0;
         };
         
-        // Start
         loadData();
     })();
 </script>
