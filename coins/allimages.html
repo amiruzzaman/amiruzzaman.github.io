@@ -20,6 +20,7 @@
             color: #eef3fa;
             overflow: hidden;
             font-weight: 400;
+            position: relative;
         }
 
         /* smoother gradients, modern glass touch */
@@ -63,155 +64,6 @@
             transform: scale(1.02);
         }
 
-        /* mobile-friendly dropdown overlay */
-        .selector-container {
-            position: relative;
-            min-width: 200px;
-            background: #1b2938;
-            border-radius: 36px;
-            padding: 0.3rem;
-            border: 1px solid #4f6c8a;
-            box-shadow: 0 6px 14px black;
-            flex: 1;
-            max-width: 280px;
-        }
-
-        @media (max-width: 680px) {
-            .country-bar {
-                padding: 0.5rem 0.8rem;
-                gap: 0.5rem;
-            }
-            
-            .country-label {
-                font-size: 1rem;
-                padding: 0.35rem 0.8rem;
-                max-width: 40%;
-            }
-            
-            .browse-toggle button {
-                padding: 5px 10px;
-                font-size: 0.8rem;
-            }
-            
-            .selector-container {
-                position: fixed;
-                top: 65px;
-                left: 10px;
-                right: 10px;
-                width: auto;
-                max-width: none;
-                z-index: 1000;
-                background: #0f1f2e;
-                border: 2px solid #5f7ea0;
-                border-radius: 28px;
-                box-shadow: 0 20px 35px rgba(0,0,0,0.9);
-                backdrop-filter: blur(12px);
-                margin: 0;
-            }
-            
-            #countrySelectInput {
-                font-size: 1rem;
-                padding: 0.7rem 1rem;
-            }
-            
-            #countrySelect {
-                max-height: 200px;
-                font-size: 1rem;
-            }
-            
-            #countrySelect option {
-                padding: 10px 12px;
-            }
-            
-            .selector-container {
-                animation: fadeSlideDown 0.2s ease;
-            }
-            @keyframes fadeSlideDown {
-                from {
-                    opacity: 0;
-                    transform: translateY(-12px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-            
-            .stats {
-                display: none;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .country-bar {
-                padding: 0.4rem 0.6rem;
-            }
-            
-            .country-label {
-                font-size: 0.85rem;
-                padding: 0.3rem 0.7rem;
-                max-width: 38%;
-            }
-            
-            .browse-toggle button {
-                padding: 4px 8px;
-                font-size: 0.7rem;
-            }
-        }
-
-        #countrySelectInput {
-            width: 100%;
-            padding: 0.7rem 1rem;
-            font-size: 1rem;
-            border-radius: 30px;
-            border: none;
-            background: #10212e;
-            color: white;
-            outline: 1px solid #3b5777;
-            font-weight: 400;
-        }
-        #countrySelectInput:focus {
-            outline: 2px solid #7fa3cc;
-        }
-
-        #countrySelect {
-            width: 100%;
-            margin-top: 8px;
-            background: #0d1c2a;
-            color: #e2eaf5;
-            border: 1px solid #315072;
-            border-radius: 24px;
-            padding: 6px;
-            font-size: 0.95rem;
-            max-height: 260px;
-        }
-        
-        #countrySelect option {
-            padding: 8px 12px;
-            border-radius: 16px;
-            background: #112433;
-            color: #f0f4fa;
-        }
-
-        .stats {
-            margin-left: auto;
-            display: flex;
-            gap: 0.8rem;
-            font-size: 0.8rem;
-            background: #0e1d2c;
-            padding: 0.3rem 1rem;
-            border-radius: 40px;
-            color: #c4dcf5;
-            border: 1px solid #2e4b6b;
-            white-space: nowrap;
-        }
-        
-        @media (max-width: 560px) {
-            .stats {
-                display: none;
-            }
-        }
-
         /* toggle modern */
         .browse-toggle {
             background: #1f3142;
@@ -241,6 +93,187 @@
             color: white;
             border-color: #b5d2ff;
             box-shadow: 0 2px 8px #00000077;
+        }
+
+        .stats {
+            margin-left: auto;
+            display: flex;
+            gap: 0.8rem;
+            font-size: 0.8rem;
+            background: #0e1d2c;
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            color: #c4dcf5;
+            border: 1px solid #2e4b6b;
+            white-space: nowrap;
+        }
+        
+        /* MODAL OVERLAY FOR SELECTOR - FIXED POSITIONING */
+        .selector-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .selector-modal {
+            background: #0f1f2e;
+            border-radius: 32px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 80vh;
+            border: 2px solid #5f7ea0;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .selector-header {
+            padding: 1.2rem;
+            border-bottom: 1px solid #3b577b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .selector-header h3 {
+            color: #f3e7d3;
+            font-size: 1.2rem;
+            margin: 0;
+        }
+        
+        .close-selector {
+            background: none;
+            border: none;
+            color: #acc4e3;
+            font-size: 1.8rem;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+        
+        .close-selector:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .selector-content {
+            padding: 1rem;
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #countrySelectInputModal {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            font-size: 1rem;
+            border-radius: 30px;
+            border: none;
+            background: #10212e;
+            color: white;
+            outline: 1px solid #3b5777;
+            font-weight: 400;
+            margin-bottom: 1rem;
+        }
+        
+        #countrySelectInputModal:focus {
+            outline: 2px solid #7fa3cc;
+        }
+        
+        #countrySelectModal {
+            width: 100%;
+            background: #0d1c2a;
+            color: #e2eaf5;
+            border: 1px solid #315072;
+            border-radius: 24px;
+            padding: 8px;
+            font-size: 1rem;
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        #countrySelectModal option {
+            padding: 12px;
+            border-radius: 16px;
+            background: #112433;
+            color: #f0f4fa;
+            cursor: pointer;
+            margin: 2px 0;
+        }
+        
+        #countrySelectModal option:hover {
+            background: #1f3a4f;
+        }
+        
+        .selector-actions {
+            padding: 1rem;
+            border-top: 1px solid #3b577b;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+        
+        .selector-actions button {
+            padding: 0.6rem 1.5rem;
+            border-radius: 40px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+        
+        .btn-cancel {
+            background: #2a3e54;
+            color: #e2eaf5;
+        }
+        
+        .btn-confirm {
+            background: #31658c;
+            color: white;
+        }
+        
+        .btn-cancel:hover, .btn-confirm:hover {
+            transform: scale(1.02);
+            filter: brightness(1.1);
+        }
+        
+        @media (max-width: 560px) {
+            .stats {
+                display: none;
+            }
+            .selector-modal {
+                max-width: 95%;
+                max-height: 85vh;
+            }
         }
 
         /* slider stage with smoother gradients */
@@ -377,7 +410,7 @@
             white-space: nowrap;
         }
 
-        /* thumbnail strip – more elegant */
+        /* thumbnail strip */
         .thumbnail-strip {
             background: #0f1b28e0;
             backdrop-filter: blur(4px);
@@ -476,20 +509,6 @@
                 max-height: calc(100vh - 300px);
             }
         }
-        
-        @media (max-width: 480px) {
-            .thumbnail {
-                width: 55px;
-                height: 50px;
-            }
-            .info-value {
-                font-size: 0.75rem;
-            }
-            .note-value {
-                font-size: 0.7rem;
-                max-width: 120px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -504,10 +523,22 @@
     <div class="stats" id="stats"><span id="totalCountries">0</span> · <span id="totalItems">0</span></div>
 </div>
 
-<!-- selector container moved outside for better mobile handling -->
-<div class="selector-container" id="selectorContainer" style="display: none;">
-    <input type="text" id="countrySelectInput" placeholder="🔍 search country..." autocomplete="off">
-    <select size="8" id="countrySelect"></select>
+<!-- MODAL OVERLAY FOR COUNTRY SELECTOR - ALWAYS VISIBLE WHEN OPEN -->
+<div id="selectorOverlay" class="selector-overlay">
+    <div class="selector-modal">
+        <div class="selector-header">
+            <h3>Select Country</h3>
+            <button class="close-selector" id="closeSelectorBtn">✕</button>
+        </div>
+        <div class="selector-content">
+            <input type="text" id="countrySelectInputModal" placeholder="🔍 search country..." autocomplete="off">
+            <select size="10" id="countrySelectModal"></select>
+        </div>
+        <div class="selector-actions">
+            <button class="btn-cancel" id="cancelSelectBtn">Cancel</button>
+            <button class="btn-confirm" id="confirmSelectBtn">Select</button>
+        </div>
+    </div>
 </div>
 
 <!-- main slider area -->
@@ -528,12 +559,12 @@
     <div class="counter" id="counter">0 / 0</div>
 </div>
 
-<!-- thumbnail strip (all images, uniform size) -->
+<!-- thumbnail strip -->
 <div class="thumbnail-strip" id="thumbnailStrip"></div>
 
 <script>
     (function() {
-        // ========== UTILITY: proper case for country names
+        // UTILITY: proper case for country names
         function toTitleCase(str) {
             if (!str) return '';
             return str.split(' ').map(word => {
@@ -542,7 +573,7 @@
             }).join(' ');
         }
 
-        // ---------- GLOBALS ----------
+        // GLOBALS
         let allCoins = [];
         let countries = [];
         let currentCountry = null;
@@ -553,9 +584,9 @@
 
         // UI elements
         const displayLabel = document.getElementById('countryDisplayLabel');
-        const selectorContainer = document.getElementById('selectorContainer');
-        const selectInput = document.getElementById('countrySelectInput');
-        const selectEl = document.getElementById('countrySelect');
+        const selectorOverlay = document.getElementById('selectorOverlay');
+        const selectInputModal = document.getElementById('countrySelectInputModal');
+        const selectModal = document.getElementById('countrySelectModal');
         const totalCountriesSpan = document.getElementById('totalCountries');
         const totalItemsSpan = document.getElementById('totalItems');
         const donorSpan = document.getElementById('donorName');
@@ -570,46 +601,61 @@
         const thumbnailStrip = document.getElementById('thumbnailStrip');
         const modeCountryBtn = document.getElementById('modeCountry');
         const modeGlobalBtn = document.getElementById('modeGlobal');
+        const closeSelectorBtn = document.getElementById('closeSelectorBtn');
+        const cancelSelectBtn = document.getElementById('cancelSelectBtn');
+        const confirmSelectBtn = document.getElementById('confirmSelectBtn');
 
         // touch vars
         let touchStartX = 0;
         let touchEndX = 0;
         const minSwipeDistance = 50;
         
-        function closeSelector(applySelection = true) {
-            if (selectorContainer.style.display !== 'block') return;
-            if (applySelection) {
-                const selectedOption = selectEl.options[selectEl.selectedIndex];
-                if (selectedOption && selectedOption.value && activeMode === 'country') {
-                    if (selectedOption.value !== currentCountry) {
-                        switchCountry(selectedOption.value);
-                    } else {
-                        displayLabel.textContent = currentCountry;
-                    }
-                }
-            }
-            selectorContainer.style.display = 'none';
-            displayLabel.style.display = 'inline-block';
-            if (window.innerWidth <= 680) {
-                document.body.style.overflow = '';
-            }
-        }
+        let selectedCountryTemp = null;
         
         function openSelector() {
-            displayLabel.style.display = 'none';
-            selectorContainer.style.display = 'block';
-            selectInput.value = '';
-            filterSelectOptions('');
-            selectInput.focus();
-            for (let i = 0; i < selectEl.options.length; i++) {
-                if (selectEl.options[i].value === currentCountry) {
-                    selectEl.selectedIndex = i;
-                    break;
+            // Populate modal select
+            selectModal.innerHTML = '';
+            countries.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = c;
+                if (c === currentCountry) opt.selected = true;
+                selectModal.appendChild(opt);
+            });
+            selectedCountryTemp = currentCountry;
+            selectInputModal.value = '';
+            filterSelectModalOptions('');
+            selectorOverlay.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            selectInputModal.focus();
+        }
+        
+        function closeSelector() {
+            selectorOverlay.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+        
+        function filterSelectModalOptions(filterText) {
+            const term = filterText.trim().toLowerCase();
+            const options = selectModal.options;
+            let firstMatchIndex = -1;
+            for (let i = 0; i < options.length; i++) {
+                const opt = options[i];
+                const matches = term === '' || opt.value.toLowerCase().includes(term);
+                opt.style.display = matches ? '' : 'none';
+                if (matches && firstMatchIndex === -1) firstMatchIndex = i;
+            }
+            if (firstMatchIndex !== -1) selectModal.selectedIndex = firstMatchIndex;
+        }
+        
+        function confirmSelection() {
+            const selectedOption = selectModal.options[selectModal.selectedIndex];
+            if (selectedOption && selectedOption.value && activeMode === 'country') {
+                if (selectedOption.value !== currentCountry) {
+                    switchCountry(selectedOption.value);
                 }
             }
-            if (window.innerWidth <= 680) {
-                document.body.style.overflow = 'hidden';
-            }
+            closeSelector();
         }
 
         async function loadData() {
@@ -636,7 +682,6 @@
 
                 currentCountry = countries[0];
                 switchCountry(currentCountry);
-                populateSelect(countries);
                 setActiveMode('country');
 
             } catch (e) {
@@ -644,29 +689,6 @@
                 displayLabel.textContent = '⚠️ error';
                 imageFrame.innerHTML = `<div style="color:#ccc; padding:2rem;">failed to load coins.json<br>check console</div>`;
             }
-        }
-
-        function populateSelect(countryList) {
-            selectEl.innerHTML = '';
-            countryList.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c;
-                opt.textContent = c;
-                selectEl.appendChild(opt);
-            });
-        }
-
-        function filterSelectOptions(filterText) {
-            const term = filterText.trim().toLowerCase();
-            const options = selectEl.options;
-            let firstMatchIndex = -1;
-            for (let i = 0; i < options.length; i++) {
-                const opt = options[i];
-                const matches = term === '' || opt.value.toLowerCase().includes(term);
-                opt.style.display = matches ? '' : 'none';
-                if (matches && firstMatchIndex === -1) firstMatchIndex = i;
-            }
-            if (firstMatchIndex !== -1) selectEl.selectedIndex = firstMatchIndex;
         }
 
         function switchCountry(countryName) {
@@ -819,50 +841,41 @@
             e.stopPropagation();
             openSelector();
         });
-
-        function commitCountrySelectionAndClose() {
-            if (selectorContainer.style.display !== 'block') return;
-            const selectedOption = selectEl.options[selectEl.selectedIndex];
-            if (selectedOption && selectedOption.value && activeMode === 'country') {
-                if (selectedOption.value !== currentCountry) {
-                    switchCountry(selectedOption.value);
-                } else {
-                    displayLabel.textContent = currentCountry;
-                }
+        
+        closeSelectorBtn.addEventListener('click', closeSelector);
+        cancelSelectBtn.addEventListener('click', closeSelector);
+        confirmSelectBtn.addEventListener('click', confirmSelection);
+        
+        selectInputModal.addEventListener('input', (e) => filterSelectModalOptions(e.target.value));
+        
+        selectModal.addEventListener('change', () => {
+            // Update temp selection
+            const selected = selectModal.options[selectModal.selectedIndex];
+            if (selected) selectedCountryTemp = selected.value;
+        });
+        
+        selectModal.addEventListener('dblclick', () => {
+            confirmSelection();
+        });
+        
+        // Click outside modal to close
+        selectorOverlay.addEventListener('click', (e) => {
+            if (e.target === selectorOverlay) {
+                closeSelector();
             }
-            selectorContainer.style.display = 'none';
-            displayLabel.style.display = 'inline-block';
-            if (window.innerWidth <= 680) document.body.style.overflow = '';
-        }
-
-        selectInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
+        });
+        
+        // Keyboard handling
+        document.addEventListener('keydown', (e) => {
+            if (selectorOverlay.style.display !== 'flex') return;
+            if (e.key === 'Escape') {
                 e.preventDefault();
-                commitCountrySelectionAndClose();
-            } else if (e.key === 'Escape') {
+                closeSelector();
+            } else if (e.key === 'Enter') {
                 e.preventDefault();
-                selectorContainer.style.display = 'none';
-                displayLabel.style.display = 'inline-block';
-                if (window.innerWidth <= 680) document.body.style.overflow = '';
+                confirmSelection();
             }
         });
-
-        selectInput.addEventListener('input', (e) => filterSelectOptions(e.target.value));
-        
-        selectEl.addEventListener('change', () => {
-            if (selectorContainer.style.display === 'block') {
-                commitCountrySelectionAndClose();
-            }
-        });
-        
-        document.addEventListener('click', function(e) {
-            if (selectorContainer.style.display !== 'block') return;
-            if (!selectorContainer.contains(e.target) && e.target !== displayLabel) {
-                commitCountrySelectionAndClose();
-            }
-        });
-        
-        selectInput.addEventListener('touchstart', (e) => e.stopPropagation());
 
         modeCountryBtn.addEventListener('click', () => {
             if (activeMode === 'country') return;
@@ -892,7 +905,7 @@
         }, {passive: true});
 
         window.addEventListener('keydown', (e) => {
-            if (selectorContainer.style.display === 'block') return;
+            if (selectorOverlay.style.display === 'flex') return;
             if (e.key === 'ArrowLeft') { e.preventDefault(); prevImage(); }
             else if (e.key === 'ArrowRight') { e.preventDefault(); nextImage(); }
         });
