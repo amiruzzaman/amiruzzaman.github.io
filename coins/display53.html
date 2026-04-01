@@ -2586,17 +2586,6 @@
             }
         }
     </style>
-	<style>
-	/* Donor name styling - with high specificity */
-.donor-name,
-#donor-name-container .donor-name,
-span.donor-name {
-    color: #F2F5FA !important;
-    font-weight: bold;
-    font-size: 1.1em;
-    text-shadow: none;
-}
-	</style>
 </head>
 
 <body>
@@ -2644,10 +2633,7 @@ span.donor-name {
                             </div>
                             <div class="details-section">
                                 <button class="details-toggle">
-                                    <!--<span><i class="fas fa-info-circle"></i> Coin Details ${safeVal(donor) || "Unknown"}</span>-->
-									<span id="donor-name-container">
-										<i class="fas fa-info-circle"></i>  
-									</span>
+                                    <span><i class="fas fa-info-circle"></i> Coin Details</span>
                                     <i class="fas fa-chevron-down"></i>
                                 </button>
                                 <div class="details-content" id="current-image-note"></div>
@@ -2953,15 +2939,7 @@ span.donor-name {
             const image = document.getElementById("current-image-img");
             const noteElement = document.getElementById("current-image-note");
             const countryFlagElement = document.getElementById("country-flag");
-			
-			
-	// FIX: Clear the container first, then set the content with different colors
-    const nameSpan = document.getElementById('donor-name-container');
-    const donorValue = safeVal(donor) || "Unknown";
-    
-    // Clear existing content while keeping the icon
-    nameSpan.innerHTML = '<i class="fas fa-info-circle"></i> Coin details (donor: <span style="color: #eb4034 !important; font-weight: bold;">' + donorValue + '</span>)';
-			
+
             currentImageIndex = index;
 
             // Use a temporary image to preload and ensure smooth transition
