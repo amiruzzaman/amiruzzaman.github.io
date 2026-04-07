@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="#">
+
+    <title>Grading Rubric Tool - Ol Spring2026 (sidebar right, content left)</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --text-color: #2c3e50;
+            --text-light: #7f8c8d;
+            --border-color: #dfe6e9;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #f8fafc;
+            min-height: 100vh;
+            padding-top: 40px;
+        }
+
+        .progress-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        .progress-container {
+            flex-grow: 1;
+            height: 20px;
+            background-color: #f1f1f1;
+            border-radius: 10px;
+            margin: 0 15px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-weight: bold;
+            min-width: 100px;
+            text-align: right;
+        }
+
+        /* ===== SIDE PANEL: fixed to right, does NOT cover text ===== */
+        .side-summary-panel {
+            position: fixed;
+            top: 60px;
+            /* below progress header */
+            right: 20px;
+            width: 300px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+            padding: 20px 18px;
+            z-index: 900;
+            border: 1px solid var(--border-color);
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+            font-size: 14px;
+        }
+
+        .side-summary-panel h4 {
+            margin: 0 0 15px 0;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 8px;
+            color: var(--secondary-color);
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .section-total-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 10px;
+            background: #f9f9fc;
+            border-radius: 6px;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .section-total-item:hover {
+            background-color: #e3f2fd;
+            transform: translateX(-2px);
+        }
+
+        .section-label {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .section-score {
+            font-weight: 700;
+            background: white;
+            padding: 2px 12px;
+            border-radius: 20px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .grand-total-row {
+            margin-top: 15px;
+            padding-top: 12px;
+            border-top: 2px dashed var(--primary-color);
+            display: flex;
+            justify-content: space-between;
+            font-weight: 800;
+            font-size: 1.1em;
+            color: var(--secondary-color);
+        }
+
+        /* ===== MAIN CONTAINER: leaves permanent space on the RIGHT for the fixed sidebar ===== */
+        #container {
+            width: calc(100% - 360px);
+            /* 300px sidebar + 60px breathing room */
+            max-width: 1100px;
+            margin: 20px 340px 30px 20px;
+            /* top right bottom left: right margin = sidebar width + gap */
+            padding: 30px 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            box-sizing: border-box;
+        }
+
+        /* On narrower screens, hide sidebar (optional) */
+        @media (max-width: 1300px) {
+            .side-summary-panel {
+                display: none;
+            }
+
+            #container {
+                width: 90%;
+                margin: 30px auto;
+            }
+
+            .total-score-display {
+                right: 20px !important;
+            }
+        }
+
+        #notice {
+            width: calc(100% - 360px);
+            max-width: 1100px;
+            margin: 20px 20px 20px 20px;
+            padding: 15px 20px;
+            background-color: var(--light-color);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 6px;
+            color: var(--text-color);
+            font-size: 15px;
+            box-shadow: 0 2px 5px var(--shadow-color);
+            box-sizing: border-box;
+        }
+
+        /* Total score display: move left enough to avoid covering */
+        .total-score-display {
+            position: fixed;
+            top: 50px;
+            right: 340px;
+            /* just left of side panel */
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: bold;
+            z-index: 1001;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+
+        table {
+            width: 100%;
+            max-width: 800px;
+            margin: 25px auto;
+            border-collapse: collapse;
+            box-shadow: 0 2px 10px var(--shadow-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 14px 18px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--secondary-color);
+            color: white;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        .part-container {
+            margin-bottom: 35px;
+            padding: 25px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--primary-color);
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+
+        .part-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .section-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .section-button.select-yes {
+            background-color: #e3f9e5;
+            color: var(--success-color);
+            border: 1px solid #c8e6c9;
+        }
+
+        .section-button.select-yes:hover {
+            background-color: #c8e6c9;
+        }
+
+        .section-button.select-no {
+            background-color: #ffebee;
+            color: var(--danger-color);
+            border: 1px solid #ffcdd2;
+        }
+
+        .section-button.select-no:hover {
+            background-color: #ffcdd2;
+        }
+
+        .section-button.next-section {
+            background-color: var(--primary-color);
+            color: white;
+            display: none;
+        }
+
+        .section-button.next-section:hover {
+            background-color: #2980b9;
+        }
+
+        .section-button.top-button {
+            background-color: var(--secondary-color);
+            color: white;
+            display: none;
+        }
+
+        .section-button.top-button:hover {
+            background-color: #1e2b37;
+        }
+
+        .section-button.bottom-button {
+            background-color: #34495e;
+            color: white;
+            display: none;
+        }
+
+        .section-button.bottom-button:hover {
+            background-color: #2c3e50;
+        }
+
+        .section-complete {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+
+        .student-name-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+        }
+
+        .student-name-input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .welcome-message {
+            background-color: #e8f4fd;
+            border-left: 4px solid var(--primary-color);
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .overall-summary-section {
+            margin-top: 40px;
+            padding: 25px;
+            background-color: #f8fafc;
+            border-radius: 10px;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .overall-summary-section h3 {
+            color: var(--secondary-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .summary-input-group {
+            margin-bottom: 20px;
+        }
+
+        .summary-input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .summary-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            min-height: 100px;
+            resize: vertical;
+            transition: all 0.2s;
+        }
+
+        .summary-textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .problem-container {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+
+        h3 {
+            color: var(--secondary-color);
+            margin-top: 0;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        h4 {
+            color: var(--dark-color);
+            margin: 20px 0 15px 0;
+            font-size: 1.25em;
+            font-weight: 500;
+        }
+
+        .item-container {
+            display: flex;
+            margin-bottom: 15px;
+            align-items: center;
+            background: white;
+            padding: 12px 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .item-container:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        .item-yes,
+        .item-no {
+            padding: 12px 15px;
+            margin: 0 8px;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            flex: 1;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .item-yes {
+            background-color: #f8fafc;
+            color: var(--success-color);
+        }
+
+        .item-no {
+            background-color: #f8fafc;
+            color: var(--danger-color);
+        }
+
+        .item-yes.selected {
+            background-color: #e3f9e5;
+            border-color: #c8e6c9;
+            color: var(--success-color);
+        }
+
+        .item-no.selected {
+            background-color: #ffebee;
+            border-color: #ffcdd2;
+            color: var(--danger-color);
+        }
+
+        .item-score {
+            width: 60px;
+            text-align: center;
+            font-weight: bold;
+            margin-left: 15px;
+            font-size: 16px;
+            padding: 10px;
+            background: #f8fafc;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s;
+        }
+
+        .sub-total-score {
+            font-weight: bold;
+            font-size: 17px;
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: var(--light-color);
+            border-radius: 8px;
+            text-align: right;
+            color: var(--dark-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .save-button {
+            padding: 14px 28px 14px 20px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 30px 0 15px 0;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .save-button::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.3) 100%);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .save-button:hover::before {
+            transform: translateX(100%);
+        }
+
+        .save-button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .save-button.ready {
+            background-color: var(--success-color);
+        }
+
+        .save-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .reset-button {
+            padding: 14px 28px 14px 20px;
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px auto;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reset-button:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        #paraID {
+            width: 100%;
+            max-width: 1000px;
+            margin: 25px auto;
+            padding: 18px;
+            font-size: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            resize: vertical;
+            min-height: 180px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            background-color: #f8fafc;
+            line-height: 1.5;
+        }
+
+        #edit-box {
+            visibility: hidden;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 500px;
+            max-width: 90vw;
+            border-radius: 12px;
+        }
+
+        #edit-text {
+            width: 100%;
+            min-height: 140px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            resize: vertical;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        #edit-score {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        #edit-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        #edit-buttons button {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            flex: 1;
+            min-width: 100px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        #edit-clear {
+            background-color: var(--light-color);
+            color: var(--text-color);
+        }
+
+        #edit-zero {
+            background-color: #fef9e7;
+            color: #b7950b;
+        }
+
+        #edit-cancel {
+            background-color: #fdedec;
+            color: var(--danger-color);
+        }
+
+        #edit-save {
+            background-color: #e8f8f5;
+            color: var(--success-color);
+        }
+
+        #overlay {
+            visibility: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            backdrop-filter: blur(4px);
+        }
+
+        .unselected-highlight {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 152, 0, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 152, 0, 0);
+            }
+        }
+
+        .copy-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px auto;
+            max-width: 1000px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .copy-button {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .copy-button:hover {
+            background-color: #2980b9;
+        }
+
+        .copy-message {
+            width: 100%;
+            padding: 12px 20px;
+            border-radius: 6px;
+            margin: 10px auto;
+            max-width: 1000px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        .copy-feedback-message {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+            border-left: 4px solid #2196f3;
+        }
+
+        .copy-scores-message {
+            background-color: #e8f5e9;
+            color: #1b5e20;
+            border-left: 4px solid #4caf50;
+        }
+
+        .additional-comment-container {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px dashed var(--border-color);
+        }
+
+        .additional-comment-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .additional-comment-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .checkbox-container {
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .reset-button {
+            margin-top: 30px;
+        }
+
+        .section-total-item.completed {
+            background-color: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            transition: all 0.3s ease;
+        }
+
+        .section-total-item.completed .section-score {
+            background-color: #4caf50;
+            color: white;
+            font-weight: bold;
+        }
+
+        @keyframes completePulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.02);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .section-total-item.completed {
+            animation: completePulse 0.5s ease;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="progress-header">
+        <div>Grading Progress:</div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="progress-text" id="progressText">0% (0/<span id="maxScoreDisplay">105</span>)</div>
+    </div>
+
+    <div class="total-score-display" id="totalScoreDisplay">Total: 0/<span id="totalMaxScore">105</span></div>
+
+    <div class="side-summary-panel" id="sideSummaryPanel">
+        <h4>📋 Section Scores (Click to jump)</h4>
+        <div id="sectionTotalsList"></div>
+        <div class="grand-total-row">
+            <span>Grand total</span>
+            <span id="grandTotalValue">0/105</span>
+        </div>
+    </div>
+
+    <p id="notice">Click to select "Yes" (green) or "No" (red) for each item. Double‑click any item to edit. "No"
+        selections can be adjusted. Click on section letters in the right panel to jump directly to that section.</p>
+
+    <div id="container"></div>
+
+    <div id="edit-box">
+        <textarea id="edit-text"></textarea>
+        <div id="edit-score-container">
+            <label for="edit-score">Score (Max: <span id="edit-max-score">0</span>)</label>
+            <input id="edit-score" type="number" min="0" />
+        </div>
+        <div id="edit-buttons">
+            <button id="edit-clear">Clear Comment</button>
+            <button id="edit-zero">Set to 0</button>
+            <button id="edit-cancel">Cancel</button>
+            <button id="edit-save">Save</button>
+        </div>
+    </div>
+    <div id="overlay"></div>
+    <script>
+        (function () {
+            let selectedItem = null;
+            const maxPossibleScore = 100;
+            let saveButton;
+            let resetButton;
+            let subTotalMaxScores = [];
+            let subTotalEarnedScores = [];
+            let allItems = [];
+            let jsonData = {};
+            let originalItemTexts = {};
+            let additionalComments = {};
+            let studentName = '';
+            let rubricData = {};
+            let partOrder = [];
+
+            function updateMaxScoreDisplays() {
+                const maxScoreDisplay = document.getElementById('maxScoreDisplay');
+                const totalMaxScore = document.getElementById('totalMaxScore');
+                if (maxScoreDisplay) maxScoreDisplay.textContent = maxPossibleScore;
+                if (totalMaxScore) totalMaxScore.textContent = maxPossibleScore;
+            }
+
+            function copySectionScores(partKey) {
+                const partContainer = document.getElementById(`part-${partKey}`);
+                if (!partContainer) return;
+                const problems = partContainer.querySelectorAll('.problem-container');
+                let sectionScores = [];
+                problems.forEach(problem => {
+                    const items = problem.querySelectorAll('.item-container');
+                    items.forEach(item => {
+                        const score = item.querySelector('.item-score').textContent;
+                        sectionScores.push(score);
+                    });
+                });
+                const scoresText = sectionScores.join('\t');
+                navigator.clipboard.writeText(scoresText).then(() => {
+                    const msg = document.createElement('div');
+                    msg.className = 'copy-message copy-scores-message';
+                    msg.textContent = `✓ Section ${partKey} scores copied to clipboard!`;
+                    msg.style.display = 'block';
+                    document.querySelector('.section-copy-buttons').parentNode.insertBefore(msg, document.querySelector('.section-copy-buttons'));
+                    setTimeout(() => msg.remove(), 3000);
+                }).catch(() => alert(`Failed to copy section ${partKey} scores`));
+            }
+
+            function updateSectionCopyButtons() {
+                const partContainers = document.querySelectorAll('.part-container');
+                const buttonContainer = document.getElementById('section-copy-buttons');
+                if (!buttonContainer) return;
+                let buttonsHtml = '';
+                partContainers.forEach((partContainer) => {
+                    const h3 = partContainer.querySelector('h3');
+                    if (!h3) return;
+                    const title = h3.textContent;
+                    const partKey = title.split(':')[0].trim();
+                    const isComplete = areSectionItemsSelected(partContainer);
+                    if (isComplete) {
+                        buttonsHtml += `<button class="copy-button section-copy-btn" data-section="${partKey}" style="background-color: var(--success-color); margin: 0 5px;">📋 Copy ${partKey}</button>`;
+                    }
+                });
+                if (buttonsHtml) {
+                    buttonContainer.innerHTML = buttonsHtml;
+                    buttonContainer.style.display = 'flex';
+                    document.querySelectorAll('.section-copy-btn').forEach(btn => {
+                        btn.addEventListener('click', function () {
+                            const section = this.getAttribute('data-section');
+                            copySectionScores(section);
+                        });
+                    });
+                } else {
+                    buttonContainer.style.display = 'none';
+                }
+            }
+
+            function scrollToSectionByKey(partKey) {
+                const targetSection = document.getElementById(`part-${partKey}`);
+                if (targetSection) {
+                    const headerOffset = 60;
+                    const elementPosition = targetSection.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                    window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                    targetSection.style.transition = 'box-shadow 0.3s ease';
+                    targetSection.style.boxShadow = '0 0 0 4px var(--primary-color)';
+                    setTimeout(() => { targetSection.style.boxShadow = ''; }, 1500);
+                }
+            }
+
+            function updateProgressBar() {
+                let totalConsidered = 0;
+                allItems.forEach(item => {
+                    if (item.yes.classList.contains('selected') || item.no.classList.contains('selected')) {
+                        totalConsidered += parseInt(item.maxScore);
+                    }
+                });
+                const percentage = Math.round((totalConsidered / maxPossibleScore) * 100);
+                document.getElementById("progressBar").style.width = percentage + "%";
+                document.getElementById("progressText").innerHTML = `${percentage}% (${totalConsidered}/<span id="maxScoreDisplay">${maxPossibleScore}</span>)`;
+            }
+
+            function updateSideSummaryPanel() {
+                const panelList = document.getElementById('sectionTotalsList');
+                if (!panelList) return;
+                const partContainers = document.querySelectorAll('.part-container');
+                let html = '';
+                let grandTotal = 0;
+                partContainers.forEach((partContainer) => {
+                    const h3 = partContainer.querySelector('h3');
+                    if (!h3) return;
+                    const title = h3.textContent;
+                    const partKey = title.split(':')[0].trim();
+                    let partEarned = 0;
+                    const problems = partContainer.querySelectorAll('.problem-container');
+                    problems.forEach(problem => {
+                        const items = problem.querySelectorAll('.item-container');
+                        items.forEach(item => {
+                            const score = item.querySelector('.item-score').textContent;
+                            partEarned += parseInt(score) || 0;
+                        });
+                    });
+                    let partMax = 5;
+                    if (partKey !== 'EC') {
+                        partMax = 0;
+                        problems.forEach(problem => {
+                            const items = problem.querySelectorAll('.item-container');
+                            items.forEach(item => {
+                                const yes = item.querySelector('.item-yes');
+                                partMax += parseInt(yes.getAttribute('data-max') || 0);
+                            });
+                        });
+                    }
+                    grandTotal += partEarned;
+                    const isSectionComplete = areSectionItemsSelected(partContainer);
+                    html += `<div class="section-total-item" data-section-key="${partKey}" style="${isSectionComplete ? 'background-color: #e8f5e9; border-left: 4px solid #4caf50;' : ''}">
+                        <span class="section-label">${partKey}${isSectionComplete ? ' ✓' : ''}</span>
+                        <span class="section-score" style="${isSectionComplete ? 'background-color: #4caf50; color: white;' : ''}">${partEarned}/${partMax}</span>
+                    </div>`;
+                });
+                panelList.innerHTML = html;
+                const grandTotalValue = document.getElementById('grandTotalValue');
+                if (grandTotalValue) grandTotalValue.innerHTML = `${grandTotal}/${maxPossibleScore}`;
+                document.querySelectorAll('.section-total-item').forEach(el => {
+                    const sectionKey = el.getAttribute('data-section-key');
+                    if (sectionKey) {
+                        el.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            scrollToSectionByKey(sectionKey);
+                        });
+                    }
+                });
+                updateSectionCopyButtons();
+            }
+
+            function highlightSection(partContainer, isComplete) {
+                if (isComplete) {
+                    partContainer.style.borderLeft = '6px solid var(--success-color)';
+                    partContainer.style.backgroundColor = '#f0fff4';
+                    const h3 = partContainer.querySelector('h3');
+                    if (h3 && !h3.querySelector('.complete-badge')) {
+                        const badge = document.createElement('span');
+                        badge.className = 'complete-badge';
+                        badge.style.marginLeft = '10px';
+                        badge.style.color = 'var(--success-color)';
+                        badge.style.fontSize = '0.9em';
+                        badge.innerHTML = ' ✓ Complete';
+                        h3.appendChild(badge);
+                    }
+                } else {
+                    partContainer.style.borderLeft = '4px solid var(--primary-color)';
+                    partContainer.style.backgroundColor = '#fff';
+                    const badge = partContainer.querySelector('.complete-badge');
+                    if (badge) badge.remove();
+                }
+            }
+
+            function areSectionItemsSelected(partContainer) {
+                const items = partContainer.querySelectorAll('.item-container');
+                for (let item of items) {
+                    const yes = item.querySelector('.item-yes');
+                    const no = item.querySelector('.item-no');
+                    if (!yes.classList.contains('selected') && !no.classList.contains('selected')) return false;
+                }
+                return true;
+            }
+
+            function updateSectionNavigation() {
+                const partContainers = document.querySelectorAll('.part-container');
+                partContainers.forEach((partContainer, index) => {
+                    const nextBtn = partContainer.querySelector('.next-section');
+                    const topBtn = partContainer.querySelector('.top-button');
+                    const bottomBtn = partContainer.querySelector('.bottom-button');
+                    const isComplete = areSectionItemsSelected(partContainer);
+                    highlightSection(partContainer, isComplete);
+                    if (isComplete) {
+                        if (nextBtn) { nextBtn.style.display = 'inline-block'; nextBtn.style.opacity = '1'; nextBtn.style.pointerEvents = 'auto'; }
+                        if (topBtn) { topBtn.style.display = 'inline-block'; topBtn.style.opacity = '1'; topBtn.style.pointerEvents = 'auto'; }
+                        if (bottomBtn) { bottomBtn.style.display = 'inline-block'; bottomBtn.style.opacity = '1'; bottomBtn.style.pointerEvents = 'auto'; }
+                    } else {
+                        if (nextBtn) { nextBtn.style.display = 'none'; nextBtn.style.opacity = '0.5'; nextBtn.style.pointerEvents = 'none'; }
+                        if (topBtn) { topBtn.style.display = 'none'; topBtn.style.opacity = '0.5'; topBtn.style.pointerEvents = 'none'; }
+                        if (bottomBtn) { bottomBtn.style.display = 'none'; bottomBtn.style.opacity = '0.5'; bottomBtn.style.pointerEvents = 'none'; }
+                    }
+                });
+                updateSideSummaryPanel();
+            }
+
+            function scrollToSection(targetIndex) {
+                const partContainers = document.querySelectorAll('.part-container');
+                if (targetIndex >= 0 && targetIndex < partContainers.length) {
+                    const targetSection = partContainers[targetIndex];
+                    const headerOffset = 60;
+                    const elementPosition = targetSection.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                    window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                    targetSection.style.transition = 'box-shadow 0.3s ease';
+                    targetSection.style.boxShadow = '0 0 0 4px var(--primary-color)';
+                    setTimeout(() => { targetSection.style.boxShadow = ''; }, 1500);
+                } else if (targetIndex === partContainers.length) {
+                    const summarySection = document.querySelector('.overall-summary-section');
+                    if (summarySection) {
+                        const headerOffset = 60;
+                        const elementPosition = summarySection.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                        window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                    } else { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
+                }
+            }
+
+            function selectAllYes(partContainer) {
+                const isEC = partContainer.id.includes('EC');
+                const items = partContainer.querySelectorAll('.item-container');
+                if (isEC) {
+                    items.forEach((item, index) => {
+                        const yes = item.querySelector('.item-yes');
+                        const no = item.querySelector('.item-no');
+                        const score = item.querySelector('.item-score');
+                        if (index === 0) {
+                            yes.classList.add('selected');
+                            no.classList.remove('selected');
+                            score.textContent = yes.getAttribute('data-max');
+                            score.style.color = 'green';
+                        } else {
+                            no.classList.add('selected');
+                            yes.classList.remove('selected');
+                            score.textContent = '0';
+                            score.style.color = 'red';
+                        }
+                    });
+                } else {
+                    items.forEach(item => {
+                        const yes = item.querySelector('.item-yes');
+                        const no = item.querySelector('.item-no');
+                        const score = item.querySelector('.item-score');
+                        if (!yes.classList.contains('selected')) {
+                            yes.classList.add('selected');
+                            no.classList.remove('selected');
+                            score.textContent = yes.getAttribute('data-max');
+                            score.style.color = 'green';
+                        }
+                    });
+                }
+                updateAllScores();
+                updateSaveButtonState();
+                updateSectionNavigation();
+                const partContainers = document.querySelectorAll('.part-container');
+                const currentIndex = Array.from(partContainers).indexOf(partContainer);
+                setTimeout(() => { scrollToSection(currentIndex + 1); }, 500);
+            }
+
+            function selectAllNo(partContainer) {
+                const items = partContainer.querySelectorAll('.item-container');
+                items.forEach(item => {
+                    const yes = item.querySelector('.item-yes');
+                    const no = item.querySelector('.item-no');
+                    const score = item.querySelector('.item-score');
+                    if (!no.classList.contains('selected')) {
+                        no.classList.add('selected');
+                        yes.classList.remove('selected');
+                        score.textContent = '0';
+                        score.style.color = 'red';
+                    }
+                });
+                updateAllScores();
+                updateSaveButtonState();
+                updateSectionNavigation();
+                const partContainers = document.querySelectorAll('.part-container');
+                const currentIndex = Array.from(partContainers).indexOf(partContainer);
+                setTimeout(() => { scrollToSection(currentIndex + 1); }, 500);
+            }
+
+            function allItemsSelected() {
+                return allItems.every(item => item.yes.classList.contains('selected') || item.no.classList.contains('selected'));
+            }
+
+            function findAndScrollToFirstUnselected() {
+                for (let item of allItems) {
+                    if (!item.yes.classList.contains('selected') && !item.no.classList.contains('selected')) {
+                        item.container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        item.container.classList.add('unselected-highlight');
+                        setTimeout(() => { item.container.classList.remove('unselected-highlight'); }, 2000);
+                        return item.container;
+                    }
+                }
+                return null;
+            }
+
+            function updateSaveButtonState() {
+                if (saveButton) {
+                    const allSelected = allItemsSelected();
+                    saveButton.disabled = !allSelected;
+                    if (allSelected) {
+                        saveButton.classList.add('ready');
+                        saveButton.title = "All items selected - ready to save!";
+                    } else {
+                        saveButton.classList.remove('ready');
+                        saveButton.title = "Please select all items (Yes or No) before saving";
+                    }
+                }
+            }
+
+            function updateAllScores() {
+                let totalEarned = 0;
+                subTotalEarnedScores = new Array(subTotalMaxScores.length).fill(0);
+                const problemContainers = document.querySelectorAll('.problem-container');
+                problemContainers.forEach((problem, index) => {
+                    let problemEarned = 0;
+                    const items = problem.querySelectorAll('.item-container');
+                    items.forEach(item => { problemEarned += parseInt(item.querySelector('.item-score').textContent) || 0; });
+                    const subTotalDiv = problem.querySelector('.sub-total-score');
+                    if (subTotalDiv) subTotalDiv.textContent = `${problemEarned}/${subTotalMaxScores[index]}`;
+                    if (index < subTotalEarnedScores.length) subTotalEarnedScores[index] = problemEarned;
+                    totalEarned += problemEarned;
+                });
+                document.getElementById('totalScoreDisplay').innerHTML = `Total: ${totalEarned}/<span id="totalMaxScore">${maxPossibleScore}</span>`;
+                updateProgressBar();
+                updateSectionNavigation();
+                updateSideSummaryPanel();
+            }
+
+            function resetAllSelections() {
+                allItems.forEach(item => {
+                    item.yes.classList.remove('selected');
+                    item.no.classList.remove('selected');
+                    item.score.textContent = '0';
+                    item.score.style.color = '';
+                    if (originalItemTexts[item.yes.id]) item.yes.textContent = originalItemTexts[item.yes.id];
+                    if (originalItemTexts[item.no.id]) item.no.textContent = originalItemTexts[item.no.id];
+                });
+                document.querySelectorAll('.sub-total-score').forEach(div => { const index = div.getAttribute('data-index'); if (index !== null) div.textContent = `0/${subTotalMaxScores[index] || 0}`; });
+                document.getElementById('totalScoreDisplay').innerHTML = `Total: 0/<span id="totalMaxScore">${maxPossibleScore}</span>`;
+                updateProgressBar();
+                updateSaveButtonState();
+                updateSectionNavigation();
+                updateSideSummaryPanel();
+                document.getElementById('paraID').value = '';
+                const tableDiv = document.getElementById('json-table');
+                if (tableDiv) tableDiv.remove();
+                document.querySelectorAll('.copy-message').forEach(msg => msg.remove());
+            }
+
+            function editItem() {
+                const editBox = document.getElementById('edit-box');
+                const editText = document.getElementById('edit-text');
+                const editScore = document.getElementById('edit-score');
+                const editMaxScore = document.getElementById('edit-max-score');
+                const overlay = document.getElementById('overlay');
+                const maxScore = selectedItem.classList.contains('item-yes') ? selectedItem.getAttribute('data-max') : selectedItem.closest('.item-container').querySelector('.item-yes').getAttribute('data-max');
+                editText.value = selectedItem.textContent;
+                editScore.value = selectedItem.closest('.item-container').querySelector('.item-score').textContent;
+                editScore.max = maxScore;
+                editMaxScore.textContent = maxScore;
+                editBox.style.visibility = 'visible';
+                overlay.style.visibility = 'visible';
+            }
+
+            function renderProblem(container, problems, groupIndex) {
+                let problemMax = 0;
+                problems.forEach(problem => { problemMax += parseInt(problem.point); });
+                subTotalMaxScores[groupIndex] = problemMax;
+                subTotalEarnedScores[groupIndex] = 0;
+                const subTotalDiv = document.createElement('div');
+                subTotalDiv.classList.add('sub-total-score');
+                subTotalDiv.setAttribute('data-index', groupIndex);
+                subTotalDiv.textContent = `0/${problemMax}`;
+                container.appendChild(subTotalDiv);
+                problems.forEach((problem, index) => {
+                    const { yes, no, point } = problem;
+                    const itemContainer = document.createElement('div');
+                    itemContainer.classList.add('item-container');
+                    const itemYes = document.createElement('div');
+                    itemYes.classList.add('item-yes');
+                    itemYes.setAttribute('data-max', point);
+                    itemYes.textContent = yes;
+                    itemYes.id = `item-yes-${groupIndex}-${index}`;
+                    originalItemTexts[itemYes.id] = yes;
+                    const itemNo = document.createElement('div');
+                    itemNo.classList.add('item-no');
+                    itemNo.setAttribute('data-max', point);
+                    itemNo.textContent = no;
+                    itemNo.id = `item-no-${groupIndex}-${index}`;
+                    originalItemTexts[itemNo.id] = no;
+                    const itemScore = document.createElement('div');
+                    itemScore.classList.add('item-score');
+                    itemScore.textContent = '0';
+                    const itemData = { container: itemContainer, yes: itemYes, no: itemNo, score: itemScore, maxScore: point };
+                    allItems.push(itemData);
+                    [itemYes, itemNo].forEach(item => {
+                        item.addEventListener('click', function () {
+                            if (!this.classList.contains('selected')) {
+                                const parentPartContainer = this.closest('.part-container');
+                                const isEC = parentPartContainer && parentPartContainer.id.includes('EC');
+                                if (isEC) {
+                                    const currentItemContainer = this.closest('.item-container');
+                                    const allItemsInSection = parentPartContainer.querySelectorAll('.item-container');
+                                    if (this.classList.contains('item-yes')) {
+                                        this.classList.add('selected');
+                                        this.closest('.item-container').querySelector('.item-no').classList.remove('selected');
+                                        allItemsInSection.forEach(otherItem => {
+                                            if (otherItem !== currentItemContainer) {
+                                                const otherYes = otherItem.querySelector('.item-yes');
+                                                const otherNo = otherItem.querySelector('.item-no');
+                                                const otherScore = otherItem.querySelector('.item-score');
+                                                otherYes.classList.remove('selected');
+                                                otherNo.classList.add('selected');
+                                                otherScore.textContent = '0';
+                                                otherScore.style.color = 'red';
+                                            }
+                                        });
+                                        const score = this.closest('.item-container').querySelector('.item-score');
+                                        score.textContent = this.getAttribute('data-max');
+                                        score.style.color = 'green';
+                                    } else {
+                                        this.classList.add('selected');
+                                        this.closest('.item-container').querySelector('.item-yes').classList.remove('selected');
+                                        const score = this.closest('.item-container').querySelector('.item-score');
+                                        score.textContent = '0';
+                                        score.style.color = 'red';
+                                    }
+                                } else {
+                                    this.classList.add('selected');
+                                    const otherOption = this.classList.contains('item-yes') ? itemNo : itemYes;
+                                    otherOption.classList.remove('selected');
+                                    itemScore.textContent = this.classList.contains('item-yes') ? this.getAttribute('data-max') : '0';
+                                    itemScore.style.color = this.classList.contains('item-yes') ? 'green' : 'red';
+                                }
+                                updateAllScores();
+                                updateSaveButtonState();
+                                const parentSection = this.closest('.part-container');
+                                if (parentSection && areSectionItemsSelected(parentSection)) {
+                                    const partContainers = document.querySelectorAll('.part-container');
+                                    const currentIndex = Array.from(partContainers).indexOf(parentSection);
+                                    setTimeout(() => { scrollToSection(currentIndex + 1); }, 500);
+                                }
+                            }
+                        });
+                        item.addEventListener('dblclick', function () { selectedItem = this; editItem(); });
+                    });
+                    itemContainer.append(itemYes, itemNo, itemScore);
+                    container.appendChild(itemContainer);
+                });
+            }
+
+            function createTableFromJSON(data) {
+                jsonData = data;
+                const container = document.getElementById('container');
+                let tableDiv = document.getElementById('json-table');
+                if (!tableDiv) { tableDiv = document.createElement('div'); tableDiv.id = 'json-table'; container.appendChild(tableDiv); }
+                tableDiv.innerHTML = '';
+                const table = document.createElement('table');
+                const headerRow = table.insertRow();
+                const headers = Object.keys(data).filter(header => header !== 'Total');
+                headers.forEach(header => { const th = document.createElement('th'); th.textContent = header.split(':')[0]; headerRow.appendChild(th); });
+                const totalTh = document.createElement('th'); totalTh.textContent = 'Total'; headerRow.appendChild(totalTh);
+                const dataRow = table.insertRow();
+                headers.forEach(header => { const td = document.createElement('td'); const scoreValue = typeof data[header] === 'object' ? data[header]['Total'] : data[header]; td.textContent = scoreValue.toString().replace('Total: ', ''); dataRow.appendChild(td); });
+                const totalTd = document.createElement('td'); totalTd.textContent = data['Total'].toString().replace('Total: ', ''); dataRow.appendChild(totalTd);
+                tableDiv.appendChild(table);
+            }
+
+            function copyFeedback() {
+                const feedbackText = document.getElementById('paraID').value;
+                if (!feedbackText) { alert('No feedback to copy'); return; }
+                navigator.clipboard.writeText(feedbackText).then(() => {
+                    const msg = document.createElement('div');
+                    msg.className = 'copy-message copy-feedback-message';
+                    msg.textContent = '✓ Feedback copied to clipboard!';
+                    msg.style.display = 'block';
+                    document.querySelector('.copy-buttons').parentNode.insertBefore(msg, document.querySelector('.copy-buttons'));
+                    setTimeout(() => msg.remove(), 3000);
+                }).catch(() => alert('Failed to copy feedback'));
+            }
+
+            function copyScores() {
+                if (!jsonData || Object.keys(jsonData).length === 0) { alert('No scores to copy'); return; }
+                const headers = Object.keys(jsonData).filter(header => header !== 'Total');
+                const scores = headers.map(header => typeof jsonData[header] === 'object' ? jsonData[header]['Total'] : jsonData[header]);
+                scores.push(jsonData['Total']);
+                const scoresText = scores.join('\t');
+                navigator.clipboard.writeText(scoresText).then(() => {
+                    const msg = document.createElement('div');
+                    msg.className = 'copy-message copy-scores-message';
+                    msg.textContent = '✓ Scores copied to clipboard!';
+                    msg.style.display = 'block';
+                    document.querySelector('.copy-buttons').parentNode.insertBefore(msg, document.querySelector('.copy-buttons'));
+                    setTimeout(() => msg.remove(), 3000);
+                }).catch(() => alert('Failed to copy scores'));
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                updateMaxScoreDisplays();
+                const copyButtonsDiv = document.querySelector('.copy-buttons');
+                if (copyButtonsDiv) {
+                    const sectionCopyDiv = document.createElement('div');
+                    sectionCopyDiv.id = 'section-copy-buttons';
+                    sectionCopyDiv.className = 'copy-buttons';
+                    sectionCopyDiv.style.marginTop = '10px';
+                    sectionCopyDiv.style.marginBottom = '10px';
+                    sectionCopyDiv.style.display = 'none';
+                    const resetBtn = document.querySelector('.reset-button');
+                    if (resetBtn) resetBtn.parentNode.insertBefore(sectionCopyDiv, resetBtn);
+                    else copyButtonsDiv.parentNode.insertBefore(sectionCopyDiv, copyButtonsDiv.nextSibling);
+                }
+                fetch('ul_spring2026.json').then(response => response.json()).then(data => {
+                    rubricData = data;
+                    const container = document.getElementById('container');
+                    const parts = Object.keys(data);
+                    partOrder = parts;
+                    let groupIndex = 0;
+                    subTotalMaxScores = [];
+                    subTotalEarnedScores = [];
+                    allItems = [];
+                    originalItemTexts = {};
+                    additionalComments = {};
+                    const nameInput = document.createElement('input');
+                    nameInput.type = 'text';
+                    nameInput.className = 'student-name-input';
+                    nameInput.placeholder = 'Enter student name...';
+                    nameInput.addEventListener('input', function () {
+                        studentName = this.value;
+                        const welcomeDiv = document.getElementById('welcome-message');
+if (welcomeDiv) welcomeDiv.textContent = studentName ? `Great job finishing the UL Report, ${studentName.trim()}, just one more to go for the semester!
+Continuing from the previous assignment, please see the section-by-section feedback below, highlighting 'What you did well' and 'What needs improvement.' Please create a private Ed post if you'd like clarification on any grading or feedback we provide and we'll happily follow up there!` : `Great job finishing the UL Report, ${studentName.trim()}, just one more to go for the semester!
+Continuing from the previous assignment, please see the section-by-section feedback below, highlighting 'What you did well' and 'What needs improvement.' Please create a private Ed post if you'd like clarification on any grading or feedback we provide and we'll happily follow up there!`;
+                    });
+                    container.appendChild(nameInput);
+                    const welcomeDiv = document.createElement('div');
+                    welcomeDiv.className = 'welcome-message';
+                    welcomeDiv.id = 'welcome-message';
+                    welcomeDiv.textContent = 'Great job finishing the UL Report, ${studentName.trim()}, just one more to go for the semester! Continuing from the previous assignment, please see the section-by-section feedback below, highlighting "What you did well" and "What needs improvement." Please create a private Ed post if you\'d like clarification on any grading or feedback we provide and we\'ll happily follow up there!';
+                    container.appendChild(welcomeDiv);
+                    for (let part of parts) {
+                        const partContainer = document.createElement('div');
+                        partContainer.classList.add('part-container');
+                        partContainer.id = `part-${part}`;
+                        const h3 = document.createElement('h3');
+                        h3.textContent = `${part}: ${data[part].title}`;
+                        partContainer.appendChild(h3);
+                        const controlsDiv = document.createElement('div');
+                        controlsDiv.className = 'section-controls';
+                        const selectYesBtn = document.createElement('button');
+                        selectYesBtn.className = 'section-button select-yes';
+                        selectYesBtn.textContent = 'Select All Yes';
+                        selectYesBtn.addEventListener('click', () => selectAllYes(partContainer));
+                        const selectNoBtn = document.createElement('button');
+                        selectNoBtn.className = 'section-button select-no';
+                        selectNoBtn.textContent = 'Select All No';
+                        selectNoBtn.addEventListener('click', () => selectAllNo(partContainer));
+                        controlsDiv.append(selectYesBtn, selectNoBtn);
+                        partContainer.appendChild(controlsDiv);
+                        const problems = data[part].problems;
+                        if (problems.length > 1) {
+                            for (let i = 0; i < problems.length; i++) {
+                                const problemContainer = document.createElement('div');
+                                problemContainer.classList.add('problem-container');
+                                const h4 = document.createElement('h4');
+                                h4.textContent = `Problem ${i + 1}`;
+                                problemContainer.appendChild(h4);
+                                renderProblem(problemContainer, problems[i], groupIndex++);
+                                partContainer.appendChild(problemContainer);
+                            }
+                        } else {
+                            const problemContainer = document.createElement('div');
+                            problemContainer.classList.add('problem-container');
+                            renderProblem(problemContainer, problems[0], groupIndex++);
+                            partContainer.appendChild(problemContainer);
+                        }
+                        const navDiv = document.createElement('div');
+                        navDiv.className = 'section-complete';
+                        const nextBtn = document.createElement('button');
+                        nextBtn.className = 'section-button next-section';
+                        nextBtn.textContent = '↓ Next Section';
+                        const partIndex = parts.indexOf(part);
+                        nextBtn.addEventListener('click', (function (index) { return function () { scrollToSection(index + 1); }; })(partIndex));
+                        const topBtn = document.createElement('button');
+                        topBtn.className = 'section-button top-button';
+                        topBtn.textContent = '↑ Back to Top';
+                        topBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+                        const bottomBtn = document.createElement('button');
+                        bottomBtn.className = 'section-button bottom-button';
+                        bottomBtn.textContent = '↓ Back to Bottom';
+                        bottomBtn.addEventListener('click', () => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }));
+                        navDiv.append(nextBtn, topBtn, bottomBtn);
+                        partContainer.appendChild(navDiv);
+                        const additionalCommentContainer = document.createElement('div');
+                        additionalCommentContainer.classList.add('additional-comment-container');
+                        const additionalCommentLabel = document.createElement('label');
+                        additionalCommentLabel.classList.add('additional-comment-label');
+                        additionalCommentLabel.textContent = 'Additional comments for this section (optional):';
+                        additionalCommentContainer.appendChild(additionalCommentLabel);
+                        const additionalCommentTextarea = document.createElement('textarea');
+                        additionalCommentTextarea.classList.add('additional-comment-textarea');
+                        additionalCommentTextarea.placeholder = 'Enter any additional comments for this section here...';
+                        additionalCommentContainer.appendChild(additionalCommentTextarea);
+                        additionalCommentTextarea.addEventListener('input', function () { additionalComments[part] = this.value; });
+                        partContainer.appendChild(additionalCommentContainer);
+                        container.appendChild(partContainer);
+                    }
+                    const summaryDiv = document.createElement('div');
+                    summaryDiv.className = 'overall-summary-section';
+                    summaryDiv.innerHTML = `<h3>Overall Summary</h3>`;
+                    const summaryCheckboxContainer = document.createElement('div');
+                    summaryCheckboxContainer.className = 'checkbox-container';
+                    const summaryCheckbox = document.createElement('input');
+                    summaryCheckbox.type = 'checkbox';
+                    summaryCheckbox.id = 'include-summary-checkbox';
+                    summaryCheckbox.checked = true;
+                    const summaryCheckboxLabel = document.createElement('label');
+                    summaryCheckboxLabel.htmlFor = 'include-summary-checkbox';
+                    summaryCheckboxLabel.textContent = 'Include Overall Summary in feedback';
+                    summaryCheckboxContainer.appendChild(summaryCheckbox);
+                    summaryCheckboxContainer.appendChild(summaryCheckboxLabel);
+                    summaryDiv.appendChild(summaryCheckboxContainer);
+                    const strengthsGroup = document.createElement('div');
+                    strengthsGroup.className = 'summary-input-group';
+                    strengthsGroup.innerHTML = `<label>What you did well (optional):</label><textarea class="summary-textarea" id="strengths-input" placeholder="Enter strengths here..."></textarea>`;
+                    const weaknessesGroup = document.createElement('div');
+                    weaknessesGroup.className = 'summary-input-group';
+                    weaknessesGroup.innerHTML = `<label>What needs improvement (optional):</label><textarea class="summary-textarea" id="weaknesses-input" placeholder="Enter areas for improvement here..."></textarea>`;
+                    summaryDiv.append(strengthsGroup, weaknessesGroup);
+                    container.appendChild(summaryDiv);
+                    const checkboxDiv = document.createElement('div');
+                    checkboxDiv.className = 'checkbox-container';
+                    const extraCheckbox = document.createElement('input');
+                    extraCheckbox.type = 'checkbox';
+                    extraCheckbox.id = 'additional-comment';
+                    const extraLabel = document.createElement('label');
+                    extraLabel.htmlFor = 'additional-comment';
+                    extraLabel.textContent = 'Include additional comment about page management!';
+                    checkboxDiv.append(extraCheckbox, extraLabel);
+                    const fileNameLabel = document.createElement('div');
+                    fileNameLabel.textContent = "Filename";
+                    const fileNameInput = document.createElement('input');
+                    fileNameInput.type = "text";
+                    saveButton = document.createElement('button');
+                    saveButton.classList.add('save-button');
+                    saveButton.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20"><path d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z" fill="white"/></svg> Save`;
+                    saveButton.disabled = true;
+                    resetButton = document.createElement('button');
+                    resetButton.classList.add('reset-button');
+                    resetButton.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20"><path d="M12,16.5C9.5,16.5 7.5,14.5 7.5,12C7.5,9.5 9.5,7.5 12,7.5C14.5,7.5 16.5,9.5 16.5,12C16.5,14.5 14.5,16.5 12,16.5M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z" fill="white"/></svg> Reset All`;
+                    resetButton.addEventListener('click', resetAllSelections);
+                    const outputDiv = document.createElement('div');
+                    outputDiv.style.height = '30px';
+                    outputDiv.style.color = "green";
+                    outputDiv.textContent = 'Final grade by item will appear below';
+                    const resultsTextarea = document.createElement('textarea');
+                    resultsTextarea.id = "paraID";
+                    saveButton.addEventListener('click', function () {
+                        if (!allItemsSelected()) { alert('Please select all items before saving.'); findAndScrollToFirstUnselected(); return; }
+                        let outputText = '';
+                        let totalScore = 0;
+                        jsonData = {};
+                        const name = document.querySelector('.student-name-input').value.trim();
+                        outputText += name ? `Great job finishing the OL Report, ${name}!\nContinuing from the previous assignment, please see the section-by-section feedback below, highlighting 'What you did well' and 'What needs improvement.' Please create a private Ed post if you'd like clarification on any grading or feedback we provide and we'll happily follow up there!\n\n` : `Great job finishing the OL Report!\nContinuing from the previous assignment, please see the section-by-section feedback below, highlighting 'What you did well' and 'What needs improvement.' Please create a private Ed post if you'd like clarification on any grading or feedback we provide and we'll happily follow up there!\n\n`;
+                        const partContainers = document.querySelectorAll('.part-container');
+                        partContainers.forEach((partContainer, idx) => {
+                            const partTitle = partContainer.querySelector('h3').textContent;
+                            const partKey = partTitle.split(':')[0].trim();
+                            let partMaxScore = 0;
+                            const problems = partContainer.querySelectorAll('.problem-container');
+                            problems.forEach(problem => { const items = problem.querySelectorAll('.item-container'); items.forEach(item => { const yes = item.querySelector('.item-yes'); partMaxScore += parseInt(yes.getAttribute('data-max') || 0); }); });
+                            const displayMax = (partKey === 'EC') ? 5 : partMaxScore;
+                            let partScore = 0;
+                            const positiveComments = [];
+                            const negativeComments = [];
+                            jsonData[partTitle] = {};
+                            problems.forEach(problem => {
+                                const problemTitle = problem.querySelector('h4')?.textContent || '';
+                                let problemScore = 0;
+                                const items = problem.querySelectorAll('.item-container');
+                                items.forEach(item => {
+                                    const itemYes = item.querySelector('.item-yes');
+                                    const itemNo = item.querySelector('.item-no');
+                                    const itemScore = item.querySelector('.item-score').textContent;
+                                    const isPositive = itemYes.classList.contains('selected');
+                                    const commentText = isPositive ? itemYes.textContent : itemNo.textContent;
+                                    if (isPositive) positiveComments.push({ text: commentText, element: itemYes });
+                                    else negativeComments.push({ text: commentText, element: itemNo });
+                                    problemScore += parseInt(itemScore);
+                                });
+                                partScore += problemScore;
+                                jsonData[partTitle][problemTitle || 'main'] = problemScore;
+                            });
+                            const titleParts = partTitle.split(':');
+                            const partLetter = titleParts[0].trim();
+                            const partFullTitle = titleParts[1] ? titleParts[1].replace('✓ Complete', '').trim() : '';
+                            if (partKey === 'EC') {
+                                const totalECItems = positiveComments.length + negativeComments.length;
+                                const allNoSelected = negativeComments.length === totalECItems && totalECItems > 0;
+                                const anyYesSelected = positiveComments.length > 0;
+                                if (allNoSelected) return;
+                                if (anyYesSelected) {
+                                    outputText += `${partLetter}. ${partFullTitle} (${partScore}/${displayMax})\n{\n`;
+                                    if (positiveComments.length > 0) { outputText += "What you did well:\n"; positiveComments.forEach((comment, i) => outputText += `+ ${partLetter}${i + 1}. ${comment.text}\n`); outputText += "\n"; }
+                                    if ((additionalComments[partKey] || '').trim()) outputText += "General Feedback:\n" + additionalComments[partKey] + "\n";
+                                    outputText += "}\n\n";
+                                    totalScore += partScore;
+                                    jsonData[partTitle]['Total'] = partScore.toString();
+                                }
+                            } else {
+                                outputText += `${partLetter}. ${partFullTitle} (${partScore}/${displayMax})\n{\n`;
+                                if (positiveComments.length > 0) { outputText += "What you did well:\n"; positiveComments.forEach((comment, i) => outputText += `+ ${partLetter}${i + 1}. ${comment.text}\n`); outputText += "\n"; }
+                                if (negativeComments.length > 0) { outputText += "What needs improvement:\n"; negativeComments.forEach((comment, i) => outputText += `x ${partLetter}${i + 1}. ${comment.text}\n`); outputText += "\n"; }
+                                if ((additionalComments[partKey] || '').trim()) outputText += "General Feedback:\n" + additionalComments[partKey] + "\n";
+                                outputText += "}\n\n";
+                                totalScore += partScore;
+                                jsonData[partTitle]['Total'] = partScore.toString();
+                            }
+                        });
+                        const extraCheckboxElem = document.getElementById('additional-comment');
+                        const extraMsg = "You could have done a better job in managing your empty spaces in your report, which would have allowed you to add more discussions on your results and comparisons.";
+                        outputText += `\nTotal score: ${totalScore}/${maxPossibleScore}\n`;
+                        const includeSummary = document.getElementById('include-summary-checkbox').checked;
+                        if (includeSummary) {
+                            outputText += `\nOverall Summary:\n{\nAnd with that, you're on to the next one -- the UL Report! Give yourself some credit for another report in the books`;
+                            if (name) outputText += `, ${name}`;
+                            outputText += `! As follows is more holistic feedback taking an overall look at your report, where your strengths were and where you could improve in future (be it on the OL Reviewer Response or the UL Report):\n\n`;
+                            const strengths = strengthsGroup.querySelector('textarea').value.trim();
+                            const weaknesses = weaknessesGroup.querySelector('textarea').value.trim();
+                            let hasAnyContent = false;
+                            if (strengths) { outputText += `What you did well:\n+ ${strengths}\n`; hasAnyContent = true; }
+                            if (weaknesses) { outputText += `\nWhat needs improvement:\nx ${weaknesses}\n`; hasAnyContent = true; }
+                            if (extraCheckboxElem && extraCheckboxElem.checked) {
+                                if (weaknesses) outputText += `x ${extraMsg}\n`;
+                                else outputText += `What needs improvement:\nx ${extraMsg}\n`;
+                                hasAnyContent = true;
+                            }
+                            if (!hasAnyContent) outputText = outputText.replace(/:\n\n$/, '\n');
+                            outputText += `}`;
+                        } else if (extraCheckboxElem && extraCheckboxElem.checked) {
+                            outputText += `\nWhat needs improvement:\nx ${extraMsg}\n`;
+                        }
+                        jsonData['Total'] = totalScore.toString();
+                        resultsTextarea.value = outputText;
+                        createTableFromJSON(jsonData);
+                    });
+                    const copyButtonsDivMain = document.createElement('div');
+                    copyButtonsDivMain.className = 'copy-buttons';
+                    const copyFeedbackBtn = document.createElement('button');
+                    copyFeedbackBtn.className = 'copy-button';
+                    copyFeedbackBtn.innerHTML = '📋 Copy Feedback';
+                    copyFeedbackBtn.addEventListener('click', copyFeedback);
+                    const copyScoresBtn = document.createElement('button');
+                    copyScoresBtn.className = 'copy-button';
+                    copyScoresBtn.innerHTML = '📋 Copy Scores';
+                    copyScoresBtn.addEventListener('click', copyScores);
+                    copyButtonsDivMain.append(copyFeedbackBtn, copyScoresBtn);
+                    const sectionCopyDiv = document.createElement('div');
+                    sectionCopyDiv.id = 'section-copy-buttons';
+                    sectionCopyDiv.className = 'copy-buttons';
+                    sectionCopyDiv.style.marginTop = '10px';
+                    sectionCopyDiv.style.marginBottom = '10px';
+                    sectionCopyDiv.style.display = 'none';
+                    container.append(checkboxDiv, fileNameLabel, fileNameInput, document.createElement('br'), saveButton, document.createElement('br'), outputDiv, resultsTextarea, copyButtonsDivMain, sectionCopyDiv, resetButton);
+                    updateSaveButtonState();
+                    updateSectionNavigation();
+                    updateSideSummaryPanel();
+                }).catch(error => { console.error('Error loading JSON:', error); document.getElementById('container').innerHTML = '<p style="color: red;">Error loading rubric data. Please make sure ol_spring2026.json is in the same directory.</p>'; });
+                document.getElementById('edit-save').addEventListener('click', function () {
+                    const editBox = document.getElementById('edit-box');
+                    const editText = document.getElementById('edit-text');
+                    const editScore = document.getElementById('edit-score');
+                    const maxScore = parseInt(document.getElementById('edit-score').max);
+                    const overlay = document.getElementById('overlay');
+                    const score = parseInt(editScore.value);
+                    if (isNaN(score) || score < 0 || score > maxScore) { alert(`Please enter a score between 0 and ${maxScore}`); return; }
+                    selectedItem.textContent = editText.value;
+                    const itemContainer = selectedItem.closest('.item-container');
+                    const itemScoreElement = itemContainer.querySelector('.item-score');
+                    itemScoreElement.textContent = score;
+                    if (selectedItem.classList.contains('item-yes')) { selectedItem.classList.add('selected'); itemContainer.querySelector('.item-no').classList.remove('selected'); itemScoreElement.style.color = 'green'; }
+                    else { selectedItem.classList.add('selected'); itemContainer.querySelector('.item-yes').classList.remove('selected'); itemScoreElement.style.color = 'red'; }
+                    editBox.style.visibility = 'hidden';
+                    overlay.style.visibility = 'hidden';
+                    updateAllScores();
+                    updateSaveButtonState();
+                    const parentSection = selectedItem.closest('.part-container');
+                    if (parentSection && areSectionItemsSelected(parentSection)) { const partContainers = document.querySelectorAll('.part-container'); const currentIndex = Array.from(partContainers).indexOf(parentSection); setTimeout(() => { scrollToSection(currentIndex + 1); }, 500); }
+                });
+                document.getElementById('edit-cancel').addEventListener('click', function () { document.getElementById('edit-box').style.visibility = 'hidden'; document.getElementById('overlay').style.visibility = 'hidden'; });
+                document.getElementById('edit-clear').addEventListener('click', function () { document.getElementById('edit-text').value = ''; });
+                document.getElementById('edit-zero').addEventListener('click', function () { document.getElementById('edit-score').value = '0'; });
+            });
+        })();
+    </script>
+</body>
+
+</html>
