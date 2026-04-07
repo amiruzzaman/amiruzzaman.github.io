@@ -112,6 +112,7 @@ def update_json_file(country, image, note, donor_name, currency_type, size, year
 
     # Create the new entry
     new_entry = {
+        "id": os.path.splitext(image)[0],  # Extract filename without extension
         "country": country,
         "image": image,
         "note": note,
@@ -1191,6 +1192,7 @@ def upload_file():
             # Update the JSON file with all fields including hidden_note
             update_json_file(country, file_name, note, donor_name, currency_type, size, year, hidden_note)
             return jsonify({
+                "id": os.path.splitext(os.path.basename(file_name))[0],
                 "message": "File uploaded successfully!",
                 "country": country,
                 "note": note,
