@@ -149,7 +149,6 @@ def write_json_file(data):
 def add_to_json(country, image, note, donor_name, currency_type, size, year):
     data = read_json_file()
     data.append({
-        'id': os.path.splitext(image)[0],
         'country': country.title(),
         'image': image,
         'note': note,
@@ -179,7 +178,6 @@ def update_entry(updated_entry):
     for entry in data:
         if entry['image'] == updated_entry['row_id']:
             entry.update({
-                "id": (os.path.splitext(updated_entry.get("image", entry["image"]))[0]).replace('<br>', '') if updated_entry.get("image", entry["image"]) else entry["id"],
                 "image": updated_entry.get("image", entry["image"]).replace('<br>', ''),
                 "note": updated_entry.get("note", entry.get("note", "")).replace('<br>', ''),
                 "country": updated_entry.get("country", entry["country"]).replace('<br>', ''),
