@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="#">
 
-    <title>Grading Rubric Tool - Ol Spring2026 (sidebar right, content left)</title>
+    <title>Grading Rubric Tool - Ul Spring2026 (sidebar right, content left)</title>
     <style>
         :root {
             --primary-color: #3498db;
@@ -1532,7 +1532,7 @@ Continuing from the previous assignment, please see the section-by-section feedb
                         let totalScore = 0;
                         jsonData = {};
                         const name = document.querySelector('.student-name-input').value.trim();
-                        outputText += name ? `Great job finishing the OL Report, ${name}!\nContinuing from the previous assignment, please see the section-by-section feedback below, highlighting 'What you did well' and 'What needs improvement.' Please create a private Ed post if you'd like clarification on any grading or feedback we provide and we'll happily follow up there!\n\n` : `Great job finishing the OL Report!\nContinuing from the previous assignment, please see the section-by-section feedback below, highlighting 'What you did well' and 'What needs improvement.' Please create a private Ed post if you'd like clarification on any grading or feedback we provide and we'll happily follow up there!\n\n`;
+                        outputText += name ? `Great job finishing the UL Report, ${name}!\nContinuing from the previous assignment, please see the section-by-section feedback below, highlighting 'What you did well' and 'What needs improvement.' Please create a private Ed post if you'd like clarification on any grading or feedback we provide and we'll happily follow up there!\n\n` : `Great job finishing the UL Report!\nContinuing from the previous assignment, please see the section-by-section feedback below, highlighting 'What you did well' and 'What needs improvement.' Please create a private Ed post if you'd like clarification on any grading or feedback we provide and we'll happily follow up there!\n\n`;
                         const partContainers = document.querySelectorAll('.part-container');
                         partContainers.forEach((partContainer, idx) => {
                             const partTitle = partContainer.querySelector('h3').textContent;
@@ -1595,7 +1595,7 @@ Continuing from the previous assignment, please see the section-by-section feedb
                         if (includeSummary) {
                             outputText += `\nOverall Summary:\n{\nAnd with that, you're on to the next one -- the UL Report! Give yourself some credit for another report in the books`;
                             if (name) outputText += `, ${name}`;
-                            outputText += `! As follows is more holistic feedback taking an overall look at your report, where your strengths were and where you could improve in future (be it on the OL Reviewer Response or the UL Report):\n\n`;
+                            outputText += `! As follows is more holistic feedback taking an overall look at your report, where your strengths were and where you could improve in future (be it on the UL Reviewer Response or the UL Report):\n\n`;
                             const strengths = strengthsGroup.querySelector('textarea').value.trim();
                             const weaknesses = weaknessesGroup.querySelector('textarea').value.trim();
                             let hasAnyContent = false;

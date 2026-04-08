@@ -55,25 +55,25 @@
         {
           "yes": "Hypothesis Declaration: At least one context relevant hypothesis is provided.",
           "no": "At least one context relevant hypothesis must be provided.",
-          "point": 0,
+          "point": 2,
           "key": "B1_1"
         },
         {
           "yes": "Citing Evidence: Each hypothesis draws support from theory (lecture, paper, proof).",
           "no": "Each hypothesis must draw support from theory.",
-          "point": 0,
+          "point": 2,
           "key": "B1_2"
         },
         {
           "yes": "Follow-Through: You provide follow-up to reason whether each hypothesis is proven or disproven.",
           "no": "Follow-up must be provided to reason whether each hypothesis is proven or disproven.",
-          "point": 0,
+          "point": 2,
           "key": "B2_1"
         },
         {
           "yes": "Conclusions Defended: You defend observed evidence by citing evidence with interpretation.",
           "no": "Must defend observed evidence by citing evidence with interpretation.",
-          "point": 0,
+          "point": 2,
           "key": "B2_2"
         }
       ]
@@ -86,37 +86,37 @@
         {
           "yes": "EM Hyperparameter Selection: You provide rationale for selection of cluster count.",
           "no": "Must provide rationale for selection of cluster count.",
-          "point": 0,
+          "point": 4,
           "key": "C1_1"
         },
         {
           "yes": "EM Results Visualization: You provide visualization to justify written claims.",
           "no": "Must provide visualization to justify written claims.",
-          "point": 0,
+          "point": 2,
           "key": "C1_2"
         },
         {
           "yes": "EM Results Interpretation: You provide meaningful interpretation of cluster shape/distribution.",
           "no": "Must provide meaningful interpretation of cluster shape/distribution.",
-          "point": 0,
+          "point": 4,
           "key": "C1_3"
         },
         {
           "yes": "KMC Hyperparameter Selection: You provide rationale for selection of cluster count.",
           "no": "Must provide rationale for selection of cluster count.",
-          "point": 0,
+          "point": 4,
           "key": "C2_1"
         },
         {
           "yes": "KMC Results Visualization: You provide visualization to justify written claims.",
           "no": "Must provide visualization to justify written claims.",
-          "point": 0,
+          "point": 2,
           "key": "C2_2"
         },
         {
           "yes": "KMC Results Interpretation: You provide meaningful interpretation of cluster shape/distribution.",
           "no": "Must provide meaningful interpretation of cluster shape/distribution.",
-          "point": 0,
+          "point": 4,
           "key": "C2_3"
         }
       ]
@@ -129,55 +129,55 @@
         {
           "yes": "RP Component Selection: You justify number of components citing a suitable metric.",
           "no": "Must justify number of components citing a suitable metric.",
-          "point": 0,
+          "point": 4,
           "key": "D1_1"
         },
         {
           "yes": "RP Results Visualization: You provide appropriate visualization with citation.",
           "no": "Must provide appropriate visualization with citation.",
-          "point": 0,
+          "point": 2,
           "key": "D1_2"
         },
         {
           "yes": "RP Results Interpretation: You provide meaningful analysis (loading scores, feature space, comparison).",
           "no": "Must provide meaningful analysis (loading scores, feature space, comparison).",
-          "point": 0,
+          "point": 2,
           "key": "D1_3"
         },
         {
           "yes": "PCA Component Selection: You justify number of components citing a suitable metric.",
           "no": "Must justify number of components citing a suitable metric.",
-          "point": 0,
+          "point": 4,
           "key": "D2_1"
         },
         {
           "yes": "PCA Results Visualization: You provide appropriate visualization with citation.",
           "no": "Must provide appropriate visualization with citation.",
-          "point": 0,
+          "point": 2,
           "key": "D2_2"
         },
         {
           "yes": "PCA Results Interpretation: You provide meaningful analysis (loading scores, feature space, comparison).",
           "no": "Must provide meaningful analysis (loading scores, feature space, comparison).",
-          "point": 0,
+          "point": 2,
           "key": "D2_3"
         },
         {
           "yes": "ICA Component Selection: You justify number of components citing a suitable metric.",
           "no": "Must justify number of components citing a suitable metric.",
-          "point": 0,
+          "point": 4,
           "key": "D3_1"
         },
         {
           "yes": "ICA Results Visualization: You provide appropriate visualization with citation.",
           "no": "Must provide appropriate visualization with citation.",
-          "point": 0,
+          "point": 2,
           "key": "D3_2"
         },
         {
           "yes": "ICA Results Interpretation: You provide meaningful analysis (loading scores, feature space, comparison).",
           "no": "Must provide meaningful analysis (loading scores, feature space, comparison).",
-          "point": 0,
+          "point": 2,
           "key": "D3_3"
         }
       ]
@@ -190,25 +190,25 @@
         {
           "yes": "Wine Performance Visualization: Appropriate visualization for 6 pairwise combinations.",
           "no": "Must provide appropriate visualization for 6 pairwise combinations.",
-          "point": 0,
+          "point": 4,
           "key": "E1_1_WINE"
         },
         {
           "yes": "Wine Pairwise Comparisons: Meaningful interpretation of combined effects for Wine.",
           "no": "Must provide meaningful interpretation of combined effects for Wine.",
-          "point": 0,
+          "point": 3,
           "key": "E1_2_WINE"
         },
         {
           "yes": "Adult Performance Visualization: Appropriate visualization for 6 pairwise combinations.",
           "no": "Must provide appropriate visualization for 6 pairwise combinations.",
-          "point": 0,
+          "point": 4,
           "key": "E1_1_ADULT"
         },
         {
           "yes": "Adult Pairwise Comparisons: Meaningful interpretation of combined effects for Adult.",
           "no": "Must provide meaningful interpretation of combined effects for Adult.",
-          "point": 0,
+          "point": 3,
           "key": "E1_2_ADULT"
         }
       ]
@@ -221,37 +221,37 @@
         {
           "yes": "RP Performance Commentary: Evidence of performance improvements for RP.",
           "no": "Must provide evidence of performance improvements for RP.",
-          "point": 0,
+          "point": 2,
           "key": "F1_1"
         },
         {
           "yes": "RP Wall Clock Difference: Address speed up in runtime for RP.",
           "no": "Must address speed up in runtime for RP.",
-          "point": 0,
+          "point": 2,
           "key": "F1_2"
         },
         {
           "yes": "PCA Performance Commentary: Evidence of performance improvements for PCA.",
           "no": "Must provide evidence of performance improvements for PCA.",
-          "point": 0,
+          "point": 2,
           "key": "F2_1"
         },
         {
           "yes": "PCA Wall Clock Difference: Address speed up in runtime for PCA.",
           "no": "Must address speed up in runtime for PCA.",
-          "point": 0,
+          "point": 2,
           "key": "F2_2"
         },
         {
           "yes": "ICA Performance Commentary: Evidence of performance improvements for ICA.",
           "no": "Must provide evidence of performance improvements for ICA.",
-          "point": 0,
+          "point": 2,
           "key": "F3_1"
         },
         {
           "yes": "ICA Wall Clock Difference: Address speed up in runtime for ICA.",
           "no": "Must address speed up in runtime for ICA.",
-          "point": 0,
+          "point": 2,
           "key": "F3_2"
         }
       ]
@@ -264,25 +264,25 @@
         {
           "yes": "EM Performance Commentary: Evidence of improvements using EM clusters as features.",
           "no": "Must provide evidence of improvements using EM clusters as features.",
-          "point": 0,
+          "point": 3,
           "key": "G1_1"
         },
         {
           "yes": "EM Wall Clock Difference: Relate speed up to filtering effect of EM.",
           "no": "Must relate speed up to filtering effect of EM.",
-          "point": 0,
+          "point": 3,
           "key": "G1_2"
         },
         {
           "yes": "KMC Performance Commentary: Evidence of improvements using KM clusters as features.",
           "no": "Must provide evidence of improvements using KM clusters as features.",
-          "point": 0,
+          "point": 3,
           "key": "G2_1"
         },
         {
           "yes": "KMC Wall Clock Difference: Relate speed up to filtering effect of KM.",
           "no": "Must relate speed up to filtering effect of KM.",
-          "point": 0,
+          "point": 3,
           "key": "G2_2"
         }
       ]
@@ -309,31 +309,6 @@
           "no": "Not applicable",
           "point": 0,
           "key": "EC_NONE"
-        }
-      ]
-    ]
-  },
-  "Deductions": {
-    "title": "Penalties",
-    "problems": [
-      [
-        {
-          "yes": "No deduction",
-          "no": "Code Submission: No valid GitHub hash or inaccessible (score 0 for assignment).",
-          "point": -999,
-          "key": "DED_CODE"
-        },
-        {
-          "yes": "No deduction",
-          "no": "Dataset Compliance: Did not use Wine Quality and Adult Income (score 0 for assignment).",
-          "point": -999,
-          "key": "DED_DATA"
-        },
-        {
-          "yes": "No deduction",
-          "no": "Informal Writing: Excessive informal writing, bulleting, lists (50 point deduction).",
-          "point": -50,
-          "key": "DED_WRITING"
         }
       ]
     ]
