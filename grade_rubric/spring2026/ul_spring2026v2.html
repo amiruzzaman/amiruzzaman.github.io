@@ -328,15 +328,20 @@
             border-radius: 10px;
         }
         .global-copy-message {
-            width: 100%;
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            max-width: 500px;
+            margin: 0 auto;
             background: #28a745;
             color: white;
-            padding: 10px 15px;
-            border-radius: 6px;
+            padding: 12px 20px;
+            border-radius: 8px;
             text-align: center;
+            z-index: 2000;
             font-weight: 500;
-            margin-top: 10px;
-            box-sizing: border-box;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
         .edit-box {
             position: fixed;
@@ -419,6 +424,7 @@
     </div>
 </div>
 <div id="overlay" class="overlay hidden"></div>
+<div id="globalCopyMessage" class="global-copy-message" style="display: none;"></div>
 
 <script>
 // Embedded rubric data from the JSON file
@@ -513,12 +519,14 @@ let allItems = [];
 let subTotalMaxScores = [];
 let additionalComments = {};
 let currentEditItem = null;
+let currentCopyMessage = null;
 
 function showMessage(msg, isError = false) {
     const el = document.getElementById('globalCopyMessage');
     el.textContent = msg;
     el.style.background = isError ? '#dc3545' : '#28a745';
     el.style.display = 'block';
+    // Message stays until another copy action - no auto-hide
 }
 
 function hideMessage() {
@@ -545,6 +553,7 @@ function updateAllScores() {
     document.getElementById('progressText').innerHTML = `${percent}% (${total}/${MAX_TOTAL})`;
     updateSidePanel();
     
+    // Check if all items are selected to enable save button
     const allSelected = allItems.every(item => 
         item.yes.classList.contains('selected') || item.no.classList.contains('selected')
     );
@@ -557,13 +566,6 @@ function updateSidePanel() {
     if (!container) return;
     let html = '';
     let grandTotal = 0;
-    
-    // Add a "Top" option
-    html += `<div class="section-total-item" data-section="top">
-        <span class="section-label">⬆ Top (Name & Welcome)</span>
-        <span class="section-score"></span>
-    </div>`;
-    
     document.querySelectorAll('.part-container').forEach(part => {
         const key = part.id.replace('part-', '');
         let earned = 0, maxPossible = 0;
@@ -585,49 +587,12 @@ function updateSidePanel() {
             <span class="section-score">${earned}/${maxPossible}</span>
         </div>`;
     });
-    
-    // Add a "Save Button" option at the bottom
-    html += `<div class="section-total-item" data-section="save">
-        <span class="section-label">💾 Save Button</span>
-        <span class="section-score"></span>
-    </div>`;
-    
     container.innerHTML = html;
     document.getElementById('grandTotalValue').innerHTML = `${grandTotal}/${MAX_TOTAL}`;
-    
     document.querySelectorAll('.section-total-item').forEach(el => {
         el.addEventListener('click', () => {
             const section = el.dataset.section;
-            if (section === 'top') {
-                // Scroll to top of the container where name input and welcome message are
-                const container = document.getElementById('container');
-                const headerOffset = 60;
-                const elementPosition = container.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-                // Highlight the name input briefly
-                const nameInput = document.querySelector('.student-name-input');
-                if (nameInput) {
-                    nameInput.style.transition = 'box-shadow 0.3s';
-                    nameInput.style.boxShadow = '0 0 0 3px var(--primary-color)';
-                    setTimeout(() => { nameInput.style.boxShadow = ''; }, 1500);
-                }
-            } else if (section === 'save') {
-                // Scroll to the save button
-                const saveBtn = document.querySelector('.save-button');
-                if (saveBtn) {
-                    const headerOffset = 60;
-                    const elementPosition = saveBtn.getBoundingClientRect().top;
-                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                    window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-                    // Highlight the save button briefly
-                    saveBtn.style.transition = 'box-shadow 0.3s';
-                    saveBtn.style.boxShadow = '0 0 0 3px var(--primary-color)';
-                    setTimeout(() => { saveBtn.style.boxShadow = ''; }, 1500);
-                }
-            } else {
-                document.getElementById(`part-${section}`).scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
+            document.getElementById(`part-${section}`).scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
     });
 }
@@ -647,22 +612,14 @@ function getECCopyText(partContainer) {
     });
     
     if (!anyYes) return `0\tN\tN\tN`;
+    // Always output "N" for each item position, regardless of selection
+    // Only the total score at the beginning reflects the points
     return `${totalEC}\tN\tN\tN`;
 }
 
 function copySectionScores(sectionKey) {
     const part = document.getElementById(`part-${sectionKey}`);
     if (!part) return;
-    
-    // Find the button that was clicked
-    const allCopyBtns = document.querySelectorAll('.section-copy-buttons .copy-button');
-    let clickedBtn = null;
-    allCopyBtns.forEach(btn => {
-        if (btn.textContent.includes(`Copy ${sectionKey}`)) {
-            clickedBtn = btn;
-        }
-    });
-    
     let copyText = '';
     if (sectionKey === 'EC') {
         copyText = getECCopyText(part);
@@ -671,25 +628,8 @@ function copySectionScores(sectionKey) {
         part.querySelectorAll('.item-score').forEach(score => scores.push(score.textContent));
         copyText = scores.join('\t');
     }
-    
-    navigator.clipboard.writeText(copyText).then(() => {
-        showMessage(`✓ Section ${sectionKey} scores copied: ${copyText}`);
-        
-        // Change button color permanently to indicate it has been copied
-        if (clickedBtn) {
-            clickedBtn.style.backgroundColor = '#28a745';
-            clickedBtn.style.color = 'white';
-            clickedBtn.setAttribute('data-copied', 'true');
-        }
-    }).catch(() => {
-        showMessage(`Failed to copy section ${sectionKey}`, true);
-        // Error color also stays permanently
-        if (clickedBtn) {
-            clickedBtn.style.backgroundColor = '#dc3545';
-            clickedBtn.style.color = 'white';
-            clickedBtn.setAttribute('data-copied', 'error');
-        }
-    });
+    navigator.clipboard.writeText(copyText);
+    showMessage(`✓ Section ${sectionKey} scores copied: ${copyText}`);
 }
 
 function scrollToNextSection(currentPart) {
@@ -877,26 +817,17 @@ function renderRubric() {
         container.appendChild(partDiv);
     }
     
-    // Section copy buttons container
-    // Inside renderRubric function, when creating section copy buttons:
-const sectionCopyDiv = document.createElement('div');
-sectionCopyDiv.className = 'section-copy-buttons';
-for (const key of partKeys) {
-    const btn = document.createElement('button');
-    btn.className = 'copy-button';
-    btn.textContent = `📋 Copy ${key}`;
-    btn.style.transition = 'background-color 0.3s'; // Add transition for smooth color change
-    btn.onclick = () => copySectionScores(key);
-    sectionCopyDiv.appendChild(btn);
-}
-container.appendChild(sectionCopyDiv);
-    
-    // Global copy message div - placed right after section-copy-buttons, same width
-    const copyMessageDiv = document.createElement('div');
-    copyMessageDiv.id = 'globalCopyMessage';
-    copyMessageDiv.className = 'global-copy-message';
-    copyMessageDiv.style.display = 'none';
-    container.appendChild(copyMessageDiv);
+    // Section copy buttons
+    const sectionCopyDiv = document.createElement('div');
+    sectionCopyDiv.className = 'section-copy-buttons';
+    for (const key of partKeys) {
+        const btn = document.createElement('button');
+        btn.className = 'copy-button';
+        btn.textContent = `📋 Copy ${key}`;
+        btn.onclick = () => copySectionScores(key);
+        sectionCopyDiv.appendChild(btn);
+    }
+    container.appendChild(sectionCopyDiv);
     
     // Summary section
     const summaryDiv = document.createElement('div');
@@ -925,46 +856,31 @@ container.appendChild(sectionCopyDiv);
     // Buttons
     const copyButtons = document.createElement('div');
     copyButtons.className = 'copy-buttons';
-const copyFeedbackBtn = document.createElement('button');
-copyFeedbackBtn.className = 'copy-button';
-copyFeedbackBtn.textContent = '📋 Copy Feedback';
-copyFeedbackBtn.onclick = () => {
-    const feedback = document.getElementById('paraID').value;
-    if (feedback) { 
-        navigator.clipboard.writeText(feedback).then(() => {
-            showMessage('✓ Feedback copied to clipboard!');
-            copyFeedbackBtn.style.backgroundColor = '#28a745';
-            copyFeedbackBtn.style.color = 'white';
-            copyFeedbackBtn.setAttribute('data-copied', 'true');
-        }).catch(() => {
-            showMessage('Failed to copy feedback', true);
-        });
-    }
-    else showMessage('No feedback to copy', true);
-};
+    const copyFeedbackBtn = document.createElement('button');
+    copyFeedbackBtn.className = 'copy-button';
+    copyFeedbackBtn.textContent = '📋 Copy Feedback';
+    copyFeedbackBtn.onclick = () => {
+        const feedback = document.getElementById('paraID').value;
+        if (feedback) { navigator.clipboard.writeText(feedback); showMessage('✓ Feedback copied to clipboard!'); }
+        else showMessage('No feedback to copy', true);
+    };
     const copyAllScoresBtn = document.createElement('button');
-copyAllScoresBtn.className = 'copy-button';
-copyAllScoresBtn.textContent = '📋 Copy All Scores';
-copyAllScoresBtn.onclick = () => {
-    let allScores = [];
-    for (const key of partKeys) {
-        const part = document.getElementById(`part-${key}`);
-        if (key === 'EC') allScores.push(getECCopyText(part));
-        else {
-            const scores = [];
-            part.querySelectorAll('.item-score').forEach(s => scores.push(s.textContent));
-            allScores.push(scores.join('\t'));
+    copyAllScoresBtn.className = 'copy-button';
+    copyAllScoresBtn.textContent = '📋 Copy All Scores';
+    copyAllScoresBtn.onclick = () => {
+        let allScores = [];
+        for (const key of partKeys) {
+            const part = document.getElementById(`part-${key}`);
+            if (key === 'EC') allScores.push(getECCopyText(part));
+            else {
+                const scores = [];
+                part.querySelectorAll('.item-score').forEach(s => scores.push(s.textContent));
+                allScores.push(scores.join('\t'));
+            }
         }
-    }
-    navigator.clipboard.writeText(allScores.join('\t')).then(() => {
+        navigator.clipboard.writeText(allScores.join('\t'));
         showMessage('✓ All scores copied to clipboard!');
-        copyAllScoresBtn.style.backgroundColor = '#28a745';
-        copyAllScoresBtn.style.color = 'white';
-        copyAllScoresBtn.setAttribute('data-copied', 'true');
-    }).catch(() => {
-        showMessage('Failed to copy all scores', true);
-    });
-};
+    };
     copyButtons.append(copyFeedbackBtn, copyAllScoresBtn);
     container.appendChild(copyButtons);
     
@@ -982,54 +898,22 @@ copyAllScoresBtn.onclick = () => {
     container.appendChild(feedbackTA);
     
     const resetBtn = document.createElement('button');
-resetBtn.className = 'reset-button';
-resetBtn.textContent = '⟳ Reset All';
-resetBtn.onclick = () => {
-    if (confirm('Reset all selections?')) {
-        // Reset all item selections
-        allItems.forEach(item => {
-            item.yes.classList.remove('selected');
-            item.no.classList.remove('selected');
-            item.score.textContent = '0';
-            item.score.style.color = '';
-        });
-        
-        // Reset all copy button colors
-        document.querySelectorAll('.copy-button').forEach(btn => {
-            btn.style.backgroundColor = '';
-            btn.style.color = '';
-            btn.removeAttribute('data-copied');
-        });
-        
-        // Clear additional comments
-        additionalComments = {};
-        document.querySelectorAll('.additional-comment-textarea').forEach(textarea => {
-            textarea.value = '';
-        });
-        
-        // Clear summary fields
-        const strengthsInput = document.getElementById('strengthsInput');
-        const weaknessesInput = document.getElementById('weaknessesInput');
-        if (strengthsInput) strengthsInput.value = '';
-        if (weaknessesInput) weaknessesInput.value = '';
-        
-        // Uncheck extra page comment checkbox
-        const extraPageCheckbox = document.getElementById('extraPageComment');
-        if (extraPageCheckbox) extraPageCheckbox.checked = false;
-        
-        // Clear the feedback textarea
-        const feedbackTA = document.getElementById('paraID');
-        if (feedbackTA) feedbackTA.value = '';
-        
-        // Clear the copy message
-        hideMessage();
-        
-        updateAllScores();
-        document.querySelector('.save-button').disabled = true;
-        showMessage('All selections and copy button colors reset');
-    }
-};
-container.appendChild(resetBtn);
+    resetBtn.className = 'reset-button';
+    resetBtn.textContent = '⟳ Reset All';
+    resetBtn.onclick = () => {
+        if (confirm('Reset all selections?')) {
+            allItems.forEach(item => {
+                item.yes.classList.remove('selected');
+                item.no.classList.remove('selected');
+                item.score.textContent = '0';
+                item.score.style.color = '';
+            });
+            updateAllScores();
+            document.querySelector('.save-button').disabled = true;
+            showMessage('All selections reset');
+        }
+    };
+    container.appendChild(resetBtn);
 }
 
 function openEditDialog() {
