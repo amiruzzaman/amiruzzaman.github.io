@@ -287,9 +287,16 @@
             color: white;
         }
         .copy-button {
-            background: var(--primary-color);
-            color: white;
-        }
+    background: var(--primary-color); /* This is blue (#3498db), not green */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    margin: 5px;
+    padding: 10px 20px;
+    transition: background-color 0.3s;
+}
         .copy-buttons {
             display: flex;
             flex-wrap: wrap;
@@ -654,14 +661,26 @@ function copySectionScores(sectionKey) {
     const part = document.getElementById(`part-${sectionKey}`);
     if (!part) return;
     
-    // Find the button that was clicked
-    const allCopyBtns = document.querySelectorAll('.section-copy-buttons .copy-button');
+    // Find the button that was clicked - use exact match or more reliable selector
     let clickedBtn = null;
+    
+    // Method 1: Find by data attribute (better)
+    const allCopyBtns = document.querySelectorAll('.section-copy-buttons .copy-button');
     allCopyBtns.forEach(btn => {
-        if (btn.textContent.includes(`Copy ${sectionKey}`)) {
+        if (btn.getAttribute('data-section') === sectionKey) {
             clickedBtn = btn;
         }
     });
+    
+    // Method 2: If not found by data attribute, try text content
+    if (!clickedBtn) {
+        allCopyBtns.forEach(btn => {
+            if (btn.textContent === `📋 Copy ${sectionKey}` || 
+                btn.textContent.includes(`Copy ${sectionKey}`)) {
+                clickedBtn = btn;
+            }
+        });
+    }
     
     let copyText = '';
     if (sectionKey === 'EC') {
@@ -675,18 +694,16 @@ function copySectionScores(sectionKey) {
     navigator.clipboard.writeText(copyText).then(() => {
         showMessage(`✓ Section ${sectionKey} scores copied: ${copyText}`);
         
-        // Change button color permanently to indicate it has been copied
         if (clickedBtn) {
-            clickedBtn.style.backgroundColor = '#28a745';
-            clickedBtn.style.color = 'white';
+            clickedBtn.style.setProperty('background-color', '#28a745', 'important');
+            clickedBtn.style.setProperty('color', 'white', 'important');
             clickedBtn.setAttribute('data-copied', 'true');
         }
     }).catch(() => {
         showMessage(`Failed to copy section ${sectionKey}`, true);
-        // Error color also stays permanently
         if (clickedBtn) {
-            clickedBtn.style.backgroundColor = '#dc3545';
-            clickedBtn.style.color = 'white';
+            clickedBtn.style.setProperty('background-color', '#dc3545', 'important');
+            clickedBtn.style.setProperty('color', 'white', 'important');
             clickedBtn.setAttribute('data-copied', 'error');
         }
     });
@@ -878,17 +895,19 @@ function renderRubric() {
     }
     
     // Section copy buttons container
-    // Inside renderRubric function, when creating section copy buttons:
+// Inside renderRubric function, when creating section copy buttons:
 const sectionCopyDiv = document.createElement('div');
 sectionCopyDiv.className = 'section-copy-buttons';
 for (const key of partKeys) {
     const btn = document.createElement('button');
     btn.className = 'copy-button';
     btn.textContent = `📋 Copy ${key}`;
-    btn.style.transition = 'background-color 0.3s'; // Add transition for smooth color change
+    btn.setAttribute('data-section', key);  // Add this line
+    btn.style.transition = 'background-color 0.3s';
     btn.onclick = () => copySectionScores(key);
     sectionCopyDiv.appendChild(btn);
 }
+
 container.appendChild(sectionCopyDiv);
     
     // Global copy message div - placed right after section-copy-buttons, same width
