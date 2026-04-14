@@ -3,7 +3,7 @@
 Numismatic Vault - Professional Coin Management System
 Features: Bulk editing, inline editing, div-based table, CSS notifications, auto-open browser
 NO EMOJIS - All icons are pure CSS/SVG
-UPDATED: Fixed regex errors in search highlighting
+UPDATED: Removed "Apply Bulk" button, unified save workflow
 """
 
 from flask import Flask, render_template_string, request, jsonify
@@ -258,7 +258,6 @@ HTML_TEMPLATE = '''
             background: #f8fafc;
             padding: 6px 14px;
             border-radius: 48px;
-            position: relative;
         }
         .bulk-panel select, .bulk-panel input {
             padding: 8px 12px;
@@ -266,31 +265,6 @@ HTML_TEMPLATE = '''
             border: 1px solid #cbd5e1;
             background: white;
             font-size: 0.85rem;
-        }
-        .bulk-panel select {
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .bulk-panel select.auto-matched {
-            background: #e0e7ff;
-            border-color: #1e3a5f;
-        }
-        .field-match-indicator {
-            position: absolute;
-            bottom: -28px;
-            left: 20px;
-            font-size: 0.7rem;
-            color: #2c5282;
-            background: #e0e7ff;
-            padding: 2px 10px;
-            border-radius: 20px;
-            white-space: nowrap;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-        .field-match-indicator.show {
-            opacity: 1;
         }
         button {
             background: #1e3a5f;
@@ -393,12 +367,6 @@ HTML_TEMPLATE = '''
             font-size: 0.85rem;
             background: white;
         }
-        .highlight-match {
-            background-color: #fef3c7;
-            font-weight: 500;
-            padding: 2px 0;
-            border-radius: 4px;
-        }
 
         /* CSS Notifications */
         .toast-notification {
@@ -479,7 +447,7 @@ HTML_TEMPLATE = '''
                 </svg>
             </div>
             <h1>Numismatic Vault</h1>
-            <div class="badge">smart bulk · auto-field detection</div>
+            <div class="badge">unified save · bulk ready</div>
         </div>
     </div>
 
@@ -494,20 +462,20 @@ HTML_TEMPLATE = '''
             <span>How to use this tool</span>
         </div>
         <div class="steps-grid">
-            <div class="step-item"><div class="step-marker">1</div><div class="step-text"><strong>Search</strong><p>Type any term - bulk field auto-selects matching column</p></div></div>
-            <div class="step-item"><div class="step-marker">2</div><div class="step-text"><strong>Select Rows</strong><p>Check boxes to mark coins for bulk update</p></div></div>
-            <div class="step-item"><div class="step-marker">3</div><div class="step-text"><strong>Apply Bulk</strong><p>Field auto-detected, but you can change it manually</p></div></div>
-            <div class="step-item"><div class="step-marker">4</div><div class="step-text"><strong>Save All</strong><p>Click SAVE button to persist everything to file</p></div></div>
+            <div class="step-item"><div class="step-marker">1</div><div class="step-text"><strong>Search & Select</strong><p>Filter by any field, check boxes for bulk update</p></div></div>
+            <div class="step-item"><div class="step-marker">2</div><div class="step-text"><strong>Set Bulk Value</strong><p>Choose field and enter new value for selected rows</p></div></div>
+            <div class="step-item"><div class="step-marker">3</div><div class="step-text"><strong>Single Edit</strong><p>Click any cell to edit individually</p></div></div>
+            <div class="step-item"><div class="step-marker">4</div><div class="step-text"><strong>Save All Changes</strong><p>Click SAVE button to persist everything to file</p></div></div>
         </div>
         <div class="note-warning">
             <div class="warning-icon"></div>
-            <span><strong>Smart detection:</strong> Search for "USA" → bulk field auto-changes to "Country". Search for "Smith" → auto-changes to "Donor". You can always override manually.</span>
+            <span><strong>Unified workflow:</strong> Edit single cells OR select rows → apply bulk changes → all changes stay in memory. Then click <strong>Save to File</strong> once to persist everything.</span>
         </div>
     </div>
 
     <div class="toolbar">
         <div class="search-area">
-            <input type="text" id="searchInput" placeholder="Search by any field... (auto-detects column)">
+            <input type="text" id="searchInput" placeholder="Search by country, donor, year, note...">
         </div>
         <div class="bulk-panel">
             <select id="bulkField">
@@ -526,7 +494,6 @@ HTML_TEMPLATE = '''
                 </svg>
                 Apply to Selected
             </button>
-            <div id="fieldMatchIndicator" class="field-match-indicator"></div>
         </div>
         <button id="saveBtn" class="save-btn">
             <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
@@ -558,7 +525,6 @@ HTML_TEMPLATE = '''
     let masterData = [];
     let selectedSet = new Set();
     let searchTerm = "";
-    let userManuallyChangedField = false;
 
     const gridBody = document.getElementById("gridBody");
     const searchInput = document.getElementById("searchInput");
@@ -567,120 +533,6 @@ HTML_TEMPLATE = '''
     const applyBulkInlineBtn = document.getElementById("applyBulkInlineBtn");
     const saveBtn = document.getElementById("saveBtn");
     const selectedCountSpan = document.getElementById("selectedCountDisplay");
-    const fieldMatchIndicator = document.getElementById("fieldMatchIndicator");
-
-    const fieldDisplayNames = {
-        'country': 'Country',
-        'donor_name': 'Donor',
-        'currency_type': 'Currency Type',
-        'year': 'Year',
-        'note': 'Note',
-        'box': 'Box'
-    };
-
-    // Simple highlight function without regex
-    function highlightSearchTerm(text) {
-        if (!searchTerm || !text || searchTerm.length < 2) return escapeHtml(text);
-        
-        const escapedText = escapeHtml(text);
-        const escapedTerm = escapeHtml(searchTerm);
-        const lowerText = escapedText.toLowerCase();
-        const lowerTerm = escapedTerm.toLowerCase();
-        
-        if (!lowerText.includes(lowerTerm)) return escapedText;
-        
-        let result = "";
-        let lastIndex = 0;
-        let index = lowerText.indexOf(lowerTerm);
-        
-        while (index !== -1) {
-            // Add text before the match
-            result += escapedText.substring(lastIndex, index);
-            // Add the highlighted match
-            result += '<span class="highlight-match">' + escapedText.substring(index, index + escapedTerm.length) + '</span>';
-            lastIndex = index + escapedTerm.length;
-            index = lowerText.indexOf(lowerTerm, lastIndex);
-        }
-        // Add remaining text
-        result += escapedText.substring(lastIndex);
-        
-        return result;
-    }
-
-    function escapeHtml(str) {
-        if (str === undefined || str === null) return "";
-        return String(str).replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
-    }
-
-    // Function to detect which field contains the search term
-    function detectMatchingField(searchText) {
-        if (!searchText || searchText.length < 2) return null;
-        
-        const lowerSearch = searchText.toLowerCase();
-        const fieldMatches = {};
-        
-        // Initialize counters for each field
-        const fields = ['country', 'donor_name', 'currency_type', 'year', 'note', 'box'];
-        fields.forEach(field => {
-            fieldMatches[field] = 0;
-        });
-        
-        // Count matches in each field across all data
-        for (const item of masterData) {
-            for (const field of fields) {
-                const value = String(item[field] || "").toLowerCase();
-                if (value.includes(lowerSearch)) {
-                    fieldMatches[field]++;
-                }
-            }
-        }
-        
-        // Find field with highest match count
-        let bestField = null;
-        let bestCount = 0;
-        
-        for (const [field, count] of Object.entries(fieldMatches)) {
-            if (count > bestCount && count > 0) {
-                bestCount = count;
-                bestField = field;
-            }
-        }
-        
-        return bestField;
-    }
-
-    // Auto-update bulk field based on search
-    function autoUpdateBulkField() {
-        if (userManuallyChangedField) return;
-        
-        const matchingField = detectMatchingField(searchTerm);
-        
-        if (matchingField && bulkField.value !== matchingField) {
-            bulkField.value = matchingField;
-            
-            // Add visual feedback
-            bulkField.classList.add('auto-matched');
-            const displayName = fieldDisplayNames[matchingField] || matchingField;
-            fieldMatchIndicator.textContent = `✓ Auto-detected: "${searchTerm}" matches ${displayName} field`;
-            fieldMatchIndicator.classList.add('show');
-            
-            showNotification(`Bulk field auto-changed to: ${displayName} (based on your search)`, "info");
-            
-            setTimeout(() => {
-                fieldMatchIndicator.classList.remove('show');
-                setTimeout(() => {
-                    bulkField.classList.remove('auto-matched');
-                }, 500);
-            }, 3000);
-        } else if (!matchingField && fieldMatchIndicator.classList.contains('show')) {
-            fieldMatchIndicator.classList.remove('show');
-        }
-    }
 
     function showNotification(message, type = "success") {
         const toastContainer = document.getElementById("toastRoot");
@@ -712,6 +564,16 @@ HTML_TEMPLATE = '''
         }, 3200);
     }
 
+    function escapeHtml(str) {
+        if (str === undefined || str === null) return "";
+        return String(str).replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
     function getFilteredData() {
         if (!searchTerm.trim()) return masterData;
         const term = searchTerm.toLowerCase();
@@ -734,7 +596,7 @@ HTML_TEMPLATE = '''
         const filtered = getFilteredData();
         
         if (!filtered.length) {
-            gridBody.innerHTML = `<div class="empty-placeholder">No coins match your search</div>`;
+            gridBody.innerHTML = `<div class="empty-placeholder" style="grid-column:1/-1; text-align:center;">No coins match your search</div>`;
             selectedCountSpan.innerText = `${selectedSet.size} selected`;
             return;
         }
@@ -748,12 +610,12 @@ HTML_TEMPLATE = '''
             html += `
                 <div class="${rowClass}" data-row-id="${id}">
                     <div class="cell-checkbox"><input type="checkbox" class="row-selector" data-id="${id}" ${isSelected ? "checked" : ""}></div>
-                    <div class="cell-data editable-cell" data-id="${id}" data-field="box">${highlightSearchTerm(item.box) || "—"}</div>
-                    <div class="cell-data editable-cell" data-id="${id}" data-field="country">${highlightSearchTerm(item.country) || "—"}</div>
-                    <div class="cell-data editable-cell" data-id="${id}" data-field="currency_type">${highlightSearchTerm(item.currency_type) || "—"}</div>
-                    <div class="cell-data editable-cell" data-id="${id}" data-field="note">${highlightSearchTerm(item.note) || "—"}</div>
-                    <div class="cell-data editable-cell" data-id="${id}" data-field="year">${highlightSearchTerm(item.year) || "—"}</div>
-                    <div class="cell-data editable-cell" data-id="${id}" data-field="donor_name">${highlightSearchTerm(item.donor_name) || "—"}</div>
+                    <div class="cell-data editable-cell" data-id="${id}" data-field="box">${escapeHtml(item.box ?? "") || "—"}</div>
+                    <div class="cell-data editable-cell" data-id="${id}" data-field="country">${escapeHtml(item.country ?? "") || "—"}</div>
+                    <div class="cell-data editable-cell" data-id="${id}" data-field="currency_type">${escapeHtml(item.currency_type ?? "") || "—"}</div>
+                    <div class="cell-data editable-cell" data-id="${id}" data-field="note">${escapeHtml(item.note ?? "") || "—"}</div>
+                    <div class="cell-data editable-cell" data-id="${id}" data-field="year">${escapeHtml(item.year ?? "") || "—"}</div>
+                    <div class="cell-data editable-cell" data-id="${id}" data-field="donor_name">${escapeHtml(item.donor_name ?? "") || "—"}</div>
                 </div>
             `;
         }
@@ -831,7 +693,7 @@ HTML_TEMPLATE = '''
                 countUpdated++;
             }
         }
-        showNotification(`Bulk update applied to ${countUpdated} coin(s). Field "${fieldDisplayNames[field] || field}" set to "${newValue || '(empty)'}". Click Save to persist.`, "success");
+        showNotification(`Bulk update applied to ${countUpdated} coin(s). Field "${field}" set to "${newValue || '(empty)'}". Click Save to persist.`, "success");
         renderGrid();
     }
     
@@ -863,7 +725,7 @@ HTML_TEMPLATE = '''
                 masterData = data;
                 selectedSet.clear();
                 renderGrid();
-                showNotification(`Loaded ${masterData.length} coins from vault. Search will auto-detect matching fields.`, "info");
+                showNotification(`Loaded ${masterData.length} coins from vault.`, "info");
             } else {
                 masterData = [];
                 renderGrid();
@@ -875,34 +737,9 @@ HTML_TEMPLATE = '''
         }
     }
     
-    // Handle search input - update bulk field based on where matches are found
     searchInput.addEventListener('input', (e) => {
         searchTerm = e.target.value;
-        autoUpdateBulkField();  // Auto-detect and update bulk field
-        renderGrid();           // Re-render with filtered results
-    });
-    
-    // Allow manual override - when user manually changes field, disable auto-update
-    bulkField.addEventListener('focus', () => {
-        userManuallyChangedField = true;
-    });
-    
-    bulkField.addEventListener('change', () => {
-        userManuallyChangedField = true;
-        const displayName = fieldDisplayNames[bulkField.value] || bulkField.value;
-        fieldMatchIndicator.textContent = `✓ Manual selection: ${displayName}`;
-        fieldMatchIndicator.classList.add('show');
-        setTimeout(() => {
-            fieldMatchIndicator.classList.remove('show');
-        }, 2000);
-        showNotification(`Bulk field manually set to: ${displayName} (auto-detect disabled)`, "info");
-    });
-    
-    // Re-enable auto-detect when user double-clicks search
-    searchInput.addEventListener('dblclick', () => {
-        userManuallyChangedField = false;
-        autoUpdateBulkField();
-        showNotification("Auto-detection re-enabled", "info");
+        renderGrid();
     });
     
     applyBulkInlineBtn.addEventListener('click', applyBulkToSelected);
