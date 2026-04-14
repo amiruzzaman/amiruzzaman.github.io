@@ -3,7 +3,6 @@
 Numismatic Vault - Professional Coin Management System
 Features: Bulk editing, inline editing, div-based table, CSS notifications, auto-open browser
 NO EMOJIS - All icons are pure CSS/SVG
-UPDATED: Removed "Apply Bulk" button, unified save workflow
 """
 
 from flask import Flask, render_template_string, request, jsonify
@@ -264,12 +263,11 @@ HTML_TEMPLATE = '''
             border-radius: 32px;
             border: 1px solid #cbd5e1;
             background: white;
-            font-size: 0.85rem;
         }
         button {
             background: #1e3a5f;
             border: none;
-            padding: 8px 24px;
+            padding: 8px 20px;
             border-radius: 40px;
             font-weight: 500;
             color: white;
@@ -447,7 +445,7 @@ HTML_TEMPLATE = '''
                 </svg>
             </div>
             <h1>Numismatic Vault</h1>
-            <div class="badge">unified save · bulk ready</div>
+            <div class="badge">bulk editor · inline</div>
         </div>
     </div>
 
@@ -462,14 +460,15 @@ HTML_TEMPLATE = '''
             <span>How to use this tool</span>
         </div>
         <div class="steps-grid">
-            <div class="step-item"><div class="step-marker">1</div><div class="step-text"><strong>Search & Select</strong><p>Filter by any field, check boxes for bulk update</p></div></div>
-            <div class="step-item"><div class="step-marker">2</div><div class="step-text"><strong>Set Bulk Value</strong><p>Choose field and enter new value for selected rows</p></div></div>
-            <div class="step-item"><div class="step-marker">3</div><div class="step-text"><strong>Single Edit</strong><p>Click any cell to edit individually</p></div></div>
-            <div class="step-item"><div class="step-marker">4</div><div class="step-text"><strong>Save All Changes</strong><p>Click SAVE button to persist everything to file</p></div></div>
+            <div class="step-item"><div class="step-marker">1</div><div class="step-text"><strong>Search</strong><p>Filter by country, donor, year or note</p></div></div>
+            <div class="step-item"><div class="step-marker">2</div><div class="step-text"><strong>Select rows</strong><p>Check boxes to mark coins for bulk update</p></div></div>
+            <div class="step-item"><div class="step-marker">3</div><div class="step-text"><strong>Bulk update</strong><p>Pick field → enter value → Apply Bulk</p></div></div>
+            <div class="step-item"><div class="step-marker">4</div><div class="step-text"><strong>Inline edit</strong><p>Click any value cell to modify individually</p></div></div>
+            <div class="step-item"><div class="step-marker">5</div><div class="step-text"><strong>Save changes</strong><p>Click Save button to write to coins.json</p></div></div>
         </div>
         <div class="note-warning">
             <div class="warning-icon"></div>
-            <span><strong>Unified workflow:</strong> Edit single cells OR select rows → apply bulk changes → all changes stay in memory. Then click <strong>Save to File</strong> once to persist everything.</span>
+            <span>Changes are not saved automatically. Always click <strong>Save</strong> after updates.</span>
         </div>
     </div>
 
@@ -484,15 +483,13 @@ HTML_TEMPLATE = '''
                 <option value="year">Year</option>
                 <option value="country">Country</option>
                 <option value="currency_type">Currency Type</option>
-                <option value="box">Box</option>
             </select>
-            <input id="bulkValue" placeholder="New value for selected rows" style="min-width:140px;">
-            <button id="applyBulkInlineBtn" style="background:#2c5282;">
+            <input id="bulkValue" placeholder="New value">
+            <button id="bulkApplyBtn">
                 <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                    <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    <path d="M12 12h4v4M16 12l-4 4" />
+                    <path d="M4 4v16h16V4H4z M8 8h8M8 12h6M8 16h4"/>
                 </svg>
-                Apply to Selected
+                Apply Bulk
             </button>
         </div>
         <button id="saveBtn" class="save-btn">
@@ -500,7 +497,7 @@ HTML_TEMPLATE = '''
                 <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
                 <path d="M17 21v-8H7v8M12 3v5"/>
             </svg>
-            Save to File (Persist All)
+            Save to File
         </button>
         <div class="selected-info" id="selectedCountDisplay">0 selected</div>
     </div>
@@ -530,7 +527,7 @@ HTML_TEMPLATE = '''
     const searchInput = document.getElementById("searchInput");
     const bulkField = document.getElementById("bulkField");
     const bulkValue = document.getElementById("bulkValue");
-    const applyBulkInlineBtn = document.getElementById("applyBulkInlineBtn");
+    const bulkApplyBtn = document.getElementById("bulkApplyBtn");
     const saveBtn = document.getElementById("saveBtn");
     const selectedCountSpan = document.getElementById("selectedCountDisplay");
 
@@ -565,8 +562,8 @@ HTML_TEMPLATE = '''
     }
 
     function escapeHtml(str) {
-        if (str === undefined || str === null) return "";
-        return String(str).replace(/[&<>]/g, function(m) {
+        if (!str) return "";
+        return str.replace(/[&<>]/g, function(m) {
             if (m === '&') return '&amp;';
             if (m === '<') return '&lt;';
             if (m === '>') return '&gt;';
@@ -661,11 +658,9 @@ HTML_TEMPLATE = '''
         const saveEdit = () => {
             const newVal = input.value.trim();
             const targetItem = masterData.find(i => i.image === id);
-            if (targetItem) {
-                targetItem[field] = newVal;
-            }
+            if (targetItem) targetItem[field] = newVal;
             renderGrid();
-            showNotification(`Updated ${field} → "${newVal || 'empty'}" (click Save to persist)`, "info");
+            showNotification(`Updated ${field} → "${newVal || 'empty'}"`, "success");
         };
         
         input.addEventListener('blur', saveEdit);
@@ -677,15 +672,13 @@ HTML_TEMPLATE = '''
         });
     }
     
-    function applyBulkToSelected() {
+    function applyBulkUpdate() {
         const field = bulkField.value;
         const newValue = bulkValue.value;
         if (selectedSet.size === 0) {
             showNotification("No rows selected. Please select at least one coin.", "error");
             return;
         }
-        if (!field) return;
-        
         let countUpdated = 0;
         for (let i = 0; i < masterData.length; i++) {
             if (selectedSet.has(masterData[i].image)) {
@@ -693,7 +686,7 @@ HTML_TEMPLATE = '''
                 countUpdated++;
             }
         }
-        showNotification(`Bulk update applied to ${countUpdated} coin(s). Field "${field}" set to "${newValue || '(empty)'}". Click Save to persist.`, "success");
+        showNotification(`Bulk update applied: ${countUpdated} row(s) updated. Field "${field}" set to "${newValue || '(empty)'}".`, "success");
         renderGrid();
     }
     
@@ -705,8 +698,7 @@ HTML_TEMPLATE = '''
                 body: JSON.stringify(masterData)
             });
             if (response.ok) {
-                const result = await response.json();
-                showNotification(`✓ All changes saved! ${result.count || masterData.length} coins written to coins.json`, "success");
+                showNotification("All changes saved to coins.json successfully!", "success");
             } else {
                 const errData = await response.json();
                 showNotification(`Save failed: ${errData.error || "server error"}`, "error");
@@ -742,15 +734,8 @@ HTML_TEMPLATE = '''
         renderGrid();
     });
     
-    applyBulkInlineBtn.addEventListener('click', applyBulkToSelected);
+    bulkApplyBtn.addEventListener('click', applyBulkUpdate);
     saveBtn.addEventListener('click', saveToBackend);
-    
-    bulkValue.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            applyBulkToSelected();
-        }
-    });
     
     loadData();
 </script>
