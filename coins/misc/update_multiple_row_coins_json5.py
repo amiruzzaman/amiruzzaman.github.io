@@ -656,30 +656,31 @@ HTML_TEMPLATE = '''
 
     // Auto-update bulk field based on search
     function autoUpdateBulkField() {
-    // Remove the userManuallyChangedField check to always auto-detect
-    const matchingField = detectMatchingField(searchTerm);
-    
-    if (matchingField && bulkField.value !== matchingField && searchTerm.trim()) {
-        bulkField.value = matchingField;
+        if (userManuallyChangedField) return;
         
-        // Add visual feedback
-        bulkField.classList.add('auto-matched');
-        const displayName = fieldDisplayNames[matchingField] || matchingField;
-        fieldMatchIndicator.textContent = `✓ Auto-detected: "${searchTerm}" matches ${displayName} field`;
-        fieldMatchIndicator.classList.add('show');
+        const matchingField = detectMatchingField(searchTerm);
         
-        showNotification(`Bulk field auto-changed to: ${displayName} (based on your search)`, "info");
-        
-        setTimeout(() => {
-            fieldMatchIndicator.classList.remove('show');
+        if (matchingField && bulkField.value !== matchingField) {
+            bulkField.value = matchingField;
+            
+            // Add visual feedback
+            bulkField.classList.add('auto-matched');
+            const displayName = fieldDisplayNames[matchingField] || matchingField;
+            fieldMatchIndicator.textContent = `✓ Auto-detected: "${searchTerm}" matches ${displayName} field`;
+            fieldMatchIndicator.classList.add('show');
+            
+            showNotification(`Bulk field auto-changed to: ${displayName} (based on your search)`, "info");
+            
             setTimeout(() => {
-                bulkField.classList.remove('auto-matched');
-            }, 500);
-        }, 3000);
-    } else if (!matchingField && fieldMatchIndicator.classList.contains('show')) {
-        fieldMatchIndicator.classList.remove('show');
+                fieldMatchIndicator.classList.remove('show');
+                setTimeout(() => {
+                    bulkField.classList.remove('auto-matched');
+                }, 500);
+            }, 3000);
+        } else if (!matchingField && fieldMatchIndicator.classList.contains('show')) {
+            fieldMatchIndicator.classList.remove('show');
+        }
     }
-}
 
     function showNotification(message, type = "success") {
         const toastContainer = document.getElementById("toastRoot");
