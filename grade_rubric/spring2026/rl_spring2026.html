@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grading Rubric Tool - UL Spring2026</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --border-color: #dfe6e9;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f7fa;
+        }
+
+        .progress-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+        }
+        .progress-container {
+            flex: 1;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin: 0 15px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .progress-text {
+            font-weight: bold;
+            min-width: 100px;
+        }
+
+        .total-score-display {
+            position: fixed;
+            top: 50px;
+            right: 20px;
+            background: var(--secondary-color);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-weight: bold;
+            z-index: 1001;
+            font-size: 14px;
+        }
+
+        .side-summary-panel {
+            position: fixed;
+            top: 60px;
+            right: 20px;
+            width: 280px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 15px;
+            z-index: 900;
+            max-height: calc(100vh - 80px);
+            overflow-y: auto;
+        }
+        .side-summary-panel h4 {
+            margin: 0 0 10px 0;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 5px;
+        }
+        .section-total-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 10px;
+            margin-bottom: 5px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .section-total-item:hover {
+            background: #e3f2fd;
+            transform: translateX(-3px);
+        }
+        .section-total-item.completed {
+            background: #e8f5e9;
+            border-left: 3px solid #4caf50;
+        }
+        .section-label {
+            font-weight: 600;
+        }
+        .section-score {
+            font-weight: 700;
+            background: white;
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+        .grand-total-row {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 2px dashed var(--primary-color);
+            display: flex;
+            justify-content: space-between;
+            font-weight: 800;
+        }
+
+        #container {
+            margin-right: 320px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        @media (max-width: 900px) {
+            .side-summary-panel {
+                position: static;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            #container {
+                margin-right: 0;
+            }
+            .total-score-display {
+                position: static;
+                display: inline-block;
+                margin-bottom: 15px;
+            }
+            body {
+                padding-top: 60px;
+            }
+        }
+
+        .student-name-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        .welcome-message {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid var(--primary-color);
+        }
+        .part-container {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--primary-color);
+            transition: box-shadow 0.3s;
+        }
+        .part-container h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: var(--secondary-color);
+        }
+        .section-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .section-button {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .select-yes {
+            background: #d4edda;
+            color: #155724;
+        }
+        .select-no {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .problem-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #fafbfc;
+            border-radius: 8px;
+        }
+        .item-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+        .item-yes, .item-no {
+            flex: 1;
+            padding: 10px 12px;
+            margin: 0 5px;
+            cursor: pointer;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+            transition: all 0.2s;
+        }
+        .item-yes.selected {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        .item-no.selected {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        .item-score {
+            width: 60px;
+            text-align: center;
+            font-weight: bold;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .sub-total-score {
+            text-align: right;
+            font-weight: bold;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        .additional-comment-container {
+            margin-top: 15px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        .additional-comment-textarea, .summary-textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        .save-button, .reset-button, .copy-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 5px;
+        }
+        .save-button {
+            background: var(--success-color);
+            color: white;
+        }
+        .save-button:disabled {
+            background: #adb5bd;
+            cursor: not-allowed;
+        }
+        .reset-button {
+            background: var(--danger-color);
+            color: white;
+        }
+        .copy-button {
+    background: var(--primary-color); /* This is blue (#3498db), not green */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    margin: 5px;
+    padding: 10px 20px;
+    transition: background-color 0.3s;
+}
+        .copy-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .section-copy-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 15px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        #paraID {
+            width: 100%;
+            min-height: 200px;
+            padding: 12px;
+            font-family: monospace;
+            background: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+        .checkbox-container {
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .overall-summary-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .global-copy-message {
+            width: 100%;
+            background: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 500;
+            margin-top: 10px;
+            box-sizing: border-box;
+        }
+        .edit-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            z-index: 1002;
+            width: 450px;
+            max-width: 90vw;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1001;
+        }
+        .hidden {
+            visibility: hidden;
+        }
+        .edit-box textarea, .edit-box input {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .edit-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .edit-buttons button {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="progress-header">
+    <span>Grading Progress:</span>
+    <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="progress-text" id="progressText">0% (0/100)</div>
+</div>
+
+<div class="total-score-display" id="totalScoreDisplay">Total: 0/100</div>
+
+<div class="side-summary-panel" id="sideSummaryPanel">
+    <h4>📋 Section Scores (Click to jump)</h4>
+    <div id="sectionTotalsList"></div>
+    <div class="grand-total-row">
+        <span>Grand Total</span>
+        <span id="grandTotalValue">0/100</span>
+    </div>
+</div>
+
+<div id="container"></div>
+
+<div id="editBox" class="edit-box hidden">
+    <textarea id="editText" rows="3"></textarea>
+    <div>
+        <label>Score (Max: <span id="editMaxScore">0</span>)</label>
+        <input type="number" id="editScore" min="0">
+    </div>
+    <div class="edit-buttons">
+        <button id="editClear">Clear</button>
+        <button id="editZero">Set 0</button>
+        <button id="editCancel">Cancel</button>
+        <button id="editSave">Save</button>
+    </div>
+</div>
+<div id="overlay" class="overlay hidden"></div>
+
+<script>
+// Embedded rubric data from the JSON file
+const RUBRIC_DATA = {
+    "A": {
+        "title": "Requirements (Overleaf, GitHub, REPRO, EDA, Page Length, Legibility, References)",
+        "problems": [[
+            {"yes": "Overleaf and LaTeX: Both a read-only link to your Overleaf is provided and your report is written in LaTeX.", "no": "One or both requirements are missed.", "point": 1, "key": "A1_1"},
+            {"yes": "GitHub Hash: Your final commit hash is provided and your work is accessible.", "no": "Either you provided no final commit hash or it is inaccessible.", "point": 1, "key": "A1_2"},
+            {"yes": "Run Instructions: Appropriate run instructions are provided in your REPRO document.", "no": "Run instructions are not provided in your REPRO document.", "point": 1, "key": "A1_3"},
+            {"yes": "EDA: You provide appropriate EDA in your REPRO document.", "no": "You don't provide suitable EDA in your REPRO document.", "point": 1, "key": "A1_4"},
+            {"yes": "Page Length: You adhered to the stated 8-page length max rule.", "no": "You neglected to abide by the stated rule that your paper be 8-page max length.", "point": 2, "key": "A2"},
+            {"yes": "Graph/Text Legibility: Your visualizations and writing adhere to IEEE standard.", "no": "Visualizations/writing do not comply with IEEE standard and legibility requirements.", "point": 2, "key": "A3"},
+            {"yes": "Proper References: You provide references outside course materials, appropriately cited.", "no": "No external references or they are inappropriately cited.", "point": 2, "key": "A4"}
+        ]]
+    },
+    "B": {
+        "title": "Hypothesis (8 points)",
+        "problems": [[
+            {"yes": "Hypothesis Declaration: At least one context relevant hypothesis is provided.", "no": "At least one context relevant hypothesis must be provided.", "point": 2, "key": "B1_1"},
+            {"yes": "Citing Evidence: Each hypothesis draws support from theory (lecture, paper, proof).", "no": "Each hypothesis must draw support from theory.", "point": 2, "key": "B1_2"},
+            {"yes": "Follow-Through: You provide follow-up to reason whether each hypothesis is proven or disproven.", "no": "Follow-up must be provided to reason whether each hypothesis is proven or disproven.", "point": 2, "key": "B2_1"},
+            {"yes": "Conclusions Defended: You defend observed evidence by citing evidence with interpretation.", "no": "Must defend observed evidence by citing evidence with interpretation.", "point": 2, "key": "B2_2"}
+        ]]
+    },
+    "C": {
+        "title": "Step 1: Clustering (both datasets) (20 points)",
+        "problems": [[
+            {"yes": "EM Hyperparameter Selection: You provide rationale for selection of cluster count.", "no": "Must provide rationale for selection of cluster count.", "point": 4, "key": "C1_1"},
+            {"yes": "EM Results Visualization: You provide visualization to justify written claims.", "no": "Must provide visualization to justify written claims.", "point": 2, "key": "C1_2"},
+            {"yes": "EM Results Interpretation: You provide meaningful interpretation of cluster shape/distribution.", "no": "Must provide meaningful interpretation of cluster shape/distribution.", "point": 4, "key": "C1_3"},
+            {"yes": "KMC Hyperparameter Selection: You provide rationale for selection of cluster count.", "no": "Must provide rationale for selection of cluster count.", "point": 4, "key": "C2_1"},
+            {"yes": "KMC Results Visualization: You provide visualization to justify written claims.", "no": "Must provide visualization to justify written claims.", "point": 2, "key": "C2_2"},
+            {"yes": "KMC Results Interpretation: You provide meaningful interpretation of cluster shape/distribution.", "no": "Must provide meaningful interpretation of cluster shape/distribution.", "point": 4, "key": "C2_3"}
+        ]]
+    },
+    "D": {
+        "title": "Step 2: Dimensionality Reduction (both datasets) (24 points)",
+        "problems": [[
+            {"yes": "RP Component Selection: You justify number of components citing a suitable metric.", "no": "Must justify number of components citing a suitable metric.", "point": 4, "key": "D1_1"},
+            {"yes": "RP Results Visualization: You provide appropriate visualization with citation.", "no": "Must provide appropriate visualization with citation.", "point": 2, "key": "D1_2"},
+            {"yes": "RP Results Interpretation: You provide meaningful analysis (loading scores, feature space, comparison).", "no": "Must provide meaningful analysis (loading scores, feature space, comparison).", "point": 2, "key": "D1_3"},
+            {"yes": "PCA Component Selection: You justify number of components citing a suitable metric.", "no": "Must justify number of components citing a suitable metric.", "point": 4, "key": "D2_1"},
+            {"yes": "PCA Results Visualization: You provide appropriate visualization with citation.", "no": "Must provide appropriate visualization with citation.", "point": 2, "key": "D2_2"},
+            {"yes": "PCA Results Interpretation: You provide meaningful analysis (loading scores, feature space, comparison).", "no": "Must provide meaningful analysis (loading scores, feature space, comparison).", "point": 2, "key": "D2_3"},
+            {"yes": "ICA Component Selection: You justify number of components citing a suitable metric.", "no": "Must justify number of components citing a suitable metric.", "point": 4, "key": "D3_1"},
+            {"yes": "ICA Results Visualization: You provide appropriate visualization with citation.", "no": "Must provide appropriate visualization with citation.", "point": 2, "key": "D3_2"},
+            {"yes": "ICA Results Interpretation: You provide meaningful analysis (loading scores, feature space, comparison).", "no": "Must provide meaningful analysis (loading scores, feature space, comparison).", "point": 2, "key": "D3_3"}
+        ]]
+    },
+    "E": {
+        "title": "Step 3: Dimensionality Reduction then Clustering (both datasets) (14 points)",
+        "problems": [[
+            {"yes": "Wine Performance Visualization: Appropriate visualization for 6 pairwise combinations.", "no": "Must provide appropriate visualization for 6 pairwise combinations.", "point": 4, "key": "E1_1_WINE"},
+            {"yes": "Wine Pairwise Comparisons: Meaningful interpretation of combined effects for Wine.", "no": "Must provide meaningful interpretation of combined effects for Wine.", "point": 3, "key": "E1_2_WINE"},
+            {"yes": "Adult Performance Visualization: Appropriate visualization for 6 pairwise combinations.", "no": "Must provide appropriate visualization for 6 pairwise combinations.", "point": 4, "key": "E1_1_ADULT"},
+            {"yes": "Adult Pairwise Comparisons: Meaningful interpretation of combined effects for Adult.", "no": "Must provide meaningful interpretation of combined effects for Adult.", "point": 3, "key": "E1_2_ADULT"}
+        ]]
+    },
+    "F": {
+        "title": "Step 4: Dimensionality Reduction on NN (one dataset) (12 points)",
+        "problems": [[
+            {"yes": "RP Performance Commentary: Evidence of performance improvements for RP.", "no": "Must provide evidence of performance improvements for RP.", "point": 2, "key": "F1_1"},
+            {"yes": "RP Wall Clock Difference: Address speed up in runtime for RP.", "no": "Must address speed up in runtime for RP.", "point": 2, "key": "F1_2"},
+            {"yes": "PCA Performance Commentary: Evidence of performance improvements for PCA.", "no": "Must provide evidence of performance improvements for PCA.", "point": 2, "key": "F2_1"},
+            {"yes": "PCA Wall Clock Difference: Address speed up in runtime for PCA.", "no": "Must address speed up in runtime for PCA.", "point": 2, "key": "F2_2"},
+            {"yes": "ICA Performance Commentary: Evidence of performance improvements for ICA.", "no": "Must provide evidence of performance improvements for ICA.", "point": 2, "key": "F3_1"},
+            {"yes": "ICA Wall Clock Difference: Address speed up in runtime for ICA.", "no": "Must address speed up in runtime for ICA.", "point": 2, "key": "F3_2"}
+        ]]
+    },
+    "G": {
+        "title": "Step 5: Clustering on NN (one dataset) (12 points)",
+        "problems": [[
+            {"yes": "EM Performance Commentary: Evidence of improvements using EM clusters as features.", "no": "Must provide evidence of improvements using EM clusters as features.", "point": 3, "key": "G1_1"},
+            {"yes": "EM Wall Clock Difference: Relate speed up to filtering effect of EM.", "no": "Must relate speed up to filtering effect of EM.", "point": 3, "key": "G1_2"},
+            {"yes": "KMC Performance Commentary: Evidence of improvements using KM clusters as features.", "no": "Must provide evidence of improvements using KM clusters as features.", "point": 3, "key": "G2_1"},
+            {"yes": "KMC Wall Clock Difference: Relate speed up to filtering effect of KM.", "no": "Must relate speed up to filtering effect of KM.", "point": 3, "key": "G2_2"}
+        ]]
+    },
+    "EC": {
+        "title": "Extra Credit: Nonlinear Manifold Learning (5 points)",
+        "problems": [[
+            {"yes": "Full implementation with explanation, visuals, and comparison to Steps 1 or 3.", "no": "Not applicable", "point": 5, "key": "EC_FULL"},
+            {"yes": "Partial implementation with surface-level interpretation but suitable visuals.", "no": "Not applicable", "point": 3, "key": "EC_PARTIAL"},
+            {"yes": "No demonstrable implementation or only passing remarks.", "no": "Not applicable", "point": 0, "key": "EC_NONE"}
+        ]]
+    }
+};
+
+const MAX_TOTAL = 100;
+let allItems = [];
+let subTotalMaxScores = [];
+let additionalComments = {};
+let currentEditItem = null;
+
+function showMessage(msg, isError = false) {
+    const el = document.getElementById('globalCopyMessage');
+    el.textContent = msg;
+    el.style.background = isError ? '#dc3545' : '#28a745';
+    el.style.display = 'block';
+}
+
+function hideMessage() {
+    const el = document.getElementById('globalCopyMessage');
+    el.style.display = 'none';
+}
+
+function updateAllScores() {
+    let total = 0;
+    const problemContainers = document.querySelectorAll('.problem-container');
+    problemContainers.forEach((container, idx) => {
+        let probTotal = 0;
+        container.querySelectorAll('.item-container').forEach(item => {
+            const score = parseInt(item.querySelector('.item-score').textContent) || 0;
+            probTotal += score;
+            total += score;
+        });
+        const subDiv = container.querySelector('.sub-total-score');
+        if (subDiv) subDiv.textContent = `${probTotal}/${subTotalMaxScores[idx] || 0}`;
+    });
+    document.getElementById('totalScoreDisplay').innerHTML = `Total: ${total}/${MAX_TOTAL}`;
+    const percent = Math.round((total / MAX_TOTAL) * 100);
+    document.getElementById('progressBar').style.width = percent + '%';
+    document.getElementById('progressText').innerHTML = `${percent}% (${total}/${MAX_TOTAL})`;
+    updateSidePanel();
+    
+    const allSelected = allItems.every(item => 
+        item.yes.classList.contains('selected') || item.no.classList.contains('selected')
+    );
+    const saveBtn = document.querySelector('.save-button');
+    if (saveBtn) saveBtn.disabled = !allSelected;
+}
+
+function updateSidePanel() {
+    const container = document.getElementById('sectionTotalsList');
+    if (!container) return;
+    let html = '';
+    let grandTotal = 0;
+    
+    // Add a "Top" option
+    html += `<div class="section-total-item" data-section="top">
+        <span class="section-label">⬆ Top (Name & Welcome)</span>
+        <span class="section-score"></span>
+    </div>`;
+    
+    document.querySelectorAll('.part-container').forEach(part => {
+        const key = part.id.replace('part-', '');
+        let earned = 0, maxPossible = 0;
+        part.querySelectorAll('.item-container').forEach(item => {
+            earned += parseInt(item.querySelector('.item-score').textContent) || 0;
+        });
+        if (key !== 'EC') {
+            part.querySelectorAll('.item-yes').forEach(y => maxPossible += parseInt(y.dataset.max) || 0);
+        } else {
+            maxPossible = 5;
+        }
+        grandTotal += earned;
+        const isComplete = Array.from(part.querySelectorAll('.item-container')).every(item => 
+            item.querySelector('.item-yes').classList.contains('selected') || 
+            item.querySelector('.item-no').classList.contains('selected')
+        );
+        html += `<div class="section-total-item ${isComplete ? 'completed' : ''}" data-section="${key}">
+            <span class="section-label">${key}${isComplete ? ' ✓' : ''}</span>
+            <span class="section-score">${earned}/${maxPossible}</span>
+        </div>`;
+    });
+    
+    // Add a "Save Button" option at the bottom
+    html += `<div class="section-total-item" data-section="save">
+        <span class="section-label">💾 Save Button</span>
+        <span class="section-score"></span>
+    </div>`;
+    
+    container.innerHTML = html;
+    document.getElementById('grandTotalValue').innerHTML = `${grandTotal}/${MAX_TOTAL}`;
+    
+    document.querySelectorAll('.section-total-item').forEach(el => {
+        el.addEventListener('click', () => {
+            const section = el.dataset.section;
+            if (section === 'top') {
+                // Scroll to top of the container where name input and welcome message are
+                const container = document.getElementById('container');
+                const headerOffset = 60;
+                const elementPosition = container.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                // Highlight the name input briefly
+                const nameInput = document.querySelector('.student-name-input');
+                if (nameInput) {
+                    nameInput.style.transition = 'box-shadow 0.3s';
+                    nameInput.style.boxShadow = '0 0 0 3px var(--primary-color)';
+                    setTimeout(() => { nameInput.style.boxShadow = ''; }, 1500);
+                }
+            } else if (section === 'save') {
+                // Scroll to the save button
+                const saveBtn = document.querySelector('.save-button');
+                if (saveBtn) {
+                    const headerOffset = 60;
+                    const elementPosition = saveBtn.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                    window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                    // Highlight the save button briefly
+                    saveBtn.style.transition = 'box-shadow 0.3s';
+                    saveBtn.style.boxShadow = '0 0 0 3px var(--primary-color)';
+                    setTimeout(() => { saveBtn.style.boxShadow = ''; }, 1500);
+                }
+            } else {
+                document.getElementById(`part-${section}`).scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+}
+
+function getECCopyText(partContainer) {
+    const items = partContainer.querySelectorAll('.item-container');
+    let anyYes = false;
+    let totalEC = 0;
+    
+    items.forEach(item => {
+        const yesSelected = item.querySelector('.item-yes').classList.contains('selected');
+        const maxPts = parseInt(item.querySelector('.item-yes').dataset.max);
+        if (yesSelected) {
+            anyYes = true;
+            totalEC += maxPts;
+        }
+    });
+    
+    if (!anyYes) return `0\tN\tN\tN`;
+    return `${totalEC}\tN\tN\tN`;
+}
+
+function copySectionScores(sectionKey) {
+    const part = document.getElementById(`part-${sectionKey}`);
+    if (!part) return;
+    
+    // Find the button that was clicked - use exact match or more reliable selector
+    let clickedBtn = null;
+    
+    // Method 1: Find by data attribute (better)
+    const allCopyBtns = document.querySelectorAll('.section-copy-buttons .copy-button');
+    allCopyBtns.forEach(btn => {
+        if (btn.getAttribute('data-section') === sectionKey) {
+            clickedBtn = btn;
+        }
+    });
+    
+    // Method 2: If not found by data attribute, try text content
+    if (!clickedBtn) {
+        allCopyBtns.forEach(btn => {
+            if (btn.textContent === `📋 Copy ${sectionKey}` || 
+                btn.textContent.includes(`Copy ${sectionKey}`)) {
+                clickedBtn = btn;
+            }
+        });
+    }
+    
+    let copyText = '';
+    if (sectionKey === 'EC') {
+        copyText = getECCopyText(part);
+    } else {
+        const scores = [];
+        part.querySelectorAll('.item-score').forEach(score => scores.push(score.textContent));
+        copyText = scores.join('\t');
+    }
+    
+    navigator.clipboard.writeText(copyText).then(() => {
+        showMessage(`✓ Section ${sectionKey} scores copied: ${copyText}`);
+        
+        if (clickedBtn) {
+            clickedBtn.style.setProperty('background-color', '#28a745', 'important');
+            clickedBtn.style.setProperty('color', 'white', 'important');
+            clickedBtn.setAttribute('data-copied', 'true');
+        }
+    }).catch(() => {
+        showMessage(`Failed to copy section ${sectionKey}`, true);
+        if (clickedBtn) {
+            clickedBtn.style.setProperty('background-color', '#dc3545', 'important');
+            clickedBtn.style.setProperty('color', 'white', 'important');
+            clickedBtn.setAttribute('data-copied', 'error');
+        }
+    });
+}
+
+function scrollToNextSection(currentPart) {
+    const allParts = Array.from(document.querySelectorAll('.part-container'));
+    const currentIndex = allParts.indexOf(currentPart);
+    if (currentIndex < allParts.length - 1) {
+        const nextPart = allParts[currentIndex + 1];
+        setTimeout(() => {
+            nextPart.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            nextPart.style.transition = 'box-shadow 0.3s';
+            nextPart.style.boxShadow = '0 0 0 3px var(--primary-color)';
+            setTimeout(() => { nextPart.style.boxShadow = ''; }, 1500);
+        }, 300);
+    }
+}
+
+function selectAllInPart(partContainer, selectYes) {
+    partContainer.querySelectorAll('.item-container').forEach(item => {
+        const yesBtn = item.querySelector('.item-yes');
+        const noBtn = item.querySelector('.item-no');
+        const scoreSpan = item.querySelector('.item-score');
+        if (selectYes) {
+            yesBtn.classList.add('selected');
+            noBtn.classList.remove('selected');
+            scoreSpan.textContent = yesBtn.dataset.max;
+            scoreSpan.style.color = 'green';
+        } else {
+            noBtn.classList.add('selected');
+            yesBtn.classList.remove('selected');
+            scoreSpan.textContent = '0';
+            scoreSpan.style.color = 'red';
+        }
+    });
+    updateAllScores();
+}
+
+function checkAndAutoJump(partContainer) {
+    const isComplete = Array.from(partContainer.querySelectorAll('.item-container')).every(item => 
+        item.querySelector('.item-yes').classList.contains('selected') || 
+        item.querySelector('.item-no').classList.contains('selected')
+    );
+    if (isComplete) {
+        scrollToNextSection(partContainer);
+    }
+}
+
+function renderRubric() {
+    const container = document.getElementById('container');
+    container.innerHTML = '';
+    allItems = [];
+    subTotalMaxScores = [];
+    
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.className = 'student-name-input';
+    nameInput.placeholder = 'Enter student name...';
+    container.appendChild(nameInput);
+    
+    const welcomeDiv = document.createElement('div');
+    welcomeDiv.className = 'welcome-message';
+    welcomeDiv.innerHTML = 'Great job finishing the UL Report, just one more to go for the semester! Continuing from the previous assignment, please see the section-by-section feedback below, highlighting "What you did well" and "What needs improvement." Please create a private Ed post if you\'d like clarification on any grading or feedback we provide and we\'ll happily follow up there!';
+    container.appendChild(welcomeDiv);
+    
+    let problemIdx = 0;
+    const partKeys = Object.keys(RUBRIC_DATA);
+    
+    for (const key of partKeys) {
+        const data = RUBRIC_DATA[key];
+        const partDiv = document.createElement('div');
+        partDiv.className = 'part-container';
+        partDiv.id = `part-${key}`;
+        
+        const title = document.createElement('h3');
+        title.textContent = `${key}: ${data.title}`;
+        partDiv.appendChild(title);
+        
+        const controls = document.createElement('div');
+        controls.className = 'section-controls';
+        const yesAll = document.createElement('button');
+        yesAll.className = 'section-button select-yes';
+        yesAll.textContent = 'Select All Yes';
+        yesAll.onclick = () => selectAllInPart(partDiv, true);
+        const noAll = document.createElement('button');
+        noAll.className = 'section-button select-no';
+        noAll.textContent = 'Select All No';
+        noAll.onclick = () => selectAllInPart(partDiv, false);
+        controls.append(yesAll, noAll);
+        partDiv.appendChild(controls);
+        
+        for (const problemSet of data.problems) {
+            const probDiv = document.createElement('div');
+            probDiv.className = 'problem-container';
+            
+            let probMax = 0;
+            problemSet.forEach(p => probMax += p.point);
+            subTotalMaxScores[problemIdx] = probMax;
+            
+            problemSet.forEach((problem, itemIdx) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'item-container';
+                
+                const yesDiv = document.createElement('div');
+                yesDiv.className = 'item-yes';
+                yesDiv.textContent = problem.yes;
+                yesDiv.dataset.max = problem.point;
+                
+                const noDiv = document.createElement('div');
+                noDiv.className = 'item-no';
+                noDiv.textContent = problem.no;
+                noDiv.dataset.max = problem.point;
+                
+                const scoreSpan = document.createElement('div');
+                scoreSpan.className = 'item-score';
+                scoreSpan.textContent = '0';
+                
+                const handleSelect = (isYes) => () => {
+                    const parentPart = itemDiv.closest('.part-container');
+                    const isEC = parentPart.id === 'part-EC';
+                    if (isEC) {
+                        if (isYes) {
+                            yesDiv.classList.add('selected');
+                            noDiv.classList.remove('selected');
+                            scoreSpan.textContent = problem.point;
+                            scoreSpan.style.color = 'green';
+                            parentPart.querySelectorAll('.item-container').forEach(other => {
+                                if (other !== itemDiv) {
+                                    other.querySelector('.item-yes').classList.remove('selected');
+                                    other.querySelector('.item-no').classList.add('selected');
+                                    other.querySelector('.item-score').textContent = '0';
+                                    other.querySelector('.item-score').style.color = 'red';
+                                }
+                            });
+                        } else {
+                            noDiv.classList.add('selected');
+                            yesDiv.classList.remove('selected');
+                            scoreSpan.textContent = '0';
+                            scoreSpan.style.color = 'red';
+                        }
+                    } else {
+                        if (isYes) {
+                            yesDiv.classList.add('selected');
+                            noDiv.classList.remove('selected');
+                            scoreSpan.textContent = problem.point;
+                            scoreSpan.style.color = 'green';
+                        } else {
+                            noDiv.classList.add('selected');
+                            yesDiv.classList.remove('selected');
+                            scoreSpan.textContent = '0';
+                            scoreSpan.style.color = 'red';
+                        }
+                    }
+                    updateAllScores();
+                    checkAndAutoJump(parentPart);
+                };
+                
+                yesDiv.onclick = handleSelect(true);
+                noDiv.onclick = handleSelect(false);
+                yesDiv.ondblclick = () => { currentEditItem = yesDiv; openEditDialog(); };
+                noDiv.ondblclick = () => { currentEditItem = noDiv; openEditDialog(); };
+                
+                itemDiv.append(yesDiv, noDiv, scoreSpan);
+                probDiv.appendChild(itemDiv);
+                allItems.push({ yes: yesDiv, no: noDiv, score: scoreSpan });
+            });
+            
+            const subTotal = document.createElement('div');
+            subTotal.className = 'sub-total-score';
+            subTotal.textContent = `0/${probMax}`;
+            probDiv.appendChild(subTotal);
+            partDiv.appendChild(probDiv);
+            problemIdx++;
+        }
+        
+        const commentDiv = document.createElement('div');
+        commentDiv.className = 'additional-comment-container';
+        const commentLabel = document.createElement('label');
+        commentLabel.textContent = 'Additional comments for this section (optional):';
+        const commentTextarea = document.createElement('textarea');
+        commentTextarea.className = 'additional-comment-textarea';
+        commentTextarea.rows = 2;
+        commentTextarea.placeholder = 'Enter any additional comments for this section here...';
+        commentTextarea.oninput = (e) => { additionalComments[key] = e.target.value; };
+        commentDiv.append(commentLabel, commentTextarea);
+        partDiv.appendChild(commentDiv);
+        container.appendChild(partDiv);
+    }
+    
+    // Section copy buttons container
+// Inside renderRubric function, when creating section copy buttons:
+const sectionCopyDiv = document.createElement('div');
+sectionCopyDiv.className = 'section-copy-buttons';
+for (const key of partKeys) {
+    const btn = document.createElement('button');
+    btn.className = 'copy-button';
+    btn.textContent = `📋 Copy ${key}`;
+    btn.setAttribute('data-section', key);  // Add this line
+    btn.style.transition = 'background-color 0.3s';
+    btn.onclick = () => copySectionScores(key);
+    sectionCopyDiv.appendChild(btn);
+}
+
+container.appendChild(sectionCopyDiv);
+    
+    // Global copy message div - placed right after section-copy-buttons, same width
+    const copyMessageDiv = document.createElement('div');
+    copyMessageDiv.id = 'globalCopyMessage';
+    copyMessageDiv.className = 'global-copy-message';
+    copyMessageDiv.style.display = 'none';
+    container.appendChild(copyMessageDiv);
+    
+    // Summary section
+    const summaryDiv = document.createElement('div');
+    summaryDiv.className = 'overall-summary-section';
+    summaryDiv.innerHTML = `
+        <h3>Overall Summary</h3>
+        <div class="checkbox-container">
+            <input type="checkbox" id="includeSummary" checked>
+            <label>Include Overall Summary in feedback</label>
+        </div>
+        <div class="summary-input-group">
+            <label>What you did well (optional):</label>
+            <textarea id="strengthsInput" class="summary-textarea" rows="2" placeholder="Enter strengths here..."></textarea>
+        </div>
+        <div class="summary-input-group">
+            <label>What needs improvement (optional):</label>
+            <textarea id="weaknessesInput" class="summary-textarea" rows="2" placeholder="Enter areas for improvement here..."></textarea>
+        </div>
+        <div class="checkbox-container">
+            <input type="checkbox" id="extraPageComment">
+            <label>Include additional comment about page management!</label>
+        </div>
+    `;
+    container.appendChild(summaryDiv);
+    
+    // Buttons
+    const copyButtons = document.createElement('div');
+    copyButtons.className = 'copy-buttons';
+const copyFeedbackBtn = document.createElement('button');
+copyFeedbackBtn.className = 'copy-button';
+copyFeedbackBtn.textContent = '📋 Copy Feedback';
+copyFeedbackBtn.onclick = () => {
+    const feedback = document.getElementById('paraID').value;
+    if (feedback) { 
+        navigator.clipboard.writeText(feedback).then(() => {
+            showMessage('✓ Feedback copied to clipboard!');
+            copyFeedbackBtn.style.backgroundColor = '#28a745';
+            copyFeedbackBtn.style.color = 'white';
+            copyFeedbackBtn.setAttribute('data-copied', 'true');
+        }).catch(() => {
+            showMessage('Failed to copy feedback', true);
+        });
+    }
+    else showMessage('No feedback to copy', true);
+};
+    const copyAllScoresBtn = document.createElement('button');
+copyAllScoresBtn.className = 'copy-button';
+copyAllScoresBtn.textContent = '📋 Copy All Scores';
+copyAllScoresBtn.onclick = () => {
+    let allScores = [];
+    for (const key of partKeys) {
+        const part = document.getElementById(`part-${key}`);
+        if (key === 'EC') allScores.push(getECCopyText(part));
+        else {
+            const scores = [];
+            part.querySelectorAll('.item-score').forEach(s => scores.push(s.textContent));
+            allScores.push(scores.join('\t'));
+        }
+    }
+    navigator.clipboard.writeText(allScores.join('\t')).then(() => {
+        showMessage('✓ All scores copied to clipboard!');
+        copyAllScoresBtn.style.backgroundColor = '#28a745';
+        copyAllScoresBtn.style.color = 'white';
+        copyAllScoresBtn.setAttribute('data-copied', 'true');
+    }).catch(() => {
+        showMessage('Failed to copy all scores', true);
+    });
+};
+    copyButtons.append(copyFeedbackBtn, copyAllScoresBtn);
+    container.appendChild(copyButtons);
+    
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'save-button';
+    saveBtn.textContent = '💾 Save';
+    saveBtn.disabled = true;
+    saveBtn.onclick = generateFeedback;
+    container.appendChild(saveBtn);
+    
+    const feedbackTA = document.createElement('textarea');
+    feedbackTA.id = 'paraID';
+    feedbackTA.placeholder = 'Final grade by item will appear below';
+    feedbackTA.rows = 10;
+    container.appendChild(feedbackTA);
+    
+    const resetBtn = document.createElement('button');
+resetBtn.className = 'reset-button';
+resetBtn.textContent = '⟳ Reset All';
+resetBtn.onclick = () => {
+    if (confirm('Reset all selections?')) {
+        // Reset all item selections
+        allItems.forEach(item => {
+            item.yes.classList.remove('selected');
+            item.no.classList.remove('selected');
+            item.score.textContent = '0';
+            item.score.style.color = '';
+        });
+        
+        // Reset all copy button colors
+        document.querySelectorAll('.copy-button').forEach(btn => {
+            btn.style.backgroundColor = '';
+            btn.style.color = '';
+            btn.removeAttribute('data-copied');
+        });
+        
+        // Clear additional comments
+        additionalComments = {};
+        document.querySelectorAll('.additional-comment-textarea').forEach(textarea => {
+            textarea.value = '';
+        });
+        
+        // Clear summary fields
+        const strengthsInput = document.getElementById('strengthsInput');
+        const weaknessesInput = document.getElementById('weaknessesInput');
+        if (strengthsInput) strengthsInput.value = '';
+        if (weaknessesInput) weaknessesInput.value = '';
+        
+        // Uncheck extra page comment checkbox
+        const extraPageCheckbox = document.getElementById('extraPageComment');
+        if (extraPageCheckbox) extraPageCheckbox.checked = false;
+        
+        // Clear the feedback textarea
+        const feedbackTA = document.getElementById('paraID');
+        if (feedbackTA) feedbackTA.value = '';
+        
+        // Clear the copy message
+        hideMessage();
+        
+        updateAllScores();
+        document.querySelector('.save-button').disabled = true;
+        showMessage('All selections and copy button colors reset');
+    }
+};
+container.appendChild(resetBtn);
+}
+
+function openEditDialog() {
+    if (!currentEditItem) return;
+    document.getElementById('editText').value = currentEditItem.textContent;
+    const maxScore = parseInt(currentEditItem.dataset.max);
+    document.getElementById('editMaxScore').textContent = maxScore;
+    const currentScore = currentEditItem.closest('.item-container').querySelector('.item-score').textContent;
+    document.getElementById('editScore').value = currentScore;
+    document.getElementById('editScore').max = maxScore;
+    document.getElementById('editBox').classList.remove('hidden');
+    document.getElementById('overlay').classList.remove('hidden');
+}
+
+function closeEditDialog() {
+    document.getElementById('editBox').classList.add('hidden');
+    document.getElementById('overlay').classList.add('hidden');
+    currentEditItem = null;
+}
+
+function generateFeedback() {
+    let output = '';
+    const name = document.querySelector('.student-name-input').value.trim();
+    output += name ? `Great job finishing the UL Report, ${name}!\nContinuing from the previous assignment, please see the section-by-section feedback below, highlighting 'What you did well' and 'What needs improvement.' Please create a private Ed post if you'd like clarification on any grading or feedback we provide and we'll happily follow up there!\n\n` : `Great job finishing the UL Report!\nContinuing from the previous assignment, please see the section-by-section feedback below, highlighting 'What you did well' and 'What needs improvement.' Please create a private Ed post if you'd like clarification on any grading or feedback we provide and we'll happily follow up there!\n\n`;
+    
+    let totalScore = 0;
+    for (const key of Object.keys(RUBRIC_DATA)) {
+        const part = document.getElementById(`part-${key}`);
+        const title = RUBRIC_DATA[key].title;
+        let earned = 0, maxPossible = 0;
+        const positives = [], negatives = [];
+        
+        part.querySelectorAll('.item-container').forEach((item, idx) => {
+            const yesSel = item.querySelector('.item-yes').classList.contains('selected');
+            const score = parseInt(item.querySelector('.item-score').textContent) || 0;
+            earned += score;
+            const text = yesSel ? item.querySelector('.item-yes').textContent : item.querySelector('.item-no').textContent;
+            if (yesSel) positives.push(text);
+            else negatives.push(text);
+        });
+        
+        if (key !== 'EC') {
+            part.querySelectorAll('.item-yes').forEach(y => maxPossible += parseInt(y.dataset.max));
+        } else maxPossible = 5;
+        
+        if (key === 'EC' && negatives.length === 3 && positives.length === 0) continue;
+        
+        totalScore += earned;
+        output += `${key}. ${title} (${earned}/${maxPossible})\n{\n`;
+        if (positives.length) {
+            output += "What you did well:\n";
+            positives.forEach((p, i) => output += `+ ${key}${i+1}. ${p}\n`);
+            output += "\n";
+        }
+        if (negatives.length) {
+            output += "What needs improvement:\n";
+            negatives.forEach((n, i) => output += `x ${key}${i+1}. ${n}\n`);
+            output += "\n";
+        }
+        if (additionalComments[key] && additionalComments[key].trim()) {
+            output += "General Feedback:\n" + additionalComments[key] + "\n";
+        }
+        output += "}\n\n";
+    }
+    
+    const includeSummary = document.getElementById('includeSummary').checked;
+    const strengths = document.getElementById('strengthsInput').value.trim();
+    const weaknesses = document.getElementById('weaknessesInput').value.trim();
+    const extraPage = document.getElementById('extraPageComment').checked;
+    
+    if (includeSummary && (strengths || weaknesses || extraPage)) {
+        output += `Overall Summary:\n{\nAnd with that, you're on to the next one -- the UL Report! Give yourself some credit for another report in the books`;
+        if (name) output += `, ${name}`;
+        output += `! As follows is more holistic feedback taking an overall look at your report, where your strengths were and where you could improve in future (be it on the UL Reviewer Response or the UL Report):\n\n`;
+        if (strengths) output += `What you did well:\n+ ${strengths}\n\n`;
+        if (weaknesses) output += `What needs improvement:\nx ${weaknesses}\n\n`;
+        if (extraPage) {
+            output += `What needs improvement:\nx You could have done a better job in managing your empty spaces in your report, which would have allowed you to add more discussions on your results and comparisons.\n`;
+        }
+        output += `}`;
+    } else if (extraPage) {
+        output += `\nWhat needs improvement:\nx You could have done a better job in managing your empty spaces in your report, which would have allowed you to add more discussions on your results and comparisons.\n`;
+    }
+    
+    output += `\nTotal score: ${totalScore}/${MAX_TOTAL}\n`;
+    document.getElementById('paraID').value = output;
+    showMessage('Feedback generated!');
+}
+
+// Setup edit dialog handlers
+document.getElementById('editSave').onclick = () => {
+    if (currentEditItem) {
+        const newText = document.getElementById('editText').value;
+        const newScore = parseInt(document.getElementById('editScore').value);
+        const maxScore = parseInt(currentEditItem.dataset.max);
+        if (isNaN(newScore) || newScore < 0 || newScore > maxScore) {
+            showMessage(`Score must be between 0 and ${maxScore}`, true);
+            return;
+        }
+        currentEditItem.textContent = newText;
+        const scoreSpan = currentEditItem.closest('.item-container').querySelector('.item-score');
+        scoreSpan.textContent = newScore;
+        if (currentEditItem.classList.contains('item-yes')) {
+            currentEditItem.classList.add('selected');
+            currentEditItem.closest('.item-container').querySelector('.item-no').classList.remove('selected');
+            scoreSpan.style.color = 'green';
+        } else {
+            currentEditItem.classList.add('selected');
+            currentEditItem.closest('.item-container').querySelector('.item-yes').classList.remove('selected');
+            scoreSpan.style.color = 'red';
+        }
+        updateAllScores();
+        closeEditDialog();
+    }
+};
+document.getElementById('editCancel').onclick = closeEditDialog;
+document.getElementById('editClear').onclick = () => document.getElementById('editText').value = '';
+document.getElementById('editZero').onclick = () => document.getElementById('editScore').value = '0';
+
+// Initialize
+renderRubric();
+updateAllScores();
+</script>
+</body>
+</html>
