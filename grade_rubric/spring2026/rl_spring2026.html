@@ -429,64 +429,175 @@
 
 <script>
 // Updated RUBRIC_DATA for RL Report (total 117 points: A=10, B=8, C=24, D=30, E=28, EC=5, General Feedback optional)
-const RUBRIC_DATA = {
-    "A": {
-        "title": "Requirements (10 points)",
-        "problems": [[
-            {"yes": "LaTeX and Overleaf: You provide your report in LaTeX with a link to Overleaf, as well as provide an accessible GitHub commit hash and clear run instructions in your REPRO document.", "no": "You must provide your report in LaTeX with a link to Overleaf, as well as provide an accessible GitHub commit hash and clear run instructions in your REPRO document.", "point": 3, "key": "A1"},
-            {"yes": "Page Length: Your report adheres to the 8-page max length rule.", "no": "Your report must adhere to the 8-page max length rule.", "point": 2, "key": "A2"},
-            {"yes": "Legibility: Your graphs, tables, figures and text are legible and properly captioned.", "no": "Your graphs, tables, figures and text must be legible and properly captioned.", "point": 2, "key": "A3"},
-            {"yes": "References: You provide a references section and your references consistently adhere to one of three acceptable citation formats (APA, MLA, IEEE).", "no": "You must provide a references section and your references must consistently adhere to one of three acceptable citation formats (APA, MLA, IEEE).", "point": 3, "key": "A4"}
-        ]]
-    },
-    "B": {
-        "title": "Hypothesis (8 points)",
-        "problems": [[
-            {"yes": "Hypothesis Declaration: You provide at least one explicitly stated, coherent and well-reasoned hypothesis that paves the way to measured experiments to draw out conclusions about your algorithms and MDP environments.", "no": "You must provide at least one explicitly stated, coherent and well-reasoned hypothesis that paves the way to measured experiments to draw out conclusions about your algorithms and MDP environments.", "point": 2, "key": "B1"},
-            {"yes": "Hypothesis Base Rationale: You provide suitable grounding of each hypothesis declared by citing theory such as drawing from lecture, official textbooks, the provided FAQ, a trusted publication or well-established RL theory.", "no": "You must provide suitable grounding of each hypothesis declared by citing theory such as drawing from lecture, official textbooks, the provided FAQ, a trusted publication or well-established RL theory.", "point": 2, "key": "B2"},
-            {"yes": "Hypothesis Follow-Through: You follow-up through your experiments and in your conclusion on each hypothesis provided and provide evaluation of whether the results you find validate or invalidate each hypothesis.", "no": "You must provide follow-up through your experiments and in your conclusion on each hypothesis provided as well as evaluate whether the results you find validate or invalidate each hypothesis.", "point": 2, "key": "B3"},
-            {"yes": "Hypothesis Conclusion Justification: Your conclusions regarding each hypothesis are well-defended; you appropriately cite plots, tables and other figures in your report to justify your conclusions.", "no": "Your conclusions regarding each hypothesis must be well-defended; you must appropriately cite plots, tables and other figures in your report to justify your conclusions.", "point": 2, "key": "B4"}
-        ]]
-    },
-    "C": {
-        "title": "MDP Overview and Discretization (24 points)",
-        "problems": [[
-            {"yes": "Blackjack MDP: You appropriately set the scene with MDP descriptive items like state, action and reward structure (including player sum, dealer up card, usable-ace flag for states, hit and stick for actions and +1, 0, -1 for win, draw and loss, respectively) and you describe the episodic nature of the MDP through Blackjack rules.", "no": "You must appropriately set the scene with MDP descriptive items like state, action and reward structure (including player sum, dealer up card, usable-ace flag for states, hit and stick for actions and +1, 0, -1 for win, draw and loss, respectively) and describe the episodic nature of the MDP through Blackjack rules.", "point": 8, "key": "C1"},
-            {"yes": "Cartpole MDP: You list each of the relevant state variables for Cartpole, including cart position and velocity and pole angle and angular velocity, and you aptly address the actions of left or right applied force and reward per time step sustained of +1. You appropriately outline the termination conditions such as out-of-bounds angle and position thresholds.", "no": "You should list each of the relevant state variables for Cartpole, including cart position and velocity and pole angle and angular velocity, as well as address the actions of left or right applied force and reward per time step sustained of +1. You also need to outline the termination conditions such as out-of-bounds angle and position thresholds.", "point": 8, "key": "C2"},
-            {"yes": "Comparison and Discretization Strategy: You address discrete vs continuous problems, clearly articulate how you went about discretization (mapping continuous states to bins), and address repercussions of binning choices on runtime, fidelity, and memory tradeoffs.", "no": "You must address discrete vs continuous problems, clearly articulate how you went about discretization, and discuss the repercussions of binning choices on runtime, fidelity, and memory tradeoffs.", "point": 8, "key": "C3"}
-        ]]
-    },
-    "D": {
-        "title": "Value Iteration and Policy Iteration (30 points)",
-        "problems": [[
-            {"yes": "VI/PI Explanation: You appropriately mention Bellman optimality updates, describe policy-evaluation and greedy policy improvement loop, address convergence guarantees in finite MDPs, and contrast VI and PI computational tradeoffs.", "no": "You must mention Bellman optimality updates, describe policy-evaluation and greedy policy improvement loop, address convergence guarantees in finite MDPs, and contrast VI and PI computational tradeoffs.", "point": 6, "key": "D1"},
-            {"yes": "Convergence Visualizations: You provide four distinct plots (VI-Blackjack, PI-Blackjack, VI-Cartpole, PI-Cartpole) demonstrating convergence, policy changes, and discretization impacts.", "no": "You must provide four distinct plots (VI-Blackjack, PI-Blackjack, VI-Cartpole, PI-Cartpole) demonstrating convergence, policy changes, and discretization impacts.", "point": 8, "key": "D2"},
-            {"yes": "Convergence Analysis: You study convergence under different hyperparameters (theta, gamma), address convergence speed discrepancy between PI and VI, provide iterations to convergence, and explicit convergence formulation.", "no": "You must study convergence under different hyperparameters, address speed discrepancy between PI and VI, provide iterations to convergence, and explicit convergence formulation.", "point": 6, "key": "D3"},
-            {"yes": "Final Policy Comparison: You address differing and similar results between VI and PI, provide justification and visuals to reinforce claims.", "no": "You must address differing and similar results between VI and PI, provide justification and visuals to reinforce claims.", "point": 5, "key": "D4"},
-            {"yes": "State Space Impact on Cartpole: You acknowledge approximation error from discretization, discuss tradeoffs via quantitative means, effect of binning on policy granularity, optimality, and compute overhead.", "no": "You must acknowledge approximation error from discretization, discuss tradeoffs, effect of binning on policy granularity, optimality, and compute overhead.", "point": 5, "key": "D5"}
-        ]]
-    },
-    "E": {
-        "title": "Model-Free Control w/ SARSA and Q-Learning (28 points)",
-        "problems": [[
-            {"yes": "Algorithm Explanation and On/Off-Policy Nuance: You provide update equations for SARSA and Q-Learning, address SARSA as on-policy and Q-Learning as off-policy with interpretation.", "no": "You must provide update equations for SARSA and Q-Learning, address SARSA as on-policy and Q-Learning as off-policy with interpretation.", "point": 6, "key": "E1"},
-            {"yes": "Learning and Convergence Diagnostics: You show four plots (learning/convergence for both algorithms and both environments), provide performance trajectories and signal of stability (mean delta-Q, TD-error decay) with follow-up discussion.", "no": "You must show four plots for learning/convergence, provide performance trajectories and signal of stability with follow-up discussion.", "point": 8, "key": "E2"},
-            {"yes": "Exploration Strategy Design and Impact: You describe exploration scheme, parameter settings, justification, clear quantitative evidence comparing behavior, connect to schedule mechanics and environment's state-action space.", "no": "You must describe exploration scheme, parameters, justification, quantitative evidence comparing behavior, and connect to schedule mechanics and environment.", "point": 6, "key": "E3"},
-            {"yes": "Policy and Behavioral Analysis: You compare SARSA and Q-Learning policies and behaviors for both MDPs using visuals/value tables/heatmaps, tie observations to on/off-policy nature, exploration role, and draw comparison to model-based DP methods with evidence.", "no": "You must compare SARSA and Q-Learning policies using visuals, tie observations to on/off-policy nature, exploration role, and compare to model-based DP with evidence.", "point": 8, "key": "E4"}
-        ]]
-    },
-    "EC": {
-        "title": "Extra Credit: Cartpole DQN (5 points)",
-        "problems": [[
-            {"yes": "Full DQN implementation: replay buffer AND target network, plus substantial improvement (Rainbow or ablation). Architecture, hyperparameters clearly described. Learning curves compared to SARSA/Q-learning, stability/performance analysis with justification.", "no": "Not applicable - insufficient DQN implementation", "point": 5, "key": "EC_FULL"},
-            {"yes": "Partial DQN: replay buffer OR target network, partial parameter overview, surface-level comparison to tabular methods, lacking quantitative proof or full interpretation.", "no": "Not applicable", "point": 3, "key": "EC_PARTIAL"},
-            {"yes": "Incomplete attempt: honest but underdelivered architecture/hyperparameter discussion, shallow comparison, limited failure mode analysis.", "no": "Not applicable", "point": 1, "key": "EC_MINIMAL"},
-            {"yes": "No attempt or cursory attempt: zero credit.", "no": "Not applicable", "point": 0, "key": "EC_NONE"}
-        ]]
-    }
+const RUBRIC_DATA ={
+  "A": {
+    "problems": [
+      [
+        {
+          "key": "A1",
+          "no": "You must provide your report in LaTeX with a link to Overleaf, as well as provide an accessible GitHub commit hash and clear run instructions in your REPRO document.",
+          "point": 4,
+          "yes": "LaTeX and Overleaf: You provide your report in LaTeX with a link to Overleaf, as well as provide an accessible GitHub commit hash and clear run instructions in your REPRO document."
+        },
+        {
+          "key": "A2",
+          "no": "Your report must adhere to the 8-page max length rule.",
+          "point": 2,
+          "yes": "Page Length: Your report adheres to the 8-page max length rule."
+        },
+        {
+          "key": "A3",
+          "no": "Your graphs, tables, figures and text must be legible and properly captioned.",
+          "point": 2,
+          "yes": "Legibility: Your graphs, tables, figures and text are legible and properly captioned."
+        },
+        {
+          "key": "A4",
+          "no": "You must provide a references section and your references must consistently adhere to one of three acceptable citation formats (APA, MLA, IEEE).",
+          "point": 2,
+          "yes": "References: You provide a references section and your references consistently adhere to one of three acceptable citation formats (APA, MLA, IEEE)."
+        }
+      ]
+    ],
+    "title": "Requirements (10 points)"
+  },
+  "B": {
+    "problems": [
+      [
+        {
+          "key": "B1",
+          "no": "You must provide at least one explicitly stated, coherent and well-reasoned hypothesis that paves the way to measured experiments to draw out conclusions about your algorithms and MDP environments.",
+          "point": 2,
+          "yes": "Hypothesis Declaration: You provide at least one explicitly stated, coherent and well-reasoned hypothesis that paves the way to measured experiments to draw out conclusions about your algorithms and MDP environments."
+        },
+        {
+          "key": "B2",
+          "no": "You must provide suitable grounding of each hypothesis declared by citing theory such as drawing from lecture, official textbooks, the provided FAQ, a trusted publication or well-established RL theory.",
+          "point": 2,
+          "yes": "Hypothesis Base Rationale: You provide suitable grounding of each hypothesis declared by citing theory such as drawing from lecture, official textbooks, the provided FAQ, a trusted publication or well-established RL theory."
+        },
+        {
+          "key": "B3",
+          "no": "You must provide follow-up through your experiments and in your conclusion on each hypothesis provided as well as evaluate whether the results you find validate or invalidate each hypothesis.",
+          "point": 2,
+          "yes": "Hypothesis Follow-Through: You follow-up through your experiments and in your conclusion on each hypothesis provided and provide evaluation of whether the results you find validate or invalidate each hypothesis."
+        },
+        {
+          "key": "B4",
+          "no": "Your conclusions regarding each hypothesis must be well-defended; you must appropriately cite plots, tables and other figures in your report to justify your conclusions.",
+          "point": 2,
+          "yes": "Hypothesis Conclusion Justification: Your conclusions regarding each hypothesis are well-defended; you appropriately cite plots, tables and other figures in your report to justify your conclusions."
+        }
+      ]
+    ],
+    "title": "Hypothesis (8 points)"
+  },
+  "C": {
+    "problems": [
+      [
+        {
+          "key": "C1",
+          "no": "You must appropriately set the scene with MDP descriptive items like state, action and reward structure (including player sum, dealer up card, usable-ace flag for states, hit and stick for actions and +1, 0, -1 for win, draw and loss, respectively) and you need to describe the episodic nature of the MDP through Blackjack rules like the episode ending by bust or stick.",
+          "point": 8,
+          "yes": "Blackjack MDP: You appropriately set the scene with MDP descriptive items like state, action and reward structure (including player sum, dealer up card, usable-ace flag for states, hit and stick for actions and +1, 0, -1 for win, draw and loss, respectively) and you describe the episodic nature of the MDP through Blackjack rules like the episode ending by bust or stick."
+        },
+        {
+          "key": "C2",
+          "no": "You should list each of the relevant state variables for Cartpole, including cart position and velocity and pole angle and angular velocity, as well as address the actions of left or right applied force and reward per time step sustained of +1. You also need to outline the termination conditions such as out-of-bounds angle and position thresholds.",
+          "point": 8,
+          "yes": "Cartpole MDP: You list each of the relevant state variables for Cartpole, including cart position and velocity and pole angle and angular velocity, and you aptly address the actions of left or right applied force and reward per time step sustained of +1. You appropriately outline the termination conditions such as out-of-bounds angle and position thresholds."
+        },
+        {
+          "key": "C3",
+          "no": "You must address the matter of Blackjack being a small/discrete problem and state space while Cartpole is continuous and varies in scale based on its discretization for application to VI/PI and tabular RL approaches. You need also to address the implications of discrete vs. continuous problems and the need to discretize carefully on the ease of problem setup and ultimately performance. You should always clearly articulate how you went about discretization, calling upon mapping of continuous states to bins and number of bins per feature. You should have also addressed the repercussions of binning choices on runtime fidelity and computation or memory tradeoffs to help the reader appreciate the differences in scale on discretizing.",
+          "point": 8,
+          "yes": "Comparison and Discretization Strategy: You address the matter of Blackjack being a small/discrete problem and state space while Cartpole is continuous and varies in scale based on its discretization for application to VI/PI and tabular RL approaches. You address the implications of discrete vs. continuous problems and the need to discretize carefully on the ease of problem setup and ultimately performance. You clearly articulate how you went about discretization, calling upon mapping of continuous states to bins and number of bins per feature. You appropriately address the repercussions of binning choices on runtime fidelity and computation or memory tradeoffs to help the reader appreciate the differences in scale on discretizing."
+        }
+      ]
+    ],
+    "title": "MDP Overview and Discretization (24 points)"
+  },
+  "D": {
+    "problems": [
+      [
+        {
+          "key": "D1",
+          "no": "You must make mention of Bellman optimality updates in the context of Value Iteration to the point of its convergence. You also must describe the policy-evaluation (value at the current policy) and greedy policy improvement loop. You should have addressed convergence guarantees in finite MDPs whose transition dynamics are known, and you needed to contrast VI with PI as it relates to their respective updates and computational tradeoffs therein.",
+          "point": 8,
+          "yes": "VI/PI Explanation: You appropriately make mention of Bellman optimality updates in the context of Value Iteration to the point of its convergence. You also describe the policy-evaluation (value at the current policy) and greedy policy improvement loop. You address convergence guarantees in finite MDPs whose transition dynamics are known, and you contrast VI with PI as it relates to their respective updates and computational tradeoffs therein."
+        },
+        {
+          "key": "D2",
+          "no": "You should have provided four distinct plots spanning both problems (Cartpole and Blackjack) and both DP MDP methods (VI and PI). You should have included a VI-Blackjack change in value per iteration plot showing clear convergence at or above your threshold. Your PI-Blackjack plot must also demonstrate the number of policy changes over iterations, where a decrease in policy change is expected as you stabilize near the optimal policy. You were expected to provide a VI-Cartpole change in value per iteration plot which demonstrates the same as with Blackjack with the addition of some alluding to your discretization selections and how their results varied. Your PI-Cartpole was expected to show the same as Blackjack with the addition again of discretization coarseness-based stability and convergence.",
+          "point": 8,
+          "yes": "Convergence Visualizations: You provide four distinct plots spanning both problems (Cartpole and Blackjack) and both DP MDP methods (VI and PI). Your VI-Blackjack change in value per iteration plot shows clear convergence at or above your threshold. Your PI-Blackjack plot demonstrates the number of policy changes over iterations, where a decrease in policy change is expected as you stabilize near the optimal policy. Your VI-Cartpole change in value per iteration plot demonstrates the same as with Blackjack with the addition of alluding to your discretization selections and how their results may vary. Your PI-Cartpole shows the same as Blackjack with the addition again of discretization coarseness-based stability and convergence."
+        },
+        {
+          "key": "D3",
+          "no": "You must appropriately analyze convergence under different hyperparameter tuning regimes, including theta and gamma, where several values of each must be tested. You should address the convergence speed discrepancy (in terms of iteration count) between PI and VI, and situate this in the greedy policy improvement step of the PI loop. You should've noted the iterations to convergence for both VI and PI and provide explicit (such as an equation that's cited) convergence formulation.",
+          "point": 7,
+          "yes": "Convergence Analysis: You appropriately study convergence under different hyperparameter tuning regimes, including theta and gamma, where several values of each are tested. You address the convergence speed discrepancy (in terms of iteration count) between PI and VI, and situate this in the greedy policy improvement step of the PI loop. You note the iterations to convergence for both VI and PI and provide explicit (such as an equation that's cited) convergence formulation."
+        },
+        {
+          "key": "D4",
+          "no": "You should have addressed the differing and similar results between VI and PI, such as whether they converge on the same best policy at time of convergence. Providing justification in either case, your visual for this section should help reinforce the underlying claim and observations.",
+          "point": 4,
+          "yes": "Final Policy Comparison: Your address of the differing and similar results between VI and PI, such as whether they converge on the same best policy at time of convergence, is well done. You provide justification in either case and your visual for this section helps reinforce the underlying claim and observations."
+        },
+        {
+          "key": "D5",
+          "no": "You needed to acknowledge approximation error associated with discretization and discuss the tradeoffs between discretizations via quantitative or otherwise demonstrable means like demonstrating the effect of binning on state space size and ultimately on policy granularity and optimality, compute overhead and runtime.",
+          "point": 3,
+          "yes": "State Space Impact on Cartpole: You explicitly acknowledge approximation error associated with discretization and discuss the tradeoffs between discretizations via quantitative or otherwise demonstrable means like demonstrating the effect of binning on state space size and ultimately on policy granularity and optimality, compute overhead and runtime."
+        }
+      ]
+    ],
+    "title": "Value Iteration and Policy Iteration (30 points)"
+  },
+  "E": {
+    "title": "Model-Free Control w/ SARSA and Q-Learning (32 points)",
+    "problems": [[
+        {"yes": "Algorithm Explanation and On/Off-Policy Nuance: You provide suitable explanation or explicitly provide the update equations for both SARSA and Q-Learning and address SARSA as on-policy (with interpretation) and Q-Learning as off-policy (with interpretation).", "no": "You must provide suitable explanation or explicitly provide the update equations for both SARSA and Q-Learning and address SARSA as on-policy (with interpretation) and Q-Learning as off-policy (with interpretation).", "point": 4, "key": "E1"},
+        {"yes": "Learning and Convergence Diagnostics: You show both learning and convergence on both algorithms and both environments for a total of four plots. You provide performance trajectories by some means (reward or episode length vs episodes) and offer a signal of stability in the form of mean delta-Q or TD-error decay or variance/stdev of returns and offer follow-up discussion.", "no": "You should show both learning and convergence on both algorithms and both environments for a total of four plots. You also should have provided performance trajectories by some means (reward or episode length vs episodes) and offered a signal of stability in the form of mean delta-Q or TD-error decay or variance/stdev of returns with follow-up discussion.", "point": 8, "key": "E2"},
+        {"yes": "Exploration Strategy Design and Impact: You describe one or more exploration scheme and delve into their parameter settings as well as provide justification for the schedule with respect to its suitability exploring both environments. In doing so, you provide clear quantitative evidence to compare behavior under the given schedule and you connect this back to the schedule's mechanics as well as those of the environment's state-action space.", "no": "You must describe one or more exploration scheme and delve into their parameter settings as well as provide justification for the schedule with respect to its suitability in exploring both environments. In doing so, you should have provided clear quantitative evidence to compare behavior under the given schedule while connecting this back to the schedule's mechanics as well as those of the environment's state-action space.", "point": 6, "key": "E3"},
+        {"yes": "Policy and Behavioral Analysis: You offer comparison between SARSA and Q-Learning's policies and behaviors for both MDPs and illustrate the effects through your visuals, value tables, heatmaps, etc. You tie the observed behaviors back to the nature of the active method being on or off-policy as well as address the role of exploration schedule and the variations you find therein. You also draw comparison between your observations on one of the model-free methods and the model-based DP ones and invoke evidence to highlight any differences you call to attention.", "no": "You need to compare between SARSA and Q-Learning's policies and behaviors for both MDPs and to illustrate the effects through your visuals, value tables, heatmaps, etc. You must tie the observed behaviors back to the nature of the active method being on or off-policy as well as address the role of exploration schedule and the variations you find therein. You should also draw comparison between your observations on one of the model-free methods and the model-based DP ones and invoke evidence to highlight any differences called to attention.", "point": 6, "key": "E4"},
+        {"yes": "Varies at least two hyperparameters per algorithm (e.g., α, γ, and an exploration parameter such as decay rate or floor), in line with the FAQ requirement that each model validate at least two hyperparameters. Discusses robustness on both environments (qualitative OK for one if compute is tight). States some convergence criterion (e.g., moving-average reward plateau, or mean |ΔQ| below δ) and uses it in the analysis. Interprets stability vs speed trade-offs (e.g., high α faster initial gains but oscillation; lower γ short-sighted behavior in Blackjack).", "no": "You must vary at least two hyperparameters per algorithm (e.g., α, γ, and an exploration parameter such as decay rate or floor), in line with the FAQ requirement that each model validate at least two hyperparameters. You should discuss robustness on both environments (qualitative OK for one if compute is tight). You need to state some convergence criterion (e.g., moving-average reward plateau, or mean |ΔQ| below δ) and use it in your analysis. You must interpret stability vs speed trade-offs (e.g., high α faster initial gains but oscillation; lower γ short-sighted behavior in Blackjack).", "point": 4, "key": "E5"}
+    ]]
+},
+  "EC": {
+    "problems": [
+      [
+        {
+          "key": "EC_FULL",
+          "no": "Not applicable - insufficient DQN implementation",
+          "point": 5,
+          "yes": "Full DQN implementation: Your DQN implementation includes a replay buffer for learning on traceback AND target network for computation of training targets and you provide some substantive improvement such as one from Rainbow DQN or an independent ablation. Your entire architecture including parameters like buffer size, batch size, learning rate, gamma, epsilon schedule and target update are adequately described. Your output learning curves are clear and are compared with SARSA and Q-Learning, where you also address stability performance, issues and mitigation and quantitative comparison that you provide appropriate justification for."
+        },
+        {
+          "key": "EC_PARTIAL",
+          "no": "Not applicable",
+          "point": 3,
+          "yes": "Partial DQN: Your DQN is set to learn on Cartpole with at least one of replay buffer OR target network. You provide partial but incomplete overview of your parameters tuned and the overall architecture. You allude to your tabular methods SARSA and Q-Learning and offer some comparison between these and DQN, however this is surface level and doesn't come with quantitative proof or interpretation of the underlying mechanisms. Rainbow modification, if at all provided, is deemed to be shallower than is expected in order to earn the full score."
+        },
+        {
+          "key": "EC_MINIMAL",
+          "no": "Not applicable",
+          "point": 1,
+          "yes": "Incomplete attempt: You present an honest (and commendable), yet incomplete attempt at implementing DQN, where across the gamut of discussion points from architecture to hyperparameter settings and tuning as well as visiting failure modes, we felt you underdelivered in spite of your noble attempt. We felt for any extension to your tabular methods (SARSA and Q-Learning), your comparison skimmed the surface and was not up to par with our expectations for fuller credit here."
+        },
+        {
+          "key": "EC_NONE",
+          "no": "Not applicable",
+          "point": 0,
+          "yes": "No attempt or cursory attempt: You either did not attempt the Extra Credit portion, or any attempts seen in the report were slightly too cursory to be deserving of extra credit."
+        }
+      ]
+    ],
+    "title": "Extra Credit: Cartpole DQN (5 points)"
+  }
 };
 
-const MAX_TOTAL = 117;
+const MAX_TOTAL = 100;
 let allItems = [];
 let subTotalMaxScores = [];
 let additionalComments = {};
