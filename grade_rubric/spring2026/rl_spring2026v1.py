@@ -6,11 +6,8 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# JSON file path
-JSON_FILE = 'rl_spring2026.json'
-
-# Default rubric data (used only if JSON file doesn't exist)
-DEFAULT_RUBRIC_DATA = {
+# Initial rubric data (same as from your assignment)
+RUBRIC_DATA = {
     "A": {
         "title": "Requirements (10 points)",
         "problems": [[
@@ -67,34 +64,6 @@ DEFAULT_RUBRIC_DATA = {
     }
 }
 
-def load_rubric_from_file():
-    """Load rubric data from JSON file, create with defaults if doesn't exist"""
-    if os.path.exists(JSON_FILE):
-        try:
-            with open(JSON_FILE, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except (json.JSONDecodeError, IOError) as e:
-            print(f"Error loading JSON file: {e}. Using default data.")
-            return DEFAULT_RUBRIC_DATA.copy()
-    else:
-        # Create the file with default data
-        save_rubric_to_file(DEFAULT_RUBRIC_DATA)
-        return DEFAULT_RUBRIC_DATA.copy()
-
-def save_rubric_to_file(data):
-    """Save rubric data to JSON file"""
-    try:
-        with open(JSON_FILE, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
-        return True
-    except IOError as e:
-        print(f"Error saving to JSON file: {e}")
-        return False
-
-# Load rubric data from file at startup
-RUBRIC_DATA = load_rubric_from_file()
-
-# HTML_TEMPLATE remains the same (truncated for brevity - same as original)
 HTML_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="en">
@@ -457,7 +426,7 @@ HTML_TEMPLATE = '''
                     <div class="rubric-section">
                         <div class="section-header" onclick="toggleSection('${sectionId}')">
                             <h2>
-                                <span>${escapeHtml(section.title)}</span>
+                                <span>${section.title}</span>
                                 <span class="collapse-icon" id="${sectionId}-icon">▼</span>
                             </h2>
                         </div>
@@ -479,7 +448,7 @@ HTML_TEMPLATE = '''
                             for (const item of problemGroup) {
                                 html += `
                                     <tr>
-                                        <td class="criteria-key">${escapeHtml(item.key)}</td>
+                                        <td class="criteria-key">${item.key}</td>
                                         <td class="criteria-text">
                                             <div>
                                                 <span class="badge badge-yes">Yes</span>
@@ -698,11 +667,7 @@ def update_rubric():
     global RUBRIC_DATA
     try:
         RUBRIC_DATA = request.json
-        # Save to file
-        if save_rubric_to_file(RUBRIC_DATA):
-            return jsonify({'status': 'success', 'message': 'Rubric saved successfully'})
-        else:
-            return jsonify({'status': 'error', 'message': 'Failed to write to file'}), 500
+        return jsonify({'status': 'success', 'message': 'Rubric saved successfully'})
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 400
 
