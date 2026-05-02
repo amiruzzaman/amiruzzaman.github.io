@@ -283,7 +283,6 @@
             cursor: pointer;
             font-weight: 600;
             margin: 5px;
-            transition: all 0.2s;
         }
         .save-button {
             background: var(--success-color);
@@ -306,11 +305,7 @@
             font-weight: 600;
             margin: 5px;
             padding: 10px 20px;
-            transition: all 0.2s;
-        }
-        .copy-button.clicked {
-            background: #1f6392 !important;
-            transform: scale(0.95);
+            transition: background-color 0.3s;
         }
         .copy-buttons {
             display: flex;
@@ -358,7 +353,6 @@
             text-align: center;
             font-weight: 500;
             margin-top: 10px;
-            margin-bottom: 10px;
             box-sizing: border-box;
         }
         .edit-box {
@@ -433,53 +427,6 @@
             border-radius: 8px;
             margin: 20px;
         }
-
-        /* Name prompt dialog styles */
-        .name-prompt-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.6);
-            z-index: 1100;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .name-prompt-box {
-            background: white;
-            border-radius: 16px;
-            width: 400px;
-            max-width: 90vw;
-            padding: 24px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            text-align: center;
-        }
-        .name-prompt-box h3 {
-            margin-top: 0;
-            color: var(--secondary-color);
-        }
-        .name-prompt-box input {
-            width: 100%;
-            padding: 12px;
-            margin: 20px 0;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 16px;
-        }
-        .name-prompt-box button {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 40px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .name-prompt-box button:hover {
-            background: #2980b9;
-        }
     </style>
 </head>
 <body>
@@ -530,37 +477,19 @@ let currentItemKey = null;
 
 const MAX_TOTAL = 100;
 
-// Global message display - now REPLACES message instead of auto-hiding
-let currentMessageTimeout = null;
-
 function showMessage(msg, isError = false) {
     let el = document.getElementById('globalCopyMessage');
     if (!el) {
         el = document.createElement('div');
         el.id = 'globalCopyMessage';
         el.className = 'global-copy-message';
-        const container = document.getElementById('container');
-        // Find the best position - after section copy buttons or before summary
-        const sectionCopyDiv = document.querySelector('.section-copy-buttons');
-        if (sectionCopyDiv && sectionCopyDiv.parentNode === container) {
-            container.insertBefore(el, sectionCopyDiv.nextSibling);
-        } else {
-            container.appendChild(el);
-        }
+        el.style.display = 'none';
+        document.getElementById('container')?.appendChild(el);
     }
-    
-    // Clear any pending auto-hide
-    if (currentMessageTimeout) {
-        clearTimeout(currentMessageTimeout);
-        currentMessageTimeout = null;
-    }
-    
-    // Update message content and style
     el.textContent = msg;
     el.style.background = isError ? '#dc3545' : '#28a745';
     el.style.display = 'block';
-    
-    // Message stays until replaced by next message (no auto-fade)
+    setTimeout(() => { if(el) el.style.display = 'none'; }, 2000);
 }
 
 function updateAllScores() {
@@ -586,11 +515,7 @@ function updateAllScores() {
         item.yes.classList.contains('selected') || item.no.classList.contains('selected')
     );
     const saveBtn = document.querySelector('.save-button');
-    if (saveBtn) {
-        const nameInput = document.querySelector('.student-name-input');
-        const nameValid = nameInput && nameInput.value.trim() !== "";
-        saveBtn.disabled = !(allSelected && nameValid);
-    }
+    if (saveBtn) saveBtn.disabled = !allSelected;
 }
 
 function updateSidePanel() {
@@ -656,15 +581,7 @@ function copySectionScores(sectionKey) {
         part.querySelectorAll('.item-score').forEach(score => scores.push(score.textContent));
         copyText = scores.join('\t');
     }
-    navigator.clipboard.writeText(copyText).then(() => {
-        showMessage(`✓ Section ${sectionKey} scores copied: ${copyText}`);
-        // Add visual click feedback to the button that was clicked
-        const buttons = document.querySelectorAll(`.copy-button[data-section="${sectionKey}"]`);
-        buttons.forEach(btn => {
-            btn.classList.add('clicked');
-            setTimeout(() => btn.classList.remove('clicked'), 300);
-        });
-    }).catch(() => showMessage('Failed to copy', true));
+    navigator.clipboard.writeText(copyText).then(() => showMessage(`✓ Section ${sectionKey} scores copied: ${copyText}`));
 }
 
 function selectAllInPart(partContainer, selectYes) {
@@ -688,7 +605,11 @@ function selectAllInPart(partContainer, selectYes) {
 }
 
 function openEditDialog(element, type, problemData = null, key = null) {
-    if (event) event.stopPropagation();
+    // Stop event propagation to prevent triggering selection
+    if (event) {
+        event.stopPropagation();
+    }
+    
     currentEditElement = element;
     currentEditType = type;
     currentProblemData = problemData;
@@ -700,9 +621,8 @@ function openEditDialog(element, type, problemData = null, key = null) {
     if (type === 'score') {
         const currentScore = parseFloat(element.textContent) || 0;
         const maxScore = parseFloat(element.dataset.max) || 0;
-        document.getElementById('editText').style.display = 'block';
+        document.getElementById('editTextArea').style.display = 'none';
         document.getElementById('editScore').style.display = 'block';
-        document.getElementById('editText').value = element.closest('.item-container').querySelector('.item-yes')?.textContent || '';
         document.getElementById('editScore').value = currentScore;
         document.getElementById('editMaxScore').textContent = maxScore;
         document.getElementById('editScore').max = maxScore;
@@ -762,13 +682,20 @@ function saveEdit() {
             }
         }
     } else {
+        // Update the text content
         currentEditElement.textContent = newText;
+        
+        // Update the score display
         const scoreSpan = currentEditElement.closest('.item-container').querySelector('.item-score');
         if (scoreSpan) {
             scoreSpan.textContent = newScore;
             scoreSpan.style.color = newScore > 0 ? 'green' : 'red';
         }
+        
+        // Update dataset max
         currentEditElement.dataset.max = newScore;
+        
+        // Update selection state based on new score
         if (newScore > 0) {
             currentEditElement.classList.add('selected');
             const otherBtn = currentEditElement.closest('.item-container').querySelector(currentEditType === 'yes' ? '.item-no' : '.item-yes');
@@ -778,6 +705,8 @@ function saveEdit() {
             const otherBtn = currentEditElement.closest('.item-container').querySelector(currentEditType === 'yes' ? '.item-no' : '.item-yes');
             if (otherBtn) otherBtn.classList.add('selected');
         }
+        
+        // Update the underlying problem data
         if (currentProblemData && currentItemKey) {
             if (currentEditType === 'yes') {
                 currentProblemData.yes = newText;
@@ -788,60 +717,15 @@ function saveEdit() {
             }
         }
     }
+    
     updateAllScores();
     closeEditDialog();
     showMessage('Changes saved successfully!');
 }
 
-function showNamePromptDialog(callback) {
-    const overlay = document.createElement('div');
-    overlay.className = 'name-prompt-overlay';
-    const dialog = document.createElement('div');
-    dialog.className = 'name-prompt-box';
-    dialog.innerHTML = `
-        <h3>📝 Student Name Required</h3>
-        <p>Please enter the student's name before generating feedback.</p>
-        <input type="text" id="namePromptInput" placeholder="Enter student name..." autocomplete="off">
-        <button id="namePromptConfirm">Continue</button>
-    `;
-    overlay.appendChild(dialog);
-    document.body.appendChild(overlay);
-    
-    const input = dialog.querySelector('#namePromptInput');
-    const confirmBtn = dialog.querySelector('#namePromptConfirm');
-    
-    const handleConfirm = () => {
-        let name = input.value.trim();
-        if (name === "") {
-            showMessage("Name cannot be empty. Please enter a valid name.", true);
-            return;
-        }
-        const nameField = document.querySelector('.student-name-input');
-        if (nameField) nameField.value = name;
-        overlay.remove();
-        updateAllScores();
-        if (callback) callback(name);
-    };
-    confirmBtn.onclick = handleConfirm;
-    input.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleConfirm(); });
-    input.focus();
-}
-
 function generateFeedback() {
-    const nameInputField = document.querySelector('.student-name-input');
-    let name = nameInputField ? nameInputField.value.trim() : "";
-    
-    if (name === "") {
-        showNamePromptDialog((enteredName) => {
-            generateFeedbackInternal(enteredName);
-        });
-        return;
-    }
-    generateFeedbackInternal(name);
-}
-
-function generateFeedbackInternal(name) {
     let output = '';
+    const name = document.querySelector('.student-name-input').value.trim();
     output += `Great job finishing the RL Report${name ? `, ${name}` : ''}! and for the persistence and hard work that have helped you make it through the course! We wish you all the best on the remaining Problem Set, Final and in all future academic/professional/personal endeavors!\n\nContinuing from the previous assignment, please see the section-by-section feedback below, highlighting "What you did well" and "What needs improvement." Please create a private Ed post if you'd like clarification on any grading or feedback we provide and we'll happily follow up there! A quick disclaimer, due to this being the last report and given our prompt need to finalize overall course grades as the semester draws to a close, we will not offer Reviewer Response for this report. However, full completion of the Problem Set (as an extra credit item) and focus on Final Exam performance can count for quite a lot if you're looking for an angle to improve your grade in the course!\n\n`;
     
     let totalScore = 0;
@@ -920,11 +804,6 @@ function generateFeedbackInternal(name) {
     showMessage('Feedback generated!');
 }
 
-function addCopyButtonClickEffect(button) {
-    button.classList.add('clicked');
-    setTimeout(() => button.classList.remove('clicked'), 300);
-}
-
 function renderRubric() {
     const container = document.getElementById('container');
     container.innerHTML = '';
@@ -935,9 +814,6 @@ function renderRubric() {
     nameInput.type = 'text';
     nameInput.className = 'student-name-input';
     nameInput.placeholder = 'Enter student name...';
-    nameInput.addEventListener('input', function() {
-        updateAllScores();
-    });
     container.appendChild(nameInput);
     
     const welcomeDiv = document.createElement('div');
@@ -1070,22 +946,6 @@ function renderRubric() {
         container.appendChild(partDiv);
     }
     
-    // summary section
-    const summaryDiv = document.createElement('div');
-    summaryDiv.className = 'overall-summary-section';
-    summaryDiv.innerHTML = `<h3>Overall Summary (optional)</h3>
-        <div class="summary-input-group"><label>What you did well (optional):</label><textarea id="strengthsInput" class="summary-textarea" rows="2" placeholder="Enter strengths..."></textarea></div>
-        <div class="summary-input-group"><label>What needs improvement (optional):</label><textarea id="weaknessesInput" class="summary-textarea" rows="2" placeholder="Enter areas for improvement..."></textarea></div>`;
-    container.appendChild(summaryDiv);
-
-    // Global message placeholder
-    const globalMsgDiv = document.createElement('div');
-    globalMsgDiv.id = 'globalCopyMessage';
-    globalMsgDiv.className = 'global-copy-message';
-    globalMsgDiv.style.display = 'none';
-    container.appendChild(globalMsgDiv);
-
-    // section copy buttons
     const sectionCopyDiv = document.createElement('div');
     sectionCopyDiv.className = 'section-copy-buttons';
     for (const key of partKeys) {
@@ -1093,46 +953,28 @@ function renderRubric() {
         btn.className = 'copy-button';
         btn.textContent = `📋 Copy ${key}`;
         btn.setAttribute('data-section', key);
-        btn.onclick = (e) => {
-            addCopyButtonClickEffect(btn);
-            copySectionScores(key);
-        };
+        btn.onclick = () => copySectionScores(key);
         sectionCopyDiv.appendChild(btn);
     }
     container.appendChild(sectionCopyDiv);
     
-    // feedback copy buttons
+    const summaryDiv = document.createElement('div');
+    summaryDiv.className = 'overall-summary-section';
+    summaryDiv.innerHTML = `<h3>Overall Summary (optional)</h3>
+        <div class="summary-input-group"><label>What you did well (optional):</label><textarea id="strengthsInput" class="summary-textarea" rows="2" placeholder="Enter strengths..."></textarea></div>
+        <div class="summary-input-group"><label>What needs improvement (optional):</label><textarea id="weaknessesInput" class="summary-textarea" rows="2" placeholder="Enter areas for improvement..."></textarea></div>`;
+    container.appendChild(summaryDiv);
+    
     const copyButtons = document.createElement('div');
     copyButtons.className = 'copy-buttons';
     const copyFeedbackBtn = document.createElement('button');
     copyFeedbackBtn.className = 'copy-button';
     copyFeedbackBtn.textContent = '📋 Copy Feedback';
-    copyFeedbackBtn.onclick = (e) => {
-        addCopyButtonClickEffect(copyFeedbackBtn);
-        const fb = document.getElementById('paraID').value;
-        if (fb) {
-            navigator.clipboard.writeText(fb).then(() => showMessage('✓ Feedback copied!')).catch(() => showMessage('Copy failed', true));
-        } else {
-            showMessage('No feedback to copy', true);
-        }
-    };
+    copyFeedbackBtn.onclick = () => { const fb = document.getElementById('paraID').value; if(fb) navigator.clipboard.writeText(fb).then(()=>showMessage('✓ Feedback copied!')); else showMessage('No feedback',true); };
     const copyAllScoresBtn = document.createElement('button');
     copyAllScoresBtn.className = 'copy-button';
     copyAllScoresBtn.textContent = '📋 Copy All Scores';
-    copyAllScoresBtn.onclick = (e) => {
-        addCopyButtonClickEffect(copyAllScoresBtn);
-        let allScores = [];
-        for (const key of partKeys) {
-            const part = document.getElementById(`part-${key}`);
-            if (key === 'EC') allScores.push(getECCopyText(part));
-            else {
-                let s = [];
-                part.querySelectorAll('.item-score').forEach(sc => s.push(sc.textContent));
-                allScores.push(s.join('\t'));
-            }
-        }
-        navigator.clipboard.writeText(allScores.join('\t')).then(() => showMessage('✓ All scores copied!')).catch(() => showMessage('Copy failed', true));
-    };
+    copyAllScoresBtn.onclick = () => { let allScores = []; for(const key of partKeys){ const part=document.getElementById(`part-${key}`); if(key==='EC') allScores.push(getECCopyText(part)); else { let s=[]; part.querySelectorAll('.item-score').forEach(sc=>s.push(sc.textContent)); allScores.push(s.join('\t')); } } navigator.clipboard.writeText(allScores.join('\t')).then(()=>showMessage('✓ All scores copied!')); };
     copyButtons.append(copyFeedbackBtn, copyAllScoresBtn);
     container.appendChild(copyButtons);
     
@@ -1152,46 +994,46 @@ function renderRubric() {
     const resetBtn = document.createElement('button');
     resetBtn.className = 'reset-button';
     resetBtn.textContent = '⟳ Reset All';
-    resetBtn.onclick = () => {
-        if (confirm('Reset all selections?')) {
-            allItems.forEach(i => {
-                i.yes.classList.remove('selected');
-                i.no.classList.remove('selected');
-                i.score.textContent = '0';
-                i.score.style.color = '';
-            });
-            additionalComments = {};
-            document.querySelectorAll('.additional-comment-textarea').forEach(t => t.value = '');
-            document.getElementById('strengthsInput').value = '';
-            document.getElementById('weaknessesInput').value = '';
-            document.getElementById('paraID').value = '';
-            updateAllScores();
-            showMessage('Reset complete');
-        }
-    };
+    resetBtn.onclick = () => { if(confirm('Reset all selections?')){ allItems.forEach(i=>{ i.yes.classList.remove('selected'); i.no.classList.remove('selected'); i.score.textContent='0'; i.score.style.color=''; }); additionalComments={}; document.querySelectorAll('.additional-comment-textarea').forEach(t=>t.value=''); document.getElementById('strengthsInput').value=''; document.getElementById('weaknessesInput').value=''; document.getElementById('paraID').value=''; updateAllScores(); document.querySelector('.save-button').disabled=true; showMessage('Reset complete'); } };
     container.appendChild(resetBtn);
     updateAllScores();
 }
 
+// Load rubric from external JSON file
 async function loadRubricFromFile() {
     const container = document.getElementById('container');
     container.innerHTML = '<div class="loading">Loading rubric from rl_spring2026.json...</div>';
+    
     try {
         const response = await fetch('rl_spring2026.json');
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}. Make sure rl_spring2026.json exists in the same directory.`);
+        }
         RUBRIC_DATA = await response.json();
         renderRubric();
     } catch (error) {
-        console.error(error);
-        container.innerHTML = `<div class="error-message">❌ Error loading rl_spring2026.json<br>${error.message}<br>Make sure the file exists.</div>`;
+        console.error('Error loading rubric:', error);
+        container.innerHTML = `<div class="error-message">
+            <strong>❌ Error loading rl_spring2026.json</strong><br><br>
+            ${error.message}<br><br>
+            Please make sure the file "rl_spring2026.json" exists in the same directory as this HTML file.<br><br>
+            The file should contain the rubric data in the expected format.
+        </div>`;
     }
 }
 
+// Set up event listeners for edit dialog buttons
 document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('editSave').onclick = saveEdit;
-    document.getElementById('editCancel').onclick = closeEditDialog;
-    document.getElementById('editClear').onclick = () => document.getElementById('editText').value = '';
-    document.getElementById('editZero').onclick = () => document.getElementById('editScore').value = '0';
+    const editSave = document.getElementById('editSave');
+    const editCancel = document.getElementById('editCancel');
+    const editClear = document.getElementById('editClear');
+    const editZero = document.getElementById('editZero');
+    
+    if (editSave) editSave.onclick = saveEdit;
+    if (editCancel) editCancel.onclick = closeEditDialog;
+    if (editClear) editClear.onclick = () => document.getElementById('editText').value = '';
+    if (editZero) editZero.onclick = () => document.getElementById('editScore').value = '0';
+    
     loadRubricFromFile();
 });
 </script>
