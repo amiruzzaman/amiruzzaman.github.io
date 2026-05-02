@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="#">
     <title>Grading Rubric Tool - RL Report Spring2026</title>
     <style>
         :root {
@@ -153,6 +152,15 @@
             }
         }
 
+        .student-name-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
         .welcome-message {
             background: #e8f4fd;
             padding: 15px;
@@ -426,8 +434,8 @@
             margin: 20px;
         }
 
-        /* Name dialog styles */
-        .name-dialog-overlay {
+        /* Name prompt dialog styles */
+        .name-prompt-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -439,49 +447,37 @@
             align-items: center;
             justify-content: center;
         }
-        .name-dialog-box {
+        .name-prompt-box {
             background: white;
             border-radius: 16px;
-            width: 420px;
+            width: 400px;
             max-width: 90vw;
-            padding: 28px;
+            padding: 24px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.3);
             text-align: center;
         }
-        .name-dialog-box h3 {
+        .name-prompt-box h3 {
             margin-top: 0;
             color: var(--secondary-color);
-            font-size: 1.5rem;
         }
-        .name-dialog-box p {
-            color: #666;
-            margin-bottom: 20px;
-        }
-        .name-dialog-box input {
+        .name-prompt-box input {
             width: 100%;
-            padding: 12px 16px;
-            margin: 10px 0 20px 0;
-            border: 2px solid var(--border-color);
-            border-radius: 10px;
+            padding: 12px;
+            margin: 20px 0;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
             font-size: 16px;
-            transition: border-color 0.2s;
         }
-        .name-dialog-box input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-        .name-dialog-box button {
+        .name-prompt-box button {
             background: var(--primary-color);
             color: white;
             border: none;
-            padding: 12px 28px;
+            padding: 10px 24px;
             border-radius: 40px;
             font-weight: 600;
-            font-size: 16px;
             cursor: pointer;
-            transition: background 0.2s;
         }
-        .name-dialog-box button:hover {
+        .name-prompt-box button:hover {
             background: #2980b9;
         }
     </style>
@@ -534,7 +530,7 @@ let currentItemKey = null;
 
 const MAX_TOTAL = 100;
 
-// Global message display - replaces previous message
+// Global message display - now REPLACES message instead of auto-hiding
 let currentMessageTimeout = null;
 
 function showMessage(msg, isError = false) {
@@ -544,6 +540,7 @@ function showMessage(msg, isError = false) {
         el.id = 'globalCopyMessage';
         el.className = 'global-copy-message';
         const container = document.getElementById('container');
+        // Find the best position - after section copy buttons or before summary
         const sectionCopyDiv = document.querySelector('.section-copy-buttons');
         if (sectionCopyDiv && sectionCopyDiv.parentNode === container) {
             container.insertBefore(el, sectionCopyDiv.nextSibling);
@@ -552,14 +549,18 @@ function showMessage(msg, isError = false) {
         }
     }
     
+    // Clear any pending auto-hide
     if (currentMessageTimeout) {
         clearTimeout(currentMessageTimeout);
         currentMessageTimeout = null;
     }
     
+    // Update message content and style
     el.textContent = msg;
     el.style.background = isError ? '#dc3545' : '#28a745';
     el.style.display = 'block';
+    
+    // Message stays until replaced by next message (no auto-fade)
 }
 
 function updateAllScores() {
@@ -586,7 +587,9 @@ function updateAllScores() {
     );
     const saveBtn = document.querySelector('.save-button');
     if (saveBtn) {
-        saveBtn.disabled = !allSelected;
+        const nameInput = document.querySelector('.student-name-input');
+        const nameValid = nameInput && nameInput.value.trim() !== "";
+        saveBtn.disabled = !(allSelected && nameValid);
     }
 }
 
@@ -595,7 +598,7 @@ function updateSidePanel() {
     if (!container) return;
     let html = '';
     let grandTotal = 0;
-    html += `<div class="section-total-item" data-section="top"><span class="section-label">⬆ Top (Welcome)</span><span class="section-score"></span></div>`;
+    html += `<div class="section-total-item" data-section="top"><span class="section-label">⬆ Top (Name & Welcome)</span><span class="section-score"></span></div>`;
     
     document.querySelectorAll('.part-container').forEach(part => {
         const key = part.id.replace('part-', '');
@@ -618,20 +621,16 @@ function updateSidePanel() {
             <span class="section-score">${earned}/${maxPossible}</span>
         </div>`;
     });
-    html += `<div class="section-total-item" data-section="save"><span class="section-label">💾 Generate Button</span><span class="section-score"></span></div>`;
+    html += `<div class="section-total-item" data-section="save"><span class="section-label">💾 Save Button</span><span class="section-score"></span></div>`;
     container.innerHTML = html;
     document.getElementById('grandTotalValue').innerHTML = `${grandTotal}/100`;
     
     document.querySelectorAll('.section-total-item').forEach(el => {
         el.addEventListener('click', () => {
             const section = el.dataset.section;
-            if (section === 'top') {
-                document.querySelector('.welcome-message')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            } else if (section === 'save') {
-                document.querySelector('.save-button')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            } else {
-                document.getElementById(`part-${section}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
+            if (section === 'top') document.querySelector('.student-name-input')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            else if (section === 'save') document.querySelector('.save-button')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            else document.getElementById(`part-${section}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
     });
 }
@@ -659,6 +658,7 @@ function copySectionScores(sectionKey) {
     }
     navigator.clipboard.writeText(copyText).then(() => {
         showMessage(`✓ Section ${sectionKey} scores copied: ${copyText}`);
+        // Add visual click feedback to the button that was clicked
         const buttons = document.querySelectorAll(`.copy-button[data-section="${sectionKey}"]`);
         buttons.forEach(btn => {
             btn.classList.add('clicked');
@@ -793,23 +793,22 @@ function saveEdit() {
     showMessage('Changes saved successfully!');
 }
 
-// Show name dialog when Generate button is clicked
-function showNameDialog(callback) {
+function showNamePromptDialog(callback) {
     const overlay = document.createElement('div');
-    overlay.className = 'name-dialog-overlay';
+    overlay.className = 'name-prompt-overlay';
     const dialog = document.createElement('div');
-    dialog.className = 'name-dialog-box';
+    dialog.className = 'name-prompt-box';
     dialog.innerHTML = `
-        <h3>📝 Student Name</h3>
-        <p>Please enter the student's name to generate feedback.</p>
-        <input type="text" id="studentNameInput" placeholder="Enter full name..." autocomplete="off">
-        <button id="confirmNameBtn">Generate Feedback</button>
+        <h3>📝 Student Name Required</h3>
+        <p>Please enter the student's name before generating feedback.</p>
+        <input type="text" id="namePromptInput" placeholder="Enter student name..." autocomplete="off">
+        <button id="namePromptConfirm">Continue</button>
     `;
     overlay.appendChild(dialog);
     document.body.appendChild(overlay);
     
-    const input = dialog.querySelector('#studentNameInput');
-    const confirmBtn = dialog.querySelector('#confirmNameBtn');
+    const input = dialog.querySelector('#namePromptInput');
+    const confirmBtn = dialog.querySelector('#namePromptConfirm');
     
     const handleConfirm = () => {
         let name = input.value.trim();
@@ -817,36 +816,33 @@ function showNameDialog(callback) {
             showMessage("Name cannot be empty. Please enter a valid name.", true);
             return;
         }
+        const nameField = document.querySelector('.student-name-input');
+        if (nameField) nameField.value = name;
         overlay.remove();
+        updateAllScores();
         if (callback) callback(name);
     };
     confirmBtn.onclick = handleConfirm;
-    input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleConfirm();
-    });
+    input.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleConfirm(); });
     input.focus();
 }
 
 function generateFeedback() {
-    // First check if all items are selected
-    const allSelected = allItems.every(item => 
-        item.yes.classList.contains('selected') || item.no.classList.contains('selected')
-    );
+    const nameInputField = document.querySelector('.student-name-input');
+    let name = nameInputField ? nameInputField.value.trim() : "";
     
-    if (!allSelected) {
-        showMessage("⚠️ Please select Yes or No for all rubric items before generating feedback.", true);
+    if (name === "") {
+        showNamePromptDialog((enteredName) => {
+            generateFeedbackInternal(enteredName);
+        });
         return;
     }
-    
-    // Show name dialog
-    showNameDialog((name) => {
-        generateFeedbackInternal(name);
-    });
+    generateFeedbackInternal(name);
 }
 
 function generateFeedbackInternal(name) {
     let output = '';
-    output += `Great job finishing the RL Report, ${name}! And for the persistence and hard work that have helped you make it through the course! We wish you all the best on the remaining Problem Set, Final and in all future academic/professional/personal endeavors!\n\nContinuing from the previous assignment, please see the section-by-section feedback below, highlighting "What you did well" and "What needs improvement." Please create a private Ed post if you'd like clarification on any grading or feedback we provide and we'll happily follow up there! A quick disclaimer, due to this being the last report and given our prompt need to finalize overall course grades as the semester draws to a close, we will not offer Reviewer Response for this report. However, full completion of the Problem Set (as an extra credit item) and focus on Final Exam performance can count for quite a lot if you're looking for an angle to improve your grade in the course!\n\n`;
+    output += `Great job finishing the RL Report${name ? `, ${name}` : ''}! and for the persistence and hard work that have helped you make it through the course! We wish you all the best on the remaining Problem Set, Final and in all future academic/professional/personal endeavors!\n\nContinuing from the previous assignment, please see the section-by-section feedback below, highlighting "What you did well" and "What needs improvement." Please create a private Ed post if you'd like clarification on any grading or feedback we provide and we'll happily follow up there! A quick disclaimer, due to this being the last report and given our prompt need to finalize overall course grades as the semester draws to a close, we will not offer Reviewer Response for this report. However, full completion of the Problem Set (as an extra credit item) and focus on Final Exam performance can count for quite a lot if you're looking for an angle to improve your grade in the course!\n\n`;
     
     let totalScore = 0;
     const keys = Object.keys(RUBRIC_DATA);
@@ -934,6 +930,15 @@ function renderRubric() {
     container.innerHTML = '';
     allItems = [];
     subTotalMaxScores = [];
+    
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.className = 'student-name-input';
+    nameInput.placeholder = 'Enter student name...';
+    nameInput.addEventListener('input', function() {
+        updateAllScores();
+    });
+    container.appendChild(nameInput);
     
     const welcomeDiv = document.createElement('div');
     welcomeDiv.className = 'welcome-message';
@@ -1131,12 +1136,12 @@ function renderRubric() {
     copyButtons.append(copyFeedbackBtn, copyAllScoresBtn);
     container.appendChild(copyButtons);
     
-    const generateBtn = document.createElement('button');
-    generateBtn.className = 'save-button';
-    generateBtn.textContent = '💾 Save & Generate Feedback';
-    generateBtn.disabled = true;
-    generateBtn.onclick = generateFeedback;
-    container.appendChild(generateBtn);
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'save-button';
+    saveBtn.textContent = '💾 Save & Generate Feedback';
+    saveBtn.disabled = true;
+    saveBtn.onclick = generateFeedback;
+    container.appendChild(saveBtn);
     
     const feedbackTA = document.createElement('textarea');
     feedbackTA.id = 'paraID';
