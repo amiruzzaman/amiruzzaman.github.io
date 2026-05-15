@@ -721,7 +721,6 @@ def index():
     '''
     
 
-
 @app.route('/update-existing-item', methods=['POST'])
 def update_existing_item():
     """Update an existing item with full edit capabilities"""
@@ -734,9 +733,9 @@ def update_existing_item():
         size = request.form.get('size', '')
         year = request.form.get('year', '')
         hidden_note = request.form.get('hidden_note', '')
-        original_image = request.form.get('original_image', '')
+        item_id = request.form.get('item_id', '')  # Get the ID instead of original_image
         
-        print(f"Updating item: country={country}, donor={donor_name}, currency={currency_type}")
+        print(f"Updating item: ID={item_id}, country={country}, donor={donor_name}, currency={currency_type}")
         
         # Validate required fields
         if not country:
@@ -745,62 +744,102 @@ def update_existing_item():
             return jsonify({"message": "Donor name is required!"}), 400
         if not currency_type:
             return jsonify({"message": "Currency type is required!"}), 400
+        if not item_id:
+            return jsonify({"message": "Item ID is required!"}), 400
         
         file = request.files.get('file')
-        
-        # Handle file upload if provided
-        file_name = original_image
-        if file and file.filename != '' and allowed_file(file.filename):
-            # Save new file
-            file_path, file_name = save_file(file, country)
         
         # Load existing JSON
         data = load_json()
         
-        # Find and update the entry
-        updated = False
-        for entry in data:
-            if entry.get('image') == original_image:
-                # Update all fields
-                entry['country'] = country
-                entry['note'] = note
-                entry['donor_name'] = donor_name
-                entry['currency_type'] = currency_type
-                entry['size'] = size
-                entry['year'] = year
-                if file_name and file_name != original_image:
-                    entry['image'] = file_name
-                if hidden_note:
-                    entry['hidden_note'] = hidden_note
-                elif 'hidden_note' in entry:
-                    del entry['hidden_note']  # Remove if empty
-                updated = True
+        # Find the entry by ID
+        found_entry = None
+        entry_index = -1
+        for i, entry in enumerate(data):
+            if entry.get('id') == item_id:
+                found_entry = entry
+                entry_index = i
                 break
         
-        if updated:
-            save_json(data)
-            return jsonify({
-                "message": "Item updated successfully!",
-                "country": country,
-                "note": note,
-                "donor_name": donor_name,
-                "currency_type": currency_type,
-                "size": size,
-                "year": year,
-                "hidden_note": hidden_note,
-                "image": file_name
-            })
-        else:
-            return jsonify({"message": "Item not found!"}), 404
+        if not found_entry:
+            return jsonify({"message": f"Item with ID {item_id} not found!"}), 404
+        
+        original_image = found_entry.get('image', '')
+        original_country = found_entry.get('country', '')
+        
+        # Handle file upload if provided
+        file_name = original_image
+        if file and file.filename != '' and allowed_file(file.filename):
+            # Delete old image file if it exists and different from new
+            if original_image and original_image != 'placeholder.jpg':
+                old_file_path = os.path.join(BASE_UPLOAD_FOLDER, original_country, original_image)
+                if os.path.exists(old_file_path):
+                    try:
+                        os.remove(old_file_path)
+                        print(f"Deleted old image: {old_file_path}")
+                    except Exception as e:
+                        print(f"Error deleting old image: {e}")
             
+            # Save new file
+            file_path, file_name = save_file(file, country)
+        
+        # Update the entry
+        data[entry_index]['country'] = country
+        data[entry_index]['note'] = note
+        data[entry_index]['donor_name'] = donor_name
+        data[entry_index]['currency_type'] = currency_type
+        data[entry_index]['size'] = size
+        data[entry_index]['year'] = year
+        
+        # Update image if changed
+        if file_name and file_name != original_image:
+            data[entry_index]['image'] = file_name
+        
+        # Handle hidden_note
+        if hidden_note:
+            data[entry_index]['hidden_note'] = hidden_note
+        elif 'hidden_note' in data[entry_index]:
+            del data[entry_index]['hidden_note']
+        
+        # If country changed, we need to move the image file
+        if country != original_country and file_name and file_name != 'placeholder.jpg':
+            old_path = os.path.join(BASE_UPLOAD_FOLDER, original_country, file_name)
+            new_folder = os.path.join(BASE_UPLOAD_FOLDER, country)
+            new_path = os.path.join(new_folder, file_name)
+            
+            try:
+                os.makedirs(new_folder, exist_ok=True)
+                if os.path.exists(old_path):
+                    os.rename(old_path, new_path)
+                    print(f"Moved image from {original_country} to {country}")
+            except Exception as e:
+                print(f"Error moving file: {e}")
+        
+        # Save the updated JSON
+        save_json(data)
+        
+        return jsonify({
+            "message": "Item updated successfully!",
+            "country": country,
+            "note": note,
+            "donor_name": donor_name,
+            "currency_type": currency_type,
+            "size": size,
+            "year": year,
+            "hidden_note": hidden_note,
+            "image": file_name,
+            "id": item_id
+        })
+        
     except Exception as e:
         print(f"Error updating item: {str(e)}")
         import traceback
         traceback.print_exc()
         return jsonify({"message": "Server error!", "error": str(e)}), 500
 
-@app.route('/edit-item/<image_id>')
-def edit_item_page(image_id):
+
+@app.route('/edit-item/<id>')
+def edit_item_page(id):
     """Serve the edit item page with pre-loaded data"""
     # Load all data
     all_data = load_json()
@@ -808,7 +847,7 @@ def edit_item_page(image_id):
     # Find the item
     item = None
     for entry in all_data:
-        if entry.get('image') == image_id:
+        if entry.get('id') == id:
             item = entry
             break
     
@@ -1090,7 +1129,9 @@ def render_edit_item_page(item):
         <h1><i class="fas fa-edit"></i> Edit Item</h1>
         
         <form id="editForm">
-            <input type="hidden" id="originalImage" name="original_image" value="{item.get('image', '')}">
+            <!-- With this: -->
+<input type="hidden" id="itemId" name="item_id" value="{item.get('id', '')}">
+<input type="hidden" id="originalImage" name="original_image" value="{item.get('image', '')}">
             
             <div class="form-group">
                 <label for="country">Country:</label>
@@ -1600,53 +1641,54 @@ def render_edit_item_page(item):
         }}
 
         function handleFormSubmit(e) {{
-            e.preventDefault();
-            
-            const country = document.getElementById('country').value;
-            const currencyType = document.getElementById('currencyType').value;
-            const donorName = document.getElementById('donorName').value;
-            
-            if (!country || !currencyType || !donorName) {{
-                showToast('Please fill in all required fields', 'error');
-                return;
-            }}
-            
-            const formData = new FormData();
-            formData.append('country', country);
-            formData.append('currency_type', currencyType);
-            formData.append('donor_name', donorName);
-            formData.append('note', document.getElementById('note').value);
-            formData.append('size', document.getElementById('size').value);
-            formData.append('year', document.getElementById('year').value);
-            formData.append('hidden_note', document.getElementById('hiddenNote').value);
-            formData.append('original_image', document.getElementById('originalImage').value);
-            
-            if (uploadedFile) {{
-                formData.append('file', uploadedFile);
-            }}
-            
-            showToast('Updating item...');
-            
-            fetch('/update-existing-item', {{
-                method: 'POST',
-                body: formData
-            }})
-            .then(response => response.json())
-            .then(data => {{
-                if (data.message) {{
-                    showToast(data.message);
-                    setTimeout(() => {{
-                        window.location.href = '/edit_json';
-                    }}, 1500);
-                }} else {{
-                    showToast(data.error || 'An error occurred', 'error');
-                }}
-            }})
-            .catch(error => {{
-                console.error('Error:', error);
-                showToast('Error updating item: ' + error.message, 'error');
-            }});
+    e.preventDefault();
+    
+    const country = document.getElementById('country').value;
+    const currencyType = document.getElementById('currencyType').value;
+    const donorName = document.getElementById('donorName').value;
+    
+    if (!country || !currencyType || !donorName) {{
+        showToast('Please fill in all required fields', 'error');
+        return;
+    }}
+    
+    const formData = new FormData();
+    formData.append('country', country);
+    formData.append('currency_type', currencyType);
+    formData.append('donor_name', donorName);
+    formData.append('note', document.getElementById('note').value);
+    formData.append('size', document.getElementById('size').value);
+    formData.append('year', document.getElementById('year').value);
+    formData.append('hidden_note', document.getElementById('hiddenNote').value);
+    formData.append('item_id', document.getElementById('itemId').value);  // Add this line
+    formData.append('original_image', document.getElementById('originalImage').value);
+    
+    if (uploadedFile) {{
+        formData.append('file', uploadedFile);
+    }}
+    
+    showToast('Updating item...');
+    
+    fetch('/update-existing-item', {{
+        method: 'POST',
+        body: formData
+    }})
+    .then(response => response.json())
+    .then(data => {{
+        if (data.message) {{
+            showToast(data.message);
+            setTimeout(() => {{
+                window.location.href = '/edit_json';
+            }}, 1500);
+        }} else {{
+            showToast(data.error || 'An error occurred', 'error');
         }}
+    }})
+    .catch(error => {{
+        console.error('Error:', error);
+        showToast('Error updating item: ' + error.message, 'error');
+    }});
+}}
 
         function showToast(message, type = 'success') {{
             const toast = document.getElementById('toastMessage');
@@ -5471,9 +5513,10 @@ if (row.image && row.image !== 'placeholder.jpg') {{
                             class="thumbnail" 
                             data-index="${{index}}" 
                             data-image="${{row.image}}"
+                            data-id="${{row.id}}"
                             style="cursor: pointer;"
                             onerror="this.src='images/placeholder.jpg'"
-                            onclick="event.stopPropagation(); editExistingItem('${{row.image}}')">`;
+                            onclick="event.stopPropagation(); editExistingItem('${{row.id}}')">`;
 }} else {{
     dropArea.innerHTML = '<p>Drag & drop image here</p>';
 }}
@@ -5525,7 +5568,7 @@ const editBtn = document.createElement('span');
 editBtn.classList.add('edit-btn');
 editBtn.innerHTML = '<i class="fas fa-edit" style="color: #28a745; cursor: pointer; margin-right: 10px;"></i>';
 editBtn.addEventListener('click', function() {{
-    editExistingItem(row.image);
+    editExistingItem(row.id);
 }});
 actionColumn.appendChild(editBtn);
 
@@ -6388,9 +6431,9 @@ function showPaginationView() {{
 }}
 
 // Add this function to handle editing an existing item
-function editExistingItem(imageId) {{
+function editExistingItem(Id) {{
     // Open the edit page in a new tab/window
-    window.open(`/edit-item/${{imageId}}`, '_blank');
+    window.open(`/edit-item/${{Id}}`, '_blank');
 }}
 </script>
  
