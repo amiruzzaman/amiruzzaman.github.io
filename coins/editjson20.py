@@ -11,7 +11,6 @@ from werkzeug.utils import secure_filename
 from flask_cors import CORS
 
 from datetime import datetime
-import time
 
 app = Flask(__name__, static_url_path='/static', static_folder='static')
 
@@ -104,29 +103,6 @@ def download_file_from_url(url, country):
         f.write(response.content)
     return file_path, f"{file_uuid}.{file_ext}"
 
-@app.route('/get-json-stats', methods=['GET'])
-def get_json_stats():
-    """Get statistics about the JSON data without loading everything"""
-    try:
-        with file_lock:
-            if os.path.exists(current_json_file_path):
-                # Get file size without loading entire file
-                file_size = os.path.getsize(current_json_file_path)
-                
-                # Count items efficiently
-                with open(current_json_file_path, 'r') as f:
-                    data = json.load(f)
-                    total_items = len(data)
-                
-                return jsonify({
-                    'total_items': total_items,
-                    'file_size_bytes': file_size,
-                    'file_size_mb': round(file_size / (1024 * 1024), 2)
-                })
-        return jsonify({'total_items': 0, 'file_size_bytes': 0, 'file_size_mb': 0})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
 def update_json_file(country, image, note, donor_name, currency_type, size, year, hidden_note=""):
     """
     Update the coins.json file with the new entry.
@@ -136,7 +112,7 @@ def update_json_file(country, image, note, donor_name, currency_type, size, year
 
     # Create the new entry
     new_entry = {
-        "id": os.path.splitext(image)[0],
+        "id": os.path.splitext(image)[0],  # Extract filename without extension
         "country": country,
         "image": image,
         "note": note,
@@ -144,8 +120,11 @@ def update_json_file(country, image, note, donor_name, currency_type, size, year
         "currency_type": currency_type,
         "size": size,
         "year": year,
+        # New tag added here:
         "timestamp": datetime.now().isoformat()
     }
+    # Example of what the 'timestamp' value looks like: '2025-11-16T16:08:02.123456'
+    
     
     # Add hidden_note if provided
     if hidden_note:
@@ -156,12 +135,6 @@ def update_json_file(country, image, note, donor_name, currency_type, size, year
 
     with open(JSON_FILE_PATH, 'w') as f:
         json.dump(data, f, indent=4)
-    
-    # Invalidate cache
-    global json_cache
-    json_cache['data'] = None
-    json_cache['timestamp'] = 0
-
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -234,36 +207,23 @@ def delete_entry(entry):
         os.remove(file_path)
     write_json_file(updated_data)
 
-# Cache for JSON data with TTL (Time To Live)
-json_cache = {
-    'data': None,
-    'timestamp': 0,
-    'cache_duration': 30  # Cache for 30 seconds
-}
-
 def load_json():
-    """Load JSON with caching for better performance"""
-    current_time = time.time()
-    if (json_cache['data'] is not None and 
-        current_time - json_cache['timestamp'] < json_cache['cache_duration']):
-        return json_cache['data']
-    
-    with file_lock:
+    with file_lock:  # Ensure thread-safe access
         if os.path.exists(current_json_file_path):
             with open(current_json_file_path, 'r') as file:
-                json_cache['data'] = json.load(file)
-                json_cache['timestamp'] = current_time
-                return json_cache['data']
+                return json.load(file)
     return []
 
 def save_json(data):
     """Save JSON and handle image moves when country changes"""
-    with file_lock:
+    with file_lock:  # Ensure thread-safe access
+
         # Load existing JSON to compare old vs new
-        old_data = []
         if os.path.exists(current_json_file_path):
             with open(current_json_file_path, 'r') as f:
                 old_data = json.load(f)
+        else:
+            old_data = []
 
         # Map old entries by image filename
         old_map = {entry["image"]: entry for entry in old_data}
@@ -279,6 +239,7 @@ def save_json(data):
             if old_entry:
                 old_country = old_entry.get("country")
 
+                # Country has changed
                 if old_country and old_country != country:
                     old_path = os.path.join(BASE_UPLOAD_FOLDER, old_country, image)
                     new_folder = os.path.join(BASE_UPLOAD_FOLDER, country)
@@ -286,20 +247,20 @@ def save_json(data):
 
                     try:
                         os.makedirs(new_folder, exist_ok=True)
+
                         if os.path.exists(old_path):
-                            os.rename(old_path, new_path)
+                            os.rename(old_path, new_path)  # move file
                             print(f"Moved {image} from {old_country} to {country}")
+                        else:
+                            print(f"Old file {old_path} not found, skipping move.")
+
                     except Exception as e:
                         print(f"Error moving file {image}: {e}")
 
-        # Save updated JSON
+        # Finally, save updated JSON
         with open(current_json_file_path, 'w') as f:
             json.dump(data, f, indent=2)
-        
-        # Invalidate cache
-        global json_cache
-        json_cache['data'] = None
-        json_cache['timestamp'] = 0
+
 
 # Route to serve the ./index.html located in project root
 @app.route('/root-index')
@@ -5262,24 +5223,13 @@ function populateCountryDropdowns() {{ // Corrected function brace escaping
 }}
 
 // Load data for current page
-function loadPageData(page = currentPage, perPage = itemsPerPage) {{
+function loadPageData(page = currentPage, perPage = itemsPerPage) {{ // Corrected function brace escaping
     showLoading();
     
-    // Build query parameters with current filters
-    const params = new URLSearchParams();
-    params.append('page', page);
-    params.append('per_page', perPage);
-    params.append('ajax', 'true');
-    
-    // Add filters if they exist
-    if (activeFilters.country) params.append('country', activeFilters.country);
-    if (activeFilters.size) params.append('size', activeFilters.size);
-    if (activeFilters.yearFrom) params.append('yearFrom', activeFilters.yearFrom);
-    if (activeFilters.yearTo) params.append('yearTo', activeFilters.yearTo);
-    
-    fetch(`/get-json?${{params.toString()}}`)
+    // Corrected JS template literal interpolation for the fetch URL
+    fetch(`/edit_json?page=${{page}}&per_page=${{perPage}}&ajax=true`)
         .then(response => response.json())
-        .then(data => {{
+        .then(data => {{ // Corrected function brace escaping
             jsonData = data.data;
             currentPage = data.pagination.current_page;
             itemsPerPage = data.pagination.per_page;
@@ -5289,12 +5239,12 @@ function loadPageData(page = currentPage, perPage = itemsPerPage) {{
             updatePaginationControls();
             renderTable(jsonData);
             hideLoading();
-        }})
-        .catch(error => {{
+        }}) // Corrected function brace escaping
+        .catch(error => {{ // Corrected function brace escaping
             console.error("Error fetching page data:", error);
             document.getElementById("jsonTableContainer").innerHTML = "Error loading data";
             hideLoading();
-        }});
+        }}); // Corrected function brace escaping
 }}
 
 function showLoading() {{ // Corrected function brace escaping
@@ -5338,18 +5288,17 @@ function changePage(newPage) {{ // Corrected function brace escaping
     loadPageData(newPage, itemsPerPage);
 }} // Corrected function brace escaping
 
-function changePageSize(newSize) {{
+function changePageSize(newSize) {{ // Corrected function brace escaping
     itemsPerPage = parseInt(newSize);
     
-    // Reset to first page when changing page size, preserving filters
+    // Reset to first page when changing page size
     const newUrl = new URL(window.location);
     newUrl.searchParams.set('page', 1);
     newUrl.searchParams.set('per_page', itemsPerPage);
-    window.history.pushState({{}}, '', newUrl);
+    window.history.pushState({{}}, '', newUrl); // Corrected empty object literal escaping
     
-    // Reload with current filters
     loadPageData(1, itemsPerPage);
-}}
+}} // Corrected function brace escaping
 
 // ... (rest of your JavaScript functions remain exactly the same as in your original code)
 // Just add the pagination functions above and keep everything else unchanged
@@ -5651,30 +5600,6 @@ actionColumn.appendChild(editBtn);
     
     // Apply filters after rendering
     filterTable();
-    // Call lazy loading after rendering
-lazyLoadImages();
-}}
-
-
-// Add this function for lazy loading images
-function lazyLoadImages() {{
-    const imageObserver = new IntersectionObserver((entries, observer) => {{
-        entries.forEach(entry => {{
-            if (entry.isIntersecting) {{
-                const img = entry.target;
-                const dataSrc = img.getAttribute('data-src');
-                if (dataSrc) {{
-                    img.src = dataSrc;
-                    img.removeAttribute('data-src');
-                }}
-                observer.unobserve(img);
-            }}
-        }});
-    }});
-
-    document.querySelectorAll('.thumbnail[data-src]').forEach(img => {{
-        imageObserver.observe(img);
-    }});
 }}
 
 // Setup image drop area functionality
@@ -5856,75 +5781,63 @@ function saveUpdates() {{
     }});
 }}
 
-// This function is no longer needed for server-side filtering
-// But keep it as a no-op or remove it
+// Filter functionality
 function filterTable() {{
-    // Server-side filtering is now used
-    // This function is kept for compatibility but does nothing
-    console.log('Using server-side filtering');
+    const rows = document.querySelectorAll('#jsonTableContainer .row:not(.header)');
+    
+    rows.forEach(row => {{
+        const index = parseInt(row.getAttribute('data-index'));
+        const rowData = jsonData[index];
+        
+        let shouldShow = true;
+        
+        // Country filter
+        if (activeFilters.country && rowData.country) {{
+            const countryMatch = rowData.country.toLowerCase().includes(activeFilters.country.toLowerCase());
+            if (!countryMatch) shouldShow = false;
+        }}
+        
+        // Size filter
+        if (activeFilters.size && rowData.size) {{
+            const sizeMatch = rowData.size.toLowerCase().includes(activeFilters.size.toLowerCase());
+            if (!sizeMatch) shouldShow = false;
+        }}
+        
+        // Year range filter
+        if (activeFilters.yearFrom && rowData.year) {{
+            const year = parseInt(rowData.year);
+            if (!isNaN(year) && year < parseInt(activeFilters.yearFrom)) {{
+                shouldShow = false;
+            }}
+        }}
+        
+        if (activeFilters.yearTo && rowData.year) {{
+            const year = parseInt(rowData.year);
+            if (!isNaN(year) && year > parseInt(activeFilters.yearTo)) {{
+                shouldShow = false;
+            }}
+        }}
+        
+        // Toggle visibility
+        row.style.display = shouldShow ? 'flex' : 'none';
+    }});
 }}
 
 function applyFilters() {{
-    // Get filter values
-    const countryFilter = document.getElementById('countrySearch').value;
-    const sizeFilter = document.getElementById('sizeSearch').value;
-    const yearFromFilter = document.getElementById('yearFromSearch').value;
-    const yearToFilter = document.getElementById('yearToSearch').value;
+    activeFilters.country = document.getElementById('countrySearch').value;
+    activeFilters.size = document.getElementById('sizeSearch').value;
+    activeFilters.yearFrom = document.getElementById('yearFromSearch').value;
+    activeFilters.yearTo = document.getElementById('yearToSearch').value;
     
-    // Build query parameters
-    const params = new URLSearchParams();
-    if (countryFilter) params.append('country', countryFilter);
-    if (sizeFilter) params.append('size', sizeFilter);
-    if (yearFromFilter) params.append('yearFrom', yearFromFilter);
-    if (yearToFilter) params.append('yearTo', yearToFilter);
-    params.append('ajax', 'true');
-    params.append('page', '1');
-    params.append('per_page', itemsPerPage);
-    
-    showLoading();
-    
-    // Make API request with filters
-    fetch(`/get-json?${{params.toString()}}`)
-        .then(response => response.json())
-        .then(result => {{
-            jsonData = result.data;
-            currentPage = result.pagination.current_page;
-            itemsPerPage = result.pagination.per_page;
-            totalPages = result.pagination.total_pages;
-            totalItems = result.pagination.total_items;
-            
-            updatePaginationControls();
-            renderTable(jsonData);
-            hideLoading();
-            
-            // Update active filters display
-            activeFilters = {{
-                country: countryFilter,
-                size: sizeFilter,
-                yearFrom: yearFromFilter,
-                yearTo: yearToFilter
-            }};
-            
-            // Show filter applied message
-            if (countryFilter || sizeFilter || yearFromFilter || yearToFilter) {{
-                showToast(`Filters applied. Found ${{totalItems}} items.`);
-            }}
-        }})
-        .catch(error => {{
-            console.error("Error applying filters:", error);
-            document.getElementById("jsonTableContainer").innerHTML = "Error applying filters";
-            hideLoading();
-        }});
+    filterTable();
 }}
 
 function clearFilters() {{
-    // Clear input fields
     document.getElementById('countrySearch').value = '';
     document.getElementById('sizeSearch').value = '';
     document.getElementById('yearFromSearch').value = '';
     document.getElementById('yearToSearch').value = '';
     
-    // Reset active filters
     activeFilters = {{
         country: '',
         size: '',
@@ -5932,28 +5845,7 @@ function clearFilters() {{
         yearTo: ''
     }};
     
-    // Reload first page without filters
-    showLoading();
-    
-    fetch(`/get-json?page=1&per_page=${{itemsPerPage}}&ajax=true`)
-        .then(response => response.json())
-        .then(result => {{
-            jsonData = result.data;
-            currentPage = result.pagination.current_page;
-            itemsPerPage = result.pagination.per_page;
-            totalPages = result.pagination.total_pages;
-            totalItems = result.pagination.total_items;
-            
-            updatePaginationControls();
-            renderTable(jsonData);
-            hideLoading();
-            showToast('Filters cleared');
-        }})
-        .catch(error => {{
-            console.error("Error clearing filters:", error);
-            document.getElementById("jsonTableContainer").innerHTML = "Error loading data";
-            hideLoading();
-        }});
+    filterTable();
 }}
 
 function toggleAddMode() {{
@@ -6436,41 +6328,37 @@ document.getElementById('showPaginationBtnBottom').addEventListener('click', sho
 }});
 
 
-
 function showAllEntries() {{
-    // First check how many items we have
-    fetch('/get-json-stats')
+    showLoading();
+    
+    // First check how many total items we have
+    fetch('/get-json?page=1&per_page=1&ajax=true')
         .then(response => response.json())
-        .then(stats => {{
-            if (stats.total_items > 500) {{
-                if (!confirm(`⚠️ Warning: This will load ${{stats.total_items}} items (${{stats.file_size_mb}} MB).\n\nThis might be very slow on large collections.\n\nContinue anyway?`)) {{
+        .then(paginationInfo => {{
+            const totalItems = paginationInfo.pagination.total_items;
+            
+            // Show warning for large datasets
+            if (totalItems > 500) {{
+                if (!confirm(`This will load ${{totalItems}} items. This might be slow on large collections. Continue?`)) {{
+                    hideLoading();
                     return;
                 }}
             }}
-            loadAllEntries();
+            
+            // Fetch all data
+            return fetch('/get-all-json');
         }})
-        .catch(() => {{
-            // If stats endpoint fails, proceed with caution
-            if (confirm('⚠️ Loading all items may be slow. Continue?')) {{
-                loadAllEntries();
-            }}
-        }});
-}}
-
-function loadAllEntries() {{
-    showLoading();
-    
-    fetch('/get-all-json')
-        .then(response => response.json())
+        .then(response => {{
+            if (!response) return; // User cancelled the operation
+            return response.json();
+        }})
         .then(data => {{
-            if (data.error) {{
-                throw new Error(data.error);
-            }}
+            if (!data) return; // User cancelled the operation
             
             jsonData = data;
             renderTable(jsonData);
             
-            // Update UI state
+            // Update UI state - ONLY hide pagination navigation, keep the view option buttons
             document.getElementById('prevPage').style.display = 'none';
             document.getElementById('nextPage').style.display = 'none';
             document.getElementById('prevPageBottom').style.display = 'none';
@@ -6480,16 +6368,19 @@ function loadAllEntries() {{
             document.getElementById('pageSize').style.display = 'none';
             document.querySelector('.page-size-selector label').style.display = 'none';
             
+            // Show the "Show Pagination" buttons and hide "Show All" buttons
             document.getElementById('showAllBtn').style.display = 'none';
             document.getElementById('showAllBtnBottom').style.display = 'none';
             document.getElementById('showPaginationBtn').style.display = 'inline-block';
             document.getElementById('showPaginationBtnBottom').style.display = 'inline-block';
             
+            // Remove existing item count if present
             const existingCount = document.getElementById('allItemsCount');
             if (existingCount) {{
                 existingCount.remove();
             }}
             
+            // Create and show item count
             const itemCount = document.createElement('div');
             itemCount.id = 'allItemsCount';
             itemCount.style.cssText = 'text-align: center; color: white; font-weight: bold; margin: 10px 0; padding: 10px; background-color: rgba(0,0,0,0.3); border-radius: 4px;';
@@ -6499,6 +6390,8 @@ function loadAllEntries() {{
             tableContainer.parentNode.insertBefore(itemCount, tableContainer);
             
             hideLoading();
+            
+            // Show success message
             showToast(`Loaded all ${{jsonData.length}} items`);
         }})
         .catch(error => {{
@@ -6507,7 +6400,7 @@ function loadAllEntries() {{
                 <div style="text-align: center; color: #ff6b6b; padding: 20px;">
                     <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 10px;"></i>
                     <h3>Error loading data</h3>
-                    <p>${{error.message || 'Failed to load all items'}}</p>
+                    <p>Failed to load all items. Please try again or use pagination view.</p>
                     <button onclick="showPaginationView()" class="btn-success" style="margin-top: 10px;">
                         <i class="fas fa-file-alt"></i> Return to Pagination View
                     </button>
@@ -6516,7 +6409,6 @@ function loadAllEntries() {{
             hideLoading();
         }});
 }}
-
 
 function showPaginationView() {{
     // Restore ALL pagination controls
@@ -6574,112 +6466,42 @@ def box_country_list():
 
 @app.route('/get-json', methods=['GET'])
 def get_json():
-    """Get JSON data with pagination support"""
+    # Support both paginated and non-paginated requests
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 20, type=int)
     ajax = request.args.get('ajax', False, type=bool)
     
-    # Get filters from request
-    filters = {}
-    country = request.args.get('country', '')
-    size = request.args.get('size', '')
-    year_from = request.args.get('yearFrom', '')
-    year_to = request.args.get('yearTo', '')
-    
-    if country:
-        filters['country'] = country
-    if size:
-        filters['size'] = size
-    if year_from:
-        filters['yearFrom'] = year_from
-    if year_to:
-        filters['yearTo'] = year_to
-    
-    result = get_paginated_data(page, per_page, filters if filters else None)
-    
-    if ajax:
-        return jsonify(result)
-    
-    return jsonify(result['data'])
-
-
-def get_paginated_data(page=1, per_page=20, filters=None):
-    """Get paginated data with optional filtering"""
     all_data = load_json()
-    
-    # Apply filters if provided
-    if filters:
-        all_data = apply_filters_to_data(all_data, filters)
-    
     total_items = len(all_data)
-    total_pages = (total_items + per_page - 1) // per_page if total_items > 0 else 1
     
-    # Ensure page is within bounds
-    page = max(1, min(page, total_pages))
-    
-    start_idx = (page - 1) * per_page
-    end_idx = start_idx + per_page
-    
-    page_data = all_data[start_idx:end_idx]
-    
-    return {
-        'data': page_data,
-        'pagination': {
-            'current_page': page,
-            'per_page': per_page,
-            'total_items': total_items,
-            'total_pages': total_pages,
-            'has_prev': page > 1,
-            'has_next': page < total_pages
-        }
-    }
-
-def apply_filters_to_data(data, filters):
-    """Apply filters to data efficiently"""
-    if not filters:
-        return data
-    
-    filtered_data = []
-    country_filter = filters.get('country', '').lower()
-    size_filter = filters.get('size', '').lower()
-    year_from = filters.get('yearFrom')
-    year_to = filters.get('yearTo')
-    
-    for item in data:
-        # Country filter
-        if country_filter and country_filter not in item.get('country', '').lower():
-            continue
-            
-        # Size filter
-        if size_filter and size_filter not in item.get('size', '').lower():
-            continue
-            
-        # Year range filter
-        year = item.get('year', '')
-        if year and str(year).isdigit():
-            year_num = int(year)
-            if year_from and year_num < int(year_from):
-                continue
-            if year_to and year_num > int(year_to):
-                continue
-        elif (year_from or year_to):
-            # If year is not valid and we have year filters, skip
-            continue
+    # If it's an AJAX request for pagination, return paginated data
+    if ajax:
+        total_pages = (total_items + per_page - 1) // per_page
+        start_idx = (page - 1) * per_page
+        end_idx = start_idx + per_page
+        current_page_data = all_data[start_idx:end_idx]
         
-        filtered_data.append(item)
+        return jsonify({
+            'data': current_page_data,
+            'pagination': {
+                'current_page': page,
+                'per_page': per_page,
+                'total_items': total_items,
+                'total_pages': total_pages,
+                'has_prev': page > 1,
+                'has_next': page < total_pages
+            }
+        })
     
-    return filtered_data
+    # Regular request returns all data
+    return jsonify(all_data)
+
 
 @app.route('/get-all-json', methods=['GET'])
 def get_all_json():
-    """Get all JSON data - use sparingly for large datasets"""
+    """Get all JSON data without pagination for Show All mode"""
     try:
-        # Add warning header for large datasets
         all_data = load_json()
-        if len(all_data) > 500:
-            response = jsonify(all_data)
-            response.headers['X-Warning'] = 'Large dataset - consider using pagination'
-            return response
         return jsonify(all_data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -6778,10 +6600,9 @@ def upload_json():
     else:
         return jsonify({"error": "Invalid file type. Please upload a JSON file."}), 400
 
-
+# Update the merge-images route to handle different formats
 @app.route('/merge-images', methods=['POST'])
 def merge_images():
-    """Merge two images together"""
     try:
         # Get the JSON data
         data = request.get_json()
@@ -6806,6 +6627,7 @@ def merge_images():
         image2 = Image.open(io.BytesIO(base64.b64decode(image2_data)))
         
         # Determine the output format based on input images
+        # Prefer PNG for transparency, otherwise use the format of the first image
         output_format = 'PNG'
         
         # Check if either image has transparency
@@ -6816,22 +6638,26 @@ def merge_images():
              (image2.mode == 'P' and 'transparency' in image2.info))
         )
         
-        # If no transparency, use JPEG if appropriate
+        # If no transparency, use the format of the first image if it's JPEG
         if not has_transparency:
+            # Try to get format from the first image
             try:
                 if hasattr(image1, 'format') and image1.format:
                     first_format = image1.format.upper()
+                    # Use JPEG for JPEG images to maintain quality
                     if first_format == 'JPEG':
                         output_format = 'JPEG'
             except:
-                pass
+                pass  # Fall back to PNG if we can't determine format
         
         # Determine the merge direction and resize images if needed
         if direction == 'horizontal':
+            # Resize images to have the same height
             max_height = max(image1.height, image2.height)
             image1 = ImageOps.contain(image1, (image1.width, max_height))
             image2 = ImageOps.contain(image2, (image2.width, max_height))
             
+            # Create new image with combined width
             new_width = image1.width + image2.width
             if has_transparency:
                 merged_image = Image.new('RGBA', (new_width, max_height))
@@ -6839,11 +6665,13 @@ def merge_images():
                 merged_image = Image.new('RGB', (new_width, max_height))
             merged_image.paste(image1, (0, 0))
             merged_image.paste(image2, (image1.width, 0))
-        else:
+        else:  # vertical
+            # Resize images to have the same width
             max_width = max(image1.width, image2.width)
             image1 = ImageOps.contain(image1, (max_width, image1.height))
             image2 = ImageOps.contain(image2, (max_width, image2.height))
             
+            # Create new image with combined height
             new_height = image1.height + image2.height
             if has_transparency:
                 merged_image = Image.new('RGBA', (max_width, new_height))
@@ -6855,11 +6683,13 @@ def merge_images():
         # Save the merged image to a bytes buffer
         buffer = io.BytesIO()
         
+        # Set appropriate quality and format options
         save_kwargs = {}
         if output_format == 'JPEG':
-            save_kwargs['quality'] = 95
+            save_kwargs['quality'] = 95  # High quality JPEG
             file_ext = 'jpg'
         else:
+            # PNG format - preserve transparency
             file_ext = 'png'
             if has_transparency:
                 merged_image = merged_image.convert('RGBA')
@@ -6872,14 +6702,13 @@ def merge_images():
         filename = f"{file_uuid}.{file_ext}"
         country_folder = os.path.join(BASE_UPLOAD_FOLDER, country)
         
+        # Ensure the country folder exists
         os.makedirs(country_folder, exist_ok=True)
         
+        # Save the file
         file_path = os.path.join(country_folder, filename)
         with open(file_path, 'wb') as f:
             f.write(buffer.getvalue())
-        
-        # Invalidate cache since we added a new image
-        invalidate_json_cache()
         
         return jsonify({
             "message": "Images merged and saved successfully",
@@ -6890,14 +6719,6 @@ def merge_images():
         
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-
-def invalidate_json_cache():
-    """Invalidate the JSON cache"""
-    global json_cache
-    json_cache['data'] = None
-    json_cache['timestamp'] = 0
-
 
 @app.route('/get-countries', methods=['GET'])
 def get_countries_list():
