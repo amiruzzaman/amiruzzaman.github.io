@@ -15,7 +15,7 @@ from datetime import datetime
 app = Flask(__name__, static_url_path='/static', static_folder='static')
 
 # Add this after your directory definitions
-required_dirs = ['images', 'crop', 'static', 'geojson', 'flags/svg']
+required_dirs = ['images', 'crop', 'static', 'geojson', 'flags/svg', 'style', 'script']
 for dir_name in required_dirs:
     os.makedirs(dir_name, exist_ok=True)
 
@@ -326,6 +326,16 @@ def countries_details_json():
 def serve_flags_svg(filename):
     return send_from_directory('flags/svg', filename)
 
+
+# Serve CSS files from style directory
+@app.route('/style/<path:filename>')
+def serve_style_css(filename):
+    return send_from_directory('style', filename)
+
+# Serve JavaScript files from style directory
+@app.route('/script/<path:filename>')
+def serve_script(filename):
+    return send_from_directory('script', filename)
 
 # Routes
 @app.route('/')
