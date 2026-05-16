@@ -163,13 +163,6 @@ def update_json_file(country, image, note, donor_name, currency_type, size, year
     json_cache['timestamp'] = 0
 
 
-@app.route('/get-raw-json', methods=['GET'])
-def get_raw_json():
-    try:
-        return jsonify(load_json())
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -1655,127 +1648,12 @@ def render_edit_item_page(item):
             document.getElementById('imageDropArea').classList.remove('highlight');
         }}
 
+        function handleDrop(e) {{
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }}
 
-function handleDrop(e) {{
-    e.preventDefault();
-    const draggedIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
-    const targetRow = e.target.closest('.row');
-    if (!targetRow) return;
-    const targetIndex = parseInt(targetRow.getAttribute('data-index'), 10);
-
-    if (draggedIndex !== targetIndex) {{
-        // 1. Rearrange the local filtered items on your screen immediately so it looks correct
-        const draggedItem = jsonData.splice(draggedIndex, 1)[0];
-        jsonData.splice(targetIndex, 0, draggedItem);
-        renderTable(jsonData);
-
-        // 2. Fetch the actual absolute full raw data from the server
-        fetch('/images/coins.json')
-            .then(response => response.json())
-            .then(fullData => {{
-                if (!Array.isArray(fullData)) return;
-
-                // 3. Rebuild the master list: Replace only the items matching our current screen view sequence
-                const updatedFullData = [];
-                let visibleInserted = false;
-
-                for (let i = 0; i < fullData.length; i++) {{
-                    const item = fullData[i];
-                    // Check if this item is currently visible/filtered on screen (e.g. Cambodia)
-                    const isVisible = jsonData.some(visible => visible.image === item.image);
-
-                    if (isVisible) {{
-                        // When we hit the cluster of filtered items, insert all rearranged items at once
-                        if (!visibleInserted) {{
-                            updatedFullData.push(...jsonData);
-                            visibleInserted = true;
-                        }}
-                    }} else {{
-                        // Keep non-filtered items (all other countries) completely untouched
-                        updatedFullData.push(item);
-                    }}
-                }}
-
-                // Fallback guarantee
-                if (!visibleInserted) {{
-                    updatedFullData.push(...jsonData);
-                }}
-
-                // 4. Send the complete list (with other countries preserved) back to the backend
-                return fetch('/update-json', {{
-                    method: 'POST',
-                    headers: {{ 'Content-Type': 'application/json' }},
-                    body: JSON.stringify(updatedFullData),
-                }});
-            }})
-            .then(response => response.json())
-            .then(data => {{
-                console.log("JSON successfully updated and all countries preserved!");
-                showToast("Order updated successfully!");
-            }})
-            .catch(error => {{
-                console.error("Error saving drop updates:", error);
-                showToast("❌ Error saving sequence!");
-            }});
-    }}
-}}
-
-function saveUpdatesWithFullData() {{
-    // 1. Fetch the absolute full list from the backend first
-    fetch('/get-raw-json')
-        .then(response => response.json())
-        .then(fullData => {{
-            if (fullData.error) throw new Error(fullData.error);
-
-            // 2. Map the absolute correct order for the items currently visible on screen
-            // We use item image filenames or item IDs to cross-reference entries safely
-            const updatedFullData = [];
-            let visibleInserted = false;
-
-            for (let i = 0; i < fullData.length; i++) {{
-                const item = fullData[i];
-                // Check if this item is one of the visible filtered items
-                const isVisible = jsonData.some(visible => (visible.id === item.id || visible.image === item.image));
-
-                if (isVisible) {{
-                    // When we hit the first filtered item cluster, insert all the filtered items 
-                    // in their updated sequence, then skip any other matching instances
-                    if (!visibleInserted) {{
-                        updatedFullData.push(...jsonData);
-                        visibleInserted = true;
-                    }}
-                }} else {{
-                    // Keep un-filtered items (like other countries) exactly where they were
-                    updatedFullData.push(item);
-                }}
-            }}
-
-            // Fallback safety layer
-            if (!visibleInserted) {{
-                updatedFullData.push(...jsonData);
-            }}
-
-            // 3. Save the restored data back to the server using your original saving endpoint
-            return fetch('/save-updates', {{   // Double check if your endpoint is exactly named '/save-updates'
-                method: 'POST',
-                headers: {{ 'Content-Type': 'application/json' }},
-                body: JSON.stringify(updatedFullData)
-            }});
-        }})
-        .then(response => response.json())
-        .then(data => {{
-            if (data.message) {{
-                console.log('Backend JSON safely updated with all objects kept:', data.message);
-            }} else {{
-                console.error('Error updating JSON:', data.error);
-                alert(`Error updating JSON: ${data.error}`);
-            }}
-        }})
-        .catch(error => {{
-            console.error('Error with fetch sync request:', error);
-            alert('An error occurred while updating the JSON file.');
-        }});
-}}
         function handleFileSelect(e) {{
             const files = e.target.files;
             handleFiles(files);
@@ -6809,53 +6687,11 @@ def get_all_json():
 
 @app.route('/update-json', methods=['POST'])
 def update_json():
-    """
-    Intelligently saves updates from a filtered or paginated view on the frontend,
-    preserving all items/countries that weren't visible on the screen.
-    """
     try:
-        # This is the filtered/ordered subset array coming from your frontend table
-        incoming_data = request.get_json()
-        if not isinstance(incoming_data, list):
-            return jsonify({"error": "Invalid data format. Expected a list."}), 400
-
-        # 1. Load the absolute complete original database containing ALL coins/countries
-        full_data = load_json()
-
-        # 2. Extract unique keys for the items currently being rearranged on screen
-        # We use a tuple of (id, image) to ensure an accurate match
-        incoming_keys = { (item.get('id'), item.get('image')) for item in incoming_data if item.get('image') }
-
-        updated_full_data = []
-        incoming_inserted = False
-
-        # 3. Iterate through the master file to weave the new sequence in seamlessly
-        for item in full_data:
-            item_key = (item.get('id'), item.get('image'))
-            
-            if item_key in incoming_keys:
-                # When we encounter the first entry of our filtered collection,
-                # insert the entire newly sorted block from the client view at once.
-                if not incoming_inserted:
-                    updated_full_data.extend(incoming_data)
-                    incoming_inserted = True
-                # Skip individual original item rows because they are handled in the bulk extension above
-                continue
-            else:
-                # Keep non-filtered rows (all other countries/coins) exactly where they were
-                updated_full_data.append(item)
-
-        # Safety Fallback: If none matched, append the incoming_data safely
-        if not incoming_inserted:
-            updated_full_data.extend(incoming_data)
-
-        # 4. Securely overwrite the file using your existing thread-safe save logic
-        save_json(updated_full_data)
-
-        return jsonify({"message": "JSON file updated successfully! All other countries preserved."}), 200
-
+        data = request.get_json()
+        save_json(data)
+        return jsonify({"message": "JSON file updated successfully!"})
     except Exception as e:
-        print(f"Error merging sequence updates: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/update-country', methods=['POST'])
@@ -7074,54 +6910,13 @@ def get_countries_list():
     
 @app.route('/update-json', methods=['POST'])
 def update_json_endpoint():
-    """
-    Intelligently merges the client-side reordered subset back into the full
-    coins database, keeping non-visible countries/coins completely untouched.
-    """
+    """Update the JSON file with new data"""
     try:
-        # This is the incoming ordered list of coins from the client screen view
-        incoming_data = request.get_json()
-        if not isinstance(incoming_data, list):
-            return jsonify({"error": "Invalid data format. Expected a list."}), 400
-
-        # 1. Load the true complete master dataset from coins.json
-        full_data = load_json()
-
-        # 2. Map out a lookup of the unique IDs/images that are being reordered
-        incoming_identifiers = { (item.get('id'), item.get('image')) for item in incoming_data if item.get('image') }
-
-        updated_full_data = []
-        incoming_inserted = False
-
-        # 3. Weave the newly reordered sequence back into the file sequence
-        for item in full_data:
-            item_key = (item.get('id'), item.get('image'))
-            
-            if item_key in incoming_identifiers:
-                # When we hit the position placeholder of the matching items,
-                # splice the entire newly organized list from the screen into the stream.
-                if not incoming_inserted:
-                    updated_full_data.extend(incoming_data)
-                    incoming_inserted = True
-                # Skip individual outdated copies since they are bundled inside incoming_data
-                continue
-            else:
-                # Keep other countries/items completely unchanged and in position
-                updated_full_data.append(item)
-
-        # Safety Fallback: If none of the items were previously found, append them
-        if not incoming_inserted:
-            updated_full_data.extend(incoming_data)
-
-        # 4. Save the cleanly reconstructed data stream back to coins.json
-        save_json(updated_full_data)
-
-        return jsonify({"message": "Database updated cleanly! Other countries preserved."}), 200
-
+        data = request.get_json()
+        save_json(data)
+        return jsonify({"message": "JSON file updated successfully!"})
     except Exception as e:
-        print(f"Error merging filtered items: {str(e)}")
         return jsonify({"error": str(e)}), 500
-    
 @app.route('/upload-json', methods=['POST'])
 def upload_json_endpoint():
     """Upload and replace JSON file"""
