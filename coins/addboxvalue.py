@@ -15,6 +15,8 @@ from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
 import io
+import uuid
+
 
 app = Flask(__name__)
 
@@ -559,6 +561,7 @@ def update_data():
     # If no entries found with this country name, add a new entry
     if not updated:
         new_entry = {
+            "id": str(uuid.uuid4()),
             "country": country,
             "box": box,
             "currency_type": "",

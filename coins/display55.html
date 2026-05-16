@@ -999,149 +999,129 @@
                 }
             }
 
-// Displays the GeoJSON highlight on the map
-function displayCountryHighlight(mapInstance, geojson) {
-    // Remove existing highlight layer if it exists
-    if (mainMapGeoJsonLayer) {
-        mapInstance.removeLayer(mainMapGeoJsonLayer);
-    }
-
-    // Create the layer with an explicit pane mapping to force it above everything else
-    mainMapGeoJsonLayer = L.geoJSON(geojson, {
-        pane: 'overlayPane', // FORCE layer inside Leaflet's dedicated overlay vector pane
-        style: {
-            color: "#e74c3c",
-            weight: 3,         // Slightly thicker line to pop out
-            fillOpacity: 0.3,  // Slightly richer fill so the boundary stands out clearly
-            fillColor: "#e74c3c"
-        },
-        onEachFeature: function (feature, layer) {
-            const name = feature.properties?.name || feature.properties?.ADMIN || "Unknown";
-            layer.bindTooltip(name, { permanent: false, direction: "center", className: "country-tooltip" });
-            
-            // Explicitly force internal sub-features to the visual front layer stack
-            if (layer.bringToFront) {
-                layer.bringToFront();
-            }
-        }
-    }).addTo(mapInstance);
-
-    // Ultimate fallback layer stack shift
-    if (mainMapGeoJsonLayer && typeof mainMapGeoJsonLayer.bringToFront === 'function') {
-        mainMapGeoJsonLayer.bringToFront();
-    }
-
-    // Pan and zoom smoothly to the highlighted country bounding box
-    const bounds = mainMapGeoJsonLayer.getBounds();
-    if (bounds.isValid()) {
-        mapInstance.flyToBounds(bounds, {
-            padding: [50, 50], // Leaves a clean boundary padding around the country edge
-            maxZoom: 5,        // Prevents zooming in too close on small nations/city-states
-            duration: 1.2      // Smooth visual transition speed
-        });
-    } else {
-        console.warn("Invalid bounds for country highlight layer. Skipping fitBounds.");
-    }
-}
-
-
-// Function to show all available countries in a light green color
-async function showAvailableCountries(availableCountries) {
-    // Remove existing layer if it exists
-    if (availableCountriesLayer) {
-        mainMap.removeLayer(availableCountriesLayer);
-    }
-
-    // Create a new layer group for available countries
-    availableCountriesLayer = L.layerGroup().addTo(mainMap);
-
-    // Get the currently active country from the URL parameters to skip its green coloring
-    const queryParams = new URLSearchParams(window.location.search);
-    const activeCountryParam = queryParams.get("country") ? queryParams.get("country").toLowerCase() : null;
-
-    // Filter to only include mappings for countries that have coin data
-    const availableMappings = cache.countryGeoJsonMapping.filter(item => 
-        availableCountries.some(c => c.toLowerCase() === item.country_name.toLowerCase())
-    );
-
-    // Process each available country mapping
-    for (const countryMapping of availableMappings) {
-        // SKIP: If this country is the one currently active/selected, do not paint it green!
-        if (activeCountryParam && countryMapping.country_name.toLowerCase() === activeCountryParam) {
-            continue;
-        }
-
-        try {
-            let geojson = countryMapping.geojson;
-            // If GeoJSON is not cached, fetch and cache it
-            if (!geojson) {
-                const response = await fetch(countryMapping.file_name);
-                geojson = await response.json();
-                countryMapping.geojson = geojson; // Cache it
-            }
-
-            // Add GeoJSON to the map with styling and interaction
-            L.geoJSON(geojson, {
-                style: {
-                    color: "#4CAF50", // Light green color
-                    weight: 1,
-                    fillOpacity: 0.3,
-                    fillColor: "#4CAF50"
-                },
-                onEachFeature: (feature, layer) => {
-                    const name = feature.properties?.name || feature.properties?.ADMIN || countryMapping.country_name;
-
-                    // Show tooltip on hover
-                    layer.bindTooltip(name, {
-                        permanent: false, // show only on hover
-                        direction: "center",
-                        className: "country-tooltip"
-                    });
-
-                    layer.on({
-                        click: () => {
-                            const countryName = countryMapping.country_name;
-                            // Update URL, preserving coin parameter if present
-                            const currentParams = new URLSearchParams(window.location.search);
-                            const currentCoin = currentParams.get("coin");
-                            const newUrl = currentCoin ? `?country=${countryName.toLowerCase()}&coin=${currentCoin}` : `?country=${countryName.toLowerCase()}`;
-                            history.pushState(null, "", newUrl);
-                            
-                            highlightCountry(countryName.toLowerCase());
-                            loadCountryImages(countryName.toLowerCase());
-                            loadGalleryView(countryName.toLowerCase());
-
-                            // Update country list active state
-                            document.querySelectorAll('.countries-list a').forEach(el => {
-                                el.classList.remove('active');
-                                if (el.textContent.toLowerCase() === countryName.toLowerCase()) {
-                                    el.classList.add('active');
-                                    const countryItems = cache.coinsData.filter(
-                                        coin => coin.country.toLowerCase() === countryName.toLowerCase()
-                                    ).length;
-                                    document.getElementById('selected-country').textContent = `: ${countryName}`;
-                                    document.getElementById('selected-country-title').textContent = `${countryName} (${countryItems})`;
-                                    updateTitle(`${countryName}`);
-                                }
-                            });
-
-                            // Re-run showAvailableCountries to recalculate and refresh exclusions
-                            showAvailableCountries(availableCountries);
-                        },
-                        mouseover: () => {
-                            layer.setStyle({ fillOpacity: 0.5 });
-                        },
-                        mouseout: () => {
-                            layer.setStyle({ fillOpacity: 0.3 });
-                        }
-                    });
+            // Displays the GeoJSON highlight on the map
+            function displayCountryHighlight(mapInstance, geojson) {
+                // Remove existing highlight layer if it exists
+                if (mainMapGeoJsonLayer) {
+                    mapInstance.removeLayer(mainMapGeoJsonLayer);
                 }
-            }).addTo(availableCountriesLayer);
-        } catch (error) {
-            console.error(`Error loading GeoJSON for ${countryMapping.country_name}:`, error);
-        }
-    }
-}
+
+                mainMapGeoJsonLayer = L.geoJSON(geojson, {
+                    style: {
+                        color: "#e74c3c",
+                        weight: 2,
+                        fillOpacity: 0.2,
+                        fillColor: "#e74c3c"
+                    },
+                    onEachFeature: function (feature, layer) {
+                        const name = feature.properties?.name || feature.properties?.ADMIN || "Unknown";
+                        layer.bindTooltip(name, {
+                            permanent: false,
+                            direction: "center",
+                            className: "country-tooltip"
+                        });
+                    }
+                }).addTo(mapInstance);
+
+
+                const bounds = mainMapGeoJsonLayer.getBounds();
+                if (bounds.isValid()) {
+                    mapInstance.flyToBounds(bounds, {
+                        padding: [50, 50], // Add padding around the country
+                        maxZoom: 6, // Don't zoom in too close
+                        duration: 1 // Smooth animation
+                    });
+                } else {
+                    console.warn("Invalid bounds for country highlight layer. Skipping fitBounds.");
+                }
+            }
+
+            // Function to show all available countries in a light green color
+            async function showAvailableCountries(availableCountries) {
+                // Remove existing layer if it exists
+                if (availableCountriesLayer) {
+                    mainMap.removeLayer(availableCountriesLayer);
+                }
+
+                // Create a new layer group for available countries
+                availableCountriesLayer = L.layerGroup().addTo(mainMap);
+
+                // Filter to only include mappings for countries that have coin data
+                const availableMappings = cache.countryGeoJsonMapping.filter(item =>
+                    availableCountries.some(c => c.toLowerCase() === item.country_name.toLowerCase())
+                );
+
+                // Process each available country mapping
+                for (const countryMapping of availableMappings) {
+                    try {
+                        let geojson = countryMapping.geojson;
+                        // If GeoJSON is not cached, fetch and cache it
+                        if (!geojson) {
+                            const response = await fetch(countryMapping.file_name);
+                            geojson = await response.json();
+                            countryMapping.geojson = geojson; // Cache it
+                        }
+
+                        // Add GeoJSON to the map with styling and interaction
+                        L.geoJSON(geojson, {
+                            style: {
+                                color: "#4CAF50", // Light green color
+                                weight: 1,
+                                fillOpacity: 0.3,
+                                fillColor: "#4CAF50"
+                            },
+                            onEachFeature: (feature, layer) => {
+                                const name = feature.properties?.name || feature.properties?.ADMIN || countryMapping.country_name;
+
+                                // Show tooltip on hover
+                                layer.bindTooltip(name, {
+                                    permanent: false,   // show only on hover
+                                    direction: "center",
+                                    className: "country-tooltip"
+                                });
+
+                                layer.on({
+                                    click: () => {
+                                        const countryName = countryMapping.country_name;
+                                        // Update URL, preserving coin parameter if present
+                                        const currentParams = new URLSearchParams(window.location.search);
+                                        const currentCoin = currentParams.get("coin");
+                                        const newUrl = currentCoin ? `?country=${countryName.toLowerCase()}&coin=${currentCoin}` : `?country=${countryName.toLowerCase()}`;
+                                        history.pushState(null, "", newUrl);
+
+                                        highlightCountry(countryName.toLowerCase());
+                                        loadCountryImages(countryName.toLowerCase());
+                                        loadGalleryView(countryName.toLowerCase());
+
+                                        // update country list active state
+                                        document.querySelectorAll('.countries-list a').forEach(el => {
+                                            el.classList.remove('active');
+                                            if (el.textContent.toLowerCase() === countryName.toLowerCase()) {
+                                                el.classList.add('active');
+                                                const countryItems = cache.coinsData.filter(
+                                                    coin => coin.country.toLowerCase() === countryName.toLowerCase()
+                                                ).length;
+                                                document.getElementById('selected-country').textContent = `: ${countryName}`;
+                                                document.getElementById('selected-country-title').textContent = `${countryName} (${countryItems})`;
+                                                updateTitle(`${countryName}`);
+                                            }
+                                        });
+                                    },
+                                    mouseover: () => {
+                                        layer.setStyle({ fillOpacity: 0.5 });
+                                    },
+                                    mouseout: () => {
+                                        layer.setStyle({ fillOpacity: 0.3 });
+                                    }
+                                });
+                            }
+
+                        }).addTo(availableCountriesLayer);
+                    } catch (error) {
+                        console.error(`Error loading GeoJSON for ${countryMapping.country_name}:`, error);
+                    }
+                }
+            }
 
             // Expose highlightCountry globally for external calls (e.g., from search)
             window.highlightCountry = highlightCountry;
