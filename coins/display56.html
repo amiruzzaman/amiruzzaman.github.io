@@ -12,40 +12,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style/display.css">
-
-<style>
-        .img-queue {
-            width: 100% !important;
-            overflow-x: auto !important;
-            position: relative !important;
-            scroll-behavior: smooth !important;
-            display: block !important; 
-        }
-
-        .img-queue-in {
-            display: inline-flex !important; 
-            position: relative !important;
-            white-space: nowrap !important;
-            padding: 10px 0;
-        }
-
-        .img-queue-in img {
-            flex-shrink: 0 !important;
-            display: inline-block !important;
-            transition: all 0.35s ease !important;
-            opacity: 0.5;
-            transform: scale(0.9);
-            cursor: pointer;
-        }
-
-        /* FIX: Change .active to .active-thumbnail */
-        .img-queue-in img.active-thumbnail {
-            opacity: 1 !important;
-            transform: scale(1.1) !important;
-            border: 3px solid #e74c3c !important;
-            border-radius: 8px;
-            z-index: 10;
-        }
+    <style>
     </style>
 </head>
 
@@ -1627,26 +1594,22 @@ async function showAvailableCountries(availableCountries) {
             if (countryQuery !== "default") {
                 highlightCountry(countryQuery.toLowerCase());
                 loadCountryImages(countryQuery.toLowerCase());
-                
-                // FIX: Let the slider map the elements completely before gallery view filters look up indices
-                setTimeout(() => {
-                    loadGalleryView(countryQuery.toLowerCase());
-                    if (coinQuery) {
-                        navigateToSpecificCoin(coinQuery);
-                    }
-                }, 60);
+                loadGalleryView(countryQuery.toLowerCase());
 
+                // NEW: If a specific coin is also specified, navigate to that coin
+                if (coinQuery) {
+                    // Small delay to ensure country images are loaded first
+                    setTimeout(() => {
+                        navigateToSpecificCoin(coinQuery);
+                    }, 100);
+                }
             } else if (countries.length > 0) {
                 // If no country is specified, load images for the first available country
                 const firstCountry = countries[0].toLowerCase();
                 history.pushState(null, "", `?country=${firstCountry}`); // Update URL
                 highlightCountry(firstCountry);
                 loadCountryImages(firstCountry);
-                
-                // FIX: Apply the same execution delay to the default fallback country track
-                setTimeout(() => {
-                    loadGalleryView(firstCountry);
-                }, 60);
+                loadGalleryView(firstCountry);
 
                 // Also set the first country as active in the list
                 const firstCountryLink = document.querySelector(`.countries-list a[href="?country=${firstCountry}"]`);
@@ -1880,14 +1843,94 @@ async function showAvailableCountries(availableCountries) {
     <script>
 
 
-        
+        // Enhanced updateImage function to highlight the corresponding timeline bar
+        function updateImage(index) {
+            if (currentCountryCoins.length === 0) return;
+
+            const coin = currentCountryCoins[index];
+
+            // Remove highlight from all timeline bars
+            document.querySelectorAll('.timeline-bar').forEach(bar => {
+                bar.style.boxShadow = 'none';
+                bar.style.border = 'none';
+            });
+
+            // Highlight all bars that correspond to this coin's image
+            if (coin.image) {
+                document.querySelectorAll(`.timeline - bar[data - image="${coin.image}"]`).forEach(bar => {
+                    bar.style.boxShadow = '0 0 0 2px #e74c3c';
+                    bar.style.border = '2px solid white';
+                });
+            }
+        }
+
+
+
+        // Update the updateImage function to highlight the corresponding timeline bar
+        function updateImage(index) {
+            if (currentCountryCoins.length === 0) return;
+
+            const coin = currentCountryCoins[index];
+
+            // Remove highlight from all timeline bars
+            document.querySelectorAll('.timeline-bar').forEach(bar => {
+                bar.style.boxShadow = 'none';
+                bar.style.border = 'none';
+            });
+
+            // Find and highlight the corresponding timeline bar(s)
+            if (coin.year) {
+                const years = coin.year.split(',').map(y => y.trim());
+                years.forEach(yearValue => {
+                    const year = parseInt(yearValue);
+                    if (!isNaN(year)) {
+                        document.querySelectorAll(`.timeline - bar[data - year="${year}"]`).forEach(bar => {
+                            if (bar.dataset.coinName === coin.image) {
+                                bar.style.boxShadow = '0 0 0 2px #e74c3c';
+                                bar.style.border = '2px solid white';
+                            }
+                        });
+                    }
+                });
+            }
+        }
     </script>
     <script>
 
 
 
 
-        
+        // Helper function to update image display when clicked from timeline
+        async function updateImageFromTimeline(index) {
+            if (currentCountryCoins.length === 0) return;
+
+            const coin = currentCountryCoins[index];
+            const countryName = coin.country.toLowerCase();
+            const imagePath = `images/${toTitleCase(countryName)}/${coin.image}`;
+
+            // Update thumbnails active state
+            document.querySelectorAll('.img-queue-in img').forEach((img, idx) => {
+                if (idx === index) {
+                    img.classList.add('active-thumbnail');
+                } else {
+                    img.classList.remove('active-thumbnail');
+                }
+            });
+
+            // Update main image
+            const image = document.getElementById("current-image-img");
+            image.setAttribute("src", imagePath);
+            document.getElementById("modalImage").setAttribute("src", imagePath);
+
+            // Update details
+            const countryInfo = await fetchCountryInfo(countryName);
+            await setCurrentImage(imagePath, coin.note, coin.donor_name, coin.currency_type, countryInfo, coin.year, coin.size, index);
+
+            // Update timeline highlighting
+            updateTimelineHighlight(coin.image);
+
+            currentImageIndex = index;
+        }
 
 
         // // In the createTimelineVisualization function, add this at the end:
@@ -1898,36 +1941,173 @@ async function showAvailableCountries(availableCountries) {
         //     timelineLegend.style.display = 'none';
         // }
 
-// Loads and displays coin images for a selected country in slider view
-        
+        // Loads and displays coin images for a selected country in slider view
+        function loadCountryImages(countryName) {
+            if (!cache.coinsData) {
+                console.error("Coins data not loaded from cache.");
+                return;
+            }
 
+            currentCountryCoins = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName);
+            const imageElements = currentCountryCoins.map(coin => ({
+                src: `images/${toTitleCase(countryName)}/${coin.image}`,
+                note: coin.note,
+                donor: coin.donor_name,
+                currency_type: coin.currency_type,
+                year: coin.year,
+                size: coin.size
+            }));
 
+            const thumbnailContainer = document.getElementById("thumbnail-container");
+            thumbnailContainer.innerHTML = ""; // Clear existing thumbnails
+            currentImageIndex = 0; // Reset index for new country
 
+            // Function to update timeline highlighting based on current image
+            function updateTimelineHighlight(imageName) {
+                // Remove highlight from all bars
+                document.querySelectorAll('.timeline-bar').forEach(bar => {
+                    bar.classList.remove('active');
+                    bar.style.boxShadow = 'none';
+                    bar.style.border = 'none';
+                });
 
+                // Highlight bars with matching image
+                if (imageName) {
+                    document.querySelectorAll(`.timeline-bar[data-image="${imageName}"]`).forEach(bar => {
+                        bar.classList.add('active');
+                        bar.style.boxShadow = '0 0 0 2px #e74c3c';
+                        bar.style.border = '2px solid white';
+                    });
+                }
+            }
 
+            // Function to update the main image and details
+            const updateImage = async (index) => {
+                if (imageElements.length === 0) {
+                    // Handle case where no images are found for the country
+                    setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null, null, null, 0);
+                    document.getElementById("thumbnail-container").innerHTML = ""; // Clear thumbnails
+                    return;
+                }
 
+                currentImageIndex = index;
+                const { src, note, donor, currency_type, year, size } = imageElements[index];
 
-function centerSelectedThumbnail(index) {
-    const container = document.querySelector('.img-queue');
-    const thumbnails = document.querySelectorAll('#thumbnail-container img');
+                // Remove active class from all thumbnails
+                document.querySelectorAll('.img-queue-in img').forEach(img => {
+                    img.classList.remove('active-thumbnail');
+                });
 
-    if (!container || !thumbnails.length || !thumbnails[index]) return;
+                // Add active class to the current thumbnail
+                if (thumbnailContainer.children[index]) {
+                    thumbnailContainer.children[index].classList.add('active-thumbnail');
+                }
 
-    const selectedThumb = thumbnails[index];
+                const countryInfo = await fetchCountryInfo(countryName);
+                await setCurrentImage(src, note, donor, currency_type, countryInfo, year, size, index);
 
-    // Calculate center position
-    const containerWidth = container.offsetWidth;
-    const thumbLeft = selectedThumb.offsetLeft;
-    const thumbWidth = selectedThumb.offsetWidth;
+                // Update timeline highlighting
+                updateTimelineHighlight(currentCountryCoins[index].image);
 
-    const scrollPosition =
-        thumbLeft - (containerWidth / 2) + (thumbWidth / 2);
+                // FIX: Always update URL when image changes
+                updateURLWithCurrentCoin();
+            };
 
-    container.scrollTo({
-        left: scrollPosition,
-        behavior: 'smooth'
-    });
-}
+            // Function to change the image based on direction (-1 for prev, 1 for next)
+            const changeImage = (direction) => {
+                if (imageElements.length > 0) {
+                    currentImageIndex = (currentImageIndex + direction + imageElements.length) % imageElements.length;
+                    updateImage(currentImageIndex);
+                    // URL update is now handled inside updateImage
+                }
+            };
+
+            // Helper function to update image display when clicked from timeline
+            window.updateImageFromTimeline = async function (index) {
+                if (currentCountryCoins.length === 0) return;
+
+                const coin = currentCountryCoins[index];
+                const countryName = coin.country.toLowerCase();
+                const imagePath = `images/${toTitleCase(countryName)}/${coin.image}`;
+
+                // Update thumbnails active state
+                document.querySelectorAll('.img-queue-in img').forEach((img, idx) => {
+                    if (idx === index) {
+                        img.classList.add('active-thumbnail');
+                    } else {
+                        img.classList.remove('active-thumbnail');
+                    }
+                });
+
+                // Update main image
+                const image = document.getElementById("current-image-img");
+                image.setAttribute("src", imagePath);
+                document.getElementById("modalImage").setAttribute("src", imagePath);
+
+                // Update details
+                const countryInfo = await fetchCountryInfo(countryName);
+                await setCurrentImage(imagePath, coin.note, coin.donor_name, coin.currency_type, countryInfo, coin.year, coin.size, index);
+
+                // Update timeline highlighting
+                updateTimelineHighlight(coin.image);
+
+                currentImageIndex = index;
+
+                // FIX: Update URL when image changes from timeline
+                updateURLWithCurrentCoin();
+            };
+
+            // Add event listeners for navigation buttons
+            document.getElementById("prev-btn").onclick = () => changeImage(-1);
+            document.getElementById("next-btn").onclick = () => changeImage(1);
+
+            // Add keyboard navigation
+            window.onkeydown = (event) => {
+                const isSliderView = document.getElementById('slider-view').style.display !== 'none';
+
+                // Handle keyboard navigation for the main slider
+                if (isSliderView) {
+                    if (event.key === "ArrowLeft") {
+                        changeImage(-1);
+                    } else if (event.key === "ArrowRight") {
+                        changeImage(1);
+                    }
+                }
+
+                // Handle keyboard navigation for the modal
+                if (document.getElementById("imageModal").style.display === "flex") {
+                    if (event.key === "ArrowLeft") {
+                        changeModalImage(-1);
+                    } else if (event.key === "ArrowRight") {
+                        changeModalImage(1);
+                    }
+                }
+            };
+
+            // Populate thumbnail container
+            imageElements.forEach((img, index) => {
+                const thumbnail = document.createElement("img");
+                thumbnail.src = img.src;
+                thumbnail.alt = `Thumbnail ${index + 1}`;
+                thumbnail.loading = "lazy"; // Lazy load thumbnails
+                thumbnail.addEventListener("click", () => {
+                    updateImage(index); // Update the main display when thumbnail is clicked
+                });
+                thumbnailContainer.appendChild(thumbnail);
+            });
+
+            // Display the first image if available
+            if (imageElements.length > 0) {
+                updateImage(currentImageIndex);
+            } else {
+                // Display a default message if no images for the country
+                setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null, null, null, 0);
+            }
+
+            // Create timeline visualization and currency distribution chart
+            createTimelineVisualization(currentCountryCoins);
+            createCurrencyDistributionChart(currentCountryCoins);
+        }
 
         // Function to create timeline visualization with stacked bars using image as unique identifier
         function createTimelineVisualization(coinsData) {
@@ -2659,145 +2839,52 @@ function centerSelectedThumbnail(index) {
         // Call this during development to verify colors
         // ensureColorConsistency();
 
-
-        
-        
-        
-// =========================================================================
-        // UNIFIED IMAGE DISPLAY & CAROUSEL CENTERING SYSTEM
-        // =========================================================================
-
-        // Unified function to update image displays, markers, details, and revolve carousel smoothly
+        // Helper function to update image display
         function updateImageDisplay(index, coinsArray) {
-            if (!coinsArray || coinsArray.length === 0) return;
-
-            // Ensure our boundary indices wrap around cleanly
-            if (index < 0) index = coinsArray.length - 1;
-            if (index >= coinsArray.length) index = 0;
-            currentImageIndex = index;
+            if (coinsArray.length === 0) return;
 
             const coin = coinsArray[index];
             const countryName = coin.country.toLowerCase();
             const imagePath = `images/${toTitleCase(countryName)}/${coin.image}`;
 
+            // Update thumbnails
             const thumbnailContainer = document.getElementById("thumbnail-container");
-            
-            // 1. Completely rewrite the tracking strip thumbnails to eliminate state desyncs
             thumbnailContainer.innerHTML = "";
-            coinsArray.forEach((c, idx) => {
+
+            coinsArray.forEach((coin, idx) => {
                 const thumbnail = document.createElement("img");
-                thumbnail.src = `images/${toTitleCase(countryName)}/${c.image}`;
+                thumbnail.src = `images/${toTitleCase(countryName)}/${coin.image}`;
                 thumbnail.alt = `Thumbnail ${idx + 1}`;
                 thumbnail.loading = "lazy";
-                thumbnail.onerror = function () {
-                    this.src = 'https://placehold.co/70x70/cccccc/333333?text=404';
-                };
-                
                 if (idx === index) {
                     thumbnail.classList.add('active-thumbnail');
                 }
-                
                 thumbnail.addEventListener("click", () => {
                     updateImageDisplay(idx, coinsArray);
                 });
                 thumbnailContainer.appendChild(thumbnail);
             });
 
-            // 2. Synchronize application views & layout models
+            // Update main image and details
             const countryInfo = fetchCountryInfo(countryName);
-            setCurrentImage(imagePath, coin.note, coin.donor_name, coin.currency_type, countryInfo, coin.year, coin.size, index);
+            setCurrentImage(
+                imagePath,
+                coin.note,
+                coin.donor_name,
+                coin.currency_type,
+                countryInfo,
+                coin.year,
+                coin.size,
+                index
+            );
+
+            currentImageIndex = index;
+
+            // FIX: Update URL
             updateURLWithCurrentCoin();
-
-            // 3. Keep timeline synchronization updated cleanly 
-            document.querySelectorAll('.timeline-bar').forEach(bar => {
-                bar.classList.remove('active');
-                bar.style.boxShadow = 'none';
-                bar.style.border = 'none';
-            });
-            if (coin.image) {
-                document.querySelectorAll(`.timeline-bar[data-image="${coin.image}"]`).forEach(bar => {
-                    bar.classList.add('active');
-                    bar.style.boxShadow = '0 0 0 2px #e74c3c';
-                    bar.style.border = '2px solid white';
-                });
-            }
-
-            // 4. PERFORM REVOLVING LAYOUT TRACKING POSITION CALCULATIONS
-            if (thumbnailContainer.children[index]) {
-                const activeThumb = thumbnailContainer.children[index];
-                const containerParent = thumbnailContainer.parentElement; // Targets .img-queue
-
-                // Give browser 50ms painting room to accurately compute structural element offsets
-                setTimeout(() => {
-                    const containerWidth = containerParent.clientWidth;
-                    const thumbWidth = activeThumb.clientWidth;
-                    const thumbLeft = activeThumb.offsetLeft;
-
-                    containerParent.scrollTo({
-                        left: thumbLeft - (containerWidth / 2) + (thumbWidth / 2),
-                        behavior: 'smooth'
-                    });
-                }, 50);
-            }
         }
 
-        // Backward compatibility handler mapping global timeline event listeners straight to our unified pipeline
-        window.updateImageFromTimeline = async function (index) {
-            if (currentCountryCoins && currentCountryCoins.length > 0) {
-                updateImageDisplay(index, currentCountryCoins);
-            }
-        };
-
-        // Main country image loading workflow initialization block
-        function loadCountryImages(countryName) {
-            if (!cache.coinsData) {
-                console.error("Coins data not loaded from cache.");
-                return;
-            }
-
-            currentCountryCoins = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName);
-            currentImageIndex = 0; // Reset active frame target
-
-            // FIX: Smooth index wrapping that binds safely to directional button clicks & keyboard events
-            const changeImage = (direction) => {
-                if (currentCountryCoins && currentCountryCoins.length > 0) {
-                    // Update global state tracker index and wrap seamlessly across large arrays
-                    currentImageIndex = (currentImageIndex + direction + currentCountryCoins.length) % currentCountryCoins.length;
-                    
-                    // Route to the unified pipeline
-                    updateImageDisplay(currentImageIndex, currentCountryCoins);
-                }
-            };
-
-            // Re-bind click event controllers safely
-            document.getElementById("prev-btn").onclick = () => changeImage(-1);
-            document.getElementById("next-btn").onclick = () => changeImage(1);
-
-            window.onkeydown = (event) => {
-                const isSliderView = document.getElementById('slider-view').style.display !== 'none';
-                if (isSliderView) {
-                    if (event.key === "ArrowLeft") changeImage(-1);
-                    else if (event.key === "ArrowRight") changeImage(1);
-                }
-                if (document.getElementById("imageModal").style.display === "flex") {
-                    if (event.key === "ArrowLeft") changeModalImage(-1);
-                    else if (event.key === "ArrowRight") changeModalImage(1);
-                }
-            };
-
-            // Trigger structural rendering sweeps
-            if (currentCountryCoins.length > 0) {
-                updateImageDisplay(currentImageIndex, currentCountryCoins);
-            } else {
-                setCurrentImage("https://placehold.co/600x400/cccccc/333333?text=No+Coins+Found", "No coin details available.", null, null, null, null, null, 0);
-                document.getElementById("thumbnail-container").innerHTML = "";
-            }
-
-            createTimelineVisualization(currentCountryCoins);
-            createCurrencyDistributionChart(currentCountryCoins);
-        }
-
-        // Function to update gallery grid panels with applied content filtering states
+        // Function to update gallery view with filtered data
         function updateGalleryViewWithFilter(countryName, filteredCoins) {
             const galleryGrid = document.getElementById('gallery-grid-container');
             const sortBySelect = document.getElementById('sort-by');
@@ -2829,40 +2916,74 @@ function centerSelectedThumbnail(index) {
                 galleryItem.dataset.currencyType = coin.currency_type;
 
                 galleryItem.innerHTML = `
-                    <img class="gallery-item-image" src="${imageUrl}" alt="${coin.note}" onerror="this.src='https://placehold.co/200x150/cccccc/333333?text=Image+Not+Found'">
-                    <div class="gallery-item-info">
-                        <p>${coin.image}</p>
-                        <p style="font-size: 10px; color: #666; margin-top: 5px;">${coin.currency_type || 'Unknown'}</p>
-                    </div>
-                `;
+            <img class="gallery-item-image" src="${imageUrl}" alt="${coin.note}" onerror="this.src='https://placehold.co/200x150/cccccc/333333?text=Image+Not+Found'">
+            <div class="gallery-item-info">
+                <p>${coin.image}</p>
+                <p style="font-size: 10px; color: #666; margin-top: 5px;">${coin.currency_type || 'Unknown'}</p>
+            </div>
+        `;
 
                 galleryItem.addEventListener('click', function () {
                     const countryInfo = fetchCountryInfo(countryName);
-                    openImageModal(imageUrl, coin.note, countryInfo.name, countryInfo.capital, countryInfo.currency?.name, index, coin.donor_name);
+                    openImageModal(
+                        imageUrl,
+                        coin.note,
+                        countryInfo.name,
+                        countryInfo.capital,
+                        countryInfo.currency?.name,
+                        index,
+                        coin.donor_name
+                    );
+                    // Update currentCountryCoins to filtered set for modal navigation
                     currentCountryCoins = sortedCoins;
-                    updateImageDisplay(index, sortedCoins);
+                    currentImageIndex = index;
+
+                    // FIX: Update URL when clicking gallery items
+                    updateURLWithCurrentCoin();
                 });
 
                 galleryGrid.appendChild(galleryItem);
             });
 
+            // Update the thumbnail container as well
             updateThumbnailsWithFilter(countryName, sortedCoins);
         }
 
-        // Keeps track alignment and visibility running smoothly during deep distribution filtering interactions
+        // Function to update thumbnails with filtered data
         function updateThumbnailsWithFilter(countryName, filteredCoins) {
-            if (filteredCoins && filteredCoins.length > 0) {
-                // Secure index boundary constraints across the new array subset
-                if (currentImageIndex >= filteredCoins.length || currentImageIndex < 0) {
-                    currentImageIndex = 0;
+            const thumbnailContainer = document.getElementById("thumbnail-container");
+            thumbnailContainer.innerHTML = "";
+
+            filteredCoins.forEach((coin, index) => {
+                const thumbnail = document.createElement("img");
+                thumbnail.src = `images/${toTitleCase(countryName)}/${coin.image}`;
+                thumbnail.alt = `Thumbnail ${index + 1}`;
+                thumbnail.loading = "lazy";
+                thumbnail.onerror = function () {
+                    this.src = 'https://placehold.co/70x70/cccccc/333333?text=404';
+                };
+
+                if (index === currentImageIndex) {
+                    thumbnail.classList.add('active-thumbnail');
                 }
-                
-                // Route cleanly to the rendering suite without conflicting paint frame schedules
-                updateImageDisplay(currentImageIndex, filteredCoins);
-            }
+
+                thumbnail.addEventListener("click", () => {
+                    // Update all thumbnails
+                    document.querySelectorAll('.img-queue-in img').forEach(img => {
+                        img.classList.remove('active-thumbnail');
+                    });
+                    thumbnail.classList.add('active-thumbnail');
+
+                    // Update main display
+                    updateImageDisplay(index, filteredCoins);
+
+                    // URL update is handled inside updateImageDisplay
+                });
+
+                thumbnailContainer.appendChild(thumbnail);
+            });
         }
 
-        
         function debugFilterState() {
             console.log('Active Filters:', window.distributionData?.activeFilters);
             console.log('Available Types:', window.distributionData?.types);
@@ -2973,8 +3094,6 @@ function centerSelectedThumbnail(index) {
             });
         }
 
-
-
         function openComparisonPage(currentCoin, country) {
             // Prepare data for the comparison page
             const comparisonData = {
@@ -3004,8 +3123,6 @@ function centerSelectedThumbnail(index) {
             // Open comparison page
             window.open(`compare.html?data=${encodedData}`, '_blank');
         }
-
-       
     </script>
 
 </body>
