@@ -46,49 +46,6 @@
             border-radius: 8px;
             z-index: 10;
         }
-
-        /* NEW: Slider Currency Type Filter Styling */
-        .slider-filter-wrapper {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 12px;
-            width: 100%;
-        }
-
-        .filter-btn {
-            background-color: #ffffff;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            padding: 6px 14px;
-            font-size: 13px;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 500;
-            color: #555;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .filter-btn:hover {
-            background-color: #f8f9fa;
-            transform: translateY(-1px);
-        }
-
-        .filter-btn.active-filter {
-            color: #fff;
-            font-weight: 600;
-            border-color: transparent;
-        }
-
-        /* Distinct colors for type states matching the application colors */
-        .filter-btn[data-filter="all"].active-filter { background-color: #2c3e50; }
-        .filter-btn[data-filter="coin"].active-filter { background-color: #2ECC71; }
-        .filter-btn[data-filter="paper-bill"].active-filter { background-color: #3498db; }
-        .filter-btn[data-filter="antique"].active-filter { background-color: #e74c3c; }
     </style>
 </head>
 
@@ -99,6 +56,7 @@
                 <a href="index.html" class="btn btn-home"><i class="fas fa-home"></i> Home</a>
                 <div id="summary-container" class="summary"></div>
             </div>
+            <!-- ADD THIS COMPARISON BUTTON -->
             <div class="compare-button-wrapper">
                 <button id="compare-btn" class="btn btn-compare" title="Compare with US $2 Bill">
                     <i class="fas fa-balance-scale"></i>
@@ -128,13 +86,6 @@
 
             <div class="main-content" id="main-content">
                 <div class="gallery-section" id="slider-view">
-                    <div class="slider-filter-wrapper">
-                        <button class="filter-btn active-filter" data-filter="all"><i class="fas fa-boxes"></i> All</button>
-                        <button class="filter-btn" data-filter="coin"><i class="fas fa-coins"></i> Coins</button>
-                        <button class="filter-btn" data-filter="paper-bill"><i class="fas fa-money-bill-wave"></i> Bills</button>
-                        <button class="filter-btn" data-filter="antique"><i class="fas fa-clock"></i> Antique</button>
-                    </div>
-
                     <div class="slider-container">
                         <button id="prev-btn" class="btn btn-nav"><i class="fas fa-chevron-left"></i></button>
                         <div class="slider">
@@ -143,6 +94,7 @@
                             </div>
                             <div class="details-section">
                                 <button class="details-toggle">
+                                    <!--<span><i class="fas fa-info-circle"></i> Coin Details ${safeVal(donor) || "Unknown"}</span>-->
                                     <span id="donor-name-container">
                                         <i class="fas fa-info-circle"></i>
                                     </span>
@@ -177,6 +129,8 @@
                         </div>
                         <div id="continent-map"></div>
                         <img id="country-flag" class="country-flag" src="" alt="Country Flag" style="display:none;">
+                        <!-- Add this after the flag image in the continent-map-container -->
+                        <!-- Replace the country-details section with this updated version -->
                         <div class="country-details" id="country-details" style="display: none;">
                             <div class="continent-info">
                                 <div class="continent-info-item">
@@ -192,6 +146,7 @@
                                     <span class="continent-info-value" id="country-region">--</span>
                                 </div>
                             </div>
+                            <!-- Add this comparison section -->
                             <div class="area-comparison" id="area-comparison" style="display: none;">
                                 <div class="comparison-info">
                                     <span class="comparison-label">Size compared to USA:</span>
@@ -246,6 +201,7 @@
                 </h2>
                 <ul id="countries-ul"></ul>
             </div>
+            <!-- Add this after the countries-list section -->
             <div class="timeline-section" id="timeline-section">
                 <div class="timeline-title">
                     <h3><i class="fas fa-history"></i> Collection Timeline</h3>
@@ -253,6 +209,7 @@
                 </div>
                 <div class="timeline-container" id="timeline-container"></div>
             </div>
+            <!-- Add this after the timeline section -->
             <div class="distribution-section" id="distribution-section">
                 <div class="distribution-title">
                     <h3><i class="fas fa-chart-pie"></i> Currency Type Distribution</h3>
@@ -288,6 +245,7 @@
         </div>
     </div>
 
+    <!-- URL Modal -->
     <div id="url-modal">
         <div class="url-modal-content">
             <span class="close-url-modal">&times;</span>
@@ -318,7 +276,6 @@
 
         let currentCountryCoins = []; // Store the coins for the currently selected country
         let currentImageIndex = 0; // To keep track of the current image index for modal navigation
-        let currentActiveSliderFilter = 'all'; // NEW: Track the currently selected type filter in the slider ribbon
 
         // Global map instances to prevent re-initialization
         let mainMap = null;
@@ -1004,9 +961,6 @@ nameSpan.innerHTML = '<i class="fas fa-info-circle"></i> ' + formattedType + ' d
                     const newUrl = currentCoin ? `?country=${countryName}&coin=${currentCoin}` : `?country=${countryName}`;
                     history.pushState(null, "", newUrl);
 
-                    // Reset slider filter selection ribbon back to default 'all'
-                    resetSliderFilterRibbon();
-
                     // Trigger map highlight and image loading for the selected country
                     highlightCountry(countryName);
                     loadCountryImages(countryName);
@@ -1191,9 +1145,6 @@ async function showAvailableCountries(availableCountries) {
                             const newUrl = currentCoin ? `?country=${countryName.toLowerCase()}&coin=${currentCoin}` : `?country=${countryName.toLowerCase()}`;
                             history.pushState(null, "", newUrl);
                             
-                            // Reset slider filter ribbon selection on map layout change tracking
-                            resetSliderFilterRibbon();
-
                             highlightCountry(countryName.toLowerCase());
                             loadCountryImages(countryName.toLowerCase());
                             loadGalleryView(countryName.toLowerCase());
@@ -1575,9 +1526,6 @@ async function showAvailableCountries(availableCountries) {
                             const newUrl = currentCoin ? `?country=${country.toLowerCase()}&coin=${currentCoin}` : `?country=${country.toLowerCase()}`;
                             history.pushState(null, "", newUrl);
 
-                            // Reset slider filter ribbon view state tracking variables
-                            resetSliderFilterRibbon();
-
                             highlightCountry(country.toLowerCase());
                             loadCountryImages(country.toLowerCase());
                             loadGalleryView(country.toLowerCase());
@@ -1651,38 +1599,6 @@ async function showAvailableCountries(availableCountries) {
             });
         }
 
-        // NEW: Initialize Slider Currency Type Ribbon Click Event Handlers
-        function initSliderFilterRibbon() {
-            const buttons = document.querySelectorAll('.slider-filter-wrapper .filter-btn');
-            buttons.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    buttons.forEach(b => b.classList.remove('active-filter'));
-                    this.classList.add('active-filter');
-                    
-                    currentActiveSliderFilter = this.getAttribute('data-filter');
-                    
-                    const queryParams = new URLSearchParams(window.location.search);
-                    const countryQuery = queryParams.get("country");
-                    if (countryQuery) {
-                        loadCountryImages(countryQuery.toLowerCase());
-                    }
-                });
-            });
-        }
-
-        // NEW: Helper function to clear active configuration states on slider filters
-        function resetSliderFilterRibbon() {
-            currentActiveSliderFilter = 'all';
-            const buttons = document.querySelectorAll('.slider-filter-wrapper .filter-btn');
-            buttons.forEach(b => {
-                if (b.getAttribute('data-filter') === 'all') {
-                    b.classList.add('active-filter');
-                } else {
-                    b.classList.remove('active-filter');
-                }
-            });
-        }
-
         window.onload = async () => {
             // Preload all data first. If it fails, log error and stop initialization.
             const preloadSuccess = await preloadData();
@@ -1706,9 +1622,6 @@ async function showAvailableCountries(availableCountries) {
 
             // Show all available countries on the main map
             mapController.showAvailableCountries(countries);
-
-            // Initialize new component filter buttons before processing initial data
-            initSliderFilterRibbon();
 
             // If a country is specified in the URL, load its images and highlight it
             if (countryQuery !== "default") {
@@ -1811,7 +1724,7 @@ async function showAvailableCountries(availableCountries) {
 
                 history.replaceState(null, "", newUrl);
 
-                console.log(`Mapsd to coin: ${currentCountryCoins[coinIndex].image}`);
+                console.log(`Navigated to coin: ${currentCountryCoins[coinIndex].image}`);
             } else {
                 console.warn(`Coin not found: ${coinFilename}`);
             }
@@ -2842,18 +2755,7 @@ function centerSelectedThumbnail(index) {
                 return;
             }
 
-            let allCountryCoins = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName);
-            
-            // NEW: Intercept and filter array payload if a ribbon button filter is active
-            if (currentActiveSliderFilter !== 'all') {
-                allCountryCoins = allCountryCoins.filter(coin => {
-                    if (!coin.currency_type) return false;
-                    const types = coin.currency_type.split(',').map(t => t.trim().toLowerCase());
-                    return types.some(t => t.includes(currentActiveSliderFilter));
-                });
-            }
-
-            currentCountryCoins = allCountryCoins;
+            currentCountryCoins = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName);
             currentImageIndex = 0; // Reset active frame target
 
             // FIX: Smooth index wrapping that binds safely to directional button clicks & keyboard events
