@@ -915,6 +915,15 @@ def edit_item_page(id):
 
 def render_edit_item_page(item):
     """Render the edit item page with pre-filled data"""
+    # Load countries data for the dropdown
+    countries_data = load_countries()
+    
+    # Create countries options HTML
+    countries_options = ''
+    for country in countries_data:
+        selected = 'selected' if country.get('name') == item.get('country', '') else ''
+        countries_options += f'<option value="{country.get("name")}" {selected}>{country.get("name")}</option>'
+    
     return f'''
 <!DOCTYPE html>
 <html lang="en">
@@ -1185,14 +1194,14 @@ def render_edit_item_page(item):
         <h1><i class="fas fa-edit"></i> Edit Item</h1>
         
         <form id="editForm">
-            <!-- With this: -->
-<input type="hidden" id="itemId" name="item_id" value="{item.get('id', '')}">
-<input type="hidden" id="originalImage" name="original_image" value="{item.get('image', '')}">
+            <input type="hidden" id="itemId" name="item_id" value="{item.get('id', '')}">
+            <input type="hidden" id="originalImage" name="original_image" value="{item.get('image', '')}">
             
             <div class="form-group">
                 <label for="country">Country:</label>
                 <select id="country" name="country" required>
                     <option value="">Select a country</option>
+                    {countries_options}
                 </select>
             </div>
             
@@ -1300,42 +1309,12 @@ def render_edit_item_page(item):
         let uploadedFile = null;
         let mergeImage1 = null;
         let mergeImage2 = null;
-        let countriesData = [];
 
-        // Load countries on page load
+        // Setup event listeners
         document.addEventListener('DOMContentLoaded', function() {{
-            loadCountries();
             setupEventListeners();
             setupImageMerging();
-            // Set current country value after countries are loaded
         }});
-
-        function loadCountries() {{
-            fetch('/get-countries')
-                .then(response => response.json())
-                .then(data => {{
-                    countriesData = data;
-                    populateCountryDropdown();
-                    // Set the current country value after dropdown is populated
-                    const countrySelect = document.getElementById('country');
-                    countrySelect.value = '{item.get("country", "")}';
-                }})
-                .catch(error => {{
-                    console.error("Error loading countries:", error);
-                }});
-        }}
-
-        function populateCountryDropdown() {{
-            const countrySelect = document.getElementById('country');
-            countrySelect.innerHTML = '<option value="">Select a country</option>';
-            
-            countriesData.forEach(country => {{
-                const option = document.createElement('option');
-                option.value = country.name;
-                option.textContent = country.name;
-                countrySelect.appendChild(option);
-            }});
-        }}
 
         function setupEventListeners() {{
             const dropArea = document.getElementById('imageDropArea');
@@ -1655,127 +1634,13 @@ def render_edit_item_page(item):
             document.getElementById('imageDropArea').classList.remove('highlight');
         }}
 
+        function handleDrop(e) {{
+            e.preventDefault();
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }}
 
-function handleDrop(e) {{
-    e.preventDefault();
-    const draggedIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
-    const targetRow = e.target.closest('.row');
-    if (!targetRow) return;
-    const targetIndex = parseInt(targetRow.getAttribute('data-index'), 10);
-
-    if (draggedIndex !== targetIndex) {{
-        // 1. Rearrange the local filtered items on your screen immediately so it looks correct
-        const draggedItem = jsonData.splice(draggedIndex, 1)[0];
-        jsonData.splice(targetIndex, 0, draggedItem);
-        renderTable(jsonData);
-
-        // 2. Fetch the actual absolute full raw data from the server
-        fetch('/images/coins.json')
-            .then(response => response.json())
-            .then(fullData => {{
-                if (!Array.isArray(fullData)) return;
-
-                // 3. Rebuild the master list: Replace only the items matching our current screen view sequence
-                const updatedFullData = [];
-                let visibleInserted = false;
-
-                for (let i = 0; i < fullData.length; i++) {{
-                    const item = fullData[i];
-                    // Check if this item is currently visible/filtered on screen (e.g. Cambodia)
-                    const isVisible = jsonData.some(visible => visible.image === item.image);
-
-                    if (isVisible) {{
-                        // When we hit the cluster of filtered items, insert all rearranged items at once
-                        if (!visibleInserted) {{
-                            updatedFullData.push(...jsonData);
-                            visibleInserted = true;
-                        }}
-                    }} else {{
-                        // Keep non-filtered items (all other countries) completely untouched
-                        updatedFullData.push(item);
-                    }}
-                }}
-
-                // Fallback guarantee
-                if (!visibleInserted) {{
-                    updatedFullData.push(...jsonData);
-                }}
-
-                // 4. Send the complete list (with other countries preserved) back to the backend
-                return fetch('/update-json', {{
-                    method: 'POST',
-                    headers: {{ 'Content-Type': 'application/json' }},
-                    body: JSON.stringify(updatedFullData),
-                }});
-            }})
-            .then(response => response.json())
-            .then(data => {{
-                console.log("JSON successfully updated and all countries preserved!");
-                showToast("Order updated successfully!");
-            }})
-            .catch(error => {{
-                console.error("Error saving drop updates:", error);
-                showToast("❌ Error saving sequence!");
-            }});
-    }}
-}}
-
-function saveUpdatesWithFullData() {{
-    // 1. Fetch the absolute full list from the backend first
-    fetch('/get-raw-json')
-        .then(response => response.json())
-        .then(fullData => {{
-            if (fullData.error) throw new Error(fullData.error);
-
-            // 2. Map the absolute correct order for the items currently visible on screen
-            // We use item image filenames or item IDs to cross-reference entries safely
-            const updatedFullData = [];
-            let visibleInserted = false;
-
-            for (let i = 0; i < fullData.length; i++) {{
-                const item = fullData[i];
-                // Check if this item is one of the visible filtered items
-                const isVisible = jsonData.some(visible => (visible.id === item.id || visible.image === item.image));
-
-                if (isVisible) {{
-                    // When we hit the first filtered item cluster, insert all the filtered items 
-                    // in their updated sequence, then skip any other matching instances
-                    if (!visibleInserted) {{
-                        updatedFullData.push(...jsonData);
-                        visibleInserted = true;
-                    }}
-                }} else {{
-                    // Keep un-filtered items (like other countries) exactly where they were
-                    updatedFullData.push(item);
-                }}
-            }}
-
-            // Fallback safety layer
-            if (!visibleInserted) {{
-                updatedFullData.push(...jsonData);
-            }}
-
-            // 3. Save the restored data back to the server using your original saving endpoint
-            return fetch('/save-updates', {{   // Double check if your endpoint is exactly named '/save-updates'
-                method: 'POST',
-                headers: {{ 'Content-Type': 'application/json' }},
-                body: JSON.stringify(updatedFullData)
-            }});
-        }})
-        .then(response => response.json())
-        .then(data => {{
-            if (data.message) {{
-                console.log('Backend JSON safely updated with all objects kept:', data.message);
-            }} else {{
-                console.error('Error updating JSON:', data.error);
-                alert(`Error updating JSON: ${data.error}`);
-            }}
-        }})
-        .catch(error => {{
-            console.error('Error with fetch sync request:', error);
-            alert('An error occurred while updating the JSON file.');
-        }});
-}}
         function handleFileSelect(e) {{
             const files = e.target.files;
             handleFiles(files);
@@ -1812,54 +1677,54 @@ function saveUpdatesWithFullData() {{
         }}
 
         function handleFormSubmit(e) {{
-    e.preventDefault();
-    
-    const country = document.getElementById('country').value;
-    const currencyType = document.getElementById('currencyType').value;
-    const donorName = document.getElementById('donorName').value;
-    
-    if (!country || !currencyType || !donorName) {{
-        showToast('Please fill in all required fields', 'error');
-        return;
-    }}
-    
-    const formData = new FormData();
-    formData.append('country', country);
-    formData.append('currency_type', currencyType);
-    formData.append('donor_name', donorName);
-    formData.append('note', document.getElementById('note').value);
-    formData.append('size', document.getElementById('size').value);
-    formData.append('year', document.getElementById('year').value);
-    formData.append('hidden_note', document.getElementById('hiddenNote').value);
-    formData.append('item_id', document.getElementById('itemId').value);  // Add this line
-    formData.append('original_image', document.getElementById('originalImage').value);
-    
-    if (uploadedFile) {{
-        formData.append('file', uploadedFile);
-    }}
-    
-    showToast('Updating item...');
-    
-    fetch('/update-existing-item', {{
-        method: 'POST',
-        body: formData
-    }})
-    .then(response => response.json())
-    .then(data => {{
-        if (data.message) {{
-            showToast(data.message);
-            setTimeout(() => {{
-                window.location.href = '/edit_json';
-            }}, 1500);
-        }} else {{
-            showToast(data.error || 'An error occurred', 'error');
+            e.preventDefault();
+            
+            const country = document.getElementById('country').value;
+            const currencyType = document.getElementById('currencyType').value;
+            const donorName = document.getElementById('donorName').value;
+            
+            if (!country || !currencyType || !donorName) {{
+                showToast('Please fill in all required fields', 'error');
+                return;
+            }}
+            
+            const formData = new FormData();
+            formData.append('country', country);
+            formData.append('currency_type', currencyType);
+            formData.append('donor_name', donorName);
+            formData.append('note', document.getElementById('note').value);
+            formData.append('size', document.getElementById('size').value);
+            formData.append('year', document.getElementById('year').value);
+            formData.append('hidden_note', document.getElementById('hiddenNote').value);
+            formData.append('item_id', document.getElementById('itemId').value);
+            formData.append('original_image', document.getElementById('originalImage').value);
+            
+            if (uploadedFile) {{
+                formData.append('file', uploadedFile);
+            }}
+            
+            showToast('Updating item...');
+            
+            fetch('/update-existing-item', {{
+                method: 'POST',
+                body: formData
+            }})
+            .then(response => response.json())
+            .then(data => {{
+                if (data.message) {{
+                    showToast(data.message);
+                    setTimeout(() => {{
+                        window.location.href = '/edit_json';
+                    }}, 1500);
+                }} else {{
+                    showToast(data.error || 'An error occurred', 'error');
+                }}
+            }})
+            .catch(error => {{
+                console.error('Error:', error);
+                showToast('Error updating item: ' + error.message, 'error');
+            }});
         }}
-    }})
-    .catch(error => {{
-        console.error('Error:', error);
-        showToast('Error updating item: ' + error.message, 'error');
-    }});
-}}
 
         function showToast(message, type = 'success') {{
             const toast = document.getElementById('toastMessage');
