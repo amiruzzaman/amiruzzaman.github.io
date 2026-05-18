@@ -52,7 +52,6 @@
             gap: 10px;
             margin-bottom: 12px;
             width: 100%;
-            flex-wrap: wrap;
         }
 
         .filter-btn {
@@ -83,16 +82,10 @@
             border-color: transparent;
         }
 
-        /* Fallback / Dynamic configuration rules via attributes */
         .filter-btn[data-filter="all"].active-filter { background-color: #2c3e50; }
         .filter-btn[data-filter="coin"].active-filter { background-color: #2ECC71; }
         .filter-btn[data-filter="paper-bill"].active-filter { background-color: #3498db; }
         .filter-btn[data-filter="antique"].active-filter { background-color: #e74c3c; }
-        
-        /* Auto matching for any unexpected/future additions */
-        .filter-btn.active-filter:not([data-filter="all"]):not([data-filter="coin"]):not([data-filter="paper-bill"]):not([data-filter="antique"]) {
-            background-color: #9b59b6;
-        }
 
         /* ==========================================
            ENHANCED INTERACTIVE VISUALIZATION STYLES
@@ -332,7 +325,11 @@
 
             <div class="main-content" id="main-content">
                 <div class="gallery-section" id="slider-view">
-                    <div class="slider-filter-wrapper" id="slider-filter-wrapper">
+                    <div class="slider-filter-wrapper">
+                        <button class="filter-btn active-filter" data-filter="all"><i class="fas fa-boxes"></i> All</button>
+                        <button class="filter-btn" data-filter="coin"><i class="fas fa-coins"></i> Coins</button>
+                        <button class="filter-btn" data-filter="paper-bill"><i class="fas fa-money-bill-wave"></i> Bills</button>
+                        <button class="filter-btn" data-filter="antique"><i class="fas fa-clock"></i> Antique</button>
                     </div>
 
                     <div class="slider-container">
@@ -1119,6 +1116,8 @@
                     const newUrl = currentCoin ? `?country=${countryName}&coin=${currentCoin}` : `?country=${countryName}`;
                     history.pushState(null, "", newUrl);
 
+                    resetSliderFilterRibbon();
+
                     highlightCountry(countryName);
                     loadCountryImages(countryName);
                     loadGalleryView(countryName);
@@ -1274,6 +1273,8 @@
                                         const currentCoin = currentParams.get("coin");
                                         const newUrl = currentCoin ? `?country=${countryName.toLowerCase()}&coin=${currentCoin}` : `?country=${countryName.toLowerCase()}`;
                                         history.pushState(null, "", newUrl);
+                                        
+                                        resetSliderFilterRibbon();
 
                                         highlightCountry(countryName.toLowerCase());
                                         loadCountryImages(countryName.toLowerCase());
@@ -1495,7 +1496,7 @@
             document.getElementById('modal-note').style.color = 'white';
             document.getElementById('modal-note').textContent = note;
 
-            let donorElement = document.getElementById('modal-donor');
+            const donorElement = document.getElementById('modal-donor');
             if (donorElement) {
                 donorElement.textContent = donorName;
             } else {
@@ -1613,6 +1614,8 @@
                             const newUrl = currentCoin ? `?country=${country.toLowerCase()}&coin=${currentCoin}` : `?country=${country.toLowerCase()}`;
                             history.pushState(null, "", newUrl);
 
+                            resetSliderFilterRibbon();
+
                             highlightCountry(country.toLowerCase());
                             loadCountryImages(country.toLowerCase());
                             loadGalleryView(country.toLowerCase());
@@ -1682,46 +1685,8 @@
             });
         }
 
-        // Helper to map type strings directly to specific styling icons
-        function getIconForCurrencyType(type) {
-            const normalized = type.toLowerCase().trim();
-            if (normalized.includes('coin')) return 'fa-coins';
-            if (normalized.includes('bill') || normalized.includes('paper')) return 'fa-money-bill-wave';
-            if (normalized.includes('antique')) return 'fa-clock';
-            return 'fa-tags'; // universal fallback icon for future currency categories
-        }
-
-        // Generate and update the slider item filter buttons based on active item data types
-        function buildDynamicSliderFilterRibbon(coinsData) {
-            const wrapper = document.getElementById('slider-filter-wrapper');
-            if (!wrapper) return;
-
-            // Step 1: Analyze available currency types safely for the specific country selected
-            const availableTypes = new Set();
-            coinsData.forEach(coin => {
-                if (coin.currency_type && coin.currency_type.toLowerCase() !== 'none') {
-                    coin.currency_type.split(',').forEach(t => {
-                        const cleanType = t.trim().toLowerCase();
-                        if (cleanType) availableTypes.add(cleanType);
-                    });
-                }
-            });
-
-            // Step 2: Always start with the primary 'All' button option
-            let htmlContent = `<button class="filter-btn active-filter" data-filter="all"><i class="fas fa-boxes"></i> All</button>`;
-
-            // Step 3: Loop dynamically through any discovered types to preserve scalability
-            Array.from(availableTypes).sort().forEach(type => {
-                const buttonLabel = formatCurrencyType(type);
-                const iconClass = getIconForCurrencyType(type);
-                htmlContent += `<button class="filter-btn" data-filter="${type}"><i class="fas ${iconClass}"></i> ${buttonLabel}</button>`;
-            });
-
-            wrapper.innerHTML = htmlContent;
-            currentActiveSliderFilter = 'all';
-
-            // Step 4: Bind individual contextual click actions
-            const buttons = wrapper.querySelectorAll('.filter-btn');
+        function initSliderFilterRibbon() {
+            const buttons = document.querySelectorAll('.slider-filter-wrapper .filter-btn');
             buttons.forEach(btn => {
                 btn.addEventListener('click', function() {
                     buttons.forEach(b => b.classList.remove('active-filter'));
@@ -1732,9 +1697,21 @@
                     const queryParams = new URLSearchParams(window.location.search);
                     const countryQuery = queryParams.get("country");
                     if (countryQuery) {
-                        applySliderFilter(countryQuery.toLowerCase());
+                        loadCountryImages(countryQuery.toLowerCase());
                     }
                 });
+            });
+        }
+
+        function resetSliderFilterRibbon() {
+            currentActiveSliderFilter = 'all';
+            const buttons = document.querySelectorAll('.slider-filter-wrapper .filter-btn');
+            buttons.forEach(b => {
+                if (b.getAttribute('data-filter') === 'all') {
+                    b.classList.add('active-filter');
+                } else {
+                    b.classList.remove('active-filter');
+                }
             });
         }
 
@@ -1755,6 +1732,8 @@
 
             const mapController = initializeMap();
             mapController.showAvailableCountries(countries);
+
+            initSliderFilterRibbon();
 
             if (countryQuery !== "default") {
                 highlightCountry(countryQuery.toLowerCase());
@@ -1868,7 +1847,7 @@
 
             if (closeBtn) closeBtn.addEventListener('click', closeUrlModal);
             if (urlModal) urlModal.addEventListener('click', function (e) {
-                if (e.target === urlModal() ) closeUrlModal();
+                if (e.target === urlModal) closeUrlModal();
             });
 
             document.addEventListener('click', function (e) {
@@ -2215,23 +2194,13 @@
             showAllButton.addEventListener('click', () => {
                 window.distributionData.activeFilters = [];
                 renderDistributionChart(window.distributionData);
-                
+                currentCountryCoins = window.distributionData.coinsData;
+                createTimelineVisualization(currentCountryCoins);
                 const queryParams = new URLSearchParams(window.location.search);
                 const countryQuery = queryParams.get("country");
                 if (countryQuery) {
-                    const originalCountryCoins = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryQuery.toLowerCase());
-                    currentCountryCoins = originalCountryCoins;
-                    createTimelineVisualization(originalCountryCoins);
-                    updateGalleryViewWithFilter(countryQuery.toLowerCase(), originalCountryCoins);
-                    updateImageDisplay(0, originalCountryCoins);
-                    
-                    // Reset active selection style state across dynamic ribbon buttons
-                    const dynamicButtons = document.querySelectorAll('#slider-filter-wrapper .filter-btn');
-                    dynamicButtons.forEach(b => {
-                        if (b.getAttribute('data-filter') === 'all') b.classList.add('active-filter');
-                        else b.classList.remove('active-filter');
-                    });
-                    currentActiveSliderFilter = 'all';
+                    updateGalleryViewWithFilter(countryQuery.toLowerCase(), currentCountryCoins);
+                    updateImageDisplay(0, currentCountryCoins);
                 }
             });
 
@@ -2395,6 +2364,8 @@
         function filterByCurrencyType(type) {
             if (!window.distributionData) return;
 
+            console.log('Filtering by type:', type); 
+
             const normalizedType = (type || '').toLowerCase().trim();
             const activeFilters = window.distributionData.activeFilters || [];
 
@@ -2439,21 +2410,6 @@
             } else if (filteredCoins.length > 0) {
                 updateImageDisplay(0, filteredCoins);
             }
-
-            // Sync structural selection highlight back to dynamic ribbon buttons
-            const dynamicButtons = document.querySelectorAll('#slider-filter-wrapper .filter-btn');
-            dynamicButtons.forEach(b => {
-                const btnFilter = b.getAttribute('data-filter');
-                if (filters.length === 1 && filters.includes(btnFilter)) {
-                    b.classList.add('active-filter');
-                    currentActiveSliderFilter = btnFilter;
-                } else if (filters.length === 0 && btnFilter === 'all') {
-                    b.classList.add('active-filter');
-                    currentActiveSliderFilter = 'all';
-                } else {
-                    b.classList.remove('active-filter');
-                }
-            });
         }
 
         function ensureColorConsistency() {
@@ -2546,12 +2502,18 @@
                 return;
             }
 
-            const allCountryCoins = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName);
+            let allCountryCoins = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName);
             
-            // Rebuild completely variable layout controls for ribbon wrapper
-            buildDynamicSliderFilterRibbon(allCountryCoins);
+            if (currentActiveSliderFilter !== 'all') {
+                allCountryCoins = allCountryCoins.filter(coin => {
+                    if (!coin.currency_type) return false;
+                    const types = coin.currency_type.split(',').map(t => t.trim().toLowerCase());
+                    return types.some(t => t.includes(currentActiveSliderFilter));
+                });
+            }
 
-            applySliderFilter(countryName);
+            currentCountryCoins = allCountryCoins;
+            currentImageIndex = 0; 
 
             const changeImage = (direction) => {
                 if (currentCountryCoins && currentCountryCoins.length > 0) {
@@ -2575,23 +2537,6 @@
                 }
             };
 
-            createCurrencyDistributionChart(allCountryCoins);
-        }
-
-        function applySliderFilter(countryName) {
-            let filtered = cache.coinsData.filter(coin => coin.country.toLowerCase() === countryName);
-
-            if (currentActiveSliderFilter !== 'all') {
-                filtered = filtered.filter(coin => {
-                    if (!coin.currency_type) return false;
-                    const types = coin.currency_type.split(',').map(t => t.trim().toLowerCase());
-                    return types.some(t => t === currentActiveSliderFilter);
-                });
-            }
-
-            currentCountryCoins = filtered;
-            currentImageIndex = 0;
-
             if (currentCountryCoins.length > 0) {
                 updateImageDisplay(currentImageIndex, currentCountryCoins);
             } else {
@@ -2600,6 +2545,7 @@
             }
 
             createTimelineVisualization(currentCountryCoins);
+            createCurrencyDistributionChart(currentCountryCoins);
         }
 
         function updateGalleryViewWithFilter(countryName, filteredCoins) {
