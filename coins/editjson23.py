@@ -136,9 +136,9 @@ def update_json_file(country, image, note, donor_name, currency_type, size, year
 
     # Create the new entry
     new_entry = {
-        "id": os.path.splitext(image)[0] if image and image != "" else str(uuid.uuid4()),
+        "id": os.path.splitext(image)[0],
         "country": country,
-        "image": image if image else "",  # Allow empty image
+        "image": image,
         "note": note,
         "donor_name": donor_name,
         "currency_type": currency_type,
@@ -162,28 +162,6 @@ def update_json_file(country, image, note, donor_name, currency_type, size, year
     json_cache['data'] = None
     json_cache['timestamp'] = 0
 
-
-@app.route('/delete-image', methods=['POST'])
-def delete_image():
-    """Delete an image file from the server"""
-    try:
-        data = request.get_json()
-        country = data.get('country')
-        image = data.get('image')
-        
-        if not country or not image:
-            return jsonify({"error": "Missing parameters"}), 400
-        
-        file_path = os.path.join(BASE_UPLOAD_FOLDER, country, image)
-        
-        if os.path.exists(file_path):
-            os.remove(file_path)
-            return jsonify({"message": "Image deleted successfully"}), 200
-        else:
-            return jsonify({"message": "Image file not found"}), 404
-            
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 @app.route('/get-raw-json', methods=['GET'])
 def get_raw_json():
@@ -294,19 +272,14 @@ def save_json(data):
             with open(current_json_file_path, 'r') as f:
                 old_data = json.load(f)
 
-        # Map old entries by image filename (skip empty images)
-        old_map = {}
-        for entry in old_data:
-            image = entry.get("image")
-            if image and image != "":  # Only map if image exists and not empty
-                old_map[image] = entry
+        # Map old entries by image filename
+        old_map = {entry["image"]: entry for entry in old_data}
 
         for entry in data:
             image = entry.get("image")
             country = entry.get("country")
 
-            # Skip entries without images or without countries
-            if not image or not country or image == "":
+            if not image or not country:
                 continue
 
             old_entry = old_map.get(image)
@@ -5026,19 +4999,6 @@ def edit_json():
     transform: scale(1.1);
     opacity: 0.8;
 }}
-
-@keyframes highlightRow {{
-    0% {{
-        background-color: #2c5530;
-    }}
-    100% {{
-        background-color: transparent;
-    }}
-}}
-
-.row-highlight {{
-    animation: highlightRow 2s ease-out;
-}}
     </style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
@@ -5494,7 +5454,7 @@ function renderTable(data) {{
             const newCountry = this.value;
             const image = row.image;
 
-            if (!image || image === "" || image === "placeholder.jpg") {{
+            if (!image || image === "placeholder.jpg") {{
                 row.country = newCountry;
                 saveUpdates();
                 return;
@@ -5579,7 +5539,7 @@ function renderTable(data) {{
         // Donor name (editable)
         const donorColumn = document.createElement('div');
         donorColumn.classList.add('column', 'editable');
-        donorColumn.textContent = row.donor_name || "";
+        donorColumn.textContent = row.donor_name || "No Donor Name";
         donorColumn.contentEditable = true;
         donorColumn.addEventListener('blur', function() {{
             row.donor_name = this.textContent;
@@ -5590,34 +5550,24 @@ function renderTable(data) {{
         // Image column with drag and drop
         const imageColumn = document.createElement('div');
         imageColumn.classList.add('column');
-
+        
         const dropArea = document.createElement('div');
         dropArea.classList.add('image-drop-area');
         dropArea.setAttribute('data-index', index);
 
-        // Handle empty or missing images
-        if (row.image && row.image !== '' && row.image !== 'placeholder.jpg') {{
-            // Has a valid image
-            dropArea.innerHTML = `<img src="/images/${{row.country}}/${{row.image}}" 
-                                    class="thumbnail" 
-                                    data-index="${{index}}" 
-                                    data-image="${{row.image}}"
-                                    data-id="${{row.id}}"
-                                    style="cursor: pointer; max-width: 50px; max-height: 50px;"
-                                    onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'50\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23999\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Crect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\' ry=\'2\'%3E%3C/rect%3E%3Ccircle cx=\'8.5\' cy=\'8.5\' r=\'1.5\'%3E%3C/circle%3E%3Cpolyline points=\'21 15 16 10 5 21\'%3E%3C/polyline%3E%3C/svg%3E'"
-                                    onclick="event.stopPropagation(); editExistingItem('${{row.id}}')">`;
-        }} else {{
-            // No image - show edit button
-            dropArea.innerHTML = `<div style="text-align: center; padding: 5px;">
-                                    <i class="fas fa-plus-circle" style="font-size: 24px; color: #28a745; margin-bottom: 5px; display: block;"></i>
-                                    <small style="color: #fff;">Click to add image</small>
-                                  </div>`;
-            dropArea.style.cursor = 'pointer';
-            dropArea.onclick = (e) => {{
-                e.stopPropagation();
-                editExistingItem(row.id);
-            }};
-        }}
+        // Replace it with this:
+if (row.image && row.image !== 'placeholder.jpg') {{
+    dropArea.innerHTML = `<img src="images/${{row.country}}/${{row.image}}" 
+                            class="thumbnail" 
+                            data-index="${{index}}" 
+                            data-image="${{row.image}}"
+                            data-id="${{row.id}}"
+                            style="cursor: pointer;"
+                            onerror="this.src='images/placeholder.jpg'"
+                            onclick="event.stopPropagation(); editExistingItem('${{row.id}}')">`;
+}} else {{
+    dropArea.innerHTML = '<p>Drag & drop image here</p>';
+}}
 
         setupImageDropArea(dropArea, row, index);
         imageColumn.appendChild(dropArea);
@@ -5626,7 +5576,7 @@ function renderTable(data) {{
         // Note (editable)
         const noteColumn = document.createElement('div');
         noteColumn.classList.add('column', 'editable');
-        noteColumn.textContent = row.note || "";
+        noteColumn.textContent = row.note || "No Note";
         noteColumn.contentEditable = true;
         noteColumn.addEventListener('blur', function() {{
             row.note = this.textContent;
@@ -5637,7 +5587,7 @@ function renderTable(data) {{
         // Size (editable)
         const sizeColumn = document.createElement('div');
         sizeColumn.classList.add('column', 'editable');
-        sizeColumn.textContent = row.size || "";
+        sizeColumn.textContent = row.size || "No Size";
         sizeColumn.contentEditable = true;
         sizeColumn.addEventListener('blur', function() {{
             row.size = this.textContent;
@@ -5648,7 +5598,7 @@ function renderTable(data) {{
         // Year (editable)
         const yearColumn = document.createElement('div');
         yearColumn.classList.add('column', 'editable');
-        yearColumn.textContent = row.year || "";
+        yearColumn.textContent = row.year || "No Year";
         yearColumn.contentEditable = true;
         yearColumn.addEventListener('blur', function() {{
             row.year = this.textContent;
@@ -5656,34 +5606,25 @@ function renderTable(data) {{
         }});
         rowDiv.appendChild(yearColumn);
         
-        // Actions (edit and delete buttons)
+        // Actions (delete button)
         const actionColumn = document.createElement('div');
         actionColumn.classList.add('column');
-        
-        const editBtn = document.createElement('span');
-        editBtn.classList.add('edit-btn');
-        editBtn.innerHTML = '<i class="fas fa-edit" style="color: #28a745; cursor: pointer; margin-right: 10px; font-size: 18px;"></i>';
-        editBtn.addEventListener('click', function() {{
-            editExistingItem(row.id);
-        }});
-        actionColumn.appendChild(editBtn);
+// In the renderTable function, find the actionColumn creation section
+// Add an edit button before the delete button:
+
+const editBtn = document.createElement('span');
+editBtn.classList.add('edit-btn');
+editBtn.innerHTML = '<i class="fas fa-edit" style="color: #28a745; cursor: pointer; margin-right: 10px;"></i>';
+editBtn.addEventListener('click', function() {{
+    editExistingItem(row.id);
+}});
+actionColumn.appendChild(editBtn);
 
         const deleteBtn = document.createElement('span');
         deleteBtn.classList.add('delete-btn');
-        deleteBtn.innerHTML = '<i class="fas fa-trash" style="color: #ff4d4d; cursor: pointer; font-size: 18px;"></i>';
+        deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
         deleteBtn.addEventListener('click', function() {{
             if (confirm('Are you sure you want to delete this entry?')) {{
-                // If there's an image file, delete it
-                if (row.image && row.image !== '' && row.image !== 'placeholder.jpg') {{
-                    fetch('/delete-image', {{
-                        method: 'POST',
-                        headers: {{ 'Content-Type': 'application/json' }},
-                        body: JSON.stringify({{
-                            country: row.country,
-                            image: row.image
-                        }})
-                    }}).catch(err => console.error('Error deleting image:', err));
-                }}
                 jsonData.splice(index, 1);
                 renderTable(jsonData);
                 saveUpdates();
@@ -5695,9 +5636,12 @@ function renderTable(data) {{
         tableContainer.appendChild(rowDiv);
     }});
     
+    // Apply filters after rendering
+    filterTable();
     // Call lazy loading after rendering
-    lazyLoadImages();
+lazyLoadImages();
 }}
+
 
 // Add this function for lazy loading images
 function lazyLoadImages() {{
@@ -5890,17 +5834,12 @@ function saveUpdates() {{
     }})
     .then(response => response.json())
     .then(data => {{
-        if (data.message) {{
-            console.log(data.message);
-            showToast(data.message || "Changes saved!");
-        }} else if (data.error) {{
-            console.error("Error:", data.error);
-            showToast("❌ Error saving changes: " + data.error, 'error');
-        }}
+        console.log(data.message || "File updated.");
+        showToast(data.message || "Changes saved!");
     }})
     .catch(error => {{
         console.error("Error:", error);
-        showToast("❌ Error saving changes!", 'error');
+        showToast("❌ Error saving changes!");
     }});
 }}
 
@@ -6081,90 +6020,20 @@ document.getElementById('showPaginationBtnBottom').addEventListener('click', sho
         }});
     }});
 
-document.getElementById("addRowBtn").addEventListener("click", function () {{
-
-// Generate a proper UUID v4 hex string
-    function generateUUID() {{
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {{
-            const r = Math.random() * 16 | 0;
-            const v = c === 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        }});
-    }}
-    
-    const newId = generateUUID();  // This will create something like: "550e8400-e29b-41d4-a716-446655440000"
-
-    // Create a unique ID
-    //const newId = 'new_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-    
-    const newRow = {{
-        id: newId,
-        country: "",
-        currency_type: "coin",
-        donor_name: "",
-        image: "",
-        note: "",
-        size: "",
-        year: "",
-        hidden_note: "",
-        timestamp: new Date().toISOString()
-    }};
-    
-    // Add to the beginning of the array
-    jsonData.unshift(newRow);
-    
-    // Re-render the table
-    renderTable(jsonData);
-    
-    // SAVE IMMEDIATELY - this ensures the object is persisted
-    fetch('/update-json', {{
-        method: 'POST',
-        headers: {{ 'Content-Type': 'application/json' }},
-        body: JSON.stringify(jsonData),
-    }})
-    .then(response => response.json())
-    .then(data => {{
-        if (data.message) {{
-            showToast("✓ New row created and saved!");
-            console.log("New row saved with ID:", newId);
-            verifySave(newId);  // Verify the save
-        }} else {{
-            showToast("⚠ Row created but save may have failed", 'warning');
-        }}
-    }})
-    .catch(error => {{
-        console.error("Error saving new row:", error);
-        showToast("❌ Error saving new row!", 'error');
+    document.getElementById("addRowBtn").addEventListener("click", function () {{
+        const newRow = {{
+            country: "",
+            currency_type: "coin",
+            donor_name: "New Donor Name",
+            image: "placeholder.jpg",
+            note: "New Note",
+            size: "",
+            year: ""
+        }};
+        jsonData.push(newRow);
+        renderTable(jsonData);
+        saveUpdates();
     }});
-    
-    // Scroll to the new row
-    setTimeout(() => {{
-        const rows = document.querySelectorAll('.row');
-        if (rows.length > 1) {{
-            rows[1].scrollIntoView({{ behavior: 'smooth', block: 'center' }});
-            rows[1].style.backgroundColor = '#2c5530';
-            setTimeout(() => {{
-                if (rows[1]) rows[1].style.backgroundColor = '';
-            }}, 2000);
-        }}
-    }}, 100);
-}});
-
-// Add this function to verify the save
-function verifySave(newId) {{
-    setTimeout(() => {{
-        fetch('/get-json')
-            .then(response => response.json())
-            .then(data => {{
-                const found = data.some(item => item.id === newId);
-                if (found) {{
-                    console.log("✓ Verified: New row with ID", newId, "exists in the JSON file");
-                }} else {{
-                    console.error("✗ Warning: New row with ID", newId, "not found in JSON file");
-                }}
-            }});
-    }}, 1000);
-}}
 
     document.getElementById("downloadBtn").addEventListener("click", function () {{
         const jsonString = JSON.stringify(jsonData, null, 2);
@@ -6820,7 +6689,7 @@ def update_json():
 
         # 2. Extract unique keys for the items currently being rearranged on screen
         # We use a tuple of (id, image) to ensure an accurate match
-        incoming_keys = { (item.get('id'), item.get('image')) for item in incoming_data if item.get('id') }
+        incoming_keys = { (item.get('id'), item.get('image')) for item in incoming_data if item.get('image') }
 
         updated_full_data = []
         incoming_inserted = False
