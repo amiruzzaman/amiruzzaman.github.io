@@ -134,11 +134,11 @@ def update_json_file(country, image, note, donor_name, currency_type, size, year
     with open(JSON_FILE_PATH, 'r') as f:
         data = json.load(f)
 
-    # Create the new entry with proper UUID
+    # Create the new entry
     new_entry = {
-        "id": str(uuid.uuid4()),  # This generates a proper UUID like "550e8400-e29b-41d4-a716-446655440000"
+        "id": os.path.splitext(image)[0] if image and image != "" else str(uuid.uuid4()),
         "country": country,
-        "image": image if image else "",
+        "image": image if image else "",  # Allow empty image
         "note": note,
         "donor_name": donor_name,
         "currency_type": currency_type,
