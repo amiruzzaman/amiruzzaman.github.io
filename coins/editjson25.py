@@ -134,16 +134,9 @@ def update_json_file(country, image, note, donor_name, currency_type, size, year
     with open(JSON_FILE_PATH, 'r') as f:
         data = json.load(f)
 
-    # 🔍 Search for an existing "box" attribute for this country
-    box_value = None
-    for entry in data:
-        if entry.get("country") == country and "box" in entry:
-            box_value = entry["box"]
-            break
-
     # Create the new entry with proper UUID
     new_entry = {
-        "id": str(uuid.uuid4()),
+        "id": str(uuid.uuid4()),  # This generates a proper UUID like "550e8400-e29b-41d4-a716-446655440000"
         "country": country,
         "image": image if image else "",
         "note": note,
@@ -154,10 +147,6 @@ def update_json_file(country, image, note, donor_name, currency_type, size, year
         "timestamp": datetime.now().isoformat()
     }
     
-    # ✅ Add "box" if it was found for the same country
-    if box_value is not None:
-        new_entry["box"] = box_value
-
     # Add hidden_note if provided
     if hidden_note:
         new_entry["hidden_note"] = hidden_note
@@ -244,17 +233,6 @@ def edit_or_delete_entry(action, value):
 
 def update_entry(updated_entry):
     data = read_json_file()
-    
-    # 1. 🔍 Look for an existing "box" attribute for this country before updating
-    target_country = updated_entry.get("country", "").replace('<br>', '').strip()
-    box_value = None
-    
-    if target_country:
-        for entry in data:
-            if entry.get("country") == target_country and "box" in entry:
-                box_value = entry["box"]
-                break
-
     for entry in data:
         if entry['image'] == updated_entry['row_id']:
             entry.update({
@@ -268,51 +246,13 @@ def update_entry(updated_entry):
                 "year": updated_entry.get("year", entry.get("year", "")).replace('<br>', '')
             })
 
-            # ✅ 2. Conditional "box" attribute handling
-            if box_value is not None:
-                entry["box"] = box_value
-            else:
-                # If no box value exists for this country, remove the attribute completely
-                if "box" in entry:
-                    del entry["box"]
-
-            # Handle hidden_note
+            # ✅ Handle hidden_note
             if "hidden_note" in updated_entry:
                 entry["hidden_note"] = updated_entry["hidden_note"].replace('<br>', '')
             elif "hidden_note" not in updated_entry and "hidden_note" in entry:
                 del entry["hidden_note"]
 
     write_json_file(data)
-
-@app.route('/suggest-donors', methods=['GET'])
-def suggest_donors():
-    """
-    Endpoint to suggest existing donor names that match a partial query string.
-    """
-    query = request.args.get('q', '').strip().lower()
-    if not query:
-        return jsonify([])
-
-    try:
-        # Load your existing JSON list
-        data = load_json()  # Uses your existing load_json() or read_json_file() function
-        
-        # Collect unique, non-empty donor names
-        unique_donors = set()
-        for entry in data:
-            donor = entry.get('donor_name', '').strip()
-            if donor:
-                unique_donors.add(donor)
-        
-        # Filter names that partly match the user's text query
-        matches = [donor for donor in unique_donors if query in donor.lower()]
-        
-        # Return top 10 matches sorted alphabetically
-        return jsonify(sorted(matches)[:10])
-        
-    except Exception as e:
-        print(f"Error fetching donor suggestions: {e}")
-        return jsonify([]), 500
 
 
 def delete_entry(entry):
@@ -876,7 +816,7 @@ def update_existing_item():
         size = request.form.get('size', '')
         year = request.form.get('year', '')
         hidden_note = request.form.get('hidden_note', '')
-        item_id = request.form.get('item_id', '')
+        item_id = request.form.get('item_id', '')  # Get the ID instead of original_image
         
         print(f"Updating item: ID={item_id}, country={country}, donor={donor_name}, currency={currency_type}")
         
@@ -926,7 +866,7 @@ def update_existing_item():
             # Save new file
             file_path, file_name = save_file(file, country)
         
-        # Update the entry basic details
+        # Update the entry
         data[entry_index]['country'] = country
         data[entry_index]['note'] = note
         data[entry_index]['donor_name'] = donor_name
@@ -934,21 +874,6 @@ def update_existing_item():
         data[entry_index]['size'] = size
         data[entry_index]['year'] = year
         
-        # 🔍 Search for "box" value belonging to the newly specified country
-        box_value = None
-        for entry in data:
-            if entry.get("country") == country and "box" in entry:
-                box_value = entry["box"]
-                break
-        
-        # ✅ Apply "box" logic based on search results
-        if box_value is not None:
-            data[entry_index]["box"] = box_value
-        else:
-            # If no box value exists for this country anymore, remove it from this object
-            if "box" in data[entry_index]:
-                del data[entry_index]["box"]
-
         # Update image if changed
         if file_name and file_name != original_image:
             data[entry_index]['image'] = file_name
@@ -976,8 +901,7 @@ def update_existing_item():
         # Save the updated JSON
         save_json(data)
         
-        # Build response output dictionary dynamically
-        response_data = {
+        return jsonify({
             "message": "Item updated successfully!",
             "country": country,
             "note": note,
@@ -988,11 +912,7 @@ def update_existing_item():
             "hidden_note": hidden_note,
             "image": file_name,
             "id": item_id
-        }
-        if box_value is not None:
-            response_data["box"] = box_value
-            
-        return jsonify(response_data)
+        })
         
     except Exception as e:
         print(f"Error updating item: {str(e)}")
