@@ -1843,6 +1843,33 @@ def render_edit_item_page(item):
                 toast.style.display = 'none';
             }}, 3000);
         }}
+document.getElementById('donor_name').addEventListener('input', function() {{
+    const inputVal = this.value.trim();
+    const datalist = document.getElementById('donor-suggestions');
+    
+    // Don't search if the input has fewer than 2 characters
+    if (inputVal.length < 2) {{
+        datalist.innerHTML = '';
+        return;
+    }}
+    
+    // Fetch suggestions dynamically from the new Flask route
+    fetch(`/suggest-donors?q=${{encodeURIComponent(inputVal)}}`)
+        .then(response => response.json())
+        .then(suggestions => {{
+            // Clear prior dynamic suggestions
+            datalist.innerHTML = '';
+            
+            // Append the new partial matches into the datalist view
+            suggestions.forEach(name => {{
+                const option = document.createElement('option');
+                option.value = name;
+                datalist.appendChild(option);
+            }});
+        }})
+        .catch(error => console.error('Error fetching donor suggestions:', error));
+}});
+        
     </script>
 </body>
 </html>
@@ -2701,9 +2728,17 @@ def upload_form_page():
             </div>
             
             <div class="form-group">
-                <label for="donorName">Donor Name:</label>
-                <input type="text" id="donorName" name="donor_name" required>
-            </div>
+    <label for="donor_name">Donor Name:</label>
+    <input type="text" 
+           id="donor_name" 
+           name="donor_name" 
+           class="form-control" 
+           placeholder="Start typing a donor name..." 
+           autocomplete="off" 
+           list="donor-suggestions">
+           
+    <datalist id="donor-suggestions"></datalist>
+</div>
             
             <div class="form-group">
                 <label for="note">Note:</label>
@@ -3362,6 +3397,44 @@ def upload_form_page():
                 toast.style.display = 'none';
             }, 3000);
         }
+
+       document.addEventListener('DOMContentLoaded', function() {
+    const donorInput = document.getElementById('donor_name');
+    const datalist = document.getElementById('donor-suggestions');
+
+    if (donorInput && datalist) {
+        donorInput.addEventListener('input', function() {
+            const inputVal = this.value.trim();
+            
+            // Wait until the user has typed at least 2 characters to avoid overloading requests
+            if (inputVal.length < 2) {
+                datalist.innerHTML = '';
+                return;
+            }
+            
+            // Query the matching backend endpoint
+            fetch(`/suggest-donors?q=${encodeURIComponent(inputVal)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(suggestions => {
+                    // Clear out previous suggestions to avoid duplication
+                    datalist.innerHTML = '';
+                    
+                    // Populate the datalist element with matching options
+                    suggestions.forEach(name => {
+                        const option = document.createElement('option');
+                        option.value = name;
+                        datalist.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching donor suggestions:', error));
+        });
+    }
+}); 
     </script>
 </body>
 </html>
