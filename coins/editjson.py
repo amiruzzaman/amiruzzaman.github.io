@@ -2825,290 +2825,374 @@ def upload_form_page():
     <div id="toastMessage" class="toast-message"></div>
 
     <script>
-        let uploadedFile = null;
-        let mergeImage1 = null;
-        let mergeImage2 = null;
-        let countriesData = [];
-        let allJsonData = []; // Store all JSON data for copy functionality
+    let uploadedFile = null;
+    let mergeImage1 = null;
+    let mergeImage2 = null;
+    let countriesData = [];
+    let allJsonData = []; // Store all JSON data for copy functionality
 
-        // Load countries on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadCountries();
-            loadAllJsonData();
-            setupEventListeners();
-            setupImageMerging();
-        });
+    // Load countries on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadCountries();
+        loadAllJsonData();
+        setupEventListeners();
+        setupImageMerging();
+    });
 
-        function loadAllJsonData() {
-            fetch('/get-all-json')
-                .then(response => response.json())
-                .then(data => {
-                    allJsonData = data;
-                })
-                .catch(error => {
-                    console.error("Error loading JSON data:", error);
-                });
-        }
-
-        function loadCountries() {
-            fetch('/get-countries')
-                .then(response => response.json())
-                .then(data => {
-                    countriesData = data;
-                    populateCountryDropdown();
-                })
-                .catch(error => {
-                    console.error("Error loading countries:", error);
-                    // Fallback countries
-                    countriesData = [
-                        {name: "United States"}, {name: "Canada"}, {name: "United Kingdom"},
-                        {name: "Germany"}, {name: "France"}, {name: "Japan"},
-                        {name: "China"}, {name: "India"}, {name: "Australia"},
-                        {name: "Mexico"}, {name: "Brazil"}, {name: "Russia"}
-                    ];
-                    populateCountryDropdown();
-                });
-        }
-
-        function populateCountryDropdown() {
-            const countrySelect = document.getElementById('country');
-            countrySelect.innerHTML = '<option value="">Select a country</option>';
-            
-            countriesData.forEach(country => {
-                const option = document.createElement('option');
-                option.value = country.name;
-                option.textContent = country.name;
-                countrySelect.appendChild(option);
+    function loadAllJsonData() {
+        fetch('/get-all-json')
+            .then(response => response.json())
+            .then(data => {
+                allJsonData = data;
+                // Populate the copy dropdown after loading data
+                populateExistingItemsDropdown();
+            })
+            .catch(error => {
+                console.error("Error loading JSON data:", error);
             });
-        }
+    }
 
-        // NEW: When country is selected, check for existing items and show copy section
-        function setupCountryCopyListener() {
-            const countrySelect = document.getElementById('country');
-            const copySection = document.getElementById('copySection');
-            const existingItemsSelect = document.getElementById('existingItemsSelect');
-            
-            countrySelect.addEventListener('change', function() {
-                const selectedCountry = this.value;
-                
-                if (!selectedCountry) {
-                    copySection.style.display = 'none';
-                    return;
-                }
-                
-                // Find existing items for this country
-                const existingItems = allJsonData.filter(item => item.country === selectedCountry);
-                
-                if (existingItems.length > 0) {
-                    // Populate the dropdown with existing items
-                    existingItemsSelect.innerHTML = '<option value="">Select an existing item to copy from</option>';
-                    existingItems.forEach((item, index) => {
-                        const option = document.createElement('option');
-                        option.value = index;
-                        // Create a descriptive label
-                        let label = `${item.currency_type || 'Unknown type'} - ${item.donor_name || 'Unknown donor'}`;
-                        if (item.year) label += ` (${item.year})`;
-                        if (item.size) label += ` - ${item.size}`;
-                        option.textContent = label;
-                        option.dataset.item = JSON.stringify(item);
-                        existingItemsSelect.appendChild(option);
-                    });
-                    copySection.style.display = 'block';
-                } else {
-                    copySection.style.display = 'none';
-                }
+    function loadCountries() {
+        fetch('/get-countries')
+            .then(response => response.json())
+            .then(data => {
+                countriesData = data;
+                populateCountryDropdown();
+            })
+            .catch(error => {
+                console.error("Error loading countries:", error);
+                // Fallback countries
+                countriesData = [
+                    {name: "United States"}, {name: "Canada"}, {name: "United Kingdom"},
+                    {name: "Germany"}, {name: "France"}, {name: "Japan"},
+                    {name: "China"}, {name: "India"}, {name: "Australia"},
+                    {name: "Mexico"}, {name: "Brazil"}, {name: "Russia"}
+                ];
+                populateCountryDropdown();
             });
-        }
+    }
+
+    function populateCountryDropdown() {
+        const countrySelect = document.getElementById('country');
+        countrySelect.innerHTML = '<option value="">Select a country</option>';
         
-        // NEW: Copy data from selected existing item
-        function setupCopyButton() {
-            const copyBtn = document.getElementById('copyExistingBtn');
-            const existingItemsSelect = document.getElementById('existingItemsSelect');
+        countriesData.forEach(country => {
+            const option = document.createElement('option');
+            option.value = country.name;
+            option.textContent = country.name;
+            countrySelect.appendChild(option);
+        });
+    }
+
+    // Populate the existing items dropdown for copy functionality
+    function populateExistingItemsDropdown() {
+        const existingItemsSelect = document.getElementById('existingItemsSelect');
+        if (!existingItemsSelect) return;
+        
+        existingItemsSelect.innerHTML = '<option value="">Select an existing item to copy from</option>';
+        allJsonData.forEach((item, index) => {
+            const option = document.createElement('option');
+            option.value = index;
+            let label = `${item.country || 'Unknown'} - ${item.currency_type || 'Unknown type'} - ${item.donor_name || 'Unknown donor'}`;
+            if (item.year) label += ` (${item.year})`;
+            if (item.size) label += ` - ${item.size}`;
+            option.textContent = label;
+            option.dataset.item = JSON.stringify(item);
+            existingItemsSelect.appendChild(option);
+        });
+    }
+
+    // When country is selected, filter existing items
+    function setupCountryCopyListener() {
+        const countrySelect = document.getElementById('country');
+        const copySection = document.getElementById('copySection');
+        const existingItemsSelect = document.getElementById('existingItemsSelect');
+        
+        if (!countrySelect || !copySection || !existingItemsSelect) return;
+        
+        countrySelect.addEventListener('change', function() {
+            const selectedCountry = this.value;
             
-            copyBtn.addEventListener('click', function() {
-                const selectedOption = existingItemsSelect.options[existingItemsSelect.selectedIndex];
-                if (!selectedOption.value || !selectedOption.dataset.item) {
-                    showToast('Please select an item to copy from', 'error');
-                    return;
-                }
-                
-                const itemToCopy = JSON.parse(selectedOption.dataset.item);
-                
-                // Fill the form with copied data (excluding image)
-                document.getElementById('currencyType').value = itemToCopy.currency_type || 'coin';
-                document.getElementById('donorName').value = itemToCopy.donor_name || '';
-                document.getElementById('note').value = itemToCopy.note || '';
-                document.getElementById('size').value = itemToCopy.size || '';
-                document.getElementById('year').value = itemToCopy.year || '';
-                document.getElementById('hiddenNote').value = itemToCopy.hidden_note || '';
-                
-                // Show success message
-                showToast(`Copied data from existing item for ${itemToCopy.country}`, 'success');
-                
-                // Optionally highlight the filled fields
-                const fields = ['currencyType', 'donorName', 'note', 'size', 'year'];
-                fields.forEach(field => {
-                    const element = document.getElementById(field);
+            if (!selectedCountry) {
+                copySection.style.display = 'none';
+                return;
+            }
+            
+            // Find existing items for this country
+            const existingItems = allJsonData.filter(item => item.country === selectedCountry);
+            
+            if (existingItems.length > 0) {
+                // Populate the dropdown with existing items for this country
+                existingItemsSelect.innerHTML = '<option value="">Select an existing item to copy from</option>';
+                existingItems.forEach((item, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    let label = `${item.currency_type || 'Unknown type'} - ${item.donor_name || 'Unknown donor'}`;
+                    if (item.year) label += ` (${item.year})`;
+                    if (item.size) label += ` - ${item.size}`;
+                    option.textContent = label;
+                    option.dataset.item = JSON.stringify(item);
+                    existingItemsSelect.appendChild(option);
+                });
+                copySection.style.display = 'block';
+            } else {
+                copySection.style.display = 'none';
+            }
+        });
+    }
+    
+    // Copy data from selected existing item
+    function setupCopyButton() {
+        const copyBtn = document.getElementById('copyExistingBtn');
+        const existingItemsSelect = document.getElementById('existingItemsSelect');
+        
+        if (!copyBtn || !existingItemsSelect) return;
+        
+        copyBtn.addEventListener('click', function() {
+            const selectedOption = existingItemsSelect.options[existingItemsSelect.selectedIndex];
+            if (!selectedOption.value || !selectedOption.dataset.item) {
+                showToast('Please select an item to copy from', 'error');
+                return;
+            }
+            
+            const itemToCopy = JSON.parse(selectedOption.dataset.item);
+            
+            // Fill the form with copied data (excluding image)
+            // FIXED: Use correct element IDs (donor_name instead of donorName)
+            const currencyTypeEl = document.getElementById('currencyType');
+            const donorNameEl = document.getElementById('donor_name');
+            const noteEl = document.getElementById('note');
+            const sizeEl = document.getElementById('size');
+            const yearEl = document.getElementById('year');
+            const hiddenNoteEl = document.getElementById('hiddenNote');
+            
+            if (currencyTypeEl) currencyTypeEl.value = itemToCopy.currency_type || 'coin';
+            if (donorNameEl) donorNameEl.value = itemToCopy.donor_name || '';
+            if (noteEl) noteEl.value = itemToCopy.note || '';
+            if (sizeEl) sizeEl.value = itemToCopy.size || '';
+            if (yearEl) yearEl.value = itemToCopy.year || '';
+            if (hiddenNoteEl) hiddenNoteEl.value = itemToCopy.hidden_note || '';
+            
+            // Show success message
+            showToast(`Copied data from existing item for ${itemToCopy.country}`, 'success');
+            
+            // Optionally highlight the filled fields
+            const fields = ['currencyType', 'donor_name', 'note', 'size', 'year'];
+            fields.forEach(field => {
+                const element = document.getElementById(field);
+                if (element) {
                     element.style.backgroundColor = '#e8f5e9';
                     setTimeout(() => {
                         element.style.backgroundColor = '';
                     }, 1000);
-                });
-            });
-        }
-
-        function setupEventListeners() {
-            const dropArea = document.getElementById('imageDropArea');
-            const fileInput = document.getElementById('imageInput');
-            
-            dropArea.addEventListener('click', () => fileInput.click());
-            
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, preventDefaults, false);
-            });
-            
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropArea.addEventListener(eventName, highlight, false);
-            });
-            
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, unhighlight, false);
-            });
-            
-            dropArea.addEventListener('drop', handleDrop, false);
-            fileInput.addEventListener('change', handleFileSelect, false);
-            document.getElementById('uploadForm').addEventListener('submit', handleFormSubmit);
-            
-            // Setup copy functionality
-            setupCountryCopyListener();
-            setupCopyButton();
-        }
-
-        function setupImageMerging() {
-            const mergeDropArea1 = document.getElementById('mergeDropArea1');
-            const mergeDropArea2 = document.getElementById('mergeDropArea2');
-            const mergeImagesBtn = document.getElementById('mergeImagesBtn');
-            const clearMergeBtn = document.getElementById('clearMergeBtn');
-            
-            setupMergeDropArea(mergeDropArea1, 1);
-            setupMergeDropArea(mergeDropArea2, 2);
-            
-            mergeImagesBtn.addEventListener('click', function() {
-                if (!mergeImage1 || !mergeImage2) {
-                    showToast('Please upload both images first', 'error');
-                    return;
                 }
-                
-                const mergeDirection = document.querySelector('input[name="mergeDirection"]:checked').value;
-                const resizeOption = document.querySelector('input[name="resizeOption"]:checked').value;
-                
-                mergeImages(mergeImage1, mergeImage2, mergeDirection, resizeOption)
-                    .then(result => {
-                        showToast(result.message);
-                        
-                        // Update the form with the merged image
-                        uploadedFile = result.file;
-                        document.getElementById('imageDropArea').innerHTML = 
-                            `<p>Merged image: ${result.filename}</p>`;
-                        document.getElementById('imagePreview').src = URL.createObjectURL(result.file);
-                        document.getElementById('imagePreview').style.display = 'block';
-                        
-                        clearMergeAreas();
-                    })
-                    .catch(error => {
-                        console.error('Error merging images:', error);
-                        showToast('Error merging images: ' + error.message, 'error');
-                    });
             });
-            
-            clearMergeBtn.addEventListener('click', clearMergeAreas);
-        }
+        });
+    }
 
-        function setupMergeDropArea(dropArea, imageNumber) {
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.accept = 'image/*';
-            fileInput.style.display = 'none';
-            document.body.appendChild(fileInput);
-            
-            dropArea.addEventListener('click', () => fileInput.click());
-            
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, preventDefaults, false);
-            });
-            
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropArea.addEventListener(eventName, () => dropArea.classList.add('highlight'), false);
-            });
-            
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, () => dropArea.classList.remove('highlight'), false);
-            });
-            
-            dropArea.addEventListener('drop', function(e) {
-                handleMergeFileDrop(e, imageNumber);
-            }, false);
-            
-            fileInput.addEventListener('change', function(e) {
-                handleMergeFileSelect(e, imageNumber);
-            });
-        }
+    function setupEventListeners() {
+        const dropArea = document.getElementById('imageDropArea');
+        const fileInput = document.getElementById('imageInput');
+        
+        if (!dropArea || !fileInput) return;
+        
+        dropArea.addEventListener('click', () => fileInput.click());
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        dropArea.addEventListener('drop', handleDrop, false);
+        fileInput.addEventListener('change', handleFileSelect, false);
+        document.getElementById('uploadForm').addEventListener('submit', handleFormSubmit);
+        
+        // Setup copy functionality
+        setupCountryCopyListener();
+        setupCopyButton();
+    }
 
-        function handleMergeFileDrop(e, imageNumber) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            handleMergeFiles(files, imageNumber);
-        }
-
-        function handleMergeFileSelect(e, imageNumber) {
-            const files = e.target.files;
-            handleMergeFiles(files, imageNumber);
-        }
-
-        function handleMergeFiles(files, imageNumber) {
-            if (files.length === 0) return;
-            
-            const file = files[0];
-            if (!file.type.startsWith('image/')) {
-                showToast('Please select an image file', 'error');
+    function setupImageMerging() {
+        const mergeDropArea1 = document.getElementById('mergeDropArea1');
+        const mergeDropArea2 = document.getElementById('mergeDropArea2');
+        const mergeImagesBtn = document.getElementById('mergeImagesBtn');
+        const clearMergeBtn = document.getElementById('clearMergeBtn');
+        
+        if (!mergeDropArea1 || !mergeDropArea2 || !mergeImagesBtn || !clearMergeBtn) return;
+        
+        setupMergeDropArea(mergeDropArea1, 1);
+        setupMergeDropArea(mergeDropArea2, 2);
+        
+        mergeImagesBtn.addEventListener('click', function() {
+            if (!mergeImage1 || !mergeImage2) {
+                showToast('Please upload both images first', 'error');
                 return;
             }
             
+            const mergeDirection = document.querySelector('input[name="mergeDirection"]:checked').value;
+            const resizeOption = document.querySelector('input[name="resizeOption"]:checked').value;
+            
+            mergeImages(mergeImage1, mergeImage2, mergeDirection, resizeOption)
+                .then(result => {
+                    showToast(result.message);
+                    
+                    uploadedFile = result.file;
+                    document.getElementById('imageDropArea').innerHTML = 
+                        `<p>Merged image: ${result.filename}</p>`;
+                    document.getElementById('imagePreview').src = URL.createObjectURL(result.file);
+                    document.getElementById('imagePreview').style.display = 'block';
+                    
+                    clearMergeAreas();
+                })
+                .catch(error => {
+                    console.error('Error merging images:', error);
+                    showToast('Error merging images: ' + error.message, 'error');
+                });
+        });
+        
+        clearMergeBtn.addEventListener('click', clearMergeAreas);
+    }
+
+    function setupMergeDropArea(dropArea, imageNumber) {
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*';
+        fileInput.style.display = 'none';
+        document.body.appendChild(fileInput);
+        
+        dropArea.addEventListener('click', () => fileInput.click());
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => dropArea.classList.add('highlight'), false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => dropArea.classList.remove('highlight'), false);
+        });
+        
+        dropArea.addEventListener('drop', function(e) {
+            handleMergeFileDrop(e, imageNumber);
+        }, false);
+        
+        fileInput.addEventListener('change', function(e) {
+            handleMergeFileSelect(e, imageNumber);
+        });
+    }
+
+    function handleMergeFileDrop(e, imageNumber) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleMergeFiles(files, imageNumber);
+    }
+
+    function handleMergeFileSelect(e, imageNumber) {
+        const files = e.target.files;
+        handleMergeFiles(files, imageNumber);
+    }
+
+    function handleMergeFiles(files, imageNumber) {
+        if (files.length === 0) return;
+        
+        const file = files[0];
+        if (!file.type.startsWith('image/')) {
+            showToast('Please select an image file', 'error');
+            return;
+        }
+        
+        if (imageNumber === 1) {
+            mergeImage1 = file;
+        } else {
+            mergeImage2 = file;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const htmlContent = '<img src="' + e.target.result + '" style="max-width: 100%; max-height: 70px;">' +
+                               '<div style="font-size: 10px; margin-top: 5px;">' +
+                               file.name + '<br>' + file.type + ' (' + Math.round(file.size / 1024) + 'KB)' +
+                               '</div>';
+            
             if (imageNumber === 1) {
-                mergeImage1 = file;
+                document.getElementById('mergeDropArea1').innerHTML = htmlContent;
             } else {
-                mergeImage2 = file;
+                document.getElementById('mergeDropArea2').innerHTML = htmlContent;
             }
             
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const htmlContent = '<img src="' + e.target.result + '" style="max-width: 100%; max-height: 70px;">' +
-                                   '<div style="font-size: 10px; margin-top: 5px;">' +
-                                   file.name + '<br>' + file.type + ' (' + Math.round(file.size / 1024) + 'KB)' +
-                                   '</div>';
-                
-                if (imageNumber === 1) {
-                    document.getElementById('mergeDropArea1').innerHTML = htmlContent;
-                } else {
-                    document.getElementById('mergeDropArea2').innerHTML = htmlContent;
-                }
-                
-                if (mergeImage1 && mergeImage2) {
-                    document.getElementById('mergeImagesBtn').disabled = false;
-                    showImagePreviews();
-                }
-            };
-            reader.readAsDataURL(file);
-        }
+            if (mergeImage1 && mergeImage2) {
+                document.getElementById('mergeImagesBtn').disabled = false;
+                showImagePreviews();
+            }
+        };
+        reader.readAsDataURL(file);
+    }
 
-        function showImagePreviews() {
-            const previewContainer = document.getElementById('mergePreviewContainer');
-            const imagePreviews = document.getElementById('imagePreviews');
-            const sizeInfo = document.getElementById('sizeInfo');
-            
-            previewContainer.style.display = 'block';
-            imagePreviews.innerHTML = '';
-            
+    function showImagePreviews() {
+        const previewContainer = document.getElementById('mergePreviewContainer');
+        const imagePreviews = document.getElementById('imagePreviews');
+        const sizeInfo = document.getElementById('sizeInfo');
+        
+        if (!previewContainer || !imagePreviews || !sizeInfo) return;
+        
+        previewContainer.style.display = 'block';
+        imagePreviews.innerHTML = '';
+        
+        const reader1 = new FileReader();
+        const reader2 = new FileReader();
+        
+        reader1.onload = function(e1) {
+            reader2.onload = function(e2) {
+                const img1 = new Image();
+                const img2 = new Image();
+                
+                img1.onload = img2.onload = function() {
+                    imagePreviews.innerHTML = '<img src="' + e1.target.result + '" title="Image 1: ' + img1.width + '×' + img1.height + '">' +
+                                             '<img src="' + e2.target.result + '" title="Image 2: ' + img2.width + '×' + img2.height + '">';
+                    
+                    const direction = document.querySelector('input[name="mergeDirection"]:checked').value;
+                    const resizeOption = document.querySelector('input[name="resizeOption"]:checked').value;
+                    
+                    if (resizeOption === 'equal') {
+                        if (direction === 'horizontal') {
+                            const targetHeight = Math.min(img1.height, img2.height);
+                            const width1 = Math.round((targetHeight / img1.height) * img1.width);
+                            const width2 = Math.round((targetHeight / img2.height) * img2.width);
+                            sizeInfo.textContent = 'Merged size: ' + (width1 + width2) + '×' + targetHeight + ' pixels';
+                        } else {
+                            const targetWidth = Math.min(img1.width, img2.width);
+                            const height1 = Math.round((targetWidth / img1.width) * img1.height);
+                            const height2 = Math.round((targetWidth / img2.width) * img2.height);
+                            sizeInfo.textContent = 'Merged size: ' + targetWidth + '×' + (height1 + height2) + ' pixels';
+                        }
+                    } else {
+                        if (direction === 'horizontal') {
+                            sizeInfo.textContent = 'Merged size: ' + (img1.width + img2.width) + '×' + Math.max(img1.height, img2.height) + ' pixels';
+                        } else {
+                            sizeInfo.textContent = 'Merged size: ' + Math.max(img1.width, img2.width) + '×' + (img1.height + img2.height) + ' pixels';
+                        }
+                    }
+                };
+                
+                img1.src = e1.target.result;
+                img2.src = e2.target.result;
+            };
+            reader2.readAsDataURL(mergeImage2);
+        };
+        reader1.readAsDataURL(mergeImage1);
+    }
+
+    function mergeImages(image1, image2, direction, resizeOption) {
+        return new Promise((resolve, reject) => {
             const reader1 = new FileReader();
             const reader2 = new FileReader();
             
@@ -3117,325 +3201,280 @@ def upload_form_page():
                     const img1 = new Image();
                     const img2 = new Image();
                     
-                    img1.onload = img2.onload = function() {
-                        imagePreviews.innerHTML = '<img src="' + e1.target.result + '" title="Image 1: ' + img1.width + '×' + img1.height + '">' +
-                                                 '<img src="' + e2.target.result + '" title="Image 2: ' + img2.width + '×' + img2.height + '">';
-                        
-                        const direction = document.querySelector('input[name="mergeDirection"]:checked').value;
-                        const resizeOption = document.querySelector('input[name="resizeOption"]:checked').value;
-                        
-                        if (resizeOption === 'equal') {
-                            if (direction === 'horizontal') {
-                                const targetHeight = Math.min(img1.height, img2.height);
-                                const width1 = Math.round((targetHeight / img1.height) * img1.width);
-                                const width2 = Math.round((targetHeight / img2.height) * img2.width);
-                                sizeInfo.textContent = 'Merged size: ' + (width1 + width2) + '×' + targetHeight + ' pixels';
-                            } else {
-                                const targetWidth = Math.min(img1.width, img2.width);
-                                const height1 = Math.round((targetWidth / img1.width) * img1.height);
-                                const height2 = Math.round((targetWidth / img2.width) * img2.height);
-                                sizeInfo.textContent = 'Merged size: ' + targetWidth + '×' + (height1 + height2) + ' pixels';
+                    img1.onload = function() {
+                        img2.onload = function() {
+                            try {
+                                const canvas = document.createElement('canvas');
+                                const ctx = canvas.getContext('2d');
+                                
+                                let width1 = img1.width;
+                                let height1 = img1.height;
+                                let width2 = img2.width;
+                                let height2 = img2.height;
+                                
+                                if (resizeOption === 'equal') {
+                                    if (direction === 'horizontal') {
+                                        const targetHeight = Math.min(height1, height2);
+                                        width1 = Math.round((targetHeight / height1) * width1);
+                                        height1 = targetHeight;
+                                        width2 = Math.round((targetHeight / height2) * width2);
+                                        height2 = targetHeight;
+                                    } else {
+                                        const targetWidth = Math.min(width1, width2);
+                                        height1 = Math.round((targetWidth / width1) * height1);
+                                        width1 = targetWidth;
+                                        height2 = Math.round((targetWidth / width2) * height2);
+                                        width2 = targetWidth;
+                                    }
+                                }
+                                
+                                if (direction === 'horizontal') {
+                                    canvas.width = width1 + width2;
+                                    canvas.height = Math.max(height1, height2);
+                                } else {
+                                    canvas.width = Math.max(width1, width2);
+                                    canvas.height = height1 + height2;
+                                }
+                                
+                                if (direction === 'horizontal') {
+                                    ctx.drawImage(img1, 0, 0, width1, height1);
+                                    ctx.drawImage(img2, width1, 0, width2, height2);
+                                } else {
+                                    ctx.drawImage(img1, 0, 0, width1, height1);
+                                    ctx.drawImage(img2, 0, height1, width2, height2);
+                                }
+                                
+                                const outputFormat = image1.type === 'image/jpeg' && image2.type === 'image/jpeg' 
+                                    ? 'image/jpeg' 
+                                    : 'image/png';
+                                
+                                const fileExtension = outputFormat === 'image/jpeg' ? 'jpg' : 'png';
+                                
+                                canvas.toBlob(function(blob) {
+                                    const filename = `merged-${Date.now()}.${fileExtension}`;
+                                    const file = new File([blob], filename, { type: outputFormat });
+                                    
+                                    resolve({
+                                        message: 'Images merged successfully',
+                                        filename: filename,
+                                        file: file,
+                                        format: outputFormat
+                                    });
+                                }, outputFormat, 0.95);
+                                
+                            } catch (error) {
+                                reject(new Error('Failed to merge images: ' + error.message));
                             }
-                        } else {
-                            if (direction === 'horizontal') {
-                                sizeInfo.textContent = 'Merged size: ' + (img1.width + img2.width) + '×' + Math.max(img1.height, img2.height) + ' pixels';
-                            } else {
-                                sizeInfo.textContent = 'Merged size: ' + Math.max(img1.width, img2.width) + '×' + (img1.height + img2.height) + ' pixels';
-                            }
-                        }
+                        };
+                        
+                        img2.onerror = function() {
+                            reject(new Error('Failed to load second image'));
+                        };
+                        
+                        img2.src = e2.target.result;
+                    };
+                    
+                    img1.onerror = function() {
+                        reject(new Error('Failed to load first image'));
                     };
                     
                     img1.src = e1.target.result;
-                    img2.src = e2.target.result;
                 };
-                reader2.readAsDataURL(mergeImage2);
+                
+                reader2.onerror = function() {
+                    reject(new Error('Failed to read second image file'));
+                };
+                
+                reader2.readAsDataURL(image2);
             };
-            reader1.readAsDataURL(mergeImage1);
-        }
-
-        function mergeImages(image1, image2, direction, resizeOption) {
-            return new Promise((resolve, reject) => {
-                const reader1 = new FileReader();
-                const reader2 = new FileReader();
-                
-                reader1.onload = function(e1) {
-                    reader2.onload = function(e2) {
-                        const img1 = new Image();
-                        const img2 = new Image();
-                        
-                        img1.onload = function() {
-                            img2.onload = function() {
-                                try {
-                                    const canvas = document.createElement('canvas');
-                                    const ctx = canvas.getContext('2d');
-                                    
-                                    let width1 = img1.width;
-                                    let height1 = img1.height;
-                                    let width2 = img2.width;
-                                    let height2 = img2.height;
-                                    
-                                    if (resizeOption === 'equal') {
-                                        if (direction === 'horizontal') {
-                                            const targetHeight = Math.min(height1, height2);
-                                            width1 = Math.round((targetHeight / height1) * width1);
-                                            height1 = targetHeight;
-                                            width2 = Math.round((targetHeight / height2) * width2);
-                                            height2 = targetHeight;
-                                        } else {
-                                            const targetWidth = Math.min(width1, width2);
-                                            height1 = Math.round((targetWidth / width1) * height1);
-                                            width1 = targetWidth;
-                                            height2 = Math.round((targetWidth / width2) * height2);
-                                            width2 = targetWidth;
-                                        }
-                                    }
-                                    
-                                    if (direction === 'horizontal') {
-                                        canvas.width = width1 + width2;
-                                        canvas.height = Math.max(height1, height2);
-                                    } else {
-                                        canvas.width = Math.max(width1, width2);
-                                        canvas.height = height1 + height2;
-                                    }
-                                    
-                                    if (direction === 'horizontal') {
-                                        ctx.drawImage(img1, 0, 0, width1, height1);
-                                        ctx.drawImage(img2, width1, 0, width2, height2);
-                                    } else {
-                                        ctx.drawImage(img1, 0, 0, width1, height1);
-                                        ctx.drawImage(img2, 0, height1, width2, height2);
-                                    }
-                                    
-                                    const outputFormat = image1.type === 'image/jpeg' && image2.type === 'image/jpeg' 
-                                        ? 'image/jpeg' 
-                                        : 'image/png';
-                                    
-                                    const fileExtension = outputFormat === 'image/jpeg' ? 'jpg' : 'png';
-                                    
-                                    canvas.toBlob(function(blob) {
-                                        const filename = `merged-${Date.now()}.${fileExtension}`;
-                                        const file = new File([blob], filename, { type: outputFormat });
-                                        
-                                        resolve({
-                                            message: 'Images merged successfully',
-                                            filename: filename,
-                                            file: file,
-                                            format: outputFormat
-                                        });
-                                    }, outputFormat, 0.95);
-                                    
-                                } catch (error) {
-                                    reject(new Error('Failed to merge images: ' + error.message));
-                                }
-                            };
-                            
-                            img2.onerror = function() {
-                                reject(new Error('Failed to load second image'));
-                            };
-                            
-                            img2.src = e2.target.result;
-                        };
-                        
-                        img1.onerror = function() {
-                            reject(new Error('Failed to load first image'));
-                        };
-                        
-                        img1.src = e1.target.result;
-                    };
-                    
-                    reader2.onerror = function() {
-                        reject(new Error('Failed to read second image file'));
-                    };
-                    
-                    reader2.readAsDataURL(image2);
-                };
-                
-                reader1.onerror = function() {
-                    reject(new Error('Failed to read first image file'));
-                };
-                
-                reader1.readAsDataURL(image1);
-            });
-        }
-
-        function clearMergeAreas() {
-            mergeImage1 = null;
-            mergeImage2 = null;
-            document.getElementById('mergeDropArea1').innerHTML = '<p>Drag & drop first image here</p>';
-            document.getElementById('mergeDropArea2').innerHTML = '<p>Drag & drop second image here</p>';
-            document.getElementById('mergeImagesBtn').disabled = true;
-            document.getElementById('mergePreviewContainer').style.display = 'none';
-        }
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        function highlight() {
-            document.getElementById('imageDropArea').classList.add('highlight');
-        }
-
-        function unhighlight() {
-            document.getElementById('imageDropArea').classList.remove('highlight');
-        }
-
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            handleFiles(files);
-        }
-
-        function handleFileSelect(e) {
-            const files = e.target.files;
-            handleFiles(files);
-        }
-
-        function handleFiles(files) {
-            if (files.length === 0) return;
             
-            const file = files[0];
-            const maxSize = 50 * 1024 * 1024;
-            
-            if (file.size > maxSize) {
-                showToast('File is too large. Maximum size is 50MB', 'error');
-                return;
-            }
-            
-            if (!file.type.startsWith('image/')) {
-                showToast('Please select an image file', 'error');
-                return;
-            }
-            
-            uploadedFile = file;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const preview = document.getElementById('imagePreview');
-                preview.src = e.target.result;
-                preview.style.display = 'block';
-                
-                document.getElementById('imageDropArea').innerHTML = 
-                    `<p>${file.name} (${Math.round(file.size / 1024)}KB)</p>`;
+            reader1.onerror = function() {
+                reject(new Error('Failed to read first image file'));
             };
-            reader.readAsDataURL(file);
-        }
-
-        function handleFormSubmit(e) {
-            e.preventDefault();
             
-            const country = document.getElementById('country').value;
-            const currencyType = document.getElementById('currencyType').value;
-            const donorName = document.getElementById('donorName').value;
-            
-            if (!country || !currencyType || !donorName) {
-                showToast('Please fill in all required fields', 'error');
-                return;
-            }
-            
-            if (!uploadedFile) {
-                showToast('Please upload an image', 'error');
-                return;
-            }
-            
-            const formData = new FormData();
-            formData.append('country', country);
-            formData.append('currency_type', currencyType);
-            formData.append('donor_name', donorName);
-            formData.append('note', document.getElementById('note').value);
-            formData.append('size', document.getElementById('size').value);
-            formData.append('year', document.getElementById('year').value);
-            formData.append('hidden_note', document.getElementById('hiddenNote').value);
-            formData.append('file', uploadedFile);
-            
-            showToast('Uploading item...');
-            
-            fetch('/upload', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => { throw new Error(err.message || 'Upload failed') });
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.message) {
-                    showToast(data.message);
-                    resetForm();
-                } else {
-                    showToast(data.error || 'An error occurred', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('Error uploading item: ' + error.message, 'error');
-            });
-        }
-
-        function resetForm() {
-            document.getElementById('uploadForm').reset();
-            document.getElementById('imagePreview').style.display = 'none';
-            document.getElementById('imageDropArea').innerHTML = '<p>Drag & drop an image here or click to select</p>';
-            uploadedFile = null;
-            clearMergeAreas();
-            // Keep the copy section visible but reset selection
-            const existingItemsSelect = document.getElementById('existingItemsSelect');
-            if (existingItemsSelect) {
-                existingItemsSelect.selectedIndex = 0;
-            }
-        }
-
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toastMessage');
-            toast.textContent = message;
-            toast.style.backgroundColor = type === 'success' ? 'rgba(40, 167, 69, 0.9)' : 'rgba(220, 53, 69, 0.9)';
-            toast.style.display = 'block';
-            
-            setTimeout(() => {
-                toast.style.display = 'none';
-            }, 3000);
-        }
-
-       document.addEventListener('DOMContentLoaded', function() {
-    const donorInput = document.getElementById('donor_name');
-    const datalist = document.getElementById('donor-suggestions');
-
-    if (donorInput && datalist) {
-        donorInput.addEventListener('input', function() {
-            const inputVal = this.value.trim();
-            
-            // Wait until the user has typed at least 2 characters to avoid overloading requests
-            if (inputVal.length < 2) {
-                datalist.innerHTML = '';
-                return;
-            }
-            
-            // Query the matching backend endpoint
-            fetch(`/suggest-donors?q=${encodeURIComponent(inputVal)}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(suggestions => {
-                    // Clear out previous suggestions to avoid duplication
-                    datalist.innerHTML = '';
-                    
-                    // Populate the datalist element with matching options
-                    suggestions.forEach(name => {
-                        const option = document.createElement('option');
-                        option.value = name;
-                        datalist.appendChild(option);
-                    });
-                })
-                .catch(error => console.error('Error fetching donor suggestions:', error));
+            reader1.readAsDataURL(image1);
         });
     }
-}); 
-    </script>
+
+    function clearMergeAreas() {
+        mergeImage1 = null;
+        mergeImage2 = null;
+        document.getElementById('mergeDropArea1').innerHTML = '<p>Drag & drop first image here</p>';
+        document.getElementById('mergeDropArea2').innerHTML = '<p>Drag & drop second image here</p>';
+        document.getElementById('mergeImagesBtn').disabled = true;
+        document.getElementById('mergePreviewContainer').style.display = 'none';
+    }
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    function highlight() {
+        document.getElementById('imageDropArea').classList.add('highlight');
+    }
+
+    function unhighlight() {
+        document.getElementById('imageDropArea').classList.remove('highlight');
+    }
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFiles(files);
+    }
+
+    function handleFileSelect(e) {
+        const files = e.target.files;
+        handleFiles(files);
+    }
+
+    function handleFiles(files) {
+        if (files.length === 0) return;
+        
+        const file = files[0];
+        const maxSize = 50 * 1024 * 1024;
+        
+        if (file.size > maxSize) {
+            showToast('File is too large. Maximum size is 50MB', 'error');
+            return;
+        }
+        
+        if (!file.type.startsWith('image/')) {
+            showToast('Please select an image file', 'error');
+            return;
+        }
+        
+        uploadedFile = file;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('imagePreview');
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            
+            document.getElementById('imageDropArea').innerHTML = 
+                `<p>${file.name} (${Math.round(file.size / 1024)}KB)</p>`;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // FIXED: Updated handleFormSubmit to use correct element IDs
+    function handleFormSubmit(e) {
+        e.preventDefault();
+        
+        const country = document.getElementById('country').value;
+        const currencyType = document.getElementById('currencyType').value;
+        const donorName = document.getElementById('donor_name').value;  // FIXED: Use 'donor_name' not 'donorName'
+        
+        if (!country || !currencyType || !donorName) {
+            showToast('Please fill in all required fields', 'error');
+            return;
+        }
+        
+        if (!uploadedFile) {
+            showToast('Please upload an image', 'error');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('country', country);
+        formData.append('currency_type', currencyType);
+        formData.append('donor_name', donorName);
+        formData.append('note', document.getElementById('note').value);
+        formData.append('size', document.getElementById('size').value);
+        formData.append('year', document.getElementById('year').value);
+        formData.append('hidden_note', document.getElementById('hiddenNote').value);
+        formData.append('file', uploadedFile);
+        
+        showToast('Uploading item...');
+        
+        fetch('/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw new Error(err.message || 'Upload failed') });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.message) {
+                showToast(data.message);
+                resetForm();
+                // Reload the JSON data for the copy dropdown after successful upload
+                loadAllJsonData();
+            } else {
+                showToast(data.error || 'An error occurred', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error uploading item: ' + error.message, 'error');
+        });
+    }
+
+    function resetForm() {
+        document.getElementById('uploadForm').reset();
+        document.getElementById('imagePreview').style.display = 'none';
+        document.getElementById('imageDropArea').innerHTML = '<p>Drag & drop an image here or click to select</p>';
+        uploadedFile = null;
+        clearMergeAreas();
+        // Keep the copy section visible but reset selection
+        const existingItemsSelect = document.getElementById('existingItemsSelect');
+        if (existingItemsSelect) {
+            existingItemsSelect.selectedIndex = 0;
+        }
+    }
+
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toastMessage');
+        if (!toast) return;
+        
+        toast.textContent = message;
+        toast.style.backgroundColor = type === 'success' ? 'rgba(40, 167, 69, 0.9)' : 'rgba(220, 53, 69, 0.9)';
+        toast.style.display = 'block';
+        
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3000);
+    }
+
+    // Donor suggestions functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const donorInput = document.getElementById('donor_name');
+        const datalist = document.getElementById('donor-suggestions');
+
+        if (donorInput && datalist) {
+            donorInput.addEventListener('input', function() {
+                const inputVal = this.value.trim();
+                
+                if (inputVal.length < 2) {
+                    datalist.innerHTML = '';
+                    return;
+                }
+                
+                fetch(`/suggest-donors?q=${encodeURIComponent(inputVal)}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(suggestions => {
+                        datalist.innerHTML = '';
+                        suggestions.forEach(name => {
+                            const option = document.createElement('option');
+                            option.value = name;
+                            datalist.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Error fetching donor suggestions:', error));
+            });
+        }
+    });
+</script>
 </body>
 </html>
     '''
