@@ -7409,22 +7409,10 @@ if __name__ == '__main__':
     import webbrowser
     import threading
     import time
-    import os
     
     def open_browser():
         time.sleep(1.5)
-        # Open first URL in new window
-        webbrowser.open('http://localhost:5000/upload-form', new=2)  # new=2 opens in new tab
-        time.sleep(0.5)
-        # Open second URL in another new tab
-        webbrowser.open('http://localhost:5000/edit_json', new=2)
+        webbrowser.open('http://localhost:5000/upload-form')  # Opens the upload form
     
-    # Only auto-open in debug mode and main process
-    debug_mode = True  # Set to False in production
-    if debug_mode and os.environ.get('WERKZEUG_RUN_MAIN') != 'true':
-        threading.Thread(target=open_browser, daemon=True).start()
-        print("🌐 Browser will open automatically...")
-    else:
-        print("🚀 Server running at http://localhost:5000/upload-form")
-    
-    app.run(host='0.0.0.0', port=5000, debug=debug_mode)
+    threading.Thread(target=open_browser, daemon=True).start()
+    app.run(host='0.0.0.0', port=5000, debug=True)
