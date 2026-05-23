@@ -10,10 +10,6 @@ from flask import Flask, flash, request, redirect, render_template, url_for, ses
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
 
-import re
-#import requests
-from bs4 import BeautifulSoup
-
 from datetime import datetime
 import time
 
@@ -131,7 +127,7 @@ def get_json_stats():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-def update_json_file(country, image, note, donor_name, currency_type, size, year, hidden_note="", shape="", thickness=""):
+def update_json_file(country, image, note, donor_name, currency_type, size, year, hidden_note=""):
     """
     Update the coins.json file with the new entry.
     """
@@ -158,12 +154,6 @@ def update_json_file(country, image, note, donor_name, currency_type, size, year
         "timestamp": datetime.now().isoformat()
     }
     
-    # Add optional fields if they have values
-    if shape:
-        new_entry["shape"] = shape
-    if thickness:
-        new_entry["thickness"] = thickness
-    
     # ✅ Add "box" if it was found for the same country
     if box_value is not None:
         new_entry["box"] = box_value
@@ -182,6 +172,7 @@ def update_json_file(country, image, note, donor_name, currency_type, size, year
     global json_cache
     json_cache['data'] = None
     json_cache['timestamp'] = 0
+
 
 @app.route('/delete-image', methods=['POST'])
 def delete_image():
@@ -2327,10 +2318,8 @@ def upload_file():
         size = request.form.get('size', '')
         year = request.form.get('year', '')
         hidden_note = request.form.get('hidden_note', '')
-        shape = request.form.get('shape', '')
-        thickness = request.form.get('thickness', '')
         
-        print(f"Received form data: country={country}, donor={donor_name}, currency={currency_type}, shape={shape}, thickness={thickness}")
+        print(f"Received form data: country={country}, donor={donor_name}, currency={currency_type}")
 
         # Validate required fields
         if not country:
@@ -2355,8 +2344,8 @@ def upload_file():
         # Handle local file upload
         try:
             file_path, file_name = save_file(file, country)
-            # Update the JSON file with all fields including new ones
-            update_json_file(country, file_name, note, donor_name, currency_type, size, year, hidden_note, shape, thickness)
+            # Update the JSON file with all fields including hidden_note
+            update_json_file(country, file_name, note, donor_name, currency_type, size, year, hidden_note)
             return jsonify({
                 "id": os.path.splitext(os.path.basename(file_name))[0],
                 "message": "File uploaded successfully!",
@@ -2367,8 +2356,6 @@ def upload_file():
                 "size": size,
                 "year": year,
                 "hidden_note": hidden_note,
-                "shape": shape,
-                "thickness": thickness,
                 "file_path": file_path,
                 "file_name": file_name
             })
@@ -2443,8 +2430,6 @@ def upload_form_page():
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.15);
             background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
-            color: white;
-            text-decoration: none;
         }
 
         .nav-btn i {
@@ -2696,67 +2681,6 @@ def upload_form_page():
             color: #6c757d;
             margin-top: 8px;
         }
-
-        /* Hidden Note with button styling */
-        .hidden-note-container {
-            display: flex;
-            gap: 10px;
-            align-items: flex-start;
-        }
-        
-        .hidden-note-container textarea {
-            flex: 1;
-        }
-        
-        .scrape-btn {
-            padding: 10px 15px;
-            background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .scrape-btn:hover {
-            background: linear-gradient(135deg, #5a32a3 0%, #4a2885 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(111, 66, 193, 0.3);
-        }
-        
-        .scrape-btn:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        /* Row with two columns */
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        
-        /* Loading spinner for scrape */
-        .scrape-spinner {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 0.8s linear infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
     </style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
@@ -2773,7 +2697,7 @@ def upload_form_page():
         
         <h1>Upload New Collection Item</h1>
         
-        <!-- Copy from existing section -->
+        <!-- NEW: Copy from existing section -->
         <div class="copy-section" id="copySection" style="display: none;">
             <h4><i class="fas fa-copy"></i> Copy from Existing Item</h4>
             <select id="existingItemsSelect">
@@ -2804,56 +2728,36 @@ def upload_form_page():
             </div>
             
             <div class="form-group">
-                <label for="donor_name">Donor Name:</label>
-                <input type="text" 
-                       id="donor_name" 
-                       name="donor_name" 
-                       class="form-control" 
-                       placeholder="Start typing a donor name..." 
-                       autocomplete="off" 
-                       list="donor-suggestions">
-                <datalist id="donor-suggestions"></datalist>
-            </div>
+    <label for="donor_name">Donor Name:</label>
+    <input type="text" 
+           id="donor_name" 
+           name="donor_name" 
+           class="form-control" 
+           placeholder="Start typing a donor name..." 
+           autocomplete="off" 
+           list="donor-suggestions">
+           
+    <datalist id="donor-suggestions"></datalist>
+</div>
             
             <div class="form-group">
                 <label for="note">Note:</label>
                 <textarea id="note" name="note"></textarea>
             </div>
             
-            <!-- NEW: Shape field -->
             <div class="form-group">
-                <label for="shape">Shape:</label>
-                <input type="text" id="shape" name="shape" placeholder="e.g., Round, Scalloped, Polygon, etc.">
-            </div>
-            
-            <!-- NEW: Size and Thickness in two columns -->
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="size">Size (Diameter/Width):</label>
-                    <input type="text" id="size" name="size" placeholder="e.g., 23.5 mm">
-                </div>
-                <div class="form-group">
-                    <label for="thickness">Thickness:</label>
-                    <input type="text" id="thickness" name="thickness" placeholder="e.g., 1.8 mm">
-                </div>
+                <label for="size">Size:</label>
+                <input type="text" id="size" name="size">
             </div>
             
             <div class="form-group">
                 <label for="year">Year:</label>
-                <input type="text" id="year" name="year" placeholder="e.g., 1967">
+                <input type="text" id="year" name="year">
             </div>
             
             <div class="form-group">
-                <label for="hiddenNote">Hidden Note (Numista URL or other info):</label>
-                <div class="hidden-note-container">
-                    <textarea id="hiddenNote" name="hidden_note" placeholder="https://en.numista.com/..."></textarea>
-                    <button type="button" id="scrapeNumistaBtn" class="scrape-btn">
-                        <i class="fas fa-globe"></i> Scrape Numista
-                    </button>
-                </div>
-                <small style="color: #6c757d; display: block; margin-top: 5px;">
-                    <i class="fas fa-info-circle"></i> Enter a Numista URL and click "Scrape Numista" to auto-fill fields
-                </small>
+                <label for="hiddenNote">Hidden Note (Optional):</label>
+                <textarea id="hiddenNote" name="hidden_note" placeholder="Not shown publicly"></textarea>
             </div>
             
             <div class="form-group">
@@ -2904,9 +2808,16 @@ def upload_form_page():
                 </div>
             </div>
             
+            <button type="submit" class="btn btn-primary">Upload Item</button>
+            <button type="button" class="btn" onclick="window.location.href='/edit_json'">Back to Editor</button>
+            
             <div class="footer-buttons">
-                <button type="submit" class="btn btn-primary">Upload Item</button>
-                <button type="button" class="btn btn-danger" onclick="if(confirm('Are you sure?')) window.location.href='/edit_json'">Cancel</button>
+                <a href="http://localhost:5000/edit_json" class="nav-btn" target="_blank">
+                    <i class="fas fa-edit"></i> JSON Editor
+                </a>
+                <a href="http://localhost:5000/root-index" class="nav-btn" target="_blank">
+                    <i class="fas fa-home"></i> Root Index
+                </a>
             </div>
         </form>
     </div>
@@ -2918,7 +2829,7 @@ def upload_form_page():
     let mergeImage1 = null;
     let mergeImage2 = null;
     let countriesData = [];
-    let allJsonData = [];
+    let allJsonData = []; // Store all JSON data for copy functionality
 
     // Load countries on page load
     document.addEventListener('DOMContentLoaded', function() {
@@ -2926,124 +2837,14 @@ def upload_form_page():
         loadAllJsonData();
         setupEventListeners();
         setupImageMerging();
-        setupScrapeButton();
     });
-
-    // Setup Numista scrape button
-    function setupScrapeButton() {
-        const scrapeBtn = document.getElementById('scrapeNumistaBtn');
-        
-        scrapeBtn.addEventListener('click', async function() {
-            const hiddenNote = document.getElementById('hiddenNote').value.trim();
-            
-            if (!hiddenNote) {
-                showToast('Please enter a Numista URL in the Hidden Note field', 'error');
-                return;
-            }
-            
-            // Show loading state
-            const originalText = scrapeBtn.innerHTML;
-            scrapeBtn.innerHTML = '<i class="fas fa-spinner scrape-spinner"></i> Scraping...';
-            scrapeBtn.disabled = true;
-            
-            try {
-                const response = await fetch('/scrape-numista', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ url: hiddenNote })
-                });
-                
-                const result = await response.json();
-                
-                if (result.error) {
-                    showToast('Error: ' + result.error, 'error');
-                } else if (result.data) {
-                    fillFormWithScrapedData(result.data);
-                    showToast('Successfully scraped data from Numista!', 'success');
-                }
-            } catch (error) {
-                console.error('Scraping error:', error);
-                showToast('Error scraping Numista: ' + error.message, 'error');
-            } finally {
-                scrapeBtn.innerHTML = originalText;
-                scrapeBtn.disabled = false;
-            }
-        });
-    }
-    
-    // Fill form with scraped data
-    function fillFormWithScrapedData(data) {
-        // Format and fill Note field
-        if (data.Value || data.Composition) {
-            let noteParts = [];
-            
-            if (data.Value) {
-                let cleanedValue = data.Value.replace(/\\n/g, ' ').replace(/&nbsp;/g, ' ').replace(/\\s+/g, ' ').trim();
-                noteParts.push(cleanedValue);
-            }
-            
-            if (data.Composition) {
-                let cleanedComposition = data.Composition.toLowerCase();
-                noteParts.push(`Composition ${cleanedComposition}`);
-            }
-            
-            if (noteParts.length > 0) {
-                document.getElementById('note').value = noteParts.join('. ');
-            }
-        }
-        
-        // Fill Thickness field
-        if (data.Thickness) {
-            let thickness = data.Thickness.replace(/\\n/g, ' ').replace(/&nbsp;/g, ' ').replace(/\\s+/g, ' ').trim();
-            document.getElementById('thickness').value = thickness;
-        }
-        
-        // Fill Size field (try Diameter first, then Size)
-        if (data.Diameter) {
-            let diameter = data.Diameter.replace(/\\n/g, ' ').replace(/&nbsp;/g, ' ').replace(/\\s+/g, ' ').trim();
-            document.getElementById('size').value = diameter;
-        } else if (data.Size) {
-            let size = data.Size.replace(/\\n/g, ' ').replace(/&nbsp;/g, ' ').replace(/\\s+/g, ' ').trim();
-            document.getElementById('size').value = size;
-        }
-        
-        // Fill Shape field
-        if (data.Shape) {
-            let shape = data.Shape.replace(/\\n/g, ' ').replace(/&nbsp;/g, ' ').replace(/\\s+/g, ' ').trim();
-            document.getElementById('shape').value = shape;
-        }
-        
-        // Fill Year if available and year field is empty
-        if (data.Year && !document.getElementById('year').value) {
-            let year = data.Year.replace(/\\n/g, ' ').replace(/&nbsp;/g, ' ').replace(/\\s+/g, ' ').trim();
-            const yearMatch = year.match(/\\b(\\d{4})\\b/);
-            if (yearMatch) {
-                document.getElementById('year').value = yearMatch[1];
-            } else {
-                document.getElementById('year').value = year;
-            }
-        }
-        
-        // Highlight filled fields briefly
-        const fields = ['note', 'thickness', 'size', 'shape', 'year'];
-        fields.forEach(field => {
-            const element = document.getElementById(field);
-            if (element && element.value) {
-                element.style.backgroundColor = '#e8f5e9';
-                setTimeout(() => {
-                    element.style.backgroundColor = '';
-                }, 1000);
-            }
-        });
-    }
 
     function loadAllJsonData() {
         fetch('/get-all-json')
             .then(response => response.json())
             .then(data => {
                 allJsonData = data;
+                // Populate the copy dropdown after loading data
                 populateExistingItemsDropdown();
             })
             .catch(error => {
@@ -3060,6 +2861,7 @@ def upload_form_page():
             })
             .catch(error => {
                 console.error("Error loading countries:", error);
+                // Fallback countries
                 countriesData = [
                     {name: "United States"}, {name: "Canada"}, {name: "United Kingdom"},
                     {name: "Germany"}, {name: "France"}, {name: "Japan"},
@@ -3082,6 +2884,7 @@ def upload_form_page():
         });
     }
 
+    // Populate the existing items dropdown for copy functionality
     function populateExistingItemsDropdown() {
         const existingItemsSelect = document.getElementById('existingItemsSelect');
         if (!existingItemsSelect) return;
@@ -3099,6 +2902,7 @@ def upload_form_page():
         });
     }
 
+    // When country is selected, filter existing items
     function setupCountryCopyListener() {
         const countrySelect = document.getElementById('country');
         const copySection = document.getElementById('copySection');
@@ -3114,9 +2918,11 @@ def upload_form_page():
                 return;
             }
             
+            // Find existing items for this country
             const existingItems = allJsonData.filter(item => item.country === selectedCountry);
             
             if (existingItems.length > 0) {
+                // Populate the dropdown with existing items for this country
                 existingItemsSelect.innerHTML = '<option value="">Select an existing item to copy from</option>';
                 existingItems.forEach((item, index) => {
                     const option = document.createElement('option');
@@ -3135,6 +2941,7 @@ def upload_form_page():
         });
     }
     
+    // Copy data from selected existing item
     function setupCopyButton() {
         const copyBtn = document.getElementById('copyExistingBtn');
         const existingItemsSelect = document.getElementById('existingItemsSelect');
@@ -3150,14 +2957,14 @@ def upload_form_page():
             
             const itemToCopy = JSON.parse(selectedOption.dataset.item);
             
+            // Fill the form with copied data (excluding image)
+            // FIXED: Use correct element IDs (donor_name instead of donorName)
             const currencyTypeEl = document.getElementById('currencyType');
             const donorNameEl = document.getElementById('donor_name');
             const noteEl = document.getElementById('note');
             const sizeEl = document.getElementById('size');
             const yearEl = document.getElementById('year');
             const hiddenNoteEl = document.getElementById('hiddenNote');
-            const shapeEl = document.getElementById('shape');
-            const thicknessEl = document.getElementById('thickness');
             
             if (currencyTypeEl) currencyTypeEl.value = itemToCopy.currency_type || 'coin';
             if (donorNameEl) donorNameEl.value = itemToCopy.donor_name || '';
@@ -3165,15 +2972,15 @@ def upload_form_page():
             if (sizeEl) sizeEl.value = itemToCopy.size || '';
             if (yearEl) yearEl.value = itemToCopy.year || '';
             if (hiddenNoteEl) hiddenNoteEl.value = itemToCopy.hidden_note || '';
-            if (shapeEl && itemToCopy.shape) shapeEl.value = itemToCopy.shape;
-            if (thicknessEl && itemToCopy.thickness) thicknessEl.value = itemToCopy.thickness;
             
+            // Show success message
             showToast(`Copied data from existing item for ${itemToCopy.country}`, 'success');
             
-            const fields = ['currencyType', 'donor_name', 'note', 'size', 'year', 'shape', 'thickness'];
+            // Optionally highlight the filled fields
+            const fields = ['currencyType', 'donor_name', 'note', 'size', 'year'];
             fields.forEach(field => {
                 const element = document.getElementById(field);
-                if (element && element.value) {
+                if (element) {
                     element.style.backgroundColor = '#e8f5e9';
                     setTimeout(() => {
                         element.style.backgroundColor = '';
@@ -3207,6 +3014,7 @@ def upload_form_page():
         fileInput.addEventListener('change', handleFileSelect, false);
         document.getElementById('uploadForm').addEventListener('submit', handleFormSubmit);
         
+        // Setup copy functionality
         setupCountryCopyListener();
         setupCopyButton();
     }
@@ -3551,12 +3359,13 @@ def upload_form_page():
         reader.readAsDataURL(file);
     }
 
+    // FIXED: Updated handleFormSubmit to use correct element IDs
     function handleFormSubmit(e) {
         e.preventDefault();
         
         const country = document.getElementById('country').value;
         const currencyType = document.getElementById('currencyType').value;
-        const donorName = document.getElementById('donor_name').value;
+        const donorName = document.getElementById('donor_name').value;  // FIXED: Use 'donor_name' not 'donorName'
         
         if (!country || !currencyType || !donorName) {
             showToast('Please fill in all required fields', 'error');
@@ -3576,8 +3385,6 @@ def upload_form_page():
         formData.append('size', document.getElementById('size').value);
         formData.append('year', document.getElementById('year').value);
         formData.append('hidden_note', document.getElementById('hiddenNote').value);
-        formData.append('shape', document.getElementById('shape').value);
-        formData.append('thickness', document.getElementById('thickness').value);
         formData.append('file', uploadedFile);
         
         showToast('Uploading item...');
@@ -3596,6 +3403,7 @@ def upload_form_page():
             if (data.message) {
                 showToast(data.message);
                 resetForm();
+                // Reload the JSON data for the copy dropdown after successful upload
                 loadAllJsonData();
             } else {
                 showToast(data.error || 'An error occurred', 'error');
@@ -3613,6 +3421,7 @@ def upload_form_page():
         document.getElementById('imageDropArea').innerHTML = '<p>Drag & drop an image here or click to select</p>';
         uploadedFile = null;
         clearMergeAreas();
+        // Keep the copy section visible but reset selection
         const existingItemsSelect = document.getElementById('existingItemsSelect');
         if (existingItemsSelect) {
             existingItemsSelect.selectedIndex = 0;
@@ -3633,121 +3442,44 @@ def upload_form_page():
     }
 
     // Donor suggestions functionality
-    const donorInput = document.getElementById('donor_name');
-    const datalist = document.getElementById('donor-suggestions');
+    document.addEventListener('DOMContentLoaded', function() {
+        const donorInput = document.getElementById('donor_name');
+        const datalist = document.getElementById('donor-suggestions');
 
-    if (donorInput && datalist) {
-        donorInput.addEventListener('input', function() {
-            const inputVal = this.value.trim();
-            
-            if (inputVal.length < 2) {
-                datalist.innerHTML = '';
-                return;
-            }
-            
-            fetch(`/suggest-donors?q=${encodeURIComponent(inputVal)}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(suggestions => {
+        if (donorInput && datalist) {
+            donorInput.addEventListener('input', function() {
+                const inputVal = this.value.trim();
+                
+                if (inputVal.length < 2) {
                     datalist.innerHTML = '';
-                    suggestions.forEach(name => {
-                        const option = document.createElement('option');
-                        option.value = name;
-                        datalist.appendChild(option);
-                    });
-                })
-                .catch(error => console.error('Error fetching donor suggestions:', error));
-        });
-    }
+                    return;
+                }
+                
+                fetch(`/suggest-donors?q=${encodeURIComponent(inputVal)}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(suggestions => {
+                        datalist.innerHTML = '';
+                        suggestions.forEach(name => {
+                            const option = document.createElement('option');
+                            option.value = name;
+                            datalist.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Error fetching donor suggestions:', error));
+            });
+        }
+    });
 </script>
 </body>
 </html>
     '''
 
-@app.route('/scrape-numista', methods=['POST'])
-def scrape_numista():
-    """Scrape Numista URL and return extracted data"""
-    try:
-        data = request.get_json()
-        url = data.get('url', '').strip()
-        
-        if not url:
-            return jsonify({"error": "No URL provided"}), 400
-        
-        print(f"Scraping Numista URL: {url}")
-        
-        # Headers to avoid being blocked
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept-Language': 'en-US,en;q=0.9',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        }
-        
-        session = requests.Session()
-        response = session.get(url, headers=headers, timeout=15)
-        
-        if response.status_code != 200:
-            return jsonify({"error": f"Failed to load page. Status code: {response.status_code}"}), 400
-        
-        soup = BeautifulSoup(response.text, 'html.parser')
-        features = {}
-        
-        # Look for the coin features table by ID
-        features_table = soup.find('table', {'id': 'coin_features'})
-        
-        if not features_table:
-            # Fallback: look for any table containing "Issuer" (common in features section)
-            issuer_th = soup.find('th', string=lambda x: x and 'Issuer' in x)
-            if issuer_th:
-                features_table = issuer_th.find_parent('table')
-        
-        if features_table:
-            for row in features_table.find_all('tr'):
-                th = row.find('th')
-                td = row.find('td')
-                if th and td:
-                    key = th.get_text(strip=True)
-                    value = td.get_text(strip=True).replace('\\xa0', ' ').replace("\n", " ").replace("&nbsp", " ").replace("mm", " ").strip()
-                    features[key] = value
-            
-            # Map Numista fields to our form fields
-            result = {}
-            
-            field_mappings = {
-                'Value': 'Value',
-                'Composition': 'Composition',
-                'Diameter': 'Diameter',
-                'Size': 'Size',
-                'Thickness': 'Thickness',
-                'Shape': 'Shape',
-                'Year': 'Year'
-            }
-            
-            for numista_key, form_key in field_mappings.items():
-                if numista_key in features:
-                    result[form_key] = features[numista_key]
-            
-            return jsonify({
-                "success": True,
-                "data": result,
-                "url": url
-            })
-        else:
-            return jsonify({"error": "Could not find the Features section on this page."}), 404
-            
-    except requests.exceptions.Timeout:
-        return jsonify({"error": "Request timed out. Please try again."}), 408
-    except requests.exceptions.RequestException as e:
-        return jsonify({"error": f"Network error: {str(e)}"}), 500
-    except Exception as e:
-        print(f"Scraping error: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+
 
 @app.route('/merge-images-upload', methods=['POST'])
 def merge_images_upload():
