@@ -2382,6 +2382,7 @@ def upload_file():
         traceback.print_exc()
         return jsonify({"message": "Server error!", "error": str(e)}), 500
 
+
 @app.route('/upload-form')
 def upload_form_page():
     """Serve the upload form page with image merging functionality and copy from existing feature"""
@@ -2563,17 +2564,6 @@ def upload_form_page():
             box-shadow: 0 4px 8px rgba(23, 162, 184, 0.3);
         }
 
-        /* NEW: Move Images button styling */
-        .btn-move {
-            background: linear-gradient(135deg, #fd7e14 0%, #e8590c 100%);
-        }
-
-        .btn-move:hover {
-            background: linear-gradient(135deg, #e8590c 0%, #d9480f 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(253, 126, 20, 0.3);
-        }
-
         .image-preview {
             max-width: 100%;
             max-height: 200px;
@@ -2583,58 +2573,17 @@ def upload_form_page():
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        /* NEW: Toast message styling for move operation */
         .toast-message {
             position: fixed;
             top: 20px;
             right: 20px;
-            background-color: rgba(40, 167, 69, 0.95);
+            background-color: rgba(40, 167, 69, 0.9);
             color: white;
             padding: 15px 20px;
-            border-radius: 8px;
+            border-radius: 6px;
             z-index: 1000;
             display: none;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            font-size: 14px;
-            font-weight: 500;
-            min-width: 250px;
-            text-align: center;
-            animation: slideIn 0.3s ease;
-        }
-
-        .toast-message.error {
-            background-color: rgba(220, 53, 69, 0.95);
-        }
-
-        .toast-message.warning {
-            background-color: rgba(255, 193, 7, 0.95);
-            color: #333;
-        }
-
-        .toast-message.info {
-            background-color: rgba(23, 162, 184, 0.95);
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideOut {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(100%);
-                opacity: 0;
-            }
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .merge-controls {
@@ -2808,18 +2757,6 @@ def upload_form_page():
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-
-        /* Loading spinner for move button */
-        .move-spinner {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 0.8s linear infinite;
-            margin-right: 8px;
-        }
     </style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
@@ -2835,23 +2772,6 @@ def upload_form_page():
         </div>
         
         <h1>Upload New Collection Item</h1>
-        
-        <!-- NEW: Move Images to Done Button Section -->
-        <div class="copy-section" style="border-left-color: #fd7e14; margin-bottom: 20px;">
-            <h4 style="color: #fd7e14;">
-                <i class="fas fa-folder-open"></i> Image Management
-            </h4>
-            <p style="margin-bottom: 15px; font-size: 14px; color: #666;">
-                <i class="fas fa-info-circle"></i> Move all images from your Pictures folder to the "Done" subfolder.
-                This helps organize your source images after uploading.
-            </p>
-            <button id="moveImagesBtn" class="copy-btn" style="background: linear-gradient(135deg, #fd7e14 0%, #e8590c 100%);">
-                <i class="fas fa-arrow-right"></i> Move Images to Done Folder
-            </button>
-            <div id="moveStatus" style="margin-top: 10px; font-size: 13px; color: #666; display: none;">
-                <i class="fas fa-spinner fa-spin"></i> <span id="moveStatusText">Processing...</span>
-            </div>
-        </div>
         
         <!-- Copy from existing section -->
         <div class="copy-section" id="copySection" style="display: none;">
@@ -3000,95 +2920,6 @@ def upload_form_page():
     let countriesData = [];
     let allJsonData = [];
 
-    // NEW: Move images functionality
-    function setupMoveImagesButton() {
-        const moveBtn = document.getElementById('moveImagesBtn');
-        const moveStatus = document.getElementById('moveStatus');
-        const moveStatusText = document.getElementById('moveStatusText');
-        
-        moveBtn.addEventListener('click', async function() {
-            // Disable button and show loading state
-            const originalText = moveBtn.innerHTML;
-            moveBtn.innerHTML = '<span class="move-spinner"></span> Moving...';
-            moveBtn.disabled = true;
-            
-            // Show status area
-            moveStatus.style.display = 'block';
-            moveStatusText.innerHTML = 'Scanning Pictures folder...';
-            
-            try {
-                const response = await fetch('/move-images-to-done', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                const result = await response.json();
-                
-                if (result.error) {
-                    showToast('Error: ' + result.error, 'error');
-                    moveStatusText.innerHTML = '❌ Error: ' + result.error;
-                    moveStatus.style.backgroundColor = 'rgba(220, 53, 69, 0.1)';
-                    moveStatus.style.padding = '8px 12px';
-                    moveStatus.style.borderRadius = '6px';
-                } else {
-                    showToast(result.message, 'success');
-                    let statusHtml = `✅ ${result.message}<br>`;
-                    statusHtml += `📁 Source: ${result.source_folder}<br>`;
-                    statusHtml += `📂 Destination: ${result.destination_folder}`;
-                    moveStatusText.innerHTML = statusHtml;
-                    moveStatus.style.backgroundColor = 'rgba(40, 167, 69, 0.1)';
-                    moveStatus.style.padding = '8px 12px';
-                    moveStatus.style.borderRadius = '6px';
-                    
-                    // Auto-hide status after 8 seconds
-                    setTimeout(() => {
-                        moveStatus.style.display = 'none';
-                        moveStatus.style.backgroundColor = '';
-                    }, 8000);
-                }
-            } catch (error) {
-                console.error('Move images error:', error);
-                showToast('Error moving images: ' + error.message, 'error');
-                moveStatusText.innerHTML = '❌ Error: ' + error.message;
-                moveStatus.style.backgroundColor = 'rgba(220, 53, 69, 0.1)';
-                moveStatus.style.padding = '8px 12px';
-                moveStatus.style.borderRadius = '6px';
-            } finally {
-                // Restore button
-                moveBtn.innerHTML = originalText;
-                moveBtn.disabled = false;
-            }
-        });
-    }
-
-    // Enhanced toast message function with types
-    function showToast(message, type = 'success') {
-        const toast = document.getElementById('toastMessage');
-        if (!toast) return;
-        
-        toast.textContent = message;
-        toast.className = 'toast-message';
-        if (type === 'error') {
-            toast.classList.add('error');
-        } else if (type === 'warning') {
-            toast.classList.add('warning');
-        } else if (type === 'info') {
-            toast.classList.add('info');
-        }
-        toast.style.display = 'block';
-        
-        setTimeout(() => {
-            toast.style.animation = 'slideOut 0.3s ease';
-            setTimeout(() => {
-                toast.style.display = 'none';
-                toast.style.animation = '';
-                toast.className = 'toast-message';
-            }, 300);
-        }, 4000);
-    }
-
     // Load countries on page load
     document.addEventListener('DOMContentLoaded', function() {
         loadCountries();
@@ -3096,7 +2927,6 @@ def upload_form_page():
         setupEventListeners();
         setupImageMerging();
         setupScrapeButton();
-        setupMoveImagesButton();  // NEW: Initialize move images button
     });
 
     // Setup Numista scrape button
@@ -3750,7 +3580,7 @@ def upload_form_page():
         formData.append('thickness', document.getElementById('thickness').value);
         formData.append('file', uploadedFile);
         
-        showToast('Uploading item...', 'info');
+        showToast('Uploading item...');
         
         fetch('/upload', {
             method: 'POST',
@@ -3789,6 +3619,19 @@ def upload_form_page():
         }
     }
 
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toastMessage');
+        if (!toast) return;
+        
+        toast.textContent = message;
+        toast.style.backgroundColor = type === 'success' ? 'rgba(40, 167, 69, 0.9)' : 'rgba(220, 53, 69, 0.9)';
+        toast.style.display = 'block';
+        
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3000);
+    }
+
     // Donor suggestions functionality
     const donorInput = document.getElementById('donor_name');
     const datalist = document.getElementById('donor-suggestions');
@@ -3824,81 +3667,6 @@ def upload_form_page():
 </body>
 </html>
     '''
-
-@app.route('/move-images-to-done', methods=['POST'])
-def move_images_to_done():
-    """Move image files from Pictures folder to Done subfolder"""
-    import os
-    import shutil
-    from pathlib import Path
-    
-    try:
-        # Define the source folder (Pictures folder)
-        # You can modify this path as needed
-        source_dir = Path(r"C:\Users\75MAMIRUZZAM\OneDrive - West Chester University of PA\Pictures")
-        target_dir = source_dir / "Done"
-        
-        # Check if source directory exists
-        if not source_dir.exists():
-            return jsonify({
-                "error": f"Source folder not found: {source_dir}"
-            }), 404
-        
-        # Create the "Done" folder if it doesn't exist
-        target_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Define image extensions to move
-        image_extensions = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp"}
-        
-        # Loop through files and move them
-        moved_count = 0
-        moved_files = []
-        skipped_files = []
-        
-        for file_path in source_dir.iterdir():
-            # Make sure it's a file and matches an image extension (case-insensitive)
-            if file_path.is_file() and file_path.suffix.lower() in image_extensions:
-                destination = target_dir / file_path.name
-                
-                # Handle duplicate filenames
-                if destination.exists():
-                    base = destination.stem
-                    ext = destination.suffix
-                    counter = 1
-                    while destination.exists():
-                        new_name = f"{base}_{counter}{ext}"
-                        destination = target_dir / new_name
-                        counter += 1
-                
-                # Move the file
-                shutil.move(str(file_path), str(destination))
-                moved_count += 1
-                moved_files.append(file_path.name)
-                print(f"Moved: {file_path.name}")
-        
-        # Prepare response message
-        if moved_count > 0:
-            message = f"Success! {moved_count} image(s) moved to Done folder."
-            if moved_count == 1:
-                message = f"Success! 1 image moved to Done folder."
-        else:
-            message = "No image files found to move."
-        
-        return jsonify({
-            "message": message,
-            "moved_count": moved_count,
-            "moved_files": moved_files[:10],  # Return first 10 for display
-            "source_folder": str(source_dir),
-            "destination_folder": str(target_dir)
-        }), 200
-        
-    except Exception as e:
-        print(f"Error moving images: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({
-            "error": f"Failed to move images: {str(e)}"
-        }), 500
 
 @app.route('/scrape-numista', methods=['POST'])
 def scrape_numista():
