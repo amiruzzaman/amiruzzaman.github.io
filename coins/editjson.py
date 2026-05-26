@@ -64,7 +64,8 @@ os.makedirs(IMAGE_FOLDER, exist_ok=True)  # Ensure the folder exists
 ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 # Load countries data
-COUNTRIES_FILE_PATH = './countries.json'
+# COUNTRIES_FILE_PATH = './countries.json'
+COUNTRIES_FILE_PATH = 'static/countries.json'
 def load_countries():
     if os.path.exists(COUNTRIES_FILE_PATH):
         with open(COUNTRIES_FILE_PATH, 'r', encoding='utf-8') as f:

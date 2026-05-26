@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pure JS WiFi QR Code Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #212529;
+            --primary-color: #0d6efd;
+            --primary-hover: #0b5ed7;
+            --border-color: #ced4da;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin-top: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6c757d;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.15s ease-in-out;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .checkbox-group input {
+            margin-right: 10px;
+            width: 16px;
+            height: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.15s ease-in-out;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* QR Code Output Section */
+        #output-card {
+            display: none;
+            text-align: center;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        #qrcode canvas, #qrcode img {
+            padding: 10px;
+            background: white;
+            border: 1px solid var(--border-color);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .print-btn {
+            background-color: #6c757d;
+        }
+        
+        .print-btn:hover {
+            background-color: #5c636a;
+        }
+
+        .download-btn {
+            background-color: #198754;
+        }
+
+        .download-btn:hover {
+            background-color: #157347;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        /* Print layout adjustments */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #output-card, #output-card * {
+                visibility: visible;
+            }
+            #output-card {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                box-shadow: none;
+                padding: 0;
+            }
+            .button-group {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>QiFi</h1>
+        <p class="subtitle">Pure JS WiFi QR Code Generator</p>
+
+        <div class="card">
+            <form id="wifi-form" onsubmit="generateQR(event)">
+                <div class="form-group">
+                    <label for="ssid">SSID</label>
+                    <input type="text" id="ssid" required placeholder="Network Name">
+                </div>
+
+                <div class="form-group">
+                    <label for="encryption">Encryption</label>
+                    <select id="encryption" onchange="togglePasswordRequired()">
+                        <option value="WPA">WPA/WPA2</option>
+                        <option value="WEP">WEP</option>
+                        <option value="nopass">None</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="password-group">
+                    <label for="password">Key</label>
+                    <input type="password" id="password" placeholder="Password">
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="hidden">
+                    <label for="hidden">Hidden SSID</label>
+                </div>
+
+                <button type="submit">Generate!</button>
+            </form>
+        </div>
+
+        <div id="output-card">
+            <h2 id="print-ssid" style="margin-top:0;"></h2>
+            <div id="qrcode"></div>
+            <p style="color: #6c757d; font-size: 0.9rem;">Scan this QR code with your phone's camera to connect automatically.</p>
+            <div class="button-group">
+                <button class="print-btn" onclick="window.print()">Print</button>
+                <button class="download-btn" onclick="downloadPNG()">Export PNG</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Your data never leaves your browser. Generated locally.</p>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const ssidInput = document.getElementById('ssid');
+        const encryptionInput = document.getElementById('encryption');
+        const passwordInput = document.getElementById('password');
+        const passwordGroup = document.getElementById('password-group');
+        const hiddenInput = document.getElementById('hidden');
+        const outputCard = document.getElementById('output-card');
+        const qrcodeContainer = document.getElementById('qrcode');
+        const printSsidHeader = document.getElementById('print-ssid');
+
+        let qrCodeInstance = null;
+
+        // Load saved SSID from localStorage if it exists
+        window.onload = function() {
+            if (localStorage.getItem('wifi_ssid')) {
+                ssidInput.value = localStorage.getItem('wifi_ssid');
+            }
+            togglePasswordRequired();
+        };
+
+        // Show/Hide password field based on encryption type
+        function togglePasswordRequired() {
+            if (encryptionInput.value === 'nopass') {
+                passwordGroup.style.display = 'none';
+                passwordInput.removeAttribute('required');
+                passwordInput.value = '';
+            } else {
+                passwordGroup.style.display = 'block';
+                passwordInput.setAttribute('required', 'required');
+            }
+        }
+
+        // Generate the properly formatted WiFi String and QR code
+        function generateQR(event) {
+            event.preventDefault(); 
+
+            const ssid = ssidInput.value;
+            const encryption = encryptionInput.value;
+            const password = passwordInput.value;
+            const isHidden = hiddenInput.checked;
+
+            // Save SSID locally
+            localStorage.setItem('wifi_ssid', ssid);
+
+            // Escape special characters (, ; : \ ) in SSID and Password
+            const escapeString = (str) => str.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/:/g, '\\:').replace(/,/g, '\\,');
+            
+            let qrString = `WIFI:S:${escapeString(ssid)};T:${encryption};`;
+            if (encryption !== 'nopass') {
+                qrString += `P:${escapeString(password)};`;
+            }
+            if (isHidden) {
+                qrString += `H:true;`;
+            }
+            qrString += ';';
+
+            // Clear previous QR code
+            qrcodeContainer.innerHTML = '';
+
+            // Generate new QR code
+            qrCodeInstance = new QRCode(qrcodeContainer, {
+                text: qrString,
+                width: 250,
+                height: 250,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.M
+            });
+
+            // Update UI
+            printSsidHeader.textContent = ssid;
+            outputCard.style.display = 'block';
+            
+            // Smooth scroll to the output
+            outputCard.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Handle the client-side PNG compilation and download
+        function downloadPNG() {
+            // Locate the canvas element created inside the qrcode container
+            const canvas = qrcodeContainer.querySelector('canvas');
+            
+            if (canvas) {
+                // Convert canvas data to a downloadable URL
+                const imageURI = canvas.toDataURL("image/png");
+                
+                // Formulate a clean filename using the network's SSID
+                const safeSSID = ssidInput.value.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                const filename = `wifi_qr_${safeSSID || 'code'}.png`;
+                
+                // Create a temporary hidden anchor element to force the file download trigger
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = imageURI;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                alert("Could not process the QR image. Please try generating it again.");
+            }
+        }
+    </script>
+</body>
+</html>
