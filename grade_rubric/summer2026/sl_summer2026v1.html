@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SL Report Summer 2026 Rubric Grading – Covertype</title>
+    <style>
+        :root {
+            --positive-color: #e8f5e9;
+            --positive-selected: #81c784;
+            /* darker green */
+            --negative-color: #ffebee;
+            --negative-selected: #e57373;
+            /* darker red */
+            --border-color: #ddd;
+            --header-bg: #f5f5f5;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .rubric-section {
+            flex: 2;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-section {
+            flex: 1;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 15px;
+            height: fit-content;
+            /* REDUCED FONT SIZE for summary area */
+            font-size: 0.85rem;
+        }
+
+        /* also shrink table cells slightly for better fit */
+        .summary-table th,
+        .summary-table td {
+            padding: 6px 6px;
+            font-size: 0.80rem;
+        }
+
+        .summary-table th {
+            background-color: var(--header-bg);
+        }
+
+        .section-header {
+            background-color: var(--header-bg);
+            padding: 10px 15px;
+            margin: 15px 0 10px;
+            border-left: 4px solid #4CAF50;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .section-header span {
+            flex: 1;
+        }
+
+        .section-buttons {
+            display: flex;
+            gap: 6px;
+            margin-left: 10px;
+        }
+
+        .section-buttons button {
+            background-color: #6c757d;
+            padding: 4px 10px;
+            font-size: 12px;
+            border-radius: 12px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .section-buttons button:hover {
+            background-color: #5a6268;
+        }
+
+        .section-buttons .select-positive-btn {
+            background-color: #2e7d32;
+        }
+
+        .section-buttons .select-positive-btn:hover {
+            background-color: #1b5e20;
+        }
+
+        .section-buttons .select-negative-btn {
+            background-color: #c62828;
+        }
+
+        .section-buttons .select-negative-btn:hover {
+            background-color: #b71c1c;
+        }
+
+        .subsection-header {
+            background-color: #f0f0f0;
+            padding: 8px 12px;
+            margin: 10px 0 5px;
+            border-left: 3px solid #2196F3;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .item-list {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .item {
+            padding: 8px 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .item:hover {
+            opacity: 0.8;
+        }
+
+        .positive-item {
+            background-color: var(--positive-color);
+            border-left: 3px solid #4CAF50;
+        }
+
+        .negative-item {
+            background-color: var(--negative-color);
+            border-left: 3px solid #F44336;
+        }
+
+        .selected-positive {
+            background-color: var(--positive-selected) !important;
+            font-weight: 500;
+        }
+
+        .selected-negative {
+            background-color: var(--negative-selected) !important;
+            font-weight: 500;
+        }
+
+        .feedback-textarea {
+            width: 100%;
+            min-height: 80px;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .controls {
+            margin: 20px 0;
+            text-align: center;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #resetBtn {
+            background-color: #f44336;
+        }
+
+        #resetBtn:hover {
+            background-color: #d32f2f;
+        }
+
+        .group-copy-btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+
+        .group-copy-btns button {
+            background-color: #9C27B0;
+            font-size: 14px;
+            padding: 6px 12px;
+            flex: 1 0 auto;
+        }
+
+        .group-copy-btns button:hover {
+            background-color: #7B1FA2;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        .summary-table th,
+        .summary-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .summary-table tbody tr {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .summary-table tbody tr:hover {
+            background-color: #f0f7ff;
+        }
+
+        .total-row {
+            font-weight: bold;
+            background-color: #e3f2fd;
+        }
+
+        .output-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .editable {
+            outline: none;
+            border: 1px dashed transparent;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+
+        .editable:focus {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .point-input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .point-input-group input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .point-input-group button {
+            padding: 8px 16px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .point-input-group button:hover {
+            background-color: #1976D2;
+        }
+
+        .point-input-group .reset-point-btn {
+            background-color: #ff9800;
+        }
+
+        .point-input-group .reset-point-btn:hover {
+            background-color: #fb8c00;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+
+        .form-control:focus {
+            border-color: #2196F3;
+            outline: none;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .modal-btn-primary {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+        }
+
+        .modal-btn-primary:hover {
+            background-color: #45a049;
+        }
+
+        .modal-btn-secondary {
+            background-color: #f5f5f5;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .modal-btn-secondary:hover {
+            background-color: #e9e9e9;
+        }
+
+        .modal-btn-danger {
+            background-color: #f44336;
+            color: white;
+            border: none;
+        }
+
+        .modal-btn-danger:hover {
+            background-color: #d32f2f;
+        }
+
+        .predefined-feedback {
+            margin: 10px 0;
+        }
+
+        .predefined-comment {
+            display: block;
+            width: 100%;
+            padding: 8px 12px;
+            margin: 5px 0;
+            background-color: #f0f8ff;
+            border: 1px solid #b3d9ff;
+            color: #333;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .predefined-comment:hover {
+            background-color: #92d841;
+        }
+
+        .predefined-comment.selected {
+            background-color: #cce5ff;
+            border-color: #66b3ff;
+        }
+
+        .feedback-controls {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .feedback-controls button {
+            padding: 6px 12px;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .global-comment-box {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #fef9e7;
+            border-left: 4px solid #ff9800;
+            border-radius: 4px;
+        }
+
+        .global-comment-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .global-comment-row input {
+            flex: 1 1 200px;
+            padding: 8px;
+            border: 1px solid #ffe0b2;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .global-comment-row select {
+            flex: 1 1 250px;
+            padding: 8px;
+            border: 1px solid #ffe0b2;
+            border-radius: 4px;
+            background: white;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .global-comment-row textarea {
+            flex: 2 1 300px;
+            min-height: 60px;
+            padding: 8px;
+            border: 1px solid #ffe0b2;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .global-comment-hint {
+            font-size: 0.9em;
+            color: #bf7f00;
+            margin-top: 5px;
+        }
+
+        .section-highlight {
+            animation: highlightPulse 1.5s ease-out;
+        }
+
+        @keyframes highlightPulse {
+            0% {
+                background-color: transparent;
+            }
+
+            30% {
+                background-color: #fff9c4;
+            }
+
+            100% {
+                background-color: transparent;
+            }
+        }
+
+        .max-point-hint {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        /* next section button style */
+        .next-section-btn {
+            background-color: #03a9f4;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 6px 18px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(3, 169, 244, 0.3);
+            transition: all 0.2s;
+            margin-top: 8px;
+            margin-bottom: 4px;
+            display: inline-block;
+        }
+
+        .next-section-btn:hover {
+            background-color: #0288d1;
+            box-shadow: 0 4px 8px rgba(2, 136, 209, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .next-section-container {
+            text-align: right;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="rubric-section">
+            <h1>SL Report Summer 2026 Rubric Grading Interface</h1>
+            <div class="global-comment-box">
+                <label for="studentName"><strong>📝 Student name (for greeting):</strong></label>
+                <div class="global-comment-row">
+                    <input type="text" id="studentName" placeholder="e.g., Mike" value="">
+                    <select id="greetingTemplateSelect">
+                        <option value="">— None (no greeting) —</option>
+                        <option
+                            value="Hello {}, good start with your assignment report so far. Please see the feedback below for more details."
+                            selected>Hello {name} (standard)</option>
+                        <option value="Good start, {}. Please see the feedback below.">Good start, {name} (concise)
+                        </option>
+                        <option value="Here is your feedback for the assignment.">No name, plain intro</option>
+                        <option value="Hi {}, I've reviewed your report. Below you'll find detailed feedback.">Hi {name}
+                            (friendly)</option>
+                        <option value="Feedback on your assignment:">Direct, no name</option>
+                    </select>
+                    <textarea id="globalCommentTemplate"
+                        placeholder="Editable greeting text">Hello {}, good start with your assignment report so far. Please see the feedback below for more details.</textarea>
+                </div>
+                <div class="global-comment-hint">
+                    Select a preset, then edit if needed. The {} will be replaced by the name. Leave name empty for no
+                    name insertion. Choose "None" to omit greeting.
+                </div>
+            </div>
+            <div id="rubricContainer"></div>
+
+            <div class="controls">
+                <button id="generateBtn">Generate Feedback</button>
+                <button id="copyBtn" class="hidden">Copy Feedback</button>
+                <button id="copyScoresBtn">Copy Scores (all raw)</button>
+                <button id="resetBtn">Reset All</button>
+            </div>
+
+            <div class="group-copy-btns">
+                <button id="copyA1toA4">📋 Compliance groups (3 4 3 2 4)</button>
+                <button id="copyBscore">📋 Study Design groups (4 4 4 2)</button>
+                <button id="copyCscore">📋 Algorithms (DT kNN SVM NN)</button>
+                <button id="copyOtherScore">📋 Discussion + EC + text</button>
+            </div>
+
+            <div id="outputSection" class="output-section hidden"></div>
+        </div>
+
+        <div class="summary-section">
+            <h2 style="font-size:1.2rem; margin-top:0;">Points Summary</h2>
+            <table class="summary-table" id="summaryTable">
+                <thead>
+                    <tr>
+                        <th>Section</th>
+                        <th>Points</th>
+                        <th>Max</th>
+                    </tr>
+                </thead>
+                <tbody id="summaryBody"></tbody>
+                <tfoot>
+                    <tr class="total-row">
+                        <td>Total (incl. extra credit)</td>
+                        <td id="totalPoints">0</td>
+                        <td id="maxPoints">100</td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <div id="extraCreditSection" class="hidden">
+                <h3 style="font-size:1rem;">Extra Credit</h3>
+                <table class="summary-table">
+                    <thead>
+                        <tr>
+                            <th>Section</th>
+                            <th>Points</th>
+                            <th>Max</th>
+                        </tr>
+                    </thead>
+                    <tbody id="extraCreditBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="itemModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Edit Item</div>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="itemText">Item Description</label>
+                    <textarea id="itemText" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="itemPoints">Points (max: <span id="maxPointDisplay"></span>)</label>
+                    <div class="point-input-group">
+                        <input type="number" id="itemPoints" class="form-control" step="1" min="0" value="0">
+                        <button type="button" id="incrementPoint">+1</button>
+                        <button type="button" id="decrementPoint">-1</button>
+                        <button type="button" id="resetPointBtn" class="reset-point-btn">Reset</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="clearTextBtn" class="modal-btn modal-btn-danger">Clear Text</button>
+                <button id="cancelBtn" class="modal-btn modal-btn-secondary">Cancel</button>
+                <button id="saveBtn" class="modal-btn modal-btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let extraCreditPointsValue = 0;
+        // Rubric data (identical to original with expanded negatives)
+        // Rubric data updated for SL Report Summer 2026 Covertype assignment.
+        // All scoring items remain selectable/editable/copyable as in the original interface.
+        const rubricData = {
+            "grading_rubric": {
+                "total_points": 100,
+                "extra_credit_points": 5,
+                "sections": [
+                    {
+                        "main_section": "A) Compliance (16 points)",
+                        "points_available": 16,
+                        "positive_items": {
+                            "points_available": 16,
+                            "items": [
+                                { "description": "Data Compliance: Uses an approximately 20,000-instance Covertype working dataset and documents the sample size clearly", "points": 2 },
+                                { "description": "Data Compliance: Identifies the Forest Cover Type / Covertype data source and uses Cover Type classes 1 through 7 consistently", "points": 1 },
+                                { "description": "Submission Access: Includes a working read-only Overleaf link associated with the student's Georgia Tech / Enterprise Overleaf account", "points": 2 },
+                                { "description": "Submission Access: Includes a valid commit hash from the student's GT Enterprise GitHub repository, and the repository is accessible to course staff", "points": 2 },
+                                { "description": "Reproducibility: Provides clear commands, environment requirements, data paths, and seeds sufficient to reproduce outputs on a standard Linux machine", "points": 2 },
+                                { "description": "Reproducibility: Provides the sampling method, sample size, random seed, and enough detail or code to recreate the sampled dataset", "points": 1 },
+                                { "description": "Figure Legibility: Figures, tables, axis labels, legends, captions, and text are readable at normal grading zoom", "points": 2 },
+                                { "description": "Attribution: Includes at least two relevant peer-reviewed sources beyond course materials and uses them to justify choices or interpret results", "points": 2 },
+                                { "description": "Attribution: Includes a clear AI/LLM usage statement identifying tools, how they were used, and affirming student review/understanding", "points": 2 }
+                            ]
+                        },
+                        "negative_items": {
+                            "items": [
+                                "Report does not use an approximately 20,000-instance Covertype working dataset or does not document sample size clearly",
+                                "Data source is unclear, target mapping is ambiguous, or Cover Type classes are not treated as classes 1 through 7",
+                                "Overleaf link is missing, broken, requires edit permission, or appears to use a personal Overleaf account",
+                                "GitHub commit hash is missing, invalid, inaccessible, or hosted only in a personal GitHub repository",
+                                "Run instructions are missing or insufficient to reproduce results",
+                                "Sampling procedure is vague or the sampled dataset cannot be recreated",
+                                "Multiple figures or tables are too small, cropped, blurry, poorly labeled, or unreadable",
+                                "Peer-reviewed outside sources are missing, irrelevant, only listed without use, or not connected to methodology/interpretation",
+                                "AI/LLM usage statement is missing, vague, incomplete, or does not affirm student review and understanding",
+                                "Pre-grading issue: report PDF cannot be opened/read or submitted materials are insufficient to begin grading",
+                                "Pre-grading issue: assignment does not use Covertype or does not perform multiclass classification on Cover Type; this may receive zero",
+                                "Pre-grading issue: content beyond the 8-page limit should not be read or scored",
+                                "Pre-grading issue: report reads like a checklist or contains excessive bullet-only writing in analysis-heavy sections; treat as draft if applicable"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    },
+                    {
+                        "main_section": "B) Study Design (14 points)",
+                        "points_available": 14,
+                        "positive_items": {
+                            "points_available": 14,
+                            "items": [
+                                { "description": "EDA Evidence: Includes full-dataset shape, feature types, missingness or absence of missingness, class counts, and class proportions", "points": 2 },
+                                { "description": "EDA Evidence: Provides class counts and class proportions for the approximately 20,000-instance sample", "points": 2 },
+                                { "description": "Sampling Design: Uses and justifies stratification, or defends non-stratified sampling with evidence that all classes are preserved and distribution is reasonable", "points": 3 },
+                                { "description": "Sampling Design: Addresses ordering effects by using a randomized/stratified procedure or provides a compelling reason for another approach", "points": 1 },
+                                { "description": "Metrics and Hypothesis: Explains why Accuracy, Macro-F1, balanced accuracy, confusion matrix, and per-class precision/recall/F1 are appropriate and why accuracy alone is insufficient", "points": 2 },
+                                { "description": "Metrics and Hypothesis: States at least one early, testable hypothesis after EDA and before tuned results, tied to dataset properties and course theory", "points": 1 },
+                                { "description": "Metrics and Hypothesis: Revisits the hypothesis using metrics, learning curves, model-complexity curves, runtime, or error patterns", "points": 1 },
+                                { "description": "Validation: Holds out the test set and uses it only once for final reporting", "points": 1 },
+                                { "description": "Validation: Uses training-only validation and leakage controls; tuning uses CV/fixed validation on training data only and preprocessing/scaling is fit only on training data/folds", "points": 1 }
+                            ]
+                        },
+                        "negative_items": {
+                            "items": [
+                                "Full-data EDA is absent, superficial, incorrect, or not connected to the task",
+                                "Sample class counts/proportions are missing or unclear",
+                                "Sampling is described as random without evidence, rationale, or comparison to the full class distribution",
+                                "Student appears to use head(20000) or the first rows without justification",
+                                "Metrics are merely listed, only accuracy is meaningfully discussed, or why accuracy alone is insufficient is not explained",
+                                "Hypothesis is just a goal, not testable, not tied to dataset/course theory, or stated after results",
+                                "Hypothesis is not revisited or is ignored in the discussion",
+                                "Hyperparameters appear to be chosen based on test performance or final test set is repeatedly used for model selection",
+                                "Validation is unclear, appears to include test data, or preprocessing appears to be fit before splitting"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    },
+                    {
+                        "main_section": "C) Decision Trees (14 points)",
+                        "points_available": 14,
+                        "positive_items": {
+                            "points_available": 14,
+                            "items": [
+                                { "description": "Complexity control: Identifies a control such as max_depth, min_samples_leaf, or ccp_alpha and explains how it limits overfitting", "points": 2 },
+                                { "description": "Learning curve: Shows training and validation metric versus at least four training sizes and uses it to discuss bias/variance", "points": 3 },
+                                { "description": "Complexity curve: Varies at least three reasonable values of a pruning/regularization parameter and supports final model choice", "points": 3 },
+                                { "description": "Final evaluation: Reports Accuracy, Macro-F1, balanced accuracy, and includes confusion matrix or per-class precision/recall/F1 with error-pattern discussion", "points": 2 },
+                                { "description": "Runtime: Reports fit and predict time with at least one trade-off", "points": 2 },
+                                { "description": "Tuning quality: Tests at least three reasonable hyperparameter values and justifies the final choice using validation or model-complexity evidence", "points": 2 }
+                            ]
+                        },
+                        "negative_items": {
+                            "items": [
+                                "No pruning/regularization mechanism is used or explained",
+                                "Learning curve is missing, has fewer than four training sizes without justification, is mislabeled, or is not interpreted",
+                                "Complexity curve is missing, uses too few values, varies an unrelated parameter, or is not interpreted",
+                                "Required metrics are missing or error patterns are not discussed",
+                                "Runtime is missing or only one timing value is reported without context",
+                                "Final model appears arbitrary, only one setting is tested, or tested values are too narrow to support the conclusion"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    },
+                    {
+                        "main_section": "D) kNN (14 points)",
+                        "points_available": 14,
+                        "positive_items": {
+                            "points_available": 14,
+                            "items": [
+                                { "description": "Scaling and distance: Scaling is leakage-safe, and distance metric and weighting choices are stated", "points": 2 },
+                                { "description": "k exploration: Tests at least three distinct, meaningfully different k values such as small, medium, and large values", "points": 2 },
+                                { "description": "Learning curve: Shows training and validation metric versus at least four training sizes and interprets it", "points": 2 },
+                                { "description": "Complexity curve: Shows validation metric versus at least three distinct k values and supports final model choice", "points": 2 },
+                                { "description": "Final evaluation: Reports Accuracy, Macro-F1, balanced accuracy, and includes confusion matrix or per-class precision/recall/F1 with error-pattern discussion", "points": 3 },
+                                { "description": "Runtime: Reports fit and predict time and discusses prediction-time cost", "points": 2 },
+                                { "description": "Sensitivity discussion: Discusses sensitivity to irrelevant features, high dimensionality, mixed continuous/binary features, or class imbalance", "points": 1 }
+                            ]
+                        },
+                        "negative_items": {
+                            "items": [
+                                "Scaling-sensitive preprocessing is missing, unclear, or fit before splitting",
+                                "Only one k is tested, fewer than three values are tested without justification, or tested values are too narrow",
+                                "Learning curve is missing, has fewer than four training sizes, is mislabeled, or is not interpreted",
+                                "Complexity curve is missing, uses too few k values, or is not interpreted",
+                                "Required metrics are missing or error patterns are not discussed",
+                                "Runtime is missing or prediction-time cost is ignored",
+                                "No kNN-specific limitation is discussed"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    },
+                    {
+                        "main_section": "E) SVM (14 points)",
+                        "points_available": 14,
+                        "positive_items": {
+                            "points_available": 14,
+                            "items": [
+                                { "description": "Kernel comparison: Reports and compares results from at least two kernels, such as linear and RBF", "points": 2 },
+                                { "description": "Scaling: Scaling is leakage-safe and applied consistently", "points": 2 },
+                                { "description": "Learning curve: Shows training and validation metric versus at least four training sizes and interprets it", "points": 2 },
+                                { "description": "Complexity curve: Varies C and/or gamma across at least three reasonable settings total, or justifies a smaller grid for computational reasons", "points": 2 },
+                                { "description": "Final evaluation: Reports Accuracy, Macro-F1, balanced accuracy, and includes confusion matrix or per-class precision/recall/F1 with error-pattern discussion", "points": 3 },
+                                { "description": "Runtime: Reports fit and predict time and discusses kernel trade-offs", "points": 1 },
+                                { "description": "Tuning quality: Evaluates at least two kernels, varies C where applicable, varies gamma for RBF/nonlinear kernels where relevant, or justifies a smaller grid by runtime", "points": 2 }
+                            ]
+                        },
+                        "negative_items": {
+                            "items": [
+                                "Only one kernel is used or kernels are mentioned but not actually compared",
+                                "Scaling is missing, unclear, or fit before splitting",
+                                "Learning curve is missing, has fewer than four training sizes, is mislabeled, or is not interpreted",
+                                "Complexity curve is missing, uses too few values without justification, varies irrelevant parameter, or is not interpreted",
+                                "Required metrics are missing or error patterns are not discussed",
+                                "Runtime is missing or kernel runtime trade-offs are ignored",
+                                "Final model appears arbitrary, kernel choice is unsupported, or C/gamma tuning is missing without justification"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    },
+                    {
+                        "main_section": "F) Neural Networks (14 points)",
+                        "points_available": 14,
+                        "positive_items": {
+                            "points_available": 14,
+                            "items": [
+                                { "description": "SGD setup: Optimizer is explicitly SGD, no disallowed optimizers are used, and learning rate, batch size, epochs, early stopping if used, and regularization are documented for both implementations", "points": 3 },
+                                { "description": "Epoch curve: Shows train and validation loss or metric over epochs for both scikit-learn and PyTorch implementations and interprets optimization behavior", "points": 2 },
+                                { "description": "Learning curve: Shows training and validation metric versus at least four training sizes and interprets it", "points": 2 },
+                                { "description": "Complexity curve: Varies at least three reasonable NN settings such as width, depth, learning rate, or regularization and supports final model choice", "points": 2 },
+                                { "description": "Final evaluation: Reports Accuracy, Macro-F1, balanced accuracy, and includes confusion matrix or per-class precision/recall/F1 for NN models or cross-model multiclass evaluation", "points": 2 },
+                                { "description": "Implementation comparison: Meaningfully compares scikit-learn and PyTorch in optimization behavior, stability, runtime, tunability, or implementation differences under SGD-only constraints", "points": 2 },
+                                { "description": "Runtime and tuning: Tests at least three reasonable NN settings and reports/interprets fit/predict time or epoch-level training cost", "points": 1 }
+                            ]
+                        },
+                        "negative_items": {
+                            "items": [
+                                "Momentum, Nesterov, Adam, AdamW, Adagrad, RMSprop, or another adaptive optimizer is used; or training setup is not documented",
+                                "Epoch evidence is missing, shown for only one implementation without justification, or not interpreted",
+                                "Learning curve is missing, has fewer than four training sizes, is mislabeled, or is not interpreted",
+                                "Complexity curve is missing, uses too few settings, varies irrelevant setting, or is not interpreted",
+                                "Required metrics are missing or error patterns are not discussed",
+                                "Both implementations are reported but not meaningfully compared",
+                                "Final model appears arbitrary, too few settings are tested without justification, or runtime/training cost is missing"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    },
+                    {
+                        "main_section": "G) Discussion (14 points)",
+                        "points_available": 14,
+                        "positive_items": {
+                            "points_available": 14,
+                            "items": [
+                                { "description": "Cross-model synthesis: Directly compares at least three required algorithm families and explains behavioral differences using evidence from metrics, curves, runtime, or error patterns", "points": 3 },
+                                { "description": "Performance and efficiency trade-offs: Explains trade-offs between predictive performance and computational cost with at least two concrete comparisons", "points": 3 },
+                                { "description": "Class-level behavior: Analyzes multiclass performance, easiest/hardest cover types, minority-class behavior, and at least one confusion-matrix or per-class error pattern", "points": 3 },
+                                { "description": "Curve-based interpretation: Uses learning curves and model-complexity curves to make at least two specific claims about underfitting, overfitting, variance, bias, saturation, or hyperparameter sensitivity", "points": 3 },
+                                { "description": "Limitations and improvements: Identifies at least one concrete limitation and at least one evidence-based improvement or follow-up experiment tied to results", "points": 2 }
+                            ]
+                        },
+                        "negative_items": {
+                            "items": [
+                                "Models are presented separately without comparison, only best model is stated, or claims are unsupported",
+                                "Runtime and metrics are reported separately but trade-offs are not explained, computational cost is ignored, or winner is chosen using only one metric",
+                                "Class imbalance is ignored, only overall accuracy is reported, minority classes are not discussed, or confusion matrix is not interpreted",
+                                "Curves are included but only described visually or not used to support bias/variance/underfitting/overfitting/tuning claims",
+                                "Limitations are missing, generic, or disconnected from results; improvements are generic and not evidence-based",
+                                "Discussion is bullet-only or reads like a second results table rather than paragraph-form interpretation"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    },
+                    {
+                        "main_section": "Extra Credit: Activation Study (up to 5 points)",
+                        "points_available": 5,
+                        "positive_items": {
+                            "points_available": 5,
+                            "items": [
+                                { "description": "Activation curves: Shows epoch-wise validation curves for all four activations using the same training budget", "points": 2 },
+                                { "description": "Comparison table: Reports final metrics, runtime, and convergence notes", "points": 2 },
+                                { "description": "Interpretation: Explains convergence stability and trade-offs under SGD", "points": 1 }
+                            ]
+                        },
+                        "negative_items": {
+                            "items": [
+                                "No extra credit implemented",
+                                "Extra credit uses a disallowed optimizer; no extra credit should be awarded",
+                                "Activation curves are missing, not comparable, or use different training protocols",
+                                "Comparison table is missing or incomplete",
+                                "Activation study only reports numbers without interpretation"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    }
+                ],
+                "general_feedback": { "section": "General Feedback", "content": "<free-text>" },
+                "verification_notes": { "section": "TA Checks and Verification", "content": "Before scoring, confirm readability, required Covertype multiclass task, Enterprise Overleaf/GitHub access, 8-page limit compliance, and formal technical-paper format. Escalate unverifiable provenance or task-mismatch cases to the Head TA." }
+            }
+        };
+
+        const predefinedFeedback = {
+            "requirements": [
+                "Please make sure the report clearly uses the Forest Cover Type / Covertype dataset as a multiclass classification task with Cover Type classes 1 through 7.",
+                "Please verify that your Overleaf and GitHub links use the required Georgia Tech / Enterprise accounts and are accessible to course staff without edit permissions or personal-account invitations.",
+                "The report should stay within the 8-page limit. Content beyond the page limit should not be relied on for grading.",
+                "Several figures or tables would benefit from larger fonts, clearer labels, and improved captions so the visual evidence can be evaluated at normal grading zoom.",
+                "The report should read like a formal technical paper rather than a checklist. Analysis-heavy sections should use paragraph-form interpretation rather than long bullet-only summaries."
+            ],
+            "study_design": [
+                "The study design would be stronger with clearer full-data EDA and sample-level EDA, including class counts and class proportions.",
+                "Please explain the sampling procedure more clearly, including sample size, random seed, stratification or rationale for not using stratification, and how ordering effects were avoided.",
+                "The metric discussion needs to explain why accuracy alone is insufficient and why Macro-F1, balanced accuracy, confusion matrices, and per-class precision/recall/F1 are important for this multiclass task.",
+                "Your hypothesis should be stated after EDA and before tuned results, should be testable, and should connect to dataset properties and course theory.",
+                "Please revisit the hypothesis later using evidence from metrics, learning curves, model-complexity curves, runtime, or error patterns.",
+                "Validation and preprocessing should be described in a leakage-safe way: tune only on training data and fit scaling/preprocessing only on training data or training folds."
+            ],
+            "algorithms_dt": [
+                "For Decision Trees, explain how the chosen complexity control limits overfitting and use the model-complexity curve to justify the final setting.",
+                "The Decision Tree learning curve should include at least four training sizes and should be interpreted in terms of bias, variance, underfitting, or overfitting.",
+                "Please report the required multiclass metrics and discuss at least one error pattern using the confusion matrix or per-class metrics.",
+                "Runtime should include both fit and predict time and should be connected to at least one trade-off."
+            ],
+            "algorithms_knn": [
+                "For kNN, please state the distance metric and weighting choices and make clear that scaling was fit only on the training data or training folds.",
+                "The k exploration should include at least three meaningfully different values, such as small, medium, and large neighborhoods.",
+                "Please discuss kNN's prediction-time cost and its sensitivity to high dimensionality, irrelevant features, mixed continuous/binary features, or class imbalance.",
+                "The kNN complexity curve should be used to justify the final k and explain bias/variance behavior."
+            ],
+            "algorithms_svm": [
+                "For SVM, results from at least two kernels, such as linear and RBF, should be reported and compared directly.",
+                "Please make clear that scaling was leakage-safe and applied consistently.",
+                "The model-complexity discussion should explain how C and/or gamma affected the validation results and final model choice.",
+                "Runtime should be connected to kernel trade-offs, especially when nonlinear kernels are computationally expensive."
+            ],
+            "algorithms_nn": [
+                "For Neural Networks, the optimizer must be explicitly SGD. Momentum, Nesterov, Adam, AdamW, Adagrad, RMSprop, or other adaptive optimizers should not be used.",
+                "Please document learning rate, batch size, epochs, early stopping if used, and regularization for both scikit-learn and PyTorch implementations.",
+                "Epoch curves should be shown for both implementations and interpreted in terms of optimization behavior and stability.",
+                "The comparison between scikit-learn and PyTorch should discuss optimization behavior, stability, runtime, tunability, or implementation differences under the SGD-only constraint."
+            ],
+            "discussion": [
+                "The discussion should go beyond reporting scores and directly compare at least three algorithm families using evidence from metrics, curves, runtime, or error patterns.",
+                "Please explain performance-efficiency trade-offs with concrete comparisons, such as Macro-F1 versus fit time, kNN prediction cost, SVM kernel cost, or neural-network training stability versus runtime.",
+                "The discussion should analyze class-level behavior, including easiest and hardest cover types, minority-class behavior, and specific misclassification patterns.",
+                "Learning curves and model-complexity curves should be used to support claims about underfitting, overfitting, variance, bias, saturation, or hyperparameter sensitivity.",
+                "Limitations and improvements should be concrete and tied to your evidence rather than generic statements such as 'use more data' or 'tune better.'"
+            ],
+            "extra_credit": [
+                "No extra credit implemented.",
+                "For extra credit, all four activation functions should use the same training budget and SGD-only training protocol.",
+                "The activation study should include epoch-wise validation curves, a final comparison table with metrics/runtime/convergence notes, and interpretation of convergence stability and trade-offs."
+            ],
+            "general": [
+                "Please strengthen the interpretation by explaining why the observed results occurred rather than only reporting the numbers.",
+                "Where possible, connect claims to course concepts such as bias-variance, locality, margin-based classification, scaling sensitivity, model capacity, or regularization.",
+                "Please improve the flow of the report so that EDA, hypotheses, validation, model results, and discussion build a coherent modeling story."
+            ]
+        };
+
+        const state = {
+            selectedItems: new Map(),
+            feedbackTexts: new Map(),
+            generalFeedback: "",
+            currentEditingItem: null
+        };
+
+        document.addEventListener('DOMContentLoaded', function () {
+            renderRubric();
+            setupEventListeners();
+            setupModalEvents();
+            setupPredefinedFeedbackEvents();
+            updateSummary();
+            setupGroupCopyButtons();
+            const select = document.getElementById('greetingTemplateSelect');
+            const textarea = document.getElementById('globalCommentTemplate');
+            select.addEventListener('change', function () {
+                if (this.value) {
+                    textarea.value = this.value;
+                } else {
+                    textarea.value = '';
+                }
+            });
+            select.value = '';
+            textarea.value = '';
+        });
+
+        // Toggle select for positives: if any are selected, deselect all; otherwise select all.
+        function toggleSelectAllPositives(sectionIndex) {
+            const sectionId = `section-${sectionIndex}`;
+            const section = rubricData.grading_rubric.sections[sectionIndex];
+            if (!section.positive_items) return;
+            if (!state.selectedItems.has(sectionId)) state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
+            const sectionState = state.selectedItems.get(sectionId);
+            const anySelected = section.positive_items.items.some((_, idx) => sectionState.positive.has(`${sectionId}-positive-${idx}`));
+
+            if (anySelected) {
+                // Deselect all positives
+                section.positive_items.items.forEach((_, idx) => {
+                    const itemId = `${sectionId}-positive-${idx}`;
+                    if (sectionState.positive.has(itemId)) {
+                        sectionState.positive.delete(itemId);
+                        const el = document.getElementById(itemId);
+                        if (el) el.classList.remove('selected-positive');
+                    }
+                });
+            } else {
+                // Select all positives
+                section.positive_items.items.forEach((_, idx) => {
+                    const itemId = `${sectionId}-positive-${idx}`;
+                    sectionState.positive.add(itemId);
+                    const el = document.getElementById(itemId);
+                    if (el) el.classList.add('selected-positive');
+                });
+            }
+            updateSummary();
+        }
+
+        // Toggle select for negatives: if any are selected, deselect all; otherwise select all.
+        function toggleSelectAllNegatives(sectionIndex) {
+            const sectionId = `section-${sectionIndex}`;
+            const section = rubricData.grading_rubric.sections[sectionIndex];
+            if (!section.negative_items) return;
+            if (!state.selectedItems.has(sectionId)) state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
+            const sectionState = state.selectedItems.get(sectionId);
+            const anySelected = section.negative_items.items.some((_, idx) => sectionState.negative.has(`${sectionId}-negative-${idx}`));
+
+            if (anySelected) {
+                // Deselect all negatives
+                section.negative_items.items.forEach((_, idx) => {
+                    const itemId = `${sectionId}-negative-${idx}`;
+                    if (sectionState.negative.has(itemId)) {
+                        sectionState.negative.delete(itemId);
+                        const el = document.getElementById(itemId);
+                        if (el) el.classList.remove('selected-negative');
+                    }
+                });
+            } else {
+                // Select all negatives
+                section.negative_items.items.forEach((_, idx) => {
+                    const itemId = `${sectionId}-negative-${idx}`;
+                    sectionState.negative.add(itemId);
+                    const el = document.getElementById(itemId);
+                    if (el) el.classList.add('selected-negative');
+                });
+            }
+            updateSummary();
+        }
+
+        // NEW: show/hide next-section buttons based on whether all positives in a section are selected
+        function updateNextSectionButtons() {
+            const sections = rubricData.grading_rubric.sections;
+            for (let i = 0; i < sections.length - 1; i++) { // no button for last section (or extra credit)
+                if (sections[i].main_section.includes('Extra Credit')) continue; // skip extra credit for next button
+                const sectionId = `section-${i}`;
+                const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
+                const posItems = sections[i].positive_items ? sections[i].positive_items.items : [];
+                let allPosSelected = true;
+                if (posItems.length === 0) allPosSelected = false; // no positives to select? don't show button.
+                else {
+                    for (let j = 0; j < posItems.length; j++) {
+                        if (!sectionState.positive.has(`${sectionId}-positive-${j}`)) {
+                            allPosSelected = false;
+                            break;
+                        }
+                    }
+                }
+                const containerId = `next-btn-container-${i}`;
+                let container = document.getElementById(containerId);
+                if (!container) {
+                    // create container right after the positive items list (before negatives/feedback)
+                    const posList = document.querySelector(`#${sectionId}-content .item-list`); // first item-list is positives
+                    if (posList && posList.nextSibling) {
+                        container = document.createElement('div');
+                        container.id = containerId;
+                        container.className = 'next-section-container';
+                        posList.parentNode.insertBefore(container, posList.nextSibling);
+                    } else {
+                        // fallback: after content div
+                        const contentDiv = document.getElementById(`${sectionId}-content`);
+                        if (contentDiv) {
+                            container = document.createElement('div');
+                            container.id = containerId;
+                            container.className = 'next-section-container';
+                            contentDiv.appendChild(container);
+                        }
+                    }
+                }
+                if (container) {
+                    if (allPosSelected && i < sections.length - 1 && !sections[i + 1].main_section.includes('Extra Credit')) {
+                        // create button if not exists
+                        let btn = document.getElementById(`next-btn-${i}`);
+                        if (!btn) {
+                            btn = document.createElement('button');
+                            btn.id = `next-btn-${i}`;
+                            btn.className = 'next-section-btn';
+                            btn.textContent = `➡️ Next: ${sections[i + 1].main_section.split('(')[0].trim()}`;
+                            btn.addEventListener('click', () => {
+                                const nextHeader = document.getElementById(`header-section-${i + 1}`);
+                                if (nextHeader) {
+                                    nextHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                    nextHeader.classList.add('section-highlight');
+                                    setTimeout(() => nextHeader.classList.remove('section-highlight'), 1500);
+                                }
+                            });
+                            container.innerHTML = ''; // replace old
+                            container.appendChild(btn);
+                        }
+                    } else {
+                        if (container) container.innerHTML = ''; // remove button
+                    }
+                }
+            }
+        }
+
+        function renderRubric() {
+            const container = document.getElementById('rubricContainer');
+            container.innerHTML = '';
+            rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
+                const sectionId = `section-${sectionIndex}`;
+                const sectionHeader = document.createElement('div');
+                sectionHeader.className = 'section-header';
+                sectionHeader.id = `header-${sectionId}`;
+
+                const titleSpan = document.createElement('span');
+                titleSpan.className = 'editable';
+                titleSpan.setAttribute('data-id', `${sectionId}-header`);
+                titleSpan.textContent = section.main_section;
+                sectionHeader.appendChild(titleSpan);
+
+                const btnDiv = document.createElement('div');
+                btnDiv.className = 'section-buttons';
+
+                if (section.positive_items && section.positive_items.items.length > 0) {
+                    const posBtn = document.createElement('button');
+                    posBtn.textContent = '✓ Positives';
+                    posBtn.className = 'select-positive-btn';
+                    posBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        toggleSelectAllPositives(sectionIndex);
+                    });
+                    btnDiv.appendChild(posBtn);
+                }
+
+                if (section.negative_items && section.negative_items.items.length > 0) {
+                    const negBtn = document.createElement('button');
+                    negBtn.textContent = '✗ Negatives';
+                    negBtn.className = 'select-negative-btn';
+                    negBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        toggleSelectAllNegatives(sectionIndex);
+                    });
+                    btnDiv.appendChild(negBtn);
+                }
+
+                sectionHeader.appendChild(btnDiv);
+                container.appendChild(sectionHeader);
+
+                const sectionContent = document.createElement('div');
+                sectionContent.id = `${sectionId}-content`;
+                if (section.positive_items) {
+                    const positiveList = document.createElement('div');
+                    positiveList.className = 'item-list';
+                    positiveList.innerHTML = '<strong>What you did well</strong>';
+                    section.positive_items.items.forEach((item, itemIndex) => {
+                        const itemId = `${sectionId}-positive-${itemIndex}`;
+                        const itemElement = document.createElement('div');
+                        itemElement.className = 'item positive-item';
+                        itemElement.id = itemId;
+                        itemElement.innerHTML = ` - <span class="editable" data-id="${itemId}-text">${item.description}</span> (<span class="editable point-edit" data-id="${itemId}-points">${item.points}</span> pts)`;
+                        positiveList.appendChild(itemElement);
+                    });
+                    sectionContent.appendChild(positiveList);
+                }
+                // container for next button will be injected here via updateNextSectionButtons
+                if (section.negative_items) {
+                    const negativeList = document.createElement('div');
+                    negativeList.className = 'item-list';
+                    negativeList.innerHTML = '<strong>What needs improvement</strong>';
+                    section.negative_items.items.forEach((item, itemIndex) => {
+                        const itemId = `${sectionId}-negative-${itemIndex}`;
+                        const itemElement = document.createElement('div');
+                        itemElement.className = 'item negative-item';
+                        itemElement.id = itemId;
+                        itemElement.innerHTML = ` - <span class="editable" data-id="${itemId}-text">${item}</span>`;
+                        negativeList.appendChild(itemElement);
+                    });
+                    sectionContent.appendChild(negativeList);
+                }
+                const feedbackDiv = document.createElement('div');
+                feedbackDiv.innerHTML = `<strong>${section.feedback_section}</strong>`;
+                const predefinedFeedbackHTML = createPredefinedFeedback(sectionId);
+                if (predefinedFeedbackHTML) feedbackDiv.innerHTML += predefinedFeedbackHTML;
+                const feedbackTextarea = document.createElement('textarea');
+                feedbackTextarea.className = 'feedback-textarea';
+                feedbackTextarea.id = `${sectionId}-feedback`;
+                feedbackTextarea.placeholder = 'Enter feedback here (optional)';
+                feedbackDiv.appendChild(feedbackTextarea);
+                sectionContent.appendChild(feedbackDiv);
+                container.appendChild(sectionContent);
+                const separator = document.createElement('hr');
+                separator.style.margin = '20px 0';
+                container.appendChild(separator);
+            });
+            const generalDiv = document.createElement('div');
+            generalDiv.innerHTML = `<h3>${rubricData.grading_rubric.general_feedback.section}</h3>`;
+            const generalPredefined = createPredefinedFeedback('general');
+            if (generalPredefined) generalDiv.innerHTML += generalPredefined;
+            const generalTA = document.createElement('textarea');
+            generalTA.className = 'feedback-textarea';
+            generalTA.id = 'general-feedback';
+            generalTA.placeholder = 'Enter general feedback here (optional)';
+            generalDiv.appendChild(generalTA);
+            container.appendChild(generalDiv);
+        }
+
+        function createPredefinedFeedback(sectionId) {
+            const sectionKey = getSectionKey(sectionId);
+            const comments = predefinedFeedback[sectionKey] || [];
+            if (comments.length === 0) return '';
+            let html = `<div class="predefined-feedback"><strong>Predefined Comments:</strong>`;
+            comments.forEach((comment) => { html += `<button type="button" class="predefined-comment" data-comment="${comment.replace(/"/g, '&quot;')}">${comment}</button>`; });
+            html += `<div class="feedback-controls"><button type="button" class="add-all-comments" style="background-color: #2196F3;">Add All Comments</button><button type="button" class="clear-comments" style="background-color: #ff9800;">Clear Comments</button></div></div>`;
+            return html;
+        }
+
+        function getSectionKey(sectionId) {
+            if (sectionId === 'general' || sectionId.includes('general-feedback')) return 'general';
+            const sectionMatch = sectionId.match(/section-(\d+)/);
+            if (!sectionMatch) return 'general';
+            const sectionIndex = parseInt(sectionMatch[1]);
+            switch (sectionIndex) {
+                case 0: return 'requirements';
+                case 1: return 'study_design';
+                case 2: return 'algorithms_dt';
+                case 3: return 'algorithms_knn';
+                case 4: return 'algorithms_svm';
+                case 5: return 'algorithms_nn';
+                case 6: return 'discussion';
+                case 7: return 'extra_credit';
+                default: return 'general';
+            }
+        }
+
+        function setupEventListeners() {
+            document.addEventListener('dblclick', function (e) {
+                const item = e.target.closest('.item');
+                if (item) { showItemModal(item.id); e.preventDefault(); e.stopPropagation(); }
+                else { const editable = e.target.closest('.editable'); if (editable) makeEditable(editable); }
+            });
+            document.addEventListener('click', function (e) {
+                const item = e.target.closest('.item');
+                if (item) { toggleItemSelection(item); updateSummary(); e.stopPropagation(); }
+            });
+            document.addEventListener('click', function (e) {
+                const header = e.target.closest('.section-header, .subsection-header');
+                if (header && !e.target.closest('button')) {
+                    const contentId = header.id ? `${header.id}-content` : header.querySelector('span').getAttribute('data-id').replace('-header', '-content');
+                    const content = document.getElementById(contentId);
+                    if (content) content.style.display = content.style.display === 'none' ? 'block' : 'none';
+                    e.stopPropagation();
+                }
+            });
+            document.getElementById('generateBtn').addEventListener('click', generateFeedback);
+            document.getElementById('resetBtn').addEventListener('click', resetAll);
+            document.getElementById('copyBtn').addEventListener('click', function () {
+                const output = document.getElementById('outputSection').textContent;
+                if (output.trim()) navigator.clipboard.writeText(output).then(() => alert('Feedback copied!'));
+            });
+            document.getElementById('copyScoresBtn').addEventListener('click', copyScores);
+        }
+
+        function setupModalEvents() {
+            const modal = document.getElementById('itemModal');
+            const closeBtn = document.querySelector('.close-btn');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            const clearTextBtn = document.getElementById('clearTextBtn');
+            const incrementBtn = document.getElementById('incrementPoint');
+            const decrementBtn = document.getElementById('decrementPoint');
+            const resetPointBtn = document.getElementById('resetPointBtn');
+
+            [closeBtn, cancelBtn].forEach(btn => btn.addEventListener('click', () => modal.style.display = 'none'));
+
+            incrementBtn.addEventListener('click', () => {
+                const input = document.getElementById('itemPoints');
+                input.value = (parseInt(input.value) || 0) + 1;
+            });
+
+            decrementBtn.addEventListener('click', () => {
+                const input = document.getElementById('itemPoints');
+                const current = parseInt(input.value) || 0;
+                if (current > 0) input.value = current - 1;
+            });
+
+            resetPointBtn.addEventListener('click', () => {
+                if (state.currentEditingItem) {
+                    const maxPoints = getItemMaxPoints(state.currentEditingItem.id);
+                    document.getElementById('itemPoints').value = maxPoints;
+                }
+            });
+
+            saveBtn.addEventListener('click', saveItemChanges);
+            clearTextBtn.addEventListener('click', () => document.getElementById('itemText').value = '');
+            window.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+        }
+
+        function getItemMaxPoints(itemId) {
+            const parts = itemId.split('-');
+            const sectionIndex = parseInt(parts[1]);
+            const isPositive = parts[2] === 'positive';
+            const itemIndex = parseInt(parts[parts.length - 1]);
+            const section = rubricData.grading_rubric.sections[sectionIndex];
+            if (isPositive && section.positive_items) {
+                return section.positive_items.items[itemIndex].points;
+            }
+            return 0;
+        }
+
+        function setupPredefinedFeedbackEvents() {
+            document.addEventListener('click', function (e) {
+                if (e.target.classList.contains('predefined-comment')) {
+                    const comment = e.target.getAttribute('data-comment');
+                    const textarea = e.target.closest('.predefined-feedback').nextElementSibling;
+                    if (textarea && textarea.classList.contains('feedback-textarea')) {
+                        const currentText = textarea.value.trim();
+                        textarea.value = currentText ? currentText + '\n\n' + comment : comment;
+                        e.target.classList.add('selected'); setTimeout(() => e.target.classList.remove('selected'), 1000);
+                    }
+                }
+                if (e.target.classList.contains('add-all-comments')) {
+                    const predefinedSection = e.target.closest('.predefined-feedback');
+                    const comments = predefinedSection.querySelectorAll('.predefined-comment');
+                    const textarea = predefinedSection.nextElementSibling;
+                    if (textarea && textarea.classList.contains('feedback-textarea')) {
+                        let allComments = ''; comments.forEach(cb => allComments += cb.getAttribute('data-comment') + '\n\n');
+                        const current = textarea.value.trim();
+                        textarea.value = current ? current + '\n\n' + allComments : allComments;
+                    }
+                }
+                if (e.target.classList.contains('clear-comments')) {
+                    const textarea = e.target.closest('.predefined-feedback').nextElementSibling;
+                    if (textarea && textarea.classList.contains('feedback-textarea')) textarea.value = '';
+                }
+            });
+        }
+
+        function toggleItemSelection(item) {
+            const itemId = item.id;
+            const isPositive = item.classList.contains('positive-item');
+            let sectionId = itemId.split('-').slice(0, 2).join('-');
+            if (!state.selectedItems.has(sectionId)) state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
+            const sectionState = state.selectedItems.get(sectionId);
+            const itemSet = isPositive ? sectionState.positive : sectionState.negative;
+            if (itemSet.has(itemId)) {
+                itemSet.delete(itemId);
+                item.classList.remove(isPositive ? 'selected-positive' : 'selected-negative');
+            } else {
+                itemSet.add(itemId);
+                item.classList.add(isPositive ? 'selected-positive' : 'selected-negative');
+            }
+        }
+
+        function makeEditable(element) {
+            const currentText = element.textContent;
+            const input = document.createElement('input');
+            input.type = 'text'; input.value = currentText; input.style.width = '100%'; input.style.border = '1px solid #2196F3'; input.style.padding = '2px 4px';
+            element.innerHTML = ''; element.appendChild(input); input.focus();
+            input.addEventListener('blur', () => {
+                let newValue = input.value.trim();
+                if (element.dataset.id.endsWith('-points')) {
+                    const parts = element.dataset.id.split('-'); const itemIndex = parseInt(parts[parts.length - 2]); const parentId = parts.slice(0, parts.length - 2).join('-');
+                    rubricData.grading_rubric.sections.forEach((section, si) => {
+                        const sectionId = `section-${si}`;
+                        if (parentId.startsWith(sectionId) && section.positive_items) section.positive_items.items[itemIndex].points = parseInt(newValue) || 0;
+                    });
+                    element.textContent = newValue; updateSummary();
+                } else { element.textContent = newValue; }
+            });
+            input.addEventListener('keypress', (e) => { if (e.key === 'Enter') input.blur(); });
+        }
+
+        function showItemModal(itemId) {
+            const modal = document.getElementById('itemModal');
+            const itemText = document.getElementById('itemText');
+            const itemPoints = document.getElementById('itemPoints');
+            const maxPointSpan = document.getElementById('maxPointDisplay');
+            const itemElement = document.getElementById(itemId);
+            if (!itemElement) return;
+            const textElement = itemElement.querySelector('.editable[data-id$="-text"]');
+            const pointsElement = itemElement.querySelector('.editable[data-id$="-points"]');
+            if (!textElement) return;
+            itemText.value = textElement.textContent;
+            const maxPoints = getItemMaxPoints(itemId);
+            maxPointSpan.textContent = maxPoints;
+            const isNegative = itemElement.classList.contains('negative-item');
+            const pointsValue = pointsElement ? (isNegative ? -Math.abs(parseFloat(pointsElement.textContent) || 0) : parseFloat(pointsElement.textContent) || 0) : 0;
+            itemPoints.value = Math.abs(pointsValue);
+            state.currentEditingItem = { id: itemId, textElement, pointsElement, isNegative, maxPoints };
+            modal.style.display = 'flex';
+        }
+
+        function saveItemChanges() {
+            const modal = document.getElementById('itemModal');
+            const itemText = document.getElementById('itemText');
+            const itemPoints = document.getElementById('itemPoints');
+            if (!state.currentEditingItem) return;
+            const { id, textElement, pointsElement, isNegative, maxPoints } = state.currentEditingItem;
+            textElement.textContent = itemText.value;
+            if (pointsElement) {
+                const pointsValue = parseInt(itemPoints.value) || 0;
+                const clampedPoints = Math.min(pointsValue, maxPoints);
+                const displayPoints = isNegative ? -Math.abs(clampedPoints) : Math.abs(clampedPoints);
+                pointsElement.textContent = displayPoints;
+                updateRubricData(id, itemText.value, Math.abs(displayPoints));
+            } else { updateRubricData(id, itemText.value, 0); }
+
+            // Auto-select the item when edited
+            const itemElement = document.getElementById(id);
+            if (itemElement && !itemElement.classList.contains(isNegative ? 'selected-negative' : 'selected-positive')) {
+                const isPos = itemElement.classList.contains('positive-item');
+                let sectionId = id.split('-').slice(0, 2).join('-');
+                if (!state.selectedItems.has(sectionId)) state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
+                const sectionState = state.selectedItems.get(sectionId);
+                const itemSet = isPos ? sectionState.positive : sectionState.negative;
+                itemSet.add(id);
+                itemElement.classList.add(isPos ? 'selected-positive' : 'selected-negative');
+            }
+
+            modal.style.display = 'none'; state.currentEditingItem = null; updateSummary();
+        }
+
+        function updateRubricData(itemId, newText, newPoints) {
+            const parts = itemId.split('-'); const sectionIndex = parseInt(parts[1]); const isPositive = parts[2] === 'positive'; const itemIndex = parseInt(parts[parts.length - 1]); const section = rubricData.grading_rubric.sections[sectionIndex];
+            if (isPositive) { section.positive_items.items[itemIndex].description = newText; section.positive_items.items[itemIndex].points = newPoints; }
+            else { section.negative_items.items[itemIndex] = newText; }
+        }
+
+        function scrollToSection(sectionIndex) {
+            const headerId = `header-section-${sectionIndex}`;
+            const headerElement = document.getElementById(headerId);
+            if (headerElement) {
+                headerElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                headerElement.classList.add('section-highlight');
+                setTimeout(() => headerElement.classList.remove('section-highlight'), 1500);
+            }
+        }
+
+        function updateSummary() {
+            const summaryBody = document.getElementById('summaryBody'); summaryBody.innerHTML = '';
+            let mainTotal = 0;
+            let extraCreditPoints = 0, extraCreditMaxPoints = 0;
+            const extraCreditBody = document.getElementById('extraCreditBody'); extraCreditBody.innerHTML = '';
+            rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
+                const sectionId = `section-${sectionIndex}`;
+                const isExtraCredit = section.main_section.includes('Extra Credit');
+                const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
+                let sectionPoints = 0; const maxPoints = section.points_available;
+                if (section.positive_items) {
+                    sectionState.positive.forEach(itemId => {
+                        const parts = itemId.split('-'); const itemIndex = parseInt(parts[parts.length - 1]);
+                        if (section.positive_items.items[itemIndex]) sectionPoints += section.positive_items.items[itemIndex].points;
+                    });
+                }
+                const row = document.createElement('tr');
+                row.dataset.sectionIndex = sectionIndex;
+                row.style.cursor = 'pointer';
+                row.addEventListener('click', (e) => {
+                    scrollToSection(sectionIndex);
+                });
+
+                if (isExtraCredit) {
+                    extraCreditPoints += sectionPoints; extraCreditMaxPoints = rubricData.grading_rubric.extra_credit_points;
+                    row.innerHTML = `<td>${section.main_section.split('(')[0].trim()}</td><td>${sectionPoints.toFixed(0)}</td><td>${maxPoints}</td>`;
+                    extraCreditBody.appendChild(row);
+                    extraCreditPointsValue = extraCreditPoints;
+                } else {
+                    mainTotal += sectionPoints;
+                    row.innerHTML = `<td>${section.main_section.split('(')[0].trim()}</td><td>${sectionPoints.toFixed(0)}</td><td>${maxPoints}</td>`;
+                    summaryBody.appendChild(row);
+                }
+                const headerElement = document.querySelector(`[data-id="${sectionId}-header"]`);
+                if (headerElement) headerElement.textContent = `${section.main_section.split('(')[0].trim()} (${sectionPoints.toFixed(0)}/${maxPoints})`;
+            });
+
+            const totalWithExtra = mainTotal + extraCreditPoints;
+            document.getElementById('totalPoints').textContent = totalWithExtra.toFixed(0);
+            document.getElementById('maxPoints').textContent = rubricData.grading_rubric.total_points;
+
+            if (extraCreditPoints > 0 || extraCreditMaxPoints > 0) {
+                document.getElementById('extraCreditSection').classList.remove('hidden');
+                const extraTotal = document.createElement('tr'); extraTotal.className = 'total-row'; extraTotal.innerHTML = `<td><strong>Extra Credit Total</strong></td><td><strong>${extraCreditPoints.toFixed(0)}</strong></td><td><strong>${extraCreditMaxPoints}</strong></td>`;
+                extraCreditBody.appendChild(extraTotal);
+            } else {
+                document.getElementById('extraCreditSection').classList.add('hidden');
+            }
+            // Update next section buttons after summary update
+            updateNextSectionButtons();
+        }
+
+        function generateFeedback() {
+            const outputSection = document.getElementById('outputSection');
+            const copyBtn = document.getElementById('copyBtn');
+            let feedback = '';
+
+            const select = document.getElementById('greetingTemplateSelect');
+            const nameInput = document.getElementById('studentName').value.trim();
+            const textareaTemplate = document.getElementById('globalCommentTemplate').value;
+
+            let finalTemplate = (select.value === '') ? '' : textareaTemplate;
+
+            if (finalTemplate.trim() !== '') {
+                let greeting = finalTemplate;
+                if (nameInput) {
+                    greeting = finalTemplate.replace(/{}/g, nameInput);
+                } else {
+                    greeting = finalTemplate.replace(/{}/g, '');
+                }
+                feedback += greeting + '\n\n';
+            }
+
+            rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
+                const sectionId = `section-${sectionIndex}`;
+                let sectionPoints = 0; const sectionMaxPoints = section.points_available;
+                const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
+                if (section.positive_items) {
+                    sectionState.positive.forEach(itemId => {
+                        const parts = itemId.split('-'); const itemIndex = parseInt(parts[parts.length - 1]);
+                        if (section.positive_items.items[itemIndex]) sectionPoints += section.positive_items.items[itemIndex].points;
+                    });
+                }
+                const feedbackTextarea = document.getElementById(`${sectionId}-feedback`);
+                const feedbackText = feedbackTextarea ? feedbackTextarea.value : '';
+                const hasContent = sectionState.positive.size > 0 || sectionState.negative.size > 0 || feedbackText;
+                if (hasContent) {
+                    feedback += `\n${section.main_section.split('(')[0].trim()} (${sectionPoints.toFixed(0)}/${sectionMaxPoints})\n`;
+                    if (sectionState.positive.size > 0) {
+                        feedback += 'Strengths:\n';
+                        sectionState.positive.forEach(itemId => {
+                            const el = document.getElementById(itemId)?.querySelector('.editable[data-id$="-text"]');
+                            if (el) feedback += ` - ${el.textContent}\n`;
+                        });
+                    }
+                    if (sectionState.negative.size > 0) {
+                        feedback += 'Areas for Improvement:\n';
+                        sectionState.negative.forEach(itemId => {
+                            const el = document.getElementById(itemId)?.querySelector('.editable[data-id$="-text"]');
+                            if (el) feedback += ` - ${el.textContent}\n`;
+                        });
+                    }
+                    if (feedbackText) feedback += `Additional Feedback: ${feedbackText}\n`;
+                    feedback += `${' '.repeat(40)}\n`;
+                }
+            });
+            const generalTA = document.getElementById('general-feedback');
+            if (generalTA && generalTA.value) feedback += `\nGeneral Feedback:\n${generalTA.value}\n\n`;
+
+            const totalPoints = document.getElementById('totalPoints').textContent;
+            const maxPoints = document.getElementById('maxPoints').textContent;
+            if (extraCreditPointsValue > 0) {
+                feedback += `Total Score: ${totalPoints}/${maxPoints} (includes extra credit)`;
+            } else {
+                feedback += `Total Score: ${totalPoints}/${maxPoints}`;
+            }
+            outputSection.textContent = feedback;
+            outputSection.classList.remove('hidden');
+            copyBtn.classList.remove('hidden');
+        }
+
+        function resetAll() {
+            // Reset selections
+            state.selectedItems.clear();
+            document.querySelectorAll('.item').forEach(item => item.classList.remove('selected-positive', 'selected-negative'));
+
+            // Reset all textareas (including feedback and global comment)
+            document.querySelectorAll('textarea').forEach(ta => ta.value = '');
+
+            // Reset editable headers to original text
+            document.querySelectorAll('.editable[data-id$="-header"]').forEach(header => {
+                const dataId = header.getAttribute('data-id');
+                const sectionIndex = parseInt(dataId.split('-')[1]);
+                header.textContent = rubricData.grading_rubric.sections[sectionIndex].main_section;
+            });
+
+            // Reset point values in positive items to original points from rubricData
+            rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
+                if (section.positive_items) {
+                    section.positive_items.items.forEach((item, itemIndex) => {
+                        const pointSpan = document.querySelector(`[data-id="section-${sectionIndex}-positive-${itemIndex}-points"]`);
+                        if (pointSpan) {
+                            pointSpan.textContent = item.points; // reset to original points
+                        }
+                    });
+                }
+            });
+
+            // Hide output
+            document.getElementById('outputSection').classList.add('hidden');
+            document.getElementById('copyBtn').classList.add('hidden');
+
+            // Reset global greeting
+            document.getElementById('studentName').value = '';
+            document.getElementById('greetingTemplateSelect').value = '';
+            document.getElementById('globalCommentTemplate').value = '';
+
+            // Update summary to reflect reset (will also clear next buttons)
+            updateSummary();
+        }
+
+        function copyScores() {
+            let scores = [];
+            rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
+                if (!section.main_section.includes('Extra Credit')) {
+                    const sectionId = `section-${sectionIndex}`;
+                    const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
+                    let sp = 0;
+                    if (section.positive_items) {
+                        sectionState.positive.forEach(itemId => {
+                            const parts = itemId.split('-'); const idx = parseInt(parts[parts.length - 1]);
+                            if (section.positive_items.items[idx]) sp += section.positive_items.items[idx].points;
+                        });
+                    }
+                    scores.push(sp.toFixed(0));
+                }
+            });
+            scores.push(document.getElementById('totalPoints').textContent);
+            navigator.clipboard.writeText(scores.join('\t')).then(() => alert('Raw scores copied (total includes extra credit)!'));
+        }
+
+        function setupGroupCopyButtons() {
+            // A: Compliance groups = Data Compliance (3), Submission Access (4), Reproducibility (3), Figure Legibility (2), Attribution (4)
+            document.getElementById('copyA1toA4').addEventListener('click', () => {
+                const sec = rubricData.grading_rubric.sections[0];
+                const secId = 'section-0';
+                const st = state.selectedItems.get(secId) || { positive: new Set() };
+                const pos = sec.positive_items.items;
+                let dataCompliance = 0, submissionAccess = 0, reproducibility = 0, figureLegibility = 0, attribution = 0;
+                if (st.positive.has('section-0-positive-0')) dataCompliance += pos[0].points;
+                if (st.positive.has('section-0-positive-1')) dataCompliance += pos[1].points;
+                if (st.positive.has('section-0-positive-2')) submissionAccess += pos[2].points;
+                if (st.positive.has('section-0-positive-3')) submissionAccess += pos[3].points;
+                if (st.positive.has('section-0-positive-4')) reproducibility += pos[4].points;
+                if (st.positive.has('section-0-positive-5')) reproducibility += pos[5].points;
+                if (st.positive.has('section-0-positive-6')) figureLegibility += pos[6].points;
+                if (st.positive.has('section-0-positive-7')) attribution += pos[7].points;
+                if (st.positive.has('section-0-positive-8')) attribution += pos[8].points;
+                const result = `${dataCompliance}	${submissionAccess}	${reproducibility}	${figureLegibility}	${attribution}`;
+                navigator.clipboard.writeText(result).then(() => alert(`Compliance groups: ${result}`));
+            });
+
+            // B: Study Design groups = EDA Evidence (4), Sampling Design (4), Metrics/Hypothesis (4), Validation (2)
+            document.getElementById('copyBscore').addEventListener('click', () => {
+                const sec = rubricData.grading_rubric.sections[1];
+                const secId = 'section-1';
+                const st = state.selectedItems.get(secId) || { positive: new Set() };
+                const pos = sec.positive_items.items;
+                let eda = 0, sampling = 0, metricsHypothesis = 0, validation = 0;
+                if (st.positive.has('section-1-positive-0')) eda += pos[0].points;
+                if (st.positive.has('section-1-positive-1')) eda += pos[1].points;
+                if (st.positive.has('section-1-positive-2')) sampling += pos[2].points;
+                if (st.positive.has('section-1-positive-3')) sampling += pos[3].points;
+                if (st.positive.has('section-1-positive-4')) metricsHypothesis += pos[4].points;
+                if (st.positive.has('section-1-positive-5')) metricsHypothesis += pos[5].points;
+                if (st.positive.has('section-1-positive-6')) metricsHypothesis += pos[6].points;
+                if (st.positive.has('section-1-positive-7')) validation += pos[7].points;
+                if (st.positive.has('section-1-positive-8')) validation += pos[8].points;
+                const result = `${eda}	${sampling}	${metricsHypothesis}	${validation}`;
+                navigator.clipboard.writeText(result).then(() => alert(`Study Design groups: ${result}`));
+            });
+
+            // Algorithms: DT, kNN, SVM, NN
+            document.getElementById('copyCscore').addEventListener('click', () => {
+                const indices = [2, 3, 4, 5];
+                let scores = [];
+                indices.forEach(idx => {
+                    const sec = rubricData.grading_rubric.sections[idx];
+                    const secId = `section-${idx}`;
+                    const st = state.selectedItems.get(secId) || { positive: new Set() };
+                    let total = 0;
+                    if (sec.positive_items) {
+                        st.positive.forEach(itemId => {
+                            const parts = itemId.split('-');
+                            const i = parseInt(parts[parts.length - 1]);
+                            if (sec.positive_items.items[i]) total += sec.positive_items.items[i].points;
+                        });
+                    }
+                    scores.push(total.toFixed(0));
+                });
+                const result = scores.join('\t');
+                navigator.clipboard.writeText(result).then(() => alert(`Algorithm scores: ${result}`));
+            });
+
+            // Discussion + Extra Credit + standard text fields
+            document.getElementById('copyOtherScore').addEventListener('click', () => {
+                const indices = [6, 7];
+                let scores = [];
+                indices.forEach(idx => {
+                    const sec = rubricData.grading_rubric.sections[idx];
+                    const secId = `section-${idx}`;
+                    const st = state.selectedItems.get(secId) || { positive: new Set() };
+                    let total = 0;
+                    if (sec.positive_items) {
+                        st.positive.forEach(itemId => {
+                            const parts = itemId.split('-');
+                            const i = parseInt(parts[parts.length - 1]);
+                            if (sec.positive_items.items[i]) total += sec.positive_items.items[i].points;
+                        });
+                    }
+                    scores.push(total.toFixed(0));
+                });
+                const out = scores.join('\t') + '\tNo Issue\tN';
+                navigator.clipboard.writeText(out).then(() => alert(`Discussion + EC + text: ${out}`));
+            });
+        }
+    </script>
+</body>
+
+</html>
