@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SL Report Summer 2026 Rubric Grading – Covertype</title>
     <style>
-        /* ... (same CSS as before, keeping it concise for length) ... */
         :root {
             --positive-color: #e8f5e9;
             --positive-selected: #81c784;
@@ -49,28 +48,6 @@
             top: 15px;
             height: fit-content;
             font-size: 0.85rem;
-        }
-
-        .summary-section .nav-links {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-            font-size: 0.8rem;
-        }
-
-        .summary-section .nav-links a {
-            color: #1976D2;
-            text-decoration: none;
-            padding: 2px 8px;
-            border-radius: 4px;
-            background: #e3f2fd;
-            transition: background-color 0.2s;
-        }
-
-        .summary-section .nav-links a:hover {
-            background: #bbdefb;
-            text-decoration: underline;
         }
 
         .summary-table th,
@@ -698,7 +675,7 @@
     <div class="container">
         <div class="rubric-section">
             <h1>SL Report Summer 2026 Rubric Grading Interface</h1>
-            <div class="global-comment-box" id="nameSection">
+            <div class="global-comment-box">
                 <label for="studentName"><strong>📝 Student name (for greeting):</strong></label>
                 <div class="global-comment-row">
                     <input type="text" id="studentName" placeholder="e.g., Mike" value="">
@@ -748,11 +725,11 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     </div>
                     <div class="check-item-row" onclick="toggleCheckSelection('negative-2')">
                         <span class="check-status N" id="check-status-negative-2" onclick="event.stopPropagation(); toggleCheckStatus('negative-2')">N</span>
-                        <span class="check-text" id="check-text-negative-2">Check 3A - Overleaf/GitHub Inaccessible: Between the two reproducibility requirements of Overleaf-hosted write-up and project codebase hosted in the GT Enterprise GitHub repo provided you for the course, you missed {TODO} and thus we've deducted points in the A2. Accessibility section. <span class="auto-check-indicator">(auto-filled from A2)</span></span>
+                        <span class="check-text" id="check-text-negative-2">Check 3A - Overleaf/GitHub Inaccessible: Between the two reproducibility requirements of Overleaf-hosted write-up and project codebase hosted in the GT Enterprise GitHub repo provided you for the course, you missed {TODO} and thus we've deducted you in the A2. Accessibility section. <span class="auto-check-indicator">(auto-filled from A2)</span></span>
                     </div>
                     <div class="check-item-row" onclick="toggleCheckSelection('negative-3')">
                         <span class="check-status N" id="check-status-negative-3" onclick="event.stopPropagation(); toggleCheckStatus('negative-3')">N</span>
-                        <span class="check-text" id="check-text-negative-3">Check 3B - Overleaf/GitHub Inaccessible: Between requirement that you host and edit your report in LaTex on Overleaf and push all project code to the GT Enterprise GitHub repo provided you for the course, we found you broke this requirement and thus we have made the hard decision to deduct {POINTS} points from your report. <span class="auto-check-indicator">(auto-detected)</span></span>
+                        <span class="check-text" id="check-text-negative-3">Check 3B - Overleaf/GitHub Inaccessible: Between requirement that you host and edit your report in LaTex on Overleaf and push all project code to the GT Enterprise GitHub repo provided you for the course, we found you broke this requirement and thus we have made the hard decision to score your report 0/100. <span class="auto-check-indicator">(auto-detected)</span></span>
                     </div>
                     <div class="check-item-row" onclick="toggleCheckSelection('negative-4')">
                         <span class="check-status N" id="check-status-negative-4" onclick="event.stopPropagation(); toggleCheckStatus('negative-4')">N</span>
@@ -767,7 +744,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
 
             <div id="rubricContainer"></div>
 
-            <div class="controls" id="generateSection">
+            <div class="controls">
                 <button id="generateBtn">Generate Feedback</button>
                 <button id="copyBtn" class="hidden">Copy Feedback</button>
                 <button id="copyScoresBtn">Copy Scores (all raw)</button>
@@ -791,10 +768,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
 
         <div class="summary-section">
             <h2 style="font-size:1.2rem; margin-top:0;">Points Summary</h2>
-            <div class="nav-links">
-                <a href="#nameSection">📝 Go to Name</a>
-                <a href="#generateSection">🚀 Go to Generate</a>
-            </div>
             <table class="summary-table" id="summaryTable">
                 <thead>
                     <tr>
@@ -885,7 +858,15 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             checkSelections[id] = el.textContent;
             updateNoDeductionsSelection();
             if (id === 'negative-3') {
-                updateCheck3B();
+                const checkTextEl = document.getElementById('check-text-negative-3');
+                if (checkTextEl) {
+                    let text = checkTextEl.textContent;
+                    text = text.replace(/\s*\(auto-detected\)\s*$/, '');
+                    if (el.textContent === 'D') {
+                        text = text + ' (auto-detected)';
+                    }
+                    checkTextEl.textContent = text;
+                }
             }
         }
 
@@ -948,51 +929,13 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             return missing.join(' and ');
         }
 
-        // This function only checks Enterprise Overleaf and Enterprise GitHub (items 2 and 3)
-        // for Check 3B deduction
-        function getMissingAccessPoints() {
-            const sectionId = 'section-0';
-            const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
-            let missingPoints = 0;
-            // Only check Enterprise Overleaf (item 2) and Enterprise GitHub (item 3)
-            if (!sectionState.positive.has('section-0-positive-2')) {
-                missingPoints += 2; // Enterprise Overleaf
-            }
-            if (!sectionState.positive.has('section-0-positive-3')) {
-                missingPoints += 2; // Enterprise GitHub
-            }
-            return missingPoints;
-        }
-
-        // This function checks all A2 items for Check 3A deduction
-        function getTotalMissingA2Points() {
-            const sectionId = 'section-0';
-            const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
-            let missingPoints = 0;
-            if (!sectionState.positive.has('section-0-positive-2')) {
-                missingPoints += 2; // Enterprise Overleaf
-            }
-            if (!sectionState.positive.has('section-0-positive-3')) {
-                missingPoints += 2; // Enterprise GitHub
-            }
-            if (!sectionState.positive.has('section-0-positive-4')) {
-                missingPoints += 2; // Run instructions
-            }
-            if (!sectionState.positive.has('section-0-positive-5')) {
-                missingPoints += 1; // Sampling procedure
-            }
-            return missingPoints;
-        }
-
         function updateCheck3A() {
             const checkTextEl = document.getElementById('check-text-negative-2');
             if (checkTextEl) {
                 const missing = getMissingAccessItems();
-                const missingPoints = getTotalMissingA2Points();
                 let text = checkTextEl.textContent;
                 text = text.replace(/\s*\(auto-filled from A2\)\s*$/, '');
                 text = text.replace(/\{TODO\}/g, missing || '{TODO}');
-                text = text.replace(/we've deducted points/, `we've deducted ${missingPoints} points`);
                 if (missing !== '') {
                     text = text + ' (auto-filled from A2)';
                 }
@@ -1005,15 +948,11 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             const statusEl = document.getElementById('check-status-negative-3');
             if (checkTextEl && statusEl) {
                 const missing = getMissingAccessItems();
-                const missingPoints = getMissingAccessPoints();
                 const missingItems = missing.split(' and ');
                 const hasOverleafMissing = missingItems.includes('Overleaf link') || missing === 'Overleaf link';
                 const hasGitHubMissing = missingItems.includes('GitHub commit hash') || missing === 'GitHub commit hash';
                 
-                // Check 3B should be D if ANY of Overleaf or GitHub is missing
-                const anyMissing = hasOverleafMissing || hasGitHubMissing;
-                
-                if (anyMissing) {
+                if (hasOverleafMissing && hasGitHubMissing) {
                     if (statusEl.textContent !== 'D') {
                         statusEl.textContent = 'D';
                         statusEl.className = 'check-status D';
@@ -1032,10 +971,8 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                         updateNoDeductionsSelection();
                     }
                 }
-                
                 let text = checkTextEl.textContent;
                 text = text.replace(/\s*\(auto-detected\)\s*$/, '');
-                text = text.replace(/\{POINTS\}/g, missingPoints);
                 if (statusEl.textContent === 'D') {
                     text = text + ' (auto-detected)';
                 }
@@ -2262,6 +2199,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             let noDeductionTexts = [];
             let deductionTexts = [];
 
+            // Only add the positive check if it's selected and status is 'N'
             if (checkTextSelections['positive-0'] && checkSelections['positive-0'] === 'N') {
                 hasNoDeductions = true;
                 const el = document.getElementById('check-text-positive-0');
@@ -2275,22 +2213,25 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     const el = document.getElementById(`check-text-${key}`);
                     if (el) {
                         let text = el.textContent;
+                        // Remove any auto-indicator text for display
                         text = text.replace(/\s*\(auto-filled from A2\)\s*$/, '');
                         text = text.replace(/\s*\(auto-detected\)\s*$/, '');
+                        // For Check 3A (index 2), replace {TODO}
                         if (i === 2) {
                             const missing = getMissingAccessItems();
-                            const missingPoints = getTotalMissingA2Points();
                             text = text.replace(/\{TODO\}/g, missing || '{TODO}');
-                            text = text.replace(/we've deducted points/, `we've deducted ${missingPoints} points`);
                         }
+                        // SKIP Check 3B (index 3) from being added to No Deductions
+                        // It should only appear in Deductions Made when status is 'D'
                         if (i === 3) {
-                            const missingPoints = getMissingAccessPoints();
-                            text = text.replace(/\{POINTS\}/g, missingPoints);
+                            // Only add to Deductions if status is 'D'
                             if (status === 'D') {
                                 hasDeductions = true;
                                 deductionTexts.push(text);
                             }
+                            // If status is 'N', skip it entirely
                         } else {
+                            // For all other checks, add based on status
                             if (status === 'N') {
                                 hasNoDeductions = true;
                                 noDeductionTexts.push(text);
@@ -2316,9 +2257,9 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 });
             }
             if (!hasNoDeductions && !hasDeductions) {
-                  //feedback += '\nNo checks selected.\n';
+                //feedback += '\nNo checks selected.\n';
 				feedback += '\nNo Deductions Made:\n+ Submission of report and reproducibility materials satisfies major implementation requirements!\n';
-				console.log("No checks selected.");
+				console.log("No checks selected.")
             }
             feedback += '}\n\n';
 
@@ -2491,8 +2432,8 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 'Submission of report and reproducibility materials satisfies major implementation requirements!',
                 'Check 1 - Unreadable/Missing Report: Between provision and accessibility of your report, we were unable to access and read it in order to provide a grade, thus we have made the hard decision to score your report 0/100.',
                 'Check 2 - Incorrect Task: Between use of the prescribed dataset and setup of the intended multiclass classification problem, you broke the task requirements and thus we have made the hard decision to score your report 0/100.',
-                'Check 3A - Overleaf/GitHub Inaccessible: Between the two reproducibility requirements of Overleaf-hosted write-up and project codebase hosted in the GT Enterprise GitHub repo provided you for the course, you missed {TODO} and thus we\'ve deducted points in the A2. Accessibility section. <span class="auto-check-indicator">(auto-filled from A2)</span>',
-                'Check 3B - Overleaf/GitHub Inaccessible: Between requirement that you host and edit your report in LaTex on Overleaf and push all project code to the GT Enterprise GitHub repo provided you for the course, we found you broke this requirement and thus we have made the hard decision to deduct {POINTS} points from your report. <span class="auto-check-indicator">(auto-detected)</span>',
+                'Check 3A - Overleaf/GitHub Inaccessible: Between the two reproducibility requirements of Overleaf-hosted write-up and project codebase hosted in the GT Enterprise GitHub repo provided you for the course, you missed {TODO} and thus we\'ve deducted you in the A2. Accessibility section. <span class="auto-check-indicator">(auto-filled from A2)</span>',
+                'Check 3B - Overleaf/GitHub Inaccessible: Between requirement that you host and edit your report in LaTex on Overleaf and push all project code to the GT Enterprise GitHub repo provided you for the course, we found you broke this requirement and thus we have made the hard decision to score your report 0/100. <span class="auto-check-indicator">(auto-detected)</span>',
                 'Check 4 - Report Over 8 Pages: A portion of your report spills over the 8 page limit specified in the requirements and thus we consider anything past page 8 as not provided and (not) graded in accordance with this rule.',
                 'Check 5 - Unfinished Draft: We identified several instances in which excessive use of checklist type structure, bulleting as a mode of jotting down notes where extensive analysis was expected and other high-level signs of a draft were spotted, thus we have made the hard decision to score your report 0/100.'
             ];

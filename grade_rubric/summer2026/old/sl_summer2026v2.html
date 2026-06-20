@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SL Report Summer 2026 Rubric Grading – Covertype</title>
     <style>
-        /* ... (same CSS as before, keeping it concise for length) ... */
         :root {
             --positive-color: #e8f5e9;
             --positive-selected: #81c784;
@@ -49,28 +48,6 @@
             top: 15px;
             height: fit-content;
             font-size: 0.85rem;
-        }
-
-        .summary-section .nav-links {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-            font-size: 0.8rem;
-        }
-
-        .summary-section .nav-links a {
-            color: #1976D2;
-            text-decoration: none;
-            padding: 2px 8px;
-            border-radius: 4px;
-            background: #e3f2fd;
-            transition: background-color 0.2s;
-        }
-
-        .summary-section .nav-links a:hover {
-            background: #bbdefb;
-            text-decoration: underline;
         }
 
         .summary-table th,
@@ -684,13 +661,6 @@
         .group-item .sub-items .sub-item {
             padding: 2px 0;
         }
-
-        .auto-check-indicator {
-            font-size: 0.75em;
-            color: #1976D2;
-            margin-left: 8px;
-            font-weight: normal;
-        }
     </style>
 </head>
 
@@ -698,7 +668,7 @@
     <div class="container">
         <div class="rubric-section">
             <h1>SL Report Summer 2026 Rubric Grading Interface</h1>
-            <div class="global-comment-box" id="nameSection">
+            <div class="global-comment-box">
                 <label for="studentName"><strong>📝 Student name (for greeting):</strong></label>
                 <div class="global-comment-row">
                     <input type="text" id="studentName" placeholder="e.g., Mike" value="">
@@ -748,11 +718,11 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     </div>
                     <div class="check-item-row" onclick="toggleCheckSelection('negative-2')">
                         <span class="check-status N" id="check-status-negative-2" onclick="event.stopPropagation(); toggleCheckStatus('negative-2')">N</span>
-                        <span class="check-text" id="check-text-negative-2">Check 3A - Overleaf/GitHub Inaccessible: Between the two reproducibility requirements of Overleaf-hosted write-up and project codebase hosted in the GT Enterprise GitHub repo provided you for the course, you missed {TODO} and thus we've deducted points in the A2. Accessibility section. <span class="auto-check-indicator">(auto-filled from A2)</span></span>
+                        <span class="check-text" id="check-text-negative-2">Check 3A - Overleaf/GitHub Inaccessible: Between the two reproducibility requirements of Overleaf-hosted write-up and project codebase hosted in the GT Enterprise GitHub repo provided you for the course, you missed {TODO} and thus we've deducted you in the A2. Accessibility section.</span>
                     </div>
                     <div class="check-item-row" onclick="toggleCheckSelection('negative-3')">
                         <span class="check-status N" id="check-status-negative-3" onclick="event.stopPropagation(); toggleCheckStatus('negative-3')">N</span>
-                        <span class="check-text" id="check-text-negative-3">Check 3B - Overleaf/GitHub Inaccessible: Between requirement that you host and edit your report in LaTex on Overleaf and push all project code to the GT Enterprise GitHub repo provided you for the course, we found you broke this requirement and thus we have made the hard decision to deduct {POINTS} points from your report. <span class="auto-check-indicator">(auto-detected)</span></span>
+                        <span class="check-text" id="check-text-negative-3">Check 3B - Overleaf/GitHub Inaccessible: Between requirement that you host and edit your report in LaTex on Overleaf and push all project code to the GT Enterprise GitHub repo provided you for the course, we found you broke this requirement and thus we have made the hard decision to score your report 0/100.</span>
                     </div>
                     <div class="check-item-row" onclick="toggleCheckSelection('negative-4')">
                         <span class="check-status N" id="check-status-negative-4" onclick="event.stopPropagation(); toggleCheckStatus('negative-4')">N</span>
@@ -767,7 +737,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
 
             <div id="rubricContainer"></div>
 
-            <div class="controls" id="generateSection">
+            <div class="controls">
                 <button id="generateBtn">Generate Feedback</button>
                 <button id="copyBtn" class="hidden">Copy Feedback</button>
                 <button id="copyScoresBtn">Copy Scores (all raw)</button>
@@ -791,10 +761,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
 
         <div class="summary-section">
             <h2 style="font-size:1.2rem; margin-top:0;">Points Summary</h2>
-            <div class="nav-links">
-                <a href="#nameSection">📝 Go to Name</a>
-                <a href="#generateSection">🚀 Go to Generate</a>
-            </div>
             <table class="summary-table" id="summaryTable">
                 <thead>
                     <tr>
@@ -884,9 +850,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             }
             checkSelections[id] = el.textContent;
             updateNoDeductionsSelection();
-            if (id === 'negative-3') {
-                updateCheck3B();
-            }
         }
 
         function toggleCheckSelection(id) {
@@ -937,6 +900,8 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             const sectionId = 'section-0';
             const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
             const missing = [];
+            // Check items in group 1 (A2: Accessibility/Reproducibility)
+            // Items are at indices 2,3,4,5 in the combined group
             if (!sectionState.positive.has('section-0-positive-2')) {
                 missing.push('Overleaf link');
             }
@@ -948,119 +913,34 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             return missing.join(' and ');
         }
 
-        // This function only checks Enterprise Overleaf and Enterprise GitHub (items 2 and 3)
-        // for Check 3B deduction
-        function getMissingAccessPoints() {
-            const sectionId = 'section-0';
-            const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
-            let missingPoints = 0;
-            // Only check Enterprise Overleaf (item 2) and Enterprise GitHub (item 3)
-            if (!sectionState.positive.has('section-0-positive-2')) {
-                missingPoints += 2; // Enterprise Overleaf
-            }
-            if (!sectionState.positive.has('section-0-positive-3')) {
-                missingPoints += 2; // Enterprise GitHub
-            }
-            return missingPoints;
-        }
-
-        // This function checks all A2 items for Check 3A deduction
-        function getTotalMissingA2Points() {
-            const sectionId = 'section-0';
-            const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
-            let missingPoints = 0;
-            if (!sectionState.positive.has('section-0-positive-2')) {
-                missingPoints += 2; // Enterprise Overleaf
-            }
-            if (!sectionState.positive.has('section-0-positive-3')) {
-                missingPoints += 2; // Enterprise GitHub
-            }
-            if (!sectionState.positive.has('section-0-positive-4')) {
-                missingPoints += 2; // Run instructions
-            }
-            if (!sectionState.positive.has('section-0-positive-5')) {
-                missingPoints += 1; // Sampling procedure
-            }
-            return missingPoints;
-        }
-
-        function updateCheck3A() {
-            const checkTextEl = document.getElementById('check-text-negative-2');
-            if (checkTextEl) {
-                const missing = getMissingAccessItems();
-                const missingPoints = getTotalMissingA2Points();
-                let text = checkTextEl.textContent;
-                text = text.replace(/\s*\(auto-filled from A2\)\s*$/, '');
-                text = text.replace(/\{TODO\}/g, missing || '{TODO}');
-                text = text.replace(/we've deducted points/, `we've deducted ${missingPoints} points`);
-                if (missing !== '') {
-                    text = text + ' (auto-filled from A2)';
-                }
-                checkTextEl.textContent = text;
-            }
-        }
-
-        function updateCheck3B() {
-            const checkTextEl = document.getElementById('check-text-negative-3');
-            const statusEl = document.getElementById('check-status-negative-3');
-            if (checkTextEl && statusEl) {
-                const missing = getMissingAccessItems();
-                const missingPoints = getMissingAccessPoints();
-                const missingItems = missing.split(' and ');
-                const hasOverleafMissing = missingItems.includes('Overleaf link') || missing === 'Overleaf link';
-                const hasGitHubMissing = missingItems.includes('GitHub commit hash') || missing === 'GitHub commit hash';
-                
-                // Check 3B should be D if ANY of Overleaf or GitHub is missing
-                const anyMissing = hasOverleafMissing || hasGitHubMissing;
-                
-                if (anyMissing) {
-                    if (statusEl.textContent !== 'D') {
-                        statusEl.textContent = 'D';
-                        statusEl.className = 'check-status D';
-                        checkSelections['negative-3'] = 'D';
-                        if (!checkTextSelections['negative-3']) {
-                            checkTextSelections['negative-3'] = true;
-                            checkTextEl.classList.add('selected');
-                        }
-                        updateNoDeductionsSelection();
-                    }
-                } else {
-                    if (statusEl.textContent === 'D' && checkTextEl.textContent.includes('(auto-detected)')) {
-                        statusEl.textContent = 'N';
-                        statusEl.className = 'check-status N';
-                        checkSelections['negative-3'] = 'N';
-                        updateNoDeductionsSelection();
-                    }
-                }
-                
-                let text = checkTextEl.textContent;
-                text = text.replace(/\s*\(auto-detected\)\s*$/, '');
-                text = text.replace(/\{POINTS\}/g, missingPoints);
-                if (statusEl.textContent === 'D') {
-                    text = text + ' (auto-detected)';
-                }
-                checkTextEl.textContent = text;
-            }
-        }
-
-        function updateChecksOnSelection() {
-            updateCheck3A();
-            updateCheck3B();
-        }
+        // Section A: 3 scores (A1=3pts, A2=7pts, A3=6pts)
+        // Section B: 4 scores (B1=4pts, B2=4pts, B3=4pts, B4=2pts)
+        // Section C: 4 scores (C1=2pts, C2=6pts, C3=4pts, C4=2pts)
+        // Section D: 4 scores (D1=4pts, D2=4pts, D3=5pts, D4=1pt)
+        // Section E: 5 scores (E1=2pts, E2=2pts, E3=4pts, E4=4pts, E5=2pts)
+        // Section F: 5 scores (F1=3pts, F2=6pts, F3=2pts, F4=2pts, F5=1pt)
+        // Section G: 4 scores (G1=3pts, G2=3pts, G3=6pts, G4=2pts)
 
         const sectionGroupCombinations = {
-            0: {
+            0: { // Section A: 3 scores
                 scores: [
                     { label: "A1", groupIndices: [0] },
                     { label: "A2", groupIndices: [1] },
                     { label: "A3", groupIndices: [2] }
                 ],
                 negGroupMap: {
-                    0: "A1", 1: "A1", 2: "A2", 3: "A2", 4: "A2", 5: "A2",
-                    6: "A3", 7: "A3", 8: "A3"
+                    0: "A1",
+                    1: "A1",
+                    2: "A2",
+                    3: "A2",
+                    4: "A2",
+                    5: "A2",
+                    6: "A3",
+                    7: "A3",
+                    8: "A3"
                 }
             },
-            1: {
+            1: { // Section B: 4 scores
                 scores: [
                     { label: "B1", groupIndices: [0] },
                     { label: "B2", groupIndices: [1] },
@@ -1068,11 +948,18 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     { label: "B4", groupIndices: [3] }
                 ],
                 negGroupMap: {
-                    0: "B1", 1: "B1", 2: "B2", 3: "B2",
-                    4: "B3", 5: "B3", 6: "B3", 7: "B4", 8: "B4"
+                    0: "B1",
+                    1: "B1",
+                    2: "B2",
+                    3: "B2",
+                    4: "B3",
+                    5: "B3",
+                    6: "B3",
+                    7: "B4",
+                    8: "B4"
                 }
             },
-            2: {
+            2: { // Section C: 4 scores
                 scores: [
                     { label: "C1", groupIndices: [0] },
                     { label: "C2", groupIndices: [1] },
@@ -1080,10 +967,15 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     { label: "C4", groupIndices: [3] }
                 ],
                 negGroupMap: {
-                    0: "C1", 1: "C2", 2: "C2", 3: "C3", 4: "C3", 5: "C4"
+                    0: "C1",
+                    1: "C2",
+                    2: "C2",
+                    3: "C3",
+                    4: "C3",
+                    5: "C4"
                 }
             },
-            3: {
+            3: { // Section D: 4 scores
                 scores: [
                     { label: "D1", groupIndices: [0] },
                     { label: "D2", groupIndices: [1] },
@@ -1091,11 +983,16 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     { label: "D4", groupIndices: [3] }
                 ],
                 negGroupMap: {
-                    0: "D1", 1: "D1", 2: "D2", 3: "D2",
-                    4: "D3", 5: "D3", 6: "D4"
+                    0: "D1",
+                    1: "D1",
+                    2: "D2",
+                    3: "D2",
+                    4: "D3",
+                    5: "D3",
+                    6: "D4"
                 }
             },
-            4: {
+            4: { // Section E: 5 scores
                 scores: [
                     { label: "E1", groupIndices: [0] },
                     { label: "E2", groupIndices: [1] },
@@ -1104,11 +1001,16 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     { label: "E5", groupIndices: [4] }
                 ],
                 negGroupMap: {
-                    0: "E1", 1: "E2", 2: "E3", 3: "E3",
-                    4: "E4", 5: "E4", 6: "E5"
+                    0: "E1",
+                    1: "E2",
+                    2: "E3",
+                    3: "E3",
+                    4: "E4",
+                    5: "E4",
+                    6: "E5"
                 }
             },
-            5: {
+            5: { // Section F: 5 scores
                 scores: [
                     { label: "F1", groupIndices: [0] },
                     { label: "F2", groupIndices: [1] },
@@ -1117,11 +1019,16 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     { label: "F5", groupIndices: [4] }
                 ],
                 negGroupMap: {
-                    0: "F1", 1: "F2", 2: "F2", 3: "F2",
-                    4: "F3", 5: "F4", 6: "F5"
+                    0: "F1",
+                    1: "F2",
+                    2: "F2",
+                    3: "F2",
+                    4: "F3",
+                    5: "F4",
+                    6: "F5"
                 }
             },
-            6: {
+            6: { // Section G: 4 scores
                 scores: [
                     { label: "G1", groupIndices: [0] },
                     { label: "G2", groupIndices: [1] },
@@ -1129,7 +1036,11 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     { label: "G4", groupIndices: [3] }
                 ],
                 negGroupMap: {
-                    0: "G1", 1: "G2", 2: "G3", 3: "G3", 4: "G4"
+                    0: "G1",
+                    1: "G2",
+                    2: "G3",
+                    3: "G3",
+                    4: "G4"
                 }
             }
         };
@@ -1179,6 +1090,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             navigator.clipboard.writeText(result).then(() => alert(`Section ${letter} scores: ${result}`));
         }
 
+        // Rubric data with combined groups
         const rubricData = {
             "grading_rubric": {
                 "total_points": 100,
@@ -1621,8 +1533,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             textarea.value = 'Nicely done in completing the SL Report, {}! We hope this has given you momentum to make great progress on the next in our series of three, the OL Report!\n\nPlease create a private Ed post if you have any questions, comments, concerns or if you notice something grade- or feedback-related is amiss!\n\nWithout further ado, below we\'ve provided both high-level feedback on satisfaction of the basic requirements as well as individualized feedback to help steer you for the better in future assignments where we felt there was room for improvement, not without highlighting your strengths!';
 
             setTimeout(updateNoDeductionsSelection, 100);
-            updateCheck3A();
-            updateCheck3B();
         });
 
         function copyGroupScore(sectionIndex, groupIndex) {
@@ -1701,7 +1611,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 }
             }
             updateSummary();
-            if (sectionIndex === 0) updateChecksOnSelection();
         }
 
         function toggleSelectAllNegatives(sectionIndex) {
@@ -1739,7 +1648,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 }
             }
             updateSummary();
-            if (sectionIndex === 0) updateChecksOnSelection();
         }
 
         function renderRubric() {
@@ -1932,7 +1840,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 if (item && !item.closest('.checks-section')) {
                     toggleItemSelection(item);
                     updateSummary();
-                    if (item.id.startsWith('section-0')) updateChecksOnSelection();
                     e.stopPropagation();
                 }
             });
@@ -2156,7 +2063,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             modal.style.display = 'none';
             state.currentEditingItem = null;
             updateSummary();
-            if (id.startsWith('section-0')) updateChecksOnSelection();
         }
 
         function scrollToSection(sectionIndex) {
@@ -2275,29 +2181,16 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     const el = document.getElementById(`check-text-${key}`);
                     if (el) {
                         let text = el.textContent;
-                        text = text.replace(/\s*\(auto-filled from A2\)\s*$/, '');
-                        text = text.replace(/\s*\(auto-detected\)\s*$/, '');
                         if (i === 2) {
                             const missing = getMissingAccessItems();
-                            const missingPoints = getTotalMissingA2Points();
                             text = text.replace(/\{TODO\}/g, missing || '{TODO}');
-                            text = text.replace(/we've deducted points/, `we've deducted ${missingPoints} points`);
                         }
-                        if (i === 3) {
-                            const missingPoints = getMissingAccessPoints();
-                            text = text.replace(/\{POINTS\}/g, missingPoints);
-                            if (status === 'D') {
-                                hasDeductions = true;
-                                deductionTexts.push(text);
-                            }
+                        if (status === 'N') {
+                            hasNoDeductions = true;
+                            noDeductionTexts.push(text);
                         } else {
-                            if (status === 'N') {
-                                hasNoDeductions = true;
-                                noDeductionTexts.push(text);
-                            } else {
-                                hasDeductions = true;
-                                deductionTexts.push(text);
-                            }
+                            hasDeductions = true;
+                            deductionTexts.push(text);
                         }
                     }
                 }
@@ -2316,9 +2209,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 });
             }
             if (!hasNoDeductions && !hasDeductions) {
-                  //feedback += '\nNo checks selected.\n';
-				feedback += '\nNo Deductions Made:\n+ Submission of report and reproducibility materials satisfies major implementation requirements!\n';
-				console.log("No checks selected.");
+                feedback += '\nNo checks selected.\n';
             }
             feedback += '}\n\n';
 
@@ -2491,15 +2382,15 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 'Submission of report and reproducibility materials satisfies major implementation requirements!',
                 'Check 1 - Unreadable/Missing Report: Between provision and accessibility of your report, we were unable to access and read it in order to provide a grade, thus we have made the hard decision to score your report 0/100.',
                 'Check 2 - Incorrect Task: Between use of the prescribed dataset and setup of the intended multiclass classification problem, you broke the task requirements and thus we have made the hard decision to score your report 0/100.',
-                'Check 3A - Overleaf/GitHub Inaccessible: Between the two reproducibility requirements of Overleaf-hosted write-up and project codebase hosted in the GT Enterprise GitHub repo provided you for the course, you missed {TODO} and thus we\'ve deducted points in the A2. Accessibility section. <span class="auto-check-indicator">(auto-filled from A2)</span>',
-                'Check 3B - Overleaf/GitHub Inaccessible: Between requirement that you host and edit your report in LaTex on Overleaf and push all project code to the GT Enterprise GitHub repo provided you for the course, we found you broke this requirement and thus we have made the hard decision to deduct {POINTS} points from your report. <span class="auto-check-indicator">(auto-detected)</span>',
+                'Check 3A - Overleaf/GitHub Inaccessible: Between the two reproducibility requirements of Overleaf-hosted write-up and project codebase hosted in the GT Enterprise GitHub repo provided you for the course, you missed {TODO} and thus we\'ve deducted you in the A2. Accessibility section.',
+                'Check 3B - Overleaf/GitHub Inaccessible: Between requirement that you host and edit your report in LaTex on Overleaf and push all project code to the GT Enterprise GitHub repo provided you for the course, we found you broke this requirement and thus we have made the hard decision to score your report 0/100.',
                 'Check 4 - Report Over 8 Pages: A portion of your report spills over the 8 page limit specified in the requirements and thus we consider anything past page 8 as not provided and (not) graded in accordance with this rule.',
                 'Check 5 - Unfinished Draft: We identified several instances in which excessive use of checklist type structure, bulleting as a mode of jotting down notes where extensive analysis was expected and other high-level signs of a draft were spotted, thus we have made the hard decision to score your report 0/100.'
             ];
 
             document.querySelectorAll('.checks-section .check-text').forEach((el, index) => {
                 if (index < checkTexts.length) {
-                    el.innerHTML = checkTexts[index];
+                    el.textContent = checkTexts[index];
                 }
             });
 
@@ -2513,8 +2404,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 'Nicely done in completing the SL Report, {}! We hope this has given you momentum to make great progress on the next in our series of three, the OL Report!\n\nPlease create a private Ed post if you have any questions, comments, concerns or if you notice something grade- or feedback-related is amiss!\n\nWithout further ado, below we\'ve provided both high-level feedback on satisfaction of the basic requirements as well as individualized feedback to help steer you for the better in future assignments where we felt there was room for improvement, not without highlighting your strengths!';
 
             updateSummary();
-            updateCheck3A();
-            updateCheck3B();
         }
 
         function copyScores() {
