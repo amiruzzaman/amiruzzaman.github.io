@@ -690,62 +690,6 @@
             margin-left: 8px;
             font-weight: normal;
         }
-
-        /* Notification styles */
-        .notification-bar {
-            width: 100%;
-            height: 40px;
-            line-height: 40px;
-            text-align: center;
-            background-color: #e3f2fd;
-            color: #0D47A1;
-            border-radius: 4px;
-            margin: 10px 0;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            border: 1px solid #90caf9;
-            display: none;
-            position: relative;
-        }
-
-        .notification-bar.show {
-            display: block;
-            animation: slideDown 0.3s ease;
-        }
-
-        .notification-bar.success {
-            background-color: #e8f5e9;
-            color: #1b5e20;
-            border-color: #81c784;
-        }
-
-        @keyframes slideDown {
-            0% {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .notification-bar .close-notification {
-            position: absolute;
-            right: 10px;
-            top: 0;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 18px;
-            color: inherit;
-            opacity: 0.6;
-            transition: opacity 0.2s;
-        }
-
-        .notification-bar .close-notification:hover {
-            opacity: 1;
-        }
     </style>
 </head>
 
@@ -821,12 +765,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             </div>
 
             <div id="rubricContainer"></div>
-
-            <!-- Notification Bar -->
-            <div id="notificationBar" class="notification-bar">
-                <span id="notificationMessage">✅ Section A scores copied: 7 5 4</span>
-                <span class="close-notification" onclick="hideNotification()">&times;</span>
-            </div>
 
             <div class="controls" id="generateSection">
                 <button id="generateBtn">Generate Feedback</button>
@@ -923,31 +861,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
         let extraCreditPointsValue = 0;
         let checkSelections = {};
         let checkTextSelections = {};
-        let notificationTimeout = null;
-
-        function showNotification(message, isSuccess = true) {
-            const bar = document.getElementById('notificationBar');
-            const msgEl = document.getElementById('notificationMessage');
-            msgEl.textContent = message;
-            bar.className = 'notification-bar show' + (isSuccess ? ' success' : '');
-            // Clear any existing timeout
-            if (notificationTimeout) {
-                clearTimeout(notificationTimeout);
-            }
-            // Auto-hide after 5 seconds
-            notificationTimeout = setTimeout(() => {
-                hideNotification();
-            }, 5000);
-        }
-
-        function hideNotification() {
-            const bar = document.getElementById('notificationBar');
-            bar.className = 'notification-bar';
-            if (notificationTimeout) {
-                clearTimeout(notificationTimeout);
-                notificationTimeout = null;
-            }
-        }
 
         function initCheckSelections() {
             checkSelections['positive-0'] = 'N';
@@ -1025,8 +938,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 statuses.push(checkSelections[`negative-${i}`] || 'N');
             }
             const result = statuses.join('\t');
-            navigator.clipboard.writeText(result);
-            showNotification(`✅ Checks status copied: ${result}`);
+            navigator.clipboard.writeText(result).then(() => alert(`Checks status: ${result}`));
         }
 
         function getMissingAccessItems() {
@@ -1267,7 +1179,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
 
             const combo = sectionGroupCombinations[sectionIndex];
             if (!combo) {
-                showNotification('❌ No combination defined for this section', false);
+                alert('No combination defined for this section');
                 return;
             }
 
@@ -1294,8 +1206,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
 
             const result = results.join('\t');
             const letter = section.section_letter || section.main_section.charAt(0);
-            navigator.clipboard.writeText(result);
-            showNotification(`✅ Section ${letter} scores copied: ${result}`);
+            navigator.clipboard.writeText(result).then(() => alert(`Section ${letter} scores: ${result}`));
         }
 
         const rubricData = {
@@ -1761,8 +1672,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 }
             });
             const result = `${total.toFixed(0)}/${group.max}`;
-            navigator.clipboard.writeText(result);
-            showNotification(`✅ ${group.label}: ${result}`);
+            navigator.clipboard.writeText(result).then(() => alert(`${group.label}: ${result}`));
         }
 
         function copySectionScore(sectionIndex) {
@@ -1781,8 +1691,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 totalItems += group.items.length;
             });
             const result = `${sectionPoints.toFixed(0)}`;
-            navigator.clipboard.writeText(result);
-            showNotification(`✅ Section ${section.section_letter || section.main_section.charAt(0)} total score: ${result}`);
+            navigator.clipboard.writeText(result).then(() => alert(`Section ${section.section_letter || section.main_section.charAt(0)} score: ${result}`));
         }
 
         function toggleSelectAllPositives(sectionIndex) {
@@ -2071,10 +1980,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             document.getElementById('resetBtn').addEventListener('click', resetAll);
             document.getElementById('copyBtn').addEventListener('click', function() {
                 const output = document.getElementById('outputSection').textContent;
-                if (output.trim()) {
-                    navigator.clipboard.writeText(output);
-                    showNotification('✅ Feedback copied!');
-                }
+                if (output.trim()) navigator.clipboard.writeText(output).then(() => alert('Feedback copied!'));
             });
             document.getElementById('copyScoresBtn').addEventListener('click', copyScores);
         }
@@ -2550,7 +2456,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             outputSection.textContent = feedback;
             outputSection.classList.remove('hidden');
             copyBtn.classList.remove('hidden');
-            showNotification('✅ Feedback generated successfully!');
         }
 
         function resetAll() {
@@ -2628,7 +2533,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
 
             document.getElementById('outputSection').classList.add('hidden');
             document.getElementById('copyBtn').classList.add('hidden');
-            hideNotification();
 
             document.getElementById('studentName').value = '';
             document.getElementById('greetingTemplateSelect').value =
@@ -2639,7 +2543,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             updateSummary();
             updateCheck3A();
             updateCheck3B();
-            showNotification('✅ All reset successfully!');
         }
 
         function copyScores() {
@@ -2663,9 +2566,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 }
             });
             scores.push(document.getElementById('totalPoints').textContent);
-            const result = scores.join('\t');
-            navigator.clipboard.writeText(result);
-            showNotification(`✅ Raw scores copied: ${result}`);
+            navigator.clipboard.writeText(scores.join('\t')).then(() => alert('Raw scores copied (total includes extra credit)!'));
         }
     </script>
 </body>
