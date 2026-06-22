@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SL Report Summer 2026 Rubric Grading – Covertype</title>
     <style>
+        /* ... (same CSS as before, keeping it concise for length) ... */
         :root {
             --positive-color: #e8f5e9;
             --positive-selected: #81c784;
@@ -883,9 +884,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             }
             checkSelections[id] = el.textContent;
             updateNoDeductionsSelection();
-            if (id === 'negative-2') {
-                updateCheck3A();
-            }
             if (id === 'negative-3') {
                 updateCheck3B();
             }
@@ -901,12 +899,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 el.classList.add('selected');
             }
             updateNoDeductionsSelection();
-            if (id === 'negative-2') {
-                updateCheck3A();
-            }
-            if (id === 'negative-3') {
-                updateCheck3B();
-            }
         }
 
         function updateNoDeductionsSelection() {
@@ -957,7 +949,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
         }
 
         // This function only checks Enterprise Overleaf and Enterprise GitHub (items 2 and 3)
-        // for Check 3A and Check 3B deduction
+        // for Check 3B deduction
         function getMissingAccessPoints() {
             const sectionId = 'section-0';
             const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
@@ -972,7 +964,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             return missingPoints;
         }
 
-        // This function checks all A2 items for reference (not used for Check 3A anymore)
+        // This function checks all A2 items for Check 3A deduction
         function getTotalMissingA2Points() {
             const sectionId = 'section-0';
             const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
@@ -994,39 +986,15 @@ Without further ado, below we've provided both high-level feedback on satisfacti
 
         function updateCheck3A() {
             const checkTextEl = document.getElementById('check-text-negative-2');
-            const statusEl = document.getElementById('check-status-negative-2');
             if (checkTextEl) {
                 const missing = getMissingAccessItems();
-                const missingPoints = getMissingAccessPoints(); // Only Overleaf + GitHub
+                const missingPoints = getTotalMissingA2Points();
                 let text = checkTextEl.textContent;
                 text = text.replace(/\s*\(auto-filled from A2\)\s*$/, '');
-
+                text = text.replace(/\{TODO\}/g, missing || '{TODO}');
+                text = text.replace(/we've deducted points/, `we've deducted ${missingPoints} points`);
                 if (missing !== '') {
-                    text = text.replace(/\{TODO\}/g, missing);
-                    text = text.replace(/we've deducted points/, `we've deducted ${missingPoints} points`);
                     text = text + ' (auto-filled from A2)';
-                    if (!checkTextSelections['negative-2']) {
-                        checkTextSelections['negative-2'] = true;
-                        checkTextEl.classList.add('selected');
-                    }
-                    if (statusEl && statusEl.textContent !== 'D') {
-                        statusEl.textContent = 'D';
-                        statusEl.className = 'check-status D';
-                        checkSelections['negative-2'] = 'D';
-                        updateNoDeductionsSelection();
-                    }
-                } else {
-                    text = text.replace(/\{TODO\}/g, '');
-                    if (checkTextSelections['negative-2']) {
-                        checkTextSelections['negative-2'] = false;
-                        checkTextEl.classList.remove('selected');
-                    }
-                    if (statusEl && statusEl.textContent === 'D') {
-                        statusEl.textContent = 'N';
-                        statusEl.className = 'check-status N';
-                        checkSelections['negative-2'] = 'N';
-                        updateNoDeductionsSelection();
-                    }
                 }
                 checkTextEl.textContent = text;
             }
@@ -1041,8 +1009,10 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 const missingItems = missing.split(' and ');
                 const hasOverleafMissing = missingItems.includes('Overleaf link') || missing === 'Overleaf link';
                 const hasGitHubMissing = missingItems.includes('GitHub commit hash') || missing === 'GitHub commit hash';
+                
+                // Check 3B should be D if ANY of Overleaf or GitHub is missing
                 const anyMissing = hasOverleafMissing || hasGitHubMissing;
-
+                
                 if (anyMissing) {
                     if (statusEl.textContent !== 'D') {
                         statusEl.textContent = 'D';
@@ -1062,7 +1032,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                         updateNoDeductionsSelection();
                     }
                 }
-
+                
                 let text = checkTextEl.textContent;
                 text = text.replace(/\s*\(auto-detected\)\s*$/, '');
                 text = text.replace(/\{POINTS\}/g, missingPoints);
@@ -2309,8 +2279,8 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                         text = text.replace(/\s*\(auto-detected\)\s*$/, '');
                         if (i === 2) {
                             const missing = getMissingAccessItems();
-                            const missingPoints = getMissingAccessPoints(); // Only Overleaf + GitHub
-                            text = text.replace(/\{TODO\}/g, missing || '');
+                            const missingPoints = getTotalMissingA2Points();
+                            text = text.replace(/\{TODO\}/g, missing || '{TODO}');
                             text = text.replace(/we've deducted points/, `we've deducted ${missingPoints} points`);
                         }
                         if (i === 3) {
@@ -2346,7 +2316,9 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 });
             }
             if (!hasNoDeductions && !hasDeductions) {
-                feedback += '\nNo Deductions Made:\n+ Submission of report and reproducibility materials satisfies major implementation requirements!\n';
+                  //feedback += '\nNo checks selected.\n';
+				feedback += '\nNo Deductions Made:\n+ Submission of report and reproducibility materials satisfies major implementation requirements!\n';
+				console.log("No checks selected.");
             }
             feedback += '}\n\n';
 
@@ -2442,7 +2414,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 feedback += `====================\nGeneral Feedback\n{${generalTA.value}}\n\n`;
             } else {
                 feedback +=
-                    `====================\nGeneral Feedback\n{Great work again on one report down, ${nameInput || ''}! Give yourself a pat on the back for where in particular you did well (and continue this through future reports!) and especially heed any improvement-oriented feedback provided below!\n\nWhat you did well:\nSee my comments for individual sections.\n\nWhat needs Improvement:\nSee my comments for individual sections.\n}\n\n`;
+                    `====================\nGeneral Feedback\n{Great work again on one report down, ${nameInput || 'TODO'}! Give yourself a pat on the back for where in particular you did well (and continue this through future reports!) and especially heed any improvement-oriented feedback provided below!\n\nWhat you did well:\nSee my comments for individual sections.\n\nWhat needs Improvement:\nSee my comments for individual sections.\n}\n\n`;
             }
 
             const totalPoints = document.getElementById('totalPoints').textContent;

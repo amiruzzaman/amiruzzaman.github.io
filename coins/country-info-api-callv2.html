@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Country Info Dashboard</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e67e22;
+            --background-color: #f4f6f8;
+            --card-background: #ffffff;
+            --text-color: #333333;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--card-background);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--secondary-color);
+        }
+
+        button {
+            padding: 12px 24px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #d35400;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            background: #fde8e7;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            font-size: 18px;
+            color: var(--secondary-color);
+            margin: 20px 0;
+        }
+
+        #result {
+            display: none;
+        }
+
+        /* Country Visual Display Cards */
+        .country-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            background: #fff;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+
+        .country-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--background-color);
+            padding-bottom: 15px;
+        }
+
+        .country-flag {
+            width: 100px;
+            height: auto;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            object-fit: cover;
+        }
+
+        .country-title h2 {
+            margin: 0;
+            color: var(--primary-color);
+        }
+
+        .country-title p {
+            margin: 5px 0 0 0;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        /* Div-based Tabular View layout */
+        .info-table {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .table-row {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table-row:last-child {
+            border-bottom: none;
+        }
+
+        .table-label {
+            flex: 1;
+            background-color: #f8fafc;
+            padding: 10px 15px;
+            font-weight: 600;
+            color: #4a5568;
+            border-right: 1px solid var(--border-color);
+            max-width: 200px;
+        }
+
+        .table-value {
+            flex: 2;
+            padding: 10px 15px;
+            color: #2d3748;
+            background-color: #fff;
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            margin: 35px 0 15px 0;
+            font-size: 1.2rem;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+
+        pre {
+            background-color: #272822;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', Courier, monospace;
+            font-size: 13px;
+            max-height: 300px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Country Information Terminal</h1>
+    
+    <div class="search-box">
+        <input type="text" id="countryInput" placeholder="Enter country name (e.g., Canada, India)...">
+        <button id="searchBtn">Search</button>
+    </div>
+
+    <div class="loader" id="loader">Fetching data via secure proxy...</div>
+    <div class="error-message" id="errorMessage"></div>
+
+    <div id="result">
+        <div id="visualDisplay"></div>
+
+        <h3 class="section-title">Raw API Response Data (JSON)</h3>
+        <pre><code id="jsonOutput"></code></pre>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const countryInput = document.getElementById('countryInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const resultDiv = document.getElementById('result');
+        const visualDisplay = document.getElementById('visualDisplay');
+        const jsonOutput = document.getElementById('jsonOutput');
+        const loader = document.getElementById('loader');
+        const errorMessage = document.getElementById('errorMessage');
+
+        function fetchCountryData(countryName) {
+            const queryName = countryName.trim() || 'canada';
+            
+            loader.style.display = 'block';
+            resultDiv.style.display = 'none';
+            errorMessage.style.display = 'none';
+            visualDisplay.innerHTML = '';
+
+            const targetUrl = `https://www.apicountries.com/countries/name/${encodeURIComponent(queryName)}`;
+            const proxyApiUrl = `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`;
+
+            fetch(proxyApiUrl)
+            .then(function (response) { 
+                if (!response.ok) {
+                    throw new Error(`Country "${queryName}" not found or endpoint failure.`);
+                }
+                return response.json(); 
+            })
+            .then(function (data) { 
+                loader.style.display = 'none';
+                
+                // Show raw JSON
+                jsonOutput.textContent = JSON.stringify(data, null, 2);
+                
+                // Build dynamic CSS Div-based tables for each returned country item
+                if (Array.isArray(data) && data.length > 0) {
+                    data.forEach(country => {
+                        const card = document.createElement('div');
+                        card.className = 'country-card';
+
+                        // Parse currencies
+                        const currencies = country.currencies 
+                            ? country.currencies.map(c => `${c.name} (${c.symbol || c.code})`).join(', ') 
+                            : 'N/A';
+
+                        // Parse languages
+                        const languages = country.languages 
+                            ? country.languages.map(l => l.name).join(', ') 
+                            : 'N/A';
+
+                        // Check flag property fallbacks
+                        const flagSrc = country.flag || (country.flags ? country.flags.svg : '');
+
+                        card.innerHTML = `
+                            <div class="country-header">
+                                ${flagSrc ? `<img class="country-flag" src="${flagSrc}" alt="${country.name} Flag">` : ''}
+                                <div class="country-title">
+                                    <h2>${country.name}</h2>
+                                    <p>Native: ${country.nativeName || 'N/A'}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="info-table">
+                                <div class="table-row">
+                                    <div class="table-label">Capital</div>
+                                    <div class="table-value">${country.capital || 'N/A'}</div>
+                                </div>
+                                <div class="table-row">
+                                    <div class="table-label">Region / Subregion</div>
+                                    <div class="table-value">${country.region || 'N/A'} (${country.subregion || 'N/A'})</div>
+                                </div>
+                                <div class="table-row">
+                                    <div class="table-label">Population</div>
+                                    <div class="table-value">${country.population ? country.population.toLocaleString() : 'N/A'}</div>
+                                </div>
+                                <div class="table-row">
+                                    <div class="table-label">Area</div>
+                                    <div class="table-value">${country.area ? country.area.toLocaleString() + ' km²' : 'N/A'}</div>
+                                </div>
+                                <div class="table-row">
+                                    <div class="table-label">Currencies</div>
+                                    <div class="table-value">${currencies}</div>
+                                </div>
+                                <div class="table-row">
+                                    <div class="table-label">Languages</div>
+                                    <div class="table-value">${languages}</div>
+                                </div>
+                                <div class="table-row">
+                                    <div class="table-label">Codes & Domains</div>
+                                    <div class="table-value">Alpha-2: ${country.alpha2Code || 'N/A'} | TLD: ${country.topLevelDomain ? country.topLevelDomain.join(', ') : 'N/A'}</div>
+                                </div>
+                            </div>
+                        `;
+                        visualDisplay.appendChild(card);
+                    });
+                } else {
+                    visualDisplay.innerHTML = '<p>No graphical data could be parsed.</p>';
+                }
+
+                resultDiv.style.display = 'block';
+            })
+            .catch(function (error) {
+                loader.style.display = 'none';
+                errorMessage.textContent = error.message;
+                errorMessage.style.display = 'block';
+                console.error('Fetch Error Detail:', error);
+            });
+        }
+
+        searchBtn.addEventListener('click', function() {
+            fetchCountryData(countryInput.value);
+        });
+
+        countryInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                fetchCountryData(countryInput.value);
+            }
+        });
+
+        fetchCountryData('');
+    });
+</script>
+
+</body>
+</html>
