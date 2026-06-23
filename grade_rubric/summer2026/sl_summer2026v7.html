@@ -694,9 +694,8 @@
         /* Notification styles */
         .notification-bar {
             width: 100%;
-            min-height: 36px;
-            line-height: 1.4;
-            padding: 8px 15px;
+            height: 40px;
+            line-height: 40px;
             text-align: center;
             background-color: #e3f2fd;
             color: #0D47A1;
@@ -708,7 +707,6 @@
             border: 1px solid #90caf9;
             display: none;
             position: relative;
-            box-sizing: border-box;
         }
 
         .notification-bar.show {
@@ -720,12 +718,6 @@
             background-color: #e8f5e9;
             color: #1b5e20;
             border-color: #81c784;
-        }
-
-        .notification-bar.info {
-            background-color: #e3f2fd;
-            color: #0D47A1;
-            border-color: #90caf9;
         }
 
         @keyframes slideDown {
@@ -742,15 +734,13 @@
         .notification-bar .close-notification {
             position: absolute;
             right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
+            top: 0;
             cursor: pointer;
             font-weight: bold;
             font-size: 18px;
             color: inherit;
             opacity: 0.6;
             transition: opacity 0.2s;
-            line-height: 1;
         }
 
         .notification-bar .close-notification:hover {
@@ -933,20 +923,30 @@ Without further ado, below we've provided both high-level feedback on satisfacti
         let extraCreditPointsValue = 0;
         let checkSelections = {};
         let checkTextSelections = {};
+        let notificationTimeout = null;
 
         function showNotification(message, isSuccess = true) {
             const bar = document.getElementById('notificationBar');
             const msgEl = document.getElementById('notificationMessage');
             msgEl.textContent = message;
             bar.className = 'notification-bar show' + (isSuccess ? ' success' : '');
-            // Ensure the bar is visible
-            bar.style.display = 'block';
+            // Clear any existing timeout
+            if (notificationTimeout) {
+                clearTimeout(notificationTimeout);
+            }
+            // Auto-hide after 5 seconds
+            notificationTimeout = setTimeout(() => {
+                hideNotification();
+            }, 5000);
         }
 
         function hideNotification() {
             const bar = document.getElementById('notificationBar');
             bar.className = 'notification-bar';
-            bar.style.display = 'none';
+            if (notificationTimeout) {
+                clearTimeout(notificationTimeout);
+                notificationTimeout = null;
+            }
         }
 
         function initCheckSelections() {
@@ -1044,34 +1044,38 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             return missing.join(' and ');
         }
 
+        // This function only checks Enterprise Overleaf and Enterprise GitHub (items 2 and 3)
+        // for Check 3A and Check 3B deduction
         function getMissingAccessPoints() {
             const sectionId = 'section-0';
             const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
             let missingPoints = 0;
+            // Only check Enterprise Overleaf (item 2) and Enterprise GitHub (item 3)
             if (!sectionState.positive.has('section-0-positive-2')) {
-                missingPoints += 2;
+                missingPoints += 2; // Enterprise Overleaf
             }
             if (!sectionState.positive.has('section-0-positive-3')) {
-                missingPoints += 2;
+                missingPoints += 2; // Enterprise GitHub
             }
             return missingPoints;
         }
 
+        // This function checks all A2 items for reference (not used for Check 3A anymore)
         function getTotalMissingA2Points() {
             const sectionId = 'section-0';
             const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
             let missingPoints = 0;
             if (!sectionState.positive.has('section-0-positive-2')) {
-                missingPoints += 2;
+                missingPoints += 2; // Enterprise Overleaf
             }
             if (!sectionState.positive.has('section-0-positive-3')) {
-                missingPoints += 2;
+                missingPoints += 2; // Enterprise GitHub
             }
             if (!sectionState.positive.has('section-0-positive-4')) {
-                missingPoints += 2;
+                missingPoints += 2; // Run instructions
             }
             if (!sectionState.positive.has('section-0-positive-5')) {
-                missingPoints += 1;
+                missingPoints += 1; // Sampling procedure
             }
             return missingPoints;
         }
@@ -1081,7 +1085,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             const statusEl = document.getElementById('check-status-negative-2');
             if (checkTextEl) {
                 const missing = getMissingAccessItems();
-                const missingPoints = getMissingAccessPoints();
+                const missingPoints = getMissingAccessPoints(); // Only Overleaf + GitHub
                 let text = checkTextEl.textContent;
                 text = text.replace(/\s*\(auto-filled from A2\)\s*$/, '');
 
@@ -2399,7 +2403,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                         text = text.replace(/\s*\(auto-detected\)\s*$/, '');
                         if (i === 2) {
                             const missing = getMissingAccessItems();
-                            const missingPoints = getMissingAccessPoints();
+                            const missingPoints = getMissingAccessPoints(); // Only Overleaf + GitHub
                             text = text.replace(/\{TODO\}/g, missing || '');
                             text = text.replace(/we've deducted points/, `we've deducted ${missingPoints} points`);
                         }
