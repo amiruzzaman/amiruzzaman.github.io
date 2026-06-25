@@ -82,33 +82,6 @@
             background-color: var(--header-bg);
         }
 
-        .summary-table tbody tr {
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .summary-table tbody tr:hover {
-            background-color: #f0f7ff;
-        }
-
-        /* Row color states based on points */
-        .summary-table tbody tr.row-not-started {
-            background-color: #ffebee;
-        }
-
-        .summary-table tbody tr.row-in-progress {
-            background-color: #fff3e0;
-        }
-
-        .summary-table tbody tr.row-completed {
-            background-color: #e8f5e9;
-        }
-
-        .summary-table tbody tr.row-completed td:first-child::after {
-            content: " ✅";
-            font-size: 0.8em;
-        }
-
         .section-header {
             background-color: var(--header-bg);
             padding: 10px 15px;
@@ -305,6 +278,15 @@
             padding: 8px 12px;
             text-align: left;
             border-bottom: 1px solid var(--border-color);
+        }
+
+        .summary-table tbody tr {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .summary-table tbody tr:hover {
+            background-color: #f0f7ff;
         }
 
         .total-row {
@@ -1002,8 +984,10 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             const bar = document.getElementById('notificationBar');
             const msgEl = document.getElementById('notificationMessage');
             
+            // If there's a section letter, create HTML with highlighted letter
             if (sectionLetter) {
                 const colorClass = `highlight-letter-${sectionLetter}`;
+                // Replace "Section X" with highlighted version
                 const highlighted = `<span class="highlight-letter ${colorClass}">Section ${sectionLetter}</span>`;
                 msgEl.innerHTML = message.replace(`Section ${sectionLetter}`, highlighted);
             } else {
@@ -1032,28 +1016,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             errorEl.classList.remove('show');
             nameInput.style.borderColor = '';
             return true;
-        }
-
-        function getSectionStatusClass(sectionIndex) {
-            const section = rubricData.grading_rubric.sections[sectionIndex];
-            const sectionId = `section-${sectionIndex}`;
-            const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
-            let sectionPoints = 0;
-            const maxPoints = section.points_available;
-            let itemCounter = 0;
-            section.groups.forEach(group => {
-                group.items.forEach((item, idx) => {
-                    const itemId = `${sectionId}-positive-${itemCounter}`;
-                    if (sectionState.positive.has(itemId)) {
-                        sectionPoints += item.points;
-                    }
-                    itemCounter++;
-                });
-            });
-            
-            if (sectionPoints === 0) return 'row-not-started';
-            if (sectionPoints >= maxPoints) return 'row-completed';
-            return 'row-in-progress';
         }
 
         function initCheckSelections() {
@@ -1842,6 +1804,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             select.value = 'Nicely done in completing the SL Report, {}! We hope this has given you momentum to make great progress on the next in our series of three, the OL Report!';
             textarea.value = 'Nicely done in completing the SL Report, {}! We hope this has given you momentum to make great progress on the next in our series of three, the OL Report!\n\nPlease create a private Ed post if you have any questions, comments, concerns or if you notice something grade- or feedback-related is amiss!\n\nWithout further ado, below we\'ve provided both high-level feedback on satisfaction of the basic requirements as well as individualized feedback to help steer you for the better in future assignments where we felt there was room for improvement, not without highlighting your strengths!';
 
+            // Add input listener for name validation
             document.getElementById('studentName').addEventListener('input', function() {
                 const errorEl = document.getElementById('nameRequiredError');
                 if (this.value.trim()) {
@@ -2183,6 +2146,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 if (validateName()) {
                     generateFeedback();
                 } else {
+                    // Scroll to the name section
                     document.getElementById('nameSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
                     document.getElementById('studentName').focus();
                 }
@@ -2442,17 +2406,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 row.addEventListener('click', (e) => {
                     scrollToSection(sectionIndex);
                 });
-
-                // Determine row color based on points
-                let statusClass = 'row-not-started';
-                if (sectionPoints === 0) {
-                    statusClass = 'row-not-started';
-                } else if (sectionPoints >= maxPoints) {
-                    statusClass = 'row-completed';
-                } else {
-                    statusClass = 'row-in-progress';
-                }
-                row.className = statusClass;
 
                 if (isExtraCredit) {
                     extraCreditPoints += sectionPoints;
