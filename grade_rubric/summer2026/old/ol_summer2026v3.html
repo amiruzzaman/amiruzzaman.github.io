@@ -659,7 +659,7 @@
             color: #2e7d32;
         }
 
-        .check-item-row .check-status.Y {
+        .check-item-row .check-status.D {
             background-color: #ffebee;
             color: #c62828;
         }
@@ -833,7 +833,6 @@
             padding: 4px 8px;
             margin-bottom: 10px;
             font-weight: 500;
-            border: 2px solid #4CAF50;
         }
 
         .master-check-row .check-text {
@@ -842,10 +841,6 @@
 
         .master-check-row .check-text.selected {
             background-color: #a5d6a7;
-        }
-        
-        .master-check-row .check-text.unselected {
-            background-color: #ffcdd2;
         }
     </style>
 </head>
@@ -883,18 +878,18 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             <div class="checks-section">
                 <h3>
                     Checks Configuration
-                    <button onclick="copyChecksStatusOnly()">📋 Copy Checks (6 items: N/Y)</button>
+                    <button onclick="copyChecksStatusOnly()">📋 Copy Checks (6 items: N/D)</button>
                 </h3>
-                <p><strong>Click on the master "No Deductions" check to toggle all checks to N, or click individual checks to toggle N/Y.</strong></p>
+                <p><strong>Click on the master "No Deductions" check to toggle all checks to N, or click individual checks to toggle N/D.</strong></p>
                 
                 <p><strong>Master Control:</strong></p>
                 <div class="item-list">
                     <div class="check-item-row master-check-row" onclick="toggleMasterNoDeductions()">
-                        <span class="check-text selected" id="check-text-positive-0">✅ No Deductions Made — All checks are N</span>
+                        <span class="check-text selected" id="check-text-positive-0">✅ No Deductions Made — Submission of report and reproducibility materials satisfies major implementation requirements!</span>
                     </div>
                 </div>
                 
-                <p><strong>Individual Checks (click N/Y to toggle, click text to select for feedback):</strong></p>
+                <p><strong>Individual Checks (only active when master is OFF):</strong></p>
                 <div class="item-list">
                     <div class="check-item-row" onclick="toggleCheckSelection('negative-0')">
                         <span class="check-status N" id="check-status-negative-0" onclick="event.stopPropagation(); toggleCheckStatus('negative-0')">N</span>
@@ -1030,7 +1025,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
         let extraCreditPointsValue = 0;
         let checkSelections = {};
         let checkTextSelections = {};
-        let masterNoDeductions = true;
+        let masterNoDeductions = true; // positive-0 selected by default
 
         function showNotification(message, isSuccess = true, sectionLetter = '') {
             const bar = document.getElementById('notificationBar');
@@ -1084,17 +1079,17 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             if (masterEl) {
                 if (masterNoDeductions) {
                     masterEl.classList.add('selected');
-                    masterEl.classList.remove('unselected');
                 } else {
                     masterEl.classList.remove('selected');
-                    masterEl.classList.add('unselected');
                 }
             }
             
+            // Update all check statuses based on master
             for (let i = 0; i < 7; i++) {
                 const statusEl = document.getElementById(`check-status-negative-${i}`);
                 const textEl = document.getElementById(`check-text-negative-${i}`);
                 if (masterNoDeductions) {
+                    // Master ON: all checks are N and disabled
                     checkSelections[`negative-${i}`] = 'N';
                     if (statusEl) {
                         statusEl.textContent = 'N';
@@ -1106,6 +1101,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     }
                     checkTextSelections[`negative-${i}`] = false;
                 } else {
+                    // Master OFF: checks are enabled for individual toggling
                     if (statusEl) {
                         statusEl.className = 'check-status N';
                     }
@@ -1117,55 +1113,15 @@ Without further ado, below we've provided both high-level feedback on satisfacti
         }
 
         function toggleCheckStatus(id) {
-            if (masterNoDeductions) return;
+            if (masterNoDeductions) return; // Master ON: prevent toggling
             
             const el = document.getElementById(`check-status-${id}`);
             if (el.textContent === 'N') {
-                el.textContent = 'Y';
-                el.className = 'check-status Y';
-                // Uncheck master if any check becomes Y
-                if (masterNoDeductions) {
-                    masterNoDeductions = false;
-                    const masterEl = document.getElementById('check-text-positive-0');
-                    if (masterEl) {
-                        masterEl.classList.remove('selected');
-                        masterEl.classList.add('unselected');
-                    }
-                }
+                el.textContent = 'D';
+                el.className = 'check-status D';
             } else {
                 el.textContent = 'N';
                 el.className = 'check-status N';
-                // Check if all checks are N, then re-enable master
-                let allN = true;
-                for (let i = 0; i < 7; i++) {
-                    if (checkSelections[`negative-${i}`] === 'Y') {
-                        allN = false;
-                        break;
-                    }
-                }
-                if (allN && !masterNoDeductions) {
-                    masterNoDeductions = true;
-                    const masterEl = document.getElementById('check-text-positive-0');
-                    if (masterEl) {
-                        masterEl.classList.add('selected');
-                        masterEl.classList.remove('unselected');
-                    }
-                    // Re-disable all checks
-                    for (let j = 0; j < 7; j++) {
-                        const statusEl2 = document.getElementById(`check-status-negative-${j}`);
-                        const textEl2 = document.getElementById(`check-text-negative-${j}`);
-                        if (statusEl2) {
-                            statusEl2.textContent = 'N';
-                            statusEl2.className = 'check-status N disabled';
-                        }
-                        if (textEl2) {
-                            textEl2.classList.add('disabled');
-                            textEl2.classList.remove('selected');
-                        }
-                        checkSelections[`negative-${j}`] = 'N';
-                        checkTextSelections[`negative-${j}`] = false;
-                    }
-                }
             }
             checkSelections[id] = el.textContent;
             
@@ -1178,7 +1134,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
         }
 
         function toggleCheckSelection(id) {
-            if (masterNoDeductions) return;
+            if (masterNoDeductions) return; // Master ON: prevent toggling
             
             const el = document.getElementById(`check-text-${id}`);
             if (checkTextSelections[id]) {
@@ -1200,7 +1156,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
         function getCombinedCheck3Status() {
             const statusA = checkSelections['negative-2'] || 'N';
             const statusB = checkSelections['negative-3'] || 'N';
-            return (statusA === 'Y' || statusB === 'Y') ? 'Y' : 'N';
+            return (statusA === 'D' || statusB === 'D') ? 'D' : 'N';
         }
 
         function getCombinedCheck3Text() {
@@ -1223,15 +1179,22 @@ Without further ado, below we've provided both high-level feedback on satisfacti
         function copyChecksStatusOnly() {
             let statuses = [];
             if (masterNoDeductions) {
+                // All N
                 for (let i = 0; i < 6; i++) {
                     statuses.push('N');
                 }
             } else {
+                // Check 1: negative-0
                 statuses.push(checkSelections['negative-0'] || 'N');
+                // Check 2: negative-1
                 statuses.push(checkSelections['negative-1'] || 'N');
+                // Check 3: combined (negative-2 + negative-3)
                 statuses.push(getCombinedCheck3Status());
+                // Check 4: negative-4
                 statuses.push(checkSelections['negative-4'] || 'N');
+                // Check 5: negative-5
                 statuses.push(checkSelections['negative-5'] || 'N');
+                // Check 6: negative-6
                 statuses.push(checkSelections['negative-6'] || 'N');
             }
             const result = statuses.join('\t');
@@ -1309,19 +1272,10 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                         checkTextSelections['negative-2'] = true;
                         check3AEl.classList.add('selected');
                     }
-                    if (status3AEl && status3AEl.textContent !== 'Y') {
-                        status3AEl.textContent = 'Y';
-                        status3AEl.className = 'check-status Y';
-                        checkSelections['negative-2'] = 'Y';
-                        // Uncheck master
-                        if (masterNoDeductions) {
-                            masterNoDeductions = false;
-                            const masterEl = document.getElementById('check-text-positive-0');
-                            if (masterEl) {
-                                masterEl.classList.remove('selected');
-                                masterEl.classList.add('unselected');
-                            }
-                        }
+                    if (status3AEl && status3AEl.textContent !== 'D') {
+                        status3AEl.textContent = 'D';
+                        status3AEl.className = 'check-status D';
+                        checkSelections['negative-2'] = 'D';
                     }
                 } else if (missing === '' && !masterNoDeductions) {
                     text = text.replace(/\{TODO\}/g, '');
@@ -1329,40 +1283,10 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                         checkTextSelections['negative-2'] = false;
                         check3AEl.classList.remove('selected');
                     }
-                    if (status3AEl && status3AEl.textContent === 'Y') {
+                    if (status3AEl && status3AEl.textContent === 'D') {
                         status3AEl.textContent = 'N';
                         status3AEl.className = 'check-status N';
                         checkSelections['negative-2'] = 'N';
-                        // Check if all N, re-enable master
-                        let allN = true;
-                        for (let i = 0; i < 7; i++) {
-                            if (checkSelections[`negative-${i}`] === 'Y') {
-                                allN = false;
-                                break;
-                            }
-                        }
-                        if (allN && !masterNoDeductions) {
-                            masterNoDeductions = true;
-                            const masterEl = document.getElementById('check-text-positive-0');
-                            if (masterEl) {
-                                masterEl.classList.add('selected');
-                                masterEl.classList.remove('unselected');
-                            }
-                            for (let j = 0; j < 7; j++) {
-                                const sEl = document.getElementById(`check-status-negative-${j}`);
-                                const tEl = document.getElementById(`check-text-negative-${j}`);
-                                if (sEl) {
-                                    sEl.textContent = 'N';
-                                    sEl.className = 'check-status N disabled';
-                                }
-                                if (tEl) {
-                                    tEl.classList.add('disabled');
-                                    tEl.classList.remove('selected');
-                                }
-                                checkSelections[`negative-${j}`] = 'N';
-                                checkTextSelections[`negative-${j}`] = false;
-                            }
-                        }
                     }
                 }
                 check3AEl.textContent = text;
@@ -1397,57 +1321,20 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                         checkTextSelections['negative-6'] = true;
                         checkTextEl.classList.add('selected');
                     }
-                    if (statusEl && statusEl.textContent !== 'Y') {
-                        statusEl.textContent = 'Y';
-                        statusEl.className = 'check-status Y';
-                        checkSelections['negative-6'] = 'Y';
-                        if (masterNoDeductions) {
-                            masterNoDeductions = false;
-                            const masterEl = document.getElementById('check-text-positive-0');
-                            if (masterEl) {
-                                masterEl.classList.remove('selected');
-                                masterEl.classList.add('unselected');
-                            }
-                        }
+                    if (statusEl && statusEl.textContent !== 'D') {
+                        statusEl.textContent = 'D';
+                        statusEl.className = 'check-status D';
+                        checkSelections['negative-6'] = 'D';
                     }
                 } else if (missing === '' && !masterNoDeductions) {
                     if (checkTextSelections['negative-6']) {
                         checkTextSelections['negative-6'] = false;
                         checkTextEl.classList.remove('selected');
                     }
-                    if (statusEl && statusEl.textContent === 'Y') {
+                    if (statusEl && statusEl.textContent === 'D') {
                         statusEl.textContent = 'N';
                         statusEl.className = 'check-status N';
                         checkSelections['negative-6'] = 'N';
-                        let allN = true;
-                        for (let i = 0; i < 7; i++) {
-                            if (checkSelections[`negative-${i}`] === 'Y') {
-                                allN = false;
-                                break;
-                            }
-                        }
-                        if (allN && !masterNoDeductions) {
-                            masterNoDeductions = true;
-                            const masterEl = document.getElementById('check-text-positive-0');
-                            if (masterEl) {
-                                masterEl.classList.add('selected');
-                                masterEl.classList.remove('unselected');
-                            }
-                            for (let j = 0; j < 7; j++) {
-                                const sEl = document.getElementById(`check-status-negative-${j}`);
-                                const tEl = document.getElementById(`check-text-negative-${j}`);
-                                if (sEl) {
-                                    sEl.textContent = 'N';
-                                    sEl.className = 'check-status N disabled';
-                                }
-                                if (tEl) {
-                                    tEl.classList.add('disabled');
-                                    tEl.classList.remove('selected');
-                                }
-                                checkSelections[`negative-${j}`] = 'N';
-                                checkTextSelections[`negative-${j}`] = false;
-                            }
-                        }
                     }
                 }
                 checkTextEl.textContent = text;
@@ -2024,13 +1911,12 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 }
             });
 
-            // Initialize: master ON, all checks N and disabled
+            // Initialize master state
+            toggleMasterNoDeductions(); // This will set all checks to N and disabled
+            // Then set master back to ON with proper styling
             masterNoDeductions = true;
             const masterEl = document.getElementById('check-text-positive-0');
-            if (masterEl) {
-                masterEl.classList.add('selected');
-                masterEl.classList.remove('unselected');
-            }
+            if (masterEl) masterEl.classList.add('selected');
             for (let i = 0; i < 7; i++) {
                 const statusEl = document.getElementById(`check-status-negative-${i}`);
                 const textEl = document.getElementById(`check-text-negative-${i}`);
@@ -2707,14 +2593,17 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             feedback += '====================\nChecks\n{';
             
             if (masterNoDeductions) {
+                // Master ON: all N
                 feedback += '\nNo Deductions Made: \n';
                 feedback += '+ Submission of report and reproducibility materials satisfies major implementation requirements!\n';
             } else {
+                // Master OFF: individual checks
                 let hasNoDeductions = false;
                 let hasDeductions = false;
                 let noDeductionTexts = [];
                 let deductionTexts = [];
 
+                // Check 1: negative-0
                 if (checkTextSelections['negative-0']) {
                     const status = checkSelections['negative-0'];
                     const el = document.getElementById('check-text-negative-0');
@@ -2729,6 +2618,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                         }
                     }
                 }
+                // Check 2: negative-1
                 if (checkTextSelections['negative-1']) {
                     const status = checkSelections['negative-1'];
                     const el = document.getElementById('check-text-negative-1');
@@ -2743,6 +2633,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                         }
                     }
                 }
+                // Check 3: combined
                 if (checkTextSelections['negative-2'] || checkTextSelections['negative-3']) {
                     const combinedText = getCombinedCheck3Text();
                     if (combinedText) {
@@ -2756,6 +2647,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                         }
                     }
                 }
+                // Check 4: negative-4
                 if (checkTextSelections['negative-4']) {
                     const status = checkSelections['negative-4'];
                     const el = document.getElementById('check-text-negative-4');
@@ -2770,6 +2662,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                         }
                     }
                 }
+                // Check 5: negative-5
                 if (checkTextSelections['negative-5']) {
                     const status = checkSelections['negative-5'];
                     const el = document.getElementById('check-text-negative-5');
@@ -2784,6 +2677,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                         }
                     }
                 }
+                // Check 6: negative-6
                 if (checkTextSelections['negative-6']) {
                     const status = checkSelections['negative-6'];
                     const el = document.getElementById('check-text-negative-6');
@@ -2938,12 +2832,10 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 }
             });
 
+            // Reset master to ON
             masterNoDeductions = true;
             const masterEl = document.getElementById('check-text-positive-0');
-            if (masterEl) {
-                masterEl.classList.add('selected');
-                masterEl.classList.remove('unselected');
-            }
+            if (masterEl) masterEl.classList.add('selected');
             
             for (let i = 0; i < 7; i++) {
                 checkSelections[`negative-${i}`] = 'N';

@@ -659,14 +659,9 @@
             color: #2e7d32;
         }
 
-        .check-item-row .check-status.Y {
+        .check-item-row .check-status.D {
             background-color: #ffebee;
             color: #c62828;
-        }
-
-        .check-item-row .check-status.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
         }
 
         .check-item-row .check-text {
@@ -683,11 +678,6 @@
 
         .check-item-row .check-text.selected {
             background-color: #bbdefb;
-        }
-
-        .check-item-row .check-text.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
         }
 
         .group-item {
@@ -826,27 +816,6 @@
         .name-required-error.show {
             display: block;
         }
-
-        .master-check-row {
-            background-color: #e8f5e9;
-            border-radius: 4px;
-            padding: 4px 8px;
-            margin-bottom: 10px;
-            font-weight: 500;
-            border: 2px solid #4CAF50;
-        }
-
-        .master-check-row .check-text {
-            font-weight: 500;
-        }
-
-        .master-check-row .check-text.selected {
-            background-color: #a5d6a7;
-        }
-        
-        .master-check-row .check-text.unselected {
-            background-color: #ffcdd2;
-        }
     </style>
 </head>
 
@@ -883,18 +852,17 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             <div class="checks-section">
                 <h3>
                     Checks Configuration
-                    <button onclick="copyChecksStatusOnly()">📋 Copy Checks (6 items: N/Y)</button>
+                    <button onclick="copyChecksStatusOnly()">📋 Copy Checks (N/D)</button>
                 </h3>
-                <p><strong>Click on the master "No Deductions" check to toggle all checks to N, or click individual checks to toggle N/Y.</strong></p>
-                
-                <p><strong>Master Control:</strong></p>
+                <p><strong>Click on N/D to toggle status, or click on the text to select/deselect for feedback:</strong></p>
+                <p><strong>No Deductions Made:</strong></p>
                 <div class="item-list">
-                    <div class="check-item-row master-check-row" onclick="toggleMasterNoDeductions()">
-                        <span class="check-text selected" id="check-text-positive-0">✅ No Deductions Made — All checks are N</span>
+                    <div class="check-item-row" onclick="toggleCheckSelection('positive-0')">
+                        <span class="check-status N" id="check-status-positive-0" onclick="event.stopPropagation(); toggleCheckStatus('positive-0')">N</span>
+                        <span class="check-text" id="check-text-positive-0">Submission of report and reproducibility materials satisfies major implementation requirements!</span>
                     </div>
                 </div>
-                
-                <p><strong>Individual Checks (click N/Y to toggle, click text to select for feedback):</strong></p>
+                <p><strong>Deductions Made:</strong></p>
                 <div class="item-list">
                     <div class="check-item-row" onclick="toggleCheckSelection('negative-0')">
                         <span class="check-status N" id="check-status-negative-0" onclick="event.stopPropagation(); toggleCheckStatus('negative-0')">N</span>
@@ -950,7 +918,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 <button onclick="copySectionGroupScores(3)">📋 D</button>
                 <button onclick="copySectionGroupScores(4)">📋 E</button>
                 <button onclick="copySectionGroupScores(5)">📋 F</button>
-                <button class="checks-btn" onclick="copyChecksStatusOnly()">📋 Checks (6)</button>
+                <button class="checks-btn" onclick="copyChecksStatusOnly()">📋 Checks</button>
             </div>
 
             <div id="outputSection" class="output-section hidden"></div>
@@ -1030,7 +998,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
         let extraCreditPointsValue = 0;
         let checkSelections = {};
         let checkTextSelections = {};
-        let masterNoDeductions = true;
 
         function showNotification(message, isSuccess = true, sectionLetter = '') {
             const bar = document.getElementById('notificationBar');
@@ -1068,109 +1035,28 @@ Without further ado, below we've provided both high-level feedback on satisfacti
 
         // ==================== CHECKS ====================
         function initCheckSelections() {
-            masterNoDeductions = true;
+            checkSelections['positive-0'] = 'N';
+            checkTextSelections['positive-0'] = true;
             for (let i = 0; i < 7; i++) {
                 checkSelections[`negative-${i}`] = 'N';
                 checkTextSelections[`negative-${i}`] = false;
             }
-            checkTextSelections['positive-0'] = true;
         }
         initCheckSelections();
 
-        function toggleMasterNoDeductions() {
-            masterNoDeductions = !masterNoDeductions;
-            
-            const masterEl = document.getElementById('check-text-positive-0');
-            if (masterEl) {
-                if (masterNoDeductions) {
-                    masterEl.classList.add('selected');
-                    masterEl.classList.remove('unselected');
-                } else {
-                    masterEl.classList.remove('selected');
-                    masterEl.classList.add('unselected');
-                }
-            }
-            
-            for (let i = 0; i < 7; i++) {
-                const statusEl = document.getElementById(`check-status-negative-${i}`);
-                const textEl = document.getElementById(`check-text-negative-${i}`);
-                if (masterNoDeductions) {
-                    checkSelections[`negative-${i}`] = 'N';
-                    if (statusEl) {
-                        statusEl.textContent = 'N';
-                        statusEl.className = 'check-status N disabled';
-                    }
-                    if (textEl) {
-                        textEl.classList.add('disabled');
-                        textEl.classList.remove('selected');
-                    }
-                    checkTextSelections[`negative-${i}`] = false;
-                } else {
-                    if (statusEl) {
-                        statusEl.className = 'check-status N';
-                    }
-                    if (textEl) {
-                        textEl.classList.remove('disabled');
-                    }
-                }
-            }
-        }
-
         function toggleCheckStatus(id) {
-            if (masterNoDeductions) return;
-            
             const el = document.getElementById(`check-status-${id}`);
             if (el.textContent === 'N') {
-                el.textContent = 'Y';
-                el.className = 'check-status Y';
-                // Uncheck master if any check becomes Y
-                if (masterNoDeductions) {
-                    masterNoDeductions = false;
-                    const masterEl = document.getElementById('check-text-positive-0');
-                    if (masterEl) {
-                        masterEl.classList.remove('selected');
-                        masterEl.classList.add('unselected');
-                    }
-                }
+                el.textContent = 'D';
+                el.className = 'check-status D';
             } else {
                 el.textContent = 'N';
                 el.className = 'check-status N';
-                // Check if all checks are N, then re-enable master
-                let allN = true;
-                for (let i = 0; i < 7; i++) {
-                    if (checkSelections[`negative-${i}`] === 'Y') {
-                        allN = false;
-                        break;
-                    }
-                }
-                if (allN && !masterNoDeductions) {
-                    masterNoDeductions = true;
-                    const masterEl = document.getElementById('check-text-positive-0');
-                    if (masterEl) {
-                        masterEl.classList.add('selected');
-                        masterEl.classList.remove('unselected');
-                    }
-                    // Re-disable all checks
-                    for (let j = 0; j < 7; j++) {
-                        const statusEl2 = document.getElementById(`check-status-negative-${j}`);
-                        const textEl2 = document.getElementById(`check-text-negative-${j}`);
-                        if (statusEl2) {
-                            statusEl2.textContent = 'N';
-                            statusEl2.className = 'check-status N disabled';
-                        }
-                        if (textEl2) {
-                            textEl2.classList.add('disabled');
-                            textEl2.classList.remove('selected');
-                        }
-                        checkSelections[`negative-${j}`] = 'N';
-                        checkTextSelections[`negative-${j}`] = false;
-                    }
-                }
             }
             checkSelections[id] = el.textContent;
-            
-            if (id === 'negative-2' || id === 'negative-3') {
-                updateCheck3A3B();
+            updateNoDeductionsSelection();
+            if (id === 'negative-2') {
+                updateCheck3A();
             }
             if (id === 'negative-6') {
                 updateCheck6();
@@ -1178,8 +1064,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
         }
 
         function toggleCheckSelection(id) {
-            if (masterNoDeductions) return;
-            
             const el = document.getElementById(`check-text-${id}`);
             if (checkTextSelections[id]) {
                 checkTextSelections[id] = false;
@@ -1188,55 +1072,46 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 checkTextSelections[id] = true;
                 el.classList.add('selected');
             }
-            
-            if (id === 'negative-2' || id === 'negative-3') {
-                updateCheck3A3B();
+            updateNoDeductionsSelection();
+            if (id === 'negative-2') {
+                updateCheck3A();
             }
             if (id === 'negative-6') {
                 updateCheck6();
             }
         }
 
-        function getCombinedCheck3Status() {
-            const statusA = checkSelections['negative-2'] || 'N';
-            const statusB = checkSelections['negative-3'] || 'N';
-            return (statusA === 'Y' || statusB === 'Y') ? 'Y' : 'N';
-        }
-
-        function getCombinedCheck3Text() {
-            const elA = document.getElementById('check-text-negative-2');
-            const elB = document.getElementById('check-text-negative-3');
-            let text = '';
-            if (elA && checkTextSelections['negative-2']) {
-                text = elA.textContent;
-                text = text.replace(/\s*\(auto-filled from A2\)\s*$/, '');
-                const missing = getMissingAccessItems();
-                const missingPoints = getMissingAccessPoints();
-                text = text.replace(/\{TODO\}/g, missing || '');
-                text = text.replace(/we've deducted points/, `we've deducted ${missingPoints} points`);
-            } else if (elB && checkTextSelections['negative-3']) {
-                text = elB.textContent;
+        function updateNoDeductionsSelection() {
+            let hasNegativeSelected = false;
+            for (let i = 0; i < 7; i++) {
+                if (checkTextSelections[`negative-${i}`] || checkSelections[`negative-${i}`] === 'D') {
+                    hasNegativeSelected = true;
+                    break;
+                }
             }
-            return text;
+            if (checkSelections['positive-0'] === 'D') {
+                hasNegativeSelected = true;
+            }
+            if (hasNegativeSelected) {
+                checkTextSelections['positive-0'] = false;
+                const el = document.getElementById('check-text-positive-0');
+                if (el) el.classList.remove('selected');
+            } else {
+                checkTextSelections['positive-0'] = true;
+                const el = document.getElementById('check-text-positive-0');
+                if (el) el.classList.add('selected');
+            }
         }
 
         function copyChecksStatusOnly() {
             let statuses = [];
-            if (masterNoDeductions) {
-                for (let i = 0; i < 6; i++) {
-                    statuses.push('N');
-                }
-            } else {
-                statuses.push(checkSelections['negative-0'] || 'N');
-                statuses.push(checkSelections['negative-1'] || 'N');
-                statuses.push(getCombinedCheck3Status());
-                statuses.push(checkSelections['negative-4'] || 'N');
-                statuses.push(checkSelections['negative-5'] || 'N');
-                statuses.push(checkSelections['negative-6'] || 'N');
+            statuses.push(checkSelections['positive-0'] || 'N');
+            for (let i = 0; i < 7; i++) {
+                statuses.push(checkSelections[`negative-${i}`] || 'N');
             }
             const result = statuses.join('\t');
             navigator.clipboard.writeText(result);
-            showNotification(`✅ 6 checks status copied: ${result}`);
+            showNotification(`✅ Checks status copied: ${result}`);
         }
 
         function getMissingAccessItems() {
@@ -1267,6 +1142,25 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             return missingPoints;
         }
 
+        function getTotalMissingA2Points() {
+            const sectionId = 'section-0';
+            const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
+            let missingPoints = 0;
+            if (!sectionState.positive.has('section-0-positive-2')) {
+                missingPoints += 2;
+            }
+            if (!sectionState.positive.has('section-0-positive-3')) {
+                missingPoints += 2;
+            }
+            if (!sectionState.positive.has('section-0-positive-4')) {
+                missingPoints += 2;
+            }
+            if (!sectionState.positive.has('section-0-positive-5')) {
+                missingPoints += 1;
+            }
+            return missingPoints;
+        }
+
         function getMissingCheck6Items() {
             const sectionId = 'section-0';
             const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
@@ -1289,97 +1183,42 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             return missing.slice(0, -1).join(', ') + ' and ' + missing.slice(-1);
         }
 
-        function updateCheck3A3B() {
-            const check3AEl = document.getElementById('check-text-negative-2');
-            const check3BEl = document.getElementById('check-text-negative-3');
-            const status3AEl = document.getElementById('check-status-negative-2');
-            const status3BEl = document.getElementById('check-status-negative-3');
-
-            const missing = getMissingAccessItems();
-            const missingPoints = getMissingAccessPoints();
-
-            if (check3AEl) {
-                let text = check3AEl.textContent;
+        function updateCheck3A() {
+            const checkTextEl = document.getElementById('check-text-negative-2');
+            const statusEl = document.getElementById('check-status-negative-2');
+            if (checkTextEl) {
+                const missing = getMissingAccessItems();
+                const missingPoints = getMissingAccessPoints();
+                let text = checkTextEl.textContent;
                 text = text.replace(/\s*\(auto-filled from A2\)\s*$/, '');
-                if (missing !== '' && !masterNoDeductions) {
+                if (missing !== '') {
                     text = text.replace(/\{TODO\}/g, missing);
                     text = text.replace(/we've deducted points/, `we've deducted ${missingPoints} points`);
                     text = text + ' (auto-filled from A2)';
                     if (!checkTextSelections['negative-2']) {
                         checkTextSelections['negative-2'] = true;
-                        check3AEl.classList.add('selected');
+                        checkTextEl.classList.add('selected');
                     }
-                    if (status3AEl && status3AEl.textContent !== 'Y') {
-                        status3AEl.textContent = 'Y';
-                        status3AEl.className = 'check-status Y';
-                        checkSelections['negative-2'] = 'Y';
-                        // Uncheck master
-                        if (masterNoDeductions) {
-                            masterNoDeductions = false;
-                            const masterEl = document.getElementById('check-text-positive-0');
-                            if (masterEl) {
-                                masterEl.classList.remove('selected');
-                                masterEl.classList.add('unselected');
-                            }
-                        }
+                    if (statusEl && statusEl.textContent !== 'D') {
+                        statusEl.textContent = 'D';
+                        statusEl.className = 'check-status D';
+                        checkSelections['negative-2'] = 'D';
+                        updateNoDeductionsSelection();
                     }
-                } else if (missing === '' && !masterNoDeductions) {
+                } else {
                     text = text.replace(/\{TODO\}/g, '');
                     if (checkTextSelections['negative-2']) {
                         checkTextSelections['negative-2'] = false;
-                        check3AEl.classList.remove('selected');
+                        checkTextEl.classList.remove('selected');
                     }
-                    if (status3AEl && status3AEl.textContent === 'Y') {
-                        status3AEl.textContent = 'N';
-                        status3AEl.className = 'check-status N';
+                    if (statusEl && statusEl.textContent === 'D') {
+                        statusEl.textContent = 'N';
+                        statusEl.className = 'check-status N';
                         checkSelections['negative-2'] = 'N';
-                        // Check if all N, re-enable master
-                        let allN = true;
-                        for (let i = 0; i < 7; i++) {
-                            if (checkSelections[`negative-${i}`] === 'Y') {
-                                allN = false;
-                                break;
-                            }
-                        }
-                        if (allN && !masterNoDeductions) {
-                            masterNoDeductions = true;
-                            const masterEl = document.getElementById('check-text-positive-0');
-                            if (masterEl) {
-                                masterEl.classList.add('selected');
-                                masterEl.classList.remove('unselected');
-                            }
-                            for (let j = 0; j < 7; j++) {
-                                const sEl = document.getElementById(`check-status-negative-${j}`);
-                                const tEl = document.getElementById(`check-text-negative-${j}`);
-                                if (sEl) {
-                                    sEl.textContent = 'N';
-                                    sEl.className = 'check-status N disabled';
-                                }
-                                if (tEl) {
-                                    tEl.classList.add('disabled');
-                                    tEl.classList.remove('selected');
-                                }
-                                checkSelections[`negative-${j}`] = 'N';
-                                checkTextSelections[`negative-${j}`] = false;
-                            }
-                        }
+                        updateNoDeductionsSelection();
                     }
                 }
-                check3AEl.textContent = text;
-            }
-
-            if (check3BEl) {
-                let text = check3BEl.textContent;
-                text = text.replace(/\s*\(auto-filled from A2\)\s*$/, '');
-                if (missing !== '' && !masterNoDeductions) {
-                    if (!text.includes('(auto-filled from A2)')) {
-                        text = text + ' (auto-filled from A2)';
-                        check3BEl.textContent = text;
-                    }
-                } else {
-                    text = text.replace(/\s*\(auto-filled from A2\)\s*$/, '');
-                    check3BEl.textContent = text;
-                }
+                checkTextEl.textContent = text;
             }
         }
 
@@ -1390,64 +1229,29 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 const missing = getMissingCheck6Items();
                 let text = checkTextEl.textContent;
                 text = text.replace(/\s*\(auto-detected\)\s*$/, '');
-                if (missing !== '' && !masterNoDeductions) {
+                if (missing !== '') {
                     text = text.replace(/\{TODO\}/g, missing);
                     text = text + ' (auto-detected)';
                     if (!checkTextSelections['negative-6']) {
                         checkTextSelections['negative-6'] = true;
                         checkTextEl.classList.add('selected');
                     }
-                    if (statusEl && statusEl.textContent !== 'Y') {
-                        statusEl.textContent = 'Y';
-                        statusEl.className = 'check-status Y';
-                        checkSelections['negative-6'] = 'Y';
-                        if (masterNoDeductions) {
-                            masterNoDeductions = false;
-                            const masterEl = document.getElementById('check-text-positive-0');
-                            if (masterEl) {
-                                masterEl.classList.remove('selected');
-                                masterEl.classList.add('unselected');
-                            }
-                        }
+                    if (statusEl && statusEl.textContent !== 'D') {
+                        statusEl.textContent = 'D';
+                        statusEl.className = 'check-status D';
+                        checkSelections['negative-6'] = 'D';
+                        updateNoDeductionsSelection();
                     }
-                } else if (missing === '' && !masterNoDeductions) {
+                } else {
                     if (checkTextSelections['negative-6']) {
                         checkTextSelections['negative-6'] = false;
                         checkTextEl.classList.remove('selected');
                     }
-                    if (statusEl && statusEl.textContent === 'Y') {
+                    if (statusEl && statusEl.textContent === 'D') {
                         statusEl.textContent = 'N';
                         statusEl.className = 'check-status N';
                         checkSelections['negative-6'] = 'N';
-                        let allN = true;
-                        for (let i = 0; i < 7; i++) {
-                            if (checkSelections[`negative-${i}`] === 'Y') {
-                                allN = false;
-                                break;
-                            }
-                        }
-                        if (allN && !masterNoDeductions) {
-                            masterNoDeductions = true;
-                            const masterEl = document.getElementById('check-text-positive-0');
-                            if (masterEl) {
-                                masterEl.classList.add('selected');
-                                masterEl.classList.remove('unselected');
-                            }
-                            for (let j = 0; j < 7; j++) {
-                                const sEl = document.getElementById(`check-status-negative-${j}`);
-                                const tEl = document.getElementById(`check-text-negative-${j}`);
-                                if (sEl) {
-                                    sEl.textContent = 'N';
-                                    sEl.className = 'check-status N disabled';
-                                }
-                                if (tEl) {
-                                    tEl.classList.add('disabled');
-                                    tEl.classList.remove('selected');
-                                }
-                                checkSelections[`negative-${j}`] = 'N';
-                                checkTextSelections[`negative-${j}`] = false;
-                            }
-                        }
+                        updateNoDeductionsSelection();
                     }
                 }
                 checkTextEl.textContent = text;
@@ -1455,13 +1259,13 @@ Without further ado, below we've provided both high-level feedback on satisfacti
         }
 
         function updateChecksOnSelection() {
-            updateCheck3A3B();
+            updateCheck3A();
             updateCheck6();
         }
 
         // ==================== RUBRIC DATA ====================
         const sectionGroupCombinations = {
-            0: {
+            0: { // Section A: 3 scores
                 scores: [
                     { label: "A1", groupIndices: [0] },
                     { label: "A2", groupIndices: [1] },
@@ -1472,7 +1276,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     6: "A3", 7: "A3", 8: "A3"
                 }
             },
-            1: {
+            1: { // Section B: 4 scores
                 scores: [
                     { label: "B1", groupIndices: [0] },
                     { label: "B2", groupIndices: [1] },
@@ -1484,7 +1288,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     4: "B3", 5: "B3", 6: "B3", 7: "B4", 8: "B4"
                 }
             },
-            2: {
+            2: { // Section C: 4 scores
                 scores: [
                     { label: "C1", groupIndices: [0] },
                     { label: "C2", groupIndices: [1] },
@@ -1495,7 +1299,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     0: "C1", 1: "C2", 2: "C2", 3: "C3", 4: "C3", 5: "C4"
                 }
             },
-            3: {
+            3: { // Section D: 4 scores
                 scores: [
                     { label: "D1", groupIndices: [0] },
                     { label: "D2", groupIndices: [1] },
@@ -1507,7 +1311,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     4: "D3", 5: "D4", 6: "D4"
                 }
             },
-            4: {
+            4: { // Section E: 5 scores
                 scores: [
                     { label: "E1", groupIndices: [0] },
                     { label: "E2", groupIndices: [1] },
@@ -1520,7 +1324,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     4: "E3", 5: "E4", 6: "E5"
                 }
             },
-            5: {
+            5: { // Section F: 5 scores
                 scores: [
                     { label: "F1", groupIndices: [0] },
                     { label: "F2", groupIndices: [1] },
@@ -1581,6 +1385,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
         }
 
         // ==================== RUBRIC DATA (MODIFIED) ====================
+        // We define the base rubric data first, then apply transformations programmatically.
         const baseRubricData = {
             "grading_rubric": {
                 "total_points": 100,
@@ -1869,15 +1674,18 @@ Without further ado, below we've provided both high-level feedback on satisfacti
         };
 
         // --- Programmatic transformations ---
+        // 1. Add section letter to main_section for all but the last section
         const sections = baseRubricData.grading_rubric.sections;
         for (let i = 0; i < sections.length - 1; i++) {
             const section = sections[i];
             const letter = section.section_letter;
             if (letter) {
+                // Insert letter at the beginning of the main_section
                 section.main_section = `${letter}) ${section.main_section}`;
             }
         }
 
+        // 2. Add group labels with section letter and number (e.g., A1, B2, etc.)
         const sectionLetters = ['A', 'B', 'C', 'D', 'E', 'F'];
         for (let i = 0; i < sections.length - 1; i++) {
             const section = sections[i];
@@ -1887,8 +1695,12 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     const groupNumber = idx + 1;
                     group.label = `${letter}${groupNumber}. ${group.label}`;
                 });
+                // Also update the negative_items labels to match
                 if (section.negative_items) {
                     const negItems = section.negative_items.items;
+                    // We'll add the group label prefix to each negative item based on the negGroupMap
+                    // But we need to be careful: some negative items might not have a group mapping.
+                    // We'll use the combo mapping if available.
                     const combo = sectionGroupCombinations[i];
                     if (combo && combo.negGroupMap) {
                         const newNegItems = [];
@@ -1906,6 +1718,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             }
         }
 
+        // Assign the transformed data to rubricData
         const rubricData = baseRubricData;
 
         // ==================== PREDEFINED FEEDBACK ====================
@@ -1980,41 +1793,17 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             setupModalEvents();
             setupPredefinedFeedbackEvents();
             updateSummary();
-            
-            const nameInput = document.getElementById('studentName');
-            const templateSelect = document.getElementById('greetingTemplateSelect');
-            const templateTextarea = document.getElementById('globalCommentTemplate');
-            
-            function updateGreetingPreview() {
-                const name = nameInput.value.trim();
-                const template = templateTextarea.value;
-                const hint = document.querySelector('.global-comment-hint');
-                if (hint) {
-                    if (template.trim() && name) {
-                        const preview = template.replace(/{}/g, name);
-                        hint.textContent = `Preview: ${preview.substring(0, 80)}${preview.length > 80 ? '...' : ''}`;
-                    } else {
-                        hint.textContent = 'Select a preset, then edit if needed. The {} will be replaced by the name. Leave name empty for no name insertion. Choose "None" to omit greeting.';
-                    }
-                }
-            }
-            
-            nameInput.addEventListener('input', updateGreetingPreview);
-            templateTextarea.addEventListener('input', updateGreetingPreview);
-            templateSelect.addEventListener('change', function() {
+            const select = document.getElementById('greetingTemplateSelect');
+            const textarea = document.getElementById('globalCommentTemplate');
+            select.addEventListener('change', function() {
                 if (this.value) {
-                    templateTextarea.value = this.value;
-                    updateGreetingPreview();
+                    textarea.value = this.value;
                 } else {
-                    templateTextarea.value = '';
-                    updateGreetingPreview();
+                    textarea.value = '';
                 }
             });
-            
-            setTimeout(updateGreetingPreview, 100);
-
-            templateSelect.value = 'Nicely done in completing the OL Report, {}! We hope this has given you momentum to make it through the final of our three reports, the UL Report!';
-            templateTextarea.value = 'Nicely done in completing the OL Report, {}! We hope this has given you momentum to make it through the final of our three reports, the UL Report!\n\nPlease create a private Ed post if you have any questions, comments, concerns or if you notice something grade- or feedback-related is amiss!\n\nWithout further ado, below we\'ve provided both high-level feedback on satisfaction of the basic requirements as well as individualized feedback to help steer you for the better in future assignments where we felt there was room for improvement, not without highlighting your strengths!';
+            select.value = 'Nicely done in completing the OL Report, {}! We hope this has given you momentum to make it through the final of our three reports, the UL Report!';
+            textarea.value = 'Nicely done in completing the OL Report, {}! We hope this has given you momentum to make it through the final of our three reports, the UL Report!\n\nPlease create a private Ed post if you have any questions, comments, concerns or if you notice something grade- or feedback-related is amiss!\n\nWithout further ado, below we\'ve provided both high-level feedback on satisfaction of the basic requirements as well as individualized feedback to help steer you for the better in future assignments where we felt there was room for improvement, not without highlighting your strengths!';
 
             document.getElementById('studentName').addEventListener('input', function() {
                 const errorEl = document.getElementById('nameRequiredError');
@@ -2024,29 +1813,8 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 }
             });
 
-            // Initialize: master ON, all checks N and disabled
-            masterNoDeductions = true;
-            const masterEl = document.getElementById('check-text-positive-0');
-            if (masterEl) {
-                masterEl.classList.add('selected');
-                masterEl.classList.remove('unselected');
-            }
-            for (let i = 0; i < 7; i++) {
-                const statusEl = document.getElementById(`check-status-negative-${i}`);
-                const textEl = document.getElementById(`check-text-negative-${i}`);
-                if (statusEl) {
-                    statusEl.textContent = 'N';
-                    statusEl.className = 'check-status N disabled';
-                }
-                if (textEl) {
-                    textEl.classList.add('disabled');
-                    textEl.classList.remove('selected');
-                }
-                checkSelections[`negative-${i}`] = 'N';
-                checkTextSelections[`negative-${i}`] = false;
-            }
-            
-            updateCheck3A3B();
+            setTimeout(updateNoDeductionsSelection, 100);
+            updateCheck3A();
             updateCheck6();
         });
 
@@ -2270,6 +2038,8 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                         const itemElement = document.createElement('div');
                         itemElement.className = 'item negative-item';
                         itemElement.id = itemId;
+
+                        // The label is already included in the item text from our transformation
                         itemElement.innerHTML =
                             ` - <span class="editable" data-id="${itemId}-text">${item}</span>`;
                         negativeList.appendChild(itemElement);
@@ -2705,93 +2475,36 @@ Without further ado, below we've provided both high-level feedback on satisfacti
 
             // ==================== CHECKS SECTION ====================
             feedback += '====================\nChecks\n{';
-            
-            if (masterNoDeductions) {
-                feedback += '\nNo Deductions Made: \n';
-                feedback += '+ Submission of report and reproducibility materials satisfies major implementation requirements!\n';
-            } else {
-                let hasNoDeductions = false;
-                let hasDeductions = false;
-                let noDeductionTexts = [];
-                let deductionTexts = [];
+            let hasNoDeductions = false;
+            let hasDeductions = false;
+            let noDeductionTexts = [];
+            let deductionTexts = [];
 
-                if (checkTextSelections['negative-0']) {
-                    const status = checkSelections['negative-0'];
-                    const el = document.getElementById('check-text-negative-0');
+            if (checkTextSelections['positive-0'] && checkSelections['positive-0'] === 'N') {
+                hasNoDeductions = true;
+                const el = document.getElementById('check-text-positive-0');
+                if (el) noDeductionTexts.push(el.textContent);
+            }
+
+            for (let i = 0; i < 7; i++) {
+                const key = `negative-${i}`;
+                if (checkTextSelections[key]) {
+                    const status = checkSelections[key];
+                    const el = document.getElementById(`check-text-${key}`);
                     if (el) {
                         let text = el.textContent;
-                        if (status === 'N') {
-                            hasNoDeductions = true;
-                            noDeductionTexts.push(text);
-                        } else {
-                            hasDeductions = true;
-                            deductionTexts.push(text);
-                        }
-                    }
-                }
-                if (checkTextSelections['negative-1']) {
-                    const status = checkSelections['negative-1'];
-                    const el = document.getElementById('check-text-negative-1');
-                    if (el) {
-                        let text = el.textContent;
-                        if (status === 'N') {
-                            hasNoDeductions = true;
-                            noDeductionTexts.push(text);
-                        } else {
-                            hasDeductions = true;
-                            deductionTexts.push(text);
-                        }
-                    }
-                }
-                if (checkTextSelections['negative-2'] || checkTextSelections['negative-3']) {
-                    const combinedText = getCombinedCheck3Text();
-                    if (combinedText) {
-                        const status = getCombinedCheck3Status();
-                        if (status === 'N') {
-                            hasNoDeductions = true;
-                            noDeductionTexts.push(combinedText);
-                        } else {
-                            hasDeductions = true;
-                            deductionTexts.push(combinedText);
-                        }
-                    }
-                }
-                if (checkTextSelections['negative-4']) {
-                    const status = checkSelections['negative-4'];
-                    const el = document.getElementById('check-text-negative-4');
-                    if (el) {
-                        let text = el.textContent;
-                        if (status === 'N') {
-                            hasNoDeductions = true;
-                            noDeductionTexts.push(text);
-                        } else {
-                            hasDeductions = true;
-                            deductionTexts.push(text);
-                        }
-                    }
-                }
-                if (checkTextSelections['negative-5']) {
-                    const status = checkSelections['negative-5'];
-                    const el = document.getElementById('check-text-negative-5');
-                    if (el) {
-                        let text = el.textContent;
-                        if (status === 'N') {
-                            hasNoDeductions = true;
-                            noDeductionTexts.push(text);
-                        } else {
-                            hasDeductions = true;
-                            deductionTexts.push(text);
-                        }
-                    }
-                }
-                if (checkTextSelections['negative-6']) {
-                    const status = checkSelections['negative-6'];
-                    const el = document.getElementById('check-text-negative-6');
-                    if (el) {
-                        let text = el.textContent;
+                        text = text.replace(/\s*\(auto-filled from A2\)\s*$/, '');
                         text = text.replace(/\s*\(auto-detected\)\s*$/, '');
-                        const missing = getMissingCheck6Items();
-                        text = text.replace(/\{TODO\}/g, missing || '');
+                        if (i === 2) {
+                            const missing = getMissingAccessItems();
+                            const missingPoints = getMissingAccessPoints();
+                            text = text.replace(/\{TODO\}/g, missing || '');
+                            text = text.replace(/we've deducted points/, `we've deducted ${missingPoints} points`);
+                        }
+                        if (i === 6) {
+                            const missing = getMissingCheck6Items();
+                            text = text.replace(/\{TODO\}/g, missing || '');
+                        }
                         if (status === 'N') {
                             hasNoDeductions = true;
                             noDeductionTexts.push(text);
@@ -2801,22 +2514,22 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                         }
                     }
                 }
+            }
 
-                if (hasNoDeductions) {
-                    feedback += '\nNo Deductions Made: \n';
-                    noDeductionTexts.forEach(text => {
-                        feedback += `+ ${text}\n`;
-                    });
-                }
-                if (hasDeductions) {
-                    feedback += '\nDeductions Made:\n';
-                    deductionTexts.forEach(text => {
-                        feedback += `x ${text}\n`;
-                    });
-                }
-                if (!hasNoDeductions && !hasDeductions) {
-                    feedback += '\nNo Deductions Made:\n+ Submission of report and reproducibility materials satisfies major implementation requirements!\n';
-                }
+            if (hasNoDeductions) {
+                feedback += '\nNo Deductions Made: \n';
+                noDeductionTexts.forEach(text => {
+                    feedback += `+ ${text}\n`;
+                });
+            }
+            if (hasDeductions) {
+                feedback += '\nDeductions Made:\n';
+                deductionTexts.forEach(text => {
+                    feedback += `x ${text}\n`;
+                });
+            }
+            if (!hasNoDeductions && !hasDeductions) {
+                feedback += '\nNo Deductions Made:\n+ Submission of report and reproducibility materials satisfies major implementation requirements!\n';
             }
             feedback += '}\n\n';
 
@@ -2938,26 +2651,18 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 }
             });
 
-            masterNoDeductions = true;
-            const masterEl = document.getElementById('check-text-positive-0');
-            if (masterEl) {
-                masterEl.classList.add('selected');
-                masterEl.classList.remove('unselected');
-            }
-            
-            for (let i = 0; i < 7; i++) {
-                checkSelections[`negative-${i}`] = 'N';
-                checkTextSelections[`negative-${i}`] = false;
-                const statusEl = document.getElementById(`check-status-negative-${i}`);
-                const textEl = document.getElementById(`check-text-negative-${i}`);
-                if (statusEl) {
-                    statusEl.textContent = 'N';
-                    statusEl.className = 'check-status N disabled';
-                }
-                if (textEl) {
-                    textEl.classList.add('disabled');
-                    textEl.classList.remove('selected');
-                }
+            initCheckSelections();
+            document.querySelectorAll('.check-status').forEach(el => {
+                el.textContent = 'N';
+                el.className = 'check-status N';
+            });
+            document.querySelectorAll('.check-text').forEach(el => {
+                el.classList.remove('selected');
+            });
+            const positiveEl = document.getElementById('check-text-positive-0');
+            if (positiveEl) {
+                positiveEl.classList.add('selected');
+                checkTextSelections['positive-0'] = true;
             }
 
             document.querySelectorAll('textarea').forEach(ta => ta.value = '');
@@ -2988,6 +2693,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                         const el = document.querySelector(
                             `[data-id="section-${sectionIndex}-negative-${itemIndex}-text"]`);
                         if (el) {
+                            // The label is already part of the item text from transformation
                             el.textContent = item;
                         }
                     });
@@ -3025,7 +2731,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 'Nicely done in completing the OL Report, {}! We hope this has given you momentum to make it through the final of our three reports, the UL Report!\n\nPlease create a private Ed post if you have any questions, comments, concerns or if you notice something grade- or feedback-related is amiss!\n\nWithout further ado, below we\'ve provided both high-level feedback on satisfaction of the basic requirements as well as individualized feedback to help steer you for the better in future assignments where we felt there was room for improvement, not without highlighting your strengths!';
 
             updateSummary();
-            updateCheck3A3B();
+            updateCheck3A();
             updateCheck6();
             showNotification('✅ All reset successfully!');
         }
