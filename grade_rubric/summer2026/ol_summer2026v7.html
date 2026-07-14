@@ -847,20 +847,6 @@
         .master-check-row .check-text.unselected {
             background-color: #ffcdd2;
         }
-
-        .item-prefix {
-            font-weight: 600;
-            color: #1a237e;
-            margin-right: 4px;
-        }
-
-        .item-description {
-            flex: 1;
-        }
-
-        .negative-item .editable {
-            display: inline;
-        }
     </style>
 </head>
 
@@ -1905,6 +1891,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     group.label = `${letter}${groupNumber}. ${group.label}`;
                 });
                 // Negative items already have their prefixes, so we don't add them again
+                // The negGroupMap is only used for mapping in the UI
             }
         }
 
@@ -2272,21 +2259,8 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                         const itemElement = document.createElement('div');
                         itemElement.className = 'item negative-item';
                         itemElement.id = itemId;
-                        
-                        // Split the item into prefix and description
-                        // Format: "A1. Description text"
-                        const match = item.match(/^([A-Z][0-9]+)\.\s*(.*)$/);
-                        let prefix = '';
-                        let description = item;
-                        if (match) {
-                            prefix = match[1] + '.';
-                            description = match[2];
-                        }
-                        
-                        itemElement.innerHTML = `
-                            - <span class="item-prefix">${prefix}</span>
-                            <span class="editable item-description" data-id="${itemId}-text">${description}</span>
-                        `;
+                        itemElement.innerHTML =
+                            ` - <span class="editable" data-id="${itemId}-text">${item}</span>`;
                         negativeList.appendChild(itemElement);
                     });
                     sectionContent.appendChild(negativeList);
@@ -2424,7 +2398,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 if (current < maxPoints) {
                     input.value = current + 1;
                 } else {
-                    showNotification('⚠️ Cannot exceed max points (' + maxPoints + ')', false);
+                    showNotification('⚠️ Cannot exceed max points', false);
                 }
             });
 
@@ -2442,7 +2416,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 if (state.currentEditingItem) {
                     const maxPoints = getItemMaxPoints(state.currentEditingItem.id);
                     document.getElementById('itemPoints').value = maxPoints;
-                    document.getElementById('maxPointDisplay').textContent = maxPoints;
                 }
             });
 
@@ -2562,45 +2535,17 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             const maxPointSpan = document.getElementById('maxPointDisplay');
             const itemElement = document.getElementById(itemId);
             if (!itemElement) return;
-            
-            // For negative items, find the description part (without prefix)
-            let textElement = itemElement.querySelector('.editable[data-id$="-text"]');
-            let pointsElement = itemElement.querySelector('.editable[data-id$="-points"]');
-            
-            // If no points element (negative items don't have points), handle separately
-            const isNegative = itemElement.classList.contains('negative-item');
-            
+            const textElement = itemElement.querySelector('.editable[data-id$="-text"]');
+            const pointsElement = itemElement.querySelector('.editable[data-id$="-points"]');
             if (!textElement) return;
-            
-            // For negative items, we want to show the full text with prefix for context
-            // but only allow editing the description part
-            if (isNegative) {
-                const prefixEl = itemElement.querySelector('.item-prefix');
-                const descEl = itemElement.querySelector('.editable.item-description');
-                if (descEl) {
-                    itemText.value = descEl.textContent;
-                } else {
-                    itemText.value = textElement.textContent;
-                }
-                maxPointSpan.textContent = 'N/A';
-                itemPoints.value = 0;
-                itemPoints.disabled = true;
-            } else {
-                itemText.value = textElement.textContent;
-                const maxPoints = getItemMaxPoints(itemId);
-                maxPointSpan.textContent = maxPoints;
-                const pointsValue = pointsElement ? parseFloat(pointsElement.textContent) || 0 : 0;
-                itemPoints.value = Math.abs(pointsValue);
-                itemPoints.disabled = false;
-            }
-            
-            state.currentEditingItem = { 
-                id: itemId, 
-                textElement: textElement, 
-                pointsElement: pointsElement, 
-                isNegative: isNegative,
-                maxPoints: parseInt(maxPointSpan.textContent) || 0
-            };
+            itemText.value = textElement.textContent;
+            const maxPoints = getItemMaxPoints(itemId);
+            maxPointSpan.textContent = maxPoints;
+            const isNegative = itemElement.classList.contains('negative-item');
+            const pointsValue = pointsElement ? (isNegative ? -Math.abs(parseFloat(pointsElement.textContent) || 0) : parseFloat(
+                pointsElement.textContent) || 0) : 0;
+            itemPoints.value = Math.abs(pointsValue);
+            state.currentEditingItem = { id: itemId, textElement, pointsElement, isNegative, maxPoints };
             modal.style.display = 'flex';
         }
 
@@ -2610,48 +2555,37 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             const itemPoints = document.getElementById('itemPoints');
             if (!state.currentEditingItem) return;
             const { id, textElement, pointsElement, isNegative, maxPoints } = state.currentEditingItem;
-            
-            if (isNegative) {
-                // For negative items, we need to update the description while preserving the prefix
-                const itemElement = document.getElementById(id);
-                const prefixEl = itemElement.querySelector('.item-prefix');
-                const descEl = itemElement.querySelector('.editable.item-description');
-                if (descEl) {
-                    descEl.textContent = itemText.value;
-                } else {
-                    // Fallback: update the main text element
-                    textElement.textContent = itemText.value;
-                }
-            } else {
-                textElement.textContent = itemText.value;
-                if (pointsElement) {
-                    const pointsValue = parseInt(itemPoints.value) || 0;
-                    const clampedPoints = Math.min(pointsValue, maxPoints);
-                    const displayPoints = clampedPoints;
-                    pointsElement.textContent = displayPoints;
-                    const parts = id.split('-');
-                    const sectionIndex = parseInt(parts[1]);
-                    const itemIndex = parseInt(parts[parts.length - 1]);
-                    const section = rubricData.grading_rubric.sections[sectionIndex];
-                    let counter = 0;
-                    for (let g = 0; g < section.groups.length; g++) {
-                        for (let i = 0; i < section.groups[g].items.length; i++) {
-                            if (counter === itemIndex) {
-                                section.groups[g].items[i].points = Math.abs(displayPoints);
-                            }
-                            counter++;
+            textElement.textContent = itemText.value;
+            if (pointsElement) {
+                const pointsValue = parseInt(itemPoints.value) || 0;
+                const clampedPoints = Math.min(pointsValue, maxPoints);
+                const displayPoints = isNegative ? -Math.abs(clampedPoints) : Math.abs(clampedPoints);
+                pointsElement.textContent = displayPoints;
+                const parts = id.split('-');
+                const sectionIndex = parseInt(parts[1]);
+                const itemIndex = parseInt(parts[parts.length - 1]);
+                const section = rubricData.grading_rubric.sections[sectionIndex];
+                let counter = 0;
+                for (let g = 0; g < section.groups.length; g++) {
+                    for (let i = 0; i < section.groups[g].items.length; i++) {
+                        if (counter === itemIndex) {
+                            section.groups[g].items[i].points = Math.abs(displayPoints);
                         }
+                        counter++;
                     }
                 }
+            }
 
-                const itemElement = document.getElementById(id);
-                if (itemElement && !itemElement.classList.contains('selected-positive')) {
-                    let sectionId = id.split('-').slice(0, 2).join('-');
-                    if (!state.selectedItems.has(sectionId)) state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
-                    const sectionState = state.selectedItems.get(sectionId);
-                    sectionState.positive.add(id);
-                    itemElement.classList.add('selected-positive');
-                }
+            const itemElement = document.getElementById(id);
+            if (itemElement && !itemElement.classList.contains(isNegative ? 'selected-negative' : 'selected-positive')) {
+                const isPos = itemElement.classList.contains('positive-item');
+                let sectionId = id.split('-').slice(0, 2).join('-');
+                if (!state.selectedItems.has(sectionId)) state.selectedItems.set(sectionId, { positive: new Set(),
+                        negative: new Set() });
+                const sectionState = state.selectedItems.get(sectionId);
+                const itemSet = isPos ? sectionState.positive : sectionState.negative;
+                itemSet.add(id);
+                itemElement.classList.add(isPos ? 'selected-positive' : 'selected-negative');
             }
 
             modal.style.display = 'none';
@@ -2943,21 +2877,30 @@ Without further ado, below we've provided both high-level feedback on satisfacti
 
                     if (sectionState.negative.size > 0) {
                         feedback += '\nWhat needs improvement:\n';
+                        let negGroups = {};
                         sectionState.negative.forEach(itemId => {
+                            const parts = itemId.split('-');
+                            const negIndex = parseInt(parts[parts.length - 1]);
+                            const groupLabel = getNegGroupLabel(sectionIndex, negIndex);
                             const el = document.getElementById(itemId);
                             if (el) {
                                 const textEl = el.querySelector('.editable[data-id$="-text"]');
                                 if (textEl) {
-                                    // Get the full text with prefix from the item
-                                    const prefixEl = el.querySelector('.item-prefix');
-                                    let fullText = textEl.textContent;
-                                    if (prefixEl) {
-                                        fullText = prefixEl.textContent + ' ' + fullText;
-                                    }
-                                    feedback += `x ${fullText}\n`;
+                                    const label = groupLabel || `${sectionLetter}`;
+                                    if (!negGroups[label]) negGroups[label] = [];
+                                    // Remove any prefix from the text since it already has it
+                                    let displayText = textEl.textContent;
+                                    // Remove duplicate prefix if present
+                                    const prefixPattern = new RegExp(`^${label}\\.\\s*`);
+                                    displayText = displayText.replace(prefixPattern, '');
+                                    negGroups[label].push(displayText);
                                 }
                             }
                         });
+                        for (const [label, texts] of Object.entries(negGroups)) {
+                            const combined = texts.join('; ');
+                            feedback += `x ${label}: ${combined}\n`;
+                        }
                     }
 
                     if (feedbackText) {
