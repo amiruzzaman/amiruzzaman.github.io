@@ -1032,9 +1032,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
         let checkTextSelections = {};
         let masterNoDeductions = true;
 
-        // Store original rubric data for reset
-        let originalRubricData = null;
-
         function showNotification(message, isSuccess = true, sectionLetter = '') {
             const bar = document.getElementById('notificationBar');
             const msgEl = document.getElementById('notificationMessage');
@@ -1126,6 +1123,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             if (el.textContent === 'N') {
                 el.textContent = 'Y';
                 el.className = 'check-status Y';
+                // Uncheck master if any check becomes Y
                 if (masterNoDeductions) {
                     masterNoDeductions = false;
                     const masterEl = document.getElementById('check-text-positive-0');
@@ -1137,6 +1135,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             } else {
                 el.textContent = 'N';
                 el.className = 'check-status N';
+                // Check if all checks are N, then re-enable master
                 let allN = true;
                 for (let i = 0; i < 7; i++) {
                     if (checkSelections[`negative-${i}`] === 'Y') {
@@ -1151,6 +1150,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                         masterEl.classList.add('selected');
                         masterEl.classList.remove('unselected');
                     }
+                    // Re-disable all checks
                     for (let j = 0; j < 7; j++) {
                         const statusEl2 = document.getElementById(`check-status-negative-${j}`);
                         const textEl2 = document.getElementById(`check-text-negative-${j}`);
@@ -1313,6 +1313,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                         status3AEl.textContent = 'Y';
                         status3AEl.className = 'check-status Y';
                         checkSelections['negative-2'] = 'Y';
+                        // Uncheck master
                         if (masterNoDeductions) {
                             masterNoDeductions = false;
                             const masterEl = document.getElementById('check-text-positive-0');
@@ -1332,6 +1333,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                         status3AEl.textContent = 'N';
                         status3AEl.className = 'check-status N';
                         checkSelections['negative-2'] = 'N';
+                        // Check if all N, re-enable master
                         let allN = true;
                         for (let i = 0; i < 7; i++) {
                             if (checkSelections[`negative-${i}`] === 'Y') {
@@ -1490,7 +1492,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     { label: "C4", groupIndices: [3] }
                 ],
                 negGroupMap: {
-                    0: "C1", 1: "C2", 2: "C2", 3: "C3", 4: "C4", 5: "C3"
+                    0: "C1", 1: "C2", 2: "C2", 3: "C3", 4: "C3", 5: "C4"
                 }
             },
             3: {
@@ -1501,7 +1503,8 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     { label: "D4", groupIndices: [3] }
                 ],
                 negGroupMap: {
-                    0: "D1", 1: "D1", 2: "D2", 3: "D3", 4: "D4", 5: "D4", 6: "D3", 7: "D4"
+                    0: "D1", 1: "D2", 2: "D2", 3: "D3",
+                    4: "D3", 5: "D4", 6: "D4"
                 }
             },
             4: {
@@ -1613,15 +1616,15 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     }],
                     "negative_items": {
                         "items": [
-                            "A1. Report does not use an approximately 20,000-instance Covertype working dataset that matches the SL sample, or does not clearly justify any change",
-                            "A1. Target mapping is missing, ambiguous, collapsed, treated as regression, or the PyTorch SL backbone is not identifiable",
-                            "A2. Overleaf link is missing, broken, requires edit permission, or appears to use a personal Overleaf account",
-                            "A2. GitHub commit hash is missing, invalid, inaccessible, or hosted only in a personal GitHub repository",
-                            "A2. Run instructions are missing or insufficient to reproduce results",
-                            "A2. Key experiment details are missing, vague, or not tied to the submitted results",
-                            "A3. Multiple figures or tables are too small, cropped, blurry, poorly labeled, or otherwise unreadable",
-                            "A3. Peer-reviewed outside sources are missing, irrelevant, only listed without use, or not connected to methodology/interpretation",
-                            "A3. AI/LLM usage statement is missing, vague, incomplete, or does not affirm student review and understanding"
+                            "Report does not use an approximately 20,000-instance Covertype working dataset that matches the SL sample, or does not clearly justify any change",
+                            "Target mapping is missing, ambiguous, collapsed, treated as regression, or the PyTorch SL backbone is not identifiable",
+                            "Overleaf link is missing, broken, requires edit permission, or appears to use a personal Overleaf account",
+                            "GitHub commit hash is missing, invalid, inaccessible, or hosted only in a personal GitHub repository",
+                            "Run instructions are missing or insufficient to reproduce results",
+                            "Key experiment details are missing, vague, or not tied to the submitted results",
+                            "Multiple figures or tables are too small, cropped, blurry, poorly labeled, or otherwise unreadable",
+                            "Peer-reviewed outside sources are missing, irrelevant, only listed without use, or not connected to methodology/interpretation",
+                            "AI/LLM usage statement is missing, vague, incomplete, or does not affirm student review and understanding"
                         ]
                     },
                     "feedback_section": "Feedback on Section: <free-text>"
@@ -1656,10 +1659,10 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     }],
                     "negative_items": {
                         "items": [
-                            "B1. Splits are ambiguous, test data appears to be used for tuning, or preprocessing leakage is present or unresolved",
-                            "B2. Compute accounting is missing, inconsistent, or comparisons are made only by epoch count without explaining updates, evaluations, or wall-clock",
-                            "B3. Hypothesis is generic, stated after results, only predicts a winner without reasoning, or is not tied to OL behavior",
-                            "B4. Hypothesis is not revisited, is addressed only vaguely, or is resolved using unsupported claims rather than reported evidence"
+                            "Splits are ambiguous, test data appears to be used for tuning, or preprocessing leakage is present or unresolved",
+                            "Compute accounting is missing, inconsistent, or comparisons are made only by epoch count without explaining updates, evaluations, or wall-clock",
+                            "Hypothesis is generic, stated after results, only predicts a winner without reasoning, or is not tied to OL behavior",
+                            "Hypothesis is not revisited, is addressed only vaguely, or is resolved using unsupported claims rather than reported evidence"
                         ]
                     },
                     "feedback_section": "Feedback on Section: <free-text>"
@@ -1696,12 +1699,11 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     }],
                     "negative_items": {
                         "items": [
-                            "C1. RO is run on the full network, unfrozen layer set is unclear, frozen layers are not verified, or trainable parameter count is missing",
-                            "C2. Any required RO algorithm is missing, algorithms are run on different layer scopes or objectives, or starting conditions differ",
-                            "C2. Objective changes mid-run, dropout/stochastic behavior is active during evaluation, function evaluations are counted inconsistently, or test set is used as RO objective",
-                            "C3. RO progress curves are missing, curves use incomparable x-axes, budgets differ without justification, GA compared by generation count only",
-                            "C4. Only states which RO method had the best final value, ignores compute cost, omits final multiclass metrics, or does not discuss whether RO was worth the compute",
-                            "C3. RO objective is not clearly defined as validation loss, model.eval() is not used during evaluation, or function evaluation counts are inconsistent with candidate objective calls"
+                            "RO is run on the full network, unfrozen layer set is unclear, frozen layers are not verified, or trainable parameter count is missing",
+                            "Any required RO algorithm is missing, algorithms are run on different layer scopes or objectives, or starting conditions differ",
+                            "Objective changes mid-run, dropout/stochastic behavior is active during evaluation, function evaluations are counted inconsistently, or test set is used as RO objective",
+                            "RO progress curves are missing, curves use incomparable x-axes, budgets differ without justification, GA compared by generation count only",
+                            "Only states which RO method had the best final value, ignores compute cost, omits final multiclass metrics, or does not discuss whether RO was worth the compute"
                         ]
                     },
                     "feedback_section": "Feedback on Section: <free-text>"
@@ -1738,14 +1740,12 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     }],
                     "negative_items": {
                         "items": [
-                            "D1. Any required optimizer is missing, replaced, mislabeled, not actually run, or not documented well enough to verify the ablation",
-                            "D1. Optimizers are compared under incompatible budgets, inconsistent initialization, unexplained schedules, different data splits, or altered model settings",
-                            "D2. ℓ is missing, changes by method, chosen using test performance, methods that fail to reach threshold are omitted, or loss-vs-compute evidence is absent",
-                            "D3. Sensitivity analysis is missing, budgets differ across grid points without justification, divergent cells are silently removed, or heatmaps are shown without interpretation",
-                            "D4. Only one seed is used for main claims, failed runs are hidden, dispersion is not reported, or conclusions rely on a best-seed result",
-                            "D4. Only final test Accuracy is reported, train-validation behavior is ignored, class-level effects are not discussed, or optimizer variants are ranked without interpretation",
-                            "D3. Sensitivity heatmaps are missing or incomplete, grids use inconsistent budgets across points, or divergent/failed cells are omitted without explanation",
-                            "D4. Generalization claims are made without comparing train vs validation behavior, or class-level performance is not analyzed beyond aggregate Accuracy"
+                            "Any required optimizer is missing, replaced, mislabeled, not actually run, or not documented well enough to verify the ablation",
+                            "Optimizers are compared under incompatible budgets, inconsistent initialization, unexplained schedules, different data splits, or altered model settings",
+                            "ℓ is missing, changes by method, chosen using test performance, methods that fail to reach threshold are omitted, or loss-vs-compute evidence is absent",
+                            "Sensitivity analysis is missing, budgets differ across grid points without justification, divergent cells are silently removed, or heatmaps are shown without interpretation",
+                            "Only one seed is used for main claims, failed runs are hidden, dispersion is not reported, or conclusions rely on a best-seed result",
+                            "Only final test Accuracy is reported, train-validation behavior is ignored, class-level effects are not discussed, or optimizer variants are ranked without interpretation"
                         ]
                     },
                     "feedback_section": "Feedback on Section: <free-text>"
@@ -1786,11 +1786,11 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     }],
                     "negative_items": {
                         "items": [
-                            "E1. Student switches to AdamW, changes optimizer family, retunes learning rate or betas inside Part 3, changes batch size without justification, or changes backbone",
-                            "E2. Any required regularizer is missing, undocumented, applied to the wrong data split, or not described in enough detail to reproduce",
-                            "E3. Budgets differ without justification, baseline/single/combination comparison is missing, test performance is used to choose best condition, or results are cherry-picked",
-                            "E4. Report gives only a final regularized result without showing how regularizer was selected, or references sweep evidence that is missing from both main report and REPRO",
-                            "E5. Lists regularization results without explaining what changed, claims generalization improvement using only training loss, or does not compare regularization effects to optimizer effects"
+                            "Student switches to AdamW, changes optimizer family, retunes learning rate or betas inside Part 3, changes batch size without justification, or changes backbone",
+                            "Any required regularizer is missing, undocumented, applied to the wrong data split, or not described in enough detail to reproduce",
+                            "Budgets differ without justification, baseline/single/combination comparison is missing, test performance is used to choose best condition, or results are cherry-picked",
+                            "Report gives only a final regularized result without showing how regularizer was selected, or references sweep evidence that is missing from both main report and REPRO",
+                            "Lists regularization results without explaining what changed, claims generalization improvement using only training loss, or does not compare regularization effects to optimizer effects"
                         ]
                     },
                     "feedback_section": "Feedback on Section: <free-text>"
@@ -1832,12 +1832,12 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     }],
                     "negative_items": {
                         "items": [
-                            "F1. Discusses each part separately but does not synthesize what the parts reveal together, or simply states that one part performed best without explaining the type of improvement",
-                            "F2. Declares a winner without considering compute, reports compute separately without interpreting trade-offs, or ignores cases where a small metric gain required a much larger compute budget",
-                            "F3. Treats lower validation loss, faster training, higher test metrics, and stability as the same kind of improvement, or does not explain which aspect of training changed",
-                            "F4. Only reports aggregate scores, ignores minority-class behavior, or does not address conflicts among Accuracy, Macro-F1, balanced accuracy, and validation loss",
-                            "F5. Limitations are missing, generic, disconnected from the evidence, or framed only as 'we could tune more' without explaining what result motivates the limitation",
-                            "F5. Conclusion only restates results, gives generic advice, does not distinguish optimizer/regularization/RO use cases, or gives a decision rule not supported by the reported experiments"
+                            "Discusses each part separately but does not synthesize what the parts reveal together, or simply states that one part performed best without explaining the type of improvement",
+                            "Declares a winner without considering compute, reports compute separately without interpreting trade-offs, or ignores cases where a small metric gain required a much larger compute budget",
+                            "Treats lower validation loss, faster training, higher test metrics, and stability as the same kind of improvement, or does not explain which aspect of training changed",
+                            "Only reports aggregate scores, ignores minority-class behavior, or does not address conflicts among Accuracy, Macro-F1, balanced accuracy, and validation loss",
+                            "Limitations are missing, generic, disconnected from the evidence, or framed only as 'we could tune more' without explaining what result motivates the limitation",
+                            "Conclusion only restates results, gives generic advice, does not distinguish optimizer/regularization/RO use cases, or gives a decision rule not supported by the reported experiments"
                         ]
                     },
                     "feedback_section": "Feedback on Section: <free-text>"
@@ -1856,10 +1856,10 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     }],
                     "negative_items": {
                         "items": [
-                            "EC1. No extra credit implemented",
-                            "EC1. Integrated run changes model scope, omits budget details, or is not comparable",
-                            "EC1. Result is best-seed cherry-picked or missing one required component",
-                            "EC1. Integration is correct but no compute-value argument is made"
+                            "No extra credit implemented",
+                            "Integrated run changes model scope, omits budget details, or is not comparable",
+                            "Result is best-seed cherry-picked or missing one required component",
+                            "Integration is correct but no compute-value argument is made"
                         ]
                     },
                     "feedback_section": "Feedback on Section: <free-text>"
@@ -1867,9 +1867,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 "general_feedback": { "section": "General Feedback", "content": "<free-text>" }
             }
         };
-
-        // Store original for reset
-        originalRubricData = JSON.parse(JSON.stringify(baseRubricData));
 
         // --- Programmatic transformations ---
         const sections = baseRubricData.grading_rubric.sections;
@@ -1890,8 +1887,22 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     const groupNumber = idx + 1;
                     group.label = `${letter}${groupNumber}. ${group.label}`;
                 });
-                // Negative items already have their prefixes, so we don't add them again
-                // The negGroupMap is only used for mapping in the UI
+                if (section.negative_items) {
+                    const negItems = section.negative_items.items;
+                    const combo = sectionGroupCombinations[i];
+                    if (combo && combo.negGroupMap) {
+                        const newNegItems = [];
+                        negItems.forEach((item, idx) => {
+                            const groupLabel = combo.negGroupMap[idx];
+                            if (groupLabel) {
+                                newNegItems.push(`${groupLabel}. ${item}`);
+                            } else {
+                                newNegItems.push(item);
+                            }
+                        });
+                        section.negative_items.items = newNegItems;
+                    }
+                }
             }
         }
 
@@ -2391,25 +2402,15 @@ Without further ado, below we've provided both high-level feedback on satisfacti
 
             [closeBtn, cancelBtn].forEach(btn => btn.addEventListener('click', () => modal.style.display = 'none'));
 
-            incrementBtn.addEventListener('click', function() {
+            incrementBtn.addEventListener('click', () => {
                 const input = document.getElementById('itemPoints');
-                const current = parseInt(input.value) || 0;
-                const maxPoints = parseInt(document.getElementById('maxPointDisplay').textContent) || 0;
-                if (current < maxPoints) {
-                    input.value = current + 1;
-                } else {
-                    showNotification('⚠️ Cannot exceed max points', false);
-                }
+                input.value = (parseInt(input.value) || 0) + 1;
             });
 
-            decrementBtn.addEventListener('click', function() {
+            decrementBtn.addEventListener('click', () => {
                 const input = document.getElementById('itemPoints');
                 const current = parseInt(input.value) || 0;
-                if (current > 0) {
-                    input.value = current - 1;
-                } else {
-                    showNotification('⚠️ Cannot go below 0', false);
-                }
+                if (current > 0) input.value = current - 1;
             });
 
             resetPointBtn.addEventListener('click', () => {
@@ -2888,12 +2889,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                                 if (textEl) {
                                     const label = groupLabel || `${sectionLetter}`;
                                     if (!negGroups[label]) negGroups[label] = [];
-                                    // Remove any prefix from the text since it already has it
-                                    let displayText = textEl.textContent;
-                                    // Remove duplicate prefix if present
-                                    const prefixPattern = new RegExp(`^${label}\\.\\s*`);
-                                    displayText = displayText.replace(prefixPattern, '');
-                                    negGroups[label].push(displayText);
+                                    negGroups[label].push(textEl.textContent.replace(/^[A-Z][0-9]\.\s*/, ''));
                                 }
                             }
                         });
@@ -2942,55 +2938,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 }
             });
 
-            // Reset rubric data from original
-            const originalSections = originalRubricData.grading_rubric.sections;
-            const currentSections = rubricData.grading_rubric.sections;
-            
-            for (let i = 0; i < currentSections.length; i++) {
-                // Reset main_section
-                currentSections[i].main_section = originalSections[i].main_section;
-                // Reset group labels and item descriptions
-                for (let g = 0; g < currentSections[i].groups.length; g++) {
-                    // Reset group label
-                    currentSections[i].groups[g].label = originalSections[i].groups[g].label;
-                    // Reset item descriptions and points
-                    for (let itemIdx = 0; itemIdx < currentSections[i].groups[g].items.length; itemIdx++) {
-                        currentSections[i].groups[g].items[itemIdx].description = originalSections[i].groups[g].items[itemIdx].description;
-                        currentSections[i].groups[g].items[itemIdx].points = originalSections[i].groups[g].items[itemIdx].points;
-                    }
-                }
-                // Reset negative items
-                if (currentSections[i].negative_items && originalSections[i].negative_items) {
-                    currentSections[i].negative_items.items = [...originalSections[i].negative_items.items];
-                }
-            }
-
-            // Re-apply transformations to add section letters and group labels
-            const secs = rubricData.grading_rubric.sections;
-            for (let i = 0; i < secs.length - 1; i++) {
-                const section = secs[i];
-                const letter = section.section_letter;
-                if (letter) {
-                    section.main_section = `${letter}) ${section.main_section}`;
-                }
-            }
-            const secLetters = ['A', 'B', 'C', 'D', 'E', 'F'];
-            for (let i = 0; i < secs.length - 1; i++) {
-                const section = secs[i];
-                const letter = secLetters[i] || section.section_letter;
-                if (letter) {
-                    section.groups.forEach((group, idx) => {
-                        const groupNumber = idx + 1;
-                        group.label = `${letter}${groupNumber}. ${group.label}`;
-                    });
-                    // Negative items already have prefixes, don't add them again
-                }
-            }
-
-            // Re-render rubric
-            renderRubric();
-
-            // Reset checks
             masterNoDeductions = true;
             const masterEl = document.getElementById('check-text-positive-0');
             if (masterEl) {
@@ -3013,8 +2960,69 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 }
             }
 
-            // Reset feedback textareas
             document.querySelectorAll('textarea').forEach(ta => ta.value = '');
+
+            document.querySelectorAll('.editable[data-id$="-header"]').forEach(header => {
+                const dataId = header.getAttribute('data-id');
+                const sectionIndex = parseInt(dataId.split('-')[1]);
+                header.textContent = rubricData.grading_rubric.sections[sectionIndex].main_section;
+            });
+
+            rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
+                let itemCounter = 0;
+                section.groups.forEach(group => {
+                    group.items.forEach((item, idx) => {
+                        const pointSpan = document.querySelector(
+                            `[data-id="section-${sectionIndex}-positive-${itemCounter}-points"]`);
+                        if (pointSpan) {
+                            pointSpan.textContent = item.points;
+                        }
+                        itemCounter++;
+                    });
+                });
+            });
+
+            rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
+                if (section.negative_items) {
+                    section.negative_items.items.forEach((item, itemIndex) => {
+                        const el = document.querySelector(
+                            `[data-id="section-${sectionIndex}-negative-${itemIndex}-text"]`);
+                        if (el) {
+                            el.textContent = item;
+                        }
+                    });
+                }
+            });
+
+            const checkTexts = [
+                'Submission of report and reproducibility materials satisfies major implementation requirements!',
+                'Check 1 - Unreadable/Missing Report: Between provision and accessibility of your report, we were unable to access and read it in order to provide a grade, thus we have made the hard decision to score your report 0/100.',
+                'Check 2 - Incorrect Task: Between use of the prescribed dataset and setup of the intended multiclass classification problem, you broke the task requirements and thus we have made the hard decision to score your report 0/100.',
+                'Check 3A - Overleaf/GitHub Inaccessible: Between the two reproducibility requirements of Overleaf-hosted write-up and project codebase hosted in the GT Enterprise GitHub repo provided you for the course, you missed {TODO} and thus we\'ve deducted points in the A2. Accessibility section. <span class="auto-check-indicator">(auto-filled from A2)</span>',
+                'Check 3B - Overleaf/GitHub Inaccessible: Between requirement that you host and edit your report in LaTex on Overleaf and push all project code to the GT Enterprise GitHub repo provided you for the course, we found you broke this requirement and thus we have made the hard decision to score your report 0/100.',
+                'Check 4 - Report Over 8 Pages: A portion of your report spills over the 8 page limit specified in the requirements and thus we consider anything past page 8 as not provided and (not) graded in accordance with this rule.',
+                'Check 5 - Unfinished Draft: We identified several instances in which excessive use of checklist type structure, bulleting as a mode of jotting down notes where extensive analysis was expected and other high-level signs of a draft were spotted, thus we have made the hard decision to score your report 0/100.',
+                'Check 6 - Missing Overleaf/REPRO: Between provision of a working read-only Overleaf link and the REPRO document, you were missing one of these deliverables. Specifically, we were unable to find/access the {TODO}. As such we have deducted 20 points from your overall score. <span class="auto-check-indicator">(auto-detected)</span>'
+            ];
+
+            document.querySelectorAll('.checks-section .check-text').forEach((el, index) => {
+                if (index < checkTexts.length) {
+                    el.innerHTML = checkTexts[index];
+                }
+            });
+
+            document.getElementById('outputSection').classList.add('hidden');
+            document.getElementById('copyBtn').classList.add('hidden');
+            hideNotification();
+
+            document.getElementById('studentName').value = '';
+            document.getElementById('studentName').style.borderColor = '';
+            document.getElementById('nameRequiredError').classList.remove('show');
+
+            document.getElementById('greetingTemplateSelect').value =
+                'Nicely done in completing the OL Report, {}! We hope this has given you momentum to make it through the final of our three reports, the UL Report!';
+            document.getElementById('globalCommentTemplate').value =
+                'Nicely done in completing the OL Report, {}! We hope this has given you momentum to make it through the final of our three reports, the UL Report!\n\nPlease create a private Ed post if you have any questions, comments, concerns or if you notice something grade- or feedback-related is amiss!\n\nWithout further ado, below we\'ve provided both high-level feedback on satisfaction of the basic requirements as well as individualized feedback to help steer you for the better in future assignments where we felt there was room for improvement, not without highlighting your strengths!';
 
             updateSummary();
             updateCheck3A3B();
