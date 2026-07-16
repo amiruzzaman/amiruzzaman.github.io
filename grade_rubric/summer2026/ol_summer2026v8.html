@@ -861,52 +861,12 @@
         .negative-item .editable {
             display: inline;
         }
-
-        .copy-message-btn {
-            background-color: #9C27B0;
-            color: white;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
-            transition: background-color 0.2s;
-        }
-        .copy-message-btn:hover {
-            background-color: #7B1FA2;
-        }
-        .top-actions {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
-        }
-        .top-actions .hint-text {
-            font-size: 0.85rem;
-            color: #666;
-            transition: color 0.3s ease;
-        }
-        .top-actions .hint-text.success {
-            color: #2e7d32;
-            font-weight: 600;
-        }
-        .top-actions .hint-text.error {
-            color: #c62828;
-            font-weight: 600;
-        }
     </style>
 </head>
 
 <body>
     <div class="container">
         <div class="rubric-section">
-            <div class="top-actions">
-                <button class="copy-message-btn" onclick="copyGradingMessage()">📋 Copy Grading Message</button>
-                <span class="hint-text" id="hintText">Click to copy: "Now grade this very strictly..."</span>
-            </div>
-            
             <h1>OL Report Summer 2026 Rubric Grading Interface</h1>
             <div class="global-comment-box" id="nameSection">
                 <label for="studentName"><strong>📝 Student name (for greeting):</strong></label>
@@ -1080,53 +1040,13 @@ Without further ado, below we've provided both high-level feedback on satisfacti
     </div>
 
     <script>
-        // ==================== COPY GRADING MESSAGE ====================
-        function copyGradingMessage() {
-            const message = `Now grade this very strictly, and show me which one to check and which one to x in my checklist. If something is not met, then provide a suggestion to improve as "You could have done... to improve"`;
-            const hintText = document.getElementById('hintText');
-            
-            navigator.clipboard.writeText(message).then(() => {
-                hintText.textContent = '✅ Copied successfully!';
-                hintText.className = 'hint-text success';
-                showNotification('✅ Grading message copied to clipboard!');
-                setTimeout(() => {
-                    hintText.textContent = 'Click to copy: "Now grade this very strictly..."';
-                    hintText.className = 'hint-text';
-                }, 3000);
-            }).catch(() => {
-                // Fallback for older browsers
-                try {
-                    const textarea = document.createElement('textarea');
-                    textarea.value = message;
-                    document.body.appendChild(textarea);
-                    textarea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(textarea);
-                    hintText.textContent = '✅ Copied successfully!';
-                    hintText.className = 'hint-text success';
-                    showNotification('✅ Grading message copied to clipboard!');
-                    setTimeout(() => {
-                        hintText.textContent = 'Click to copy: "Now grade this very strictly..."';
-                        hintText.className = 'hint-text';
-                    }, 3000);
-                } catch (err) {
-                    hintText.textContent = '❌ Failed to copy!';
-                    hintText.className = 'hint-text error';
-                    showNotification('❌ Failed to copy message', false);
-                    setTimeout(() => {
-                        hintText.textContent = 'Click to copy: "Now grade this very strictly..."';
-                        hintText.className = 'hint-text';
-                    }, 3000);
-                }
-            });
-        }
-
         // ==================== SETUP ====================
         let extraCreditPointsValue = 0;
         let checkSelections = {};
         let checkTextSelections = {};
         let masterNoDeductions = true;
 
+        // Store original rubric data for reset
         let originalRubricData = null;
 
         function showNotification(message, isSuccess = true, sectionLetter = '') {
@@ -1984,6 +1904,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     const groupNumber = idx + 1;
                     group.label = `${letter}${groupNumber}. ${group.label}`;
                 });
+                // Negative items already have their prefixes, so we don't add them again
             }
         }
 
@@ -2352,6 +2273,8 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                         itemElement.className = 'item negative-item';
                         itemElement.id = itemId;
                         
+                        // Split the item into prefix and description
+                        // Format: "A1. Description text"
                         const match = item.match(/^([A-Z][0-9]+)\.\s*(.*)$/);
                         let prefix = '';
                         let description = item;
@@ -2437,18 +2360,13 @@ Without further ado, below we've provided both high-level feedback on satisfacti
         function setupEventListeners() {
             document.addEventListener('dblclick', function(e) {
                 const item = e.target.closest('.item');
-                if (item) { 
-                    showItemModal(item.id);
+                if (item) { showItemModal(item.id);
                     e.preventDefault();
-                    e.stopPropagation();
-                } else {
+                    e.stopPropagation(); } else {
                     const editable = e.target.closest('.editable');
-                    if (editable && !editable.closest('.checks-section')) {
-                        makeEditable(editable);
-                    }
+                    if (editable && !editable.closest('.checks-section')) makeEditable(editable);
                 }
             });
-            
             document.addEventListener('click', function(e) {
                 const item = e.target.closest('.item');
                 if (item && !item.closest('.checks-section')) {
@@ -2522,7 +2440,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
 
             resetPointBtn.addEventListener('click', () => {
                 if (state.currentEditingItem) {
-                    const maxPoints = state.currentEditingItem.maxPoints || 0;
+                    const maxPoints = getItemMaxPoints(state.currentEditingItem.id);
                     document.getElementById('itemPoints').value = maxPoints;
                     document.getElementById('maxPointDisplay').textContent = maxPoints;
                 }
@@ -2581,10 +2499,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
         }
 
         function makeEditable(element) {
-            if (element.classList.contains('item-prefix')) {
-                return;
-            }
-            
             const currentText = element.textContent;
             const input = document.createElement('input');
             input.type = 'text';
@@ -2592,29 +2506,12 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             input.style.width = '100%';
             input.style.border = '1px solid #2196F3';
             input.style.padding = '2px 4px';
-            input.style.background = 'white';
-            input.style.borderRadius = '3px';
-            input.style.fontSize = 'inherit';
-            input.style.fontFamily = 'inherit';
-            input.style.boxSizing = 'border-box';
-            input.style.outline = 'none';
-            
-            const originalText = currentText;
-            
             element.innerHTML = '';
             element.appendChild(input);
-            
-            setTimeout(function() {
-                input.focus();
-                input.select();
-            }, 10);
-            
-            input.addEventListener('blur', function() {
+            input.focus();
+            input.addEventListener('blur', () => {
                 let newValue = input.value.trim();
-                if (newValue === '') {
-                    newValue = originalText;
-                }
-                if (element.dataset.id && element.dataset.id.endsWith('-points')) {
+                if (element.dataset.id.endsWith('-points')) {
                     const parts = element.dataset.id.split('-');
                     const itemIndex = parseInt(parts[parts.length - 1]);
                     const parentId = parts.slice(0, parts.length - 2).join('-');
@@ -2636,34 +2533,9 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     updateSummary();
                 } else {
                     element.textContent = newValue;
-                    const parentItem = element.closest('.item');
-                    if (parentItem && parentItem.classList.contains('negative-item')) {
-                        const itemId = parentItem.id;
-                        let sectionId = itemId.split('-').slice(0, 2).join('-');
-                        if (!state.selectedItems.has(sectionId)) {
-                            state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
-                        }
-                        const sectionState = state.selectedItems.get(sectionId);
-                        if (!sectionState.negative.has(itemId)) {
-                            sectionState.negative.add(itemId);
-                            parentItem.classList.add('selected-negative');
-                        }
-                        updateSummary();
-                    }
-                }
-                element.classList.add('editable');
-            });
-            
-            input.addEventListener('keypress', function(e) { 
-                if (e.key === 'Enter') {
-                    input.blur();
-                }
-                if (e.key === 'Escape') {
-                    element.textContent = originalText;
-                    element.classList.add('editable');
-                    input.remove();
                 }
             });
+            input.addEventListener('keypress', (e) => { if (e.key === 'Enter') input.blur(); });
         }
 
         function getItemMaxPoints(itemId) {
@@ -2691,21 +2563,18 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             const itemElement = document.getElementById(itemId);
             if (!itemElement) return;
             
+            // For negative items, find the description part (without prefix)
             let textElement = itemElement.querySelector('.editable[data-id$="-text"]');
             let pointsElement = itemElement.querySelector('.editable[data-id$="-points"]');
             
+            // If no points element (negative items don't have points), handle separately
             const isNegative = itemElement.classList.contains('negative-item');
             
             if (!textElement) return;
             
-            let maxPoints = 0;
-            if (!isNegative) {
-                maxPoints = getItemMaxPoints(itemId);
-                maxPointSpan.textContent = maxPoints;
-                const pointsValue = pointsElement ? parseFloat(pointsElement.textContent) || 0 : 0;
-                itemPoints.value = Math.abs(pointsValue);
-                itemPoints.disabled = false;
-            } else {
+            // For negative items, we want to show the full text with prefix for context
+            // but only allow editing the description part
+            if (isNegative) {
                 const prefixEl = itemElement.querySelector('.item-prefix');
                 const descEl = itemElement.querySelector('.editable.item-description');
                 if (descEl) {
@@ -2716,6 +2585,13 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 maxPointSpan.textContent = 'N/A';
                 itemPoints.value = 0;
                 itemPoints.disabled = true;
+            } else {
+                itemText.value = textElement.textContent;
+                const maxPoints = getItemMaxPoints(itemId);
+                maxPointSpan.textContent = maxPoints;
+                const pointsValue = pointsElement ? parseFloat(pointsElement.textContent) || 0 : 0;
+                itemPoints.value = Math.abs(pointsValue);
+                itemPoints.disabled = false;
             }
             
             state.currentEditingItem = { 
@@ -2723,8 +2599,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 textElement: textElement, 
                 pointsElement: pointsElement, 
                 isNegative: isNegative,
-                maxPoints: maxPoints,
-                itemElement: itemElement
+                maxPoints: parseInt(maxPointSpan.textContent) || 0
             };
             modal.style.display = 'flex';
         }
@@ -2734,30 +2609,26 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             const itemText = document.getElementById('itemText');
             const itemPoints = document.getElementById('itemPoints');
             if (!state.currentEditingItem) return;
-            const { id, textElement, pointsElement, isNegative, maxPoints, itemElement } = state.currentEditingItem;
+            const { id, textElement, pointsElement, isNegative, maxPoints } = state.currentEditingItem;
             
             if (isNegative) {
+                // For negative items, we need to update the description while preserving the prefix
+                const itemElement = document.getElementById(id);
+                const prefixEl = itemElement.querySelector('.item-prefix');
                 const descEl = itemElement.querySelector('.editable.item-description');
                 if (descEl) {
                     descEl.textContent = itemText.value;
                 } else {
+                    // Fallback: update the main text element
                     textElement.textContent = itemText.value;
-                }
-                let sectionId = id.split('-').slice(0, 2).join('-');
-                if (!state.selectedItems.has(sectionId)) {
-                    state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
-                }
-                const sectionState = state.selectedItems.get(sectionId);
-                if (!sectionState.negative.has(id)) {
-                    sectionState.negative.add(id);
-                    itemElement.classList.add('selected-negative');
                 }
             } else {
                 textElement.textContent = itemText.value;
                 if (pointsElement) {
                     const pointsValue = parseInt(itemPoints.value) || 0;
                     const clampedPoints = Math.min(pointsValue, maxPoints);
-                    pointsElement.textContent = clampedPoints;
+                    const displayPoints = clampedPoints;
+                    pointsElement.textContent = displayPoints;
                     const parts = id.split('-');
                     const sectionIndex = parseInt(parts[1]);
                     const itemIndex = parseInt(parts[parts.length - 1]);
@@ -2766,13 +2637,14 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     for (let g = 0; g < section.groups.length; g++) {
                         for (let i = 0; i < section.groups[g].items.length; i++) {
                             if (counter === itemIndex) {
-                                section.groups[g].items[i].points = clampedPoints;
+                                section.groups[g].items[i].points = Math.abs(displayPoints);
                             }
                             counter++;
                         }
                     }
                 }
 
+                const itemElement = document.getElementById(id);
                 if (itemElement && !itemElement.classList.contains('selected-positive')) {
                     let sectionId = id.split('-').slice(0, 2).join('-');
                     if (!state.selectedItems.has(sectionId)) state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
@@ -3076,6 +2948,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                             if (el) {
                                 const textEl = el.querySelector('.editable[data-id$="-text"]');
                                 if (textEl) {
+                                    // Get the full text with prefix from the item
                                     const prefixEl = el.querySelector('.item-prefix');
                                     let fullText = textEl.textContent;
                                     if (prefixEl) {
@@ -3126,23 +2999,30 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 }
             });
 
+            // Reset rubric data from original
             const originalSections = originalRubricData.grading_rubric.sections;
             const currentSections = rubricData.grading_rubric.sections;
             
             for (let i = 0; i < currentSections.length; i++) {
+                // Reset main_section
                 currentSections[i].main_section = originalSections[i].main_section;
+                // Reset group labels and item descriptions
                 for (let g = 0; g < currentSections[i].groups.length; g++) {
+                    // Reset group label
                     currentSections[i].groups[g].label = originalSections[i].groups[g].label;
+                    // Reset item descriptions and points
                     for (let itemIdx = 0; itemIdx < currentSections[i].groups[g].items.length; itemIdx++) {
                         currentSections[i].groups[g].items[itemIdx].description = originalSections[i].groups[g].items[itemIdx].description;
                         currentSections[i].groups[g].items[itemIdx].points = originalSections[i].groups[g].items[itemIdx].points;
                     }
                 }
+                // Reset negative items
                 if (currentSections[i].negative_items && originalSections[i].negative_items) {
                     currentSections[i].negative_items.items = [...originalSections[i].negative_items.items];
                 }
             }
 
+            // Re-apply transformations to add section letters and group labels
             const secs = rubricData.grading_rubric.sections;
             for (let i = 0; i < secs.length - 1; i++) {
                 const section = secs[i];
@@ -3160,11 +3040,14 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                         const groupNumber = idx + 1;
                         group.label = `${letter}${groupNumber}. ${group.label}`;
                     });
+                    // Negative items already have prefixes, don't add them again
                 }
             }
 
+            // Re-render rubric
             renderRubric();
 
+            // Reset checks
             masterNoDeductions = true;
             const masterEl = document.getElementById('check-text-positive-0');
             if (masterEl) {
@@ -3187,6 +3070,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 }
             }
 
+            // Reset feedback textareas
             document.querySelectorAll('textarea').forEach(ta => ta.value = '');
 
             updateSummary();
