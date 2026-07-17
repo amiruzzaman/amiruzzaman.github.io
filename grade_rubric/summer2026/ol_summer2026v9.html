@@ -36,7 +36,6 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            min-width: 0;
         }
 
         .summary-section {
@@ -49,7 +48,6 @@
             top: 15px;
             height: fit-content;
             font-size: 0.85rem;
-            min-width: 200px;
         }
 
         .summary-section .nav-links {
@@ -898,87 +896,6 @@
             color: #c62828;
             font-weight: 600;
         }
-
-        .comparison-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 5px 0 15px 0;
-            font-size: 0.9em;
-        }
-        .comparison-table th {
-            background-color: var(--header-bg);
-            padding: 8px 10px;
-            text-align: left;
-            font-weight: 600;
-            border-bottom: 2px solid #ccc;
-        }
-        .comparison-table th:first-child {
-            width: 45%;
-        }
-        .comparison-table th:last-child {
-            width: 45%;
-        }
-        .comparison-table td {
-            padding: 4px 6px;
-            vertical-align: top;
-            border-bottom: 1px solid #eee;
-        }
-        .comparison-table .group-label-row td {
-            background-color: #f0f4ff;
-            font-weight: 600;
-            padding: 6px 10px;
-            border-top: 2px solid #ccc;
-        }
-        .comparison-table .item-row td {
-            padding: 3px 6px 3px 20px;
-        }
-        .comparison-table .item-row .item {
-            margin: 0;
-            padding: 4px 8px;
-            font-size: 0.85em;
-            border-radius: 3px;
-            cursor: pointer;
-            display: inline-block;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        .comparison-table .item-row .item .editable {
-            display: inline;
-        }
-        .comparison-table .positive-col .item {
-            background-color: var(--positive-color);
-            border-left: 3px solid #4CAF50;
-        }
-        .comparison-table .positive-col .item.selected-positive {
-            background-color: var(--positive-selected);
-        }
-        .comparison-table .negative-col .item {
-            background-color: var(--negative-color);
-            border-left: 3px solid #F44336;
-        }
-        .comparison-table .negative-col .item.selected-negative {
-            background-color: var(--negative-selected);
-        }
-        .comparison-table .point-badge {
-            font-weight: 600;
-            color: #1a237e;
-            font-size: 0.8em;
-            margin-left: 4px;
-        }
-        .comparison-table .item .item-prefix {
-            font-weight: 600;
-            color: #1a237e;
-            margin-right: 4px;
-        }
-        .comparison-table .item .item-description {
-            flex: 1;
-        }
-        .comparison-table .item .editable {
-            display: inline;
-        }
-        .section-content-wrapper {
-            overflow-x: auto;
-        }
     </style>
 </head>
 
@@ -1177,6 +1094,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     hintText.className = 'hint-text';
                 }, 3000);
             }).catch(() => {
+                // Fallback for older browsers
                 try {
                     const textarea = document.createElement('textarea');
                     textarea.value = message;
@@ -1877,7 +1795,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                             "C2. Objective changes mid-run, dropout/stochastic behavior is active during evaluation, function evaluations are counted inconsistently, or test set is used as RO objective",
                             "C3. RO progress curves are missing, curves use incomparable x-axes, budgets differ without justification, GA compared by generation count only",
                             "C4. Only states which RO method had the best final value, ignores compute cost, omits final multiclass metrics, or does not discuss whether RO was worth the compute",
-                            "C4. RO objective is not clearly defined as validation loss, model.eval() is not used during evaluation, or function evaluation counts are inconsistent with candidate objective calls"
+                            "C3. RO objective is not clearly defined as validation loss, model.eval() is not used during evaluation, or function evaluation counts are inconsistent with candidate objective calls"
                         ]
                     },
                     "feedback_section": "Feedback on Section: <free-text>"
@@ -2334,16 +2252,12 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             if (sectionIndex === 0) updateChecksOnSelection();
         }
 
-        // ==================== RENDER RUBRIC (SIDE-BY-SIDE) ====================
+        // ==================== RENDER RUBRIC ====================
         function renderRubric() {
             const container = document.getElementById('rubricContainer');
             container.innerHTML = '';
-            
             rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
                 const sectionId = `section-${sectionIndex}`;
-                const isExtraCredit = section.main_section.includes('Extra Credit');
-                
-                // Section Header
                 const sectionHeader = document.createElement('div');
                 sectionHeader.className = 'section-header';
                 sectionHeader.id = `header-${sectionId}`;
@@ -2402,162 +2316,59 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 sectionHeader.appendChild(btnDiv);
                 container.appendChild(sectionHeader);
 
-                // Section Content with side-by-side table
                 const sectionContent = document.createElement('div');
                 sectionContent.id = `${sectionId}-content`;
-                sectionContent.className = 'section-content-wrapper';
 
-                if (section.groups && !isExtraCredit) {
-                    const table = document.createElement('table');
-                    table.className = 'comparison-table';
-                    
-                    // Table header
-                    const thead = document.createElement('thead');
-                    const headerRow = document.createElement('tr');
-                    headerRow.innerHTML = `
-                        <th>✅ What You Did Well</th>
-                        <th>❌ What Needs Improvement</th>
-                    `;
-                    thead.appendChild(headerRow);
-                    table.appendChild(thead);
-                    
-                    const tbody = document.createElement('tbody');
-                    
-                    // Build mapping of negative items by group prefix
-                    const negByGroup = {};
-                    if (section.negative_items) {
-                        section.negative_items.items.forEach((negText, negIndex) => {
-                            const match = negText.match(/^([A-Z][0-9]+)\.\s*(.*)$/);
-                            if (match) {
-                                const prefix = match[1];
-                                if (!negByGroup[prefix]) negByGroup[prefix] = [];
-                                negByGroup[prefix].push({ text: negText, index: negIndex, prefix: prefix });
-                            }
-                        });
-                    }
-                    
-                    // For each group, create rows
+                if (section.groups) {
                     let itemCounter = 0;
                     section.groups.forEach((group, groupIndex) => {
-                        const groupLabel = group.label;
-                        const groupPrefixMatch = groupLabel.match(/^([A-Z][0-9]+)\./);
-                        const groupPrefix = groupPrefixMatch ? groupPrefixMatch[1] : null;
-                        
-                        // Group label row
-                        const groupRow = document.createElement('tr');
-                        groupRow.className = 'group-label-row';
-                        groupRow.innerHTML = `<td colspan="2"><strong>${groupLabel}</strong></td>`;
-                        tbody.appendChild(groupRow);
-                        
-                        const negItems = groupPrefix ? (negByGroup[groupPrefix] || []) : [];
-                        
-                        group.items.forEach((item, idx) => {
+                        const groupDiv = document.createElement('div');
+                        groupDiv.className = 'group-item';
+                        groupDiv.innerHTML = `<strong>${group.label} (${group.max} pts)</strong>`;
+                        const subDiv = document.createElement('div');
+                        subDiv.className = 'sub-items';
+                        group.items.forEach((item, itemIdx) => {
                             const itemId = `${sectionId}-positive-${itemCounter}`;
-                            const negItem = negItems[idx] || null;
-                            
-                            const row = document.createElement('tr');
-                            row.className = 'item-row';
-                            
-                            // Positive column
-                            const posCell = document.createElement('td');
-                            posCell.className = 'positive-col';
-                            const posDiv = document.createElement('div');
-                            posDiv.className = 'item positive-item';
-                            posDiv.id = itemId;
-                            const pointsValue = item.points;
-                            posDiv.setAttribute('data-points', pointsValue);
-                            posDiv.innerHTML = `
-                                <span class="editable" data-id="${itemId}-text">${item.description}</span>
-                                <span class="point-badge" data-points="${pointsValue}">(${pointsValue} pts)</span>
-                            `;
-                            posCell.appendChild(posDiv);
-                            
-                            // Negative column
-                            const negCell = document.createElement('td');
-                            negCell.className = 'negative-col';
-                            if (negItem) {
-                                const negId = `${sectionId}-negative-${negItem.index}`;
-                                const match = negItem.text.match(/^([A-Z][0-9]+)\.\s*(.*)$/);
-                                let prefix = '';
-                                let description = negItem.text;
-                                if (match) {
-                                    prefix = match[1] + '.';
-                                    description = match[2];
-                                }
-                                const negDiv = document.createElement('div');
-                                negDiv.className = 'item negative-item';
-                                negDiv.id = negId;
-                                negDiv.innerHTML = `
-                                    <span class="item-prefix">${prefix}</span>
-                                    <span class="editable item-description" data-id="${negId}-text">${description}</span>
-                                `;
-                                negCell.appendChild(negDiv);
-                            } else {
-                                negCell.innerHTML = '<span style="color:#999; font-style:italic;">—</span>';
-                            }
-                            
-                            row.appendChild(posCell);
-                            row.appendChild(negCell);
-                            tbody.appendChild(row);
-                            
+                            const itemEl = document.createElement('div');
+                            itemEl.className = 'sub-item item positive-item';
+                            itemEl.id = itemId;
+                            itemEl.innerHTML =
+                                `<span class="editable" data-id="${itemId}-text">${item.description}</span> (<span class="editable point-edit" data-id="${itemId}-points">${item.points}</span> pts)`;
+                            subDiv.appendChild(itemEl);
                             itemCounter++;
                         });
+                        groupDiv.appendChild(subDiv);
+                        sectionContent.appendChild(groupDiv);
                     });
-                    
-                    table.appendChild(tbody);
-                    sectionContent.appendChild(table);
-                } else if (isExtraCredit) {
-                    // Extra credit section - show normally
-                    if (section.groups) {
-                        let itemCounter = 0;
-                        section.groups.forEach((group) => {
-                            const groupDiv = document.createElement('div');
-                            groupDiv.className = 'group-item';
-                            groupDiv.innerHTML = `<strong>${group.label} (${group.max} pts)</strong>`;
-                            const subDiv = document.createElement('div');
-                            subDiv.className = 'sub-items';
-                            group.items.forEach((item) => {
-                                const itemId = `${sectionId}-positive-${itemCounter}`;
-                                const itemEl = document.createElement('div');
-                                itemEl.className = 'sub-item item positive-item';
-                                itemEl.id = itemId;
-                                itemEl.innerHTML =
-                                    `<span class="editable" data-id="${itemId}-text">${item.description}</span> (<span class="editable point-edit" data-id="${itemId}-points">${item.points}</span> pts)`;
-                                subDiv.appendChild(itemEl);
-                                itemCounter++;
-                            });
-                            groupDiv.appendChild(subDiv);
-                            sectionContent.appendChild(groupDiv);
-                        });
-                    }
-                    
-                    if (section.negative_items) {
-                        const negativeList = document.createElement('div');
-                        negativeList.className = 'item-list';
-                        negativeList.innerHTML = '<strong>What needs improvement</strong>';
-                        section.negative_items.items.forEach((item, itemIndex) => {
-                            const itemId = `${sectionId}-negative-${itemIndex}`;
-                            const match = item.match(/^([A-Z][0-9]+)\.\s*(.*)$/);
-                            let prefix = '';
-                            let description = item;
-                            if (match) {
-                                prefix = match[1] + '.';
-                                description = match[2];
-                            }
-                            const itemElement = document.createElement('div');
-                            itemElement.className = 'item negative-item';
-                            itemElement.id = itemId;
-                            itemElement.innerHTML = `
-                                - <span class="item-prefix">${prefix}</span>
-                                <span class="editable item-description" data-id="${itemId}-text">${description}</span>
-                            `;
-                            negativeList.appendChild(itemElement);
-                        });
-                        sectionContent.appendChild(negativeList);
-                    }
                 }
 
-                // Feedback textarea
+                if (section.negative_items) {
+                    const negativeList = document.createElement('div');
+                    negativeList.className = 'item-list';
+                    negativeList.innerHTML = '<strong>What needs improvement</strong>';
+                    section.negative_items.items.forEach((item, itemIndex) => {
+                        const itemId = `${sectionId}-negative-${itemIndex}`;
+                        const itemElement = document.createElement('div');
+                        itemElement.className = 'item negative-item';
+                        itemElement.id = itemId;
+                        
+                        const match = item.match(/^([A-Z][0-9]+)\.\s*(.*)$/);
+                        let prefix = '';
+                        let description = item;
+                        if (match) {
+                            prefix = match[1] + '.';
+                            description = match[2];
+                        }
+                        
+                        itemElement.innerHTML = `
+                            - <span class="item-prefix">${prefix}</span>
+                            <span class="editable item-description" data-id="${itemId}-text">${description}</span>
+                        `;
+                        negativeList.appendChild(itemElement);
+                    });
+                    sectionContent.appendChild(negativeList);
+                }
+
                 const feedbackDiv = document.createElement('div');
                 feedbackDiv.innerHTML = `<strong>${section.feedback_section}</strong>`;
                 const predefinedFeedbackHTML = createPredefinedFeedback(sectionId);
@@ -2568,15 +2379,11 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 feedbackTextarea.placeholder = 'Enter feedback here (optional)';
                 feedbackDiv.appendChild(feedbackTextarea);
                 sectionContent.appendChild(feedbackDiv);
-                
                 container.appendChild(sectionContent);
-                
                 const separator = document.createElement('hr');
                 separator.style.margin = '20px 0';
                 container.appendChild(separator);
             });
-            
-            // General feedback
             const generalDiv = document.createElement('div');
             generalDiv.innerHTML = `<h3>${rubricData.grading_rubric.general_feedback.section}</h3>`;
             const generalPredefined = createPredefinedFeedback('general');
@@ -2607,47 +2414,38 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             if (!sectionMatch) return 'general';
             const sectionIndex = parseInt(sectionMatch[1]);
             switch (sectionIndex) {
-                case 0: return 'requirements';
-                case 1: return 'study_design';
-                case 2: return 'algorithms_ro';
-                case 3: return 'algorithms_adam';
-                case 4: return 'algorithms_reg';
-                case 5: return 'discussion';
-                case 6: return 'extra_credit';
-                default: return 'general';
+                case 0:
+                    return 'requirements';
+                case 1:
+                    return 'study_design';
+                case 2:
+                    return 'algorithms_ro';
+                case 3:
+                    return 'algorithms_adam';
+                case 4:
+                    return 'algorithms_reg';
+                case 5:
+                    return 'discussion';
+                case 6:
+                    return 'extra_credit';
+                default:
+                    return 'general';
             }
         }
 
         // ==================== EVENT LISTENERS ====================
         function setupEventListeners() {
             document.addEventListener('dblclick', function(e) {
-                // First check if we're clicking on an editable element
-                const editable = e.target.closest('.editable');
-                if (editable && !editable.closest('.checks-section')) {
-                    // Don't allow editing if it's a prefix
-                    if (editable.classList.contains('item-prefix')) {
-                        return;
-                    }
-                    // For items in the comparison table, show the modal
-                    const parentItem = editable.closest('.item');
-                    if (parentItem) {
-                        showItemModal(parentItem.id);
-                        e.preventDefault();
-                        e.stopPropagation();
-                        return;
-                    }
-                    makeEditable(editable);
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return;
-                }
-                
-                // Then check if we're clicking on an item
                 const item = e.target.closest('.item');
                 if (item) { 
                     showItemModal(item.id);
                     e.preventDefault();
                     e.stopPropagation();
+                } else {
+                    const editable = e.target.closest('.editable');
+                    if (editable && !editable.closest('.checks-section')) {
+                        makeEditable(editable);
+                    }
                 }
             });
             
@@ -2851,14 +2649,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                             parentItem.classList.add('selected-negative');
                         }
                         updateSummary();
-                    } else if (parentItem && parentItem.classList.contains('positive-item')) {
-                        const pointBadge = parentItem.querySelector('.point-badge');
-                        if (pointBadge) {
-                            const points = parseInt(pointBadge.textContent) || 0;
-                            pointBadge.textContent = `(${points} pts)`;
-                            parentItem.setAttribute('data-points', points);
-                        }
-                        updateSummary();
                     }
                 }
                 element.classList.add('editable');
@@ -2901,14 +2691,8 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             const itemElement = document.getElementById(itemId);
             if (!itemElement) return;
             
-            // For comparison table items, find the text correctly
             let textElement = itemElement.querySelector('.editable[data-id$="-text"]');
             let pointsElement = itemElement.querySelector('.editable[data-id$="-points"]');
-            
-            // If not found, try to find any editable element inside
-            if (!textElement) {
-                textElement = itemElement.querySelector('.editable');
-            }
             
             const isNegative = itemElement.classList.contains('negative-item');
             
@@ -2918,24 +2702,9 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             if (!isNegative) {
                 maxPoints = getItemMaxPoints(itemId);
                 maxPointSpan.textContent = maxPoints;
-                // Get points from the point badge
-                const pointBadge = itemElement.querySelector('.point-badge');
-                let currentPoints = 0;
-                if (pointBadge) {
-                    const badgeText = pointBadge.textContent.replace(/[()]/g, '').replace('pts', '').trim();
-                    currentPoints = parseInt(badgeText) || 0;
-                } else if (pointsElement) {
-                    currentPoints = parseFloat(pointsElement.textContent) || 0;
-                }
-                // Also check data-points attribute
-                const dataPoints = itemElement.getAttribute('data-points');
-                if (dataPoints !== null) {
-                    currentPoints = parseInt(dataPoints) || currentPoints;
-                }
-                itemPoints.value = Math.abs(currentPoints);
+                const pointsValue = pointsElement ? parseFloat(pointsElement.textContent) || 0 : 0;
+                itemPoints.value = Math.abs(pointsValue);
                 itemPoints.disabled = false;
-                // Set the text value
-                itemText.value = textElement.textContent;
             } else {
                 const prefixEl = itemElement.querySelector('.item-prefix');
                 const descEl = itemElement.querySelector('.editable.item-description');
@@ -2985,30 +2754,22 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 }
             } else {
                 textElement.textContent = itemText.value;
-                
-                const pointsValue = parseInt(itemPoints.value) || 0;
-                const clampedPoints = Math.min(pointsValue, maxPoints);
-                
-                const pointBadge = itemElement.querySelector('.point-badge');
-                if (pointBadge) {
-                    pointBadge.textContent = `(${clampedPoints} pts)`;
-                    itemElement.setAttribute('data-points', clampedPoints);
-                }
                 if (pointsElement) {
+                    const pointsValue = parseInt(itemPoints.value) || 0;
+                    const clampedPoints = Math.min(pointsValue, maxPoints);
                     pointsElement.textContent = clampedPoints;
-                }
-                
-                const parts = id.split('-');
-                const sectionIndex = parseInt(parts[1]);
-                const itemIndex = parseInt(parts[parts.length - 1]);
-                const section = rubricData.grading_rubric.sections[sectionIndex];
-                let counter = 0;
-                for (let g = 0; g < section.groups.length; g++) {
-                    for (let i = 0; i < section.groups[g].items.length; i++) {
-                        if (counter === itemIndex) {
-                            section.groups[g].items[i].points = clampedPoints;
+                    const parts = id.split('-');
+                    const sectionIndex = parseInt(parts[1]);
+                    const itemIndex = parseInt(parts[parts.length - 1]);
+                    const section = rubricData.grading_rubric.sections[sectionIndex];
+                    let counter = 0;
+                    for (let g = 0; g < section.groups.length; g++) {
+                        for (let i = 0; i < section.groups[g].items.length; i++) {
+                            if (counter === itemIndex) {
+                                section.groups[g].items[i].points = clampedPoints;
+                            }
+                            counter++;
                         }
-                        counter++;
                     }
                 }
 
