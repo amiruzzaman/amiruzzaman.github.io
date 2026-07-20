@@ -1006,84 +1006,6 @@
             font-size: 12px;
             padding: 6px 12px;
         }
-
-        /* Negative comment button */
-        .neg-comment-btn {
-            background-color: #1976D2;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 2px 8px;
-            font-size: 11px;
-            cursor: pointer;
-            margin-left: 6px;
-            transition: background-color 0.2s;
-            white-space: nowrap;
-        }
-        .neg-comment-btn:hover {
-            background-color: #0D47A1;
-        }
-        .negative-item-wrapper {
-            display: flex;
-            align-items: center;
-            width: 100%;
-        }
-        .negative-item-wrapper .item {
-            flex: 1;
-            margin: 0;
-        }
-        .negative-item-wrapper .neg-comment-btn {
-            flex-shrink: 0;
-            margin-left: 4px;
-        }
-
-        /* Comment modal */
-        .comment-modal .modal-content {
-            width: 550px;
-            max-width: 95%;
-        }
-        .comment-modal .modal-body textarea {
-            min-height: 120px;
-        }
-        .comment-modal .modal-footer .restore-group {
-            flex: 1;
-        }
-        .comment-modal .modal-footer .restore-group button {
-            font-size: 12px;
-            padding: 6px 12px;
-        }
-        .modal-btn-green {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-        }
-        .modal-btn-green:hover {
-            background-color: #45a049;
-        }
-        .predefined-comment-btn {
-            background-color: #e3f2fd;
-            color: #0D47A1;
-            border: 1px solid #90caf9;
-            border-radius: 4px;
-            padding: 4px 10px;
-            font-size: 12px;
-            cursor: pointer;
-            margin: 2px 4px 2px 0;
-            transition: background-color 0.2s;
-            display: inline-block;
-        }
-        .predefined-comment-btn:hover {
-            background-color: #bbdefb;
-        }
-        .predefined-comment-section {
-            margin-bottom: 10px;
-        }
-        .predefined-comment-section .label {
-            font-weight: 500;
-            font-size: 13px;
-            display: block;
-            margin-bottom: 4px;
-        }
     </style>
 </head>
 
@@ -1238,7 +1160,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
         </div>
     </div>
 
-    <!-- Item Edit Modal -->
     <div id="itemModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1268,37 +1189,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 <button id="clearTextBtn" class="modal-btn modal-btn-danger">Clear Text</button>
                 <button id="cancelBtn" class="modal-btn modal-btn-secondary">Cancel</button>
                 <button id="saveBtn" class="modal-btn modal-btn-primary">Save</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Comment Modal for Negative Items -->
-    <div id="commentModal" class="modal comment-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">Add Comment to Section Feedback</div>
-                <button class="close-btn" id="commentModalClose">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="predefined-comment-section">
-                    <span class="label">Quick predefined comments:</span>
-                    <button class="predefined-comment-btn" data-comment="Missing or incomplete: please provide more detail.">Missing detail</button>
-                    <button class="predefined-comment-btn" data-comment="Not clearly explained: please clarify your reasoning.">Unclear explanation</button>
-                    <button class="predefined-comment-btn" data-comment="Good start but needs more supporting evidence.">Needs evidence</button>
-                    <button class="predefined-comment-btn" data-comment="Please include more specific examples or data.">Add examples</button>
-                    <button class="predefined-comment-btn" data-comment="This needs further analysis and interpretation.">Needs analysis</button>
-                </div>
-                <div class="form-group">
-                    <label for="commentText">Comment text:</label>
-                    <textarea id="commentText" class="form-control" rows="4" placeholder="Enter your comment here..."></textarea>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <div class="restore-group">
-                    <button id="clearCommentBtn" class="modal-btn modal-btn-danger">Clear</button>
-                </div>
-                <button id="cancelCommentBtn" class="modal-btn modal-btn-secondary">Cancel</button>
-                <button id="addCommentBtn" class="modal-btn modal-btn-primary">Add to Feedback</button>
             </div>
         </div>
     </div>
@@ -2283,7 +2173,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             setupEventListeners();
             setupModalEvents();
             setupPredefinedFeedbackEvents();
-            setupCommentModalEvents();
             updateSummary();
             
             const nameInput = document.getElementById('studentName');
@@ -2476,81 +2365,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             if (sectionIndex === 0) updateChecksOnSelection();
         }
 
-        // ==================== COMMENT MODAL ====================
-        let commentModalTarget = null; // stores { sectionId, negItemId }
-
-        function setupCommentModalEvents() {
-            const modal = document.getElementById('commentModal');
-            const closeBtn = document.getElementById('commentModalClose');
-            const cancelBtn = document.getElementById('cancelCommentBtn');
-            const addBtn = document.getElementById('addCommentBtn');
-            const clearBtn = document.getElementById('clearCommentBtn');
-            const commentText = document.getElementById('commentText');
-
-            function closeModal() {
-                modal.style.display = 'none';
-                commentModalTarget = null;
-                commentText.value = '';
-            }
-
-            closeBtn.addEventListener('click', closeModal);
-            cancelBtn.addEventListener('click', closeModal);
-            window.addEventListener('click', function(e) {
-                if (e.target === modal) closeModal();
-            });
-
-            clearBtn.addEventListener('click', function() {
-                commentText.value = '';
-            });
-
-            addBtn.addEventListener('click', function() {
-                const text = commentText.value.trim();
-                if (!text) {
-                    showNotification('⚠️ Please enter a comment before adding.', false);
-                    return;
-                }
-                if (!commentModalTarget) {
-                    showNotification('⚠️ No target section found.', false);
-                    return;
-                }
-                const { sectionId } = commentModalTarget;
-                const feedbackTextarea = document.getElementById(`${sectionId}-feedback`);
-                if (feedbackTextarea) {
-                    const current = feedbackTextarea.value;
-                    const separator = current && !current.endsWith('\n') ? '\n' : '';
-                    feedbackTextarea.value = current + separator + text;
-                    showNotification('✅ Comment added to feedback section!');
-                } else {
-                    showNotification('⚠️ Feedback textarea not found.', false);
-                }
-                closeModal();
-            });
-
-            // Predefined comment buttons
-            document.querySelectorAll('#commentModal .predefined-comment-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const comment = this.getAttribute('data-comment');
-                    const textarea = document.getElementById('commentText');
-                    const current = textarea.value;
-                    if (current) {
-                        textarea.value = current + '\n' + comment;
-                    } else {
-                        textarea.value = comment;
-                    }
-                    textarea.focus();
-                });
-            });
-        }
-
-        function openCommentModal(sectionId, negItemId) {
-            commentModalTarget = { sectionId, negItemId };
-            const modal = document.getElementById('commentModal');
-            const textarea = document.getElementById('commentText');
-            textarea.value = '';
-            modal.style.display = 'flex';
-            setTimeout(() => textarea.focus(), 100);
-        }
-
         // ==================== RENDER RUBRIC (SIDE-BY-SIDE) ====================
         function renderRubric() {
             const container = document.getElementById('rubricContainer');
@@ -2701,10 +2515,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                                     prefix = match[1] + '.';
                                     description = match[2];
                                 }
-                                // Wrap negative item with comment button
-                                const negWrapper = document.createElement('div');
-                                negWrapper.className = 'negative-item-wrapper';
-                                
                                 const negDiv = document.createElement('div');
                                 negDiv.className = 'item negative-item';
                                 negDiv.id = negId;
@@ -2712,19 +2522,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                                     <span class="item-prefix">${prefix}</span>
                                     <span class="editable item-description" data-id="${negId}-text">${description}</span>
                                 `;
-                                negWrapper.appendChild(negDiv);
-                                
-                                const commentBtn = document.createElement('button');
-                                commentBtn.className = 'neg-comment-btn';
-                                commentBtn.textContent = '💬';
-                                commentBtn.title = 'Add comment to section feedback';
-                                commentBtn.addEventListener('click', function(e) {
-                                    e.stopPropagation();
-                                    openCommentModal(sectionId, negId);
-                                });
-                                negWrapper.appendChild(commentBtn);
-                                
-                                negCell.appendChild(negWrapper);
+                                negCell.appendChild(negDiv);
                             } else {
                                 negCell.innerHTML = '<span style="color:#999; font-style:italic;">—</span>';
                             }
