@@ -3163,63 +3163,16 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
                 let sectionPoints = 0;
                 const maxPoints = section.points_available;
-                
-                // Count total number of rows (items) in this section
-                let totalRows = 0;
-                section.groups.forEach(group => {
-                    totalRows += group.items.length;
-                });
-                
-                // Count how many rows have at least one selection (positive OR negative)
-                let rowsWithSelection = 0;
                 let itemCounter = 0;
                 section.groups.forEach(group => {
                     group.items.forEach((item, idx) => {
-                        const posId = `${sectionId}-positive-${itemCounter}`;
-                        // Check if any negative item for this row is selected
-                        let negSelected = false;
-                        if (section.negative_items) {
-                            // Find the matching negative item for this row
-                            // For extra credit, negative items are handled differently
-                            if (!isExtraCredit) {
-                                const prefix = group.label.match(/^([A-Z][0-9]+)\./);
-                                if (prefix) {
-                                    const negKey = prefix[1];
-                                    const negItems = section.negative_items.items;
-                                    for (let n = 0; n < negItems.length; n++) {
-                                        if (negItems[n].startsWith(negKey + '.')) {
-                                            const negId = `${sectionId}-negative-${n}`;
-                                            if (sectionState.negative.has(negId)) {
-                                                negSelected = true;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        
-                        // Check if positive is selected OR negative is selected
-                        const posSelected = sectionState.positive.has(posId);
-                        if (posSelected || negSelected) {
-                            rowsWithSelection++;
-                        }
-                        itemCounter++;
-                    });
-                });
-                
-                // Calculate points (for display)
-                itemCounter = 0;
-                section.groups.forEach(group => {
-                    group.items.forEach((item, idx) => {
-                        const posId = `${sectionId}-positive-${itemCounter}`;
-                        if (sectionState.positive.has(posId)) {
+                        const itemId = `${sectionId}-positive-${itemCounter}`;
+                        if (sectionState.positive.has(itemId)) {
                             sectionPoints += item.points;
                         }
                         itemCounter++;
                     });
                 });
-                
                 const row = document.createElement('tr');
                 row.dataset.sectionIndex = sectionIndex;
                 row.style.cursor = 'pointer';
@@ -3228,9 +3181,9 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 });
 
                 let statusClass = 'row-not-started';
-                if (rowsWithSelection === 0) {
+                if (sectionPoints === 0) {
                     statusClass = 'row-not-started';
-                } else if (rowsWithSelection === totalRows) {
+                } else if (sectionPoints >= maxPoints) {
                     statusClass = 'row-completed';
                 } else {
                     statusClass = 'row-in-progress';
