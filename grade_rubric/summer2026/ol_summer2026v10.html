@@ -979,33 +979,6 @@
         .section-content-wrapper {
             overflow-x: auto;
         }
-        /* new button styles for modal */
-        .modal-btn-orange {
-            background-color: #ff9800;
-            color: white;
-            border: none;
-        }
-        .modal-btn-orange:hover {
-            background-color: #fb8c00;
-        }
-        .modal-btn-purple {
-            background-color: #9C27B0;
-            color: white;
-            border: none;
-        }
-        .modal-btn-purple:hover {
-            background-color: #7B1FA2;
-        }
-        .modal-footer .restore-group {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-            flex: 1;
-        }
-        .modal-footer .restore-group button {
-            font-size: 12px;
-            padding: 6px 12px;
-        }
     </style>
 </head>
 
@@ -1182,10 +1155,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                 </div>
             </div>
             <div class="modal-footer">
-                <div class="restore-group">
-                    <button id="restoreTextBtn" class="modal-btn modal-btn-orange">↺ Restore Text</button>
-                    <button id="restorePointsBtn" class="modal-btn modal-btn-purple">↺ Restore Points</button>
-                </div>
                 <button id="clearTextBtn" class="modal-btn modal-btn-danger">Clear Text</button>
                 <button id="cancelBtn" class="modal-btn modal-btn-secondary">Cancel</button>
                 <button id="saveBtn" class="modal-btn modal-btn-primary">Save</button>
@@ -2729,8 +2698,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
             const incrementBtn = document.getElementById('incrementPoint');
             const decrementBtn = document.getElementById('decrementPoint');
             const resetPointBtn = document.getElementById('resetPointBtn');
-            const restoreTextBtn = document.getElementById('restoreTextBtn');
-            const restorePointsBtn = document.getElementById('restorePointsBtn');
 
             [closeBtn, cancelBtn].forEach(btn => btn.addEventListener('click', () => modal.style.display = 'none'));
 
@@ -2760,34 +2727,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     const maxPoints = state.currentEditingItem.maxPoints || 0;
                     document.getElementById('itemPoints').value = maxPoints;
                     document.getElementById('maxPointDisplay').textContent = maxPoints;
-                }
-            });
-
-            // Restore original text from rubric
-            restoreTextBtn.addEventListener('click', function() {
-                const itemId = state.currentEditingItem?.id;
-                if (!itemId) return;
-                // Retrieve original text from rubric data
-                const originalText = getOriginalItemText(itemId);
-                if (originalText !== null) {
-                    document.getElementById('itemText').value = originalText;
-                    showNotification('✅ Original text restored');
-                } else {
-                    showNotification('⚠️ Could not find original text', false);
-                }
-            });
-
-            // Restore original points from rubric
-            restorePointsBtn.addEventListener('click', function() {
-                const itemId = state.currentEditingItem?.id;
-                if (!itemId) return;
-                const originalPoints = getOriginalItemPoints(itemId);
-                if (originalPoints !== null) {
-                    document.getElementById('itemPoints').value = originalPoints;
-                    document.getElementById('maxPointDisplay').textContent = originalPoints;
-                    showNotification('✅ Original points restored');
-                } else {
-                    showNotification('⚠️ Could not find original points', false);
                 }
             });
 
@@ -2824,56 +2763,6 @@ Without further ado, below we've provided both high-level feedback on satisfacti
                     if (textarea && textarea.classList.contains('feedback-textarea')) textarea.value = '';
                 }
             });
-        }
-
-        // ==================== HELPER: get original text/points from rubric ====================
-        function getOriginalItemText(itemId) {
-            // itemId format: section-X-positive-N or section-X-negative-N
-            const parts = itemId.split('-');
-            if (parts.length < 3) return null;
-            const sectionIndex = parseInt(parts[1]);
-            const isPositive = parts[2] === 'positive';
-            const itemIndex = parseInt(parts[3]);
-            const section = originalRubricData.grading_rubric.sections[sectionIndex];
-            if (!section) return null;
-            if (isPositive) {
-                let counter = 0;
-                for (let g = 0; g < section.groups.length; g++) {
-                    for (let i = 0; i < section.groups[g].items.length; i++) {
-                        if (counter === itemIndex) {
-                            return section.groups[g].items[i].description;
-                        }
-                        counter++;
-                    }
-                }
-            } else {
-                // negative item
-                const negItems = section.negative_items?.items;
-                if (negItems && itemIndex < negItems.length) {
-                    return negItems[itemIndex];
-                }
-            }
-            return null;
-        }
-
-        function getOriginalItemPoints(itemId) {
-            const parts = itemId.split('-');
-            if (parts.length < 3) return null;
-            const sectionIndex = parseInt(parts[1]);
-            const isPositive = parts[2] === 'positive';
-            const itemIndex = parseInt(parts[3]);
-            const section = originalRubricData.grading_rubric.sections[sectionIndex];
-            if (!section || !isPositive) return null;
-            let counter = 0;
-            for (let g = 0; g < section.groups.length; g++) {
-                for (let i = 0; i < section.groups[g].items.length; i++) {
-                    if (counter === itemIndex) {
-                        return section.groups[g].items[i].points;
-                    }
-                    counter++;
-                }
-            }
-            return null;
         }
 
         // ==================== ITEM FUNCTIONS ====================
