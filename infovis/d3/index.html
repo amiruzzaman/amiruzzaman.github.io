@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Visualization Portfolio - Five Datasets</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+        
+        .visualization {
+            margin-bottom: 60px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            background-color: #fafafa;
+        }
+        
+        .viz-title {
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 5px;
+        }
+        
+        .viz-description {
+            color: #555;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .chart-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .axis text {
+            font-size: 12px;
+            fill: #333;
+        }
+        
+        .axis path, .axis line {
+            fill: none;
+            stroke: #333;
+            shape-rendering: crispedges;
+        }
+        
+        .tooltip {
+            position: absolute;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 5px;
+            pointer-events: none;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .legend {
+            font-size: 12px;
+        }
+        
+        .legend-item {
+            cursor: pointer;
+        }
+        
+        .bar {
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        
+        .bar:hover {
+            opacity: 0.7;
+        }
+        
+        .circle {
+            cursor: pointer;
+            transition: r 0.3s;
+        }
+        
+        .circle:hover {
+            r: 8;
+        }
+        
+        .line {
+            fill: none;
+            stroke-width: 2;
+        }
+        
+        .area {
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Data Visualization Portfolio</h1>
+        <p class="subtitle">Interactive Analysis of Five Different Datasets</p>
+        
+        <!-- Visualization 1: Cars Dataset - Scatter Plot -->
+        <div class="visualization">
+            <h2 class="viz-title">1. Automobile Performance Analysis</h2>
+            <p class="viz-description">
+                This scatter plot visualization displays the relationship between fuel efficiency (MPG) and engine power (Horsepower) 
+                for various automobiles from 1970-1982, color-coded by their country of origin. The visualization reveals the 
+                inverse correlation between horsepower and fuel efficiency, while also highlighting regional manufacturing differences. 
+                European cars tend to cluster in the high-MPG, low-horsepower region, while American cars dominate the high-horsepower, 
+                low-MPG area, with Japanese cars showing a balanced distribution across both dimensions.
+            </p>
+            <div class="chart-container" id="cars-chart"></div>
+        </div>
+        
+        <!-- Visualization 2: Cereals Dataset - Bar Chart -->
+        <div class="visualization">
+            <h2 class="viz-title">2. Cereal Nutritional Content Comparison</h2>
+            <p class="viz-description">
+                This grouped bar chart compares the average nutritional content (calories, protein, fiber, and sugar) across different 
+                cereal manufacturers. The visualization enables easy comparison of nutritional profiles between brands, helping consumers 
+                make informed dietary choices. The chart reveals significant variations in nutritional content across manufacturers, 
+                with some brands focusing on high-fiber, low-sugar options while others prioritize taste with higher sugar content.
+            </p>
+            <div class="chart-container" id="cereals-chart"></div>
+        </div>
+        
+        <!-- Visualization 3: Film Dataset - Timeline Visualization -->
+        <div class="visualization">
+            <h2 class="viz-title">3. Movie Industry Timeline Analysis</h2>
+            <p class="viz-description">
+                This area chart visualizes the distribution of movie releases across different years and genres, showing trends in 
+                film production over time. The stacked areas represent different genres, allowing viewers to observe shifts in 
+                genre popularity and overall film production volumes. This visualization helps identify periods of high activity 
+                in the film industry and reveals changing audience preferences reflected in production choices across decades.
+            </p>
+            <div class="chart-container" id="film-chart"></div>
+        </div>
+        
+        <!-- Visualization 4: Grocery Store Survey - Demographics Analysis -->
+        <div class="visualization">
+            <h2 class="viz-title">4. Consumer Demographics Bubble Chart</h2>
+            <p class="viz-description">
+                This bubble chart visualizes the relationship between customer age, purchase amounts, and family size across different 
+                grocery store chains. Each bubble represents an individual customer, with age on the x-axis, purchase amount on the 
+                y-axis, bubble size indicating family size, and color representing the store chain. This multi-dimensional visualization 
+                reveals complex patterns in consumer behavior, showing how age, spending power, family composition, and store preference 
+                interact to create distinct customer segments in the retail grocery market.
+            </p>
+            <div class="chart-container" id="grocery-chart"></div>
+        </div>
+        
+        <!-- Visualization 5: Mutual Funds Dataset - Pie Chart -->
+        <div class="visualization">
+            <h2 class="viz-title">5. Mutual Fund Asset Allocation</h2>
+            <p class="viz-description">
+                This interactive pie chart displays the distribution of net assets across different mutual fund categories, 
+                providing a clear view of investment allocation in the portfolio. The visualization includes hover effects 
+                showing detailed information about each category's performance metrics including YTD, 5-year, and 10-year returns. 
+                This representation helps investors quickly understand asset diversification and relative category sizes within 
+                the fund portfolio, enabling informed investment decisions based on both allocation and historical performance data.
+            </p>
+            <div class="chart-container" id="funds-chart"></div>
+        </div>
+    </div>
+    
+    <div class="tooltip" id="tooltip"></div>
+    
+    <script>
+        // Global tooltip
+        const tooltip = d3.select("#tooltip");
+        
+        // Color schemes
+        const colors = {
+            origin: d3.scaleOrdinal()
+                .domain(["American", "European", "Japanese"])
+                .range(["#FF6B6B", "#4ECDC4", "#45B7D1"]),
+            manufacturer: d3.scaleOrdinal()
+                .range(["#FF9999", "#66B2FF", "#99FF99", "#FFCC99", "#FF99CC", "#FFB366"]),
+            genre: d3.scaleOrdinal()
+                .domain(["Action", "Comedy", "Drama", "Mystery", "Science Fiction", "Horror", "Music", "War", "Westerns"])
+                .range(["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F", "#BB8FCE", "#85C1E9", "#F8C471"]),
+            chain: d3.scaleOrdinal()
+                .domain(["Major A", "Major B", "Major C", "Major D", "Major E", "Regional A", "Regional B", "Regional C", "Regional D", "Other"])
+                .range(["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F", "#BB8FCE", "#85C1E9", "#F8C471", "#D5DBDB"]),
+            funds: d3.scaleOrdinal()
+                .range(["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8"])
+        };
+        
+        // Visualization 1: Cars Scatter Plot
+        function createCarsVisualization() {
+            d3.csv("cars.csv").then(data => {
+                // Clean and prepare data
+                const cleanData = data.filter(d => 
+                    d.MPG !== "NA" && d.Horsepower !== "NA" && 
+                    !isNaN(+d.MPG) && !isNaN(+d.Horsepower)
+                ).map(d => ({
+                    mpg: +d.MPG,
+                    horsepower: +d.Horsepower,
+                    origin: d.Origin,
+                    car: d.Car,
+                    year: d["Model Year"]
+                }));
+                
+                const margin = {top: 20, right: 80, bottom: 50, left: 60};
+                const width = 800 - margin.left - margin.right;
+                const height = 500 - margin.bottom - margin.top;
+                
+                const svg = d3.select("#cars-chart")
+                    .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom);
+                
+                const g = svg.append("g")
+                    .attr("transform", `translate(${margin.left},${margin.top})`);
+                
+                // Scales
+                const xScale = d3.scaleLinear()
+                    .domain(d3.extent(cleanData, d => d.horsepower))
+                    .range([0, width]);
+                
+                const yScale = d3.scaleLinear()
+                    .domain(d3.extent(cleanData, d => d.mpg))
+                    .range([height, 0]);
+                
+                // Axes
+                g.append("g")
+                    .attr("class", "axis")
+                    .attr("transform", `translate(0,${height})`)
+                    .call(d3.axisBottom(xScale))
+                    .append("text")
+                    .attr("x", width / 2)
+                    .attr("y", 40)
+                    .attr("fill", "black")
+                    .style("text-anchor", "middle")
+                    .text("Horsepower");
+                
+                g.append("g")
+                    .attr("class", "axis")
+                    .call(d3.axisLeft(yScale))
+                    .append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", -40)
+                    .attr("x", -height / 2)
+                    .attr("fill", "black")
+                    .style("text-anchor", "middle")
+                    .text("Miles Per Gallon (MPG)");
+                
+                // Circles
+                g.selectAll(".circle")
+                    .data(cleanData)
+                    .enter().append("circle")
+                    .attr("class", "circle")
+                    .attr("cx", d => xScale(d.horsepower))
+                    .attr("cy", d => yScale(d.mpg))
+                    .attr("r", 5)
+                    .attr("fill", d => colors.origin(d.origin))
+                    .attr("opacity", 0.7)
+                    .on("mouseover", function(event, d) {
+                        tooltip.style("opacity", 1)
+                            .html(`<strong>${d.car}</strong><br/>
+                                   MPG: ${d.mpg}<br/>
+                                   Horsepower: ${d.horsepower}<br/>
+                                   Origin: ${d.origin}<br/>
+                                   Year: 19${d.year}`)
+                            .style("left", (event.pageX + 10) + "px")
+                            .style("top", (event.pageY - 10) + "px");
+                    })
+                    .on("mouseout", function() {
+                        tooltip.style("opacity", 0);
+                    });
+                
+                // Legend
+                const legend = g.append("g")
+                    .attr("class", "legend")
+                    .attr("transform", `translate(${width - 70}, 20)`);
+                
+                const origins = ["American", "European", "Japanese"];
+                legend.selectAll(".legend-item")
+                    .data(origins)
+                    .enter().append("g")
+                    .attr("class", "legend-item")
+                    .attr("transform", (d, i) => `translate(0, ${i * 20})`)
+                    .each(function(d) {
+                        const item = d3.select(this);
+                        item.append("circle")
+                            .attr("r", 5)
+                            .attr("fill", colors.origin(d));
+                        item.append("text")
+                            .attr("x", 10)
+                            .attr("y", 5)
+                            .text(d);
+                    });
+            });
+        }
+        
+        // Visualization 2: Cereals Bar Chart
+        function createCerealsVisualization() {
+            d3.csv("cereals.csv").then(data => {
+                // Clean and aggregate data by manufacturer
+                const cleanData = data.filter(d => d.Manufacturer && d.Calories && d.Protein && d.Fiber && d.Sugars)
+                    .map(d => ({
+                        manufacturer: d.Manufacturer,
+                        calories: +d.Calories,
+                        protein: +d.Protein,
+                        fiber: +d.Fiber,
+                        sugars: +d.Sugars
+                    }));
+                
+                const aggregated = d3.rollup(cleanData, 
+                    v => ({
+                        calories: d3.mean(v, d => d.calories),
+                        protein: d3.mean(v, d => d.protein),
+                        fiber: d3.mean(v, d => d.fiber),
+                        sugars: d3.mean(v, d => d.sugars),
+                        count: v.length
+                    }),
+                    d => d.manufacturer
+                );
+                
+                const processedData = Array.from(aggregated, ([manufacturer, values]) => ({
+                    manufacturer,
+                    ...values
+                }));
+                
+                const margin = {top: 20, right: 80, bottom: 50, left: 60};
+                const width = 900 - margin.left - margin.right;
+                const height = 500 - margin.bottom - margin.top;
+                const legendWidth = 160;
+                
+                const svg = d3.select("#cereals-chart")
+                    .append("svg")
+                    .attr("width", width + margin.left + margin.right + legendWidth)
+                    .attr("height", height + margin.top + margin.bottom);
+                
+                const g = svg.append("g")
+                    .attr("transform", `translate(${margin.left},${margin.top})`);
+                
+                // Scales
+                const x0 = d3.scaleBand()
+                    .domain(processedData.map(d => d.manufacturer))
+                    .range([0, width])
+                    .padding(0.1);
+                
+                const x1 = d3.scaleBand()
+                    .domain(["calories", "protein", "fiber", "sugars"])
+                    .range([0, x0.bandwidth()])
+                    .padding(0.05);
+                
+                const y = d3.scaleLinear()
+                    .domain([0, d3.max(processedData, d => Math.max(d.calories, d.protein * 10, d.fiber * 10, d.sugars))])
+                    .range([height, 0]);
+                
+                const color = d3.scaleOrdinal()
+                    .domain(["calories", "protein", "fiber", "sugars"])
+                    .range(["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A"]);
+                
+                // Axes
+                g.append("g")
+                    .attr("class", "axis")
+                    .attr("transform", `translate(0,${height})`)
+                    .call(d3.axisBottom(x0))
+                    .selectAll("text")
+                    .attr("transform", "rotate(-45)")
+                    .style("text-anchor", "end");
+                
+                g.append("g")
+                    .attr("class", "axis")
+                    .call(d3.axisLeft(y))
+                    .append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", -40)
+                    .attr("x", -height / 2)
+                    .attr("fill", "black")
+                    .style("text-anchor", "middle")
+                    .text("Average Amount");
+                
+                // Bars
+                const manufacturer = g.selectAll(".manufacturer")
+                    .data(processedData)
+                    .enter().append("g")
+                    .attr("class", "manufacturer")
+                    .attr("transform", d => `translate(${x0(d.manufacturer)},0)`);
+                
+                const metrics = ["calories", "protein", "fiber", "sugars"];
+                const metricLabels = {
+                    calories: "Calories",
+                    protein: "Protein (g) × 10",
+                    fiber: "Fiber (g) × 10", 
+                    sugars: "Sugars (g)"
+                };
+                
+                manufacturer.selectAll(".bar")
+                    .data(d => metrics.map(key => ({
+                        key,
+                        value: key === "protein" || key === "fiber" ? d[key] * 10 : d[key],
+                        actualValue: d[key],
+                        manufacturer: d.manufacturer
+                    })))
+                    .enter().append("rect")
+                    .attr("class", "bar")
+                    .attr("x", d => x1(d.key))
+                    .attr("y", d => y(d.value))
+                    .attr("width", x1.bandwidth())
+                    .attr("height", d => height - y(d.value))
+                    .attr("fill", d => color(d.key))
+                    .on("mouseover", function(event, d) {
+                        tooltip.style("opacity", 1)
+                            .html(`<strong>${d.manufacturer}</strong><br/>
+                                   ${metricLabels[d.key]}: ${d.actualValue.toFixed(1)}`)
+                            .style("left", (event.pageX + 10) + "px")
+                            .style("top", (event.pageY - 10) + "px");
+                    })
+                    .on("mouseout", function() {
+                        tooltip.style("opacity", 0);
+                    });
+                
+                // Legend
+                const legend = svg.append("g")
+                    .attr("class", "legend")
+                    .attr("transform", `translate(${width + margin.left + 30},${margin.top + height / 2 - metrics.length * 10})`);
+                
+                legend.selectAll(".legend-item")
+                    .data(metrics)
+                    .enter().append("g")
+                    .attr("class", "legend-item")
+                    .attr("transform", (d, i) => `translate(0, ${i * 24})`)
+                    .each(function(d) {
+                        const item = d3.select(this);
+                        item.append("rect")
+                            .attr("width", 16)
+                            .attr("height", 16)
+                            .attr("fill", color(d));
+                        item.append("text")
+                            .attr("x", 24)
+                            .attr("y", 13)
+                            .attr("text-anchor", "start")
+                            .text(metricLabels[d]);
+                    });
+            });
+        }
+        
+        // Visualization 3: Film Timeline
+        function createFilmVisualization() {
+            d3.csv("film.csv").then(data => {
+                // Clean and prepare data
+                const cleanData = data.filter(d => d.Year && d.Subject)
+                    .map(d => ({
+                        year: +d.Year,
+                        subject: d.Subject,
+                        title: d.Title
+                    }));
+                
+                // Group by year and subject
+                const grouped = d3.rollup(cleanData,
+                    v => v.length,
+                    d => d.year,
+                    d => d.subject
+                );
+                
+                // Convert to array format for stacking
+                const years = Array.from(new Set(cleanData.map(d => d.year))).sort();
+                const subjects = Array.from(new Set(cleanData.map(d => d.subject)));
+                
+                const stackData = years.map(year => {
+                    const yearData = { year };
+                    subjects.forEach(subject => {
+                        yearData[subject] = grouped.get(year)?.get(subject) || 0;
+                    });
+                    return yearData;
+                });
+                
+                const margin = {top: 20, right: 120, bottom: 50, left: 60};
+                const width = 900 - margin.left - margin.right;
+                const height = 400 - margin.bottom - margin.top;
+                
+                const svg = d3.select("#film-chart")
+                    .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom);
+                
+                const g = svg.append("g")
+                    .attr("transform", `translate(${margin.left},${margin.top})`);
+                
+                // Scales
+                const x = d3.scaleLinear()
+                    .domain(d3.extent(years))
+                    .range([0, width]);
+                
+                const y = d3.scaleLinear()
+                    .domain([0, d3.max(stackData, d => d3.sum(subjects, subject => d[subject]))])
+                    .range([height, 0]);
+                
+                // Stack generator
+                const stack = d3.stack()
+                    .keys(subjects)
+                    .order(d3.stackOrderNone)
+                    .offset(d3.stackOffsetNone);
+                
+                const stackedData = stack(stackData);
+                
+                // Area generator
+                const area = d3.area()
+                    .x(d => x(d.data.year))
+                    .y0(d => y(d[0]))
+                    .y1(d => y(d[1]))
+                    .curve(d3.curveCardinal);
+                
+                // Axes
+                g.append("g")
+                    .attr("class", "axis")
+                    .attr("transform", `translate(0,${height})`)
+                    .call(d3.axisBottom(x).tickFormat(d3.format("d")))
+                    .append("text")
+                    .attr("x", width / 2)
+                    .attr("y", 40)
+                    .attr("fill", "black")
+                    .style("text-anchor", "middle")
+                    .text("Year");
+                
+                g.append("g")
+                    .attr("class", "axis")
+                    .call(d3.axisLeft(y))
+                    .append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", -40)
+                    .attr("x", -height / 2)
+                    .attr("fill", "black")
+                    .style("text-anchor", "middle")
+                    .text("Number of Films");
+                
+                // Areas
+                g.selectAll(".area")
+                    .data(stackedData)
+                    .enter().append("path")
+                    .attr("class", "area")
+                    .attr("d", area)
+                    .attr("fill", d => colors.genre(d.key))
+                    .on("mouseover", function(event, d) {
+                        const [x0, y0] = d3.pointer(event, this);
+                        const year = Math.round(x.invert(x0));
+                        const yearData = stackData.find(data => data.year === year);
+                        const count = yearData ? yearData[d.key] : 0;
+                        
+                        tooltip.style("opacity", 1)
+                            .html(`<strong>${d.key}</strong><br/>
+                                   Year: ${year}<br/>
+                                   Films: ${count}`)
+                            .style("left", (event.pageX + 10) + "px")
+                            .style("top", (event.pageY - 10) + "px");
+                    })
+                    .on("mouseout", function() {
+                        tooltip.style("opacity", 0);
+                    });
+                
+                // Legend
+                const legend = g.append("g")
+                    .attr("class", "legend")
+                    .attr("transform", `translate(${width + 10}, 20)`);
+                
+                legend.selectAll(".legend-item")
+                    .data(subjects)
+                    .enter().append("g")
+                    .attr("class", "legend-item")
+                    .attr("transform", (d, i) => `translate(0, ${i * 18})`)
+                    .each(function(d) {
+                        const item = d3.select(this);
+                        item.append("rect")
+                            .attr("width", 12)
+                            .attr("height", 12)
+                            .attr("fill", colors.genre(d));
+                        item.append("text")
+                            .attr("x", 16)
+                            .attr("y", 9)
+                            .text(d)
+                            .style("font-size", "11px");
+                    });
+            });
+        }
+        
+        // Visualization 4: Grocery Store Bubble Chart
+        function createGroceryVisualization() {
+            d3.csv("grocerystoresurvey.csv").then(data => {
+                // Clean and prepare data - sample 500 points for better performance
+                const cleanData = data.filter(d => d.Age && d.PurchaseAmount && d.Chain && d.FamilySize)
+                    .map(d => ({
+                        age: +d.Age,
+                        purchaseAmount: +d.PurchaseAmount,
+                        chain: d.Chain,
+                        familySize: +d.FamilySize,
+                        gender: d.Gender
+                    }))
+                    .filter(d => !isNaN(d.age) && !isNaN(d.purchaseAmount) && !isNaN(d.familySize))
+                    .slice(0, 500); // Sample for performance
+                
+                const margin = {top: 20, right: 120, bottom: 60, left: 80};
+                const width = 900 - margin.left - margin.right;
+                const height = 500 - margin.bottom - margin.top;
+                
+                const svg = d3.select("#grocery-chart")
+                    .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom);
+                
+                const g = svg.append("g")
+                    .attr("transform", `translate(${margin.left},${margin.top})`);
+                
+                // Get unique chains
+                const chains = Array.from(new Set(cleanData.map(d => d.chain)));
+                
+                // Scales
+                const xScale = d3.scaleLinear()
+                    .domain(d3.extent(cleanData, d => d.age))
+                    .range([0, width]);
+                
+                const yScale = d3.scaleLinear()
+                    .domain(d3.extent(cleanData, d => d.purchaseAmount))
+                    .range([height, 0]);
+                
+                // Bubble size scale (family size)
+                const radiusScale = d3.scaleSqrt()
+                    .domain(d3.extent(cleanData, d => d.familySize))
+                    .range([3, 15]);
+                
+                // Axes
+                g.append("g")
+                    .attr("class", "axis")
+                    .attr("transform", `translate(0,${height})`)
+                    .call(d3.axisBottom(xScale))
+                    .append("text")
+                    .attr("x", width / 2)
+                    .attr("y", 40)
+                    .attr("fill", "black")
+                    .style("text-anchor", "middle")
+                    .text("Customer Age");
+                
+                g.append("g")
+                    .attr("class", "axis")
+                    .call(d3.axisLeft(yScale))
+                    .append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", -50)
+                    .attr("x", -height / 2)
+                    .attr("fill", "black")
+                    .style("text-anchor", "middle")
+                    .text("Purchase Amount ($)");
+                
+                // Create bubbles
+                g.selectAll(".bubble")
+                    .data(cleanData)
+                    .enter().append("circle")
+                    .attr("class", "bubble")
+                    .attr("cx", d => xScale(d.age))
+                    .attr("cy", d => yScale(d.purchaseAmount))
+                    .attr("r", d => radiusScale(d.familySize))
+                    .attr("fill", d => colors.chain(d.chain))
+                    .attr("opacity", 0.6)
+                    .attr("stroke", "white")
+                    .attr("stroke-width", 1)
+                    .style("cursor", "pointer")
+                    .on("mouseover", function(event, d) {
+                        d3.select(this)
+                            .attr("opacity", 0.9)
+                            .attr("stroke-width", 2);
+                        
+                        tooltip.style("opacity", 1)
+                            .html(`<strong>Customer Profile</strong><br/>
+                                   Age: ${d.age}<br/>
+                                   Purchase: $${d.purchaseAmount.toFixed(2)}<br/>
+                                   Family Size: ${d.familySize}<br/>
+                                   Store Chain: ${d.chain}<br/>
+                                   Gender: ${d.gender}`)
+                            .style("left", (event.pageX + 10) + "px")
+                            .style("top", (event.pageY - 10) + "px");
+                    })
+                    .on("mouseout", function() {
+                        d3.select(this)
+                            .attr("opacity", 0.6)
+                            .attr("stroke-width", 1);
+                        tooltip.style("opacity", 0);
+                    });
+                
+                // Legend for chains
+                const legend = g.append("g")
+                    .attr("class", "legend")
+                    .attr("transform", `translate(${width + 10}, 20)`);
+                
+                legend.selectAll(".legend-item")
+                    .data(chains)
+                    .enter().append("g")
+                    .attr("class", "legend-item")
+                    .attr("transform", (d, i) => `translate(0, ${i * 18})`)
+                    .each(function(d) {
+                        const item = d3.select(this);
+                        item.append("circle")
+                            .attr("r", 6)
+                            .attr("fill", colors.chain(d))
+                            .attr("opacity", 0.6);
+                        item.append("text")
+                            .attr("x", 12)
+                            .attr("y", 4)
+                            .text(d)
+                            .style("font-size", "10px");
+                    });
+                
+                // Add legend title
+                legend.append("text")
+                    .attr("x", 0)
+                    .attr("y", -5)
+                    .text("Store Chains")
+                    .style("font-weight", "bold")
+                    .style("font-size", "12px");
+                
+                // Add bubble size legend
+                const sizeLegend = g.append("g")
+                    .attr("class", "size-legend")
+                    .attr("transform", `translate(20, 20)`);
+                
+                const sampleSizes = [1, 3, 5, 7];
+                sizeLegend.selectAll(".size-item")
+                    .data(sampleSizes)
+                    .enter().append("g")
+                    .attr("class", "size-item")
+                    .attr("transform", (d, i) => `translate(${i * 40}, 0)`)
+                    .each(function(d) {
+                        const item = d3.select(this);
+                        item.append("circle")
+                            .attr("r", radiusScale(d))
+                            .attr("fill", "#999")
+                            .attr("opacity", 0.5);
+                        item.append("text")
+                            .attr("y", 25)
+                            .attr("text-anchor", "middle")
+                            .text(d)
+                            .style("font-size", "9px");
+                    });
+                
+                sizeLegend.append("text")
+                    .attr("x", 0)
+                    .attr("y", -10)
+                    .text("Family Size")
+                    .style("font-weight", "bold")
+                    .style("font-size", "12px");
+            });
+        }
+        
+        // Visualization 5: Mutual Funds Pie Chart
+        function createFundsVisualization() {
+            d3.csv("mutualfunds.csv").then(data => {
+                // Clean and prepare data (excluding Grand Total row)
+                const cleanData = data.filter(d => d.Category !== "Grand Total" && d["Net assets"])
+                    .map(d => ({
+                        category: d.Category,
+                        netAssets: +d["Net assets"],
+                        ytd: +d[" YTD"],
+                        fiveYear: +d["5YR"],
+                        tenYear: +d["10YR"]
+                    }));
+                
+                const width = 1100;
+                const height = 700;
+                const radius = Math.min(width, height) / 2 - 120;
+                const legendWidth = 220;
+                
+                const svg = d3.select("#funds-chart")
+                    .html("")
+                    .append("svg")
+                    .attr("width", width + legendWidth)
+                    .attr("height", height);
+                
+                const g = svg.append("g")
+                    .attr("transform", `translate(${width/2 - 100},${height/2})`);
+                
+                // Pie generator
+                const pie = d3.pie()
+                    .value(d => d.netAssets)
+                    .sort(null);
+                
+                // Arc generator
+                const arc = d3.arc()
+                    .innerRadius(0)
+                    .outerRadius(radius);
+                
+                const labelArc = d3.arc()
+                    .innerRadius(radius + 20)
+                    .outerRadius(radius + 20);
+                
+                // Create pie slices
+                const arcs = g.selectAll(".arc")
+                    .data(pie(cleanData))
+                    .enter().append("g")
+                    .attr("class", "arc");
+                
+                arcs.append("path")
+                    .attr("d", arc)
+                    .attr("fill", d => colors.funds(d.data.category))
+                    .attr("stroke", "white")
+                    .attr("stroke-width", 2)
+                    .style("cursor", "pointer")
+                    .on("mouseover", function(event, d) {
+                        d3.select(this).attr("opacity", 0.8);
+                        const percentage = ((d.data.netAssets / d3.sum(cleanData, d => d.netAssets)) * 100).toFixed(1);
+                        tooltip.style("opacity", 1)
+                            .html(`<strong>${d.data.category}</strong><br/>
+                                   Net Assets: $${(d.data.netAssets / 1000000).toFixed(1)}M<br/>
+                                   Percentage: ${percentage}%<br/>
+                                   YTD: ${d.data.ytd.toFixed(2)}%<br/>
+                                   5-Year: ${d.data.fiveYear.toFixed(2)}%<br/>
+                                   10-Year: ${d.data.tenYear.toFixed(2)}%`)
+                            .style("left", (event.pageX + 10) + "px")
+                            .style("top", (event.pageY - 10) + "px");
+                    })
+                    .on("mouseout", function() {
+                        d3.select(this).attr("opacity", 1);
+                        tooltip.style("opacity", 0);
+                    });
+                
+                // Remove all inside-the-pie labels. Place all labels outside with leader lines.
+                arcs.append("polyline")
+                    .attr("points", d => {
+                        const posA = arc.centroid(d);
+                        const posB = labelArc.centroid(d);
+                        const posC = [
+                            labelArc.centroid(d)[0] + (labelArc.centroid(d)[0] > 0 ? 60 : -60),
+                            labelArc.centroid(d)[1]
+                        ];
+                        return [posA, posB, posC];
+                    })
+                    .attr("fill", "none")
+                    .attr("stroke", "black")
+                    .attr("stroke-width", 2);
+
+                arcs.append("text")
+                    .attr("transform", d => {
+                        const pos = labelArc.centroid(d);
+                        const x = pos[0] + (pos[0] > 0 ? 80 : -80);
+                        return `translate(${x},${pos[1]})`;
+                    })
+                    .attr("text-anchor", d => labelArc.centroid(d)[0] > 0 ? "start" : "end")
+                    .style("font-size", "18px")
+                    .style("font-weight", "bold")
+                    .text(d => d.data.category);
+                
+                // Add title
+                svg.append("text")
+                    .attr("x", width / 2)
+                    .attr("y", 30)
+                    .attr("text-anchor", "middle")
+                    .style("font-size", "16px")
+                    .style("font-weight", "bold")
+                    .text("Mutual Fund Asset Allocation");
+            });
+        }
+        
+        // Initialize all visualizations
+        document.addEventListener('DOMContentLoaded', function() {
+            createCarsVisualization();
+            createCerealsVisualization();
+            createFilmVisualization();
+            createGroceryVisualization();
+            createFundsVisualization();
+        });
+    </script>
+</body>
+</html>

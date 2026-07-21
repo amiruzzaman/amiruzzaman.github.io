@@ -1,0 +1,115 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto 40px auto;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    backdrop-filter: blur(10px);
+}
+
+h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    font-weight: 300;
+}
+
+.chart-container {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.axis {
+    font-size: 12px;
+}
+
+.axis-label {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.tooltip {
+    position: absolute;
+    background: rgba(0,0,0,0.9);
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 1000;
+}
+
+.loading {
+    text-align: center;
+    font-size: 18px;
+    color: #666;
+    padding: 50px;
+}
+
+.error {
+    text-align: center;
+    color: #e74c3c;
+    padding: 20px;
+    background: #fdf2f2;
+    border-radius: 5px;
+    margin: 20px 0;
+}
+
+.legend {
+    font-size: 12px;
+}
+
+.legend-item {
+    cursor: pointer;
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+
+.legend-item.dimmed {
+    opacity: 0.3;
+}
+
+.description-box {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    border-left: 4px solid #667eea;
+}
+
+.description-box h3 {
+    color: #2c3e50;
+    margin-top: 0;
+}
+
+.description-box p {
+    color: #666;
+    line-height: 1.6;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+        margin: 0 10px 20px 10px;
+    }
+    
+    h1 {
+        font-size: 2em;
+    }
+}

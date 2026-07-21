@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Information Visualization Homework</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: white;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .intro-text {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 60px 0 20px 0;
+            color: #2c3e50;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            position: relative;
+        }
+
+        h2::before {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: #764ba2;
+        }
+
+        .justification {
+            font-size: 1rem;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            line-height: 1.7;
+        }
+
+        .viz-container {
+            margin-bottom: 80px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .viz-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.18);
+        }
+
+        /* Navigation menu styles */
+        .nav-menu {
+            margin: 40px 0;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+        }
+
+        .nav-menu h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: white;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+            font-size: 0.95rem;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Section numbering */
+        .section-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: bold;
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+
+        /* Tableau container enhancements */
+        .tableauPlaceholder {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 15px;
+                border-radius: 15px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .nav-links a {
+                width: 100%;
+                max-width: 300px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Floating decorative elements -->
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+
+    <div class="container">
+        <h1>CSC 571 – Information Visualization Homework</h1>
+        <p class="intro-text">Each visualization below is based on one of the five provided datasets, with a brief
+            justification explaining the design choices and insights revealed.</p>
+
+        <!-- Navigation Menu -->
+        <div class="nav-menu">
+            <h3>Quick Navigation</h3>
+            <div class="nav-links">
+                <a href="#cars">Cars Analysis</a>
+                <a href="#cereals">Cereals Study</a>
+                <a href="#films">Films Trends</a>
+                <a href="#grocery">Grocery Insights</a>
+                <a href="#mutual-funds">Mutual Funds</a>
+            </div>
+        </div>
+
+        <!-- 1. Cars -->
+        <h2 id="cars"><span class="section-number">1</span>Cars: Horsepower vs. MPG</h2>
+        <div class="justification">
+            This scatter plot effectively captures the inverse relationship between a car's horsepower and its fuel
+            efficiency (MPG). By mapping horsepower to the x-axis and MPG to the y-axis, a clear downward trend is
+            visible,
+            indicating that more powerful cars generally consume more fuel. The color coding by Origin helps distinguish
+            regional design patterns, and using marker size to represent vehicle Weight adds a third dimension that
+            reveals
+            how heavier cars often fall on the lower-efficiency end of the spectrum.
+        </div>
+        <div class="viz-container">
+            <!-- Paste your Tableau Public embed code for Cars here -->
+            <div class='tableauPlaceholder' id='viz1749059847170' style='position: relative'><noscript><a href='#'><img
+                            alt='Cars: Horsepower vs. MPG (Size = Weight, Color = Origin) '
+                            src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;Ca&#47;Cars_HP_vs_MPG&#47;CarsHorsepowervs_MPGSizeWeightColorOrigin&#47;1_rss.png'
+                            style='border: none' /></a></noscript><object class='tableauViz' style='display:none;'>
+                    <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' />
+                    <param name='embed_code_version' value='3' />
+                    <param name='site_root' value='' />
+                    <param name='name' value='Cars_HP_vs_MPG&#47;CarsHorsepowervs_MPGSizeWeightColorOrigin' />
+                    <param name='tabs' value='no' />
+                    <param name='toolbar' value='yes' />
+                    <param name='static_image'
+                        value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;Ca&#47;Cars_HP_vs_MPG&#47;CarsHorsepowervs_MPGSizeWeightColorOrigin&#47;1.png' />
+                    <param name='animate_transition' value='yes' />
+                    <param name='display_static_image' value='yes' />
+                    <param name='display_spinner' value='yes' />
+                    <param name='display_overlay' value='yes' />
+                    <param name='display_count' value='yes' />
+                    <param name='language' value='en-US' />
+                </object></div>
+            <script
+                type='text/javascript'>                    var divElement = document.getElementById('viz1749059847170'); var vizElement = divElement.getElementsByTagName('object')[0]; vizElement.style.width = '100%'; vizElement.style.height = (divElement.offsetWidth * 0.75) + 'px'; var scriptElement = document.createElement('script'); scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js'; vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
+        </div>
+
+        <!-- 2. Cereals -->
+        <h2 id="cereals"><span class="section-number">2</span>Cereals: Sugar Distribution by Shelf</h2>
+        <div class="justification">
+            This box-and-whisker plot reveals the distribution of sugar content across shelf placements in the cereal
+            aisle.
+            Shelf 3 contains several high-sugar cereals with a broader spread, while Shelf 1 tends to have cereals with
+            lower sugar content. Each dot represents one cereal, making it easy to identify outliers and healthier
+            options
+            within each group.
+        </div>
+        <div class="viz-container">
+            <div class='tableauPlaceholder' id='viz1749073422493' style='position: relative'><noscript><a href='#'><img
+                            alt='Sugar Distribution by Shelf Position '
+                            src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;Ce&#47;CerealsSugarDistributionbyShelf&#47;SugarDistributionbyShelfPosition&#47;1_rss.png'
+                            style='border: none' /></a></noscript><object class='tableauViz' style='display:none;'>
+                    <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' />
+                    <param name='embed_code_version' value='3' />
+                    <param name='site_root' value='' />
+                    <param name='name' value='CerealsSugarDistributionbyShelf&#47;SugarDistributionbyShelfPosition' />
+                    <param name='tabs' value='no' />
+                    <param name='toolbar' value='yes' />
+                    <param name='static_image'
+                        value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;Ce&#47;CerealsSugarDistributionbyShelf&#47;SugarDistributionbyShelfPosition&#47;1.png' />
+                    <param name='animate_transition' value='yes' />
+                    <param name='display_static_image' value='yes' />
+                    <param name='display_spinner' value='yes' />
+                    <param name='display_overlay' value='yes' />
+                    <param name='display_count' value='yes' />
+                    <param name='language' value='en-US' />
+                    <param name='filter' value='publish=yes' />
+                </object></div>
+            <script
+                type='text/javascript'>                    var divElement = document.getElementById('viz1749073422493'); var vizElement = divElement.getElementsByTagName('object')[0]; vizElement.style.width = '100%'; vizElement.style.height = (divElement.offsetWidth * 0.75) + 'px'; var scriptElement = document.createElement('script'); scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js'; vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
+        </div>
+
+        <!-- 3. Films -->
+        <h2 id="films"><span class="section-number">3</span>Films: How Has Average Movie Length Changed?</h2>
+        <div class="justification">
+            This line chart tracks the average length of movies from 1920 to 1995. It highlights the evolving
+            preferences in
+            filmmaking, where film durations initially fluctuated but gradually stabilized around 100 minutes. This
+            trend
+            suggests a balance between creative storytelling and audience attention spans over the decades.
+        </div>
+        <div class="viz-container">
+            <div class='tableauPlaceholder' id='viz1749081402765' style='position: relative'><noscript><a href='#'><img
+                            alt='Avg Film Length Trend '
+                            src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;3_&#47;3_FilmsHowHasAverageMovieLengthChanged&#47;AvgFilmLengthTrend&#47;1_rss.png'
+                            style='border: none' /></a></noscript><object class='tableauViz' style='display:none;'>
+                    <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' />
+                    <param name='embed_code_version' value='3' />
+                    <param name='site_root' value='' />
+                    <param name='name' value='3_FilmsHowHasAverageMovieLengthChanged&#47;AvgFilmLengthTrend' />
+                    <param name='tabs' value='no' />
+                    <param name='toolbar' value='yes' />
+                    <param name='static_image'
+                        value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;3_&#47;3_FilmsHowHasAverageMovieLengthChanged&#47;AvgFilmLengthTrend&#47;1.png' />
+                    <param name='animate_transition' value='yes' />
+                    <param name='display_static_image' value='yes' />
+                    <param name='display_spinner' value='yes' />
+                    <param name='display_overlay' value='yes' />
+                    <param name='display_count' value='yes' />
+                    <param name='language' value='en-US' />
+                    <param name='filter' value='publish=yes' />
+                </object></div>
+            <script
+                type='text/javascript'>                    var divElement = document.getElementById('viz1749081402765'); var vizElement = divElement.getElementsByTagName('object')[0]; vizElement.style.width = '100%'; vizElement.style.height = (divElement.offsetWidth * 0.75) + 'px'; var scriptElement = document.createElement('script'); scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js'; vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
+        </div>
+
+        <!-- 4. Grocery Store -->
+        <h2 id="grocery"><span class="section-number">4</span>Grocery Stores: Which Chains Drive the Most Revenue?</h2>
+        <div class="justification">
+            This treemap visualizes total revenue per grocery chain based on customer purchase amounts. Each rectangle's
+            size represents the cumulative sales volume for that chain, with darker shades indicating higher revenue. It
+            clearly shows that Major A and Major B dominate consumer spending, while regional and smaller chains
+            generate
+            comparatively lower totals.
+        </div>
+        <div class="viz-container">
+            <div class='tableauPlaceholder' id='viz1749084081209' style='position: relative'><noscript><a href='#'><img
+                            alt='Chain Revenue Treemap '
+                            src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;Gr&#47;GroceryStoresWhichChainsDrivetheMostRevenue&#47;ChainRevenueTreemap&#47;1_rss.png'
+                            style='border: none' /></a></noscript><object class='tableauViz' style='display:none;'>
+                    <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' />
+                    <param name='embed_code_version' value='3' />
+                    <param name='site_root' value='' />
+                    <param name='name' value='GroceryStoresWhichChainsDrivetheMostRevenue&#47;ChainRevenueTreemap' />
+                    <param name='tabs' value='no' />
+                    <param name='toolbar' value='yes' />
+                    <param name='static_image'
+                        value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;Gr&#47;GroceryStoresWhichChainsDrivetheMostRevenue&#47;ChainRevenueTreemap&#47;1.png' />
+                    <param name='animate_transition' value='yes' />
+                    <param name='display_static_image' value='yes' />
+                    <param name='display_spinner' value='yes' />
+                    <param name='display_overlay' value='yes' />
+                    <param name='display_count' value='yes' />
+                    <param name='language' value='en-US' />
+                    <param name='filter' value='publish=yes' />
+                </object></div>
+            <script
+                type='text/javascript'>                    var divElement = document.getElementById('viz1749084081209'); var vizElement = divElement.getElementsByTagName('object')[0]; vizElement.style.width = '100%'; vizElement.style.height = (divElement.offsetWidth * 0.75) + 'px'; var scriptElement = document.createElement('script'); scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js'; vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
+        </div>
+
+        <!-- 5. Mutual Funds -->
+        <h2 id="mutual-funds"><span class="section-number">5</span>Mutual Funds: Which Categories Perform Best Over
+            Time?</h2>
+        <div class="justification">
+            This Small Multiples bar chart illustrates how mutual fund categories have performed across short-term
+            (YTD), mid-term (5-Year), and long-term (10-Year) periods. Categories are sorted by returns within each
+            timeframe, helping investors quickly identify consistently strong performers such as Large Growth, and
+            observe variations in category strength over time.
+        </div>
+        <div class="viz-container">
+            <div class='tableauPlaceholder' id='viz1749241113311' style='position: relative'><noscript><a href='#'><img
+                            alt='Which categories performed best over time? '
+                            src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;Mu&#47;MutualFundsWhichCategoriesPerformBestOverTime&#47;Whichcategoriesperformedbestovertime&#47;1_rss.png'
+                            style='border: none' /></a></noscript><object class='tableauViz' style='display:none;'>
+                    <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' />
+                    <param name='embed_code_version' value='3' />
+                    <param name='site_root' value='' />
+                    <param name='name'
+                        value='MutualFundsWhichCategoriesPerformBestOverTime&#47;Whichcategoriesperformedbestovertime' />
+                    <param name='tabs' value='no' />
+                    <param name='toolbar' value='yes' />
+                    <param name='static_image'
+                        value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;Mu&#47;MutualFundsWhichCategoriesPerformBestOverTime&#47;Whichcategoriesperformedbestovertime&#47;1.png' />
+                    <param name='animate_transition' value='yes' />
+                    <param name='display_static_image' value='yes' />
+                    <param name='display_spinner' value='yes' />
+                    <param name='display_overlay' value='yes' />
+                    <param name='display_count' value='yes' />
+                    <param name='language' value='en-US' />
+                    <param name='filter' value='publish=yes' />
+                </object></div>
+            <script
+                type='text/javascript'>                    var divElement = document.getElementById('viz1749241113311'); var vizElement = divElement.getElementsByTagName('object')[0]; vizElement.style.width = '100%'; vizElement.style.height = (divElement.offsetWidth * 0.75) + 'px'; var scriptElement = document.createElement('script'); scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js'; vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
+        </div>
+    </div>
+</body>
+
+</html>

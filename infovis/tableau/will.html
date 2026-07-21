@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>571 HW2</title>
+  <link rel="stylesheet" href="./style.css">
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!-- Visualization 1: Car Acceleration -->
+<div class="container">
+    <h1>Car Acceleration by Country of Origin</h1>
+    
+    <div class="chart-container">
+        <div id="loading" class="loading">Loading data...</div>
+        <div id="error" class="error" style="display: none;"></div>
+        <svg id="chart"></svg>
+    </div>
+    
+    <div class="description-box">
+        <h3>Visualization 1 Description</h3>
+        <p>This scatter plot shows the relationship between car acceleration and country of origin, where each point represents an individual car. I used a scatterplot seperated by country for readability since each country of origin had a large number of cars. Using the raw data provided a full picture to make it as easy to compare the countries as possible.</p>
+    </div>
+</div>
+
+<!-- Visualization 2 -->
+<div class="container">
+    <h1>Cereal Manufacturers by Average Calorie Count</h1>
+    
+    <div class="chart-container">
+        <svg id="chart2"></svg>
+    </div>
+    
+    <div class="description-box">
+        <h3>Visualization 2 Description</h3>
+        <p>This horizontal bar chart shows the average calories of different cereals organized by the manufacturer. The visualization shows which manufacturers offer higher or lower calorie count cereals in a simple easy to read format without needing to parse through a complex set of data or overly busy visualization, but still offers more information when hovering your cursor over any of the bars. </p>
+    </div>
+</div>
+
+<!-- Visualization 3 -->
+<div class="container">
+    <h1>Film Genres by Number of Awards</h1>
+    
+    <div class="chart-container">
+        <svg id="chart3"></svg>
+    </div>
+    
+    <div class="description-box">
+        <h3>Visualization 3 Description</h3>
+        <p>This visualization is a pie chart showing the number of awards won by different genres of films. The pie chart seperates each genre by color, and the size represents the number of awards won. Hovering your curser over any part of the pie chart will show more information about the films in that genre.</p>
+    </div>
+</div>
+
+<!-- Visualization 4 -->
+<div class="container">
+    <h1>Grocery Store Chains by Amount Spent by Income Bracket</h1>
+    
+    <div class="chart-container">
+        <svg id="chart4"></svg>
+    </div>
+    
+    <div class="description-box">
+        <h3>Visualization 4 Description</h3>
+        <p>This visualization shows the total amount of money spent at different grocery store chains. It is a stacked bar chart, each color within a bar on the chart representing different income brackets of the shoppers. This shows both the most popular or most expensive store chains, as well as the demographic that shops there most regularly.</p>
+    </div>
+</div>
+
+<!-- Visualization 5 -->
+<div class="container">
+    <h1>Visualization 5 Title</h1>
+    
+    <div class="chart-container">
+        <svg id="chart5"></svg>
+    </div>
+    
+    <div class="description-box">
+        <h3>Mutual Fund Values</h3>
+        <p>This bubble chart represents the YTD and 10 year return of different mutual funds. The size of a bubble represents the net assets in the fund, while the color of a bubble represents the type of fund.</p>
+    </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+<!-- partial -->
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js'></script><script  src="./script.js"></script>
+
+</body>
+</html>
