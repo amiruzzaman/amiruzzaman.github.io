@@ -1688,7 +1688,7 @@ We wish you the utmost success finishing out the course, as well as in all futur
                     { label: "B4", groupIndices: [4] }  // Leakage Controls Part 2 (1 pt)
                 ],
                 negGroupMap: {
-                    0: "B1", 1: "B1", 2: "B2", 3: "B3", 4: "B4", 5: "B5"
+                    0: "B1", 1: "B1", 2: "B2", 3: "B3", 4: "B4"
                 }
             },
             2: { // C: Clustering (14 pts) -> groups: 3, 3, 6, 2
@@ -1699,7 +1699,7 @@ We wish you the utmost success finishing out the course, as well as in all futur
                     { label: "C4", groupIndices: [4] }  // Cluster Interpretation (2 pts)
                 ],
                 negGroupMap: {
-                    0: "C1", 1: "C2", 2: "C3", 3: "C3", 4: "C4", 5: "C5"
+                    0: "C1", 1: "C2", 2: "C3", 3: "C3", 4: "C4"
                 }
             },
             3: { // D: Dimensionality Reduction (16 pts) -> groups: 4, 4, 4, 4
@@ -1710,7 +1710,7 @@ We wish you the utmost success finishing out the course, as well as in all futur
                     { label: "D4", groupIndices: [3, 4] } // Cross-Method (2) + Representation (2) = 4 pts
                 ],
                 negGroupMap: {
-                    0: "D1", 1: "D2", 2: "D3", 3: "D4", 4: "D4", 5: "D5"
+                    0: "D1", 1: "D2", 2: "D3", 3: "D4", 4: "D4"
                 }
             },
             4: { // E: DR + Clustering (14 pts) -> groups: 3, 2, 3, 5, 1
@@ -1722,7 +1722,7 @@ We wish you the utmost success finishing out the course, as well as in all futur
                     { label: "E5", groupIndices: [5] }  // Stability/Limitations (1 pt)
                 ],
                 negGroupMap: {
-                    0: "E1", 1: "E2", 2: "E3", 3: "E4", 4: "E4", 5: "E5", 6: "E6"
+                    0: "E1", 1: "E2", 2: "E3", 3: "E4", 4: "E4", 5: "E5"
                 }
             },
             5: { // F: NN after DR (12 pts) -> groups: 2, 3, 3, 2, 2
@@ -1746,7 +1746,7 @@ We wish you the utmost success finishing out the course, as well as in all futur
                     { label: "G5", groupIndices: [6] }  // Limitations/Practical Takeaways (2 pts)
                 ],
                 negGroupMap: {
-                    0: "G1", 1: "G1", 2: "G2", 3: "G2", 4: "G3", 5: "G4", 6: "G5", 7: "G6", 8: "G7"
+                    0: "G1", 1: "G1", 2: "G2", 3: "G2", 4: "G3", 5: "G4", 6: "G5"
                 }
             },
             7: { // EC: Extra Credit (5 pts) -> single sum
@@ -1966,8 +1966,7 @@ We wish you the utmost success finishing out the course, as well as in all futur
                                 "B1. Labels are used to fit clustering or DR, tune unsupervised methods using test-label performance, or otherwise leak label information",
                                 "B2. Hypothesis is missing, generic, stated after results, or not tied to dataset properties or course concepts",
                                 "B3. DR transformations fit on full dataset before NN evaluation, or fitting protocol not clear",
-                                "B4. Hypothesis is never revisited or is only mentioned without evidence",
-                                "B5. Overall study design lacks methodological rigor or clear structure"
+                                "B4. Hypothesis is never revisited or is only mentioned without evidence"
                             ]
                         },
                         "feedback_section": "Feedback on Section: <free-text>"
@@ -2019,8 +2018,7 @@ We wish you the utmost success finishing out the course, as well as in all futur
                                 "C2. GMM/EM run with one arbitrary component count, covariance type not reported, convergence behavior ignored, seeds missing, component count assumed equal to seven without evidence",
                                 "C3. Metrics missing, inappropriate for method, reported for only one clustering method, not connected to model choice, or included without interpretation",
                                 "C3. Claims clusters align or fail to align with labels without quantitative or tabular evidence, uses labels during fitting, treats weak alignment as automatic failure",
-                                "C4. Only reports scores, cluster counts, or plots without explaining what clusters mean or why alignment is strong/weak/partial",
-                                "C5. Overall clustering methodology or comparison between K-Means and GMM is insufficient or missing key components"
+                                "C4. Only reports scores, cluster counts, or plots without explaining what clusters mean or why alignment is strong/weak/partial"
                             ]
                         },
                         "feedback_section": "Feedback on Section: <free-text>"
@@ -2072,8 +2070,7 @@ We wish you the utmost success finishing out the course, as well as in all futur
                                 "D2. ICA applied without non-Gaussianity evidence, convergence status ignored, component count arbitrary, seed sensitivity not addressed, or treated as generic DR with no method-specific interpretation",
                                 "D3. RP applied once without seed variability, component count arbitrary, distortion/distance-preservation evidence missing, or cherry-picks one projection without discussing stochastic variability",
                                 "D4. Component counts appear arbitrary, selected only because convenient, copied across methods without justification, or chosen based only on final test performance",
-                                "D4. No evidence provided about transformed spaces beyond downstream scores, or representation evidence unreadable/uninterpreted",
-                                "D5. Dimensionality reduction section lacks comparative analysis or clear synthesis across PCA, ICA, and RP"
+                                "D4. No evidence provided about transformed spaces beyond downstream scores, or representation evidence unreadable/uninterpreted"
                             ]
                         },
                         "feedback_section": "Feedback on Section: <free-text>"
@@ -2133,8 +2130,7 @@ We wish you the utmost success finishing out the course, as well as in all futur
                                 "E3. Provides scattered results without direct comparison, omits internal metric evidence, reports metrics for only some combinations, or tables too unclear to evaluate",
                                 "E4. Does not examine whether DR changed label alignment, only reports internal metrics, or makes label-alignment claims without evidence",
                                 "E4. Only states which combination scored highest, gives no explanation for why representation changed clustering, or discusses DR and clustering separately without connecting them",
-                                "E5. No stability/limitation issue discussed for DR + clustering, or limitations generic and not tied to reported evidence",
-                                "E6. Section lacks structured comparative evaluation or integration between DR transformations and clustering behavior"
+                                "E5. No stability/limitation issue discussed for DR + clustering, or limitations generic and not tied to reported evidence"
                             ]
                         },
                         "feedback_section": "Feedback on Section: <free-text>"
@@ -2254,9 +2250,7 @@ We wish you the utmost success finishing out the course, as well as in all futur
                                 "G2. Treats PCA, ICA, and RP as interchangeable preprocessing steps or only ranks them by final score",
                                 "G3. Presents DR + clustering results without explaining how or why clustering changed",
                                 "G4. Lists NN results without explaining what the DR comparison reveals",
-                                "G5. Limitations missing, generic, or disconnected from evidence; conclusion only restates which method scored highest without broader takeaway",
-                                "G6. Discussion fails to synthesize insights across unsupervised learning and dimensionality reduction",
-                                "G7. Overall discussion lacks critical interpretation, practical implications, or cohesive summary"
+                                "G5. Limitations missing, generic, or disconnected from evidence; conclusion only restates which method scored highest without broader takeaway"
                             ]
                         },
                         "feedback_section": "Feedback on Section: <free-text>"
@@ -2799,10 +2793,10 @@ We wish you the utmost success finishing out the course, as well as in all futur
                         
                         const negItems = groupPrefix ? (negByGroup[groupPrefix] || []) : [];
                         
-                        const maxRows = Math.max(group.items.length, negItems.length);
-                        for (let r = 0; r < maxRows; r++) {
-                            const item = group.items[r] || null;
-                            const negItem = negItems[r] || null;
+                        group.items.forEach((item, idx) => {
+                            const itemId = `${sectionId}-positive-${itemCounter}`;
+                            // Find matching negative item - if there are more negative items than positive, use them by index
+                            const negItem = negItems[idx] || null;
                             
                             const row = document.createElement('tr');
                             row.className = 'item-row';
@@ -2810,22 +2804,16 @@ We wish you the utmost success finishing out the course, as well as in all futur
                             // Positive column
                             const posCell = document.createElement('td');
                             posCell.className = 'positive-col';
-                            if (item) {
-                                const itemId = `${sectionId}-positive-${itemCounter}`;
-                                const pointsValue = item.points;
-                                const posDiv = document.createElement('div');
-                                posDiv.className = 'item positive-item';
-                                posDiv.id = itemId;
-                                posDiv.setAttribute('data-points', pointsValue);
-                                posDiv.innerHTML = `
-                                    <span class="editable" data-id="${itemId}-text">${item.description}</span>
-                                    <span class="point-badge" data-points="${pointsValue}">(${pointsValue} pts)</span>
-                                `;
-                                posCell.appendChild(posDiv);
-                                itemCounter++;
-                            } else {
-                                posCell.innerHTML = '<span style="color:#999; font-style:italic;">—</span>';
-                            }
+                            const posDiv = document.createElement('div');
+                            posDiv.className = 'item positive-item';
+                            posDiv.id = itemId;
+                            const pointsValue = item.points;
+                            posDiv.setAttribute('data-points', pointsValue);
+                            posDiv.innerHTML = `
+                                <span class="editable" data-id="${itemId}-text">${item.description}</span>
+                                <span class="point-badge" data-points="${pointsValue}">(${pointsValue} pts)</span>
+                            `;
+                            posCell.appendChild(posDiv);
                             
                             // Negative column
                             const negCell = document.createElement('td');
@@ -2869,7 +2857,9 @@ We wish you the utmost success finishing out the course, as well as in all futur
                             row.appendChild(posCell);
                             row.appendChild(negCell);
                             tbody.appendChild(row);
-                        }
+                            
+                            itemCounter++;
+                        });
                     });
                     
                     table.appendChild(tbody);
@@ -3051,627 +3041,901 @@ We wish you the utmost success finishing out the course, as well as in all futur
                     e.stopPropagation();
                 }
             });
-            document.getElementById('generateBtn').addEventListener('click', generateFeedback);
-            document.getElementById('copyBtn').addEventListener('click', copyFeedback);
-            document.getElementById('copyScoresBtn').addEventListener('click', copyAllScores);
+            document.getElementById('generateBtn').addEventListener('click', function() {
+                if (validateName()) {
+                    generateFeedback();
+                } else {
+                    document.getElementById('nameSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    document.getElementById('studentName').focus();
+                }
+            });
             document.getElementById('resetBtn').addEventListener('click', resetAll);
+            document.getElementById('copyBtn').addEventListener('click', function() {
+                const output = document.getElementById('outputSection').textContent;
+                if (output.trim()) {
+                    copyToClipboard(output);
+                    showNotification('✅ Feedback copied!');
+                }
+            });
+            document.getElementById('copyScoresBtn').addEventListener('click', copyScores);
+        }
+
+        function setupModalEvents() {
+            const modal = document.getElementById('itemModal');
+            const closeBtn = document.querySelector('.close-btn');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            const clearTextBtn = document.getElementById('clearTextBtn');
+            const incrementBtn = document.getElementById('incrementPoint');
+            const decrementBtn = document.getElementById('decrementPoint');
+            const resetPointBtn = document.getElementById('resetPointBtn');
+            const restoreTextBtn = document.getElementById('restoreTextBtn');
+            const restorePointsBtn = document.getElementById('restorePointsBtn');
+
+            [closeBtn, cancelBtn].forEach(btn => btn.addEventListener('click', () => modal.style.display = 'none'));
+
+            incrementBtn.addEventListener('click', function() {
+                const input = document.getElementById('itemPoints');
+                const current = parseInt(input.value) || 0;
+                const maxPoints = parseInt(document.getElementById('maxPointDisplay').textContent) || 0;
+                if (current < maxPoints) {
+                    input.value = current + 1;
+                } else {
+                    showNotification('⚠️ Cannot exceed max points (' + maxPoints + ')', false);
+                }
+            });
+
+            decrementBtn.addEventListener('click', function() {
+                const input = document.getElementById('itemPoints');
+                const current = parseInt(input.value) || 0;
+                if (current > 0) {
+                    input.value = current - 1;
+                } else {
+                    showNotification('⚠️ Cannot go below 0', false);
+                }
+            });
+
+            resetPointBtn.addEventListener('click', () => {
+                if (state.currentEditingItem) {
+                    const maxPoints = state.currentEditingItem.maxPoints || 0;
+                    document.getElementById('itemPoints').value = maxPoints;
+                    document.getElementById('maxPointDisplay').textContent = maxPoints;
+                }
+            });
+
+            restoreTextBtn.addEventListener('click', function() {
+                const itemId = state.currentEditingItem?.id;
+                if (!itemId) return;
+                const originalText = getOriginalItemText(itemId);
+                if (originalText !== null) {
+                    document.getElementById('itemText').value = originalText;
+                    showNotification('✅ Original text restored');
+                } else {
+                    showNotification('⚠️ Could not find original text', false);
+                }
+            });
+
+            restorePointsBtn.addEventListener('click', function() {
+                const itemId = state.currentEditingItem?.id;
+                if (!itemId) return;
+                const originalPoints = getOriginalItemPoints(itemId);
+                if (originalPoints !== null) {
+                    document.getElementById('itemPoints').value = originalPoints;
+                    document.getElementById('maxPointDisplay').textContent = originalPoints;
+                    showNotification('✅ Original points restored');
+                } else {
+                    showNotification('⚠️ Could not find original points', false);
+                }
+            });
+
+            saveBtn.addEventListener('click', saveItemChanges);
+            clearTextBtn.addEventListener('click', () => document.getElementById('itemText').value = '');
+            window.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
         }
 
         function setupPredefinedFeedbackEvents() {
             document.addEventListener('click', function(e) {
                 if (e.target.classList.contains('predefined-comment')) {
                     const comment = e.target.getAttribute('data-comment');
-                    const feedbackSection = e.target.closest('.predefined-feedback').parentNode;
-                    const textarea = feedbackSection.querySelector('.feedback-textarea');
-                    const currentText = textarea.value;
-                    if (currentText) textarea.value = currentText + '\n' + comment;
-                    else textarea.value = comment;
-                    e.target.classList.add('selected');
-                } else if (e.target.classList.contains('add-all-comments')) {
-                    const feedbackSection = e.target.closest('.predefined-feedback').parentNode;
-                    const textarea = feedbackSection.querySelector('.feedback-textarea');
-                    const comments = Array.from(feedbackSection.querySelectorAll('.predefined-comment'))
-                        .map(btn => btn.getAttribute('data-comment'));
-                    textarea.value = comments.join('\n');
-                    feedbackSection.querySelectorAll('.predefined-comment').forEach(btn => btn.classList.add('selected'));
-                } else if (e.target.classList.contains('clear-comments')) {
-                    const feedbackSection = e.target.closest('.predefined-feedback').parentNode;
-                    const textarea = feedbackSection.querySelector('.feedback-textarea');
-                    textarea.value = '';
-                    feedbackSection.querySelectorAll('.predefined-comment').forEach(btn => btn.classList.remove('selected'));
+                    const textarea = e.target.closest('.predefined-feedback').nextElementSibling;
+                    if (textarea && textarea.classList.contains('feedback-textarea')) {
+                        const currentText = textarea.value.trim();
+                        textarea.value = currentText ? currentText + '\n\n' + comment : comment;
+                        e.target.classList.add('selected');
+                        setTimeout(() => e.target.classList.remove('selected'), 1000);
+                    }
+                }
+                if (e.target.classList.contains('add-all-comments')) {
+                    const predefinedSection = e.target.closest('.predefined-feedback');
+                    const comments = predefinedSection.querySelectorAll('.predefined-comment');
+                    const textarea = predefinedSection.nextElementSibling;
+                    if (textarea && textarea.classList.contains('feedback-textarea')) {
+                        let allComments = '';
+                        comments.forEach(cb => allComments += cb.getAttribute('data-comment') + '\n\n');
+                        const current = textarea.value.trim();
+                        textarea.value = current ? current + '\n\n' + allComments : allComments;
+                    }
+                }
+                if (e.target.classList.contains('clear-comments')) {
+                    const textarea = e.target.closest('.predefined-feedback').nextElementSibling;
+                    if (textarea && textarea.classList.contains('feedback-textarea')) textarea.value = '';
                 }
             });
         }
 
-        // ==================== EDIT MODAL ====================
-        function setupModalEvents() {
-            const modal = document.getElementById('itemModal');
-            const closeBtn = modal.querySelector('.close-btn');
-            const cancelBtn = document.getElementById('cancelBtn');
-            const saveBtn = document.getElementById('saveBtn');
-            const clearTextBtn = document.getElementById('clearTextBtn');
-            const restoreTextBtn = document.getElementById('restoreTextBtn');
-            const restorePointsBtn = document.getElementById('restorePointsBtn');
-            const incBtn = document.getElementById('incrementPoint');
-            const decBtn = document.getElementById('decrementPoint');
-            const resetPointBtn = document.getElementById('resetPointBtn');
-
-            function closeModal() {
-                modal.style.display = 'none';
-                state.currentEditingItem = null;
-            }
-
-            closeBtn.addEventListener('click', closeModal);
-            cancelBtn.addEventListener('click', closeModal);
-            window.addEventListener('click', function(e) {
-                if (e.target === modal) closeModal();
-            });
-
-            clearTextBtn.addEventListener('click', function() {
-                document.getElementById('itemText').value = '';
-            });
-
-            restoreTextBtn.addEventListener('click', function() {
-                if (!state.currentEditingItem) return;
-                const { sectionIndex, isPositive, groupIndex, itemIndex } = state.currentEditingItem;
-                const origSection = originalRubricData.grading_rubric.sections[sectionIndex];
-                if (!origSection) return;
-
-                if (isPositive) {
-                    let runningIdx = 0;
-                    for (let g = 0; g < origSection.groups.length; g++) {
-                        const grp = origSection.groups[g];
-                        for (let i = 0; i < grp.items.length; i++) {
-                            if (runningIdx === itemIndex) {
-                                document.getElementById('itemText').value = grp.items[i].description;
-                                return;
-                            }
-                            runningIdx++;
-                        }
-                    }
-                } else {
-                    if (origSection.negative_items && origSection.negative_items.items[itemIndex]) {
-                        let text = origSection.negative_items.items[itemIndex];
-                        const match = text.match(/^[A-Z][0-9]+\.\s*(.*)$/);
-                        if (match) text = match[1];
-                        document.getElementById('itemText').value = text;
-                    }
-                }
-            });
-
-            restorePointsBtn.addEventListener('click', function() {
-                if (!state.currentEditingItem) return;
-                const { sectionIndex, isPositive, itemIndex } = state.currentEditingItem;
-                const origSection = originalRubricData.grading_rubric.sections[sectionIndex];
-                if (!origSection) return;
-
-                if (isPositive) {
-                    let runningIdx = 0;
-                    for (let g = 0; g < origSection.groups.length; g++) {
-                        const grp = origSection.groups[g];
-                        for (let i = 0; i < grp.items.length; i++) {
-                            if (runningIdx === itemIndex) {
-                                document.getElementById('itemPoints').value = grp.items[i].points;
-                                return;
-                            }
-                            runningIdx++;
-                        }
-                    }
-                }
-            });
-
-            incBtn.addEventListener('click', function() {
-                const input = document.getElementById('itemPoints');
-                const max = parseFloat(input.getAttribute('max')) || 100;
-                let val = parseFloat(input.value) || 0;
-                if (val < max) input.value = val + 1;
-            });
-
-            decBtn.addEventListener('click', function() {
-                const input = document.getElementById('itemPoints');
-                let val = parseFloat(input.value) || 0;
-                if (val > 0) input.value = val - 1;
-            });
-
-            resetPointBtn.addEventListener('click', function() {
-                if (!state.currentEditingItem) return;
-                const { sectionIndex, isPositive, itemIndex } = state.currentEditingItem;
-                const origSection = originalRubricData.grading_rubric.sections[sectionIndex];
-                if (!origSection || !isPositive) return;
-
-                let runningIdx = 0;
-                for (let g = 0; g < origSection.groups.length; g++) {
-                    const grp = origSection.groups[g];
-                    for (let i = 0; i < grp.items.length; i++) {
-                        if (runningIdx === itemIndex) {
-                            document.getElementById('itemPoints').value = grp.items[i].points;
-                            return;
-                        }
-                        runningIdx++;
-                    }
-                }
-            });
-
-            saveBtn.addEventListener('click', function() {
-                if (!state.currentEditingItem) return;
-                const { itemId, sectionIndex, isPositive, itemIndex } = state.currentEditingItem;
-                const newText = document.getElementById('itemText').value;
-                const newPoints = parseFloat(document.getElementById('itemPoints').value) || 0;
-
-                const textEl = document.querySelector(`[data-id="${itemId}-text"]`);
-                if (textEl) textEl.textContent = newText;
-
-                const section = rubricData.grading_rubric.sections[sectionIndex];
-                if (isPositive) {
-                    let runningIdx = 0;
-                    for (let g = 0; g < section.groups.length; g++) {
-                        const grp = section.groups[g];
-                        for (let i = 0; i < grp.items.length; i++) {
-                            if (runningIdx === itemIndex) {
-                                grp.items[i].description = newText;
-                                grp.items[i].points = newPoints;
-                                break;
-                            }
-                            runningIdx++;
-                        }
-                    }
-                    const itemEl = document.getElementById(itemId);
-                    if (itemEl) {
-                        itemEl.setAttribute('data-points', newPoints);
-                        const badge = itemEl.querySelector('.point-badge');
-                        if (badge) {
-                            badge.setAttribute('data-points', newPoints);
-                            badge.textContent = `(${newPoints} pts)`;
-                        }
-                    }
-                } else {
-                    if (section.negative_items && section.negative_items.items[itemIndex]) {
-                        const oldText = section.negative_items.items[itemIndex];
-                        const match = oldText.match(/^([A-Z][0-9]+\.)\s*(.*)$/);
-                        if (match) {
-                            section.negative_items.items[itemIndex] = `${match[1]} ${newText}`;
-                        } else {
-                            section.negative_items.items[itemIndex] = newText;
-                        }
-                    }
-                }
-
-                updateSummary();
-                closeModal();
-            });
-        }
-
-        function showItemModal(itemId) {
-            const match = itemId.match(/^section-(\d+)-(positive|negative)-(\d+)$/);
-            if (!match) return;
-
-            const sectionIndex = parseInt(match[1]);
-            const isPositive = match[2] === 'positive';
-            const itemIndex = parseInt(match[3]);
-
-            const section = rubricData.grading_rubric.sections[sectionIndex];
-            state.currentEditingItem = { itemId, sectionIndex, isPositive, itemIndex };
-
-            const modal = document.getElementById('itemModal');
-            const textInput = document.getElementById('itemText');
-            const pointsInput = document.getElementById('itemPoints');
-            const pointsGroup = pointsInput.closest('.form-group');
-            const maxDisplay = document.getElementById('maxPointDisplay');
-
-            let currentText = '';
-            let currentPoints = 0;
-            let maxPoints = 0;
-
+        // ==================== HELPER: get original text/points from rubric ====================
+        function getOriginalItemText(itemId) {
+            const parts = itemId.split('-');
+            if (parts.length < 3) return null;
+            const sectionIndex = parseInt(parts[1]);
+            const isPositive = parts[2] === 'positive';
+            const itemIndex = parseInt(parts[3]);
+            const section = originalRubricData.grading_rubric.sections[sectionIndex];
+            if (!section) return null;
             if (isPositive) {
-                pointsGroup.style.display = 'block';
-                let runningIdx = 0;
+                let counter = 0;
                 for (let g = 0; g < section.groups.length; g++) {
-                    const grp = section.groups[g];
-                    for (let i = 0; i < grp.items.length; i++) {
-                        if (runningIdx === itemIndex) {
-                            currentText = grp.items[i].description;
-                            currentPoints = grp.items[i].points;
-                            maxPoints = grp.max;
-                            break;
+                    for (let i = 0; i < section.groups[g].items.length; i++) {
+                        if (counter === itemIndex) {
+                            return section.groups[g].items[i].description;
                         }
-                        runningIdx++;
+                        counter++;
                     }
                 }
-                pointsInput.value = currentPoints;
-                pointsInput.setAttribute('max', maxPoints);
-                maxDisplay.textContent = maxPoints;
             } else {
-                pointsGroup.style.display = 'none';
-                if (section.negative_items && section.negative_items.items[itemIndex]) {
-                    currentText = section.negative_items.items[itemIndex];
-                    const prefixMatch = currentText.match(/^[A-Z][0-9]+\.\s*(.*)$/);
-                    if (prefixMatch) currentText = prefixMatch[1];
+                const negItems = section.negative_items?.items;
+                if (negItems && itemIndex < negItems.length) {
+                    return negItems[itemIndex];
                 }
             }
+            return null;
+        }
 
-            textInput.value = currentText;
-            modal.style.display = 'flex';
+        function getOriginalItemPoints(itemId) {
+            const parts = itemId.split('-');
+            if (parts.length < 3) return null;
+            const sectionIndex = parseInt(parts[1]);
+            const isPositive = parts[2] === 'positive';
+            const itemIndex = parseInt(parts[3]);
+            const section = originalRubricData.grading_rubric.sections[sectionIndex];
+            if (!section || !isPositive) return null;
+            let counter = 0;
+            for (let g = 0; g < section.groups.length; g++) {
+                for (let i = 0; i < section.groups[g].items.length; i++) {
+                    if (counter === itemIndex) {
+                        return section.groups[g].items[i].points;
+                    }
+                    counter++;
+                }
+            }
+            return null;
+        }
+
+        // ==================== ITEM FUNCTIONS ====================
+        function toggleItemSelection(item) {
+            const itemId = item.id;
+            const isPositive = item.classList.contains('positive-item');
+            let sectionId = itemId.split('-').slice(0, 2).join('-');
+            if (!state.selectedItems.has(sectionId)) state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
+            const sectionState = state.selectedItems.get(sectionId);
+            const itemSet = isPositive ? sectionState.positive : sectionState.negative;
+            if (itemSet.has(itemId)) {
+                itemSet.delete(itemId);
+                item.classList.remove(isPositive ? 'selected-positive' : 'selected-negative');
+            } else {
+                itemSet.add(itemId);
+                item.classList.add(isPositive ? 'selected-positive' : 'selected-negative');
+            }
         }
 
         function makeEditable(element) {
-            element.contentEditable = 'true';
-            element.focus();
-            const selection = window.getSelection();
-            const range = document.createRange();
-            range.selectNodeContents(element);
-            selection.removeAllRanges();
-            selection.addRange(range);
-            element.addEventListener('blur', function() {
-                element.contentEditable = 'false';
-            }, { once: true });
-            element.addEventListener('keydown', function(e) {
+            if (element.classList.contains('item-prefix')) {
+                return;
+            }
+            
+            const currentText = element.textContent;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentText;
+            input.style.width = '100%';
+            input.style.border = '1px solid #2196F3';
+            input.style.padding = '2px 4px';
+            input.style.background = 'white';
+            input.style.borderRadius = '3px';
+            input.style.fontSize = 'inherit';
+            input.style.fontFamily = 'inherit';
+            input.style.boxSizing = 'border-box';
+            input.style.outline = 'none';
+            
+            const originalText = currentText;
+            
+            element.innerHTML = '';
+            element.appendChild(input);
+            
+            setTimeout(function() {
+                input.focus();
+                input.select();
+            }, 10);
+            
+            input.addEventListener('blur', function() {
+                let newValue = input.value.trim();
+                if (newValue === '') {
+                    newValue = originalText;
+                }
+                if (element.dataset.id && element.dataset.id.endsWith('-points')) {
+                    const parts = element.dataset.id.split('-');
+                    const itemIndex = parseInt(parts[parts.length - 1]);
+                    const parentId = parts.slice(0, parts.length - 2).join('-');
+                    rubricData.grading_rubric.sections.forEach((section, si) => {
+                        const sectionId = `section-${si}`;
+                        if (parentId.startsWith(sectionId)) {
+                            let counter = 0;
+                            for (let g = 0; g < section.groups.length; g++) {
+                                for (let i = 0; i < section.groups[g].items.length; i++) {
+                                    if (counter === itemIndex) {
+                                        section.groups[g].items[i].points = parseInt(newValue) || 0;
+                                    }
+                                    counter++;
+                                }
+                            }
+                        }
+                    });
+                    element.textContent = newValue;
+                    updateSummary();
+                } else {
+                    element.textContent = newValue;
+                    const parentItem = element.closest('.item');
+                    if (parentItem && parentItem.classList.contains('negative-item')) {
+                        const itemId = parentItem.id;
+                        let sectionId = itemId.split('-').slice(0, 2).join('-');
+                        if (!state.selectedItems.has(sectionId)) {
+                            state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
+                        }
+                        const sectionState = state.selectedItems.get(sectionId);
+                        if (!sectionState.negative.has(itemId)) {
+                            sectionState.negative.add(itemId);
+                            parentItem.classList.add('selected-negative');
+                        }
+                        updateSummary();
+                    } else if (parentItem && parentItem.classList.contains('positive-item')) {
+                        const pointBadge = parentItem.querySelector('.point-badge');
+                        if (pointBadge) {
+                            const points = parseInt(pointBadge.textContent) || 0;
+                            pointBadge.textContent = `(${points} pts)`;
+                            parentItem.setAttribute('data-points', points);
+                        }
+                        updateSummary();
+                    }
+                }
+                element.classList.add('editable');
+            });
+            
+            input.addEventListener('keypress', function(e) { 
                 if (e.key === 'Enter') {
-                    e.preventDefault();
-                    element.blur();
+                    input.blur();
+                }
+                if (e.key === 'Escape') {
+                    element.textContent = originalText;
+                    element.classList.add('editable');
+                    input.remove();
                 }
             });
         }
 
-        // ==================== ITEM SELECTION ====================
-        function toggleItemSelection(element) {
-            const itemId = element.id;
-            const sectionMatch = itemId.match(/^section-(\d+)/);
-            if (!sectionMatch) return;
-            const sectionId = `section-${sectionMatch[1]}`;
-            if (!state.selectedItems.has(sectionId)) state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
-            const sectionState = state.selectedItems.get(sectionId);
-            const isPositive = element.classList.contains('positive-item');
+        function getItemMaxPoints(itemId) {
+            const parts = itemId.split('-');
+            const sectionIndex = parseInt(parts[1]);
+            const itemIndex = parseInt(parts[parts.length - 1]);
+            const section = rubricData.grading_rubric.sections[sectionIndex];
+            let counter = 0;
+            for (let g = 0; g < section.groups.length; g++) {
+                for (let i = 0; i < section.groups[g].items.length; i++) {
+                    if (counter === itemIndex) {
+                        return section.groups[g].items[i].points;
+                    }
+                    counter++;
+                }
+            }
+            return 0;
+        }
 
-            if (isPositive) {
-                if (sectionState.positive.has(itemId)) {
-                    sectionState.positive.delete(itemId);
-                    element.classList.remove('selected-positive');
+        function showItemModal(itemId) {
+            const modal = document.getElementById('itemModal');
+            const itemText = document.getElementById('itemText');
+            const itemPoints = document.getElementById('itemPoints');
+            const maxPointSpan = document.getElementById('maxPointDisplay');
+            const itemElement = document.getElementById(itemId);
+            if (!itemElement) return;
+            
+            let textElement = itemElement.querySelector('.editable[data-id$="-text"]');
+            let pointsElement = itemElement.querySelector('.editable[data-id$="-points"]');
+            
+            if (!textElement) {
+                textElement = itemElement.querySelector('.editable');
+            }
+            
+            const isNegative = itemElement.classList.contains('negative-item');
+            
+            if (!textElement) return;
+            
+            let maxPoints = 0;
+            if (!isNegative) {
+                maxPoints = getItemMaxPoints(itemId);
+                maxPointSpan.textContent = maxPoints;
+                const pointBadge = itemElement.querySelector('.point-badge');
+                let currentPoints = 0;
+                if (pointBadge) {
+                    const badgeText = pointBadge.textContent.replace(/[()]/g, '').replace('pts', '').trim();
+                    currentPoints = parseInt(badgeText) || 0;
+                } else if (pointsElement) {
+                    currentPoints = parseFloat(pointsElement.textContent) || 0;
+                }
+                const dataPoints = itemElement.getAttribute('data-points');
+                if (dataPoints !== null) {
+                    currentPoints = parseInt(dataPoints) || currentPoints;
+                }
+                itemPoints.value = Math.abs(currentPoints);
+                itemPoints.disabled = false;
+                itemText.value = textElement.textContent;
+            } else {
+                const prefixEl = itemElement.querySelector('.item-prefix');
+                const descEl = itemElement.querySelector('.editable.item-description');
+                if (descEl) {
+                    itemText.value = descEl.textContent;
                 } else {
-                    sectionState.positive.add(itemId);
-                    element.classList.add('selected-positive');
+                    itemText.value = textElement.textContent;
+                }
+                maxPointSpan.textContent = 'N/A';
+                itemPoints.value = 0;
+                itemPoints.disabled = true;
+            }
+            
+            state.currentEditingItem = { 
+                id: itemId, 
+                textElement: textElement, 
+                pointsElement: pointsElement, 
+                isNegative: isNegative,
+                maxPoints: maxPoints,
+                itemElement: itemElement
+            };
+            modal.style.display = 'flex';
+        }
+
+        function saveItemChanges() {
+            const modal = document.getElementById('itemModal');
+            const itemText = document.getElementById('itemText');
+            const itemPoints = document.getElementById('itemPoints');
+            if (!state.currentEditingItem) return;
+            const { id, textElement, pointsElement, isNegative, maxPoints, itemElement } = state.currentEditingItem;
+            
+            if (isNegative) {
+                const descEl = itemElement.querySelector('.editable.item-description');
+                if (descEl) {
+                    descEl.textContent = itemText.value;
+                } else {
+                    textElement.textContent = itemText.value;
+                }
+                let sectionId = id.split('-').slice(0, 2).join('-');
+                if (!state.selectedItems.has(sectionId)) {
+                    state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
+                }
+                const sectionState = state.selectedItems.get(sectionId);
+                if (!sectionState.negative.has(id)) {
+                    sectionState.negative.add(id);
+                    itemElement.classList.add('selected-negative');
                 }
             } else {
-                if (sectionState.negative.has(itemId)) {
-                    sectionState.negative.delete(itemId);
-                    element.classList.remove('selected-negative');
-                } else {
-                    sectionState.negative.add(itemId);
-                    element.classList.add('selected-negative');
+                textElement.textContent = itemText.value;
+                
+                const pointsValue = parseInt(itemPoints.value) || 0;
+                const clampedPoints = Math.min(pointsValue, maxPoints);
+                
+                const pointBadge = itemElement.querySelector('.point-badge');
+                if (pointBadge) {
+                    pointBadge.textContent = `(${clampedPoints} pts)`;
+                    itemElement.setAttribute('data-points', clampedPoints);
                 }
+                if (pointsElement) {
+                    pointsElement.textContent = clampedPoints;
+                }
+                
+                const parts = id.split('-');
+                const sectionIndex = parseInt(parts[1]);
+                const itemIndex = parseInt(parts[parts.length - 1]);
+                const section = rubricData.grading_rubric.sections[sectionIndex];
+                let counter = 0;
+                for (let g = 0; g < section.groups.length; g++) {
+                    for (let i = 0; i < section.groups[g].items.length; i++) {
+                        if (counter === itemIndex) {
+                            section.groups[g].items[i].points = clampedPoints;
+                        }
+                        counter++;
+                    }
+                }
+
+                if (itemElement && !itemElement.classList.contains('selected-positive')) {
+                    let sectionId = id.split('-').slice(0, 2).join('-');
+                    if (!state.selectedItems.has(sectionId)) state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
+                    const sectionState = state.selectedItems.get(sectionId);
+                    sectionState.positive.add(id);
+                    itemElement.classList.add('selected-positive');
+                }
+            }
+
+            modal.style.display = 'none';
+            state.currentEditingItem = null;
+            updateSummary();
+            if (id.startsWith('section-0')) updateChecksOnSelection();
+        }
+
+        function scrollToSection(sectionIndex) {
+            const headerId = `header-section-${sectionIndex}`;
+            const headerElement = document.getElementById(headerId);
+            if (headerElement) {
+                headerElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                headerElement.classList.add('section-highlight');
+                setTimeout(() => headerElement.classList.remove('section-highlight'), 1500);
             }
         }
 
-        // ==================== SUMMARY UPDATE ====================
+        // ==================== UPDATE SUMMARY ====================
         function updateSummary() {
             const summaryBody = document.getElementById('summaryBody');
-            const totalPointsEl = document.getElementById('totalPoints');
             summaryBody.innerHTML = '';
-            let totalPoints = 0;
-            let totalMaxPoints = 0;
-
-            rubricData.grading_rubric.sections.forEach((section, index) => {
-                const sectionId = `section-${index}`;
+            let mainTotal = 0;
+            let extraCreditPoints = 0,
+                extraCreditMaxPoints = 0;
+            const extraCreditBody = document.getElementById('extraCreditBody');
+            extraCreditBody.innerHTML = '';
+            rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
+                const sectionId = `section-${sectionIndex}`;
+                const isExtraCredit = section.main_section.includes('Extra Credit');
                 const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
                 let sectionPoints = 0;
-                let isExtraCredit = section.main_section.includes('Extra Credit');
-                let totalSectionItems = 0;
-
+                const maxPoints = section.points_available;
+                
+                let totalRows = 0;
                 section.groups.forEach(group => {
-                    group.items.forEach((item, itemIdx) => {
-                        const itemId = `${sectionId}-positive-${totalSectionItems + itemIdx}`;
-                        if (sectionState.positive.has(itemId)) sectionPoints += item.points;
+                    totalRows += group.items.length;
+                });
+                
+                let rowsWithSelection = 0;
+                let itemCounter = 0;
+                section.groups.forEach(group => {
+                    group.items.forEach((item, idx) => {
+                        const posId = `${sectionId}-positive-${itemCounter}`;
+                        let negSelected = false;
+                        if (section.negative_items) {
+                            if (!isExtraCredit) {
+                                const prefix = group.label.match(/^([A-Z][0-9]+)\./);
+                                if (prefix) {
+                                    const negKey = prefix[1];
+                                    const negItems = section.negative_items.items;
+                                    for (let n = 0; n < negItems.length; n++) {
+                                        if (negItems[n].startsWith(negKey + '.')) {
+                                            const negId = `${sectionId}-negative-${n}`;
+                                            if (sectionState.negative.has(negId)) {
+                                                negSelected = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
+                        const posSelected = sectionState.positive.has(posId);
+                        if (posSelected || negSelected) {
+                            rowsWithSelection++;
+                        }
+                        itemCounter++;
                     });
-                    totalSectionItems += group.items.length;
+                });
+                
+                itemCounter = 0;
+                section.groups.forEach(group => {
+                    group.items.forEach((item, idx) => {
+                        const posId = `${sectionId}-positive-${itemCounter}`;
+                        if (sectionState.positive.has(posId)) {
+                            sectionPoints += item.points;
+                        }
+                        itemCounter++;
+                    });
+                });
+                
+                const row = document.createElement('tr');
+                row.dataset.sectionIndex = sectionIndex;
+                row.style.cursor = 'pointer';
+                row.addEventListener('click', (e) => {
+                    scrollToSection(sectionIndex);
                 });
 
-                if (isExtraCredit) {
-                    extraCreditPointsValue = sectionPoints;
-                    const ecBody = document.getElementById('extraCreditBody');
-                    const ecSection = document.getElementById('extraCreditSection');
-                    if (ecBody && ecSection) {
-                        ecSection.classList.remove('hidden');
-                        ecBody.innerHTML =
-                            `<tr onclick="scrollToSection('${sectionId}')"><td>${section.main_section}</td><td>${sectionPoints}</td><td>${section.points_available}</td></tr>`;
-                    }
+                let statusClass = 'row-not-started';
+                if (rowsWithSelection === 0) {
+                    statusClass = 'row-not-started';
+                } else if (rowsWithSelection === totalRows) {
+                    statusClass = 'row-completed';
                 } else {
-                    totalPoints += sectionPoints;
-                    totalMaxPoints += section.points_available;
+                    statusClass = 'row-in-progress';
+                }
+                row.className = statusClass;
 
-                    let isCompleted = totalSectionItems > 0 && sectionState.positive.size === totalSectionItems;
-                    let isInProgress = sectionState.positive.size > 0 && !isCompleted;
-                    let rowClass = isCompleted ? 'row-completed' : (isInProgress ? 'row-in-progress' : 'row-not-started');
-
-                    const row = document.createElement('tr');
-                    row.className = rowClass;
-                    row.onclick = () => scrollToSection(sectionId);
+                if (isExtraCredit) {
+                    extraCreditPoints += sectionPoints;
+                    extraCreditMaxPoints = rubricData.grading_rubric.extra_credit_points;
                     row.innerHTML =
-                        `<td>${section.main_section}</td><td>${sectionPoints}</td><td>${section.points_available}</td>`;
+                        `<td>${section.main_section.split('(')[0].trim()}</td><td>${sectionPoints.toFixed(0)}</td><td>${maxPoints}</td>`;
+                    extraCreditBody.appendChild(row);
+                    extraCreditPointsValue = extraCreditPoints;
+                } else {
+                    mainTotal += sectionPoints;
+                    row.innerHTML =
+                        `<td>${section.main_section.split('(')[0].trim()}</td><td>${sectionPoints.toFixed(0)}</td><td>${maxPoints}</td>`;
                     summaryBody.appendChild(row);
                 }
+                const headerElement = document.querySelector(`[data-id="${sectionId}-header"]`);
+                if (headerElement) headerElement.textContent =
+                    `${section.main_section.split('(')[0].trim()} (${sectionPoints.toFixed(0)}/${maxPoints})`;
             });
 
-            totalPointsEl.textContent = totalPoints + extraCreditPointsValue;
-            document.getElementById('maxPoints').textContent = totalMaxPoints;
-        }
+            const totalWithExtra = mainTotal + extraCreditPoints;
+            document.getElementById('totalPoints').textContent = totalWithExtra.toFixed(0);
+            document.getElementById('maxPoints').textContent = rubricData.grading_rubric.total_points;
 
-        function scrollToSection(sectionId) {
-            const el = document.getElementById(`header-${sectionId}`);
-            if (el) {
-                el.scrollIntoView({ behavior: 'smooth' });
-                el.classList.add('section-highlight');
-                setTimeout(() => el.classList.remove('section-highlight'), 1500);
+            if (extraCreditPoints > 0 || extraCreditMaxPoints > 0) {
+                document.getElementById('extraCreditSection').classList.remove('hidden');
+                const extraTotal = document.createElement('tr');
+                extraTotal.className = 'total-row';
+                extraTotal.innerHTML =
+                    `<td><strong>Extra Credit Total</strong></td><td><strong>${extraCreditPoints.toFixed(0)}</strong></td><td><strong>${extraCreditMaxPoints}</strong></td>`;
+                extraCreditBody.appendChild(extraTotal);
+            } else {
+                document.getElementById('extraCreditSection').classList.add('hidden');
             }
         }
 
         // ==================== GENERATE FEEDBACK ====================
         function generateFeedback() {
-            if (!validateName()) {
-                document.getElementById('studentName').focus();
-                return;
-            }
-
-            const name = document.getElementById('studentName').value.trim();
-            const template = document.getElementById('globalCommentTemplate').value;
+            const outputSection = document.getElementById('outputSection');
+            const copyBtn = document.getElementById('copyBtn');
             let feedback = '';
 
-            if (template.trim()) {
-                let greetingText = template;
-                if (name) {
-                    greetingText = greetingText.replace(/{}/g, name);
+            const select = document.getElementById('greetingTemplateSelect');
+            const nameInput = document.getElementById('studentName').value.trim();
+            const textareaTemplate = document.getElementById('globalCommentTemplate').value;
+
+            let finalTemplate = (select.value === '') ? '' : textareaTemplate;
+
+            if (finalTemplate.trim() !== '') {
+                let greeting = finalTemplate;
+                if (nameInput) {
+                    greeting = finalTemplate.replace(/{}/g, nameInput);
                 } else {
-                    greetingText = greetingText.replace(/, {}/g, '').replace(/{}/g, '');
+                    greeting = finalTemplate.replace(/{}/g, '');
                 }
-                feedback += greetingText + '\n\n';
+                feedback += greeting + '\n\n';
             }
 
-            const checkFeedbackItems = [];
-            let check3Added = false;
+            // ==================== CHECKS SECTION ====================
+            feedback += '====================\nChecks\n{';
+            
+            if (masterNoDeductions) {
+                feedback += '\nNo Deductions Made: \n';
+                feedback += '+ Submission of report and reproducibility materials satisfies major implementation requirements! Well done!\n';
+            } else {
+                let hasNoDeductions = false;
+                let hasDeductions = false;
+                let noDeductionTexts = [];
+                let deductionTexts = [];
 
-            if (!masterNoDeductions) {
-                for (let i = 0; i < 5; i++) {
-                    const status = checkSelections[`negative-${i}`];
-                    const isTextSelected = checkTextSelections[`negative-${i}`];
-                    
-                    if (i === 2) {
-                        if (status === 'Y' && isTextSelected) {
-                            const text = getCombinedCheck3Text();
-                            if (text) {
-                                checkFeedbackItems.push(text);
-                                check3Added = true;
-                            }
-                        }
-                    } else {
-                        if (status === 'Y' && isTextSelected) {
-                            const textEl = document.getElementById(`check-text-negative-${i}`);
-                            if (textEl) {
-                                checkFeedbackItems.push(textEl.textContent);
-                            }
+                if (checkTextSelections['negative-0']) {
+                    const status = checkSelections['negative-0'];
+                    const el = document.getElementById('check-text-negative-0');
+                    if (el) {
+                        let text = el.textContent;
+                        if (status === 'N') {
+                            hasNoDeductions = true;
+                            noDeductionTexts.push(text);
+                        } else {
+                            hasDeductions = true;
+                            deductionTexts.push(text);
                         }
                     }
                 }
-            }
+                if (checkTextSelections['negative-1']) {
+                    const status = checkSelections['negative-1'];
+                    const el = document.getElementById('check-text-negative-1');
+                    if (el) {
+                        let text = el.textContent;
+                        if (status === 'N') {
+                            hasNoDeductions = true;
+                            noDeductionTexts.push(text);
+                        } else {
+                            hasDeductions = true;
+                            deductionTexts.push(text);
+                        }
+                    }
+                }
+                if (checkTextSelections['negative-2']) {
+                    const combinedText = getCombinedCheck3Text();
+                    if (combinedText) {
+                        const status = getCombinedCheck3Status();
+                        if (status === 'N') {
+                            hasNoDeductions = true;
+                            noDeductionTexts.push(combinedText);
+                        } else {
+                            hasDeductions = true;
+                            deductionTexts.push(combinedText);
+                        }
+                    }
+                }
+                if (checkTextSelections['negative-3']) {
+                    const status = checkSelections['negative-3'];
+                    const el = document.getElementById('check-text-negative-3');
+                    if (el) {
+                        let text = el.textContent;
+                        if (status === 'N') {
+                            hasNoDeductions = true;
+                            noDeductionTexts.push(text);
+                        } else {
+                            hasDeductions = true;
+                            deductionTexts.push(text);
+                        }
+                    }
+                }
+                if (checkTextSelections['negative-4']) {
+                    const status = checkSelections['negative-4'];
+                    const el = document.getElementById('check-text-negative-4');
+                    if (el) {
+                        let text = el.textContent;
+                        if (status === 'N') {
+                            hasNoDeductions = true;
+                            noDeductionTexts.push(text);
+                        } else {
+                            hasDeductions = true;
+                            deductionTexts.push(text);
+                        }
+                    }
+                }
 
-            if (checkFeedbackItems.length > 0) {
-                feedback += "Structural & Access Checks:\n";
-                checkFeedbackItems.forEach(item => {
-                    feedback += `- ${item}\n`;
-                });
-                feedback += "\n";
+                if (hasNoDeductions) {
+                    feedback += '\nNo Deductions Made: \n';
+                    noDeductionTexts.forEach(text => {
+                        feedback += `+ ${text}\n`;
+                    });
+                }
+                if (hasDeductions) {
+                    feedback += '\nDeductions Made:\n';
+                    deductionTexts.forEach(text => {
+                        feedback += `x ${text}\n`;
+                    });
+                }
+                if (!hasNoDeductions && !hasDeductions) {
+                    feedback += '\nNo Deductions Made:\n+ Submission of report and reproducibility materials satisfies major implementation requirements! Well done!\n';
+                }
             }
+            feedback += '}\n\n';
 
-            rubricData.grading_rubric.sections.forEach((section, index) => {
-                const sectionId = `section-${index}`;
+            // ==================== SECTIONS ====================
+            rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
+                const sectionId = `section-${sectionIndex}`;
+                let sectionPoints = 0;
+                const sectionMaxPoints = section.points_available;
                 const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
-                const customFeedback = document.getElementById(`${sectionId}-feedback`).value;
 
-                let posItems = [];
-                let totalItems = 0;
+                const isExtraCredit = section.main_section.includes('Extra Credit');
+
+                let itemCounter = 0;
                 section.groups.forEach(group => {
-                    group.items.forEach((item, itemIdx) => {
-                        const itemId = `${sectionId}-positive-${totalItems + itemIdx}`;
+                    group.items.forEach((item, idx) => {
+                        const itemId = `${sectionId}-positive-${itemCounter}`;
                         if (sectionState.positive.has(itemId)) {
-                            const textEl = document.querySelector(`[data-id="${itemId}-text"]`);
-                            const text = textEl ? textEl.textContent : item.description;
-                            posItems.push(text);
+                            sectionPoints += item.points;
                         }
+                        itemCounter++;
                     });
-                    totalItems += group.items.length;
                 });
 
-                let negItems = [];
-                if (section.negative_items) {
-                    section.negative_items.items.forEach((item, negIndex) => {
-                        const itemId = `${sectionId}-negative-${negIndex}`;
-                        if (sectionState.negative.has(itemId)) {
-                            const textEl = document.querySelector(`[data-id="${itemId}-text"]`);
-                            let text = textEl ? textEl.textContent : item;
-                            
-                            const groupLabel = getNegGroupLabel(index, negIndex);
-                            const prefixMatch = text.match(/^([A-Z][0-9]+\.)\s*(.*)$/);
-                            
-                            if (prefixMatch) {
-                                text = `${prefixMatch[1]} ${prefixMatch[2]}`;
-                            } else if (groupLabel && !text.startsWith(groupLabel)) {
-                                text = `${groupLabel}. ${text}`;
-                            }
-                            negItems.push(text);
-                        }
-                    });
+                const hasPositives = sectionState.positive.size > 0;
+                if (isExtraCredit && !hasPositives) {
+                    return;
                 }
 
-                if (posItems.length > 0 || negItems.length > 0 || customFeedback) {
-                    feedback += `=== ${section.main_section} ===\n`;
+                const feedbackTextarea = document.getElementById(`${sectionId}-feedback`);
+                const feedbackText = feedbackTextarea ? feedbackTextarea.value : '';
+                const hasContent = sectionState.positive.size > 0 || sectionState.negative.size > 0 || feedbackText;
 
-                    if (posItems.length > 0) {
-                        feedback += "What you did well:\n";
-                        posItems.forEach(item => { feedback += `  - ${item}\n`; });
+                if (hasContent || isExtraCredit) {
+                    const sectionLetter = section.section_letter || section.main_section.charAt(0);
+                    const sectionName = section.main_section.split('(')[0].trim();
+                    feedback += `====================\n${sectionName} (${sectionPoints.toFixed(0)}/${sectionMaxPoints}pts)\n{`;
+
+                    if (sectionState.positive.size > 0) {
+                        feedback += '\nWhat you did well:\n';
+                        let itemCounter2 = 0;
+                        section.groups.forEach((group, gi) => {
+                            let hasGroupPositive = false;
+                            let groupItems = [];
+                            group.items.forEach((item, idx) => {
+                                const itemId = `${sectionId}-positive-${itemCounter2}`;
+                                if (sectionState.positive.has(itemId)) {
+                                    hasGroupPositive = true;
+                                    groupItems.push(item);
+                                }
+                                itemCounter2++;
+                            });
+                            if (hasGroupPositive) {
+                                const descs = groupItems.map(item => item.description);
+                                const combined = descs.join('; ');
+                                feedback += `+ ${group.label}: ${combined}\n`;
+                            }
+                        });
                     }
 
-                    if (negItems.length > 0) {
-                        feedback += "What needs improvement:\n";
-                        negItems.forEach(item => { feedback += `  - ${item}\n`; });
+                    if (sectionState.negative.size > 0) {
+                        feedback += '\nWhat needs improvement:\n';
+                        sectionState.negative.forEach(itemId => {
+                            const el = document.getElementById(itemId);
+                            if (el) {
+                                const textEl = el.querySelector('.editable[data-id$="-text"]');
+                                if (textEl) {
+                                    const prefixEl = el.querySelector('.item-prefix');
+                                    let fullText = textEl.textContent;
+                                    if (prefixEl) {
+                                        fullText = prefixEl.textContent + ' ' + fullText;
+                                    }
+                                    feedback += `x ${fullText}\n`;
+                                }
+                            }
+                        });
                     }
 
-                    if (customFeedback) {
-                        feedback += `Feedback: ${customFeedback}\n`;
+                    if (feedbackText) {
+                        feedback += `\nSection Summary:\n${feedbackText}\n`;
                     }
-                    feedback += '\n';
+                    feedback += '}\n\n';
                 }
             });
 
-            // General Feedback section from two textareas
-            const strengthsText = document.getElementById('general-strengths') ? document.getElementById('general-strengths').value.trim() : '';
-            const weaknessesText = document.getElementById('general-weaknesses') ? document.getElementById('general-weaknesses').value.trim() : '';
-            
-            if (strengthsText || weaknessesText) {
-                feedback += `=== General Summary Feedback ===\n`;
-                if (strengthsText) {
-                    feedback += `What you did well:\n${strengthsText}\n\n`;
+            // ==================== GENERAL FEEDBACK ====================
+            const strengthsTA = document.getElementById('general-strengths');
+            const weaknessesTA = document.getElementById('general-weaknesses');
+            const strengths = strengthsTA ? strengthsTA.value.trim() : '';
+            const weaknesses = weaknessesTA ? weaknessesTA.value.trim() : '';
+
+            // Only add general feedback if at least one of the two fields has content
+            if (strengths || weaknesses) {
+                feedback += '====================\nGeneral Feedback\n{';
+                
+                // Always include the opening sentiment
+                feedback += 'Great work again in completing the final of our three reports this semester. Take a moment to recognize the drive and determination that have gotten you here and consider any feedback here as a helpful signal to carry you on your way as you take on the Final Exam and continue on your journey as an ML Practitioner!\n\n';
+                
+                if (strengths) {
+                    feedback += `What you did well:\n${strengths}\n\n`;
                 }
-                if (weaknessesText) {
-                    feedback += `What needs improvement:\n${weaknessesText}\n\n`;
+                if (weaknesses) {
+                    feedback += `What needs improvement:\n${weaknesses}\n`;
                 }
+                
+                feedback += '}\n\n';
             }
 
-            const outputSection = document.getElementById('outputSection');
+            const totalPoints = document.getElementById('totalPoints').textContent;
+            const maxPoints = document.getElementById('maxPoints').textContent;
+            if (extraCreditPointsValue > 0) {
+                feedback += `Total Score: ${totalPoints}/${maxPoints} (includes extra credit)`;
+            } else {
+                feedback += `Total Score: ${totalPoints}/${maxPoints}`;
+            }
+
             outputSection.textContent = feedback;
             outputSection.classList.remove('hidden');
-            document.getElementById('copyBtn').classList.remove('hidden');
-            outputSection.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function copyFeedback() {
-            const outputText = document.getElementById('outputSection').textContent;
-            navigator.clipboard.writeText(outputText).then(() => {
-                showNotification('✅ Feedback copied to clipboard!');
-            });
-        }
-
-        // ==================== COPY ALL SCORES (RAW) ====================
-        function copyAllScores() {
-            let scoreValues = [];
-            const numSections = rubricData.grading_rubric.sections.length;
-
-            for (let i = 0; i < numSections; i++) {
-                const section = rubricData.grading_rubric.sections[i];
-                const sectionId = `section-${i}`;
-                const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
-                const combo = sectionGroupCombinations[i];
-
-                if (i === 7) {
-                    let total = 0;
-                    if (combo) {
-                        combo.scores[0].groupIndices.forEach(groupIdx => {
-                            const group = section.groups[groupIdx];
-                            if (group) {
-                                let offset = 0;
-                                for (let g = 0; g < groupIdx; g++) {
-                                    offset += section.groups[g].items.length;
-                                }
-                                group.items.forEach((item, idx) => {
-                                    if (sectionState.positive.has(`${sectionId}-positive-${offset + idx}`)) {
-                                        total += item.points;
-                                    }
-                                });
-                            }
-                        });
-                    }
-                    scoreValues.push(total.toFixed(0));
-                } else if (combo) {
-                    combo.scores.forEach(scoreDef => {
-                        let total = 0;
-                        scoreDef.groupIndices.forEach(groupIdx => {
-                            const group = section.groups[groupIdx];
-                            if (group) {
-                                let offset = 0;
-                                for (let g = 0; g < groupIdx; g++) {
-                                    offset += section.groups[g].items.length;
-                                }
-                                group.items.forEach((item, idx) => {
-                                    if (sectionState.positive.has(`${sectionId}-positive-${offset + idx}`)) {
-                                        total += item.points;
-                                    }
-                                });
-                            }
-                        });
-                        scoreValues.push(total.toFixed(0));
-                    });
-                }
-            }
-
-            const checkStatuses = [];
-            if (masterNoDeductions) {
-                for (let i = 0; i < 5; i++) {
-                    checkStatuses.push('N');
-                }
-            } else {
-                checkStatuses.push(checkSelections['negative-0'] || 'N');
-                checkStatuses.push(checkSelections['negative-1'] || 'N');
-                checkStatuses.push(getCombinedCheck3Status());
-                checkStatuses.push(checkSelections['negative-3'] || 'N');
-                checkStatuses.push(checkSelections['negative-4'] || 'N');
-            }
-
-            const allValues = [...scoreValues, ...checkStatuses];
-            const result = allValues.join('\t');
-            copyToClipboard(result);
-            showNotification(`✅ All scores copied (${allValues.length} values)`);
+            copyBtn.classList.remove('hidden');
+            showNotification('✅ Feedback generated successfully!');
         }
 
         // ==================== RESET ALL ====================
         function resetAll() {
-            if (confirm("Are you sure you want to reset all selections, edits, and feedback?")) {
-                state.selectedItems.clear();
-                state.feedbackTexts.clear();
-                state.generalFeedback = "";
-
-                for (let key in rubricData) {
-                    delete rubricData[key];
+            state.selectedItems.clear();
+            document.querySelectorAll('.item').forEach(item => {
+                if (!item.closest('.checks-section')) {
+                    item.classList.remove('selected-positive', 'selected-negative');
                 }
-                Object.assign(rubricData, JSON.parse(JSON.stringify(originalRubricData)));
+            });
 
-                document.querySelectorAll('.item').forEach(el => {
-                    el.classList.remove('selected-positive', 'selected-negative');
-                });
-                document.querySelectorAll('.feedback-textarea').forEach(el => el.value = '');
-                document.querySelectorAll('.predefined-comment').forEach(el => el.classList.remove('selected'));
-                
-                const strengthsTA = document.getElementById('general-strengths');
-                if (strengthsTA) strengthsTA.value = '';
-                const weaknessesTA = document.getElementById('general-weaknesses')
-                if (weaknessesTA) weaknessesTA.value = '';
-
-                document.getElementById('studentName').value = '';
-                document.getElementById('greetingTemplateSelect').value = 'Great work in conquering the final of our three reports this semester, {}! We hope this leaves you with a sense of accomplishment for the challenges overcome and that this, in-turn, gives you confidence as you prepare for the Final Exam!';
-                document.getElementById('globalCommentTemplate').value = 'Great work in conquering the final of our three reports this semester, {}! We hope this leaves you with a sense of accomplishment for the challenges overcome and that this, in-turn, gives you confidence as you prepare for the Final Exam!\n\nPlease see below for strengths and weaknesses we gleaned from your paper.\n\nWhile we provide feedback here as a guide for your independent growth and encourage you to reach out via private Ed post if you have any questions, comments or concerns, due to the immediacy of the Institute\'s grading deadline, we will not be offering a typical Reviewer Response Extra Credit opportunity on this assignment.\n\nWe wish you the utmost success finishing out the course, as well as in all future endeavors!';
-
-                initCheckSelections();
-                const masterEl = document.getElementById('check-text-positive-0');
-                if (masterEl) {
-                    masterEl.classList.add('selected');
-                    masterEl.classList.remove('unselected');
-                }
-                for (let i = 0; i < 5; i++) {
-                    const statusEl = document.getElementById(`check-status-negative-${i}`);
-                    const textEl = document.getElementById(`check-text-negative-${i}`);
-                    if (statusEl) {
-                        statusEl.textContent = 'N';
-                        statusEl.className = 'check-status N disabled';
-                    }
-                    if (textEl) {
-                        textEl.classList.add('disabled');
-                        textEl.classList.remove('selected');
+            const originalSections = originalRubricData.grading_rubric.sections;
+            const currentSections = rubricData.grading_rubric.sections;
+            
+            for (let i = 0; i < currentSections.length; i++) {
+                currentSections[i].main_section = originalSections[i].main_section;
+                for (let g = 0; g < currentSections[i].groups.length; g++) {
+                    currentSections[i].groups[g].label = originalSections[i].groups[g].label;
+                    for (let itemIdx = 0; itemIdx < currentSections[i].groups[g].items.length; itemIdx++) {
+                        currentSections[i].groups[g].items[itemIdx].description = originalSections[i].groups[g].items[itemIdx].description;
+                        currentSections[i].groups[g].items[itemIdx].points = originalSections[i].groups[g].items[itemIdx].points;
                     }
                 }
-
-                renderRubric();
-                updateSummary();
-                updateCheck3();
-
-                document.getElementById('outputSection').classList.add('hidden');
-                document.getElementById('copyBtn').classList.add('hidden');
-                hideNotification();
+                if (currentSections[i].negative_items && originalSections[i].negative_items) {
+                    currentSections[i].negative_items.items = [...originalSections[i].negative_items.items];
+                }
             }
+
+            const secs = rubricData.grading_rubric.sections;
+            for (let i = 0; i < secs.length - 1; i++) {
+                const section = secs[i];
+                const letter = section.section_letter;
+                if (letter) {
+                    section.main_section = `${letter}) ${section.main_section}`;
+                }
+            }
+            const secLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+            for (let i = 0; i < secs.length - 1; i++) {
+                const section = secs[i];
+                const letter = secLetters[i] || section.section_letter;
+                if (letter) {
+                    section.groups.forEach((group, idx) => {
+                        const groupNumber = idx + 1;
+                        group.label = `${letter}${groupNumber}. ${group.label}`;
+                    });
+                }
+            }
+
+            renderRubric();
+
+            masterNoDeductions = true;
+            const masterEl = document.getElementById('check-text-positive-0');
+            if (masterEl) {
+                masterEl.classList.add('selected');
+                masterEl.classList.remove('unselected');
+            }
+            
+            for (let i = 0; i < 5; i++) {
+                checkSelections[`negative-${i}`] = 'N';
+                checkTextSelections[`negative-${i}`] = false;
+                const statusEl = document.getElementById(`check-status-negative-${i}`);
+                const textEl = document.getElementById(`check-text-negative-${i}`);
+                if (statusEl) {
+                    statusEl.textContent = 'N';
+                    statusEl.className = 'check-status N disabled';
+                }
+                if (textEl) {
+                    textEl.classList.add('disabled');
+                    textEl.classList.remove('selected');
+                }
+            }
+
+            document.querySelectorAll('textarea').forEach(ta => ta.value = '');
+
+            updateSummary();
+            updateCheck3();
+            showNotification('✅ All reset successfully!');
+        }
+
+        // ==================== COPY SCORES ====================
+        function copyScores() {
+            let scores = [];
+            rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
+                if (!section.main_section.includes('Extra Credit')) {
+                    const sectionId = `section-${sectionIndex}`;
+                    const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
+                    let sp = 0;
+                    let itemCounter = 0;
+                    section.groups.forEach(group => {
+                        group.items.forEach((item, idx) => {
+                            const itemId = `${sectionId}-positive-${itemCounter}`;
+                            if (sectionState.positive.has(itemId)) {
+                                sp += item.points;
+                            }
+                            itemCounter++;
+                        });
+                    });
+                    scores.push(sp.toFixed(0));
+                }
+            });
+            scores.push(document.getElementById('totalPoints').textContent);
+            const result = scores.join('\t');
+            copyToClipboard(result);
+            showNotification(`✅ Raw scores copied: ${result}`);
         }
     </script>
 </body>
