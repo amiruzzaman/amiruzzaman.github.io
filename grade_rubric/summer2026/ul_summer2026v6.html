@@ -3113,7 +3113,7 @@ We wish you the utmost success finishing out the course, as well as in all futur
 
             restoreTextBtn.addEventListener('click', function() {
                 if (!state.currentEditingItem) return;
-                const { sectionIndex, isPositive, itemIndex } = state.currentEditingItem;
+                const { sectionIndex, isPositive, groupIndex, itemIndex } = state.currentEditingItem;
                 const origSection = originalRubricData.grading_rubric.sections[sectionIndex];
                 if (!origSection) return;
 
@@ -3143,17 +3143,19 @@ We wish you the utmost success finishing out the course, as well as in all futur
                 if (!state.currentEditingItem) return;
                 const { sectionIndex, isPositive, itemIndex } = state.currentEditingItem;
                 const origSection = originalRubricData.grading_rubric.sections[sectionIndex];
-                if (!origSection || !isPositive) return;
+                if (!origSection) return;
 
-                let runningIdx = 0;
-                for (let g = 0; g < origSection.groups.length; g++) {
-                    const grp = origSection.groups[g];
-                    for (let i = 0; i < grp.items.length; i++) {
-                        if (runningIdx === itemIndex) {
-                            document.getElementById('itemPoints').value = grp.items[i].points;
-                            return;
+                if (isPositive) {
+                    let runningIdx = 0;
+                    for (let g = 0; g < origSection.groups.length; g++) {
+                        const grp = origSection.groups[g];
+                        for (let i = 0; i < grp.items.length; i++) {
+                            if (runningIdx === itemIndex) {
+                                document.getElementById('itemPoints').value = grp.items[i].points;
+                                return;
+                            }
+                            runningIdx++;
                         }
-                        runningIdx++;
                     }
                 }
             });
@@ -3192,15 +3194,13 @@ We wish you the utmost success finishing out the course, as well as in all futur
 
             saveBtn.addEventListener('click', function() {
                 if (!state.currentEditingItem) return;
-                const { itemId, sectionIndex, isPositive, itemIndex, groupIndex } = state.currentEditingItem;
+                const { itemId, sectionIndex, isPositive, itemIndex } = state.currentEditingItem;
                 const newText = document.getElementById('itemText').value;
                 const newPoints = parseFloat(document.getElementById('itemPoints').value) || 0;
 
-                // Update the text in the DOM
                 const textEl = document.querySelector(`[data-id="${itemId}-text"]`);
                 if (textEl) textEl.textContent = newText;
 
-                // Update the data
                 const section = rubricData.grading_rubric.sections[sectionIndex];
                 if (isPositive) {
                     let runningIdx = 0;
@@ -3215,7 +3215,6 @@ We wish you the utmost success finishing out the course, as well as in all futur
                             runningIdx++;
                         }
                     }
-                    // Update the badge display
                     const itemEl = document.getElementById(itemId);
                     if (itemEl) {
                         itemEl.setAttribute('data-points', newPoints);
@@ -3226,19 +3225,13 @@ We wish you the utmost success finishing out the course, as well as in all futur
                         }
                     }
                 } else {
-                    if (section.negative_items && section.negative_items.items[itemIndex] !== undefined) {
+                    if (section.negative_items && section.negative_items.items[itemIndex]) {
                         const oldText = section.negative_items.items[itemIndex];
                         const match = oldText.match(/^([A-Z][0-9]+\.)\s*(.*)$/);
                         if (match) {
                             section.negative_items.items[itemIndex] = `${match[1]} ${newText}`;
                         } else {
                             section.negative_items.items[itemIndex] = newText;
-                        }
-                        // Update the DOM
-                        const negEl = document.getElementById(itemId);
-                        if (negEl) {
-                            const descEl = negEl.querySelector('.editable.item-description');
-                            if (descEl) descEl.textContent = newText;
                         }
                     }
                 }
@@ -3257,6 +3250,8 @@ We wish you the utmost success finishing out the course, as well as in all futur
             const itemIndex = parseInt(match[3]);
 
             const section = rubricData.grading_rubric.sections[sectionIndex];
+            state.currentEditingItem = { itemId, sectionIndex, isPositive, itemIndex };
+
             const modal = document.getElementById('itemModal');
             const textInput = document.getElementById('itemText');
             const pointsInput = document.getElementById('itemPoints');
@@ -3266,7 +3261,6 @@ We wish you the utmost success finishing out the course, as well as in all futur
             let currentText = '';
             let currentPoints = 0;
             let maxPoints = 0;
-            let groupIdx = 0;
 
             if (isPositive) {
                 pointsGroup.style.display = 'block';
@@ -3278,12 +3272,10 @@ We wish you the utmost success finishing out the course, as well as in all futur
                             currentText = grp.items[i].description;
                             currentPoints = grp.items[i].points;
                             maxPoints = grp.max;
-                            groupIdx = g;
                             break;
                         }
                         runningIdx++;
                     }
-                    if (currentText) break;
                 }
                 pointsInput.value = currentPoints;
                 pointsInput.setAttribute('max', maxPoints);
@@ -3297,17 +3289,8 @@ We wish you the utmost success finishing out the course, as well as in all futur
                 }
             }
 
-            state.currentEditingItem = { 
-                itemId, 
-                sectionIndex, 
-                isPositive, 
-                itemIndex, 
-                groupIndex: groupIdx 
-            };
-
             textInput.value = currentText;
             modal.style.display = 'flex';
-            textInput.focus();
         }
 
         function makeEditable(element) {
@@ -3356,7 +3339,6 @@ We wish you the utmost success finishing out the course, as well as in all futur
                     element.classList.add('selected-negative');
                 }
             }
-            updateSummary();
         }
 
         // ==================== SUMMARY UPDATE ====================
@@ -3560,8 +3542,9 @@ We wish you the utmost success finishing out the course, as well as in all futur
 
         function copyFeedback() {
             const outputText = document.getElementById('outputSection').textContent;
-            copyToClipboard(outputText);
-            showNotification('✅ Feedback copied to clipboard!');
+            navigator.clipboard.writeText(outputText).then(() => {
+                showNotification('✅ Feedback copied to clipboard!');
+            });
         }
 
         // ==================== COPY ALL SCORES (RAW) ====================
