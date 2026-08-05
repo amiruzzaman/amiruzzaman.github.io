@@ -17,214 +17,6 @@
             --header-bg: #f5f5f5;
         }
 
-        /* CSS Icon Classes */
-        .icon-check {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            position: relative;
-            margin-right: 4px;
-        }
-        .icon-check::after {
-            content: '';
-            position: absolute;
-            left: 4px;
-            top: 1px;
-            width: 6px;
-            height: 10px;
-            border: solid #2e7d32;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
-        }
-        .icon-check-white::after {
-            border-color: white;
-        }
-
-        .icon-x {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            position: relative;
-            margin-right: 4px;
-        }
-        .icon-x::before, .icon-x::after {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 7px;
-            width: 2px;
-            height: 12px;
-            background-color: #c62828;
-        }
-        .icon-x::before {
-            transform: rotate(45deg);
-        }
-        .icon-x::after {
-            transform: rotate(-45deg);
-        }
-        .icon-x-white::before, .icon-x-white::after {
-            background-color: white;
-        }
-
-        .icon-copy {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            position: relative;
-            margin-right: 4px;
-        }
-        .icon-copy::before {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 10px;
-            height: 10px;
-            border: 2px solid currentColor;
-            border-radius: 2px;
-            background: transparent;
-        }
-        .icon-copy::after {
-            content: '';
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            width: 10px;
-            height: 10px;
-            border: 2px solid currentColor;
-            border-radius: 2px;
-            background: transparent;
-        }
-
-        .icon-plus {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            position: relative;
-            margin-right: 4px;
-        }
-        .icon-plus::before, .icon-plus::after {
-            content: '';
-            position: absolute;
-            background-color: currentColor;
-        }
-        .icon-plus::before {
-            width: 12px;
-            height: 2px;
-            top: 7px;
-            left: 2px;
-        }
-        .icon-plus::after {
-            width: 2px;
-            height: 12px;
-            top: 2px;
-            left: 7px;
-        }
-
-        .icon-arrow {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            position: relative;
-            margin-right: 4px;
-        }
-        .icon-arrow::after {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 6px;
-            height: 6px;
-            border: solid currentColor;
-            border-width: 0 2px 2px 0;
-            transform: rotate(-45deg);
-        }
-
-        .icon-star {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            position: relative;
-            margin-right: 4px;
-        }
-        .icon-star::before {
-            content: '★';
-            font-size: 16px;
-            line-height: 1;
-            color: #ff9800;
-        }
-
-        .icon-pencil {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            position: relative;
-            margin-right: 4px;
-        }
-        .icon-pencil::before {
-            content: '✎';
-            font-size: 16px;
-            line-height: 1;
-            color: currentColor;
-        }
-
-        .icon-rocket {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            position: relative;
-            margin-right: 4px;
-        }
-        .icon-rocket::before {
-            content: '🚀';
-            font-size: 14px;
-            line-height: 1;
-        }
-
-        .icon-warning {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            position: relative;
-            margin-right: 4px;
-        }
-        .icon-warning::before {
-            content: '⚠';
-            font-size: 16px;
-            line-height: 1;
-            color: #ff9800;
-        }
-
-        .icon-check-circle {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            position: relative;
-            margin-right: 4px;
-        }
-        .icon-check-circle::before {
-            content: '✓';
-            font-size: 16px;
-            line-height: 1;
-            color: #2e7d32;
-            font-weight: bold;
-        }
-
-        .icon-times-circle {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            position: relative;
-            margin-right: 4px;
-        }
-        .icon-times-circle::before {
-            content: '✗';
-            font-size: 16px;
-            line-height: 1;
-            color: #c62828;
-            font-weight: bold;
-        }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
@@ -316,10 +108,8 @@
         }
 
         .summary-table tbody tr.row-completed td:first-child::after {
-            content: " ✓";
+            content: " ✅";
             font-size: 0.8em;
-            color: #2e7d32;
-            font-weight: bold;
         }
 
         .section-header {
@@ -1325,13 +1115,13 @@
     <div class="container">
         <div class="rubric-section">
             <div class="top-actions">
-                <button class="copy-message-btn" onclick="copyGradingMessage()"><span class="icon-copy"></span> Copy Grading Message</button>
+                <button class="copy-message-btn" onclick="copyGradingMessage()">📋 Copy Grading Message</button>
                 <span class="hint-text" id="hintText">Click to copy: "Now grade this very strictly..."</span>
             </div>
             
             <h1>UL Report Summer 2026 Rubric Grading Interface</h1>
             <div class="global-comment-box" id="nameSection">
-                <label for="studentName"><strong><span class="icon-pencil"></span> Student name (for greeting):</strong></label>
+                <label for="studentName"><strong>📝 Student name (for greeting):</strong></label>
                 <div class="global-comment-row">
                     <input type="text" id="studentName" placeholder="e.g., Mike" value="">
                     <select id="greetingTemplateSelect">
@@ -1353,21 +1143,21 @@ We wish you the utmost success finishing out the course, as well as in all futur
                 <div class="global-comment-hint">
                     Select a preset, then edit if needed. The {} will be replaced by the name. Leave name empty for no name insertion. Choose "None" to omit greeting.
                 </div>
-                <div id="nameRequiredError" class="name-required-error"><span class="icon-warning"></span> Please enter a student name before generating feedback.</div>
+                <div id="nameRequiredError" class="name-required-error">⚠️ Please enter a student name before generating feedback.</div>
             </div>
 
             <!-- Checks Section -->
             <div class="checks-section">
                 <h3>
                     Checks Configuration
-                    <button onclick="copyChecksStatusOnly()"><span class="icon-copy"></span> Copy Checks (6 items: N/Y)</button>
+                    <button onclick="copyChecksStatusOnly()">📋 Copy Checks (6 items: N/Y)</button>
                 </h3>
                 <p><strong>Click on the master "No Deductions" check to toggle all checks to N, or click individual checks to toggle N/Y.</strong></p>
                 
                 <p><strong>Master Control:</strong></p>
                 <div class="item-list">
                     <div class="check-item-row master-check-row" onclick="toggleMasterNoDeductions()">
-                        <span class="check-text selected" id="check-text-positive-0"><span class="icon-check"></span> No Deductions Made — All checks are N</span>
+                        <span class="check-text selected" id="check-text-positive-0">✅ No Deductions Made — All checks are N</span>
                     </div>
                 </div>
                 
@@ -1400,28 +1190,28 @@ We wish you the utmost success finishing out the course, as well as in all futur
 
             <!-- Notification Bar -->
             <div id="notificationBar" class="notification-bar">
-                <span id="notificationMessage"><span class="icon-check"></span> Section A scores copied: 7 5 4</span>
+                <span id="notificationMessage">✅ Section A scores copied: 7 5 4</span>
                 <span class="close-notification" onclick="hideNotification()">&times;</span>
             </div>
 
             <div class="controls" id="generateSection">
-                <button id="generateBtn"><span class="icon-rocket"></span> Generate Feedback</button>
-                <button id="copyBtn" class="hidden"><span class="icon-copy"></span> Copy Feedback</button>
-                <button id="copyScoresBtn"><span class="icon-copy"></span> Copy Scores (all raw)</button>
-                <button id="resetBtn"><span class="icon-times-circle"></span> Reset All</button>
+                <button id="generateBtn">Generate Feedback</button>
+                <button id="copyBtn" class="hidden">Copy Feedback</button>
+                <button id="copyScoresBtn">Copy Scores (all raw)</button>
+                <button id="resetBtn">Reset All</button>
             </div>
 
             <!-- Section Copy Buttons -->
             <div class="section-copy-buttons">
-                <button onclick="copySectionGroupScores(0)"><span class="icon-copy"></span> A</button>
-                <button onclick="copySectionGroupScores(1)"><span class="icon-copy"></span> B</button>
-                <button onclick="copySectionGroupScores(2)"><span class="icon-copy"></span> C</button>
-                <button onclick="copySectionGroupScores(3)"><span class="icon-copy"></span> D</button>
-                <button onclick="copySectionGroupScores(4)"><span class="icon-copy"></span> E</button>
-                <button onclick="copySectionGroupScores(5)"><span class="icon-copy"></span> F</button>
-                <button onclick="copySectionGroupScores(6)"><span class="icon-copy"></span> G</button>
-                <button onclick="copySectionGroupScores(7)"><span class="icon-copy"></span> EC</button>
-                <button class="checks-btn" onclick="copyChecksStatusOnly()"><span class="icon-copy"></span> Checks (5)</button>
+                <button onclick="copySectionGroupScores(0)">📋 A</button>
+                <button onclick="copySectionGroupScores(1)">📋 B</button>
+                <button onclick="copySectionGroupScores(2)">📋 C</button>
+                <button onclick="copySectionGroupScores(3)">📋 D</button>
+                <button onclick="copySectionGroupScores(4)">📋 E</button>
+                <button onclick="copySectionGroupScores(5)">📋 F</button>
+                <button onclick="copySectionGroupScores(6)">📋 G</button>
+                <button onclick="copySectionGroupScores(7)">📋 EC</button>
+                <button class="checks-btn" onclick="copyChecksStatusOnly()">📋 Checks (5)</button>
             </div>
 
             <div id="outputSection" class="output-section hidden"></div>
@@ -1430,8 +1220,8 @@ We wish you the utmost success finishing out the course, as well as in all futur
         <div class="summary-section">
             <h2 style="font-size:1.2rem; margin-top:0;">Points Summary</h2>
             <div class="nav-links">
-                <a href="#nameSection"><span class="icon-pencil"></span> Go to Name</a>
-                <a href="#generateSection"><span class="icon-rocket"></span> Go to Generate</a>
+                <a href="#nameSection">📝 Go to Name</a>
+                <a href="#generateSection">🚀 Go to Generate</a>
             </div>
             <table class="summary-table" id="summaryTable">
                 <thead>
@@ -1483,20 +1273,20 @@ We wish you the utmost success finishing out the course, as well as in all futur
                     <label for="itemPoints">Points (max: <span id="maxPointDisplay"></span>)</label>
                     <div class="point-input-group">
                         <input type="number" id="itemPoints" class="form-control" step="1" min="0" value="0">
-                        <button type="button" id="incrementPoint"><span class="icon-plus"></span> +1</button>
-                        <button type="button" id="decrementPoint"><span class="icon-plus" style="transform: rotate(180deg);"></span> -1</button>
-                        <button type="button" id="resetPointBtn" class="reset-point-btn"><span class="icon-arrow"></span> Reset</button>
+                        <button type="button" id="incrementPoint">+1</button>
+                        <button type="button" id="decrementPoint">-1</button>
+                        <button type="button" id="resetPointBtn" class="reset-point-btn">Reset</button>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <div class="restore-group">
-                    <button id="restoreTextBtn" class="modal-btn modal-btn-orange"><span class="icon-arrow"></span> Restore Text</button>
-                    <button id="restorePointsBtn" class="modal-btn modal-btn-purple"><span class="icon-arrow"></span> Restore Points</button>
+                    <button id="restoreTextBtn" class="modal-btn modal-btn-orange">↺ Restore Text</button>
+                    <button id="restorePointsBtn" class="modal-btn modal-btn-purple">↺ Restore Points</button>
                 </div>
-                <button id="clearTextBtn" class="modal-btn modal-btn-danger"><span class="icon-x-white"></span> Clear Text</button>
+                <button id="clearTextBtn" class="modal-btn modal-btn-danger">Clear Text</button>
                 <button id="cancelBtn" class="modal-btn modal-btn-secondary">Cancel</button>
-                <button id="saveBtn" class="modal-btn modal-btn-primary"><span class="icon-check-white"></span> Save</button>
+                <button id="saveBtn" class="modal-btn modal-btn-primary">Save</button>
             </div>
         </div>
     </div>
@@ -1524,10 +1314,10 @@ We wish you the utmost success finishing out the course, as well as in all futur
             </div>
             <div class="modal-footer">
                 <div class="restore-group">
-                    <button id="clearCommentBtn" class="modal-btn modal-btn-danger"><span class="icon-x-white"></span> Clear</button>
+                    <button id="clearCommentBtn" class="modal-btn modal-btn-danger">Clear</button>
                 </div>
                 <button id="cancelCommentBtn" class="modal-btn modal-btn-secondary">Cancel</button>
-                <button id="addCommentBtn" class="modal-btn modal-btn-primary"><span class="icon-plus"></span> Add to Feedback</button>
+                <button id="addCommentBtn" class="modal-btn modal-btn-primary">Add to Feedback</button>
             </div>
         </div>
     </div>
@@ -1539,9 +1329,9 @@ We wish you the utmost success finishing out the course, as well as in all futur
             const hintText = document.getElementById('hintText');
             
             navigator.clipboard.writeText(message).then(() => {
-                hintText.textContent = '✓ Copied successfully!';
+                hintText.textContent = '✅ Copied successfully!';
                 hintText.className = 'hint-text success';
-                showNotification('✓ Grading message copied to clipboard!');
+                showNotification('✅ Grading message copied to clipboard!');
                 setTimeout(() => {
                     hintText.textContent = 'Click to copy: "Now grade this very strictly..."';
                     hintText.className = 'hint-text';
@@ -1554,17 +1344,17 @@ We wish you the utmost success finishing out the course, as well as in all futur
                     textarea.select();
                     document.execCommand('copy');
                     document.body.removeChild(textarea);
-                    hintText.textContent = '✓ Copied successfully!';
+                    hintText.textContent = '✅ Copied successfully!';
                     hintText.className = 'hint-text success';
-                    showNotification('✓ Grading message copied to clipboard!');
+                    showNotification('✅ Grading message copied to clipboard!');
                     setTimeout(() => {
                         hintText.textContent = 'Click to copy: "Now grade this very strictly..."';
                         hintText.className = 'hint-text';
                     }, 3000);
                 } catch (err) {
-                    hintText.textContent = '✗ Failed to copy!';
+                    hintText.textContent = '❌ Failed to copy!';
                     hintText.className = 'hint-text error';
-                    showNotification('✗ Failed to copy message', false);
+                    showNotification('❌ Failed to copy message', false);
                     setTimeout(() => {
                         hintText.textContent = 'Click to copy: "Now grade this very strictly..."';
                         hintText.className = 'hint-text';
@@ -1770,7 +1560,7 @@ We wish you the utmost success finishing out the course, as well as in all futur
             }
             const result = statuses.join('\t');
             navigator.clipboard.writeText(result);
-            showNotification(`✓ 5 checks status copied: ${result}`);
+            showNotification(`✅ 5 checks status copied: ${result}`);
         }
 
         function getMissingAccessItems() {
@@ -1986,7 +1776,7 @@ We wish you the utmost success finishing out the course, as well as in all futur
 
             const combo = sectionGroupCombinations[sectionIndex];
             if (!combo) {
-                showNotification('✗ No combination defined for this section', false);
+                showNotification('❌ No combination defined for this section', false);
                 return;
             }
 
@@ -2011,7 +1801,7 @@ We wish you the utmost success finishing out the course, as well as in all futur
                 });
                 const result = total.toFixed(0);
                 copyToClipboard(result);
-                showNotification(`✓ Extra Credit total: ${result}`, true, 'EC');
+                showNotification(`✅ Extra Credit total: ${result}`, true, 'EC');
                 return;
             }
 
@@ -2039,7 +1829,7 @@ We wish you the utmost success finishing out the course, as well as in all futur
             const result = results.join('\t');
             copyToClipboard(result);
             const letter = section.section_letter || section.main_section.charAt(0);
-            showNotification(`✓ Section ${letter} scores copied: ${result}`, true, letter);
+            showNotification(`✅ Section ${letter} scores copied: ${result}`, true, letter);
         }
 
         function copyToClipboard(text) {
@@ -2720,7 +2510,7 @@ We wish you the utmost success finishing out the course, as well as in all futur
             });
             const result = `${total.toFixed(0)}/${group.max}`;
             copyToClipboard(result);
-            showNotification(`✓ ${group.label}: ${result}`);
+            showNotification(`✅ ${group.label}: ${result}`);
         }
 
         function copySectionScore(sectionIndex) {
@@ -2741,7 +2531,7 @@ We wish you the utmost success finishing out the course, as well as in all futur
             const result = `${sectionPoints.toFixed(0)}`;
             copyToClipboard(result);
             const letter = section.section_letter || section.main_section.charAt(0);
-            showNotification(`✓ Section ${letter} total score: ${result}`, true, letter);
+            showNotification(`✅ Section ${letter} total score: ${result}`, true, letter);
         }
 
         function toggleSelectAllPositives(sectionIndex) {
@@ -2865,7 +2655,7 @@ We wish you the utmost success finishing out the course, as well as in all futur
                     const current = feedbackTextarea.value;
                     const separator = current && !current.endsWith('\n') ? '\n' : '';
                     feedbackTextarea.value = current + separator + text;
-                    showNotification('✓ Comment added to feedback section!');
+                    showNotification('✅ Comment added to feedback section!');
                 } else {
                     showNotification('⚠️ Feedback textarea not found.', false);
                 }
@@ -2976,8 +2766,8 @@ We wish you the utmost success finishing out the course, as well as in all futur
                     const thead = document.createElement('thead');
                     const headerRow = document.createElement('tr');
                     headerRow.innerHTML = `
-                        <th><span class="icon-check"></span> What You Did Well</th>
-                        <th><span class="icon-x"></span> What Needs Improvement</th>
+                        <th>✅ What You Did Well</th>
+                        <th>❌ What Needs Improvement</th>
                     `;
                     thead.appendChild(headerRow);
                     table.appendChild(thead);
@@ -3822,7 +3612,7 @@ We wish you the utmost success finishing out the course, as well as in all futur
         function copyFeedback() {
             const outputText = document.getElementById('outputSection').textContent;
             copyToClipboard(outputText);
-            showNotification('✓ Feedback copied to clipboard!');
+            showNotification('✅ Feedback copied to clipboard!');
         }
 
         // ==================== COPY ALL SCORES (RAW) ====================
@@ -3893,7 +3683,7 @@ We wish you the utmost success finishing out the course, as well as in all futur
             const allValues = [...scoreValues, ...checkStatuses];
             const result = allValues.join('\t');
             copyToClipboard(result);
-            showNotification(`✓ All scores copied (${allValues.length} values)`);
+            showNotification(`✅ All scores copied (${allValues.length} values)`);
         }
 
         // ==================== RESET ALL ====================
