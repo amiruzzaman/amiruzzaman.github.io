@@ -274,6 +274,22 @@ let checkSelections={};
 let checkTextSelections={};
 
 let notificationTimer = null;
+
+function showNotification(msg,isSuccess=true){
+  const bar=document.getElementById('notificationBar');
+  document.getElementById('notificationMessage').textContent=msg;
+  bar.classList.remove('show','success');
+  void bar.offsetWidth;              // force reflow so fade replays on overwrite
+  if(isSuccess) bar.classList.add('success');
+  bar.classList.add('show');
+  // No timer: the message persists until overwritten by a new call or closed manually.
+}
+function hideNotification(){
+  const bar=document.getElementById('notificationBar');
+  bar.classList.remove('show','success');
+}
+
+/*
 function showNotification(msg,isSuccess=true){
   const bar=document.getElementById('notificationBar');
   document.getElementById('notificationMessage').textContent=msg;
@@ -289,6 +305,7 @@ function hideNotification(){
   bar.classList.remove('show','success');
   if(notificationTimer){clearTimeout(notificationTimer);notificationTimer=null;}
 }
+*/
 function validateName(){const n=document.getElementById('studentName').value.trim();const e=document.getElementById('nameRequiredError');if(!n){e.classList.add('show');return false;}e.classList.remove('show');return true;}
 
 function copyGradingPrompt(){
