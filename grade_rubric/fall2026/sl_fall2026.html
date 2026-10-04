@@ -71,9 +71,52 @@ button{padding:10px 20px;background:#4CAF50;color:#fff;border:none;border-radius
 .global-comment-row select{flex:1 1 250px;padding:8px;border:1px solid #ffe0b2;border-radius:4px;background:#fff;font-family:inherit;}
 .global-comment-row textarea{flex:2 1 300px;min-height:60px;padding:8px;border:1px solid #ffe0b2;border-radius:4px;font-family:inherit;}
 .global-comment-hint{font-size:.9em;color:#bf7f00;margin-top:5px;}
-.notification-bar{width:100%;min-height:36px;line-height:1.4;padding:8px 15px;text-align:center;background:#e3f2fd;color:#0D47A1;border-radius:4px;margin:10px 0;font-size:14px;font-weight:500;border:1px solid #90caf9;display:none;position:relative;box-sizing:border-box;}
-.notification-bar.show{display:block;}
-.notification-bar.success{background:#e8f5e9;color:#1b5e20;border-color:#81c784;}
+
+/* ---- Static notification bar (no layout jump) ---- */
+.notification-bar{
+  width:100%;
+  min-height:36px;
+  line-height:1.4;
+  padding:8px 15px;
+  text-align:center;
+  background:transparent;
+  color:#0D47A1;
+  border-radius:4px;
+  margin:10px 0;
+  font-size:14px;
+  font-weight:500;
+  box-sizing:border-box;
+  position:relative;
+  visibility:hidden;
+  opacity:0;
+  transition:opacity .2s ease;
+  border:1px solid transparent;
+}
+.notification-bar.show{
+  visibility:visible;
+  opacity:1;
+  background:#e3f2fd;
+  border-color:#90caf9;
+}
+.notification-bar.success.show{
+  background:#e8f5e9;
+  color:#1b5e20;
+  border-color:#81c784;
+}
+.notification-bar .close-notification{
+  position:absolute;
+  right:10px;
+  top:50%;
+  transform:translateY(-50%);
+  cursor:pointer;
+  font-weight:bold;
+  font-size:18px;
+  color:inherit;
+  opacity:.6;
+  line-height:1;
+}
+.notification-bar .close-notification:hover{opacity:1;}
+
 .checks-section{background:#f8f9fa;padding:15px;border-radius:4px;margin-bottom:20px;border-left:4px solid #6c757d;}
 .checks-section h3{margin-top:0;display:flex;justify-content:space-between;align-items:center;}
 .checks-section h3 button{padding:4px 12px;font-size:12px;background:#1976D2;}
@@ -102,7 +145,7 @@ button{padding:10px 20px;background:#4CAF50;color:#fff;border:none;border-radius
 <h1>SL Report Fall 2026 Rubric Grading Interface</h1>
 
 <div class="prompt-bar" id="promptBar">
-<span class="prompt-text">Grading prompt: <em>"Now grade this very strictly, and show me which one to check and which one to x in my checklist. If something is not met, then provide a suggestion to improve as 'You could have done... to improve'"</em></span>
+<span class="prompt-text">Grading prompt: <em>"Now grade this very strictly, and show me which one to check and which one to x in my checklist. If something is not met, then provide a suggestion to improve as 'You could have done... to improve'. No em-dash."</em></span>
 <button onclick="copyGradingPrompt()">📋 Copy Grading Prompt</button>
 </div>
 
@@ -230,12 +273,26 @@ let extraCreditPointsValue=0;
 let checkSelections={};
 let checkTextSelections={};
 
-function showNotification(msg,isSuccess=true){const bar=document.getElementById('notificationBar');document.getElementById('notificationMessage').textContent=msg;bar.className='notification-bar show'+(isSuccess?' success':'');bar.style.display='block';setTimeout(hideNotification,4000);}
-function hideNotification(){document.getElementById('notificationBar').style.display='none';}
+let notificationTimer = null;
+function showNotification(msg,isSuccess=true){
+  const bar=document.getElementById('notificationBar');
+  document.getElementById('notificationMessage').textContent=msg;
+  bar.classList.remove('show','success');
+  void bar.offsetWidth;
+  if(isSuccess) bar.classList.add('success');
+  bar.classList.add('show');
+  if(notificationTimer) clearTimeout(notificationTimer);
+  notificationTimer=setTimeout(hideNotification,4000);
+}
+function hideNotification(){
+  const bar=document.getElementById('notificationBar');
+  bar.classList.remove('show','success');
+  if(notificationTimer){clearTimeout(notificationTimer);notificationTimer=null;}
+}
 function validateName(){const n=document.getElementById('studentName').value.trim();const e=document.getElementById('nameRequiredError');if(!n){e.classList.add('show');return false;}e.classList.remove('show');return true;}
 
 function copyGradingPrompt(){
-  const msg = 'Now grade this very strictly, and show me which one to check and which one to x in my checklist. If something is not met, then provide a suggestion to improve as "You could have done... to improve"';
+  const msg = 'Now grade this very strictly, and show me which one to check and which one to x in my checklist. If something is not met, then provide a suggestion to improve as "You could have done... to improve". No em-dash.';
   navigator.clipboard.writeText(msg);
   showNotification('✅ Grading prompt copied!');
 }
@@ -286,10 +343,7 @@ function copyChecksStatusOnly(){
   showNotification(`✅ Checks (Y/N): ${r}`);
 }
 
-/* ---------- Independent access checks ----------
-   Check 3A = Overleaf Edit Link missing  → 2 pts
-   Check 3B = GT Enterprise GitHub commit hash missing → 2 pts
-*/
+/* ---------- Independent access checks ---------- */
 function isOverleafMissing(){
   const st=state.selectedItems.get('section-0')||{positive:new Set(),negative:new Set()};
   return !st.positive.has('section-0-positive-2');
@@ -310,8 +364,6 @@ function getMissingAccessPoints(){
   if(isGitHubMissing())   p+=2;
   return p;
 }
-
-/* Check 3A — driven only by Overleaf */
 function updateCheck3A(){
   const el=document.getElementById('check-text-negative-2');if(!el)return;
   const statusEl=document.getElementById('check-status-negative-2');
@@ -324,8 +376,6 @@ function updateCheck3A(){
   }
   updateNoDeductionsSelection();
 }
-
-/* Check 3B — driven only by GitHub */
 function updateCheck3B(){
   const el=document.getElementById('check-text-negative-3');if(!el)return;
   const statusEl=document.getElementById('check-status-negative-3');
@@ -554,7 +604,6 @@ function groupScore(section,sectionId,groupIndex){
   let t=0;section.groups[groupIndex].items.forEach((it,i)=>{if(st.positive.has(`${sectionId}-positive-${off+i}`))t+=it.points;});
   return t;
 }
-
 function copyGroupScore(si,gi){
  const s=rubricData.grading_rubric.sections[si];const g=s.groups[gi];const sid=`section-${si}`;
  const t=groupScore(s,sid,gi);
@@ -569,7 +618,6 @@ function copySectionScore(si){
 function copySectionGroupScores(si){
  const s=rubricData.grading_rubric.sections[si];const sid=`section-${si}`;
  const c=sectionGroupCombinations[si];if(!c)return;
-
  if(s.main_section.includes('Extra Credit')){
    let total=0;
    s.groups.forEach((g,gi)=>{total+=groupScore(s,sid,gi);});
@@ -577,19 +625,16 @@ function copySectionGroupScores(si){
    showNotification(`✅ EC total score: ${total}/5`);
    return;
  }
-
  const st=state.selectedItems.get(sid)||{positive:new Set()};
  let res=[];c.scores.forEach(sd=>{let t=0;sd.groupIndices.forEach(gi=>{const g=s.groups[gi];if(g){let off=0;for(let x=0;x<gi;x++)off+=s.groups[x].items.length;g.items.forEach((it,i)=>{if(st.positive.has(`${sid}-positive-${off+i}`))t+=it.points;});}});res.push(t.toFixed(0));});
  const r=res.join('\t');navigator.clipboard.writeText(r);showNotification(`✅ Section ${s.section_letter} scores: ${r}`);
 }
-
 function applyECLock(){
   const ecSection=rubricData.grading_rubric.sections[7];
   const ecSid='section-7';
   const st=state.selectedItems.get(ecSid)||{positive:new Set(),negative:new Set()};
   const lockId=`${ecSid}-negative-0`;
   const locked=st.negative.has(lockId);
-
   let ic=0;
   ecSection.groups.forEach(g=>{
     g.items.forEach(()=>{
@@ -601,16 +646,13 @@ function applyECLock(){
             st.positive.delete(`${ecSid}-positive-${ic}`);
             el.classList.remove('selected-positive');
           }
-        } else {
-          el.classList.remove('ec-locked');
-        }
+        } else { el.classList.remove('ec-locked'); }
       }
       ic++;
     });
   });
   updateSummary();
 }
-
 function toggleSelectAllPositives(si){
  const s=rubricData.grading_rubric.sections[si];const sid=`section-${si}`;
  if(!state.selectedItems.has(sid))state.selectedItems.set(sid,{positive:new Set(),negative:new Set()});
@@ -768,7 +810,6 @@ function generateFeedback(){
  if(sel.value!==''&&tmpl.trim()!==''){
   fb+=(nameInput?tmpl.replace(/{}/g,nameInput):tmpl.replace(/{}/g,''))+'\n\n';
  }
- /* CHECKS */
  fb+='====================\nChecks\n{';
  let noD=[],ded=[],track=[];
  if(checkTextSelections['positive-0']&&checkSelections['positive-0']==='N'){noD.push(document.getElementById('check-text-positive-0').textContent);}
@@ -782,12 +823,12 @@ function generateFeedback(){
         .replace(/\s*\(auto-detected\)\s*$/,'')
         .replace(/\s*\(tracking only\)\s*$/,'')
         .trim();
-  if(i===2){ // Check 3A — Overleaf only
+  if(i===2){
     const item=isOverleafMissing()?'Enterprise Overleaf Edit Link':'';
     const pts=isOverleafMissing()?2:0;
     t=t.replace(/\{TODO\}/g,item).replace(/we've deducted points/,`we've deducted ${pts} points`);
   }
-  if(i===3){ // Check 3B — GitHub only
+  if(i===3){
     const pts=isGitHubMissing()?2:0;
     t=t.replace(/\{POINTS\}/g,String(pts));
   }
@@ -803,7 +844,6 @@ function generateFeedback(){
  if(track.length){fb+='\nTracking Only (No Score Impact):\n';track.forEach(t=>fb+=`* ${t}\n`);}
  if(!noD.length&&!ded.length&&!track.length){fb+='\nNo Deductions Made:\n+ Submission of report and reproducibility materials satisfies major implementation requirements!\n';}
  fb+='}\n\n';
- /* SECTIONS */
  rubricData.grading_rubric.sections.forEach((s,si)=>{
   const sid=`section-${si}`;let sp=0;const mx=s.points_available;
   const st=state.selectedItems.get(sid)||{positive:new Set(),negative:new Set()};
