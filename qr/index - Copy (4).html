@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fully Scannable Custom QR Generator</title>
+    <title>Custom QR Code Generator</title>
 
     <!-- External Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -30,7 +30,7 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             min-height: 100vh;
@@ -125,15 +125,14 @@
 
         .btn-secondary:hover { background-color: #1e293b; }
 
-        /* QR Canvas Wrapper */
+        /* QR Display Area */
         #qrcode-container {
             display: none;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            margin: 24px auto 0 auto;
+            margin-top: 24px;
             padding: 24px;
-            border-radius: 16px;
+            border-radius: 12px;
             border: 1px solid var(--border-color);
         }
 
@@ -142,27 +141,26 @@
             display: inline-block;
         }
 
-        #qr-canvas {
-            display: block;
+        #qrcode canvas, #qrcode img {
             border-radius: 8px;
+            display: block;
         }
 
-        /* ASL Center Logo Overlay */
         .asl-overlay {
             display: none;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 44px;
-            height: 44px;
+            width: 52px;
+            height: 52px;
+            background: white;
             border-radius: 50%;
             border: 3px solid currentColor;
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             align-items: center;
             justify-content: center;
-            font-size: 22px;
-            z-index: 10;
+            font-size: 26px;
         }
 
         #qr-text {
@@ -180,7 +178,7 @@
 
         <div class="input-group">
             <label for="url">Target URL</label>
-            <input type="text" id="url" placeholder="https://example.com" required>
+            <input type="url" id="url" placeholder="https://example.com" required>
         </div>
 
         <div class="input-group">
@@ -189,21 +187,14 @@
         </div>
 
         <div class="input-group">
-            <label for="dot-style">Pattern Design</label>
-            <select id="dot-style">
-                <option value="square">Standard Square Modules</option>
-                <option value="dots">Rounded / Circle Dots</option>
+            <label for="design-style">Preset Theme</label>
+            <select id="design-style">
+                <option value="classic">Classic Minimal</option>
+                <option value="asl-love">🤟 ASL "I Love You" Theme</option>
             </select>
         </div>
 
-        <div class="input-group">
-            <label for="asl-option">ASL "I Love You" Emblem</label>
-            <select id="asl-option">
-                <option value="none">None</option>
-                <option value="asl">🤟 Include Center ASL Handshape</option>
-            </select>
-        </div>
-
+        <!-- Custom Color Controls -->
         <div class="color-grid">
             <div class="input-group">
                 <label for="fg-color">QR Pattern Color</label>
@@ -219,8 +210,7 @@
 
         <div id="qrcode-container">
             <div class="qr-wrapper">
-                <div id="raw-qrcode" style="display:none;"></div>
-                <canvas id="qr-canvas"></canvas>
+                <div id="qrcode"></div>
                 <div id="asl-icon" class="asl-overlay">🤟</div>
             </div>
             <div id="qr-text"></div>
@@ -231,110 +221,59 @@
 
     <script>
         function generateQR() {
-            let targetUrl = document.getElementById("url").value.trim();
+            const targetUrl = document.getElementById("url").value.trim();
             const caption = document.getElementById("caption").value.trim();
-            const dotStyle = document.getElementById("dot-style").value;
-            const aslOption = document.getElementById("asl-option").value;
+            const selectedStyle = document.getElementById("design-style").value;
             const fgColor = document.getElementById("fg-color").value;
             const bgColor = document.getElementById("bg-color").value;
 
-            const rawQr = document.getElementById("raw-qrcode");
+            const qrContainer = document.getElementById("qrcode");
             const containerWrapper = document.getElementById("qrcode-container");
             const downloadBtn = document.getElementById("downloadBtn");
             const aslOverlay = document.getElementById("asl-icon");
-            const canvas = document.getElementById("qr-canvas");
 
             if (!targetUrl) {
                 alert("Please enter a valid URL.");
                 return;
             }
 
-            // Ensure valid protocol prefix
-            if (!/^https?:\/\//i.test(targetUrl)) {
-                targetUrl = "https://" + targetUrl;
-            }
-
-            rawQr.innerHTML = "";
+            // Clear previous output
+            qrContainer.innerHTML = "";
             document.getElementById("qr-text").textContent = caption;
 
-            // Instantiates raw QR object
-            const qrcodeObj = new QRCode(rawQr, {
+            // Container style overrides
+            containerWrapper.style.backgroundColor = bgColor;
+            containerWrapper.style.color = fgColor;
+
+            // Handle ASL Overlay
+            if (selectedStyle === 'asl-love') {
+                aslOverlay.style.display = 'flex';
+                aslOverlay.style.color = fgColor;
+                aslOverlay.style.borderColor = fgColor;
+            } else {
+                aslOverlay.style.display = 'none';
+            }
+
+            // Generate QR Code with high error correction level
+            new QRCode(qrContainer, {
                 text: targetUrl,
-                width: 250,
-                height: 250,
+                width: 240,
+                height: 240,
                 colorDark: fgColor,
                 colorLight: bgColor,
                 correctLevel: QRCode.CorrectLevel.H
             });
 
-            setTimeout(() => {
-                const qrModel = qrcodeObj._oQRCode;
-                if (!qrModel) return;
-
-                const moduleCount = qrModel.getModuleCount();
-                const cellSize = 8;
-                const margin = 16;
-                const canvasSize = moduleCount * cellSize + (margin * 2);
-
-                canvas.width = canvasSize;
-                canvas.height = canvasSize;
-                const ctx = canvas.getContext("2d");
-
-                // Draw background
-                ctx.fillStyle = bgColor;
-                ctx.fillRect(0, 0, canvasSize, canvasSize);
-
-                ctx.fillStyle = fgColor;
-
-                // Helper to check if module is inside corner finder patterns
-                function isFinderPattern(r, c) {
-                    return (r < 7 && c < 7) || (r < 7 && c >= moduleCount - 7) || (r >= moduleCount - 7 && c < 7);
-                }
-
-                for (let row = 0; row < moduleCount; row++) {
-                    for (let col = 0; col < moduleCount; col++) {
-                        if (qrModel.isDark(row, col)) {
-                            const x = margin + col * cellSize;
-                            const y = margin + row * cellSize;
-
-                            // Keep square finder patterns intact so scanners read the code
-                            if (isFinderPattern(row, col) || dotStyle === "square") {
-                                ctx.fillRect(x, y, cellSize, cellSize);
-                            } else {
-                                // Rounded dot matrix
-                                ctx.beginPath();
-                                ctx.arc(x + cellSize / 2, y + cellSize / 2, cellSize / 2.2, 0, Math.PI * 2);
-                                ctx.fill();
-                            }
-                        }
-                    }
-                }
-
-                // Apply dynamic container colors
-                containerWrapper.style.backgroundColor = bgColor;
-                containerWrapper.style.color = fgColor;
-
-                // Handle ASL Center Emblem
-                if (aslOption === 'asl') {
-                    aslOverlay.style.display = 'flex';
-                    aslOverlay.style.backgroundColor = bgColor;
-                    aslOverlay.style.color = fgColor;
-                    aslOverlay.style.borderColor = fgColor;
-                } else {
-                    aslOverlay.style.display = 'none';
-                }
-
-                containerWrapper.style.display = "flex";
-                downloadBtn.style.display = "inline-flex";
-            }, 50);
+            containerWrapper.style.display = "flex";
+            downloadBtn.style.display = "inline-flex";
         }
 
         function downloadQR() {
             const container = document.getElementById("qrcode-container");
-            html2canvas(container, { scale: 2, backgroundColor: null }).then(canvas => {
+            html2canvas(container, { scale: 2 }).then(canvas => {
                 const link = document.createElement("a");
                 link.href = canvas.toDataURL("image/png");
-                link.download = "scannable_qrcode.png";
+                link.download = "custom_qrcode.png";
                 link.click();
             });
         }
