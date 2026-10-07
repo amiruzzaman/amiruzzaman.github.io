@@ -146,6 +146,7 @@ button{padding:10px 20px;background:#4CAF50;color:#fff;border:none;border-radius
   transform: scale(0.97);
   transition: all 0.15s ease;
 }
+/* Section header mini buttons also get a persistent look */
 .section-buttons button.btn-clicked {
   background: #FF8F00 !important;
   box-shadow: 0 0 0 2px #FFD54F !important;
@@ -289,10 +290,12 @@ let checkTextSelections={};
 let notificationTimer = null;
 
 /* ---------- Persistent button click state (stays until reset or re-toggled) ---------- */
+// For score buttons: toggle on/off so the grader can track which sections they have copied.
 function toggleScoreButton(btn){
   if(!btn) return;
   btn.classList.toggle('btn-clicked');
 }
+// For action buttons (Generate, Copy Feedback, Copy Scores): one-way highlight, stays until Reset.
 function markButtonClicked(btn){
   if(!btn) return;
   btn.classList.add('btn-clicked');
@@ -319,6 +322,7 @@ function handleCopyScoresClick(btn){
   copyScores();
 }
 function handleResetClick(btn){
+  // Reset clears all highlights, so no need to persist this button's own highlight.
   resetAll();
 }
 
@@ -326,7 +330,7 @@ function showNotification(msg,isSuccess=true){
   const bar=document.getElementById('notificationBar');
   document.getElementById('notificationMessage').textContent=msg;
   bar.classList.remove('show','success');
-  void bar.offsetWidth;
+  void bar.offsetWidth;              // force reflow so fade replays on overwrite
   if(isSuccess) bar.classList.add('success');
   bar.classList.add('show');
 }
@@ -628,50 +632,12 @@ const sectionGroupCombinations={
 
 const state={selectedItems:new Map(),currentEditingItem:null};
 
-/* ---- Live name substitution in the greeting template ---- */
-let rawTemplate = '';           // stores the template with {} placeholder intact
-let userEditedTemplate = false; // becomes true if the user edits the textarea manually
-
-function applyNameToTemplate(){
-  const ta = document.getElementById('globalCommentTemplate');
-  const name = document.getElementById('studentName').value.trim();
-  // If user edited manually, respect their version, but still substitute {} with name
-  const base = userEditedTemplate ? ta.value : rawTemplate;
-  const display = name ? base.replace(/\{\}/g, name) : base;
-  // Only update if different to avoid clobbering cursor position unnecessarily
-  if(ta.value !== display) ta.value = display;
-}
-
 document.addEventListener('DOMContentLoaded',function(){
-  renderRubric();setupEventListeners();setupModalEvents();setupPredefinedFeedbackEvents();updateSummary();
-  const sel=document.getElementById('greetingTemplateSelect');
-  const ta=document.getElementById('globalCommentTemplate');
-  const nameInput=document.getElementById('studentName');
-
-  // Store the initial raw template (with {})
-  rawTemplate = ta.value;
-
-  // On preset change: load preset as raw template (with {}), reset manual-edit flag, apply name
-  sel.addEventListener('change',function(){
-    rawTemplate = this.value || '';
-    userEditedTemplate = false;
-    ta.value = rawTemplate;
-    applyNameToTemplate();
-    if(nameInput.value.trim()) document.getElementById('nameRequiredError').classList.remove('show');
-  });
-
-  // On name input: live-substitute into the displayed template
-  nameInput.addEventListener('input',function(){
-    applyNameToTemplate();
-    if(this.value.trim()) document.getElementById('nameRequiredError').classList.remove('show');
-  });
-
-  // If the user types directly into the textarea, mark it as manually edited.
-  ta.addEventListener('input',function(){
-    userEditedTemplate = true;
-  });
-
-  setTimeout(()=>{updateNoDeductionsSelection();updateCheck3();applyECLock();},100);
+ renderRubric();setupEventListeners();setupModalEvents();setupPredefinedFeedbackEvents();updateSummary();
+ const sel=document.getElementById('greetingTemplateSelect');const ta=document.getElementById('globalCommentTemplate');
+ sel.addEventListener('change',function(){ta.value=this.value||'';});
+ document.getElementById('studentName').addEventListener('input',function(){if(this.value.trim())document.getElementById('nameRequiredError').classList.remove('show');});
+ setTimeout(()=>{updateNoDeductionsSelection();updateCheck3();applyECLock();},100);
 });
 
 function groupScore(section,sectionId,groupIndex){
@@ -881,10 +847,9 @@ function updateSummary(){
 function generateFeedback(){
  const os=document.getElementById('outputSection');const cb=document.getElementById('copyBtn');let fb='';
  const sel=document.getElementById('greetingTemplateSelect');const nameInput=document.getElementById('studentName').value.trim();
- // Use the current textarea value (already has name substituted live)
  const tmpl=document.getElementById('globalCommentTemplate').value;
  if(sel.value!==''&&tmpl.trim()!==''){
-  fb+=tmpl.replace(/{}/g,nameInput)+'\n\n';
+  fb+=(nameInput?tmpl.replace(/{}/g,nameInput):tmpl.replace(/{}/g,''))+'\n\n';
  }
  fb+='====================\nChecks\n{';
  let noD=[],ded=[],track=[];
@@ -962,12 +927,8 @@ function resetAll(){
  document.getElementById('outputSection').classList.add('hidden');
  document.getElementById('copyBtn').classList.add('hidden');
  document.getElementById('studentName').value='';document.getElementById('nameRequiredError').classList.remove('show');
+ // Clear all persistent button highlights
  document.querySelectorAll('.btn-clicked').forEach(b=>b.classList.remove('btn-clicked'));
- // Restore template to the currently selected preset (with {} placeholder), then re-apply (empty) name
- const sel=document.getElementById('greetingTemplateSelect');
- rawTemplate = sel.value || '';
- userEditedTemplate = false;
- document.getElementById('globalCommentTemplate').value = rawTemplate;
  updateSummary();updateCheck3();applyECLock();showNotification('✅ Reset complete!');
 }
 function copyScores(){

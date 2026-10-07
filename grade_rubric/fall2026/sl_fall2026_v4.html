@@ -137,19 +137,6 @@ button{padding:10px 20px;background:#4CAF50;color:#fff;border:none;border-radius
 .prompt-bar{margin-bottom:15px;padding:12px;background:#eef6ff;border-left:4px solid #1976D2;border-radius:4px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
 .prompt-bar .prompt-text{flex:1;font-size:.9em;color:#333;font-style:italic;}
 .prompt-bar button{background:#1976D2;font-size:14px;padding:8px 16px;margin:0;}
-
-/* ---- Persistent clicked state indicator (stays until reset) ---- */
-.btn-clicked {
-  background: #FF8F00 !important;
-  color: #fff !important;
-  box-shadow: 0 0 0 3px #FFD54F, 0 0 12px rgba(255, 213, 79, 0.85) !important;
-  transform: scale(0.97);
-  transition: all 0.15s ease;
-}
-.section-buttons button.btn-clicked {
-  background: #FF8F00 !important;
-  box-shadow: 0 0 0 2px #FFD54F !important;
-}
 </style>
 </head>
 <body>
@@ -183,7 +170,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
 </div>
 
 <div class="checks-section">
-<h3>Checks Configuration <button onclick="copyChecksStatusOnly(this)">📋 Copy Checks (Y/N)</button></h3>
+<h3>Checks Configuration <button onclick="copyChecksStatusOnly()">📋 Copy Checks (Y/N)</button></h3>
 <p><strong>Click N/D/T to toggle status, or click text to select/deselect for feedback.</strong> Check 5 is <em>tracking only</em> (no score impact, per rubric p.7).</p>
 <p><strong>No Deductions Made:</strong></p>
 <div class="item-list">
@@ -226,22 +213,22 @@ Without further ado, below we've provided both high-level feedback on satisfacti
 <div id="notificationBar" class="notification-bar"><span id="notificationMessage"></span><span class="close-notification" onclick="hideNotification()">&times;</span></div>
 
 <div class="controls" id="generateSection">
-<button id="generateBtn" onclick="handleGenerateClick(this)">Generate Feedback</button>
-<button id="copyBtn" class="hidden" onclick="handleCopyFeedbackClick(this)">Copy Feedback</button>
-<button id="copyScoresBtn" onclick="handleCopyScoresClick(this)">Copy Scores (all raw)</button>
-<button id="resetBtn" onclick="handleResetClick(this)">Reset All</button>
+<button id="generateBtn">Generate Feedback</button>
+<button id="copyBtn" class="hidden">Copy Feedback</button>
+<button id="copyScoresBtn">Copy Scores (all raw)</button>
+<button id="resetBtn">Reset All</button>
 </div>
 
 <div class="section-copy-buttons">
-<button onclick="copySectionGroupScores(0, this)">📋 A</button>
-<button onclick="copySectionGroupScores(1, this)">📋 B</button>
-<button onclick="copySectionGroupScores(2, this)">📋 C</button>
-<button onclick="copySectionGroupScores(3, this)">📋 D</button>
-<button onclick="copySectionGroupScores(4, this)">📋 E</button>
-<button onclick="copySectionGroupScores(5, this)">📋 F</button>
-<button onclick="copySectionGroupScores(6, this)">📋 G</button>
-<button onclick="copySectionGroupScores(7, this)">📋 EC</button>
-<button class="checks-btn" onclick="copyChecksStatusOnly(this)">📋 Checks</button>
+<button onclick="copySectionGroupScores(0)">📋 A</button>
+<button onclick="copySectionGroupScores(1)">📋 B</button>
+<button onclick="copySectionGroupScores(2)">📋 C</button>
+<button onclick="copySectionGroupScores(3)">📋 D</button>
+<button onclick="copySectionGroupScores(4)">📋 E</button>
+<button onclick="copySectionGroupScores(5)">📋 F</button>
+<button onclick="copySectionGroupScores(6)">📋 G</button>
+<button onclick="copySectionGroupScores(7)">📋 EC</button>
+<button class="checks-btn" onclick="copyChecksStatusOnly()">📋 Checks</button>
 </div>
 
 <div id="outputSection" class="output-section hidden"></div>
@@ -288,47 +275,14 @@ let checkTextSelections={};
 
 let notificationTimer = null;
 
-/* ---------- Persistent button click state (stays until reset or re-toggled) ---------- */
-function toggleScoreButton(btn){
-  if(!btn) return;
-  btn.classList.toggle('btn-clicked');
-}
-function markButtonClicked(btn){
-  if(!btn) return;
-  btn.classList.add('btn-clicked');
-}
-
-/* ---------- Wrapped handlers for main control buttons ---------- */
-function handleGenerateClick(btn){
-  markButtonClicked(btn);
-  if(validateName()) generateFeedback();
-  else document.getElementById('studentName').focus();
-}
-function handleCopyFeedbackClick(btn){
-  const o=document.getElementById('outputSection').textContent;
-  if(o.trim()){
-    navigator.clipboard.writeText(o);
-    showNotification('✅ Feedback copied!');
-    markButtonClicked(btn);
-  } else {
-    showNotification('⚠️ Nothing to copy. Generate feedback first.', false);
-  }
-}
-function handleCopyScoresClick(btn){
-  markButtonClicked(btn);
-  copyScores();
-}
-function handleResetClick(btn){
-  resetAll();
-}
-
 function showNotification(msg,isSuccess=true){
   const bar=document.getElementById('notificationBar');
   document.getElementById('notificationMessage').textContent=msg;
   bar.classList.remove('show','success');
-  void bar.offsetWidth;
+  void bar.offsetWidth;              // force reflow so fade replays on overwrite
   if(isSuccess) bar.classList.add('success');
   bar.classList.add('show');
+  // No timer: the message persists until overwritten by a new call or closed manually.
 }
 function hideNotification(){
   const bar=document.getElementById('notificationBar');
@@ -345,8 +299,11 @@ function copyGradingPrompt(){
 
 function initCheckSelections(){
   checkSelections['positive-0']='N';checkTextSelections['positive-0']=true;
+  // Check 1-4: default N
   for(let i=0;i<4;i++){checkSelections[`negative-${i}`]='N';checkTextSelections[`negative-${i}`]=false;}
+  // Check 5: tracking only, default T
   checkSelections['negative-4']='T';checkTextSelections['negative-4']=false;
+  // Check 6: default N
   checkSelections['negative-5']='N';checkTextSelections['negative-5']=false;
 }
 initCheckSelections();
@@ -378,14 +335,16 @@ function updateNoDeductionsSelection(){
   if(el)el.classList.toggle('selected',!hasNeg);
 }
 
-function copyChecksStatusOnly(btn){
-  toggleScoreButton(btn);
+function copyChecksStatusOnly(){
   const toYN = v => (v === 'D' || v === 'T') ? 'Y' : 'N';
   let s = [];
+  // Check 1-4: negative-0 to negative-3
   for (let i = 0; i < 4; i++) {
     s.push(toYN(checkSelections[`negative-${i}`] || 'N'));
   }
+  // Check 5: negative-4 (tracking only)
   s.push(toYN(checkSelections['negative-4'] || 'T'));
+  // Check 6: negative-5
   s.push(toYN(checkSelections['negative-5'] || 'N'));
   const r = s.join('\t');
   navigator.clipboard.writeText(r);
@@ -628,50 +587,12 @@ const sectionGroupCombinations={
 
 const state={selectedItems:new Map(),currentEditingItem:null};
 
-/* ---- Live name substitution in the greeting template ---- */
-let rawTemplate = '';           // stores the template with {} placeholder intact
-let userEditedTemplate = false; // becomes true if the user edits the textarea manually
-
-function applyNameToTemplate(){
-  const ta = document.getElementById('globalCommentTemplate');
-  const name = document.getElementById('studentName').value.trim();
-  // If user edited manually, respect their version, but still substitute {} with name
-  const base = userEditedTemplate ? ta.value : rawTemplate;
-  const display = name ? base.replace(/\{\}/g, name) : base;
-  // Only update if different to avoid clobbering cursor position unnecessarily
-  if(ta.value !== display) ta.value = display;
-}
-
 document.addEventListener('DOMContentLoaded',function(){
-  renderRubric();setupEventListeners();setupModalEvents();setupPredefinedFeedbackEvents();updateSummary();
-  const sel=document.getElementById('greetingTemplateSelect');
-  const ta=document.getElementById('globalCommentTemplate');
-  const nameInput=document.getElementById('studentName');
-
-  // Store the initial raw template (with {})
-  rawTemplate = ta.value;
-
-  // On preset change: load preset as raw template (with {}), reset manual-edit flag, apply name
-  sel.addEventListener('change',function(){
-    rawTemplate = this.value || '';
-    userEditedTemplate = false;
-    ta.value = rawTemplate;
-    applyNameToTemplate();
-    if(nameInput.value.trim()) document.getElementById('nameRequiredError').classList.remove('show');
-  });
-
-  // On name input: live-substitute into the displayed template
-  nameInput.addEventListener('input',function(){
-    applyNameToTemplate();
-    if(this.value.trim()) document.getElementById('nameRequiredError').classList.remove('show');
-  });
-
-  // If the user types directly into the textarea, mark it as manually edited.
-  ta.addEventListener('input',function(){
-    userEditedTemplate = true;
-  });
-
-  setTimeout(()=>{updateNoDeductionsSelection();updateCheck3();applyECLock();},100);
+ renderRubric();setupEventListeners();setupModalEvents();setupPredefinedFeedbackEvents();updateSummary();
+ const sel=document.getElementById('greetingTemplateSelect');const ta=document.getElementById('globalCommentTemplate');
+ sel.addEventListener('change',function(){ta.value=this.value||'';});
+ document.getElementById('studentName').addEventListener('input',function(){if(this.value.trim())document.getElementById('nameRequiredError').classList.remove('show');});
+ setTimeout(()=>{updateNoDeductionsSelection();updateCheck3();applyECLock();},100);
 });
 
 function groupScore(section,sectionId,groupIndex){
@@ -680,21 +601,18 @@ function groupScore(section,sectionId,groupIndex){
   let t=0;section.groups[groupIndex].items.forEach((it,i)=>{if(st.positive.has(`${sectionId}-positive-${off+i}`))t+=it.points;});
   return t;
 }
-function copyGroupScore(si,gi,btn){
- toggleScoreButton(btn);
+function copyGroupScore(si,gi){
  const s=rubricData.grading_rubric.sections[si];const g=s.groups[gi];const sid=`section-${si}`;
  const t=groupScore(s,sid,gi);
  const r=`${t}/${g.max}`;navigator.clipboard.writeText(r);showNotification(`✅ ${g.label}: ${r}`);
 }
-function copySectionScore(si,btn){
- toggleScoreButton(btn);
+function copySectionScore(si){
  const s=rubricData.grading_rubric.sections[si];const sid=`section-${si}`;
  const st=state.selectedItems.get(sid)||{positive:new Set()};
  let p=0,c=0;s.groups.forEach(g=>g.items.forEach(it=>{if(st.positive.has(`${sid}-positive-${c}`))p+=it.points;c++;}));
  navigator.clipboard.writeText(`${p}`);showNotification(`✅ Section ${s.section_letter}: ${p}`);
 }
-function copySectionGroupScores(si,btn){
- toggleScoreButton(btn);
+function copySectionGroupScores(si){
  const s=rubricData.grading_rubric.sections[si];const sid=`section-${si}`;
  const c=sectionGroupCombinations[si];if(!c)return;
  if(s.main_section.includes('Extra Credit')){
@@ -761,8 +679,8 @@ function renderRubric(){
   const bd=document.createElement('div');bd.className='section-buttons';
   const pb=document.createElement('button');pb.textContent='✓ All Pos';pb.className='select-positive-btn';pb.onclick=e=>{e.stopPropagation();toggleSelectAllPositives(si);};bd.appendChild(pb);
   if(section.negative_items){const nb=document.createElement('button');nb.textContent='✗ All Neg';nb.className='select-negative-btn';nb.onclick=e=>{e.stopPropagation();toggleSelectAllNegatives(si);};bd.appendChild(nb);}
-  const cb=document.createElement('button');cb.textContent='📋 Total';cb.className='copy-score-btn';cb.onclick=e=>{e.stopPropagation();copySectionScore(si, cb);};bd.appendChild(cb);
-  section.groups.forEach((g,gi)=>{const gb=document.createElement('button');gb.textContent=`📋 ${g.label}`;gb.className='copy-group-btn';gb.onclick=e=>{e.stopPropagation();copyGroupScore(si,gi, gb);};bd.appendChild(gb);});
+  const cb=document.createElement('button');cb.textContent='📋 Total';cb.className='copy-score-btn';cb.onclick=e=>{e.stopPropagation();copySectionScore(si);};bd.appendChild(cb);
+  section.groups.forEach((g,gi)=>{const gb=document.createElement('button');gb.textContent=`📋 ${g.label}`;gb.className='copy-group-btn';gb.onclick=e=>{e.stopPropagation();copyGroupScore(si,gi);};bd.appendChild(gb);});
   hdr.appendChild(bd);cont.appendChild(hdr);
   const sc=document.createElement('div');sc.id=`${sid}-content`;
   let ic=0;
@@ -813,6 +731,10 @@ function getSectionKey(sid){
 function setupEventListeners(){
  document.addEventListener('dblclick',e=>{const it=e.target.closest('.item');if(it&&!it.closest('.checks-section')){showItemModal(it.id);e.preventDefault();}});
  document.addEventListener('click',e=>{const it=e.target.closest('.item');if(it&&!it.closest('.checks-section')){toggleItemSelection(it);updateSummary();if(it.id.startsWith('section-0')){updateCheck3();}if(it.id.startsWith('section-7'))applyECLock();}});
+ document.getElementById('generateBtn').addEventListener('click',()=>{if(validateName())generateFeedback();else document.getElementById('studentName').focus();});
+ document.getElementById('resetBtn').addEventListener('click',resetAll);
+ document.getElementById('copyBtn').addEventListener('click',()=>{const o=document.getElementById('outputSection').textContent;if(o.trim()){navigator.clipboard.writeText(o);showNotification('✅ Feedback copied!');}});
+ document.getElementById('copyScoresBtn').addEventListener('click',copyScores);
 }
 function setupModalEvents(){
  const m=document.getElementById('itemModal');
@@ -881,10 +803,9 @@ function updateSummary(){
 function generateFeedback(){
  const os=document.getElementById('outputSection');const cb=document.getElementById('copyBtn');let fb='';
  const sel=document.getElementById('greetingTemplateSelect');const nameInput=document.getElementById('studentName').value.trim();
- // Use the current textarea value (already has name substituted live)
  const tmpl=document.getElementById('globalCommentTemplate').value;
  if(sel.value!==''&&tmpl.trim()!==''){
-  fb+=tmpl.replace(/{}/g,nameInput)+'\n\n';
+  fb+=(nameInput?tmpl.replace(/{}/g,nameInput):tmpl.replace(/{}/g,''))+'\n\n';
  }
  fb+='====================\nChecks\n{';
  let noD=[],ded=[],track=[];
@@ -962,12 +883,6 @@ function resetAll(){
  document.getElementById('outputSection').classList.add('hidden');
  document.getElementById('copyBtn').classList.add('hidden');
  document.getElementById('studentName').value='';document.getElementById('nameRequiredError').classList.remove('show');
- document.querySelectorAll('.btn-clicked').forEach(b=>b.classList.remove('btn-clicked'));
- // Restore template to the currently selected preset (with {} placeholder), then re-apply (empty) name
- const sel=document.getElementById('greetingTemplateSelect');
- rawTemplate = sel.value || '';
- userEditedTemplate = false;
- document.getElementById('globalCommentTemplate').value = rawTemplate;
  updateSummary();updateCheck3();applyECLock();showNotification('✅ Reset complete!');
 }
 function copyScores(){

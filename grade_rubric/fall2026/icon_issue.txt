@@ -1,0 +1,9 @@
+del /f /s /q "%LocalAppData%\Microsoft\Windows\Explorer\iconcache*"
+
+DISM.exe /Online /Cleanup-Image /RestoreHealth
+
+sfc /scannow
+
+cd /d %localappdata%\Microsoft\Windows\Explorer
+
+del iconcache* /f

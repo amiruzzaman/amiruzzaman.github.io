@@ -137,19 +137,6 @@ button{padding:10px 20px;background:#4CAF50;color:#fff;border:none;border-radius
 .prompt-bar{margin-bottom:15px;padding:12px;background:#eef6ff;border-left:4px solid #1976D2;border-radius:4px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
 .prompt-bar .prompt-text{flex:1;font-size:.9em;color:#333;font-style:italic;}
 .prompt-bar button{background:#1976D2;font-size:14px;padding:8px 16px;margin:0;}
-
-/* ---- Persistent clicked state indicator (stays until reset) ---- */
-.btn-clicked {
-  background: #FF8F00 !important;
-  color: #fff !important;
-  box-shadow: 0 0 0 3px #FFD54F, 0 0 12px rgba(255, 213, 79, 0.85) !important;
-  transform: scale(0.97);
-  transition: all 0.15s ease;
-}
-.section-buttons button.btn-clicked {
-  background: #FF8F00 !important;
-  box-shadow: 0 0 0 2px #FFD54F !important;
-}
 </style>
 </head>
 <body>
@@ -158,7 +145,7 @@ button{padding:10px 20px;background:#4CAF50;color:#fff;border:none;border-radius
 <h1>SL Report Fall 2026 Rubric Grading Interface</h1>
 
 <div class="prompt-bar" id="promptBar">
-<span class="prompt-text">Grading prompt: <em>"Now grade this very strictly, and show me which one to check and which one to x in my checklist. Also, check if the word 'Flummoxed' appears anywhere in the report. If something is not met, then provide a suggestion to improve as 'You could have done... to improve'. No em-dash."</em></span>
+<span class="prompt-text">Grading prompt: <em>"Now grade this very strictly, and show me which one to check and which one to x in my checklist. If something is not met, then provide a suggestion to improve as 'You could have done... to improve'. No em-dash."</em></span>
 <button onclick="copyGradingPrompt()">📋 Copy Grading Prompt</button>
 </div>
 
@@ -183,7 +170,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
 </div>
 
 <div class="checks-section">
-<h3>Checks Configuration <button onclick="copyChecksStatusOnly(this)">📋 Copy Checks (Y/N)</button></h3>
+<h3>Checks Configuration <button onclick="copyChecksStatusOnly()">📋 Copy Checks (Y/N)</button></h3>
 <p><strong>Click N/D/T to toggle status, or click text to select/deselect for feedback.</strong> Check 5 is <em>tracking only</em> (no score impact, per rubric p.7).</p>
 <p><strong>No Deductions Made:</strong></p>
 <div class="item-list">
@@ -204,19 +191,19 @@ Without further ado, below we've provided both high-level feedback on satisfacti
 </div>
 <div class="check-item-row" onclick="toggleCheckSelection('negative-2')">
 <span class="check-status N" id="check-status-negative-2" onclick="event.stopPropagation(); toggleCheckStatus('negative-2')">N</span>
-<span class="check-text" id="check-text-negative-2">Check 3 - Overleaf/Git Inaccessible: Between provision and accessibility of your Overleaf-hosted write-up and/or your codebase in the GT Enterprise GitHub repo provided you for the course, we could not access your project, thus we've deducted points in the A2. Accessibility section. <span class="auto-check-indicator">(auto-filled from A2)</span></span>
+<span class="check-text" id="check-text-negative-2">Check 3A - Overleaf Inaccessible: Between provision and accessibility of your Overleaf-hosted write-up, we could not access your project, thus we've deducted 2 points in the A2. Accessibility section. <span class="auto-check-indicator">(auto-filled from A2)</span></span>
 </div>
 <div class="check-item-row" onclick="toggleCheckSelection('negative-3')">
 <span class="check-status N" id="check-status-negative-3" onclick="event.stopPropagation(); toggleCheckStatus('negative-3')">N</span>
-<span class="check-text" id="check-text-negative-3">Check 4 - Report Over 8 Pages: A portion of your report spills over the 8 page limit specified in the requirements and thus we consider anything past page 8 as not provided and (not) graded in accordance with this rule.</span>
+<span class="check-text" id="check-text-negative-3">Check 3B - GitHub Inaccessible: Between provision and accessibility of your codebase in the GT Enterprise GitHub repo provided you for the course, we could not access your commit, thus we've deducted 2 points in the A2. Accessibility section. <span class="auto-check-indicator">(auto-filled from A2)</span></span>
 </div>
 <div class="check-item-row" onclick="toggleCheckSelection('negative-4')">
-<span class="check-status T" id="check-status-negative-4" onclick="event.stopPropagation(); toggleCheckStatus('negative-4')">T</span>
-<span class="check-text" id="check-text-negative-4">Check 5 - GenAI Blue-Yellow Plots, Flummoxed (tracking only): We identified blue/yellow figure scheme and/or repeated use of the word "flummoxed." This is tracked for instructor review only and does not affect your score. <span class="tracking-note">(tracking only)</span></span>
+<span class="check-status N" id="check-status-negative-4" onclick="event.stopPropagation(); toggleCheckStatus('negative-4')">N</span>
+<span class="check-text" id="check-text-negative-4">Check 4 - Report Over 8 Pages: A portion of your report spills over the 8 page limit specified in the requirements and thus we consider anything past page 8 as not provided and (not) graded in accordance with this rule.</span>
 </div>
 <div class="check-item-row" onclick="toggleCheckSelection('negative-5')">
-<span class="check-status N" id="check-status-negative-5" onclick="event.stopPropagation(); toggleCheckStatus('negative-5')">N</span>
-<span class="check-text" id="check-text-negative-5">Check 6 - Unrefined Draft: Your submission appears to be an unrefined draft rather than a polished final report, which we have noted for instructor review. No automatic point deduction is applied, but this may affect the overall qualitative assessment.</span>
+<span class="check-status T" id="check-status-negative-5" onclick="event.stopPropagation(); toggleCheckStatus('negative-5')">T</span>
+<span class="check-text" id="check-text-negative-5">Check 5 - GenAI Blue-Yellow Plots, Flummoxed (tracking only): We identified blue/yellow figure scheme and/or repeated use of the word "flummoxed." This is tracked for instructor review only and does not affect your score. <span class="tracking-note">(tracking only)</span></span>
 </div>
 </div>
 </div>
@@ -226,22 +213,22 @@ Without further ado, below we've provided both high-level feedback on satisfacti
 <div id="notificationBar" class="notification-bar"><span id="notificationMessage"></span><span class="close-notification" onclick="hideNotification()">&times;</span></div>
 
 <div class="controls" id="generateSection">
-<button id="generateBtn" onclick="handleGenerateClick(this)">Generate Feedback</button>
-<button id="copyBtn" class="hidden" onclick="handleCopyFeedbackClick(this)">Copy Feedback</button>
-<button id="copyScoresBtn" onclick="handleCopyScoresClick(this)">Copy Scores (all raw)</button>
-<button id="resetBtn" onclick="handleResetClick(this)">Reset All</button>
+<button id="generateBtn">Generate Feedback</button>
+<button id="copyBtn" class="hidden">Copy Feedback</button>
+<button id="copyScoresBtn">Copy Scores (all raw)</button>
+<button id="resetBtn">Reset All</button>
 </div>
 
 <div class="section-copy-buttons">
-<button onclick="copySectionGroupScores(0, this)">📋 A</button>
-<button onclick="copySectionGroupScores(1, this)">📋 B</button>
-<button onclick="copySectionGroupScores(2, this)">📋 C</button>
-<button onclick="copySectionGroupScores(3, this)">📋 D</button>
-<button onclick="copySectionGroupScores(4, this)">📋 E</button>
-<button onclick="copySectionGroupScores(5, this)">📋 F</button>
-<button onclick="copySectionGroupScores(6, this)">📋 G</button>
-<button onclick="copySectionGroupScores(7, this)">📋 EC</button>
-<button class="checks-btn" onclick="copyChecksStatusOnly(this)">📋 Checks</button>
+<button onclick="copySectionGroupScores(0)">📋 A</button>
+<button onclick="copySectionGroupScores(1)">📋 B</button>
+<button onclick="copySectionGroupScores(2)">📋 C</button>
+<button onclick="copySectionGroupScores(3)">📋 D</button>
+<button onclick="copySectionGroupScores(4)">📋 E</button>
+<button onclick="copySectionGroupScores(5)">📋 F</button>
+<button onclick="copySectionGroupScores(6)">📋 G</button>
+<button onclick="copySectionGroupScores(7)">📋 EC</button>
+<button class="checks-btn" onclick="copyChecksStatusOnly()">📋 Checks</button>
 </div>
 
 <div id="outputSection" class="output-section hidden"></div>
@@ -288,40 +275,21 @@ let checkTextSelections={};
 
 let notificationTimer = null;
 
-/* ---------- Persistent button click state (stays until reset or re-toggled) ---------- */
-function toggleScoreButton(btn){
-  if(!btn) return;
-  btn.classList.toggle('btn-clicked');
+function showNotification(msg,isSuccess=true){
+  const bar=document.getElementById('notificationBar');
+  document.getElementById('notificationMessage').textContent=msg;
+  bar.classList.remove('show','success');
+  void bar.offsetWidth;              // force reflow so fade replays on overwrite
+  if(isSuccess) bar.classList.add('success');
+  bar.classList.add('show');
+  // No timer: the message persists until overwritten by a new call or closed manually.
 }
-function markButtonClicked(btn){
-  if(!btn) return;
-  btn.classList.add('btn-clicked');
-}
-
-/* ---------- Wrapped handlers for main control buttons ---------- */
-function handleGenerateClick(btn){
-  markButtonClicked(btn);
-  if(validateName()) generateFeedback();
-  else document.getElementById('studentName').focus();
-}
-function handleCopyFeedbackClick(btn){
-  const o=document.getElementById('outputSection').textContent;
-  if(o.trim()){
-    navigator.clipboard.writeText(o);
-    showNotification('✅ Feedback copied!');
-    markButtonClicked(btn);
-  } else {
-    showNotification('⚠️ Nothing to copy. Generate feedback first.', false);
-  }
-}
-function handleCopyScoresClick(btn){
-  markButtonClicked(btn);
-  copyScores();
-}
-function handleResetClick(btn){
-  resetAll();
+function hideNotification(){
+  const bar=document.getElementById('notificationBar');
+  bar.classList.remove('show','success');
 }
 
+/*
 function showNotification(msg,isSuccess=true){
   const bar=document.getElementById('notificationBar');
   document.getElementById('notificationMessage').textContent=msg;
@@ -329,45 +297,48 @@ function showNotification(msg,isSuccess=true){
   void bar.offsetWidth;
   if(isSuccess) bar.classList.add('success');
   bar.classList.add('show');
+  if(notificationTimer) clearTimeout(notificationTimer);
+  notificationTimer=setTimeout(hideNotification,4000);
 }
 function hideNotification(){
   const bar=document.getElementById('notificationBar');
   bar.classList.remove('show','success');
+  if(notificationTimer){clearTimeout(notificationTimer);notificationTimer=null;}
 }
-
+*/
 function validateName(){const n=document.getElementById('studentName').value.trim();const e=document.getElementById('nameRequiredError');if(!n){e.classList.add('show');return false;}e.classList.remove('show');return true;}
 
 function copyGradingPrompt(){
-  const msg = 'Now grade this very strictly, and show me which one to check and which one to x in my checklist. Also, check if the word "Flummoxed" appears anywhere in the report. If something is not met, then provide a suggestion to improve as "You could have done... to improve". No em-dash.';
+  const msg = 'Now grade this very strictly, and show me which one to check and which one to x in my checklist. If something is not met, then provide a suggestion to improve as "You could have done... to improve". No em-dash.';
   navigator.clipboard.writeText(msg);
   showNotification('✅ Grading prompt copied!');
 }
 
 function initCheckSelections(){
   checkSelections['positive-0']='N';checkTextSelections['positive-0']=true;
-  for(let i=0;i<4;i++){checkSelections[`negative-${i}`]='N';checkTextSelections[`negative-${i}`]=false;}
-  checkSelections['negative-4']='T';checkTextSelections['negative-4']=false;
-  checkSelections['negative-5']='N';checkTextSelections['negative-5']=false;
+  for(let i=0;i<6;i++){checkSelections[`negative-${i}`]=(i===5?'T':'N');checkTextSelections[`negative-${i}`]=false;}
 }
 initCheckSelections();
 
 function toggleCheckStatus(id){
   const el=document.getElementById(`check-status-${id}`);
-  const order=id==='negative-4'?['T','N']:['N','D'];
+  const order=id==='negative-5'?['T','N']:['N','D'];
   const cur=el.textContent;const idx=order.indexOf(cur);
   const nxt=order[(idx+1)%order.length];
   el.textContent=nxt;el.className='check-status '+nxt;
   checkSelections[id]=nxt;
   if(nxt==='D'){checkTextSelections[id]=true;document.getElementById(`check-text-${id}`).classList.add('selected');}
   updateNoDeductionsSelection();
-  if(id==='negative-2')updateCheck3();
+  if(id==='negative-2')updateCheck3A();
+  if(id==='negative-3')updateCheck3B();
 }
 function toggleCheckSelection(id){
   const el=document.getElementById(`check-text-${id}`);
   checkTextSelections[id]=!checkTextSelections[id];
   el.classList.toggle('selected',checkTextSelections[id]);
   updateNoDeductionsSelection();
-  if(id==='negative-2')updateCheck3();
+  if(id==='negative-2')updateCheck3A();
+  if(id==='negative-3')updateCheck3B();
 }
 function updateNoDeductionsSelection(){
   let hasNeg=false;
@@ -378,15 +349,12 @@ function updateNoDeductionsSelection(){
   if(el)el.classList.toggle('selected',!hasNeg);
 }
 
-function copyChecksStatusOnly(btn){
-  toggleScoreButton(btn);
+function copyChecksStatusOnly(){
   const toYN = v => (v === 'D' || v === 'T') ? 'Y' : 'N';
   let s = [];
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 6; i++) {
     s.push(toYN(checkSelections[`negative-${i}`] || 'N'));
   }
-  s.push(toYN(checkSelections['negative-4'] || 'T'));
-  s.push(toYN(checkSelections['negative-5'] || 'N'));
   const r = s.join('\t');
   navigator.clipboard.writeText(r);
   showNotification(`✅ Checks (Y/N): ${r}`);
@@ -413,16 +381,27 @@ function getMissingAccessPoints(){
   if(isGitHubMissing())   p+=2;
   return p;
 }
-function updateCheck3(){
+function updateCheck3A(){
   const el=document.getElementById('check-text-negative-2');if(!el)return;
   const statusEl=document.getElementById('check-status-negative-2');
-  const missing = isOverleafMissing() || isGitHubMissing();
-  if(missing){
+  if(isOverleafMissing()){
     if(!checkTextSelections['negative-2']){checkTextSelections['negative-2']=true;el.classList.add('selected');}
     if(checkSelections['negative-2']!=='D'){checkSelections['negative-2']='D';statusEl.textContent='D';statusEl.className='check-status D';}
   } else {
     if(checkTextSelections['negative-2']){checkTextSelections['negative-2']=false;el.classList.remove('selected');}
     if(checkSelections['negative-2']==='D'){checkSelections['negative-2']='N';statusEl.textContent='N';statusEl.className='check-status N';}
+  }
+  updateNoDeductionsSelection();
+}
+function updateCheck3B(){
+  const el=document.getElementById('check-text-negative-3');if(!el)return;
+  const statusEl=document.getElementById('check-status-negative-3');
+  if(isGitHubMissing()){
+    if(!checkTextSelections['negative-3']){checkTextSelections['negative-3']=true;el.classList.add('selected');}
+    if(checkSelections['negative-3']!=='D'){checkSelections['negative-3']='D';statusEl.textContent='D';statusEl.className='check-status D';}
+  } else {
+    if(checkTextSelections['negative-3']){checkTextSelections['negative-3']=false;el.classList.remove('selected');}
+    if(checkSelections['negative-3']==='D'){checkSelections['negative-3']='N';statusEl.textContent='N';statusEl.className='check-status N';}
   }
   updateNoDeductionsSelection();
 }
@@ -628,50 +607,12 @@ const sectionGroupCombinations={
 
 const state={selectedItems:new Map(),currentEditingItem:null};
 
-/* ---- Live name substitution in the greeting template ---- */
-let rawTemplate = '';           // stores the template with {} placeholder intact
-let userEditedTemplate = false; // becomes true if the user edits the textarea manually
-
-function applyNameToTemplate(){
-  const ta = document.getElementById('globalCommentTemplate');
-  const name = document.getElementById('studentName').value.trim();
-  // If user edited manually, respect their version, but still substitute {} with name
-  const base = userEditedTemplate ? ta.value : rawTemplate;
-  const display = name ? base.replace(/\{\}/g, name) : base;
-  // Only update if different to avoid clobbering cursor position unnecessarily
-  if(ta.value !== display) ta.value = display;
-}
-
 document.addEventListener('DOMContentLoaded',function(){
-  renderRubric();setupEventListeners();setupModalEvents();setupPredefinedFeedbackEvents();updateSummary();
-  const sel=document.getElementById('greetingTemplateSelect');
-  const ta=document.getElementById('globalCommentTemplate');
-  const nameInput=document.getElementById('studentName');
-
-  // Store the initial raw template (with {})
-  rawTemplate = ta.value;
-
-  // On preset change: load preset as raw template (with {}), reset manual-edit flag, apply name
-  sel.addEventListener('change',function(){
-    rawTemplate = this.value || '';
-    userEditedTemplate = false;
-    ta.value = rawTemplate;
-    applyNameToTemplate();
-    if(nameInput.value.trim()) document.getElementById('nameRequiredError').classList.remove('show');
-  });
-
-  // On name input: live-substitute into the displayed template
-  nameInput.addEventListener('input',function(){
-    applyNameToTemplate();
-    if(this.value.trim()) document.getElementById('nameRequiredError').classList.remove('show');
-  });
-
-  // If the user types directly into the textarea, mark it as manually edited.
-  ta.addEventListener('input',function(){
-    userEditedTemplate = true;
-  });
-
-  setTimeout(()=>{updateNoDeductionsSelection();updateCheck3();applyECLock();},100);
+ renderRubric();setupEventListeners();setupModalEvents();setupPredefinedFeedbackEvents();updateSummary();
+ const sel=document.getElementById('greetingTemplateSelect');const ta=document.getElementById('globalCommentTemplate');
+ sel.addEventListener('change',function(){ta.value=this.value||'';});
+ document.getElementById('studentName').addEventListener('input',function(){if(this.value.trim())document.getElementById('nameRequiredError').classList.remove('show');});
+ setTimeout(()=>{updateNoDeductionsSelection();updateCheck3A();updateCheck3B();applyECLock();},100);
 });
 
 function groupScore(section,sectionId,groupIndex){
@@ -680,21 +621,18 @@ function groupScore(section,sectionId,groupIndex){
   let t=0;section.groups[groupIndex].items.forEach((it,i)=>{if(st.positive.has(`${sectionId}-positive-${off+i}`))t+=it.points;});
   return t;
 }
-function copyGroupScore(si,gi,btn){
- toggleScoreButton(btn);
+function copyGroupScore(si,gi){
  const s=rubricData.grading_rubric.sections[si];const g=s.groups[gi];const sid=`section-${si}`;
  const t=groupScore(s,sid,gi);
  const r=`${t}/${g.max}`;navigator.clipboard.writeText(r);showNotification(`✅ ${g.label}: ${r}`);
 }
-function copySectionScore(si,btn){
- toggleScoreButton(btn);
+function copySectionScore(si){
  const s=rubricData.grading_rubric.sections[si];const sid=`section-${si}`;
  const st=state.selectedItems.get(sid)||{positive:new Set()};
  let p=0,c=0;s.groups.forEach(g=>g.items.forEach(it=>{if(st.positive.has(`${sid}-positive-${c}`))p+=it.points;c++;}));
  navigator.clipboard.writeText(`${p}`);showNotification(`✅ Section ${s.section_letter}: ${p}`);
 }
-function copySectionGroupScores(si,btn){
- toggleScoreButton(btn);
+function copySectionGroupScores(si){
  const s=rubricData.grading_rubric.sections[si];const sid=`section-${si}`;
  const c=sectionGroupCombinations[si];if(!c)return;
  if(s.main_section.includes('Extra Credit')){
@@ -741,7 +679,7 @@ function toggleSelectAllPositives(si){
  let any=false;for(let i=0;i<tot;i++)if(st.positive.has(`${sid}-positive-${i}`)){any=true;break;}
  if(any){for(let i=0;i<tot;i++){st.positive.delete(`${sid}-positive-${i}`);const el=document.getElementById(`${sid}-positive-${i}`);if(el)el.classList.remove('selected-positive');}}
  else{for(let i=0;i<tot;i++){st.positive.add(`${sid}-positive-${i}`);const el=document.getElementById(`${sid}-positive-${i}`);if(el)el.classList.add('selected-positive');}}
- updateSummary();if(si===0){updateCheck3();}if(si===7)applyECLock();
+ updateSummary();if(si===0){updateCheck3A();updateCheck3B();}if(si===7)applyECLock();
 }
 function toggleSelectAllNegatives(si){
  const s=rubricData.grading_rubric.sections[si];const sid=`section-${si}`;
@@ -761,8 +699,8 @@ function renderRubric(){
   const bd=document.createElement('div');bd.className='section-buttons';
   const pb=document.createElement('button');pb.textContent='✓ All Pos';pb.className='select-positive-btn';pb.onclick=e=>{e.stopPropagation();toggleSelectAllPositives(si);};bd.appendChild(pb);
   if(section.negative_items){const nb=document.createElement('button');nb.textContent='✗ All Neg';nb.className='select-negative-btn';nb.onclick=e=>{e.stopPropagation();toggleSelectAllNegatives(si);};bd.appendChild(nb);}
-  const cb=document.createElement('button');cb.textContent='📋 Total';cb.className='copy-score-btn';cb.onclick=e=>{e.stopPropagation();copySectionScore(si, cb);};bd.appendChild(cb);
-  section.groups.forEach((g,gi)=>{const gb=document.createElement('button');gb.textContent=`📋 ${g.label}`;gb.className='copy-group-btn';gb.onclick=e=>{e.stopPropagation();copyGroupScore(si,gi, gb);};bd.appendChild(gb);});
+  const cb=document.createElement('button');cb.textContent='📋 Total';cb.className='copy-score-btn';cb.onclick=e=>{e.stopPropagation();copySectionScore(si);};bd.appendChild(cb);
+  section.groups.forEach((g,gi)=>{const gb=document.createElement('button');gb.textContent=`📋 ${g.label}`;gb.className='copy-group-btn';gb.onclick=e=>{e.stopPropagation();copyGroupScore(si,gi);};bd.appendChild(gb);});
   hdr.appendChild(bd);cont.appendChild(hdr);
   const sc=document.createElement('div');sc.id=`${sid}-content`;
   let ic=0;
@@ -812,7 +750,11 @@ function getSectionKey(sid){
 }
 function setupEventListeners(){
  document.addEventListener('dblclick',e=>{const it=e.target.closest('.item');if(it&&!it.closest('.checks-section')){showItemModal(it.id);e.preventDefault();}});
- document.addEventListener('click',e=>{const it=e.target.closest('.item');if(it&&!it.closest('.checks-section')){toggleItemSelection(it);updateSummary();if(it.id.startsWith('section-0')){updateCheck3();}if(it.id.startsWith('section-7'))applyECLock();}});
+ document.addEventListener('click',e=>{const it=e.target.closest('.item');if(it&&!it.closest('.checks-section')){toggleItemSelection(it);updateSummary();if(it.id.startsWith('section-0')){updateCheck3A();updateCheck3B();}if(it.id.startsWith('section-7'))applyECLock();}});
+ document.getElementById('generateBtn').addEventListener('click',()=>{if(validateName())generateFeedback();else document.getElementById('studentName').focus();});
+ document.getElementById('resetBtn').addEventListener('click',resetAll);
+ document.getElementById('copyBtn').addEventListener('click',()=>{const o=document.getElementById('outputSection').textContent;if(o.trim()){navigator.clipboard.writeText(o);showNotification('✅ Feedback copied!');}});
+ document.getElementById('copyScoresBtn').addEventListener('click',copyScores);
 }
 function setupModalEvents(){
  const m=document.getElementById('itemModal');
@@ -881,10 +823,9 @@ function updateSummary(){
 function generateFeedback(){
  const os=document.getElementById('outputSection');const cb=document.getElementById('copyBtn');let fb='';
  const sel=document.getElementById('greetingTemplateSelect');const nameInput=document.getElementById('studentName').value.trim();
- // Use the current textarea value (already has name substituted live)
  const tmpl=document.getElementById('globalCommentTemplate').value;
  if(sel.value!==''&&tmpl.trim()!==''){
-  fb+=tmpl.replace(/{}/g,nameInput)+'\n\n';
+  fb+=(nameInput?tmpl.replace(/{}/g,nameInput):tmpl.replace(/{}/g,''))+'\n\n';
  }
  fb+='====================\nChecks\n{';
  let noD=[],ded=[],track=[];
@@ -900,11 +841,15 @@ function generateFeedback(){
         .replace(/\s*\(tracking only\)\s*$/,'')
         .trim();
   if(i===2){
-    const item=getMissingAccessItems();
-    const pts=getMissingAccessPoints();
+    const item=isOverleafMissing()?'Enterprise Overleaf Edit Link':'';
+    const pts=isOverleafMissing()?2:0;
     t=t.replace(/\{TODO\}/g,item).replace(/we've deducted points/,`we've deducted ${pts} points`);
   }
-  if(i===4){track.push(t);continue;}
+  if(i===3){
+    const pts=isGitHubMissing()?2:0;
+    t=t.replace(/\{POINTS\}/g,String(pts));
+  }
+  if(i===5){track.push(t);continue;}
   if(checkSelections[k]==='D') ded.push(t);else noD.push(t);
  }
  if(noD.length){fb+='\nNo Deductions Made: \n';noD.forEach(t=>fb+=`+ ${t}\n`);}
@@ -957,18 +902,12 @@ function resetAll(){
  document.querySelectorAll('.check-status').forEach(el=>{el.textContent='N';el.className='check-status N';});
  document.querySelectorAll('.check-text').forEach(el=>el.classList.remove('selected'));
  const pe=document.getElementById('check-text-positive-0');if(pe){pe.classList.add('selected');checkTextSelections['positive-0']=true;}
- const t5=document.getElementById('check-status-negative-4');if(t5){t5.textContent='T';t5.className='check-status T';checkSelections['negative-4']='T';}
+ const t5=document.getElementById('check-status-negative-5');if(t5){t5.textContent='T';t5.className='check-status T';checkSelections['negative-5']='T';}
  document.querySelectorAll('textarea').forEach(t=>t.value='');
  document.getElementById('outputSection').classList.add('hidden');
  document.getElementById('copyBtn').classList.add('hidden');
  document.getElementById('studentName').value='';document.getElementById('nameRequiredError').classList.remove('show');
- document.querySelectorAll('.btn-clicked').forEach(b=>b.classList.remove('btn-clicked'));
- // Restore template to the currently selected preset (with {} placeholder), then re-apply (empty) name
- const sel=document.getElementById('greetingTemplateSelect');
- rawTemplate = sel.value || '';
- userEditedTemplate = false;
- document.getElementById('globalCommentTemplate').value = rawTemplate;
- updateSummary();updateCheck3();applyECLock();showNotification('✅ Reset complete!');
+ updateSummary();updateCheck3A();updateCheck3B();applyECLock();showNotification('✅ Reset complete!');
 }
 function copyScores(){
  let sc=[];
