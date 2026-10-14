@@ -150,6 +150,22 @@ button{padding:10px 20px;background:#4CAF50;color:#fff;border:none;border-radius
   background: #FF8F00 !important;
   box-shadow: 0 0 0 2px #FFD54F !important;
 }
+
+/* ---- Optional fields for Excel export ---- */
+.optional-fields{margin:15px 0;padding:15px;background:#f0f8ff;border-left:4px solid #1976D2;border-radius:4px;}
+.optional-fields strong{display:block;margin-bottom:8px;font-size:.9em;}
+.optional-fields .optional-row{display:flex;gap:10px;flex-wrap:wrap;}
+.optional-fields input{flex:1;min-width:200px;padding:8px 12px;border:1px solid #b3d9ff;border-radius:4px;font-family:inherit;font-size:14px;box-sizing:border-box;}
+.optional-fields .hint{font-size:.8em;color:#555;margin-top:6px;}
+
+/* ---- Check 5 quick toggle button ---- */
+.check5-toggle-bar{margin:15px 0;padding:12px 15px;background:#fff3e0;border-left:4px solid #e65100;border-radius:4px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+.check5-toggle-bar .check5-label{font-size:.9em;color:#333;}
+.check5-toggle-bar .check5-label strong{color:#e65100;}
+.check5-toggle-bar button{background:#e65100;font-size:14px;padding:8px 16px;margin:0;}
+.check5-toggle-bar button.check5-status-T{background:#e65100;}
+.check5-toggle-bar button.check5-status-D{background:#c62828;}
+.check5-toggle-bar button.check5-status-N{background:#2e7d32;}
 </style>
 </head>
 <body>
@@ -158,7 +174,7 @@ button{padding:10px 20px;background:#4CAF50;color:#fff;border:none;border-radius
 <h1>SL Report Fall 2026 Rubric Grading Interface</h1>
 
 <div class="prompt-bar" id="promptBar">
-<span class="prompt-text">Grading prompt: <em>"Now grade this very strictly, and show me which one to check and which one to x in my checklist. Also, check if the word 'Flummoxed' appears anywhere in the report. If something is not met, then provide a suggestion to improve as 'You could have done... to improve'. No em-dash."</em></span>
+<span class="prompt-text">Grading prompt: <em>"Now grade this very strictly, and show me which one to check and which one to x in my checklist. Also, check if the word 'Flummoxed' appears anywhere in the report. If something is not met, then provide a suggestion to improve as 'You could have done... to improve'. No em-dash. Please ensure that all-or-nothing grading is applied to each subsection."</em></span>
 <button onclick="copyGradingPrompt()">📋 Copy Grading Prompt</button>
 </div>
 
@@ -180,6 +196,15 @@ Without further ado, below we've provided both high-level feedback on satisfacti
 </div>
 <div class="global-comment-hint">Select a preset, then edit if needed. The {} will be replaced by the name.</div>
 <div id="nameRequiredError" class="name-required-error">⚠️ Please enter a student name before generating feedback.</div>
+</div>
+
+<div class="optional-fields">
+<strong>📊 Optional fields (for Excel export — leave blank to skip):</strong>
+<div class="optional-row">
+<input type="text" id="minutesTaken" placeholder="Minutes taken to grade (e.g., 55)">
+<input type="text" id="githubHash" placeholder="GitHub commit hash (e.g., 4d1dfc9b6acd68b411aca3f9b534fc5986e98a7a)">
+</div>
+<div class="hint">These two values are appended at the end of the Excel-ready score string, after a skipped column.</div>
 </div>
 
 <div class="checks-section">
@@ -225,10 +250,16 @@ Without further ado, below we've provided both high-level feedback on satisfacti
 
 <div id="notificationBar" class="notification-bar"><span id="notificationMessage"></span><span class="close-notification" onclick="hideNotification()">&times;</span></div>
 
+<div class="check5-toggle-bar">
+<span class="check5-label">🔍 <strong>Check 5</strong> (GenAI Blue-Yellow Plots / Flummoxed) is currently set to: <strong id="check5CurrentStatus">T (tracking only)</strong></span>
+<button id="check5ToggleBtn" class="check5-status-T" onclick="toggleCheck5Quick()">Toggle Check 5 (now: T)</button>
+</div>
+
 <div class="controls" id="generateSection">
 <button id="generateBtn" onclick="handleGenerateClick(this)">Generate Feedback</button>
 <button id="copyBtn" class="hidden" onclick="handleCopyFeedbackClick(this)">Copy Feedback</button>
 <button id="copyScoresBtn" onclick="handleCopyScoresClick(this)">Copy Scores (all raw)</button>
+<button id="copyExcelBtn" onclick="handleCopyExcelScoresClick(this)">📊 Copy Scores (For Excel)</button>
 <button id="resetBtn" onclick="handleResetClick(this)">Reset All</button>
 </div>
 
@@ -318,6 +349,10 @@ function handleCopyScoresClick(btn){
   markButtonClicked(btn);
   copyScores();
 }
+function handleCopyExcelScoresClick(btn){
+  markButtonClicked(btn);
+  copyScoresForExcel();
+}
 function handleResetClick(btn){
   resetAll();
 }
@@ -338,7 +373,7 @@ function hideNotification(){
 function validateName(){const n=document.getElementById('studentName').value.trim();const e=document.getElementById('nameRequiredError');if(!n){e.classList.add('show');return false;}e.classList.remove('show');return true;}
 
 function copyGradingPrompt(){
-  const msg = 'Now grade this very strictly, and show me which one to check and which one to x in my checklist. Also, check if the word "Flummoxed" appears anywhere in the report. If something is not met, then provide a suggestion to improve as "You could have done... to improve". No em-dash.';
+  const msg = 'Now grade this very strictly, and show me which one to check and which one to x in my checklist. Also, check if the word "Flummoxed" appears anywhere in the report. If something is not met, then provide a suggestion to improve as "You could have done... to improve". No em-dash. Please ensure that all-or-nothing grading is applied to each subsection.';
   navigator.clipboard.writeText(msg);
   showNotification('✅ Grading prompt copied!');
 }
@@ -361,6 +396,7 @@ function toggleCheckStatus(id){
   if(nxt==='D'){checkTextSelections[id]=true;document.getElementById(`check-text-${id}`).classList.add('selected');}
   updateNoDeductionsSelection();
   if(id==='negative-2')updateCheck3();
+  if(id==='negative-4')updateCheck5QuickButton();
 }
 function toggleCheckSelection(id){
   const el=document.getElementById(`check-text-${id}`);
@@ -390,6 +426,49 @@ function copyChecksStatusOnly(btn){
   const r = s.join('\t');
   navigator.clipboard.writeText(r);
   showNotification(`✅ Checks (Y/N): ${r}`);
+}
+
+/* ---------- Check 5 quick toggle ---------- */
+function check5LabelFor(status){
+  if(status==='T') return 'T (tracking only)';
+  if(status==='D') return 'D (deduction made)';
+  return 'N (not present)';
+}
+function updateCheck5QuickButton(){
+  const status = checkSelections['negative-4'] || 'T';
+  const label = check5LabelFor(status);
+  const statusEl = document.getElementById('check5CurrentStatus');
+  if(statusEl) statusEl.textContent = label;
+  const btn = document.getElementById('check5ToggleBtn');
+  if(btn){
+    btn.textContent = `Toggle Check 5 (now: ${status})`;
+    btn.classList.remove('check5-status-T','check5-status-D','check5-status-N');
+    btn.classList.add(`check5-status-${status}`);
+  }
+}
+function toggleCheck5Quick(){
+  // T -> D -> N -> T (matching the inline toggler for negative-4)
+  const order = ['T','D','N'];
+  const cur = checkSelections['negative-4'] || 'T';
+  const idx = order.indexOf(cur);
+  const nxt = order[(idx+1)%order.length];
+  checkSelections['negative-4'] = nxt;
+
+  // Sync inline UI
+  const inlineEl = document.getElementById('check-status-negative-4');
+  if(inlineEl){
+    inlineEl.textContent = nxt;
+    inlineEl.className = 'check-status ' + nxt;
+  }
+  // If set to D, ensure text selection is on
+  const inlineText = document.getElementById('check-text-negative-4');
+  if(inlineText){
+    if(nxt==='D'){checkTextSelections['negative-4']=true;inlineText.classList.add('selected');}
+    else {checkTextSelections['negative-4']=false;inlineText.classList.remove('selected');}
+  }
+  updateNoDeductionsSelection();
+  updateCheck5QuickButton();
+  showNotification(`✅ Check 5 set to: ${check5LabelFor(nxt)}`);
 }
 
 /* ---------- Independent access checks ---------- */
@@ -578,13 +657,15 @@ const rubricData={grading_rubric:{total_points:100,extra_credit_points:5,section
   {description:"Class-level behavior: Identifies important differences among the five GenHlth classes, addresses less-represented classes, and explains at least one confusion pattern using precision/recall/F1 or confusion matrix",points:2},
   {description:"Curve-based interpretation: Learning and complexity curves support at least two specific claims about underfitting, overfitting, bias, variance, saturation, optimization, or hyperparameter sensitivity",points:2}]},
  {label:"G4. Limitations and Improvements",max:5,items:[
-  {description:"Limitations and improvements: At least one concrete limitation and one evidence-based follow-up experiment/improvement connected to observed evidence",points:5}]}],
+  {description:"Limitations and improvements: At least one concrete limitation and one evidence-based follow-up experiment/improvement are identified. For example, poor minority recall may motivate class weighting, an unstable NN epoch curve may motivate a learning-rate study, or SVM sensitivity to C may motivate a broader search. ",points:2},
+  {description:"Conclusion synthesis: The conclusion concisely states what was learned, explicitly revisits the original hypothesis, addresses how class imbalance affected interpretation, discusses relevant Type I/II-style errors in the multiclass setting through observed class confusions, and identifies one realistic next step. The conclusion should emphasize what the observed performance implies rather than treating lower-performing models as failed experiments. ",points:3}]}],
  negative_items:{items:[
   "Models discussed only in isolation, section merely ranks final scores, or claims like 'SVM performed best because SVM is powerful' without evidence",
   "Runtime and predictive metrics listed separately but never compared, or final recommendation considers predictive score alone",
   "Only aggregate Accuracy discussed, 'best model' identified without examining minority-class behavior, or confusion matrix included without interpreting specific errors",
   "Curves merely described visually ('the validation line increases'), or bias/variance claims made without pointing to curve evidence",
-  "Only generic statements such as 'use more data,' 'try more models,' or 'tune better' without connecting to observed evidence"]},
+  "Only generic statements such as 'use more data,' 'try more models,' or 'tune better' without connecting to observed evidence",
+  "Conclusion is only a numerical recap, never revisits the hypothesis, ignores class imbalance or observed error patterns, labels models 'good' or 'bad' based primarily on score, introduces results not shown earlier, or gives generic future-work statement unrelated to evidence"]},
  feedback_section:"Feedback on Section: <free-text>"},
 
 {main_section:"Extra Credit: Activation Study (up to 5 points)",points_available:5,section_letter:"EC",groups:[
@@ -610,7 +691,7 @@ const predefinedFeedback={
  algorithms_knn:["For kNN, state the distance metric and weighting choices, and make clear scaling was leakage-safe.","The k exploration should include at least three meaningfully different values.","Discuss kNN's prediction-time cost and sensitivity to high dimensionality and mixed feature types.","Use the complexity curve to justify the final k."],
  algorithms_svm:["For SVM, report and compare results from at least two kernels.","Make clear scaling was leakage-safe and applied consistently.","Explain how C and/or gamma affected validation results.","Runtime should be connected to kernel trade-offs."],
  algorithms_nn:["For Neural Networks, the optimizer must be explicitly plain SGD (no momentum, no adaptive optimizers).","Document architecture, learning rate, batch size, epochs, regularization, stopping, and seeds for both implementations.","Show epoch curves for both implementations and interpret optimization behavior.","Compare scikit-learn and PyTorch implementations."],
- discussion:["The discussion should directly compare at least three algorithm families.","Explain performance-efficiency trade-offs with concrete comparisons.","Analyze class-level behavior across the five GenHlth classes, including Fair and Poor.","Use learning and complexity curves to support claims.","Limitations and improvements should be concrete and tied to your evidence."],
+ discussion:["The discussion should directly compare at least three algorithm families.","Explain performance-efficiency trade-offs with concrete comparisons.","Analyze class-level behavior across the five GenHlth classes, including Fair and Poor.","Use learning and complexity curves to support claims.","Limitations and improvements should be concrete and tied to your evidence.","The conclusion should revisit the hypothesis, address class imbalance, and interpret confusion patterns rather than just recapping scores."],
  extra_credit:["For extra credit, all four activations should use the same training budget.","Include epoch-wise activation curves, a comparison table, and interpretation."],
  general:["Please strengthen interpretation by explaining why the observed results occurred.","Connect claims to course concepts such as bias-variance, locality, margin-based classification, scaling sensitivity, model capacity, or regularization.","Improve the flow so EDA, hypotheses, validation, model results, and discussion build a coherent modeling story."]
 };
@@ -671,7 +752,7 @@ document.addEventListener('DOMContentLoaded',function(){
     userEditedTemplate = true;
   });
 
-  setTimeout(()=>{updateNoDeductionsSelection();updateCheck3();applyECLock();},100);
+  setTimeout(()=>{updateNoDeductionsSelection();updateCheck3();applyECLock();updateCheck5QuickButton();},100);
 });
 
 function groupScore(section,sectionId,groupIndex){
@@ -878,10 +959,34 @@ function updateSummary(){
  if(ecP>0||ecM>0){document.getElementById('extraCreditSection').classList.remove('hidden');const et=document.createElement('tr');et.className='total-row';et.innerHTML=`<td><strong>EC Total</strong></td><td><strong>${ecP.toFixed(0)}</strong></td><td><strong>${ecM}</strong></td>`;eb.appendChild(et);}
  else document.getElementById('extraCreditSection').classList.add('hidden');
 }
+
+/* ----- Section G: custom positive/negative line builders -----
+   For section G we always emit four lines (G1, G2, G3, G4) in the
+   "What you did well" block (based on which of G1/G2/G3 items were
+   selected) and four lines (G1, G2, G3, G4) in the "What needs
+   improvement" block (based on which G1/G2/G3 negative items were
+   selected). G4 is emitted as a single line whenever any G4 positive
+   sub-item was selected (for "well") or when G4 negative items were
+   selected (for "needs improvement"), regardless of which of the two
+   G4 sub-items were chosen, because the point total already reflects
+   the specific sub-items selected.
+*/
+const G_POSITIVE_TEMPLATES = {
+  'G1': 'G1. Cross-model Synthesis: You draw comparison between at least three of the required algorithms and discuss why their behavior differs; in doing so, you cite evidence from througout your report such as final metrics, learning and model complexity curves, runtime and/or error statistics. We generally expect for discussion where appropriate of bias-variance tradeoff, locality, margin-based classification, sensitivity of feature scaling, model capacity and/or regularization too.',
+  'G2': 'G2. Performance and Efficiency Tradeoffs: You make mention of the tradeoff between predictive performance and computational cost, including citation of two concrete comparisons such as performance metric versus fit time, prediction time for kNN, SVM kernel cost, tree interpretability versus performance or NN training stability versus runtime.',
+  'G3': 'G3. Class-level and Curve-based Interpretation: You provide analysis of your multiclass performance as opposed to just aggregate scores, and in doing so you appropriately make the claim of which covertype class was easiest and hardest to classify, as well as make mention of minority-class behavior and draw from the confusion matrix or per-class performance metrics to walk us through at least one pattern of misclassification you identify.',
+  'G4': 'G4. Limitations and Improvements: You offer discussion of at least one core limitation discovered throughout the study and provide at least one evidence-based avenue for improvement or follow-up experiment.'
+};
+const G_NEGATIVE_TEMPLATES = {
+  'G1': 'G1. Cross-model Synthesis: You must draw comparison between at least three of the required algorithms and discuss why their behavior differs; in doing so, you should cite evidence from througout your report such as final metrics, learning and model complexity curves, runtime and/or error statistics. We generally expect for discussion where appropriate of bias-variance tradeoff, locality, margin-based classification, sensitivity of feature scaling, model capacity and/or regularization too.',
+  'G2': 'G2. Performance and Efficiency Tradeoffs: You must make mention of the tradeoff between predictive performance and computational cost, including citation of two concrete comparisons such as performance metric versus fit time, prediction time for kNN, SVM kernel cost, tree interpretability versus performance or NN training stability versus runtime.',
+  'G3': 'G3. Class-level and Curve-based Interpretation: You need to provide analysis of your multiclass performance as opposed to just aggregate scores, and in doing so you should make the claim of which covertype class was easiest and hardest to classify, as well as make mention of minority-class behavior and draw from the confusion matrix or per-class performance metrics to walk us through at least one pattern of misclassification you identify.',
+  'G4': 'G4. Limitations and Improvements: You must offer discussion of at least one core limitation discovered throughout the study and provide at least one evidence-based avenue for improvement or follow-up experiment.'
+};
+
 function generateFeedback(){
  const os=document.getElementById('outputSection');const cb=document.getElementById('copyBtn');let fb='';
  const sel=document.getElementById('greetingTemplateSelect');const nameInput=document.getElementById('studentName').value.trim();
- // Use the current textarea value (already has name substituted live)
  const tmpl=document.getElementById('globalCommentTemplate').value;
  if(sel.value!==''&&tmpl.trim()!==''){
   fb+=tmpl.replace(/{}/g,nameInput)+'\n\n';
@@ -916,6 +1021,7 @@ function generateFeedback(){
  if(track.length){fb+='\nTracking Only (No Score Impact):\n';track.forEach(t=>fb+=`* ${t}\n`);}
  if(!noD.length&&!ded.length&&!track.length){fb+='\nNo Deductions Made:\n+ Submission of report and reproducibility materials satisfies major implementation requirements!\n';}
  fb+='}\n\n';
+
  rubricData.grading_rubric.sections.forEach((s,si)=>{
   const sid=`section-${si}`;let sp=0;const mx=s.points_available;
   const st=state.selectedItems.get(sid)||{positive:new Set(),negative:new Set()};
@@ -927,6 +1033,44 @@ function generateFeedback(){
   if(st.positive.size>0||st.negative.size>0||ft){
    const sn=s.main_section.split('(')[0].trim();
    fb+=`====================\n${sn} (${sp.toFixed(0)}/${mx}pts)\n{`;
+
+   // ---- Special handling for Section G ----
+   if (s.section_letter === 'G') {
+     // "What you did well" -- emit G1..G4 based on which positive items are selected
+     const posLines = [];
+     let c2 = 0;
+     s.groups.forEach((g, gi) => {
+       g.items.forEach(() => {
+         if (st.positive.has(`${sid}-positive-${c2}`)) {
+           const key = 'G' + (gi + 1); // gi 0 -> G1, gi 1 -> G2, gi 2 -> G3, gi 3 -> G4
+           if (G_POSITIVE_TEMPLATES[key] && !posLines.includes(key)) posLines.push(key);
+         }
+         c2++;
+       });
+     });
+     if (posLines.length) {
+       fb += '\nWhat you did well:\n';
+       posLines.forEach(k => { fb += `+ ${G_POSITIVE_TEMPLATES[k]}\n`; });
+     }
+
+     // "What needs improvement" -- emit G1..G4 based on selected negative items
+     const negLines = [];
+     st.negative.forEach(iid => {
+       const ni = parseInt(iid.split('-').pop());
+       const key = 'G' + (ni + 1); // negative-0 -> G1, ..., negative-3 -> G4
+       if (G_NEGATIVE_TEMPLATES[key] && !negLines.includes(key)) negLines.push(key);
+     });
+     if (negLines.length) {
+       fb += '\nWhat needs improvement:\n';
+       negLines.forEach(k => { fb += `x ${G_NEGATIVE_TEMPLATES[k]}\n`; });
+     }
+
+     if (ft) fb += `\nSection Summary:\n${ft}\n`;
+     fb += '}\n\n';
+     return;
+   }
+   // ---- End special handling for Section G ----
+
    if(st.positive.size>0){
     fb+='\nWhat you did well:\n';let c2=0;
     s.groups.forEach(g=>{const items=[];g.items.forEach(it=>{if(st.positive.has(`${sid}-positive-${c2}`))items.push(it);c2++;});
@@ -959,16 +1103,17 @@ function resetAll(){
  const pe=document.getElementById('check-text-positive-0');if(pe){pe.classList.add('selected');checkTextSelections['positive-0']=true;}
  const t5=document.getElementById('check-status-negative-4');if(t5){t5.textContent='T';t5.className='check-status T';checkSelections['negative-4']='T';}
  document.querySelectorAll('textarea').forEach(t=>t.value='');
+ const mt=document.getElementById('minutesTaken');if(mt)mt.value='';
+ const gh=document.getElementById('githubHash');if(gh)gh.value='';
  document.getElementById('outputSection').classList.add('hidden');
  document.getElementById('copyBtn').classList.add('hidden');
  document.getElementById('studentName').value='';document.getElementById('nameRequiredError').classList.remove('show');
  document.querySelectorAll('.btn-clicked').forEach(b=>b.classList.remove('btn-clicked'));
- // Restore template to the currently selected preset (with {} placeholder), then re-apply (empty) name
  const sel=document.getElementById('greetingTemplateSelect');
  rawTemplate = sel.value || '';
  userEditedTemplate = false;
  document.getElementById('globalCommentTemplate').value = rawTemplate;
- updateSummary();updateCheck3();applyECLock();showNotification('✅ Reset complete!');
+ updateSummary();updateCheck3();applyECLock();updateCheck5QuickButton();showNotification('✅ Reset complete!');
 }
 function copyScores(){
  let sc=[];
@@ -980,6 +1125,52 @@ function copyScores(){
  });
  sc.push(document.getElementById('totalPoints').textContent);
  const r=sc.join('\t');navigator.clipboard.writeText(r);showNotification(`✅ Raw scores: ${r}`);
+}
+
+function copyScoresForExcel(){
+  const toYN = v => (v === 'D' || v === 'T') ? 'Y' : 'N';
+  const tokens = [];
+  for (let i = 0; i < 4; i++) {
+    tokens.push(toYN(checkSelections[`negative-${i}`] || 'N'));
+  }
+  tokens.push(toYN(checkSelections['negative-4'] || 'T'));
+  tokens.push(toYN(checkSelections['negative-5'] || 'N'));
+  function groupSum(si, gi) {
+    const s = rubricData.grading_rubric.sections[si];
+    const sid = `section-${si}`;
+    const st = state.selectedItems.get(sid) || {positive: new Set(), negative: new Set()};
+    let offset = 0;
+    for (let x = 0; x < gi; x++) offset += s.groups[x].items.length;
+    let total = 0;
+    s.groups[gi].items.forEach((it, i) => {
+      if (st.positive.has(`${sid}-positive-${offset + i}`)) total += it.points;
+    });
+    return total;
+  }
+  for (let si = 0; si <= 6; si++) {
+    const s = rubricData.grading_rubric.sections[si];
+    for (let gi = 0; gi < s.groups.length; gi++) {
+      tokens.push(String(groupSum(si, gi)));
+    }
+    tokens.push("");
+  }
+  const ecSi = 7;
+  const ecS = rubricData.grading_rubric.sections[ecSi];
+  let ecTotal = 0;
+  for (let gi = 0; gi < ecS.groups.length; gi++) {
+    ecTotal += groupSum(ecSi, gi);
+  }
+  tokens.push(String(ecTotal));
+  tokens.push("");
+  tokens.push(toYN(checkSelections['negative-5'] || 'N'));
+  tokens.push("");
+  const minutes = (document.getElementById('minutesTaken')?.value || '').trim();
+  tokens.push(minutes);
+  const hash = (document.getElementById('githubHash')?.value || '').trim();
+  tokens.push(hash);
+  const result = tokens.join('\t');
+  navigator.clipboard.writeText(result);
+  showNotification('✅ Excel-ready scores copied');
 }
 </script>
 </body>
