@@ -4,6 +4,7 @@ import json
 import requests
 import logging
 import io
+import base64
 from threading import Lock
 from PIL import Image, ImageOps
 from flask import Flask, flash, request, redirect, render_template, url_for, session, send_from_directory, jsonify, send_file
@@ -72,6 +73,55 @@ def load_countries():
             return json.load(f)
     return []
 
+# ============================================================
+# ===== MULTI-DONOR SUPPORT HELPERS =====
+# ============================================================
+def normalize_donors(donor_name, donors=None):
+    """
+    Normalize donor data into a consistent format.
+    Returns (primary_donor_name, donors_list).
+    Accepts both legacy single-donor (donor_name string) and
+    new multi-donor (donors list) formats.
+    """
+    # Prefer explicit donors array if provided
+    if donors and isinstance(donors, list):
+        clean_donors = [d.strip() for d in donors if d and isinstance(d, str) and d.strip()]
+        if clean_donors:
+            return clean_donors[0], clean_donors
+    # Fall back to legacy donor_name
+    if donor_name and isinstance(donor_name, str) and donor_name.strip():
+        return donor_name.strip(), [donor_name.strip()]
+    return "", []
+
+def get_donors_from_entry(entry):
+    """
+    Extract donors list from a JSON entry.
+    Handles both old format (donor_name only) and new format (donors array).
+    """
+    if entry.get('donors') and isinstance(entry['donors'], list):
+        return [d for d in entry['donors'] if d and isinstance(d, str) and d.strip()]
+    if entry.get('donor_name') and isinstance(entry['donor_name'], str) and entry['donor_name'].strip():
+        return [entry['donor_name'].strip()]
+    return []
+
+def get_display_donors(entry):
+    """Get comma-separated donor string for display purposes."""
+    donors = get_donors_from_entry(entry)
+    return ", ".join(donors) if donors else ""
+
+def build_donors_fields(donor_name, donors=None):
+    """
+    Build the donor-related fields to store in a JSON entry.
+    Returns a dict with 'donor_name' and (optionally) 'donors'.
+    Single-donor entries only get 'donor_name' to keep files clean.
+    """
+    primary_donor, donors_list = normalize_donors(donor_name, donors)
+    fields = {"donor_name": primary_donor}
+    if donors_list and len(donors_list) > 1:
+        fields["donors"] = donors_list
+    return fields
+# ===== END MULTI-DONOR HELPERS =====
+
 # Helper functions
 def save_file(file, country):
     """
@@ -132,9 +182,11 @@ def get_json_stats():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-def update_json_file(country, image, note, donor_name, currency_type, size, year, hidden_note="", shape="", thickness=""):
+# ===== MULTI-DONOR: update_json_file now accepts donors array =====
+def update_json_file(country, image, note, donor_name, currency_type, size, year, hidden_note="", shape="", thickness="", donors=None):
     """
     Update the coins.json file with the new entry.
+    Supports multiple donors via the optional `donors` list.
     """
     with open(JSON_FILE_PATH, 'r') as f:
         data = json.load(f)
@@ -146,25 +198,32 @@ def update_json_file(country, image, note, donor_name, currency_type, size, year
             box_value = entry["box"]
             break
 
+    # Normalize donors (handles both single-donor and multi-donor input)
+    primary_donor, donors_list = normalize_donors(donor_name, donors)
+
     # Create the new entry with proper UUID
     new_entry = {
         "id": str(uuid.uuid4()),
         "country": country,
         "image": image if image else "",
         "note": note,
-        "donor_name": donor_name,
+        "donor_name": primary_donor,   # kept for backward compatibility
         "currency_type": currency_type,
         "size": size,
         "year": year,
         "timestamp": datetime.now().isoformat()
     }
-    
+
+    # Only store the donors array when there are 2+ donors
+    if donors_list and len(donors_list) > 1:
+        new_entry["donors"] = donors_list
+
     # Add optional fields if they have values
     if shape:
         new_entry["shape"] = shape
     if thickness:
         new_entry["thickness"] = thickness
-    
+
     # ✅ Add "box" if it was found for the same country
     if box_value is not None:
         new_entry["box"] = box_value
@@ -183,6 +242,7 @@ def update_json_file(country, image, note, donor_name, currency_type, size, year
     global json_cache
     json_cache['data'] = None
     json_cache['timestamp'] = 0
+# ===== END MULTI-DONOR update_json_file =====
 
 @app.route('/delete-image', methods=['POST'])
 def delete_image():
@@ -224,21 +284,26 @@ def write_json_file(data):
     with open(file_name, 'w', encoding='utf-8') as file:
         json.dump(data, file, sort_keys=True, indent=4, separators=(',', ': '))
 
-def add_to_json(country, image, note, donor_name, currency_type, size, year):
+# ===== MULTI-DONOR: add_to_json accepts donors =====
+def add_to_json(country, image, note, donor_name, currency_type, size, year, donors=None):
     data = read_json_file()
-    data.append({
+    primary_donor, donors_list = normalize_donors(donor_name, donors)
+    new_entry = {
         'id': os.path.splitext(image)[0],
         'country': country.title(),
         'image': image,
         'note': note,
-        'donor_name': donor_name,
+        'donor_name': primary_donor,
         'currency_type': currency_type,
         'size': size,
         'year': year,
-        # New tag added here:
         "timestamp": datetime.now().isoformat()
-    })
+    }
+    if donors_list and len(donors_list) > 1:
+        new_entry['donors'] = donors_list
+    data.append(new_entry)
     write_json_file(data)
+# ===== END MULTI-DONOR add_to_json =====
 
 def edit_or_delete_entry(action, value):
     data = read_json_file()
@@ -252,6 +317,7 @@ def edit_or_delete_entry(action, value):
         updated_data.append(entry)
     write_json_file(updated_data)
 
+# ===== MULTI-DONOR: update_entry handles donors array =====
 def update_entry(updated_entry):
     data = read_json_file()
     
@@ -278,6 +344,21 @@ def update_entry(updated_entry):
                 "year": updated_entry.get("year", entry.get("year", "")).replace('<br>', '')
             })
 
+            # ===== MULTI-DONOR: handle donors array in update =====
+            if "donors" in updated_entry and isinstance(updated_entry["donors"], list):
+                clean_donors = [d.replace('<br>', '').strip() for d in updated_entry["donors"] if d and str(d).strip()]
+                if clean_donors and len(clean_donors) > 1:
+                    entry["donors"] = clean_donors
+                    entry["donor_name"] = clean_donors[0]  # keep primary in sync
+                elif clean_donors and len(clean_donors) == 1:
+                    entry["donor_name"] = clean_donors[0]
+                    if "donors" in entry:
+                        del entry["donors"]
+                else:
+                    if "donors" in entry:
+                        del entry["donors"]
+            # ===== END MULTI-DONOR update_entry =====
+
             # ✅ 2. Conditional "box" attribute handling
             if box_value is not None:
                 entry["box"] = box_value
@@ -293,11 +374,14 @@ def update_entry(updated_entry):
                 del entry["hidden_note"]
 
     write_json_file(data)
+# ===== END MULTI-DONOR update_entry =====
 
+# ===== MULTI-DONOR: suggest_donors now scans donors array too =====
 @app.route('/suggest-donors', methods=['GET'])
 def suggest_donors():
     """
     Endpoint to suggest existing donor names that match a partial query string.
+    Searches BOTH the legacy 'donor_name' field and the new 'donors' array.
     """
     query = request.args.get('q', '').strip().lower()
     if not query:
@@ -307,12 +391,12 @@ def suggest_donors():
         # Load your existing JSON list
         data = load_json()  # Uses your existing load_json() or read_json_file() function
         
-        # Collect unique, non-empty donor names
+        # Collect unique, non-empty donor names (from both formats)
         unique_donors = set()
         for entry in data:
-            donor = entry.get('donor_name', '').strip()
-            if donor:
-                unique_donors.add(donor)
+            for donor in get_donors_from_entry(entry):
+                if donor:
+                    unique_donors.add(donor)
         
         # Filter names that partly match the user's text query
         matches = [donor for donor in unique_donors if query in donor.lower()]
@@ -323,6 +407,7 @@ def suggest_donors():
     except Exception as e:
         print(f"Error fetching donor suggestions: {e}")
         return jsonify([]), 500
+# ===== END MULTI-DONOR suggest_donors =====
 
 
 def delete_entry(entry):
@@ -874,9 +959,10 @@ def index():
     '''
     
 
+# ===== MULTI-DONOR: update_existing_item accepts donors array =====
 @app.route('/update-existing-item', methods=['POST'])
 def update_existing_item():
-    """Update an existing item with full edit capabilities"""
+    """Update an existing item with full edit capabilities (supports multiple donors)"""
     try:
         # Get form data
         country = request.form.get('country')
@@ -887,14 +973,26 @@ def update_existing_item():
         year = request.form.get('year', '')
         hidden_note = request.form.get('hidden_note', '')
         item_id = request.form.get('item_id', '')
-        
-        print(f"Updating item: ID={item_id}, country={country}, donor={donor_name}, currency={currency_type}")
+
+        # NEW: parse the multi-donor JSON array if provided
+        donors_json = request.form.get('donors', '')
+        donors = []
+        if donors_json:
+            try:
+                donors = json.loads(donors_json)
+                if not isinstance(donors, list):
+                    donors = []
+            except json.JSONDecodeError:
+                donors = []
+
+        print(f"Updating item: ID={item_id}, country={country}, donor={donor_name}, donors={donors}, currency={currency_type}")
         
         # Validate required fields
         if not country:
             return jsonify({"message": "Country is required!"}), 400
-        if not donor_name:
-            return jsonify({"message": "Donor name is required!"}), 400
+        # Accept either a single donor_name or a donors array
+        if not donor_name and not donors:
+            return jsonify({"message": "At least one donor is required!"}), 400
         if not currency_type:
             return jsonify({"message": "Currency type is required!"}), 400
         if not item_id:
@@ -936,13 +1034,24 @@ def update_existing_item():
             # Save new file
             file_path, file_name = save_file(file, country)
         
+        # Normalize donors
+        primary_donor, donors_list = normalize_donors(donor_name, donors)
+
         # Update the entry basic details
         data[entry_index]['country'] = country
         data[entry_index]['note'] = note
-        data[entry_index]['donor_name'] = donor_name
+        data[entry_index]['donor_name'] = primary_donor
         data[entry_index]['currency_type'] = currency_type
         data[entry_index]['size'] = size
         data[entry_index]['year'] = year
+
+        # Multi-donor array handling
+        if donors_list and len(donors_list) > 1:
+            data[entry_index]['donors'] = donors_list
+        else:
+            # Single donor — remove any stale donors array
+            if 'donors' in data[entry_index]:
+                del data[entry_index]['donors']
         
         # 🔍 Search for "box" value belonging to the newly specified country
         box_value = None
@@ -991,7 +1100,8 @@ def update_existing_item():
             "message": "Item updated successfully!",
             "country": country,
             "note": note,
-            "donor_name": donor_name,
+            "donor_name": primary_donor,
+            "donors": donors_list,
             "currency_type": currency_type,
             "size": size,
             "year": year,
@@ -1009,6 +1119,7 @@ def update_existing_item():
         import traceback
         traceback.print_exc()
         return jsonify({"message": "Server error!", "error": str(e)}), 500
+# ===== END MULTI-DONOR update_existing_item =====
 
 
 @app.route('/edit-item/<id>')
@@ -1030,8 +1141,9 @@ def edit_item_page(id):
     # Return the edit page with the item data
     return render_edit_item_page(item)
 
+# ===== MULTI-DONOR: render_edit_item_page has multi-donor UI =====
 def render_edit_item_page(item):
-    """Render the edit item page with pre-filled data"""
+    """Render the edit item page with pre-filled data (multi-donor support)"""
     # Load countries data for the dropdown
     countries_data = load_countries()
     
@@ -1040,6 +1152,21 @@ def render_edit_item_page(item):
     for country in countries_data:
         selected = 'selected' if country.get('name') == item.get('country', '') else ''
         countries_options += f'<option value="{country.get("name")}" {selected}>{country.get("name")}</option>'
+    
+    # Collect existing donors (handles old + new formats)
+    existing_donors = get_donors_from_entry(item)
+    if not existing_donors:
+        existing_donors = ['']
+    donors_json = json.dumps(existing_donors)
+
+    # Build initial donor items HTML (so the page renders even before JS boots)
+    donor_items_html = ''
+    for donor in existing_donors:
+        donor_items_html += f'''
+        <div class="donor-item">
+            <input type="text" class="donor-input" value="{donor}" placeholder="Donor name" list="donor-suggestions">
+            <button type="button" class="btn-remove-donor" title="Remove donor"><i class="fas fa-times"></i></button>
+        </div>'''
     
     return f'''
 <!DOCTYPE html>
@@ -1148,6 +1275,63 @@ def render_edit_item_page(item):
             height: 80px;
             resize: vertical;
         }}
+
+        /* ===== MULTI-DONOR styles ===== */
+        .donors-container {{
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #fafafa;
+        }}
+        .donor-item {{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 8px;
+            background-color: white;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }}
+        .donor-item:last-child {{ margin-bottom: 0; }}
+        .donor-input {{
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }}
+        .donor-input:focus {{ border-color: #007bff; outline: none; }}
+        .btn-remove-donor {{
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }}
+        .btn-remove-donor:hover {{ background: linear-gradient(135deg, #c82333 0%, #a71e2a 100%); }}
+        .btn-add-donor {{
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 10px;
+        }}
+        .btn-add-donor:hover {{ background: linear-gradient(135deg, #218838 0%, #1e9e8a 100%); }}
+        /* ===== END MULTI-DONOR styles ===== */
 
         .drop-area {{
             border: 2px dashed #ced4da;
@@ -1331,10 +1515,21 @@ def render_edit_item_page(item):
                 </select>
             </div>
             
+            <!-- ===== MULTI-DONOR UI ===== -->
             <div class="form-group">
-                <label for="donorName">Donor Name:</label>
-                <input type="text" id="donorName" name="donor_name" value="{item.get('donor_name', '')}" required>
+                <label>Donors:</label>
+                <div class="donors-container" id="donorsContainer">
+                    {donor_items_html}
+                </div>
+                <button type="button" class="btn-add-donor" onclick="addDonor()">
+                    <i class="fas fa-plus-circle"></i> Add Another Donor
+                </button>
+                <small style="color: #6c757d; display: block; margin-top: 5px;">
+                    <i class="fas fa-info-circle"></i>
+                    Add multiple donors if the item was donated by more than one person.
+                </small>
             </div>
+            <!-- ===== END MULTI-DONOR UI ===== -->
             
             <div class="form-group">
                 <label for="note">Note:</label>
@@ -1421,17 +1616,95 @@ def render_edit_item_page(item):
     </div>
     
     <div id="toastMessage" class="toast-message"></div>
+    <datalist id="donor-suggestions"></datalist>
 
     <script>
         let uploadedFile = null;
         let mergeImage1 = null;
         let mergeImage2 = null;
 
-        // Setup event listeners
+        // ===== MULTI-DONOR: donorsList state =====
+        let donorsList = {donors_json};
+        // ===== END MULTI-DONOR =====
+
         document.addEventListener('DOMContentLoaded', function() {{
             setupEventListeners();
             setupImageMerging();
+            renderDonors();  // ===== MULTI-DONOR =====
         }});
+
+        // ===== MULTI-DONOR functions =====
+        function renderDonors() {{
+            const container = document.getElementById('donorsContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            // Guarantee at least one row
+            if (donorsList.length === 0) donorsList.push('');
+            
+            donorsList.forEach((donor, index) => {{
+                const div = document.createElement('div');
+                div.className = 'donor-item';
+                
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'donor-input';
+                input.value = donor || '';
+                input.placeholder = 'Donor name';
+                input.setAttribute('list', 'donor-suggestions');
+                input.addEventListener('input', function() {{
+                    donorsList[index] = this.value;
+                    fetchDonorSuggestions(this.value);
+                }});
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'btn-remove-donor';
+                removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                removeBtn.title = 'Remove donor';
+                removeBtn.onclick = function() {{ removeDonor(index); }};
+                
+                div.appendChild(input);
+                div.appendChild(removeBtn);
+                container.appendChild(div);
+            }});
+        }}
+
+        function addDonor() {{
+            donorsList.push('');
+            renderDonors();
+            const inputs = document.querySelectorAll('.donor-input');
+            if (inputs.length) inputs[inputs.length - 1].focus();
+        }}
+
+        function removeDonor(index) {{
+            if (donorsList.length <= 1) {{
+                showToast('At least one donor is required', 'error');
+                return;
+            }}
+            donorsList.splice(index, 1);
+            renderDonors();
+        }}
+
+        function fetchDonorSuggestions(query) {{
+            const datalist = document.getElementById('donor-suggestions');
+            if (!query || query.trim().length < 2) {{
+                datalist.innerHTML = '';
+                return;
+            }}
+            fetch(`/suggest-donors?q=${{encodeURIComponent(query.trim())}}`)
+                .then(r => r.json())
+                .then(suggestions => {{
+                    datalist.innerHTML = '';
+                    suggestions.forEach(name => {{
+                        const opt = document.createElement('option');
+                        opt.value = name;
+                        datalist.appendChild(opt);
+                    }});
+                }})
+                .catch(err => console.error('Donor suggestions error:', err));
+        }}
+        // ===== END MULTI-DONOR functions =====
 
         function setupEventListeners() {{
             const dropArea = document.getElementById('imageDropArea');
@@ -1793,22 +2066,31 @@ def render_edit_item_page(item):
             reader.readAsDataURL(file);
         }}
 
+        // ===== MULTI-DONOR: form submit now sends donors array =====
         function handleFormSubmit(e) {{
             e.preventDefault();
             
             const country = document.getElementById('country').value;
             const currencyType = document.getElementById('currencyType').value;
-            const donorName = document.getElementById('donorName').value;
             
-            if (!country || !currencyType || !donorName) {{
+            // Filter out empty donors and validate
+            const validDonors = donorsList.map(d => (d || '').trim()).filter(Boolean);
+            
+            if (!country || !currencyType) {{
                 showToast('Please fill in all required fields', 'error');
+                return;
+            }}
+            
+            if (validDonors.length === 0) {{
+                showToast('At least one donor is required', 'error');
                 return;
             }}
             
             const formData = new FormData();
             formData.append('country', country);
             formData.append('currency_type', currencyType);
-            formData.append('donor_name', donorName);
+            formData.append('donor_name', validDonors[0]);           // primary, backward compat
+            formData.append('donors', JSON.stringify(validDonors));  // full array
             formData.append('note', document.getElementById('note').value);
             formData.append('size', document.getElementById('size').value);
             formData.append('year', document.getElementById('year').value);
@@ -1842,6 +2124,7 @@ def render_edit_item_page(item):
                 showToast('Error updating item: ' + error.message, 'error');
             }});
         }}
+        // ===== END MULTI-DONOR form submit =====
 
         function showToast(message, type = 'success') {{
             const toast = document.getElementById('toastMessage');
@@ -1853,37 +2136,11 @@ def render_edit_item_page(item):
                 toast.style.display = 'none';
             }}, 3000);
         }}
-document.getElementById('donor_name').addEventListener('input', function() {{
-    const inputVal = this.value.trim();
-    const datalist = document.getElementById('donor-suggestions');
-    
-    // Don't search if the input has fewer than 2 characters
-    if (inputVal.length < 2) {{
-        datalist.innerHTML = '';
-        return;
-    }}
-    
-    // Fetch suggestions dynamically from the new Flask route
-    fetch(`/suggest-donors?q=${{encodeURIComponent(inputVal)}}`)
-        .then(response => response.json())
-        .then(suggestions => {{
-            // Clear prior dynamic suggestions
-            datalist.innerHTML = '';
-            
-            // Append the new partial matches into the datalist view
-            suggestions.forEach(name => {{
-                const option = document.createElement('option');
-                option.value = name;
-                datalist.appendChild(option);
-            }});
-        }})
-        .catch(error => console.error('Error fetching donor suggestions:', error));
-}});
-        
     </script>
 </body>
 </html>
     '''
+# ===== END MULTI-DONOR render_edit_item_page =====
 
 
 @app.route('/upload')
@@ -2106,7 +2363,6 @@ def upload_form():
             padding: 20px;
         }
 
-        /* Responsive adjustments */
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
@@ -2317,6 +2573,7 @@ def upload_form():
 </html>
     '''
 
+# ===== MULTI-DONOR: /upload POST accepts donors array =====
 @app.route('/upload', methods=['POST'])
 def upload_file():
     try:
@@ -2330,14 +2587,25 @@ def upload_file():
         hidden_note = request.form.get('hidden_note', '')
         shape = request.form.get('shape', '')
         thickness = request.form.get('thickness', '')
+
+        # NEW: parse donors array if sent
+        donors_json = request.form.get('donors', '')
+        donors = []
+        if donors_json:
+            try:
+                donors = json.loads(donors_json)
+                if not isinstance(donors, list):
+                    donors = []
+            except json.JSONDecodeError:
+                donors = []
         
-        print(f"Received form data: country={country}, donor={donor_name}, currency={currency_type}, shape={shape}, thickness={thickness}")
+        print(f"Received form data: country={country}, donor={donor_name}, donors={donors}, currency={currency_type}, shape={shape}, thickness={thickness}")
 
         # Validate required fields
         if not country:
             return jsonify({"message": "Country is required!"}), 400
-        if not donor_name:
-            return jsonify({"message": "Donor name is required!"}), 400
+        if not donor_name and not donors:
+            return jsonify({"message": "At least one donor is required!"}), 400
         if not currency_type:
             return jsonify({"message": "Currency type is required!"}), 400
 
@@ -2357,13 +2625,15 @@ def upload_file():
         try:
             file_path, file_name = save_file(file, country)
             # Update the JSON file with all fields including new ones
-            update_json_file(country, file_name, note, donor_name, currency_type, size, year, hidden_note, shape, thickness)
+            update_json_file(country, file_name, note, donor_name, currency_type, size, year, hidden_note, shape, thickness, donors=donors)
+            primary_donor, donors_list = normalize_donors(donor_name, donors)
             return jsonify({
                 "id": os.path.splitext(os.path.basename(file_name))[0],
                 "message": "File uploaded successfully!",
                 "country": country,
                 "note": note,
-                "donor_name": donor_name,
+                "donor_name": primary_donor,
+                "donors": donors_list,
                 "currency_type": currency_type,
                 "size": size,
                 "year": year,
@@ -2382,10 +2652,11 @@ def upload_file():
         import traceback
         traceback.print_exc()
         return jsonify({"message": "Server error!", "error": str(e)}), 500
+# ===== END MULTI-DONOR /upload POST =====
 
 @app.route('/upload-form')
 def upload_form_page():
-    """Serve the upload form page with image merging functionality and copy from existing feature"""
+    """Serve the upload form page with image merging functionality, copy from existing, and multi-donor support"""
     return '''
 <!DOCTYPE html>
 <html lang="en">
@@ -2564,7 +2835,6 @@ def upload_form_page():
             box-shadow: 0 4px 8px rgba(23, 162, 184, 0.3);
         }
 
-        /* NEW: Move Images button styling */
         .btn-move {
             background: linear-gradient(135deg, #fd7e14 0%, #e8590c 100%);
         }
@@ -2584,7 +2854,6 @@ def upload_form_page():
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        /* NEW: Toast message styling for move operation */
         .toast-message {
             position: fixed;
             top: 20px;
@@ -2699,7 +2968,6 @@ def upload_form_page():
             border-top: 1px solid #eaeaea;
         }
 
-        /* Copy from existing styles */
         .copy-section {
             margin-bottom: 20px;
             padding: 15px;
@@ -2749,7 +3017,6 @@ def upload_form_page():
             margin-top: 8px;
         }
 
-        /* Hidden Note with button styling */
         .hidden-note-container {
             display: flex;
             gap: 10px;
@@ -2788,14 +3055,12 @@ def upload_form_page():
             transform: none;
         }
         
-        /* Row with two columns */
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
         }
         
-        /* Loading spinner for scrape */
         .scrape-spinner {
             display: inline-block;
             width: 16px;
@@ -2810,7 +3075,6 @@ def upload_form_page():
             to { transform: rotate(360deg); }
         }
 
-        /* Loading spinner for move button */
         .move-spinner {
             display: inline-block;
             width: 16px;
@@ -2821,6 +3085,63 @@ def upload_form_page():
             animation: spin 0.8s linear infinite;
             margin-right: 8px;
         }
+
+        /* ===== MULTI-DONOR styles ===== */
+        .donors-container {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #fafafa;
+        }
+        .donor-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 8px;
+            background-color: white;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+        .donor-item:last-child { margin-bottom: 0; }
+        .donor-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .donor-input:focus { border-color: #007bff; outline: none; }
+        .btn-remove-donor {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .btn-remove-donor:hover { background: linear-gradient(135deg, #c82333 0%, #a71e2a 100%); }
+        .btn-add-donor {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        .btn-add-donor:hover { background: linear-gradient(135deg, #218838 0%, #1e9e8a 100%); }
+        /* ===== END MULTI-DONOR styles ===== */
     </style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
@@ -2837,7 +3158,6 @@ def upload_form_page():
         
         <h1>Upload New Collection Item</h1>
         
-        <!-- NEW: Move Images to Done Button Section -->
         <div class="copy-section" style="border-left-color: #fd7e14; margin-bottom: 20px;">
             <h4 style="color: #fd7e14;">
                 <i class="fas fa-folder-open"></i> Image Management
@@ -2854,7 +3174,6 @@ def upload_form_page():
             </div>
         </div>
         
-        <!-- Copy from existing section -->
         <div class="copy-section" id="copySection" style="display: none;">
             <h4><i class="fas fa-copy"></i> Copy from Existing Item</h4>
             <select id="existingItemsSelect">
@@ -2884,30 +3203,30 @@ def upload_form_page():
                 </select>
             </div>
             
+            <!-- ===== MULTI-DONOR UI ===== -->
             <div class="form-group">
-                <label for="donor_name">Donor Name:</label>
-                <input type="text" 
-                       id="donor_name" 
-                       name="donor_name" 
-                       class="form-control" 
-                       placeholder="Start typing a donor name..." 
-                       autocomplete="off" 
-                       list="donor-suggestions">
-                <datalist id="donor-suggestions"></datalist>
+                <label>Donors:</label>
+                <div class="donors-container" id="donorsContainer"></div>
+                <button type="button" class="btn-add-donor" onclick="addDonor()">
+                    <i class="fas fa-plus-circle"></i> Add Another Donor
+                </button>
+                <small style="color: #6c757d; display: block; margin-top: 5px;">
+                    <i class="fas fa-info-circle"></i>
+                    Add multiple donors if the item was donated by more than one person.
+                </small>
             </div>
+            <!-- ===== END MULTI-DONOR UI =====-->
             
             <div class="form-group">
                 <label for="note">Note:</label>
                 <textarea id="note" name="note"></textarea>
             </div>
             
-            <!-- NEW: Shape field -->
             <div class="form-group">
                 <label for="shape">Shape:</label>
                 <input type="text" id="shape" name="shape" placeholder="e.g., Round, Scalloped, Polygon, etc.">
             </div>
             
-            <!-- NEW: Size and Thickness in two columns -->
             <div class="form-row">
                 <div class="form-group">
                     <label for="size">Size (Diameter/Width):</label>
@@ -2993,6 +3312,7 @@ def upload_form_page():
     </div>
     
     <div id="toastMessage" class="toast-message"></div>
+    <datalist id="donor-suggestions"></datalist>
 
     <script>
     let uploadedFile = null;
@@ -3001,19 +3321,20 @@ def upload_form_page():
     let countriesData = [];
     let allJsonData = [];
 
-    // NEW: Move images functionality
+    // ===== MULTI-DONOR state =====
+    let donorsList = [''];
+    // ===== END MULTI-DONOR =====
+
     function setupMoveImagesButton() {
         const moveBtn = document.getElementById('moveImagesBtn');
         const moveStatus = document.getElementById('moveStatus');
         const moveStatusText = document.getElementById('moveStatusText');
         
         moveBtn.addEventListener('click', async function() {
-            // Disable button and show loading state
             const originalText = moveBtn.innerHTML;
             moveBtn.innerHTML = '<span class="move-spinner"></span> Moving...';
             moveBtn.disabled = true;
             
-            // Show status area
             moveStatus.style.display = 'block';
             moveStatusText.innerHTML = 'Scanning Pictures folder...';
             
@@ -3043,7 +3364,6 @@ def upload_form_page():
                     moveStatus.style.padding = '8px 12px';
                     moveStatus.style.borderRadius = '6px';
                     
-                    // Auto-hide status after 8 seconds
                     setTimeout(() => {
                         moveStatus.style.display = 'none';
                         moveStatus.style.backgroundColor = '';
@@ -3057,14 +3377,12 @@ def upload_form_page():
                 moveStatus.style.padding = '8px 12px';
                 moveStatus.style.borderRadius = '6px';
             } finally {
-                // Restore button
                 moveBtn.innerHTML = originalText;
                 moveBtn.disabled = false;
             }
         });
     }
 
-    // Enhanced toast message function with types
     function showToast(message, type = 'success') {
         const toast = document.getElementById('toastMessage');
         if (!toast) return;
@@ -3090,17 +3408,89 @@ def upload_form_page():
         }, 4000);
     }
 
-    // Load countries on page load
+    // ===== MULTI-DONOR functions =====
+    function renderDonors() {
+        const container = document.getElementById('donorsContainer');
+        if (!container) return;
+        container.innerHTML = '';
+        
+        if (donorsList.length === 0) donorsList.push('');
+        
+        donorsList.forEach((donor, index) => {
+            const div = document.createElement('div');
+            div.className = 'donor-item';
+            
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'donor-input';
+            input.value = donor || '';
+            input.placeholder = 'Donor name';
+            input.setAttribute('list', 'donor-suggestions');
+            input.autocomplete = 'off';
+            input.addEventListener('input', function() {
+                donorsList[index] = this.value;
+                fetchDonorSuggestions(this.value);
+            });
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'btn-remove-donor';
+            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            removeBtn.title = 'Remove donor';
+            removeBtn.onclick = function() { removeDonor(index); };
+            
+            div.appendChild(input);
+            div.appendChild(removeBtn);
+            container.appendChild(div);
+        });
+    }
+
+    function addDonor() {
+        donorsList.push('');
+        renderDonors();
+        const inputs = document.querySelectorAll('.donor-input');
+        if (inputs.length) inputs[inputs.length - 1].focus();
+    }
+
+    function removeDonor(index) {
+        if (donorsList.length <= 1) {
+            showToast('At least one donor is required', 'error');
+            return;
+        }
+        donorsList.splice(index, 1);
+        renderDonors();
+    }
+
+    function fetchDonorSuggestions(query) {
+        const datalist = document.getElementById('donor-suggestions');
+        if (!query || query.trim().length < 2) {
+            datalist.innerHTML = '';
+            return;
+        }
+        fetch(`/suggest-donors?q=${encodeURIComponent(query.trim())}`)
+            .then(r => r.json())
+            .then(suggestions => {
+                datalist.innerHTML = '';
+                suggestions.forEach(name => {
+                    const opt = document.createElement('option');
+                    opt.value = name;
+                    datalist.appendChild(opt);
+                });
+            })
+            .catch(err => console.error('Donor suggestions error:', err));
+    }
+    // ===== END MULTI-DONOR functions =====
+
     document.addEventListener('DOMContentLoaded', function() {
         loadCountries();
         loadAllJsonData();
         setupEventListeners();
         setupImageMerging();
         setupScrapeButton();
-        setupMoveImagesButton();  // NEW: Initialize move images button
+        setupMoveImagesButton();
+        renderDonors();  // ===== MULTI-DONOR =====
     });
 
-    // Setup Numista scrape button
     function setupScrapeButton() {
         const scrapeBtn = document.getElementById('scrapeNumistaBtn');
         
@@ -3112,7 +3502,6 @@ def upload_form_page():
                 return;
             }
             
-            // Show loading state
             const originalText = scrapeBtn.innerHTML;
             scrapeBtn.innerHTML = '<i class="fas fa-spinner scrape-spinner"></i> Scraping...';
             scrapeBtn.disabled = true;
@@ -3144,9 +3533,7 @@ def upload_form_page():
         });
     }
     
-    // Fill form with scraped data
     function fillFormWithScrapedData(data) {
-        // Format and fill Note field
         if (data.Value || data.Composition) {
             let noteParts = [];
             
@@ -3165,13 +3552,11 @@ def upload_form_page():
             }
         }
         
-        // Fill Thickness field
         if (data.Thickness) {
             let thickness = data.Thickness.replace(/\\n/g, ' ').replace(/&nbsp;/g, ' ').replace(/\\s+/g, ' ').trim();
             document.getElementById('thickness').value = thickness;
         }
         
-        // Fill Size field (try Diameter first, then Size)
         if (data.Diameter) {
             let diameter = data.Diameter.replace(/\\n/g, ' ').replace(/&nbsp;/g, ' ').replace(/\\s+/g, ' ').trim();
             document.getElementById('size').value = diameter;
@@ -3180,13 +3565,11 @@ def upload_form_page():
             document.getElementById('size').value = size;
         }
         
-        // Fill Shape field
         if (data.Shape) {
             let shape = data.Shape.replace(/\\n/g, ' ').replace(/&nbsp;/g, ' ').replace(/\\s+/g, ' ').trim();
             document.getElementById('shape').value = shape;
         }
         
-        // Fill Year if available and year field is empty
         if (data.Year && !document.getElementById('year').value) {
             let year = data.Year.replace(/\\n/g, ' ').replace(/&nbsp;/g, ' ').replace(/\\s+/g, ' ').trim();
             const yearMatch = year.match(/\\b(\\d{4})\\b/);
@@ -3197,7 +3580,6 @@ def upload_form_page():
             }
         }
         
-        // Highlight filled fields briefly
         const fields = ['note', 'thickness', 'size', 'shape', 'year'];
         fields.forEach(field => {
             const element = document.getElementById(field);
@@ -3322,7 +3704,6 @@ def upload_form_page():
             const itemToCopy = JSON.parse(selectedOption.dataset.item);
             
             const currencyTypeEl = document.getElementById('currencyType');
-            const donorNameEl = document.getElementById('donor_name');
             const noteEl = document.getElementById('note');
             const sizeEl = document.getElementById('size');
             const yearEl = document.getElementById('year');
@@ -3331,17 +3712,29 @@ def upload_form_page():
             const thicknessEl = document.getElementById('thickness');
             
             if (currencyTypeEl) currencyTypeEl.value = itemToCopy.currency_type || 'coin';
-            if (donorNameEl) donorNameEl.value = itemToCopy.donor_name || '';
             if (noteEl) noteEl.value = itemToCopy.note || '';
             if (sizeEl) sizeEl.value = itemToCopy.size || '';
             if (yearEl) yearEl.value = itemToCopy.year || '';
             if (hiddenNoteEl) hiddenNoteEl.value = itemToCopy.hidden_note || '';
             if (shapeEl && itemToCopy.shape) shapeEl.value = itemToCopy.shape;
             if (thicknessEl && itemToCopy.thickness) thicknessEl.value = itemToCopy.thickness;
+
+            // ===== MULTI-DONOR: copy the donors array =====
+            let donorsToCopy = [];
+            if (Array.isArray(itemToCopy.donors) && itemToCopy.donors.length > 0) {
+                donorsToCopy = itemToCopy.donors.filter(d => d && d.trim());
+            } else if (itemToCopy.donor_name && itemToCopy.donor_name.trim()) {
+                donorsToCopy = [itemToCopy.donor_name.trim()];
+            }
+            if (donorsToCopy.length > 0) {
+                donorsList = donorsToCopy;
+                renderDonors();
+            }
+            // ===== END MULTI-DONOR copy =====
             
             showToast(`Copied data from existing item for ${itemToCopy.country}`, 'success');
             
-            const fields = ['currencyType', 'donor_name', 'note', 'size', 'year', 'shape', 'thickness'];
+            const fields = ['currencyType', 'note', 'size', 'year', 'shape', 'thickness'];
             fields.forEach(field => {
                 const element = document.getElementById(field);
                 if (element && element.value) {
@@ -3722,15 +4115,22 @@ def upload_form_page():
         reader.readAsDataURL(file);
     }
 
+    // ===== MULTI-DONOR: submit sends donors array =====
     function handleFormSubmit(e) {
         e.preventDefault();
         
         const country = document.getElementById('country').value;
         const currencyType = document.getElementById('currencyType').value;
-        const donorName = document.getElementById('donor_name').value;
         
-        if (!country || !currencyType || !donorName) {
+        const validDonors = donorsList.map(d => (d || '').trim()).filter(Boolean);
+        
+        if (!country || !currencyType) {
             showToast('Please fill in all required fields', 'error');
+            return;
+        }
+        
+        if (validDonors.length === 0) {
+            showToast('At least one donor is required', 'error');
             return;
         }
         
@@ -3742,7 +4142,8 @@ def upload_form_page():
         const formData = new FormData();
         formData.append('country', country);
         formData.append('currency_type', currencyType);
-        formData.append('donor_name', donorName);
+        formData.append('donor_name', validDonors[0]);           // primary, backward compat
+        formData.append('donors', JSON.stringify(validDonors));  // full array
         formData.append('note', document.getElementById('note').value);
         formData.append('size', document.getElementById('size').value);
         formData.append('year', document.getElementById('year').value);
@@ -3777,6 +4178,7 @@ def upload_form_page():
             showToast('Error uploading item: ' + error.message, 'error');
         });
     }
+    // ===== END MULTI-DONOR submit =====
 
     function resetForm() {
         document.getElementById('uploadForm').reset();
@@ -3788,43 +4190,16 @@ def upload_form_page():
         if (existingItemsSelect) {
             existingItemsSelect.selectedIndex = 0;
         }
-    }
-
-    // Donor suggestions functionality
-    const donorInput = document.getElementById('donor_name');
-    const datalist = document.getElementById('donor-suggestions');
-
-    if (donorInput && datalist) {
-        donorInput.addEventListener('input', function() {
-            const inputVal = this.value.trim();
-            
-            if (inputVal.length < 2) {
-                datalist.innerHTML = '';
-                return;
-            }
-            
-            fetch(`/suggest-donors?q=${encodeURIComponent(inputVal)}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(suggestions => {
-                    datalist.innerHTML = '';
-                    suggestions.forEach(name => {
-                        const option = document.createElement('option');
-                        option.value = name;
-                        datalist.appendChild(option);
-                    });
-                })
-                .catch(error => console.error('Error fetching donor suggestions:', error));
-        });
+        // ===== MULTI-DONOR: reset donors =====
+        donorsList = [''];
+        renderDonors();
+        // ===== END MULTI-DONOR reset =====
     }
 </script>
 </body>
 </html>
     '''
+# ===== END MULTI-DONOR upload form =====
 
 @app.route('/move-images-to-done', methods=['POST'])
 def move_images_to_done():
@@ -3834,34 +4209,26 @@ def move_images_to_done():
     from pathlib import Path
     
     try:
-        # Define the source folder (Pictures folder)
-        # You can modify this path as needed
         source_dir = Path(r"C:\Users\75MAMIRUZZAM\OneDrive - West Chester University of PA\Pictures")
         target_dir = source_dir / "Done"
         
-        # Check if source directory exists
         if not source_dir.exists():
             return jsonify({
                 "error": f"Source folder not found: {source_dir}"
             }), 404
         
-        # Create the "Done" folder if it doesn't exist
         target_dir.mkdir(parents=True, exist_ok=True)
         
-        # Define image extensions to move
         image_extensions = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp"}
         
-        # Loop through files and move them
         moved_count = 0
         moved_files = []
         skipped_files = []
         
         for file_path in source_dir.iterdir():
-            # Make sure it's a file and matches an image extension (case-insensitive)
             if file_path.is_file() and file_path.suffix.lower() in image_extensions:
                 destination = target_dir / file_path.name
                 
-                # Handle duplicate filenames
                 if destination.exists():
                     base = destination.stem
                     ext = destination.suffix
@@ -3871,13 +4238,11 @@ def move_images_to_done():
                         destination = target_dir / new_name
                         counter += 1
                 
-                # Move the file
                 shutil.move(str(file_path), str(destination))
                 moved_count += 1
                 moved_files.append(file_path.name)
                 print(f"Moved: {file_path.name}")
         
-        # Prepare response message
         if moved_count > 0:
             message = f"Success! {moved_count} image(s) moved to Done folder."
             if moved_count == 1:
@@ -3888,7 +4253,7 @@ def move_images_to_done():
         return jsonify({
             "message": message,
             "moved_count": moved_count,
-            "moved_files": moved_files[:10],  # Return first 10 for display
+            "moved_files": moved_files[:10],
             "source_folder": str(source_dir),
             "destination_folder": str(target_dir)
         }), 200
@@ -3913,7 +4278,6 @@ def scrape_numista():
         
         print(f"Scraping Numista URL: {url}")
         
-        # Headers to avoid being blocked
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'Accept-Language': 'en-US,en;q=0.9',
@@ -3929,11 +4293,9 @@ def scrape_numista():
         soup = BeautifulSoup(response.text, 'html.parser')
         features = {}
         
-        # Look for the coin features table by ID
         features_table = soup.find('table', {'id': 'coin_features'})
         
         if not features_table:
-            # Fallback: look for any table containing "Issuer" (common in features section)
             issuer_th = soup.find('th', string=lambda x: x and 'Issuer' in x)
             if issuer_th:
                 features_table = issuer_th.find_parent('table')
@@ -3947,7 +4309,6 @@ def scrape_numista():
                     value = td.get_text(strip=True).replace('\\xa0', ' ').replace("\n", " ").replace("&nbsp", " ").replace("mm", " ").strip()
                     features[key] = value
             
-            # Map Numista fields to our form fields
             result = {}
             
             field_mappings = {
@@ -3986,7 +4347,6 @@ def scrape_numista():
 def merge_images_upload():
     """Handle image merging for the upload form"""
     try:
-        # Get form data
         country = request.form.get('country')
         image1 = request.files.get('image1')
         image2 = request.files.get('image2')
@@ -3995,18 +4355,14 @@ def merge_images_upload():
         if not all([country, image1, image2]):
             return jsonify({"error": "Missing required parameters"}), 400
         
-        # Process images
         img1 = Image.open(image1)
         img2 = Image.open(image2)
         
-        # Determine output format
         output_format = 'PNG'
         if image1.content_type == 'image/jpeg' and image2.content_type == 'image/jpeg':
             output_format = 'JPEG'
         
-        # Merge images
         if direction == 'horizontal':
-            # Resize to same height
             max_height = max(img1.height, img2.height)
             img1_resized = ImageOps.contain(img1, (img1.width, max_height))
             img2_resized = ImageOps.contain(img2, (img2.width, max_height))
@@ -4020,7 +4376,6 @@ def merge_images_upload():
             merged_image.paste(img1_resized, (0, 0))
             merged_image.paste(img2_resized, (img1_resized.width, 0))
         else:
-            # Resize to same width
             max_width = max(img1.width, img2.width)
             img1_resized = ImageOps.contain(img1, (max_width, img1.height))
             img2_resized = ImageOps.contain(img2, (max_width, img2.height))
@@ -4034,7 +4389,6 @@ def merge_images_upload():
             merged_image.paste(img1_resized, (0, 0))
             merged_image.paste(img2_resized, (0, img1_resized.height))
         
-        # Save merged image
         file_ext = 'jpg' if output_format == 'JPEG' else 'png'
         file_uuid = str(uuid.uuid4())
         filename = f"{file_uuid}.{file_ext}"
@@ -4095,21 +4449,17 @@ def logout():
     session.clear()
     return render_template('login.html')
 
-# Check if the uploaded file has an allowed extension
 def allowed_image_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_IMAGE_EXTENSIONS
 
-# Route to render the crop image page
 @app.route('/crop-image')
 def crop_image():
     return render_template('crop.html')
 
-# Route to serve cropped images
 @app.route('/crop/<filename>')
 def serve_image(filename):
     return send_from_directory(IMAGE_FOLDER, filename)
 
-# Route to handle image upload and save cropped image
 @app.route('/crop', methods=['POST'])
 def upload_cropped_image():
     if 'image' not in request.files:
@@ -4120,18 +4470,16 @@ def upload_cropped_image():
     if file and allowed_image_file(file.filename):
         filename = file.filename
         file_path = os.path.join(IMAGE_FOLDER, filename)
-        file.save(file_path)  # Save the uploaded image
+        file.save(file_path)
         return jsonify({'message': f'Cropped image saved as {filename}', 'file_path': file_path}), 200
     else:
         return jsonify({'message': 'Invalid file type'}), 400
 
 @app.route('/manage_image', methods=['GET', 'POST'])
 def manage_image():
-    # List the images in the /crop folder
     image_files = [f for f in os.listdir(IMAGE_FOLDER) if allowed_image_file(f)]
 
     if request.method == 'POST':
-        # Uploading a new image
         if 'image_file' in request.files:
             file = request.files['image_file']
             if file.filename == '':
@@ -4142,12 +4490,11 @@ def manage_image():
                 flash(f"Image uploaded successfully: {filename}", 'success')
                 return redirect(url_for('manage_image'))
 
-        # Renaming the image
         if 'new_name' in request.form:
             image_file = request.form['image_file']
             new_name = request.form['new_name']
             if image_file and new_name:
-                extension = os.path.splitext(image_file)[1]  # Preserve the file extension
+                extension = os.path.splitext(image_file)[1]
                 new_image_path = os.path.join(IMAGE_FOLDER, f'{new_name}{extension}')
                 try:
                     os.rename(os.path.join(IMAGE_FOLDER, image_file), new_image_path)
@@ -4156,7 +4503,6 @@ def manage_image():
                     flash(f"Error renaming image: {e}", 'error')
                 return redirect(url_for('manage_image'))
 
-        # Deleting the image
         if 'delete' in request.form:
             image_file = request.form['image_file']
             if image_file:
@@ -4169,24 +4515,21 @@ def manage_image():
 
     return render_template('renameimage.html', image_files=image_files)
 
-# Serve image files
 @app.route('/images/<path:filename>')
 def serve_images(filename):
     return send_from_directory('images', filename)
 
-# API to get countries data
 @app.route('/get-countries', methods=['GET'])
 def get_countries():
     countries = load_countries()
     return jsonify(countries)
 
-# API to handle image upload for a specific country
 @app.route('/upload-image', methods=['POST'])
 def upload_image():
     try:
         country = request.form.get('country')
         file = request.files.get('file')
-        existing_image = request.form.get('existing_image')  # 👈 pass current filename from frontend if editing
+        existing_image = request.form.get('existing_image')
 
         if not country:
             return jsonify({"error": "Country is required"}), 400
@@ -4202,13 +4545,10 @@ def upload_image():
         if existing_image:
             old_ext = existing_image.rsplit('.', 1)[-1].lower()
             if file_ext == old_ext:
-                # ✅ Replace old file, keep same name
                 filename = existing_image
             else:
-                # ✅ Different extension → generate new UUID
                 filename = f"{uuid.uuid4()}.{file_ext}"
         else:
-            # ✅ No existing image → new UUID
             filename = f"{uuid.uuid4()}.{file_ext}"
 
         file_path = os.path.join(country_folder, filename)
@@ -4226,33 +4566,27 @@ def upload_image():
 
 
 # Edit JSON page - now with embedded HTML
-from flask import Flask, request, jsonify # Assuming these imports are at the top
+from flask import Flask, request, jsonify
 # Define app, load_json, DEFAULT_JSON_FILE_PATH, current_json_file_path somewhere
 
 @app.route('/edit_json')
 def edit_json():
     global current_json_file_path
-    current_json_file_path = DEFAULT_JSON_FILE_PATH  # Reset to default file
+    current_json_file_path = DEFAULT_JSON_FILE_PATH
     
-    # Get pagination parameters
     page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 20, type=int)  # Default to 20 items per page
+    per_page = request.args.get('per_page', 20, type=int)
     ajax = request.args.get('ajax', False, type=bool)
     
-    # Load all JSON data
-    # Assuming load_json() is defined elsewhere and returns the full list
     all_data = load_json()
     total_items = len(all_data)
     
-    # Calculate pagination
     total_pages = (total_items + per_page - 1) // per_page
     start_idx = (page - 1) * per_page
     end_idx = start_idx + per_page
     
-    # Get current page data
     current_page_data = all_data[start_idx:end_idx]
     
-    # If AJAX request, return JSON data only
     if ajax:
         return jsonify({
             'data': current_page_data,
@@ -4265,17 +4599,14 @@ def edit_json():
                 'has_next': page < total_pages
             }})
     
-    # Calculate button disabled states
     next_disabled = 'disabled' if page >= total_pages else ''
-    prev_disabled = 'disabled' if page <= 1 else '' # Added prev_disabled calculation
+    prev_disabled = 'disabled' if page <= 1 else ''
     
-    # Calculate selected states for page size options
     selected_10 = 'selected' if per_page == 10 else ''
     selected_20 = 'selected' if per_page == 20 else ''
     selected_50 = 'selected' if per_page == 50 else ''
     selected_100 = 'selected' if per_page == 100 else ''
     
-    # Return the embedded HTML content with pagination data
     return f'''
 <!DOCTYPE html>
 <html lang="en">
@@ -4473,7 +4804,6 @@ def edit_json():
             margin: 10px 0;
         }}
 
-        /* Form styling */
         .edit-form {{
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -4522,7 +4852,6 @@ def edit_json():
             background-color: #218838;
         }}
 
-        /* Drag-and-drop effects */
         .row.draggable {{
             cursor: move;
         }}
@@ -4531,7 +4860,6 @@ def edit_json():
             background-color: #495057;
         }}
 
-        /* imageModal */
         .image-filename {{
             margin-top: 10px;
             font-size: 14px;
@@ -4540,7 +4868,6 @@ def edit_json():
             font-weight: bold;
         }}
 
-        /*sorting*/
         .sortable {{
             cursor: pointer;
             position: relative;
@@ -4554,12 +4881,10 @@ def edit_json():
             right: 5px;
         }}
         
-        /* Hide the default file input */
         #uploadFileInput {{
             display: none;
         }}
 
-        /* Professional button styling */
         .btn-success {{
             display: inline-flex;
             align-items: center;
@@ -4620,7 +4945,6 @@ def edit_json():
             font-size: 16px;
         }}
 
-        /* Style the file input trigger (the label) */
         .file-input-label {{
             display: inline-flex;
             align-items: center;
@@ -4646,7 +4970,6 @@ def edit_json():
             margin-right: 8px;
         }}
 
-        /* Style the upload button with an icon */
         #uploadFileBtn {{
             display: inline-flex;
             align-items: center;
@@ -4673,7 +4996,6 @@ def edit_json():
             box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
         }}
 
-        /* css for delete buttons*/
         .delete-btn {{
             display: inline-flex;
             align-items: center;
@@ -4690,7 +5012,6 @@ def edit_json():
             color: red;
         }}
 
-        /* Dropdown styling */
         .country-dropdown {{
             width: 100%;
             padding: 5px;
@@ -4702,7 +5023,6 @@ def edit_json():
             border-radius: 4px;
         }}
 
-        /* Drag and drop area styling */
         .drop-area {{
             border: 2px dashed #ccc;
             border-radius: 4px;
@@ -4719,7 +5039,6 @@ def edit_json():
             background-color: #e9f0ff;
         }}
         
-        /* Currency type dropdown */
         .currency-dropdown {{
             width: 100%;
             padding: 5px;
@@ -4731,7 +5050,6 @@ def edit_json():
             border-radius: 4px;
         }}
         
-        /* Image drop area in table */
         .image-drop-area {{
             border: 2px dashed #ccc;
             border-radius: 4px;
@@ -4757,7 +5075,6 @@ def edit_json():
             font-size: 12px;
         }}
         
-        /* Search box styling */
     .search-container {{
         margin-bottom: 20px;
         display: flex;
@@ -4925,651 +5242,64 @@ def edit_json():
         margin: 15px 0;
         flex-wrap: wrap;
     }}
-    </style>
-    <style>
-        /* ... (keep all your existing CSS styles exactly as they are) ... */
-        
-        * {{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }}
 
-        body {{
-            background-color: #72787e;
-            color: #fff;
-            padding: 20px;
-        }}
-
-        h1 {{
-            text-align: center;
-            margin-bottom: 20px;
-            color: #ffc107;
-        }}
-
-        .container {{
-            width: 80%;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #495057;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        /* ===== MULTI-DONOR styles ===== */
+        .donors-container {{
+            border: 1px solid #e0e0e0;
             border-radius: 8px;
+            padding: 15px;
+            background-color: #fafafa;
         }}
-
-        #jsonTableContainer {{
-            border: 2px solid #198754;
-            padding: 10px;
-            background-color: #6c757d;
-            min-height: 100px;
-            border-radius: 4px;
-        }}
-
-        .row {{
+        .donor-item {{
             display: flex;
             align-items: center;
-            border-bottom: 1px solid #ddd;
-            padding: 10px 0;
-            transition: background-color 0.3s ease;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 8px;
+            background-color: white;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
         }}
-
-        .row:nth-child(odd) {{
-            background-color: #6c757d;
-        }}
-
-        .row:hover {{
-            background-color: #495057;
-        }}
-
-        .column {{
+        .donor-item:last-child {{ margin-bottom: 0; }}
+        .donor-input {{
             flex: 1;
-            text-align: center;
-            padding: 5px;
-            color: #fff;
-        }}
-
-        .thumbnail {{
-            max-width: 50px;
-            max-height: 50px;
-            border-radius: 4px;
-            cursor: pointer;
-        }}
-
-        .delete-btn {{
-            color: #ff4d4d;
-            cursor: pointer;
-            font-weight: bold;
-        }}
-
-        a {{
-            color: #ffc107;
-            text-decoration: none;
-        }}
-
-        a:hover {{
-            color: #fff;
-            text-decoration: underline;
-        }}
-
-        .download-btn {{
-            width: 100%;
-            padding: 10px;
-            background-color: #198754;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }}
-
-        .download-btn:hover {{
-            background-color: #145d37;
-        }}
-
-        .file-input {{
-            margin-bottom: 20px;
-            display: block;
-            padding: 10px;
-            font-size: 14px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #fff;
-            color: #333;
-        }}
-
-        .header {{
-            font-weight: bold;
-            background-color: #198754;
-            color: #fff;
-        }}
-
-        .add-row-btn {{
-            width: 100%;
-            padding: 10px;
-            background-color: #ffc107;
-            color: #333;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: background 0.3s ease;
-        }}
-
-        .add-row-btn:hover {{
-            background-color: #e0a800;
-        }}
-
-        .image-input {{
-            width: 100%;
-            padding: 5px;
-            font-size: 14px;
-            text-align: center;
-        }}
-
-        .modal {{
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            overflow-y: auto;
-        }}
-
-        .modal-content {{
-            position: relative;
-            width: 90%;
-            max-width: 800px;
-            background-color: #fff;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            color: #333;
-            max-height: 90vh;
-            overflow-y: auto;
-        }}
-
-        .modal img {{
-            max-width: 100%;
-            max-height: 400px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }}
-
-        .modal-close {{
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 20px;
-            color: black;
-            cursor: pointer;
-        }}
-
-        .modal h2,
-        .modal p {{
-            margin: 10px 0;
-        }}
-
-        /* Form styling */
-        .edit-form {{
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            text-align: left;
-        }}
-
-        .form-group {{
-            margin-bottom: 15px;
-        }}
-
-        .form-group label {{
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }}
-
-        .form-group input,
-        .form-group textarea,
-        .form-group select {{
-            width: 100%;
-            padding: 8px;
+            padding: 8px 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 14px;
         }}
-
-        .form-group textarea {{
-            height: 80px;
-            resize: vertical;
-        }}
-
-        .save-btn {{
-            grid-column: span 2;
-            padding: 10px;
-            background-color: #28a745;
+        .donor-input:focus {{ border-color: #007bff; outline: none; }}
+        .btn-remove-donor {{
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
             color: white;
             border: none;
             border-radius: 4px;
-            font-size: 16px;
+            width: 32px;
+            height: 32px;
             cursor: pointer;
-            margin-top: 10px;
-        }}
-
-        .save-btn:hover {{
-            background-color: #218838;
-        }}
-
-        /* Drag-and-drop effects */
-        .row.draggable {{
-            cursor: move;
-        }}
-
-        .row.drag-over {{
-            background-color: #495057;
-        }}
-
-        /* imageModal */
-        .image-filename {{
-            margin-top: 10px;
-            font-size: 14px;
-            color: #333;
-            text-align: center;
-            font-weight: bold;
-        }}
-
-        /*sorting*/
-        .sortable {{
-            cursor: pointer;
-            position: relative;
-        }}
-        
-        .sortable:after {{
-            content: ' ⇅';
-            font-size: 0.8em;
-            color: #ccc;
-            position: absolute;
-            right: 5px;
-        }}
-        
-        /* Hide the default file input */
-        #uploadFileInput {{
-            display: none;
-        }}
-
-        /* Professional button styling */
-        .btn-success {{
-            display: inline-flex;
-            align-items: center;
-            padding: 10px 20px;
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
-            margin: 5px;
-        }}
-
-        .btn-success:hover {{
-            background: linear-gradient(135deg, #218838 0%, #1e9e8a 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
-            text-decoration: none;
-            color: white;
-        }}
-
-        .btn-success i {{
-            margin-right: 8px;
-            font-size: 16px;
-        }}
-
-        .btn-secondary {{
-            display: inline-flex;
-            align-items: center;
-            padding: 10px 20px;
-            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
-            margin: 5px;
-        }}
-
-        .btn-secondary:hover {{
-            background: linear-gradient(135deg, #5a6268 0%, #545b62 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
-            color: white;
-            text-decoration: none;
-        }}
-
-        .btn-secondary i {{
-            margin-right: 8px;
-            font-size: 16px;
-        }}
-
-        /* Style the file input trigger (the label) */
-        .file-input-label {{
-            display: inline-flex;
-            align-items: center;
-            padding: 10px 20px;
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-            color: white;
-            font-size: 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
-            margin: 5px;
-        }}
-
-        .file-input-label:hover {{
-            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
-        }}
-
-        .file-input-label i {{
-            margin-right: 8px;
-        }}
-
-        /* Style the upload button with an icon */
-        #uploadFileBtn {{
-            display: inline-flex;
-            align-items: center;
-            padding: 10px 20px;
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-            font-size: 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            border: none;
-            margin: 5px;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
-            font-weight: 600;
-        }}
-
-        #uploadFileBtn i {{
-            margin-right: 8px;
-        }}
-
-        #uploadFileBtn:hover {{
-            background: linear-gradient(135deg, #218838 0%, #1e9e8a 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
-        }}
-
-        /* css for delete buttons*/
-        .delete-btn {{
-            display: inline-flex;
-            align-items: center;
-            color: yellow;
-            cursor: pointer;
-            font-weight: bold;
-        }}
-
-        .delete-btn i {{
-            margin-right: 8px;
-        }}
-
-        .delete-btn:hover {{
-            color: red;
-        }}
-
-        /* Dropdown styling */
-        .country-dropdown {{
-            width: 100%;
-            padding: 5px;
-            font-size: 14px;
-            text-align: center;
-            background-color: #fff;
-            color: #333;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }}
-
-        /* Drag and drop area styling */
-        .drop-area {{
-            border: 2px dashed #ccc;
-            border-radius: 4px;
-            padding: 20px;
-            text-align: center;
-            background-color: #f8f9fa;
-            color: #333;
-            margin: 10px 0;
-            cursor: pointer;
-        }}
-
-        .drop-area.highlight {{
-            border-color: #007bff;
-            background-color: #e9f0ff;
-        }}
-        
-        /* Currency type dropdown */
-        .currency-dropdown {{
-            width: 100%;
-            padding: 5px;
-            font-size: 14px;
-            text-align: center;
-            background-color: #fff;
-            color: #333;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }}
-        
-        /* Image drop area in table */
-        .image-drop-area {{
-            border: 2px dashed #ccc;
-            border-radius: 4px;
-            padding: 10px;
-            text-align: center;
-            background-color: #f8f9fa;
-            color: #333;
-            margin: 5px 0;
-            cursor: pointer;
-            min-height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }}
-
-        .image-drop-area.highlight {{
-            border-color: #007bff;
-            background-color: #e9f0ff;
+        .btn-remove-donor:hover {{ background: linear-gradient(135deg, #c82333 0%, #a71e2a 100%); }}
+        .btn-add-donor {{
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 10px;
         }}
+        .btn-add-donor:hover {{ background: linear-gradient(135deg, #218838 0%, #1e9e8a 100%); }}
+        /* ===== END MULTI-DONOR styles ===== */
 
-        .image-drop-area p {{
-            margin: 0;
-            font-size: 12px;
-        }}
-        
-        /* Search box styling */
-    .search-container {{
-        margin-bottom: 20px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-    }}
-
-    .search-box {{
-        width: 300px;
-        padding: 10px;
-        font-size: 16px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        background-color: #fff;
-        color: #333;
-    }}
-
-    .search-box:focus {{
-        outline: none;
-        border-color: #007bff;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-    }}
-
-    .clear-search-btn {{
-        padding: 10px;
-        background-color: #dc3545;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }}
-
-    .clear-search-btn:hover {{
-        background-color: #c82333;
-    }}
-    
-    .toast-message {{
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        background-color: rgba(40, 167, 69, 0.5);
-        color: white;
-        padding: 15px;
-        text-align: center;
-        font-size: 16px;
-        font-weight: bold;
-        z-index: 3000;
-        opacity: 0;
-        display: none;
-        transition: opacity 0.5s ease;
-    }}
-
-    .filter-buttons {{
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin-bottom: 20px;
-    }}
-
-    .filter-btn {{
-        padding: 10px 15px;
-        background-color: #6c757d;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background 0.3s ease;
-    }}
-
-    .filter-btn:hover {{
-        background-color: #5a6268;
-    }}
-
-    .filter-btn.active {{
-        background-color: #28a745;
-    }}
-
-    .search-container {{
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 10px;
-        margin-bottom: 20px;
-    }}
-
-    .search-box {{
-        width: 100%;
-        padding: 10px;
-        font-size: 14px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        background-color: #fff;
-        color: #333;
-    }}
-
-    .image-drop-areas-container {{
-        display: flex;
-        gap: 10px;
-        margin-bottom: 10px;
-    }}
-
-    .merge-drop-area {{
-        flex: 1;
-        min-height: 80px;
-    }}
-
-    .merge-options {{
-        display: flex;
-        gap: 15px;
-        align-items: center;
-        margin-bottom: 10px;
-    }}
-
-    .merge-options label {{
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        color: #333;
-        font-weight: normal;
-    }}
-
-    #mergeImagesBtn {{
-        padding: 5px 10px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-            border-radius: 4px;
-        cursor: pointer;
-    }}
-
-    #mergeImagesBtn:disabled {{
-        background-color: #6c757d;
-        cursor: not-allowed;
-    }}
-    
-    .merge-preview {{
-        margin-top: 10px;
-        padding: 10px;
-        border: 2px dashed #007bff;
-        border-radius: 5px;
-        background-color: #f8f9fa;
-    }}
-
-    .merge-preview img {{
-        max-width: 100%;
-        max-height: 150px;
-        margin: 5px;
-        border: 1px solid #ddd;
-    }}
-
-    .merge-size-info {{
-        font-size: 12px;
-        color: #666;
-        margin-top: 5px;
-    }}
-
-    .button-container {{
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin: 15px 0;
-        flex-wrap: wrap;
-    }}
-    
-        
         /* Add pagination styles */
         .pagination {{
     display: flex;
@@ -5759,7 +5489,6 @@ def edit_json():
                     <option value="100" {selected_100}>100</option>
                 </select>
             </div>
-            <!-- ADD THIS NEW SECTION -->
             <div class="view-options">
                 <button class="show-all-btn" id="showAllBtn">
                     <i class="fas fa-list"></i> Show All
@@ -5817,7 +5546,6 @@ def edit_json():
                 Next <i class="fas fa-chevron-right"></i>
             </button>
             
-            <!-- ADD THIS NEW SECTION -->
             <div class="view-options">
                 <button class="show-all-btn" id="showAllBtnBottom">
                     <i class="fas fa-list"></i> Show All
@@ -5856,10 +5584,17 @@ def edit_json():
                         <option value="antique">Antique</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label for="editDonorName">Donor Name:</label>
-                    <input type="text" id="editDonorName" name="donor_name">
+                
+                <!-- ===== MULTI-DONOR: donors UI in modal ===== -->
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Donors:</label>
+                    <div class="donors-container" id="modalDonorsContainer"></div>
+                    <button type="button" class="btn-add-donor" onclick="addModalDonor()">
+                        <i class="fas fa-plus-circle"></i> Add Another Donor
+                    </button>
                 </div>
+                <!-- ===== END MULTI-DONOR ===== -->
+                
                 <div class="form-group">
                     <label for="editNote">Note:</label>
                     <textarea id="editNote" name="note"></textarea>
@@ -5926,6 +5661,8 @@ def edit_json():
             </div>
         </div>
     </div>
+    
+    <datalist id="modal-donor-suggestions"></datalist>
 
     <script>
 // Global variables
@@ -5938,8 +5675,12 @@ let activeFilters = {{
     size: '',
     yearFrom: '',
     yearTo: ''
-}}; // Corrected JS object literal escaping
+}};
 let isAddMode = false;
+
+// ===== MULTI-DONOR: modal donors state =====
+let modalDonorsList = [];
+// ===== END MULTI-DONOR =====
 
 // Pagination variables
 let currentPage = {page};
@@ -5947,21 +5688,19 @@ let itemsPerPage = {per_page};
 let totalPages = {total_pages};
 let totalItems = {total_items};
 
-// Load countries data
-function loadCountries() {{ // Corrected function brace escaping
+function loadCountries() {{
     fetch('/get-countries')
         .then(response => response.json())
-        .then(data => {{ // Corrected function brace escaping
+        .then(data => {{
             countriesData = data;
             populateCountryDropdowns();
-        }}) // Corrected function brace escaping
-        .catch(error => {{ // Corrected function brace escaping
+        }})
+        .catch(error => {{
             console.error("Error loading countries:", error);
-        }}); // Corrected function brace escaping
+        }});
 }}
 
-// Populate country dropdowns
-function populateCountryDropdowns() {{ // Corrected function brace escaping
+function populateCountryDropdowns() {{
     const editCountryDropdown = document.getElementById('editCountry');
     
     if (!editCountryDropdown) return;
@@ -5973,25 +5712,22 @@ function populateCountryDropdowns() {{ // Corrected function brace escaping
     defaultOption.textContent = 'Select a country';
     editCountryDropdown.appendChild(defaultOption);
     
-    countriesData.forEach(country => {{ // Corrected function brace escaping
+    countriesData.forEach(country => {{
         const option = document.createElement('option');
         option.value = country.name;
         option.textContent = country.name;
         editCountryDropdown.appendChild(option);
-    }}); // Corrected function brace escaping
+    }});
 }}
 
-// Load data for current page
 function loadPageData(page = currentPage, perPage = itemsPerPage) {{
     showLoading();
     
-    // Build query parameters with current filters
     const params = new URLSearchParams();
     params.append('page', page);
     params.append('per_page', perPage);
     params.append('ajax', 'true');
     
-    // Add filters if they exist
     if (activeFilters.country) params.append('country', activeFilters.country);
     if (activeFilters.size) params.append('size', activeFilters.size);
     if (activeFilters.yearFrom) params.append('yearFrom', activeFilters.yearFrom);
@@ -6017,7 +5753,7 @@ function loadPageData(page = currentPage, perPage = itemsPerPage) {{
         }});
 }}
 
-function showLoading() {{ // Corrected function brace escaping
+function showLoading() {{
     const container = document.getElementById("jsonTableContainer");
     container.innerHTML = `
         <div class="loading-spinner">
@@ -6025,111 +5761,44 @@ function showLoading() {{ // Corrected function brace escaping
             Loading data...
         </div>
     `;
-}} // Corrected function brace escaping
+}}
 
-function hideLoading() {{ // Corrected function brace escaping
+function hideLoading() {{
     // Loading is hidden when renderTable is called
-}} // Corrected function brace escaping
+}}
 
-function updatePaginationControls() {{ // Corrected function brace escaping
-    // Update page info - Corrected JS template literal interpolation
+function updatePaginationControls() {{
     document.getElementById('pageInfo').textContent = `Page ${{currentPage}} of ${{totalPages}}`;
     document.getElementById('pageInfoBottom').textContent = `Page ${{currentPage}} of ${{totalPages}}`;
     
-    // Update button states
     document.getElementById('prevPage').disabled = currentPage <= 1;
     document.getElementById('prevPageBottom').disabled = currentPage <= 1;
     document.getElementById('nextPage').disabled = currentPage >= totalPages;
     document.getElementById('nextPageBottom').disabled = currentPage >= totalPages;
     
-    // Update page size selector
     document.getElementById('pageSize').value = itemsPerPage;
-}} // Corrected function brace escaping
+}}
 
-function changePage(newPage) {{ // Corrected function brace escaping
+function changePage(newPage) {{
     if (newPage < 1 || newPage > totalPages) return;
     
-    // Update URL without reloading the page
     const newUrl = new URL(window.location);
     newUrl.searchParams.set('page', newPage);
     newUrl.searchParams.set('per_page', itemsPerPage);
-    window.history.pushState({{}}, '', newUrl); // Corrected empty object literal escaping
+    window.history.pushState({{}}, '', newUrl);
     
     loadPageData(newPage, itemsPerPage);
-}} // Corrected function brace escaping
+}}
 
 function changePageSize(newSize) {{
     itemsPerPage = parseInt(newSize);
     
-    // Reset to first page when changing page size, preserving filters
     const newUrl = new URL(window.location);
     newUrl.searchParams.set('page', 1);
     newUrl.searchParams.set('per_page', itemsPerPage);
     window.history.pushState({{}}, '', newUrl);
     
-    // Reload with current filters
     loadPageData(1, itemsPerPage);
-}}
-
-// ... (rest of your JavaScript functions remain exactly the same as in your original code)
-// Just add the pagination functions above and keep everything else unchanged
-
-// Initialize when DOM is loaded
-document.addEventListener("DOMContentLoaded", function () {{ // Corrected function brace escaping
-    // Load initial page data
-    loadPageData(currentPage, itemsPerPage);
-
-    // Load countries
-    loadCountries();
-
-    // Pagination event listeners
-    document.getElementById('prevPage').addEventListener('click', () => changePage(currentPage - 1));
-    document.getElementById('nextPage').addEventListener('click', () => changePage(currentPage + 1));
-    document.getElementById('prevPageBottom').addEventListener('click', () => changePage(currentPage - 1));
-    document.getElementById('nextPageBottom').addEventListener('click', () => changePage(currentPage + 1));
-    document.getElementById('pageSize').addEventListener('change', (e) => changePageSize(e.target.value));
-
-    // ... (keep all your existing event listeners exactly as they are from your original code) ...
-}}); // Corrected function brace escaping
-
-// ... (include all your existing JavaScript functions from the original code here)
-// Make sure to include: renderTable, setupImageDropArea, sortTable, handleDragStart, 
-// handleDragOver, handleDrop, showToast, saveUpdates, filterTable, applyFilters, 
-// clearFilters, toggleAddMode, and all modal functionality
-
-
-// Load countries data
-function loadCountries() {{
-    fetch('/get-countries')
-        .then(response => response.json())
-        .then(data => {{
-            countriesData = data;
-            populateCountryDropdowns();
-        }})
-        .catch(error => {{
-            console.error("Error loading countries:", error);
-        }});
-}}
-
-// Populate country dropdowns
-function populateCountryDropdowns() {{
-    const editCountryDropdown = document.getElementById('editCountry');
-    
-    if (!editCountryDropdown) return;
-    
-    editCountryDropdown.innerHTML = '';
-    
-    const defaultOption = document.createElement('option');
-    defaultOption.value = '';
-    defaultOption.textContent = 'Select a country';
-    editCountryDropdown.appendChild(defaultOption);
-    
-    countriesData.forEach(country => {{
-        const option = document.createElement('option');
-        option.value = country.name;
-        option.textContent = country.name;
-        editCountryDropdown.appendChild(option);
-    }});
 }}
 
 function renderTable(data) {{
@@ -6269,16 +5938,38 @@ function renderTable(data) {{
         currencyColumn.appendChild(currencySelect);
         rowDiv.appendChild(currencyColumn);
         
-        // Donor name (editable)
+        // ===== MULTI-DONOR: donor column shows all donors =====
         const donorColumn = document.createElement('div');
         donorColumn.classList.add('column', 'editable');
-        donorColumn.textContent = row.donor_name || "";
+        // Display all donors joined by comma; fallback to legacy donor_name
+        let displayDonors = '';
+        if (Array.isArray(row.donors) && row.donors.length > 0) {{
+            displayDonors = row.donors.filter(d => d && d.trim()).join(', ');
+        }} else if (row.donor_name) {{
+            displayDonors = row.donor_name;
+        }}
+        donorColumn.textContent = displayDonors;
         donorColumn.contentEditable = true;
         donorColumn.addEventListener('blur', function() {{
-            row.donor_name = this.textContent;
+            // When edited as a single string, split on commas to support multiple donors
+            const rawValue = this.textContent || '';
+            const splitDonors = rawValue.split(',').map(s => s.trim()).filter(Boolean);
+            if (splitDonors.length > 1) {{
+                row.donors = splitDonors;
+                row.donor_name = splitDonors[0];
+            }} else if (splitDonors.length === 1) {{
+                row.donor_name = splitDonors[0];
+                if ('donors' in row) delete row.donors;
+            }} else {{
+                row.donor_name = '';
+                if ('donors' in row) delete row.donors;
+            }}
+            // Re-render the cell text to normalized form
+            this.textContent = splitDonors.join(', ');
             saveUpdates();
         }});
         rowDiv.appendChild(donorColumn);
+        // ===== END MULTI-DONOR donor column =====
         
         // Image column with drag and drop
         const imageColumn = document.createElement('div');
@@ -6288,19 +5979,16 @@ function renderTable(data) {{
         dropArea.classList.add('image-drop-area');
         dropArea.setAttribute('data-index', index);
 
-        // Handle empty or missing images
         if (row.image && row.image !== '' && row.image !== 'placeholder.jpg') {{
-            // Has a valid image
             dropArea.innerHTML = `<img src="/images/${{row.country}}/${{row.image}}" 
                                     class="thumbnail" 
                                     data-index="${{index}}" 
                                     data-image="${{row.image}}"
                                     data-id="${{row.id}}"
                                     style="cursor: pointer; max-width: 50px; max-height: 50px;"
-                                    onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'50\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23999\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Crect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\' ry=\'2\'%3E%3C/rect%3E%3Ccircle cx=\'8.5\' cy=\'8.5\' r=\'1.5\'%3E%3C/circle%3E%3Cpolyline points=\'21 15 16 10 5 21\'%3E%3C/polyline%3E%3C/svg%3E'"
+                                    onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'50\\' height=\\'50\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'%23999\\' stroke-width=\\'2\\' stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\'%3E%3Crect x=\\'3\\' y=\\'3\\' width=\\'18\\' height=\\'18\\' rx=\\'2\\' ry=\\'2\\'%3E%3C/rect%3E%3Ccircle cx=\\'8.5\\' cy=\\'8.5\\' r=\\'1.5\\'%3E%3C/circle%3E%3Cpolyline points=\\'21 15 16 10 5 21\\'%3E%3C/polyline%3E%3C/svg%3E'"
                                     onclick="event.stopPropagation(); editExistingItem('${{row.id}}')">`;
         }} else {{
-            // No image - show edit button
             dropArea.innerHTML = `<div style="text-align: center; padding: 5px;">
                                     <i class="fas fa-plus-circle" style="font-size: 24px; color: #28a745; margin-bottom: 5px; display: block;"></i>
                                     <small style="color: #fff;">Click to add image</small>
@@ -6349,7 +6037,7 @@ function renderTable(data) {{
         }});
         rowDiv.appendChild(yearColumn);
         
-        // Actions (edit and delete buttons)
+        // Actions
         const actionColumn = document.createElement('div');
         actionColumn.classList.add('column');
         
@@ -6366,7 +6054,6 @@ function renderTable(data) {{
         deleteBtn.innerHTML = '<i class="fas fa-trash" style="color: #ff4d4d; cursor: pointer; font-size: 18px;"></i>';
         deleteBtn.addEventListener('click', function() {{
             if (confirm('Are you sure you want to delete this entry?')) {{
-                // If there's an image file, delete it
                 if (row.image && row.image !== '' && row.image !== 'placeholder.jpg') {{
                     fetch('/delete-image', {{
                         method: 'POST',
@@ -6388,11 +6075,9 @@ function renderTable(data) {{
         tableContainer.appendChild(rowDiv);
     }});
     
-    // Call lazy loading after rendering
     lazyLoadImages();
 }}
 
-// Add this function for lazy loading images
 function lazyLoadImages() {{
     const imageObserver = new IntersectionObserver((entries, observer) => {{
         entries.forEach(entry => {{
@@ -6413,7 +6098,6 @@ function lazyLoadImages() {{
     }});
 }}
 
-// Setup image drop area functionality
 function setupImageDropArea(dropArea, row, index) {{
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
@@ -6597,22 +6281,16 @@ function saveUpdates() {{
     }});
 }}
 
-// This function is no longer needed for server-side filtering
-// But keep it as a no-op or remove it
 function filterTable() {{
-    // Server-side filtering is now used
-    // This function is kept for compatibility but does nothing
     console.log('Using server-side filtering');
 }}
 
 function applyFilters() {{
-    // Get filter values
     const countryFilter = document.getElementById('countrySearch').value;
     const sizeFilter = document.getElementById('sizeSearch').value;
     const yearFromFilter = document.getElementById('yearFromSearch').value;
     const yearToFilter = document.getElementById('yearToSearch').value;
     
-    // Build query parameters
     const params = new URLSearchParams();
     if (countryFilter) params.append('country', countryFilter);
     if (sizeFilter) params.append('size', sizeFilter);
@@ -6624,7 +6302,6 @@ function applyFilters() {{
     
     showLoading();
     
-    // Make API request with filters
     fetch(`/get-json?${{params.toString()}}`)
         .then(response => response.json())
         .then(result => {{
@@ -6638,7 +6315,6 @@ function applyFilters() {{
             renderTable(jsonData);
             hideLoading();
             
-            // Update active filters display
             activeFilters = {{
                 country: countryFilter,
                 size: sizeFilter,
@@ -6646,7 +6322,6 @@ function applyFilters() {{
                 yearTo: yearToFilter
             }};
             
-            // Show filter applied message
             if (countryFilter || sizeFilter || yearFromFilter || yearToFilter) {{
                 showToast(`Filters applied. Found ${{totalItems}} items.`);
             }}
@@ -6659,13 +6334,11 @@ function applyFilters() {{
 }}
 
 function clearFilters() {{
-    // Clear input fields
     document.getElementById('countrySearch').value = '';
     document.getElementById('sizeSearch').value = '';
     document.getElementById('yearFromSearch').value = '';
     document.getElementById('yearToSearch').value = '';
     
-    // Reset active filters
     activeFilters = {{
         country: '',
         size: '',
@@ -6673,7 +6346,6 @@ function clearFilters() {{
         yearTo: ''
     }};
     
-    // Reload first page without filters
     showLoading();
     
     fetch(`/get-json?page=1&per_page=${{itemsPerPage}}&ajax=true`)
@@ -6704,7 +6376,6 @@ function toggleAddMode() {{
     if (isAddMode) {{
         button.classList.add('active');
         button.textContent = 'Exit Add Mode';
-        // Add visual indication for add mode
         document.body.style.backgroundColor = '#2c5530';
     }} else {{
         button.classList.remove('active');
@@ -6713,31 +6384,116 @@ function toggleAddMode() {{
     }}
 }}
 
-// Initialize when DOM is loaded
-document.addEventListener("DOMContentLoaded", function () {{
-
-// Add event listeners for Show All functionality
-document.getElementById('showAllBtn').addEventListener('click', showAllEntries);
-document.getElementById('showAllBtnBottom').addEventListener('click', showAllEntries);
-document.getElementById('showPaginationBtn').addEventListener('click', showPaginationView);
-document.getElementById('showPaginationBtnBottom').addEventListener('click', showPaginationView);
-
-    // Load initial data
-    fetch('/get-json')
-        .then(response => response.json())
-        .then(data => {{
-            jsonData = data;
-            renderTable(jsonData);
-        }})
-        .catch(error => {{
-            console.error("Error fetching JSON data:", error);
-            document.getElementById("jsonTableContainer").innerHTML = "Error loading data";
+// ===== MULTI-DONOR: modal donor rendering =====
+function renderModalDonors() {{
+    const container = document.getElementById('modalDonorsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    if (modalDonorsList.length === 0) modalDonorsList.push('');
+    
+    modalDonorsList.forEach((donor, index) => {{
+        const div = document.createElement('div');
+        div.className = 'donor-item';
+        
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'donor-input';
+        input.value = donor || '';
+        input.placeholder = 'Donor name';
+        input.setAttribute('list', 'modal-donor-suggestions');
+        input.addEventListener('input', function() {{
+            modalDonorsList[index] = this.value;
+            // Live-update the underlying row data
+            if (currentEditingIndex !== -1) {{
+                const cleaned = modalDonorsList.map(d => (d || '').trim()).filter(Boolean);
+                if (cleaned.length > 1) {{
+                    jsonData[currentEditingIndex].donors = cleaned;
+                    jsonData[currentEditingIndex].donor_name = cleaned[0];
+                }} else if (cleaned.length === 1) {{
+                    jsonData[currentEditingIndex].donor_name = cleaned[0];
+                    delete jsonData[currentEditingIndex].donors;
+                }}
+            }}
+            fetchModalDonorSuggestions(this.value);
         }});
+        
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'btn-remove-donor';
+        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+        removeBtn.title = 'Remove donor';
+        removeBtn.onclick = function() {{ removeModalDonor(index); }};
+        
+        div.appendChild(input);
+        div.appendChild(removeBtn);
+        container.appendChild(div);
+    }});
+}}
 
-    // Load countries
+function addModalDonor() {{
+    modalDonorsList.push('');
+    renderModalDonors();
+    const inputs = document.querySelectorAll('#modalDonorsContainer .donor-input');
+    if (inputs.length) inputs[inputs.length - 1].focus();
+}}
+
+function removeModalDonor(index) {{
+    if (modalDonorsList.length <= 1) {{
+        showToast('At least one donor is required', 'error');
+        return;
+    }}
+    modalDonorsList.splice(index, 1);
+    renderModalDonors();
+    // Sync back to underlying row
+    if (currentEditingIndex !== -1) {{
+        const cleaned = modalDonorsList.map(d => (d || '').trim()).filter(Boolean);
+        if (cleaned.length > 1) {{
+            jsonData[currentEditingIndex].donors = cleaned;
+            jsonData[currentEditingIndex].donor_name = cleaned[0];
+        }} else if (cleaned.length === 1) {{
+            jsonData[currentEditingIndex].donor_name = cleaned[0];
+            delete jsonData[currentEditingIndex].donors;
+        }}
+    }}
+    saveUpdates();
+}}
+
+function fetchModalDonorSuggestions(query) {{
+    const datalist = document.getElementById('modal-donor-suggestions');
+    if (!query || query.trim().length < 2) {{
+        datalist.innerHTML = '';
+        return;
+    }}
+    fetch(`/suggest-donors?q=${{encodeURIComponent(query.trim())}}`)
+        .then(r => r.json())
+        .then(suggestions => {{
+            datalist.innerHTML = '';
+            suggestions.forEach(name => {{
+                const opt = document.createElement('option');
+                opt.value = name;
+                datalist.appendChild(opt);
+            }});
+        }})
+        .catch(err => console.error('Modal donor suggestions error:', err));
+}}
+// ===== END MULTI-DONOR modal donor rendering =====
+
+document.addEventListener("DOMContentLoaded", function () {{
+    document.getElementById('showAllBtn').addEventListener('click', showAllEntries);
+    document.getElementById('showAllBtnBottom').addEventListener('click', showAllEntries);
+    document.getElementById('showPaginationBtn').addEventListener('click', showPaginationView);
+    document.getElementById('showPaginationBtnBottom').addEventListener('click', showPaginationView);
+
+    loadPageData(currentPage, itemsPerPage);
     loadCountries();
 
-    // Add event listeners
+    document.getElementById('prevPage').addEventListener('click', () => changePage(currentPage - 1));
+    document.getElementById('nextPage').addEventListener('click', () => changePage(currentPage + 1));
+    document.getElementById('prevPageBottom').addEventListener('click', () => changePage(currentPage - 1));
+    document.getElementById('nextPageBottom').addEventListener('click', () => changePage(currentPage + 1));
+    document.getElementById('pageSize').addEventListener('change', (e) => changePageSize(e.target.value));
+
     document.getElementById("uploadFileBtn").addEventListener("click", function () {{
         const fileInput = document.getElementById("uploadFileInput");
         const file = fileInput.files[0];
@@ -6776,7 +6532,6 @@ document.getElementById('showPaginationBtnBottom').addEventListener('click', sho
 
 document.getElementById("addRowBtn").addEventListener("click", function () {{
 
-// Generate a proper UUID v4 hex string
     function generateUUID() {{
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {{
             const r = Math.random() * 16 | 0;
@@ -6785,11 +6540,8 @@ document.getElementById("addRowBtn").addEventListener("click", function () {{
         }});
     }}
     
-    const newId = generateUUID();  // This will create something like: "550e8400-e29b-41d4-a716-446655440000"
+    const newId = generateUUID();
 
-    // Create a unique ID
-    //const newId = 'new_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-    
     const newRow = {{
         id: newId,
         country: "",
@@ -6803,13 +6555,9 @@ document.getElementById("addRowBtn").addEventListener("click", function () {{
         timestamp: new Date().toISOString()
     }};
     
-    // Add to the beginning of the array
     jsonData.unshift(newRow);
-    
-    // Re-render the table
     renderTable(jsonData);
     
-    // SAVE IMMEDIATELY - this ensures the object is persisted
     fetch('/update-json', {{
         method: 'POST',
         headers: {{ 'Content-Type': 'application/json' }},
@@ -6820,9 +6568,9 @@ document.getElementById("addRowBtn").addEventListener("click", function () {{
         if (data.message) {{
             showToast("✓ New row created and saved!");
             console.log("New row saved with ID:", newId);
-            verifySave(newId);  // Verify the save
+            verifySave(newId);
         }} else {{
-            showToast("⚠ Row created but save may have failed", 'warning');
+            showToast("⚠ Row created but save may have failed");
         }}
     }})
     .catch(error => {{
@@ -6830,7 +6578,6 @@ document.getElementById("addRowBtn").addEventListener("click", function () {{
         showToast("❌ Error saving new row!", 'error');
     }});
     
-    // Scroll to the new row
     setTimeout(() => {{
         const rows = document.querySelectorAll('.row');
         if (rows.length > 1) {{
@@ -6843,7 +6590,6 @@ document.getElementById("addRowBtn").addEventListener("click", function () {{
     }}, 100);
 }});
 
-// Add this function to verify the save
 function verifySave(newId) {{
     setTimeout(() => {{
         fetch('/get-json')
@@ -6876,19 +6622,16 @@ function verifySave(newId) {{
         document.getElementById("imageModal").style.display = "none";
     }});
 
-    // Filter event listeners
     document.getElementById("applyFilters").addEventListener("click", applyFilters);
     document.getElementById("clearFilters").addEventListener("click", clearFilters);
     document.getElementById("toggleAddMode").addEventListener("click", toggleAddMode);
     document.getElementById("clearSearch").addEventListener("click", clearFilters);
 
-    // Add real-time filtering for text inputs
     document.getElementById("countrySearch").addEventListener("input", applyFilters);
     document.getElementById("sizeSearch").addEventListener("input", applyFilters);
     document.getElementById("yearFromSearch").addEventListener("input", applyFilters);
     document.getElementById("yearToSearch").addEventListener("input", applyFilters);
 
-    // File input change listener
     document.getElementById("uploadFileInput").addEventListener("change", function (event) {{
         const file = event.target.files[0];
 
@@ -6920,43 +6663,46 @@ function verifySave(newId) {{
         reader.readAsText(file);
     }});
 
-    // ========== MODAL FUNCTIONALITY ==========
-
-    // Modal click functionality
+    // Modal click - open editor
     document.addEventListener("click", function (event) {{
         if (event.target.classList.contains("thumbnail")) {{
             const index = event.target.getAttribute("data-index");
             const row = jsonData[index];
             
-            // Update modal image and info
             document.getElementById("modalImage").src = `images/${{row.country}}/${{row.image}}`;
             document.getElementById("imageFileName").textContent = row.image;
             
-            // Populate form fields
             document.getElementById("editCountry").value = row.country || "";
             document.getElementById("editCurrencyType").value = row.currency_type || "";
-            document.getElementById("editDonorName").value = row.donor_name || "";
             document.getElementById("editNote").value = row.note || "";
             document.getElementById("editSize").value = row.size || "";
             document.getElementById("editYear").value = row.year || "";
             document.getElementById("editHiddenNote").value = row.hidden_note || "";
+
+            // ===== MULTI-DONOR: load donors into modal =====
+            if (Array.isArray(row.donors) && row.donors.length > 0) {{
+                modalDonorsList = row.donors.filter(d => d && d.trim());
+            }} else if (row.donor_name && row.donor_name.trim()) {{
+                modalDonorsList = [row.donor_name.trim()];
+            }} else {{
+                modalDonorsList = [''];
+            }}
+            renderModalDonors();
+            // ===== END MULTI-DONOR =====
             
             currentEditingIndex = index;
             document.getElementById("imageModal").style.display = "flex";
             
-            // Reset merge areas
             document.getElementById('mergeDropArea1').innerHTML = '<p>Drag & drop first image here</p>';
             document.getElementById('mergeDropArea2').innerHTML = '<p>Drag & drop second image here</p>';
             document.getElementById('modalMergeImagesBtn').disabled = true;
         }}
     }});
 
-    // Auto-save functionality for modal fields
     function setupModalAutoSave() {{
         const fields = [
             {{ id: "editCountry", key: "country", type: "select" }},
             {{ id: "editCurrencyType", key: "currency_type", type: "select" }},
-            {{ id: "editDonorName", key: "donor_name", type: "input" }},
             {{ id: "editNote", key: "note", type: "textarea" }},
             {{ id: "editSize", key: "size", type: "input" }},
             {{ id: "editYear", key: "year", type: "input" }},
@@ -6985,19 +6731,16 @@ function verifySave(newId) {{
         }});
     }}
 
-    // Modal image upload functionality
     function setupModalImageUpload() {{
         const dropArea = document.getElementById('modalImageDropArea');
         const fileInput = document.getElementById('editImageInput');
         
         if (!dropArea || !fileInput) return;
         
-        // Click to select file
         dropArea.addEventListener('click', () => {{
             fileInput.click();
         }});
         
-        // Drag and drop events
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {{
             dropArea.addEventListener(eventName, preventDefaults, false);
         }});
@@ -7015,10 +6758,7 @@ function verifySave(newId) {{
             dropArea.addEventListener(eventName, () => dropArea.classList.remove('highlight'), false);
         }});
         
-        // Handle file drop
         dropArea.addEventListener('drop', handleDropFile, false);
-        
-        // Handle file selection
         fileInput.addEventListener('change', handleFileSelect, false);
         
         function handleDropFile(e) {{
@@ -7047,7 +6787,6 @@ function verifySave(newId) {{
             formData.append('file', file);
             formData.append('country', country);
             
-            // If editing existing row, replace the image
             if (currentEditingIndex !== -1 && jsonData[currentEditingIndex].image && jsonData[currentEditingIndex].image !== "placeholder.jpg") {{
                 formData.append('existing_image', jsonData[currentEditingIndex].image);
             }}
@@ -7061,12 +6800,10 @@ function verifySave(newId) {{
                 if (data.error) {{
                     alert('Error uploading image: ' + data.error);
                 }} else {{
-                    // Update the image in the current editing row
                     if (currentEditingIndex !== -1) {{
                         jsonData[currentEditingIndex].image = data.filename;
                         renderTable(jsonData);
                         saveUpdates();
-                        // Update modal image display
                         document.getElementById("modalImage").src = `images/${{country}}/${{data.filename}}`;
                         document.getElementById("imageFileName").textContent = data.filename;
                     }}
@@ -7079,7 +6816,6 @@ function verifySave(newId) {{
         }}
     }}
 
-    // Modal image merging functionality
     function setupModalImageMerging() {{
         let mergeImage1 = null;
         let mergeImage2 = null;
@@ -7088,7 +6824,6 @@ function verifySave(newId) {{
         const mergeDropArea2 = document.getElementById('mergeDropArea2');
         const mergeImagesBtn = document.getElementById('modalMergeImagesBtn');
 
-        // Setup drop areas for merging
         function setupMergeDropArea(dropArea, imageNumber) {{
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
@@ -7159,7 +6894,6 @@ function verifySave(newId) {{
                         mergeDropArea2.innerHTML = htmlContent;
                     }}
                     
-                    // Enable merge button if both images are uploaded
                     if (mergeImage1 && mergeImage2) {{
                         mergeImagesBtn.disabled = false;
                     }}
@@ -7168,11 +6902,9 @@ function verifySave(newId) {{
             }}
         }}
 
-        // Setup both drop areas
         setupMergeDropArea(mergeDropArea1, 1);
         setupMergeDropArea(mergeDropArea2, 2);
 
-        // Merge button click handler
         mergeImagesBtn.addEventListener('click', function() {{
             if (!mergeImage1 || !mergeImage2) {{
                 alert('Please upload both images first');
@@ -7188,7 +6920,6 @@ function verifySave(newId) {{
                 return;
             }}
 
-            // Create FormData for merging
             const formData = new FormData();
             formData.append('image1', mergeImage1);
             formData.append('image2', mergeImage2);
@@ -7196,7 +6927,6 @@ function verifySave(newId) {{
             formData.append('country', country);
             formData.append('resizeOption', resizeOption);
 
-            // Show loading state
             const originalText = mergeImagesBtn.textContent;
             mergeImagesBtn.textContent = 'Merging...';
             mergeImagesBtn.disabled = true;
@@ -7211,16 +6941,13 @@ function verifySave(newId) {{
                     alert('Error merging images: ' + data.error);
                 }} else {{
                     alert('Images merged successfully!');
-                    // Update the current row with merged image
                     if (currentEditingIndex !== -1) {{
                         jsonData[currentEditingIndex].image = data.filename;
                         renderTable(jsonData);
                         saveUpdates();
-                        // Update modal display
                         document.getElementById("modalImage").src = `images/${{country}}/${{data.filename}}`;
                         document.getElementById("imageFileName").textContent = data.filename;
                     }}
-                    // Clear merge areas
                     mergeImage1 = null;
                     mergeImage2 = null;
                     mergeDropArea1.innerHTML = '<p>Drag & drop first image here</p>';
@@ -7239,29 +6966,23 @@ function verifySave(newId) {{
         }});
     }}
 
-    // Initialize modal functionality
     setupModalAutoSave();
     setupModalImageUpload();
     setupModalImageMerging();
-
 }});
 
-
-
 function showAllEntries() {{
-    // First check how many items we have
     fetch('/get-json-stats')
         .then(response => response.json())
         .then(stats => {{
             if (stats.total_items > 500) {{
-                if (!confirm(`⚠️ Warning: This will load ${{stats.total_items}} items (${{stats.file_size_mb}} MB).\n\nThis might be very slow on large collections.\n\nContinue anyway?`)) {{
+                if (!confirm(`⚠️ Warning: This will load ${{stats.total_items}} items (${{stats.file_size_mb}} MB).\\n\\nThis might be very slow on large collections.\\n\\nContinue anyway?`)) {{
                     return;
                 }}
             }}
             loadAllEntries();
         }})
         .catch(() => {{
-            // If stats endpoint fails, proceed with caution
             if (confirm('⚠️ Loading all items may be slow. Continue?')) {{
                 loadAllEntries();
             }}
@@ -7281,7 +7002,6 @@ function loadAllEntries() {{
             jsonData = data;
             renderTable(jsonData);
             
-            // Update UI state
             document.getElementById('prevPage').style.display = 'none';
             document.getElementById('nextPage').style.display = 'none';
             document.getElementById('prevPageBottom').style.display = 'none';
@@ -7328,9 +7048,7 @@ function loadAllEntries() {{
         }});
 }}
 
-
 function showPaginationView() {{
-    // Restore ALL pagination controls
     document.getElementById('prevPage').style.display = 'inline-block';
     document.getElementById('nextPage').style.display = 'inline-block';
     document.getElementById('prevPageBottom').style.display = 'inline-block';
@@ -7340,28 +7058,21 @@ function showPaginationView() {{
     document.getElementById('pageSize').style.display = 'inline-block';
     document.querySelector('.page-size-selector label').style.display = 'inline-block';
     
-    // Restore button visibility
     document.getElementById('showAllBtn').style.display = 'inline-block';
     document.getElementById('showAllBtnBottom').style.display = 'inline-block';
     document.getElementById('showPaginationBtn').style.display = 'none';
     document.getElementById('showPaginationBtnBottom').style.display = 'none';
     
-    // Remove item count display
     const itemCount = document.getElementById('allItemsCount');
     if (itemCount) {{
         itemCount.remove();
     }}
     
-    // Reload the first page with current page size
     loadPageData(1, itemsPerPage);
-    
-    // Show message
     showToast('Switched to pagination view');
 }}
 
-// Add this function to handle editing an existing item
 function editExistingItem(Id) {{
-    // Open the edit page in a new tab/window
     window.open(`/edit-item/${{Id}}`, '_blank');
 }}
 </script>
@@ -7370,18 +7081,10 @@ function editExistingItem(Id) {{
 
 </html>
     '''
-# @app.route('/get-json', methods=['GET'])
-# def get_json():
-#     return jsonify(load_json())
 
-# ADD THIS NEW ROUTE - Serve box_country_list.html
 @app.route('/box_country_list.html')
 def box_country_list():
     return send_from_directory('.', 'box_country_list.html')
-
-# @app.route('/get-json', methods=['GET'])
-# def get_json():
-#     return jsonify(load_json())
 
 @app.route('/get-json', methods=['GET'])
 def get_json():
@@ -7390,7 +7093,6 @@ def get_json():
     per_page = request.args.get('per_page', 20, type=int)
     ajax = request.args.get('ajax', False, type=bool)
     
-    # Get filters from request
     filters = {}
     country = request.args.get('country', '')
     size = request.args.get('size', '')
@@ -7418,14 +7120,12 @@ def get_paginated_data(page=1, per_page=20, filters=None):
     """Get paginated data with optional filtering"""
     all_data = load_json()
     
-    # Apply filters if provided
     if filters:
         all_data = apply_filters_to_data(all_data, filters)
     
     total_items = len(all_data)
     total_pages = (total_items + per_page - 1) // per_page if total_items > 0 else 1
     
-    # Ensure page is within bounds
     page = max(1, min(page, total_pages))
     
     start_idx = (page - 1) * per_page
@@ -7457,15 +7157,12 @@ def apply_filters_to_data(data, filters):
     year_to = filters.get('yearTo')
     
     for item in data:
-        # Country filter
         if country_filter and country_filter not in item.get('country', '').lower():
             continue
             
-        # Size filter
         if size_filter and size_filter not in item.get('size', '').lower():
             continue
             
-        # Year range filter
         year = item.get('year', '')
         if year and str(year).isdigit():
             year_num = int(year)
@@ -7474,7 +7171,6 @@ def apply_filters_to_data(data, filters):
             if year_to and year_num > int(year_to):
                 continue
         elif (year_from or year_to):
-            # If year is not valid and we have year filters, skip
             continue
         
         filtered_data.append(item)
@@ -7485,7 +7181,6 @@ def apply_filters_to_data(data, filters):
 def get_all_json():
     """Get all JSON data - use sparingly for large datasets"""
     try:
-        # Add warning header for large datasets
         all_data = load_json()
         if len(all_data) > 500:
             response = jsonify(all_data)
@@ -7503,42 +7198,31 @@ def update_json():
     preserving all items/countries that weren't visible on the screen.
     """
     try:
-        # This is the filtered/ordered subset array coming from your frontend table
         incoming_data = request.get_json()
         if not isinstance(incoming_data, list):
             return jsonify({"error": "Invalid data format. Expected a list."}), 400
 
-        # 1. Load the absolute complete original database containing ALL coins/countries
         full_data = load_json()
 
-        # 2. Extract unique keys for the items currently being rearranged on screen
-        # We use a tuple of (id, image) to ensure an accurate match
         incoming_keys = { (item.get('id'), item.get('image')) for item in incoming_data if item.get('id') }
 
         updated_full_data = []
         incoming_inserted = False
 
-        # 3. Iterate through the master file to weave the new sequence in seamlessly
         for item in full_data:
             item_key = (item.get('id'), item.get('image'))
             
             if item_key in incoming_keys:
-                # When we encounter the first entry of our filtered collection,
-                # insert the entire newly sorted block from the client view at once.
                 if not incoming_inserted:
                     updated_full_data.extend(incoming_data)
                     incoming_inserted = True
-                # Skip individual original item rows because they are handled in the bulk extension above
                 continue
             else:
-                # Keep non-filtered rows (all other countries/coins) exactly where they were
                 updated_full_data.append(item)
 
-        # Safety Fallback: If none matched, append the incoming_data safely
         if not incoming_inserted:
             updated_full_data.extend(incoming_data)
 
-        # 4. Securely overwrite the file using your existing thread-safe save logic
         save_json(updated_full_data)
 
         return jsonify({"message": "JSON file updated successfully! All other countries preserved."}), 200
@@ -7567,7 +7251,6 @@ def update_country():
         if os.path.exists(old_path):
             os.rename(old_path, new_path)
 
-        # Update JSON
         coins = load_json()
         for entry in coins:
             if entry["image"] == image and entry["country"] == old_country:
@@ -7589,15 +7272,12 @@ def filter_json():
         
         filtered_data = []
         for item in data:
-            # Country filter
             if filters.get('country') and filters['country'].lower() not in item.get('country', '').lower():
                 continue
                 
-            # Size filter
             if filters.get('size') and filters['size'].lower() not in item.get('size', '').lower():
                 continue
                 
-            # Year range filter
             year = item.get('year', '')
             if year and year.isdigit():
                 year_num = int(year)
@@ -7636,10 +7316,8 @@ def upload_json():
 def merge_images():
     """Merge two images together"""
     try:
-        # Get the JSON data
         data = request.get_json()
         
-        # Get the base64 encoded images and merge direction
         image1_data = data.get('image1')
         image2_data = data.get('image2')
         direction = data.get('direction', 'horizontal')
@@ -7648,20 +7326,16 @@ def merge_images():
         if not all([image1_data, image2_data, country]):
             return jsonify({"error": "Missing required parameters"}), 400
         
-        # Remove the data URL prefix if present
         if 'base64,' in image1_data:
             image1_data = image1_data.split('base64,')[1]
         if 'base64,' in image2_data:
             image2_data = image2_data.split('base64,')[1]
         
-        # Decode base64 images
         image1 = Image.open(io.BytesIO(base64.b64decode(image1_data)))
         image2 = Image.open(io.BytesIO(base64.b64decode(image2_data)))
         
-        # Determine the output format based on input images
         output_format = 'PNG'
         
-        # Check if either image has transparency
         has_transparency = (
             (image1.mode in ('RGBA', 'LA') or 
              (image1.mode == 'P' and 'transparency' in image1.info)) or
@@ -7669,7 +7343,6 @@ def merge_images():
              (image2.mode == 'P' and 'transparency' in image2.info))
         )
         
-        # If no transparency, use JPEG if appropriate
         if not has_transparency:
             try:
                 if hasattr(image1, 'format') and image1.format:
@@ -7679,7 +7352,6 @@ def merge_images():
             except:
                 pass
         
-        # Determine the merge direction and resize images if needed
         if direction == 'horizontal':
             max_height = max(image1.height, image2.height)
             image1 = ImageOps.contain(image1, (image1.width, max_height))
@@ -7705,7 +7377,6 @@ def merge_images():
             merged_image.paste(image1, (0, 0))
             merged_image.paste(image2, (0, image1.height))
         
-        # Save the merged image to a bytes buffer
         buffer = io.BytesIO()
         
         save_kwargs = {}
@@ -7720,7 +7391,6 @@ def merge_images():
         merged_image.save(buffer, format=output_format, **save_kwargs)
         buffer.seek(0)
         
-        # Generate a filename with UUID
         file_uuid = str(uuid.uuid4())
         filename = f"{file_uuid}.{file_ext}"
         country_folder = os.path.join(BASE_UPLOAD_FOLDER, country)
@@ -7731,7 +7401,6 @@ def merge_images():
         with open(file_path, 'wb') as f:
             f.write(buffer.getvalue())
         
-        # Invalidate cache since we added a new image
         invalidate_json_cache()
         
         return jsonify({
@@ -7760,151 +7429,7 @@ def get_countries_list():
         return jsonify(countries)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
-@app.route('/update-json', methods=['POST'])
-def update_json_endpoint():
-    """
-    Intelligently merges the client-side reordered subset back into the full
-    coins database, keeping non-visible countries/coins completely untouched.
-    """
-    try:
-        # This is the incoming ordered list of coins from the client screen view
-        incoming_data = request.get_json()
-        if not isinstance(incoming_data, list):
-            return jsonify({"error": "Invalid data format. Expected a list."}), 400
 
-        # 1. Load the true complete master dataset from coins.json
-        full_data = load_json()
-
-        # 2. Map out a lookup of the unique IDs/images that are being reordered
-        incoming_identifiers = { (item.get('id'), item.get('image')) for item in incoming_data if item.get('image') }
-
-        updated_full_data = []
-        incoming_inserted = False
-
-        # 3. Weave the newly reordered sequence back into the file sequence
-        for item in full_data:
-            item_key = (item.get('id'), item.get('image'))
-            
-            if item_key in incoming_identifiers:
-                # When we hit the position placeholder of the matching items,
-                # splice the entire newly organized list from the screen into the stream.
-                if not incoming_inserted:
-                    updated_full_data.extend(incoming_data)
-                    incoming_inserted = True
-                # Skip individual outdated copies since they are bundled inside incoming_data
-                continue
-            else:
-                # Keep other countries/items completely unchanged and in position
-                updated_full_data.append(item)
-
-        # Safety Fallback: If none of the items were previously found, append them
-        if not incoming_inserted:
-            updated_full_data.extend(incoming_data)
-
-        # 4. Save the cleanly reconstructed data stream back to coins.json
-        save_json(updated_full_data)
-
-        return jsonify({"message": "Database updated cleanly! Other countries preserved."}), 200
-
-    except Exception as e:
-        print(f"Error merging filtered items: {str(e)}")
-        return jsonify({"error": str(e)}), 500
-    
-@app.route('/upload-json', methods=['POST'])
-def upload_json_endpoint():
-    """Upload and replace JSON file"""
-    if 'file' not in request.files:
-        return jsonify({"error": "No file provided"}), 400
-
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({"error": "No file selected"}), 400
-
-    if file and file.filename.endswith('.json'):
-        try:
-            data = json.load(file)
-            save_json(data)
-            return jsonify({"message": "File uploaded and JSON data updated successfully!"})
-        except Exception as e:
-            return jsonify({"error": f"Error processing JSON file: {str(e)}"}), 400
-    else:
-        return jsonify({"error": "Invalid file type. Please upload a JSON file."}), 400
-    
-@app.route('/filter-json', methods=['POST'])
-def filter_json_endpoint():
-    """Filter JSON data based on criteria"""
-    try:
-        filters = request.get_json()
-        data = load_json()
-        
-        filtered_data = []
-        for item in data:
-            # Country filter
-            if filters.get('country') and filters['country'].lower() not in item.get('country', '').lower():
-                continue
-                
-            # Size filter
-            if filters.get('size') and filters['size'].lower() not in item.get('size', '').lower():
-                continue
-                
-            # Year range filter
-            year = item.get('year', '')
-            if year and year.isdigit():
-                year_num = int(year)
-                if filters.get('yearFrom') and year_num < int(filters['yearFrom']):
-                    continue
-                if filters.get('yearTo') and year_num > int(filters['yearTo']):
-                    continue
-            
-            filtered_data.append(item)
-            
-        return jsonify(filtered_data)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-@app.route('/update-country', methods=['POST'])
-def update_country_endpoint():
-    """Update country and move image files"""
-    try:
-        data = request.get_json()
-        image = data.get("image")
-        old_country = data.get("old_country")
-        new_country = data.get("new_country")
-
-        if not image or not old_country or not new_country:
-            return jsonify({"error": "Missing parameters"}), 400
-
-        old_path = os.path.join(BASE_UPLOAD_FOLDER, old_country, image)
-        new_folder = os.path.join(BASE_UPLOAD_FOLDER, new_country)
-        new_path = os.path.join(new_folder, image)
-
-        os.makedirs(new_folder, exist_ok=True)
-
-        if os.path.exists(old_path):
-            os.rename(old_path, new_path)
-
-        # Update JSON
-        coins = load_json()
-        for entry in coins:
-            if entry["image"] == image and entry["country"] == old_country:
-                entry["country"] = new_country
-                break
-        save_json(coins)
-
-        return jsonify({"message": f"Country updated to {new_country} and file moved."}), 200
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    
-@app.route('/merge-images', methods=['POST'])
-def merge_images_endpoint():
-    """Merge two images together"""
-    try:
-        data = request.get_json()
-        # Your merge images logic here
-        return jsonify({"message": "Images merged successfully"})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     import webbrowser
@@ -7914,14 +7439,11 @@ if __name__ == '__main__':
     
     def open_browser():
         time.sleep(1.5)
-        # Open first URL in new window
-        webbrowser.open('http://localhost:5000/upload-form', new=2)  # new=2 opens in new tab
+        webbrowser.open('http://localhost:5000/upload-form', new=2)
         time.sleep(0.5)
-        # Open second URL in another new tab
         webbrowser.open('http://localhost:5000/edit_json', new=2)
     
-    # Only auto-open in debug mode and main process
-    debug_mode = True  # Set to False in production
+    debug_mode = True
     if debug_mode and os.environ.get('WERKZEUG_RUN_MAIN') != 'true':
         threading.Thread(target=open_browser, daemon=True).start()
         print("🌐 Browser will open automatically...")
