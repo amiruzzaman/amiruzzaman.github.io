@@ -122,6 +122,33 @@ def build_donors_fields(donor_name, donors=None):
     return fields
 # ===== END MULTI-DONOR HELPERS =====
 
+
+# ============================================================
+# DONOR AUTOCOMPLETE (reads every donor name in images/coins.json)
+# ============================================================
+def get_all_known_donors():
+    """Return a sorted list of every distinct donor name in coins.json."""
+    try:
+        data = load_json()
+        seen = set()
+        for entry in data:
+            for d in get_donors_from_entry(entry):
+                if d:
+                    seen.add(d)
+        return sorted(seen, key=lambda s: s.lower())
+    except Exception as e:
+        print(f"Error collecting donor names: {e}")
+        return []
+
+@app.route('/all-donors', methods=['GET'])
+def all_donors():
+    """Full list of donor names — used to preload <datalist>."""
+    try:
+        return jsonify(get_all_known_donors())
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+# ============================================================
+
 # Helper functions
 def save_file(file, country):
     """
@@ -1631,6 +1658,7 @@ def render_edit_item_page(item):
             setupEventListeners();
             setupImageMerging();
             renderDonors();  // ===== MULTI-DONOR =====
+            preloadDonorList();   // ← NEW: load all donor names for autocomplete
         }});
 
         // ===== MULTI-DONOR functions =====
@@ -1651,7 +1679,8 @@ def render_edit_item_page(item):
                 input.className = 'donor-input';
                 input.value = donor || '';
                 input.placeholder = 'Donor name';
-                input.setAttribute('list', 'donor-suggestions');
+                input.setAttribute('list', 'donor-suggestions');   // ← NEW: links to datalist
+                input.autocomplete = 'off';                        // ← NEW: browser uses our list
                 input.addEventListener('input', function() {{
                     donorsList[index] = this.value;
                     fetchDonorSuggestions(this.value);
@@ -1686,24 +1715,41 @@ def render_edit_item_page(item):
             renderDonors();
         }}
 
-        function fetchDonorSuggestions(query) {{
-            const datalist = document.getElementById('donor-suggestions');
-            if (!query || query.trim().length < 2) {{
+        // Preload every donor name from coins.json on page load
+    function preloadDonorList() {{
+        const datalist = document.getElementById('donor-suggestions');
+        if (!datalist) return;
+        fetch('/all-donors')
+            .then(r => r.json())
+            .then(donors => {{
+                if (!Array.isArray(donors)) return;
                 datalist.innerHTML = '';
-                return;
-            }}
-            fetch(`/suggest-donors?q=${{encodeURIComponent(query.trim())}}`)
-                .then(r => r.json())
-                .then(suggestions => {{
-                    datalist.innerHTML = '';
-                    suggestions.forEach(name => {{
-                        const opt = document.createElement('option');
-                        opt.value = name;
-                        datalist.appendChild(opt);
-                    }});
-                }})
-                .catch(err => console.error('Donor suggestions error:', err));
-        }}
+                donors.forEach(name =>{{
+                    const opt = document.createElement('option');
+                    opt.value = name;
+                    datalist.appendChild(opt);
+                }});
+            }})
+            .catch(err => console.error('Could not preload donor names:', err));
+    }}
+
+    // Live partial-match suggestions as the user types
+    function fetchDonorSuggestions(query) {{
+        const datalist = document.getElementById('donor-suggestions');
+        if (!datalist) return;
+        if (!query || query.trim().length < 2) return;   // leave preloaded list intact
+        fetch(`/suggest-donors?q=${{encodeURIComponent(query.trim())}}`)
+            .then(r => r.json())
+            .then(suggestions => {{
+                datalist.innerHTML = '';
+                suggestions.forEach(name => {{
+                    const opt = document.createElement('option');
+                    opt.value = name;
+                    datalist.appendChild(opt);
+                }});
+            }})
+            .catch(err => console.error('Donor suggestions error:', err));
+    }}
         // ===== END MULTI-DONOR functions =====
 
         function setupEventListeners() {{
@@ -2387,7 +2433,8 @@ def upload_form():
         <form id="donation-form">
             <div class="form-group">
                 <label for="donor-name"><i class="fas fa-user"></i> Donor Name</label>
-                <input type="text" id="donor-name" name="donor-name" placeholder="Enter your name" required>
+                                <input type="text" id="donor-name" name="donor-name" placeholder="Enter your name" list="donor-suggestions" autocomplete="off" required>
+                <datalist id="donor-suggestions"></datalist>
             </div>
             <div class="form-group">
                 <label for="country"><i class="fas fa-globe"></i> Country</label>
@@ -2565,8 +2612,28 @@ def upload_form():
             messageContainer.scrollIntoView({ behavior: 'smooth' });
         }
 
+         // Preload donor names for autocomplete
+        function loadDonorNames() {
+            fetch('/all-donors')
+                .then(r => r.json())
+                .then(donors => {
+                    if (!Array.isArray(donors)) return;
+                    const datalist = document.getElementById('donor-suggestions');
+                    datalist.innerHTML = '';
+                    donors.forEach(name => {
+                        const opt = document.createElement('option');
+                        opt.value = name;
+                        datalist.appendChild(opt);
+                    });
+                })
+                .catch(err => console.error('Could not preload donor names:', err));
+        }
+
         // Initialize the countries when the page loads
-        window.addEventListener('DOMContentLoaded', loadCountries);
+        window.addEventListener('DOMContentLoaded', function() {
+            loadCountries();
+            loadDonorNames();
+        });
     </script>
 </body>
 
@@ -3425,8 +3492,8 @@ def upload_form_page():
             input.className = 'donor-input';
             input.value = donor || '';
             input.placeholder = 'Donor name';
-            input.setAttribute('list', 'donor-suggestions');
-            input.autocomplete = 'off';
+            input.setAttribute('list', 'donor-suggestions');   // ← NEW: links to datalist
+            input.autocomplete = 'off';                        // ← NEW: browser uses our list
             input.addEventListener('input', function() {
                 donorsList[index] = this.value;
                 fetchDonorSuggestions(this.value);
@@ -3461,24 +3528,41 @@ def upload_form_page():
         renderDonors();
     }
 
-    function fetchDonorSuggestions(query) {
-        const datalist = document.getElementById('donor-suggestions');
-        if (!query || query.trim().length < 2) {
-            datalist.innerHTML = '';
-            return;
+            // Preload every donor name on page load
+        function preloadDonorList() {
+            const datalist = document.getElementById('donor-suggestions');
+            if (!datalist) return;
+            fetch('/all-donors')
+                .then(r => r.json())
+                .then(donors => {
+                    if (!Array.isArray(donors)) return;
+                    datalist.innerHTML = '';
+                    donors.forEach(name => {
+                        const opt = document.createElement('option');
+                        opt.value = name;
+                        datalist.appendChild(opt);
+                    });
+                })
+                .catch(err => console.error('Could not preload donor names:', err));
         }
-        fetch(`/suggest-donors?q=${encodeURIComponent(query.trim())}`)
-            .then(r => r.json())
-            .then(suggestions => {
-                datalist.innerHTML = '';
-                suggestions.forEach(name => {
-                    const opt = document.createElement('option');
-                    opt.value = name;
-                    datalist.appendChild(opt);
-                });
-            })
-            .catch(err => console.error('Donor suggestions error:', err));
-    }
+
+        // Live partial-match suggestions
+        function fetchDonorSuggestions(query) {
+            const datalist = document.getElementById('donor-suggestions');
+            if (!datalist) return;
+            if (!query || query.trim().length < 2) return;
+            fetch(`/suggest-donors?q=${encodeURIComponent(query.trim())}`)
+                .then(r => r.json())
+                .then(suggestions => {
+                    datalist.innerHTML = '';
+                    suggestions.forEach(name => {
+                        const opt = document.createElement('option');
+                        opt.value = name;
+                        datalist.appendChild(opt);
+                    });
+                })
+                .catch(err => console.error('Donor suggestions error:', err));
+        }
     // ===== END MULTI-DONOR functions =====
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -3489,6 +3573,7 @@ def upload_form_page():
         setupScrapeButton();
         setupMoveImagesButton();
         renderDonors();  // ===== MULTI-DONOR =====
+        preloadDonorList();   // ← NEW: load all donor names for autocomplete
     });
 
     function setupScrapeButton() {

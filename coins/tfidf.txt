@@ -1,0 +1,67 @@
+// Pure tokenizer: lowercases, strips punctuation, and splits by whitespace
+const tokenize = (text) => 
+  text.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/).filter(Boolean);
+
+// Creates an empty, mutable index object state
+const createIndex = () => ({
+  docs: new Map(), // Stores { id: { termCounts, total } }
+  df: {},          // Tracks global term document frequency
+  n: 0             // Total document count
+});
+
+// Mutates the index state by adding a new document
+const addDoc = (index, id, text) => {
+  const tokens = tokenize(text);
+  if (!tokens.length) return;
+
+  const termCounts = {};
+  for (const term of tokens) {
+    termCounts[term] = (termCounts[term] || 0) + 1;
+  }
+
+  // Update global Document Frequency (DF) map
+  for (const term in termCounts) {
+    index.df[term] = (index.df[term] || 0) + 1;
+  }
+
+  index.docs.set(id, { termCounts, total: tokens.length });
+  index.n++;
+};
+
+// Computes the score of the corpus matching a query string
+const search = (index, query) => {
+  const qTokens = tokenize(query);
+  const results = [];
+
+  index.docs.forEach((doc, id) => {
+    let score = 0;
+
+    for (const term of qTokens) {
+      if (!index.df[term]) continue; // Skip terms that don't exist in the corpus
+
+      // TF calculation: term instances / total terms in doc
+      const tf = (doc.termCounts[term] || 0) / doc.total;
+
+      // IDF calculation: smoothed log formulation
+      const idf = Math.log(index.n / index.df[term]) + 1;
+
+      score += tf * idf;
+    }
+
+    if (score > 0) results.push({ id, score });
+  });
+
+  return results.sort((a, b) => b.score - a.score);
+};
+
+// ==========================================
+// Quick Execution
+// ==========================================
+const myIndex = createIndex();
+
+addDoc(myIndex, 'A', 'Vanilla JavaScript code is lightweight and fast.');
+addDoc(myIndex, 'B', 'Python and JavaScript are both popular languages.');
+addDoc(myIndex, 'C', 'Writing pure vanilla code requires no external modules.');
+
+const results = search(myIndex, 'vanilla JavaScript');
+console.log(results);
