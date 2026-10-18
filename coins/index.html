@@ -41,7 +41,6 @@
         min-height: 100vh;
       }
 
-      /* Search Bar */
       .search-bar {
         width: 80%;
         font-size: 16px;
@@ -67,7 +66,6 @@
         color: var(--secondary-color);
       }
 
-      /* Table Container */
       .table-container {
         width: 80vw;
         margin: 0 auto;
@@ -75,7 +73,6 @@
         padding: 10px;
       }
 
-      /* Table */
       .table {
         width: 100%;
         background: white;
@@ -86,7 +83,6 @@
         display: table;
       }
 
-      /* Header Row */
       .table th {
         background-color: var(--secondary-color);
         color: var(--text-light);
@@ -107,7 +103,6 @@
         color: var(--gold-color);
       }
 
-      /* Table Body Rows */
       .table tbody tr {
         border-bottom: 1px solid var(--border-color);
       }
@@ -124,7 +119,6 @@
         background-color: #e9ecef;
       }
 
-      /* Table Cells */
       .table td {
         padding: 14px 24px;
         color: var(--text-color);
@@ -132,7 +126,6 @@
         overflow-wrap: break-word;
       }
 
-      /* Links in Cells */
       .table td a {
         color: var(--primary-color);
         text-decoration: none;
@@ -145,7 +138,6 @@
         text-decoration: underline;
       }
 
-      /* Summary Section */
       .summary {
         width: 80vw;
         margin-top: 40px;
@@ -171,7 +163,6 @@
         text-align: center;
       }
 
-      /* Footer */
       footer {
         width: 80vw;
         margin-top: 60px;
@@ -194,7 +185,6 @@
         color: var(--primary-dark);
       }
 
-      /* Top Banner Styling */
       .top-banner {
         width: 80%;
         height: 24vh;
@@ -213,7 +203,6 @@
         margin-bottom: 30px;
       }
 
-      /* Collage Container inside Banner */
       .collage-container {
         width: 100%;
         height: 100%;
@@ -223,7 +212,6 @@
         padding: 0.5rem;
       }
 
-      /* Image Collage Item */
       .collage-item {
         position: absolute;
         transform: rotate(calc(var(--rotation, 0) * 1deg)) translate(-50%, -50%);
@@ -254,7 +242,6 @@
         font-weight: 600;
       }
 
-      /* Media Queries for Responsiveness */
       @media (max-width: 768px) {
         .table-container,
         .summary,
@@ -324,6 +311,126 @@
           opacity: 0.4;
         }
       }
+
+      /* ===== Keyword pills (visitor-friendly) ===== */
+      .keyword-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        max-width: 300px;
+      }
+
+      .keyword-pill {
+        display: inline-block;
+        background: #eaf4fb;
+        color: var(--primary-dark);
+        border: 1px solid #c5e0f2;
+        padding: 2px 9px;
+        border-radius: 12px;
+        font-size: 11px;
+        cursor: pointer;
+        transition: var(--transition);
+        white-space: nowrap;
+      }
+
+      .keyword-pill:hover {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-dark);
+      }
+
+      /* ===== People & Places strip ===== */
+      .features-panel {
+        width: 80vw;
+        margin-top: 30px;
+        padding: 18px 32px;
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .features-panel h2 {
+        color: var(--secondary-color);
+        margin: 0 0 4px 0;
+        font-size: 1.1em;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .features-panel .subtitle {
+        font-size: 0.85em;
+        color: #7f8c8d;
+        margin: 0 0 14px 0;
+      }
+
+      .feature-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .feature-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #f8f5eb;
+        color: #7a5c00;
+        border: 1px solid #e6d9b0;
+        padding: 5px 12px;
+        border-radius: 14px;
+        font-size: 12px;
+        text-decoration: none;
+        transition: var(--transition);
+      }
+
+      .feature-chip:hover {
+        background: var(--accent-light);
+        color: white;
+        border-color: #b37600;
+        text-decoration: none;
+      }
+
+      .feature-chip .count {
+        background: rgba(0, 0, 0, 0.08);
+        padding: 1px 6px;
+        border-radius: 8px;
+        font-size: 10px;
+        font-weight: bold;
+      }
+
+      .feature-chip:hover .count {
+        background: rgba(255, 255, 255, 0.25);
+      }
+
+      /* ===== Quiet collection notes line in summary ===== */
+      .summary .collection-note {
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+        font-size: 0.9em;
+        color: #dfe6e9;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .summary .collection-note i {
+        color: var(--gold-color);
+        margin-top: 2px;
+      }
+
+      @media (max-width: 768px) {
+        .features-panel {
+          width: 95vw;
+          padding: 14px 16px;
+        }
+        .keyword-pills {
+          max-width: 100%;
+        }
+      }
     </style>
   </head>
 
@@ -352,12 +459,30 @@
               <th data-key="donor_name">
                 <i class="fas fa-user"></i> Donor Name
               </th>
+              <th
+                title="Characteristic subjects mentioned in this country's notes"
+              >
+                <i class="fas fa-tags"></i> Keywords
+              </th>
             </tr>
           </thead>
           <tbody></tbody>
         </table>
       </div>
       <div id="summary-container" class="summary"></div>
+
+      <!-- ===== People & Places across the collection ===== -->
+      <div id="features-panel" class="features-panel" style="display: none">
+        <h2>
+          <i class="fas fa-landmark" style="color: var(--accent-light)"></i>
+          People &amp; Places on Notes
+        </h2>
+        <p class="subtitle">
+          Historical figures and landmarks that appear on the banknotes and
+          coins in this collection. Click any to see the item.
+        </p>
+        <div id="feature-chips" class="feature-chips"></div>
+      </div>
     </div>
 
     <footer>
@@ -377,10 +502,281 @@
       let lastSortedColumn = null;
 
       /* ============================================================
-     MULTI-DONOR HELPER
-     Extracts a flat list of donor names from an entry, handling
-     both the legacy "donor_name" string and the new "donors" array.
-     ============================================================ */
+         DATE PATTERN HELPERS
+         Skip {}-{}-{} and {}/{}/{} patterns (day-month-year,
+         month/day/year, etc.) so they never pollute tokens/features.
+         ============================================================ */
+      // Matches 5-18-2026, 05-18-2026, 2026-5-18, 5/18/2026, 2026/05/18, 18-5-26
+      // Requires 2-4 digit groups separated by "-" or "/" (at least 3 groups).
+      const DATE_PATTERN = /\b\d{1,4}\s*[-\/]\s*\d{1,2}\s*[-\/]\s*\d{1,4}\b/g;
+      // Also catch a bare 2-part date like "5-18" only when it's not a size
+      // (we intentionally keep 2-part patterns; sizes like "135 x 70" use "x",
+      //  not "-" or "/", so they aren't affected).
+
+      function stripDates(text) {
+        if (!text) return "";
+        return String(text).replace(DATE_PATTERN, " ");
+      }
+
+      /* ============================================================
+         TF-IDF CORE  (expanded stopwords remove template phrases)
+         ============================================================ */
+      const TFIDF_STOPWORDS = new Set([
+        // English function words
+        "the",
+        "a",
+        "an",
+        "of",
+        "is",
+        "and",
+        "to",
+        "in",
+        "on",
+        "for",
+        "with",
+        "by",
+        "at",
+        "from",
+        "this",
+        "that",
+        "it",
+        "as",
+        "be",
+        "are",
+        "was",
+        "were",
+        "or",
+        "but",
+        "not",
+        "no",
+        "so",
+        "if",
+        "also",
+        "into",
+        "than",
+        "then",
+        "each",
+        "some",
+        "any",
+        "all",
+        "one",
+        "two",
+        "more",
+        "most",
+        "other",
+        "such",
+        "only",
+        "just",
+        "like",
+        "very",
+        "can",
+        "may",
+        "has",
+        "have",
+        "had",
+        "his",
+        "her",
+        "its",
+        "their",
+        "our",
+        "your",
+        "will",
+        "would",
+        "could",
+        "should",
+        "being",
+        "been",
+        "when",
+        "where",
+        "which",
+        "who",
+        "whom",
+        "what",
+        "how",
+        "why",
+        "there",
+        "these",
+        "those",
+        "they",
+        "them",
+        "she",
+        "he",
+        "him",
+        "yours",
+        "ours",
+        "theirs",
+        "mine",
+        "same",
+        // URLs & site names
+        "https",
+        "http",
+        "www",
+        "com",
+        "org",
+        "net",
+        "html",
+        "htm",
+        "en",
+        "wiki",
+        "wikipedia",
+        "numista",
+        // Currency / catalog boilerplate that appears in EVERY note
+        "coin",
+        "coins",
+        "note",
+        "notes",
+        "bill",
+        "bills",
+        "paper",
+        "paper-bill",
+        "banknote",
+        "banknotes",
+        "usd",
+        "us",
+        "dollar",
+        "dollars",
+        "composition",
+        "composed",
+        "made",
+        "using",
+        "use",
+        "used",
+        // Template phrases from this collection's notes
+        "person",
+        "persons",
+        "picture",
+        "pictures",
+        "depicts",
+        "depict",
+        "depicting",
+        "features",
+        "feature",
+        "shows",
+        "show",
+        "face",
+        "facing",
+        "portrait",
+        "obverse",
+        "reverse",
+        "front",
+        "back",
+        "side",
+        "year",
+        "years",
+        "dated",
+        "issued",
+        "minted",
+        "circulated",
+        "uncirculated",
+        // Common dimensions/units
+        "mm",
+        "cm",
+        "inches",
+        "inch",
+        "weight",
+        "gram",
+        "grams",
+        "diameter",
+      ]);
+
+      let tfidfModel = null;
+
+      function tokenize(text) {
+        if (!text) return [];
+        // 1) Remove date patterns before tokenizing
+        const cleaned = stripDates(text);
+        return String(cleaned)
+          .toLowerCase()
+          .replace(/https?:\/\/\S+/g, " ")
+          .replace(/[^a-z0-9\s-]/g, " ")
+          .split(/\s+/)
+          .filter(
+            (t) =>
+              t.length > 1 &&
+              !TFIDF_STOPWORDS.has(t) &&
+              !/^\d+$/.test(t) &&
+              !/^\d+x\d+$/.test(t) &&
+              !/^\d+[-\/]\d+/.test(t),
+          );
+      }
+
+      function buildDocText(item) {
+        const parts = [];
+        if (item.note) parts.push(item.note);
+        if (item.hidden_note) parts.push(item.hidden_note);
+        return parts.join(" ");
+      }
+
+      function buildTfIdfModel(items) {
+        const docs = items.map(buildDocText);
+        const tokenized = docs.map(tokenize);
+
+        const df = new Map();
+        for (const toks of tokenized) {
+          for (const t of new Set(toks)) df.set(t, (df.get(t) || 0) + 1);
+        }
+        const N = docs.length;
+
+        const idf = new Map();
+        for (const [t, d] of df) idf.set(t, Math.log((N + 1) / (d + 1)) + 1);
+
+        const vocab = [...idf.keys()].sort();
+        const idx = new Map(vocab.map((t, i) => [t, i]));
+
+        const vectors = tokenized.map((toks) => {
+          const tf = new Map();
+          for (const t of toks) tf.set(t, (tf.get(t) || 0) + 1);
+          const vec = new Float32Array(vocab.length);
+          for (const [t, c] of tf) {
+            const i = idx.get(t);
+            if (i !== undefined) vec[i] = (1 + Math.log(c)) * idf.get(t);
+          }
+          let norm = 0;
+          for (let i = 0; i < vec.length; i++) norm += vec[i] * vec[i];
+          norm = Math.sqrt(norm) || 1;
+          for (let i = 0; i < vec.length; i++) vec[i] /= norm;
+          return vec;
+        });
+
+        return { vocab, idx, idf, vectors, docs, items, N };
+      }
+
+      function cosine(a, b) {
+        let s = 0;
+        for (let i = 0; i < a.length; i++) s += a[i] * b[i];
+        return s;
+      }
+
+      function vectorizeQuery(query, model) {
+        const toks = tokenize(query);
+        const vec = new Float32Array(model.vocab.length);
+        for (const t of toks) {
+          const i = model.idx.get(t);
+          if (i !== undefined) vec[i] += model.idf.get(t);
+        }
+        let norm = 0;
+        for (let i = 0; i < vec.length; i++) norm += vec[i] * vec[i];
+        norm = Math.sqrt(norm) || 1;
+        for (let i = 0; i < vec.length; i++) vec[i] /= norm;
+        return vec;
+      }
+
+      function itemKey(it) {
+        return it.id || it.image || `${it.country}::${it.year}::${it.note}`;
+      }
+
+      function indexOfItem(it) {
+        if (!tfidfModel) return -1;
+        const k = itemKey(it);
+        for (let i = 0; i < tfidfModel.items.length; i++) {
+          if (itemKey(tfidfModel.items[i]) === k) return i;
+        }
+        return -1;
+      }
+
+      /* ============================================================
+         MULTI-DONOR HELPER (unchanged)
+         ============================================================ */
       function getDonorsFromItem(item) {
         if (!item) return [];
         if (Array.isArray(item.donors) && item.donors.length > 0) {
@@ -398,26 +794,45 @@
         return [];
       }
 
-      // Fetch and process data
+      /* ============================================================
+         DEEP-LINK HELPER — points to a SPECIFIC item
+         ============================================================ */
+      function getItemLink(item) {
+        if (item && item.url) return item.url;
+        if (item && item.country) {
+          let u = `display.html?country=${encodeURIComponent(item.country)}`;
+          if (item.image) {
+            const base = String(item.image).replace(/\.[^.]+$/, "");
+            u += `&coin=${encodeURIComponent(base)}`;
+          }
+          return u;
+        }
+        return "#";
+      }
+
+      /* ============================================================
+         Fetch + bootstrap
+         ============================================================ */
       fetch("images/coins.json")
         .then((response) => response.json())
         .then((data) => {
           originalData = data;
 
-          // Find all countries with the latest timestamp
+          const docsForModel = data.filter(
+            (it) =>
+              (it.note && it.note.trim()) ||
+              (it.hidden_note && it.hidden_note.trim()),
+          );
+          tfidfModel = buildTfIdfModel(docsForModel);
+
           const validTimestampData = data.filter((item) => item.timestamp);
           if (validTimestampData.length > 0) {
-            // Find the latest date
             const latestDate = validTimestampData.reduce((latest, item) => {
               const itemDate = new Date(item.timestamp);
               const latestDate = new Date(latest.timestamp);
               return itemDate > latestDate ? item : latest;
             });
-
-            // Get the latest timestamp
             const latestTimestamp = new Date(latestDate.timestamp);
-
-            // Find all countries with this latest timestamp
             window.latestCountries = validTimestampData
               .filter((item) => {
                 const itemDate = new Date(item.timestamp);
@@ -429,49 +844,43 @@
           }
 
           combinedData = combineData(originalData);
-
-          // DEFAULT SORT A-Z
           combinedData.sort((a, b) => a.country.localeCompare(b.country));
 
           renderTable(combinedData);
           renderSummary(originalData);
+          renderFeaturesPanel();
         })
         .catch((error) => console.error("Error fetching JSON:", error));
 
-      // Combine duplicate countries (only those with images)
+      /* ============================================================
+         Combine duplicate countries (existing behavior preserved)
+         + attach per-country keyword metadata
+         ============================================================ */
       function combineData(data) {
         const result = [];
         const countryMap = new Map();
 
         data.forEach((item) => {
-          // Skip items without images
           if (!item.image || item.image.trim() === "") return;
 
           if (!countryMap.has(item.country)) {
-            // If country doesn't exist, add it to the map and result array
-            const newItem = {
-              ...item,
-            };
+            const newItem = { ...item };
             newItem.currency_type = [item.currency_type];
-            // ===== MULTI-DONOR: collect donor names from both formats =====
             newItem.donor_name = getDonorsFromItem(item);
-            // Store the original timestamp
             newItem.original_timestamp = item.timestamp;
+            newItem._items = [item];
             countryMap.set(item.country, newItem);
             result.push(newItem);
           } else {
-            // If country exists, update the merged data
             const existing = countryMap.get(item.country);
             if (existing.currency_type.indexOf(item.currency_type) === -1) {
               existing.currency_type.push(item.currency_type);
             }
-            // ===== MULTI-DONOR: add every donor from this item (dedup) =====
             getDonorsFromItem(item).forEach((donor) => {
               if (existing.donor_name.indexOf(donor) === -1) {
                 existing.donor_name.push(donor);
               }
             });
-            // Update timestamp if this one is newer
             if (item.timestamp) {
               const existingTime = new Date(existing.original_timestamp || 0);
               const newTime = new Date(item.timestamp);
@@ -479,36 +888,89 @@
                 existing.original_timestamp = item.timestamp;
               }
             }
+            existing._items.push(item);
           }
         });
 
-        // Format the combined data back into strings for rendering
-        result.forEach((item) => {
-          item.currency_type = item.currency_type.join(", ");
-          item.donor_name = item.donor_name.join(", ");
+        result.forEach((row) => {
+          row.currency_type = row.currency_type.join(", ");
+          row.donor_name = row.donor_name.join(", ");
+          attachCountryKeywords(row);
         });
 
         return result;
       }
 
-      function swapCoinAndBill(input) {
-        if (input === "coin, paper-bill") {
-          return "paper-bill, coin";
+      function attachCountryKeywords(row) {
+        row._keywords = [];
+        if (!tfidfModel) return;
+
+        const positions = row._items
+          .map((it) => indexOfItem(it))
+          .filter((p) => p >= 0);
+        if (positions.length === 0) return;
+
+        const dim = tfidfModel.vocab.length;
+        const thisMean = new Float64Array(dim);
+        for (const p of positions) {
+          const v = tfidfModel.vectors[p];
+          for (let i = 0; i < dim; i++) thisMean[i] += v[i];
         }
+        for (let i = 0; i < dim; i++) thisMean[i] /= positions.length;
+
+        const bgMean = new Float64Array(dim);
+        let bgCount = 0;
+        for (let p = 0; p < tfidfModel.items.length; p++) {
+          if (positions.includes(p)) continue;
+          const v = tfidfModel.vectors[p];
+          for (let i = 0; i < dim; i++) bgMean[i] += v[i];
+          bgCount++;
+        }
+        bgCount = bgCount || 1;
+        for (let i = 0; i < dim; i++) bgMean[i] /= bgCount;
+
+        const scored = [];
+        for (let i = 0; i < dim; i++) {
+          if (thisMean[i] > 0) {
+            const distinct = thisMean[i] - bgMean[i];
+            if (distinct > 0.01) {
+              scored.push({ term: tfidfModel.vocab[i], score: distinct });
+            }
+          }
+        }
+        scored.sort((a, b) => b.score - a.score);
+
+        const chosen = [];
+        const seen = new Set();
+        for (const s of scored) {
+          if (chosen.length >= 5) break;
+          if (seen.has(s.term)) continue;
+          if (s.term.length < 4) continue;
+          // Skip anything that still resembles a date fragment
+          if (/^\d+$/.test(s.term) || /[-\/]/.test(s.term)) continue;
+          chosen.push(s.term);
+          seen.add(s.term);
+        }
+        row._keywords = chosen;
+      }
+
+      function swapCoinAndBill(input) {
+        if (input === "coin, paper-bill") return "paper-bill, coin";
         return input;
       }
 
-      // Render the table
+      /* ============================================================
+         Render table — Country / Currency Type / Donor / Keywords
+         ============================================================ */
       function renderTable(data) {
         const tbody = document.querySelector("#data-table tbody");
         tbody.innerHTML = "";
 
-        // Find the latest timestamp from the combined data
         const countriesWithTimestamps = data.filter(
           (item) => item.original_timestamp,
         );
+        let latestTimestamp = null;
         if (countriesWithTimestamps.length > 0) {
-          // Find the latest date in the combined data
           const latestCombinedDate = countriesWithTimestamps.reduce(
             (latest, item) => {
               const itemDate = new Date(item.original_timestamp);
@@ -516,71 +978,76 @@
               return itemDate > latestDate ? item : latest;
             },
           );
-
-          const latestTimestamp = new Date(
-            latestCombinedDate.original_timestamp,
-          );
-
-          // Now check each row against this latest timestamp
-          data.forEach((row) => {
-            const rowDate = row.original_timestamp
-              ? new Date(row.original_timestamp)
-              : null;
-            const isLatest =
-              rowDate && rowDate.getTime() === latestTimestamp.getTime();
-            const latestBadge = isLatest
-              ? `<span class="new-badge">NEW</span>`
-              : "";
-
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-          <td><a href="display.html?country=${encodeURIComponent(row.country)}"><i class="fas fa-search"></i> ${row.country}</a> ${latestBadge}</td>
-          <td><i class="${row.currency_type.includes("coin") ? "fas fa-coins" : "fas fa-money-bill-alt"}"></i> ${swapCoinAndBill(row.currency_type)}</td>
-          <td><i class="fas fa-user-tie"></i> ${row.donor_name}</td>
-        `;
-            tbody.appendChild(tr);
-          });
-        } else {
-          // No timestamps, render without badges
-          data.forEach((row) => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-          <td><a href="display.html?country=${encodeURIComponent(row.country)}"><i class="fas fa-search"></i> ${row.country}</a></td>
-          <td><i class="${row.currency_type.includes("coin") ? "fas fa-coins" : "fas fa-money-bill-alt"}"></i> ${swapCoinAndBill(row.currency_type)}</td>
-          <td><i class="fas fa-user-tie"></i> ${row.donor_name}</td>
-        `;
-            tbody.appendChild(tr);
-          });
+          latestTimestamp = new Date(latestCombinedDate.original_timestamp);
         }
+
+        data.forEach((row) => {
+          const rowDate = row.original_timestamp
+            ? new Date(row.original_timestamp)
+            : null;
+          const isLatest =
+            rowDate &&
+            latestTimestamp &&
+            rowDate.getTime() === latestTimestamp.getTime();
+          const latestBadge = isLatest
+            ? `<span class="new-badge">NEW</span>`
+            : "";
+
+          const keywordsCell =
+            row._keywords && row._keywords.length
+              ? `<div class="keyword-pills">${row._keywords
+                  .map(
+                    (kw) =>
+                      `<span class="keyword-pill" data-search="${escapeAttr(kw)}" title="Search for '${escapeAttr(kw)}'">${escapeHtml(kw)}</span>`,
+                  )
+                  .join("")}</div>`
+              : `<span style="color:#bdc3c7;font-size:11px;">—</span>`;
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+        <td><a href="display.html?country=${encodeURIComponent(row.country)}"><i class="fas fa-search"></i> ${row.country}</a>${latestBadge}</td>
+        <td><i class="${row.currency_type.includes("coin") ? "fas fa-coins" : "fas fa-money-bill-alt"}"></i> ${swapCoinAndBill(row.currency_type)}</td>
+        <td><i class="fas fa-user-tie"></i> ${row.donor_name}</td>
+        <td>${keywordsCell}</td>
+      `;
+          tbody.appendChild(tr);
+        });
+
+        tbody.querySelectorAll(".keyword-pill").forEach((el) => {
+          el.addEventListener("click", () => {
+            const term = el.getAttribute("data-search");
+            const input = document.getElementById("search-input");
+            input.value = term;
+            input.dispatchEvent(new Event("input", { bubbles: true }));
+            input.scrollIntoView({ behavior: "smooth", block: "center" });
+          });
+        });
       }
 
-      // Render summary statistics
+      /* ============================================================
+         Summary (existing stats + one quiet line)
+         ============================================================ */
       function renderSummary(data) {
         const summary = document.getElementById("summary-container");
 
-        // Filter out countries with empty image fields
         const countriesWithImages = new Set(
           data
             .filter((item) => item.image && item.image.trim() !== "")
             .map((item) => item.country),
         );
 
-        // Per-category: count each country at most once (only those with images)
         const paperBillCountries = new Set();
         const coinCountries = new Set();
         const antiqueCountries = new Set();
 
         data.forEach((item) => {
-          // Skip items without images
           if (!item.image || item.image.trim() === "") return;
-
           const country = item.country;
           if (!country) return;
 
-          // normalize currency_type -> array of tokens
           const types = String(item.currency_type || "")
             .toLowerCase()
-            .replace(/[-_]/g, " ") // "paper-bill" -> "paper bill"
+            .replace(/[-_]/g, " ")
             .split(",")
             .map((s) => s.trim())
             .filter(Boolean);
@@ -603,38 +1070,288 @@
           if (hasAntique) antiqueCountries.add(country);
         });
 
+        const totalItems = data.filter(
+          (it) => it.image && it.image.trim() !== "",
+        ).length;
+
         summary.innerHTML = `
       <p><i class="fas fa-globe-americas"></i> Number of Countries: ${countriesWithImages.size}</p>
       <p><i class="fas fa-money-bill-alt"></i> Number of Paper Bills: ${paperBillCountries.size}</p>
       <p><i class="fas fa-coins"></i> Number of Coins: ${coinCountries.size}</p>
       <p><i class="fas fa-history"></i> Number of Antiques: ${antiqueCountries.size}</p>
+      <div class="collection-note">
+        <i class="fas fa-info-circle"></i>
+        <span>This collection includes <strong>${totalItems}</strong> items across
+        <strong>${countriesWithImages.size}</strong> countries. Notes mentioning
+        historical figures and landmarks are highlighted below.</span>
+      </div>
     `;
       }
 
-      // Add search functionality
+      /* ============================================================
+         People & Places panel — extracted from note text
+         (dates are stripped before extraction)
+         ============================================================ */
+      const FEATURE_STOPWORDS = new Set([
+        "the",
+        "a",
+        "an",
+        "of",
+        "in",
+        "on",
+        "for",
+        "with",
+        "by",
+        "at",
+        "from",
+        "this",
+        "that",
+        "it",
+        "is",
+        "are",
+        "was",
+        "were",
+        "and",
+        "or",
+        "but",
+        "not",
+        "no",
+        "composition",
+        "paper",
+        "polymer",
+        "coin",
+        "coins",
+        "note",
+        "notes",
+        "bill",
+        "bills",
+        "obverse",
+        "reverse",
+        "front",
+        "back",
+        "side",
+        "year",
+        "dated",
+        "united",
+        "states",
+        "republic",
+        "kingdom",
+        "government",
+        "central",
+        "bank",
+        "currency",
+        "worth",
+        "value",
+        "dollar",
+        "dollars",
+        "pounds",
+        "rupees",
+        "yen",
+        "won",
+        "shillings",
+        "pesos",
+        "pesetas",
+        "francs",
+        "lira",
+        "euro",
+        "numista",
+        "wikipedia",
+        "http",
+        "https",
+        "www",
+        "com",
+        "org",
+        "en",
+        "wiki",
+        "jpg",
+        "png",
+        "image",
+        "photo",
+        "picture",
+        "portrait",
+        "person",
+        "person's",
+        "features",
+        "featuring",
+        "shows",
+        "depicts",
+        "portrays",
+        "appears",
+        "queen",
+        "king",
+        "president",
+        "sultan",
+        "emperor",
+        "prince",
+        "princess",
+        "general",
+        "saint",
+        "sir",
+        "lord",
+        "lady",
+        "dr",
+        "mr",
+        "mrs",
+        "ms",
+      ]);
+
+      function extractFeatures(data) {
+        const featureMap = new Map();
+
+        data.forEach((item) => {
+          if (!item.image || item.image.trim() === "") return;
+          // Strip dates BEFORE word scanning so date fragments never
+          // become feature candidates.
+          const text = stripDates(buildDocText(item));
+          if (!text) return;
+
+          const words = text
+            .replace(/https?:\/\/\S+/g, " ")
+            .replace(/[^A-Za-z0-9\s'-]/g, " ")
+            .split(/\s+/)
+            .filter(Boolean);
+
+          let i = 0;
+          while (i < words.length) {
+            const w = words[i];
+            const isCap = /^[A-Z][a-z]/.test(w) && w.length > 2;
+            if (isCap && !FEATURE_STOPWORDS.has(w.toLowerCase())) {
+              const phrase = [w];
+              let j = i + 1;
+              while (
+                j < words.length &&
+                /^[A-Z][a-z]/.test(words[j]) &&
+                words[j].length > 2 &&
+                !FEATURE_STOPWORDS.has(words[j].toLowerCase()) &&
+                j - i < 4
+              ) {
+                phrase.push(words[j]);
+                j++;
+              }
+              const name = phrase.join(" ");
+              if (name.length >= 3 && name.length <= 40) {
+                if (!featureMap.has(name)) {
+                  featureMap.set(name, { items: new Set(), sample: item });
+                }
+                featureMap.get(name).items.add(itemKey(item));
+              }
+              i = j;
+            } else {
+              i++;
+            }
+          }
+        });
+
+        return featureMap;
+      }
+
+      function renderFeaturesPanel() {
+        const panel = document.getElementById("features-panel");
+        const chipsEl = document.getElementById("feature-chips");
+
+        const featureMap = extractFeatures(originalData);
+        if (featureMap.size === 0) {
+          panel.style.display = "none";
+          return;
+        }
+
+        const entries = [...featureMap.entries()]
+          .map(([name, v]) => ({ name, count: v.items.size, sample: v.sample }))
+          .filter((e) => e.count >= 1)
+          .sort((a, b) => {
+            if (b.count !== a.count) return b.count - a.count;
+            return a.name.localeCompare(b.name);
+          })
+          .slice(0, 20);
+
+        if (entries.length === 0) {
+          panel.style.display = "none";
+          return;
+        }
+
+        chipsEl.innerHTML = entries
+          .map((e) => {
+            const link = getItemLink(e.sample);
+            return `<a class="feature-chip" href="${link}" title="Appears on ${e.count} item${e.count === 1 ? "" : "s"} — click to view">
+              <i class="fas fa-user-circle" style="opacity:0.7;"></i>
+              ${escapeHtml(e.name)}
+              <span class="count">${e.count}</span>
+            </a>`;
+          })
+          .join("");
+
+        panel.style.display = "block";
+      }
+
+      /* ============================================================
+         Escaping
+         ============================================================ */
+      function escapeHtml(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+      function escapeAttr(s) {
+        return escapeHtml(s).replace(/"/g, "&quot;");
+      }
+
+      /* ============================================================
+         Search — substring filter (existing) + silent TF-IDF ranking
+         ============================================================ */
       document
         .getElementById("search-input")
         .addEventListener("input", (event) => {
-          const query = event.target.value.toLowerCase();
+          const query = event.target.value;
+          const q = query.toLowerCase();
+
           const filteredData = originalData.filter((item) => {
-            // ===== MULTI-DONOR: search across every donor name =====
             const donorsText = getDonorsFromItem(item).join(", ").toLowerCase();
             return (
-              item.country.toLowerCase().includes(query) ||
-              item.currency_type.toLowerCase().includes(query) ||
-              donorsText.includes(query) ||
-              (item.note && item.note.toLowerCase().includes(query)) ||
-              (item.size && item.size.toLowerCase().includes(query)) ||
-              (item.year && item.year.toString().includes(query))
+              item.country.toLowerCase().includes(q) ||
+              item.currency_type.toLowerCase().includes(q) ||
+              donorsText.includes(q) ||
+              (item.note && item.note.toLowerCase().includes(q)) ||
+              (item.hidden_note &&
+                item.hidden_note.toLowerCase().includes(q)) ||
+              (item.size && item.size.toLowerCase().includes(q)) ||
+              (item.year && item.year.toString().includes(q))
             );
           });
-          renderTable(combineData(filteredData));
+
+          let combined = combineData(filteredData);
+
+          if (q.trim() && tfidfModel) {
+            const qVec = vectorizeQuery(query, tfidfModel);
+            combined.forEach((row) => {
+              let best = 0;
+              row._items.forEach((it) => {
+                const pos = indexOfItem(it);
+                if (pos >= 0) {
+                  const sim = cosine(qVec, tfidfModel.vectors[pos]);
+                  if (sim > best) best = sim;
+                }
+              });
+              row._queryScore = best;
+            });
+            combined.sort(
+              (a, b) => (b._queryScore || 0) - (a._queryScore || 0),
+            );
+          }
+
+          renderTable(combined);
         });
 
-      // Add sorting functionality
+      /* ============================================================
+         Sorting (existing behavior preserved)
+         ============================================================ */
       document.querySelectorAll("#data-table th").forEach((th) => {
         th.addEventListener("click", () => {
           const key = th.dataset.key;
+          if (!key) return;
+
           const sortedData = [...combinedData].sort((a, b) => {
             if (a[key] < b[key]) return isAscending ? -1 : 1;
             if (a[key] > b[key]) return isAscending ? 1 : -1;
@@ -644,21 +1361,21 @@
           lastSortedColumn = key;
           renderTable(sortedData);
 
-          // Update sort indicator
           document
             .querySelectorAll("#data-table th i.fa-sort")
             .forEach((icon) => {
               icon.className = "fas fa-sort";
             });
           const sortIcon = th.querySelector("i");
-          sortIcon.className = isAscending
-            ? "fas fa-sort-up"
-            : "fas fa-sort-down";
+          if (sortIcon) {
+            sortIcon.className = isAscending
+              ? "fas fa-sort-up"
+              : "fas fa-sort-down";
+          }
         });
       });
 
       /*---------------------collage-----------------------*/
-      // prevent right click
       document.addEventListener("contextmenu", (event) =>
         event.preventDefault(),
       );
@@ -667,7 +1384,6 @@
         const collageContainer = document.getElementById("collageContainer");
         const jsonFilePath = "images/coins.json";
 
-        // Fetch JSON file and generate collage
         fetch(jsonFilePath)
           .then((response) => {
             if (!response.ok) {
@@ -678,52 +1394,37 @@
           .then((data) => {
             data.forEach((item, index) => {
               const { country, image } = item;
-
-              // Skip items with no image (null, undefined, or empty string)
               if (!image || image.trim() === "") return;
 
-              // Create a collage item div
               const collageItem = document.createElement("div");
               collageItem.className = "collage-item";
 
-              // Random positions within the banner
               const randomX = Math.random() * 100;
               const randomY = Math.random() * 100;
 
-              // Random rotation angle and z-index
               collageItem.style.setProperty(
                 "--rotation",
                 Math.floor(Math.random() * 20) - 10,
               );
               collageItem.style.setProperty("--z-index", index);
-
-              // Position the collage item
               collageItem.style.left = `${randomX}%`;
               collageItem.style.top = `${randomY}%`;
 
-              // Create a link element
               const linkElement = document.createElement("a");
               linkElement.href = `display.html?country=${country}`;
 
-              // Create an image element
               const imgElement = document.createElement("img");
               const formattedCountry = country
                 .toLowerCase()
                 .split(" ")
                 .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
                 .join(" ");
-
               imgElement.src = `images/${formattedCountry}/${image}`;
               imgElement.alt = `${country} image`;
               imgElement.loading = "lazy";
 
-              // Append the image to the link
               linkElement.appendChild(imgElement);
-
-              // Append the link to the collage item
               collageItem.appendChild(linkElement);
-
-              // Append the collage item to the collage container
               collageContainer.appendChild(collageItem);
             });
           })
