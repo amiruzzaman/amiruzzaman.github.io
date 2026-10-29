@@ -207,6 +207,19 @@ button:hover{background-color:#45a049;}
 .ai-gen-row{display:flex;align-items:center;gap:10px;margin:12px 0;padding:10px 14px;background:#f3e5f5;border-left:4px solid #9C27B0;border-radius:5px;font-size:14px;font-weight:500;}
 .ai-gen-row label{display:flex;align-items:center;gap:8px;cursor:pointer;}
 .ai-gen-row input[type=checkbox]{width:18px;height:18px;cursor:pointer;}
+
+.locked-input {background:#e8f5e9 !important;border-color:#81c784 !important;color:#1b5e20 !important;cursor:pointer !important;font-weight:600;}
+
+.confirm-modal .modal-content{width:460px;max-width:94%;}
+.confirm-modal .modal-header{border-bottom:1px solid var(--border-color);}
+.confirm-modal .modal-title{font-size:17px;}
+.confirm-modal .modal-body{font-size:14px;line-height:1.55;color:#333;}
+.confirm-modal .modal-body .confirm-pair{display:flex;gap:10px;margin:12px 0;flex-wrap:wrap;}
+.confirm-modal .modal-body .confirm-pair .chip{flex:1;min-width:160px;padding:8px 10px;border-radius:4px;font-size:12px;}
+.confirm-modal .modal-body .confirm-pair .chip.pos{background:var(--positive-color);border-left:3px solid #4CAF50;}
+.confirm-modal .modal-body .confirm-pair .chip.neg{background:var(--negative-color);border-left:3px solid #F44336;}
+.confirm-modal .modal-footer{justify-content:flex-end;flex-wrap:wrap;gap:8px;}
+.confirm-modal .modal-footer button{font-size:13px;padding:8px 14px;}
 </style>
 </head>
 <body>
@@ -303,6 +316,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
 </div>
 
 <div class="controls" id="generateSection">
+<button id="check6TopBtn" style="background-color:#e65100;" onclick="cycleCheck6FromButton(this)">Check 6: T (tracking) — click to change</button>
 <button id="generateBtn">Generate Feedback</button>
 <button id="copyBtn" class="hidden">Copy Feedback</button>
 <button id="copyScoresBtn">Copy Scores (all raw)</button>
@@ -324,6 +338,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
 <div id="outputSection" class="output-section hidden"></div>
 </div>
 
+<!-- ===== POINTS SUMMARY SIDEBAR ===== -->
 <div class="summary-section">
 <h2 style="font-size:1.2rem;margin-top:0;">Points Summary</h2>
 <div class="nav-links">
@@ -389,7 +404,55 @@ Without further ado, below we've provided both high-level feedback on satisfacti
 </div>
 </div>
 
+<!-- Friendly confirmation modal (replaces alert/confirm) -->
+<div id="confirmModal" class="modal confirm-modal">
+<div class="modal-content">
+<div class="modal-header">
+<div class="modal-title">Select both positive and negative?</div>
+<button class="close-btn" id="confirmModalClose">&times;</button>
+</div>
+<div class="modal-body">
+<p>You’re about to mark <strong>both</strong> the positive and negative entries for this item.</p>
+<div class="confirm-pair" id="confirmPairPreview"></div>
+<p style="margin-bottom:0;">Normally these are mutually exclusive. Choose how you’d like to proceed:</p>
+</div>
+<div class="modal-footer">
+<button id="confirmCancelBtn" class="modal-btn modal-btn-secondary">Cancel</button>
+<button id="confirmSwapBtn" class="modal-btn modal-btn-orange" style="background-color:#ff9800;color:#fff;">Swap selection</button>
+<button id="confirmBothBtn" class="modal-btn modal-btn-primary">Select both</button>
+</div>
+</div>
+</div>
+
 <script>
+// ==================== STATE ====================
+let extraCreditPointsValue = 0;
+let checkSelections = {};
+let checkTextSelections = {};
+let masterNoDeductions = true;
+let originalRubricData = null;
+
+const state = {
+    selectedItems: new Map(),
+    currentEditingItem: null,
+    pendingSelection: null
+};
+
+// ==================== DOM PAIR LOOKUP (bulletproof: based on same table row) ====================
+// Given an item element, find its paired opposite-type element in the same table row.
+function findPairedItemElement(itemEl) {
+    if (!itemEl) return null;
+    const row = itemEl.closest('tr.item-row');
+    if (!row) return null;
+    const isPos = itemEl.classList.contains('positive-item');
+    if (isPos) {
+        // find negative item within the same row
+        return row.querySelector('.negative-col .negative-item');
+    } else {
+        return row.querySelector('.positive-col .positive-item');
+    }
+}
+
 // ==================== COPY GRADING MESSAGE ====================
 function copyGradingMessage() {
     const message = `Now grade this very strictly, and show me which one to check and which one to x in my checklist. If something is not met, then provide a suggestion to improve as "You could have done... to improve"`;
@@ -408,19 +471,7 @@ function copyGradingMessage() {
     });
 }
 
-// ==================== STATE ====================
-let extraCreditPointsValue = 0;
-let checkSelections = {};
-let checkTextSelections = {};
-let masterNoDeductions = true;
-let originalRubricData = null;
-
-const state = {
-    selectedItems: new Map(),
-    currentEditingItem: null
-};
-
-// ==================== NOTIFICATIONS (persistent, overwrite in place) ====================
+// ==================== NOTIFICATIONS ====================
 function showNotification(message, isSuccess = true, sectionLetter = '') {
     const bar = document.getElementById('notificationBar');
     const msgEl = document.getElementById('notificationMessage');
@@ -449,6 +500,39 @@ function validateName() {
     errorEl.classList.remove('show'); nameInput.style.borderColor = ''; return true;
 }
 
+// ==================== LOCKABLE FIELDS ====================
+const LOCKABLE_FIELDS = ['studentName', 'minutesTaken', 'githubHash'];
+function lockField(el) {
+    if (!el || !el.value.trim()) return;
+    el.dataset.locked = 'true';
+    el.readOnly = true;
+    el.classList.add('locked-input');
+}
+function unlockField(el) {
+    if (!el) return;
+    el.dataset.locked = '';
+    el.readOnly = false;
+    el.classList.remove('locked-input');
+    el.focus();
+    el.select();
+}
+function setupLockableFields() {
+    LOCKABLE_FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.dataset.locked = '';
+        el.addEventListener('blur', function () { setTimeout(() => lockField(this), 120); });
+        el.addEventListener('click', function () { if (this.dataset.locked === 'true') unlockField(this); });
+        el.addEventListener('focus', function () {
+            if (this.dataset.locked === 'true') {
+                this.dataset.locked = '';
+                this.readOnly = false;
+                this.classList.remove('locked-input');
+            }
+        });
+    });
+}
+
 // ==================== CHECKS ====================
 function initCheckSelections() {
     masterNoDeductions = true;
@@ -458,6 +542,45 @@ function initCheckSelections() {
 }
 initCheckSelections();
 
+const CHECK6_LABELS = { T: 'T (tracking)', Y: 'Y (flagged)', N: 'N (not present)' };
+function updateCheck6TopButton() {
+    const btn = document.getElementById('check6TopBtn');
+    if (!btn) return;
+    const cur = checkSelections['negative-6'] || 'T';
+    btn.textContent = `Check 6: ${CHECK6_LABELS[cur] || cur} — click to change`;
+    btn.style.backgroundColor = cur === 'Y' ? '#c62828' : cur === 'N' ? '#2e7d32' : '#e65100';
+}
+function cycleCheck6FromButton(btn) {
+    if (masterNoDeductions) {
+        masterNoDeductions = false;
+        const masterEl = document.getElementById('check-text-positive-0');
+        if (masterEl) { masterEl.classList.remove('selected'); masterEl.classList.add('unselected'); }
+        for (let i = 0; i < 7; i++) {
+            const s = document.getElementById(`check-status-negative-${i}`);
+            const t = document.getElementById(`check-text-negative-${i}`);
+            if (s) s.className = 'check-status ' + (i === 6 ? 'T' : 'N');
+            if (t) t.classList.remove('disabled');
+            checkSelections[`negative-${i}`] = (i === 6 ? 'T' : 'N');
+            if (i !== 6) checkTextSelections[`negative-${i}`] = false;
+        }
+    }
+    const id = 'negative-6';
+    const statusEl = document.getElementById(`check-status-${id}`);
+    if (!statusEl) return;
+    const order = ['T', 'Y', 'N'];
+    const cur = checkSelections[id] || 'T';
+    const next = order[(order.indexOf(cur) + 1) % order.length];
+    statusEl.textContent = next;
+    statusEl.className = 'check-status ' + next;
+    checkSelections[id] = next;
+    const textEl = document.getElementById(`check-text-${id}`);
+    if (textEl) {
+        if (next === 'Y') { checkTextSelections[id] = true; textEl.classList.add('selected'); }
+        else { checkTextSelections[id] = false; textEl.classList.remove('selected'); }
+    }
+    updateCheck6TopButton();
+    showNotification(`✅ Check 6 set to: ${next}`);
+}
 function toggleMasterNoDeductions() {
     masterNoDeductions = !masterNoDeductions;
     const masterEl = document.getElementById('check-text-positive-0');
@@ -478,8 +601,8 @@ function toggleMasterNoDeductions() {
             if (textEl) textEl.classList.remove('disabled');
         }
     }
+    updateCheck6TopButton();
 }
-
 function toggleCheckStatus(id) {
     if (masterNoDeductions) return;
     const el = document.getElementById(`check-status-${id}`);
@@ -489,6 +612,7 @@ function toggleCheckStatus(id) {
     else next = el.textContent === 'N' ? 'Y' : 'N';
     el.textContent = next; el.className = 'check-status ' + next; checkSelections[id] = next;
     if (id === 'negative-2' || id === 'negative-3') updateCheck3A3B();
+    if (isCheck6) updateCheck6TopButton();
 }
 function toggleCheckSelection(id) {
     if (masterNoDeductions) return;
@@ -558,64 +682,64 @@ const sectionGroupCombinations = {
 // ==================== VERBATIM TEMPLATE PROSE ====================
 const positiveProse = {
     A1: "You provide the specified 20k instance sampled dataset with documentation of your selection/sampling. You also appropriately identify the source and targets/labels/classes. In rolling over your SL backbone from the previous report, you properly make use of the PyTorch NN.",
-    A2: "You provide a working read-only link to your Overleaf report, proper citation and use of your GT Enterprise GitHub repo, and in your REPRO documentation you provide run instructions and instructional overview of sampling and randomization used to produce the downsampled dataset, as well as disclosure of your optimizer and RO operator settings, regularization values, random seeds, compute accounting, metric calculations and sufficient detail so as to avail your reviewer to reproduce the results presented as needed.",
+    A2: "You provide a workingread-only link to your Overleaf report, proper citation and use of your GT Enterprise GitHub repo, and in your REPRO documentation you provide run instructions and instructional overview of sampling and randomization used to produce the downsampled dataset, as well as disclosure of your optimizer and RO operator settings, regularization values, random seeds, compute accounting, metric calculations and sufficient detail so as to avail your reviewer to reproduce the results presented as needed.",
     A3: "Your visuals, plots, tables, etc. are all legible with proper labelling of axes, legends and captions, meaning no zooming is necessary (which need causes illegible blurring in our grading environment). You appropriately cite external sources beyond the course materials and do so in a properly formatted References section. You also acknowledge the nature and extent of your AI/LLM usage.",
     B1: "You provide disclosure of your train/validation/test splits and assure your reader there is a held-out test set used only in validating your model, as well as offering assurance that your preprocessing is performed only on training data.",
     B2: "You suitably document gradient and function evals, wall-clock times, seed protocol, hardware and compute used and batch processing to enable fair comparison between your experiments.",
-    B3: "You provide a well-informed hypothesis before diving into experimentation and this hypothesis focuses specifically on anticipated optimization/regularization behavior by invoking theoretical discussion such as by referring to momentum, adaptive scaling, bias correction, regularization, stability or compute tradeoffs.",
+    B3: "You provide a well-informed hypothesis before diving into experimentation and this hypothesis focuses specifically on anticipated optimization/regularization behavior by invoking theoretical discussion such as by referring to momentum, adaptive scaling, bias correction, regularization, stability or copmpute tradeoffs.",
     B4: "You appropriately revisit your initial hypothesis and draw conclusions as to whether it is proven or disproven or if some qualified conclusion is a better fit. In doing so, you lean on your process metrics and cite more than one from validation loss, test Macro-F1, balanced accuracy, class-level behavior, seed stability, gradient or function evals or wall-clock time.",
     C1: "You provide clear explanation of which of your final 1-3 layers remain unfrozen while confirming all others are frozen. You also provide your RO parameter count and fall appropriately within the rough 50k max param cap.",
     C2: "You suitably run all three RO algorithms (RHC, SA and GA) on your unfrozen layers using the same validation objective, data splits, PyTorch NN model backbone and fair-for-comparison starting protocol. Your RO methods each capture enough detail for reproducibility's sake: for RHC you provide restarts and step-size policy, for SA you highlight initial temperature, cooling schedule and step-size cooling if used and for GA you offer an overview of population size, selection, crossover, mutation, elitism and number of generations as well as perturbation distribution and scale and any adaptive schedule.",
     C3: "Your objective here was appropriately validation loss, your RO evaluations use deterministic evaluation behavior such as model.eval(), each candidate objective call is factored in to function evaluations and any fixed validation subset is disclosed along with its size, seed used and sampling method.",
-    C4: "Your report includes best-so-far validation objective against fevals for RHC, SA and GA. You document wall-clock time and compare the three RO methods across fair-for-comparison, if not matched, feval budgets. In the case of GA, you compare this with the others by function calls, not just generations. Of your interpretation, you address RO's place in altering validation behavior, including any tail improvement, plateauing or stalling, and you justify this by calling on several factors from validation loss, fevals, wall-clock time, final test accuracy, Macro-F1, balanced accuracy and/or class-level behavior with a bonus callout for comparison's sake with your SL report results.",
-    D1: "You run all required optimizer variants on the full PyTorch NN baseline, including vanilla SGD, SGD with momentum, SGD with Nesterov momentum, Adam, Adam neglecting bias correction, Adam with beta_1=0 and AdamW. In each case, you state learning rate, momentum (where applicable) or beta values, epsilon (where applicable), weight decay behavior, batch size, max budget and any schedule. Your comparisons here use the same backbone, split, preprocessing and batch size (barring reasonable justification), budget definition, metric reporting and consistent initialization. Seed handling is done fairly and consistently. For any learning-rate scheduling, clipping, early stopping or augmentation of the training-loop, these alterations are explained.",
+    C4: "Your report includes best-so-far validation objective against fevals for RHC, SA and GA. You document wall-clock time and compare the three RO methods across fair-for-comparison, if not matched, feval budgets. In the case of GA, you compare this with the others by function calls, not just generations. Of your interpretation, you address RO's place in altering validation behavior, including any tail improvement, plateuaing or stalling, and you justify this by calling on several factors from validation loss, fevals, wall-clock time, final test accuracy, Macro-F1, balanced accuracy and/or class-level behavior with a bonus callout for comparison's sake with your SL report results.",
+    D1: "You run all required optimizer variants on the full PyTorch NN baseline, including vanilla SGD, SGD with momentum, SGD with Nesterov momentum, Adam, Adam neglecting bias correction, Adam with beta_1=0 and AdamW. In each case, you state learning rate, momentum (where applicable) or beta values, epsilon (where applicable), weight decay behavior, batch size, max budget and any schedule. Your comparisons here use the same backbone, split, preprocessing and batch size (barring reasonable justification), budget defitnition, metric reporting and consistent initialization. Seed handling is done fairly and consistently. For any learning-rate scheduling, clipping, early stopping or augmentation of the training-loop, these alterations are explained.",
     D2: "Your analysis includes validation loss versus wall-clock time and/or gradient evals, and you report a fixed validation-loss threshold using training and validation evidence only, framed by time or steps to reach this threshold. Optimizers that do not reach the threshold before expending their budget are noted as such as exceeding budget.",
     D3: "You provide a compact heatmap (or heatmaps) across two grid sizes and use identical budgets per grid, indicating divergent or failed cells per grid, offering interpretation of stable, unstable and sensitive regions.",
     D4: "You report on at least 3 seeds for your main optimizer comparison (barring reasonable justification for fewer) and you document dispersion using median/IQR, variance, stdev or equivalent measure, indicating divergent or failed runs in the process. You compare training versus validation behavior to paint the picture of generalization, as well as provide mention of final test accuracy, Macro-F1, balanced accuracy and class-level behavior. Your explanation highlights the effects of each optimizer -- effects like speed from momentum, stability from adaptive scaling, early behavioral changes from bias correction or better generalization from decoupled weight decay.",
     E1: "You use standard Adam with the best hyperparameters from your Adam Ablations section, and you do not retune Adam within your Regularization Study to keep things consistent. Learning rate, betas, epsilon, batch size and budget are held fixed (barring necessary justification). In the Regularization Study, you only alter regularization settings.",
-    E2: "You both test and disclose use of L2 weight decay, early stopping, dropout, label smoothing and/or modest input noise injection or augmentation. You provide a summary of any weight decay values used, early stopping monitored quantity and patience, whether best weights are restored, dropout placement and rates, label smoothing magnitude, input-noise magnitude and assurance that injection of noise/smoothing is done only where appropriate.",
-    E3: "You provide comparison of standard Adam with no additional regularization against the best single regularizer as well as the best regularization technique under matched compute budgets and consistent seed protocol. If early stopping changes the number of epochs, you distinguish this saved compute from different training opportunity.",
+    E2: "You both test and disclose use of L2 weight decay, early stopping, dropout, label smoothing and/or modest input noise injection or augmentation. You provide a summary of any weight decay valuse used, early stopping monitored quantity and patience, whether best weights are restored, dropout placement and rates, label smoothing magnitude, input-noise magnitude and assurance that injection of noise/smoothing is done only where appropriate.",
+    E3: "You provide comparison of standard Adam with no additoinal regularization against the best single regularizer as well as the best regularization technique under matched compute budgets and consistent seed protocol. If early stopping changes the number of epochs, you distinguish this saved compute from different training opportunity.",
     E4: "You demonstrate your selection criteria for different regularization settings, including using a small sweep summary, validation loss comparison or a table of metrics. These supporting visuals are provided in the attached REPRO when deemed too large for the main report.",
     E5: "You provide disclosure of whether regularization improved validation loss, Macro-F1, balanced accuracy, minority-class recall, train-validation gaps, seed stability or test performance and the size and nature of the regularization effects is compared with the Adam Ablation optimizer effects.",
-    F1: "Your discussion compares RO with Adam Ablations and your Regularization Study, explaining how effects differed using evidence from each including some of the following, for instance, among validation loss, test metrics, class-level behavior, stability and compute tracking. You address the conclusions that can be drawn from each part, such as whether they have any effects on tail tuning, optimizer dynamics or generalization control.",
-    F2: "You explain whether observed improvements are worth their cost in compute terms such as wall-clock time, gradient and function evaluations and final evaluation metrics. You offer differentiation between cheap and costly gains and address which from your trio of experiments were most performant in view of their respective compute overhead.",
+    F1: "Your discussion compares RO with Adam Ablations and your Regularization Study, explaining how effects differed using evidence from each including some of the following, for instance, among validation loss, test metrics, class-level behavior, stability and compute tracking. You address the conclusions that can be drawn from each part, such as wehther they have any effects on tail tuning, optimizer dynamcis or generalization control",
+    F2: "You explain whether observed imporvements are worth their cost in compute terms such as wall-clock time, gradient and function evaluations and final evaluation metrics. You offer differentiation between cheap and costly gains and address which from your trio of experiments were most performant in view of their respective compute overhead.",
     F3: "You separate optimization behavior from generalization from stability in your discussion, explaining whether each improved validation loss, convergence speed, training-validation performance gap, seed variability or held-out test behavior.",
-    F4: "You analyze multiclass performance and minority-class behavior in your discussion, including whether optimization/regularization tactics affected per-class precision, recall, F1 or confusion matrix results. Your interpretation addresses discrepancies in the stories told by your different metrics.",
-    F5: "You identify concrete limitations of the study and explain how these limitations reduce confidence in the conclusions, pulling from such limitations as sample size, class imbalance, limited RO budget, restrictive freezing/unfreezing protocol, heatmap coarseness/granularity, seed count, validation-subset use, architectural dependence, hardware constraints or unresolved/unmodelled instability. You finish with a practical decision rule focused specifically on use on the BRFSS General Health dataset of when one might strategize optimization over regularization over RO fine-tuning efforts. In provision of this practical decision rule, you offer sufficient evidence, drawing from your metrics and compute constraints."
+    F4: "You analyze multiclass performance and minority-class behavior in your discussion, including whether optimization/regularization tactics affected per-class precision, recall, F1 or confusion matrix results. Your interpretation addresses discrepencies in the stories told by your different metrics.",
+    F5: "You identify concrete limitations of the study and explain how these limitations reduce confidence in the conclusions, pulling from such limitations as sample size, class imbalance, limited RO budget, restrictive freezing/unfreezing protocol, heatmap courseness/granularity, seed count, validation-subset use, architectural dependence, hardware constraints or unresolved/unmodelled instability. You finish with a practical decision rule focused specifically on use on the Covertype dataset of when one might strategize optimization over regularization over RO fine-tuning efforts. In provision of this practical decision rule, you offer sufficient evidence, drawing from your metrics and compute constraints."
 };
 const negativeProse = {
     A1: "You must provide the specified 20k instance sampled dataset with documentation of your selection/sampling. You also should identify the source and targets/labels/classes. Additionally, rolling over from the SL Report, we expected you to use your fixed PyTorch Neural Network as a starting point.",
-    A2: "You must provide a working read-only link to your Overleaf report, proper citation and use of your GT Enterprise GitHub repo, and in your REPRO documentation you need to provide run instructions and instructional overview of sampling and randomization used to produce the downsampled dataset, as well as disclosure of your optimizer and RO operator settings, regularization values, random seeds, compute accounting, metric calculations and sufficient detail so as to avail your reviewer to reproduce the results presented as needed.",
+    A2: "You must provide a workingread-only link to your Overleaf report, proper citation and use of your GT Enterprise GitHub repo, and in your REPRO documentation you need to provide run instructions and instructional overview of sampling and randomization used to produce the downsampled dataset, as well as disclosure of your optimizer and RO operator settings, regularization values, random seeds, compute accounting, metric calculations and sufficient detail so as to avail your reviewer to reproduce the results presented as needed.",
     A3: "Of your visuals, plots, tables, etc. some are illegible and/or lack proper labelling of axes, legends and captions, rendering zooming as necessary (which is not supported in our grading environment as it causes blurring). You must appropriately cite external sources beyond the course materials and do so in a properly formatted References section. You also need to acknowledge the nature and extent of your AI/LLM usage.",
     B1: "You neglect to provide disclosure of your train/validation/test splits or to assure your reader there is a held-out test set used only in validating your model; additionally you must provide assurance that your preprocessing is performed only on training data.",
     B2: "You must suitably document gradient and function evals, wall-clock times, seed protocol, hardware and compute used and batch processing to enable fair comparison between your experiments.",
-    B3: "You must provide a well-informed hypothesis before diving into experimentation and this hypothesis must focus specifically on anticipated optimization/regularization behavior. In doing so, we expected you to invoke theoretical discussion such as by referring to momentum, adaptive scaling, bias correction, regularization, stability or compute tradeoffs.",
+    B3: "You must provide a well-informed hypothesis before diving into experimentation and this hypothesis must focus specifically on anticipated optimization/regularization behavior. In doing so, we expected you to invoke theoretical discussion such as by referring to momentum, adaptive scaling, bias correction, regularization, stability or copmpute tradeoffs.",
     B4: "You were expected to revisit your initial hypothesis and draw conclusions as to whether it is proven or disproven or if some qualified conclusion is a better fit. In doing so, you should lean on your process metrics and cite more than one from validation loss, test Macro-F1, balanced accuracy, class-level behavior, seed stability, gradient or function evals or wall-clock time.",
     C1: "You must provide clear explanation of which of your final 1-3 layers remain unfrozen while confirming all others are frozen. You also should provide your RO parameter count and be sure to fall appropriately within the rough 50k max param cap.",
     C2: "You must suitably run all three RO algorithms (RHC, SA and GA) on your unfrozen layers using the same validation objective, data splits, PyTorch NN model backbone and fair-for-comparison starting protocol. Your RO methods should each capture enough detail for reproducibility's sake: for RHC you must provide restarts and step-size policy, for SA, be sure to highlight initial temperature, cooling schedule and step-size cooling if used and for GA you need to offer an overview of population size, selection, crossover, mutation, elitism and number of generations as well as perturbation distribution and scale and any adaptive schedule.",
     C3: "Your objective here must be validation loss, your RO evaluations must use deterministic evaluation behavior such as model.eval() and each candidate objective call needs to be factored in to function evaluations and any fixed validation subset disclosed along with its size, seed used and sampling method.",
-    C4: "Your report must include best-so-far validation objective against fevals for RHC, SA and GA. You should also document wall-clock time and compare the three RO methods across fair-for-comparison, if not matched, feval budgets. In the case of GA, you should compare this with the others by function calls, not just generations. Of your interpretation, you need to address RO's place in altering validation behavior, including any tail improvement, plateauing or stalling, and in doing so, you should justify this by calling on several factors from validation loss, fevals, wall-clock time, final test accuracy, Macro-F1, balanced accuracy and/or class-level behavior with a bonus callout for comparison's sake with your SL report results.",
-    D1: "You run all required optimizer variants on the full PyTorch NN baseline, including vanilla SGD, SGD with momentum, SGD with Nesterov momentum, Adam, Adam neglecting bias correction, Adam with beta_1=0 and AdamW. In each case, you state learning rate, momentum (where applicable) or beta values, epsilon (where applicable), weight decay behavior, batch size, max budget and any schedule. Your comparisons here use the same backbone, split, preprocessing and batch size (barring reasonable justification), budget definition, metric reporting and consistent initialization. Seed handling is done fairly and consistently. For any learning-rate scheduling, clipping, early stopping or augmentation of the training-loop, these alterations are explained.",
+    C4: "Your report must include best-so-far validation objective against fevals for RHC, SA and GA. You should also document wall-clock time and compare the three RO methods across fair-for-comparison, if not matched, feval budgets. In the case of GA, you should compare this with the others by function calls, not just generations. Of your interpretation, you need to address RO's place in altering validation behavior, including any tail improvement, plateuaing or stalling, and in doing so, you should justify this by calling on several factors from validation loss, fevals, wall-clock time, final test accuracy, Macro-F1, balanced accuracy and/or class-level behavior with a bonus callout for comparison's sake with your SL report results.",
+    D1: "You run all required optimizer variants on the full PyTorch NN baseline, including vanilla SGD, SGD with momentum, SGD with Nesterov momentum, Adam, Adam neglecting bias correction, Adam with beta_1=0 and AdamW. In each case, you state learning rate, momentum (where applicable) or beta values, epsilon (where applicable), weight decay behavior, batch size, max budget and any schedule. Your comparisons here use the same backbone, split, preprocessing and batch size (barring reasonable justification), budget defitnition, metric reporting and consistent initialization. Seed handling is done fairly and consistently. For any learning-rate scheduling, clipping, early stopping or augmentation of the training-loop, these alterations are explained.",
     D2: "Your analysis must include validation loss versus wall-clock time and/or gradient evals, and you should report a fixed validation-loss threshold using training and validation evidence only, framed by time or steps to reach this threshold. Optimizers that do not reach the threshold before expending their budget should've been noted as such as exceeding budget.",
     D3: "You must provide a compact heatmap (or heatmaps) across two grid sizes and use identical budgets per grid, indicating divergent or failed cells per grid and offering interpretation of stable, unstable and sensitive regions.",
     D4: "You should have reported on at least 3 seeds for your main optimizer comparison (barring reasonable justification for fewer) and you needed to document dispersion using median/IQR, variance, stdev or equivalent measure, indicating divergent or failed runs in the process. You should have compared training versus validation behavior to paint the picture of generalization, as well as provide mention of final test accuracy, Macro-F1, balanced accuracy and class-level behavior. Your explanation neglected to highlight the effects of each optimizer -- effects like speed from momentum, stability from adaptive scaling, early behavioral changes from bias correction or better generalization from decoupled weight decay.",
     E1: "You must use standard Adam with the best hyperparameters from your Adam Ablations section, where you need not retune Adam within your Regularization Study to keep things consistent. Learning rate, betas, epsilon, batch size and budget should be held fixed (barring necessary justification). In the Regularization Study, you must only alter regularization settings.",
-    E2: "You must both test and disclose use of any L2 weight decay, early stopping, dropout, label smoothing and/or modest input noise injection or augmentation. You need to provide a summary of any weight decay values used, early stopping monitored quantity and patience, whether best weights are restored, dropout placement and rates, label smoothing magnitude, input-noise magnitude and offer assurance that injection of noise/smoothing is done only where appropriate.",
-    E3: "You should provide comparison of standard Adam with no additional regularization against the best single regularizer as well as the best regularization technique under matched compute budgets and consistent seed protocol. If early stopping changes the number of epochs, you must distinguish this saved compute from different training opportunity.",
+    E2: "You must both test and disclose use of any L2 weight decay, early stopping, dropout, label smoothing and/or modest input noise injection or augmentation. You need to provide a summary of any weight decay valuse used, early stopping monitored quantity and patience, whether best weights are restored, dropout placement and rates, label smoothing magnitude, input-noise magnitude and offer assurance that injection of noise/smoothing is done only where appropriate.",
+    E3: "You should provide comparison of standard Adam with no additoinal regularization against the best single regularizer as well as the best regularization technique under matched compute budgets and consistent seed protocol. If early stopping changes the number of epochs, you must distinguish this saved compute from different training opportunity.",
     E4: "You must demonstrate your selection criteria for different regularization settings, including using a small sweep summary, validation loss comparison or a table of metrics. These supporting visuals should be provided in the attached REPRO when deemed too large for the main report.",
     E5: "You must provide disclosure of whether regularization improved validation loss, Macro-F1, balanced accuracy, minority-class recall, train-validation gaps, seed stability or test performance and the size and nature of the regularization effects is compared with the Adam Ablation optimizer effects.",
-    F1: "Your discussion must compare RO with Adam Ablations and your Regularization Study, explaining how effects differed using evidence from each including some of the following, for instance, among validation loss, test metrics, class-level behavior, stability and compute tracking. You must address the conclusions that can be drawn from each part, such as whether they have any effects on tail tuning, optimizer dynamics or generalization control.",
-    F2: "You must explain whether observed improvements are worth their cost in compute terms such as wall-clock time, gradient and function evaluations and final evaluation metrics. You also should differentiate between cheap and costly gains and address which from your trio of experiments were most performant in view of their respective compute overhead.",
+    F1: "Your discussion must compare RO with Adam Ablations and your Regularization Study, explaining how effects differed using evidence from each including some of the following, for instance, among validation loss, test metrics, class-level behavior, stability and compute tracking. You must address the conclusions that can be drawn from each part, such as wehther they have any effects on tail tuning, optimizer dynamcis or generalization control",
+    F2: "You must explain whether observed imporvements are worth their cost in compute terms such as wall-clock time, gradient and function evaluations and final evaluation metrics. You also should differentiate between cheap and costly gains and address which from your trio of experiments were most performant in view of their respective compute overhead.",
     F3: "You should separate optimization behavior from generalization from stability in your discussion, explaining whether each improved validation loss, convergence speed, training-validation performance gap, seed variability or held-out test behavior.",
-    F4: "You must analyze multiclass performance and minority-class behavior in your discussion, including whether optimization/regularization tactics affected per-class precision, recall, F1 or confusion matrix results. Your interpretation should address discrepancies in the stories told by your different metrics.",
-    F5: "You need to identify concrete limitations of the study and explain how these limitations reduce confidence in the conclusions, pulling from such limitations as sample size, class imbalance, limited RO budget, restrictive freezing/unfreezing protocol, heatmap coarseness/granularity, seed count, validation-subset use, architectural dependence, hardware constraints or unresolved/unmodelled instability. You should then finish with a practical decision rule focused specifically on use on the BRFSS General Health dataset of when one might strategize optimization over regularization over RO fine-tuning efforts. In provision of this practical decision rule, you must offer sufficient evidence, drawing from your metrics and compute constraints."
+    F4: "You must analyze multiclass performance and minority-class behavior in your discussion, including whether optimization/regularization tactics affected per-class precision, recall, F1 or confusion matrix results. Your interpretation should address discrepencies in the stories told by your different metrics.",
+    F5: "You need to identify concrete limitations of the study and explain how these limitations reduce confidence in the conclusions, pulling from such limitations as sample size, class imbalance, limited RO budget, restrictive freezing/unfreezing protocol, heatmap courseness/granularity, seed count, validation-subset use, architectural dependence, hardware constraints or unresolved/unmodelled instability. You should then finish with a practical decision rule focused specifically on use on the Covertype dataset of when one might strategize optimization over regularization over RO fine-tuning efforts. In provision of this practical decision rule, you must offer sufficient evidence, drawing from your metrics and compute constraints."
 };
 const ecPositiveProse = {
-    EC1: "5pts: You provide full integration with compute tradeoff analysis of your integrated combination. You provide a full and thorough account of performance using metrics like gradient steps, function evaluations and wall-clock time. For practicality, you speak to whether the gains justify the extra compute overhead under realistic compute budgets.",
+    EC1: "5pts: You proivde full integration with compute tradeoff analysis of your integrated combination. You provide a full and thorough account of performance using metrics like gradient steps, function evaluations and wall-clock time. For practicality, you speak to whether the gains justify the extra compute overhead under realistic compute budgets.",
     EC2: "3pts: You replicate your settings from the Adam Ablation setting and integrate them with your best regularization settings from the Regularization Study and evaluate these on your best RO method identified earlier, providing a clear before and after comparison with a minimum of 3 seeds (barring justification for fewer).",
-    EC3: "1pt: You show a complete integrated run with reporting of compute budget and comparison against your best optimizer from the Adam Ablation section as well as your best regularizer from the Regularization Study and you do so within fair comparison."
+    EC3: "1pt: You show a complete integrated run with reporting of compute vudget and comparison against your best optimizer from the Adam Ablation section as well as your best regularizer from the Regularization Study and you do so within fair comparison."
 };
-const ecNegativeProse = "0pts. You either didn't attempt the Extra Credit Ablation Study, or across all three core criteria that constitute any points awarded, we deemed your implementation and results or discussion thereof as too cursory an overview to earn any additional points.";
+const ecNegativeProse = "0pts. You either didn't attempt the Extra Credit Ablation Study, or across all three core criteria that constitute any points awarded, we deemd your implementation and results or discussion thereof as too cursory an overview to earn any additional points.";
 
 // ==================== RUBRIC DATA ====================
 const baseRubricData = {
@@ -799,7 +923,7 @@ const baseRubricData = {
             ]},
             feedback_section: "Feedback on Section:"
         }, {
-            main_section: "Extra Credit: Integrated Best Combination (up to 5 points)",
+            main_section: "Activation Study (5 points) — Extra Credit",
             points_available: 5,
             section_letter: "EC",
             groups: [
@@ -893,20 +1017,49 @@ const predefinedFeedback = {
 
 // ==================== DOM READY ====================
 document.addEventListener('DOMContentLoaded', function () {
-    renderRubric();
-    setupEventListeners();
-    setupModalEvents();
-    setupPredefinedFeedbackEvents();
-    setupCommentModalEvents();
-    updateSummary();
+    try { renderRubric(); } catch (e) { console.error('renderRubric failed:', e); }
+    try { setupEventListeners(); } catch (e) { console.error('setupEventListeners failed:', e); }
+    try { setupModalEvents(); } catch (e) { console.error('setupModalEvents failed:', e); }
+    try { setupPredefinedFeedbackEvents(); } catch (e) { console.error('setupPredefinedFeedbackEvents failed:', e); }
+    try { setupCommentModalEvents(); } catch (e) { console.error('setupCommentModalEvents failed:', e); }
+    try { setupConfirmModalEvents(); } catch (e) { console.error('setupConfirmModalEvents failed:', e); }
+    try { setupLockableFields(); } catch (e) { console.error('setupLockableFields failed:', e); }
+    try { updateSummary(); } catch (e) { console.error('updateSummary failed:', e); }
 
     const nameInput = document.getElementById('studentName');
     const templateSelect = document.getElementById('greetingTemplateSelect');
     const templateTextarea = document.getElementById('globalCommentTemplate');
-    templateSelect.addEventListener('change', function () { if (this.value) templateTextarea.value = this.value; });
-    document.getElementById('studentName').addEventListener('input', function () {
-        if (this.value.trim()) { document.getElementById('nameRequiredError').classList.remove('show'); this.style.borderColor = ''; }
+
+    let rawTemplate = templateSelect.value || templateTextarea.value;
+
+    function refreshTemplate() {
+        const name = nameInput.value.trim();
+        templateTextarea.value = name ? rawTemplate.replace(/\{\}/g, name) : rawTemplate;
+    }
+
+    templateSelect.addEventListener('change', function () {
+        rawTemplate = this.value || '';
+        refreshTemplate();
     });
+
+    templateTextarea.addEventListener('input', function () {
+        const name = nameInput.value.trim();
+        if (!name) {
+            rawTemplate = this.value;
+        } else {
+            const withPlaceholder = this.value.replace(new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '{}');
+            rawTemplate = withPlaceholder;
+        }
+    });
+
+    nameInput.addEventListener('input', function () {
+        const name = this.value.trim();
+        if (name) { document.getElementById('nameRequiredError').classList.remove('show'); this.style.borderColor = ''; }
+        templateTextarea.value = name ? rawTemplate.replace(/\{\}/g, name) : rawTemplate;
+    });
+
+    rawTemplate = templateSelect.value || templateTextarea.value;
+    refreshTemplate();
 
     masterNoDeductions = true;
     const masterEl = document.getElementById('check-text-positive-0');
@@ -920,7 +1073,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (statusEl) { statusEl.textContent = initVal; statusEl.className = 'check-status ' + initVal + ' disabled'; }
         if (textEl) { textEl.classList.add('disabled'); textEl.classList.remove('selected'); }
     }
-    updateCheck3A3B();
+    try { updateCheck3A3B(); } catch (e) { console.error(e); }
+    try { updateCheck6TopButton(); } catch (e) { console.error(e); }
 });
 
 // ==================== SCORE HELPERS ====================
@@ -1392,6 +1546,25 @@ function getOriginalItemPoints(itemId) {
     for (const g of sec.groups) for (const it of g.items) { if (c === ii) return it.points; c++; }
     return null;
 }
+
+// ==================== PAIR LOGIC (DOM-based, bulletproof) ====================
+function applySelection(iid, isPos, sid, st, set, pairedEl, pairedIsPositive, pairedSet) {
+    if (pairedEl && pairedSet && pairedSet.has(pairedEl.id)) {
+        pairedSet.delete(pairedEl.id);
+        pairedEl.classList.remove(pairedIsPositive ? 'selected-positive' : 'selected-negative');
+    }
+    if (sid === 'section-6' && isPos) {
+        st.positive.clear();
+        document.querySelectorAll('#section-6-content .positive-item').forEach(el => el.classList.remove('selected-positive'));
+    }
+    set.add(iid);
+    const itemEl = document.getElementById(iid);
+    if (itemEl) itemEl.classList.add(isPos ? 'selected-positive' : 'selected-negative');
+}
+function removeSelection(iid, isPos, set, itemEl) {
+    set.delete(iid);
+    if (itemEl) itemEl.classList.remove(isPos ? 'selected-positive' : 'selected-negative');
+}
 function toggleItemSelection(item) {
     const iid = item.id;
     const isPos = item.classList.contains('positive-item');
@@ -1399,86 +1572,105 @@ function toggleItemSelection(item) {
     if (!state.selectedItems.has(sid)) state.selectedItems.set(sid, { positive: new Set(), negative: new Set() });
     const st = state.selectedItems.get(sid);
     const set = isPos ? st.positive : st.negative;
-    if (set.has(iid)) { set.delete(iid); item.classList.remove(isPos ? 'selected-positive' : 'selected-negative'); }
-    else {
+
+    // Find paired element via DOM (same table row)
+    const pairedEl = findPairedItemElement(item);
+    const pairedIsPositive = pairedEl ? pairedEl.classList.contains('positive-item') : null;
+    const pairedSet = pairedEl ? (pairedIsPositive ? st.positive : st.negative) : null;
+
+    if (set.has(iid)) {
+        removeSelection(iid, isPos, set, item);
+        if (isPos && pairedEl && pairedSet) {
+            if (!pairedSet.has(pairedEl.id)) {
+                pairedSet.add(pairedEl.id);
+                pairedEl.classList.add(pairedIsPositive ? 'selected-positive' : 'selected-negative');
+            }
+        }
+    } else {
+        if (pairedEl && pairedSet && pairedSet.has(pairedEl.id)) {
+            state.pendingSelection = {
+                iid, isPos, sid, set, st,
+                pairedEl, pairedIsPositive, pairedSet,
+                item
+            };
+            openConfirmModal(item, pairedEl, isPos);
+            return;
+        }
+        applySelection(iid, isPos, sid, st, set, pairedEl, pairedIsPositive, pairedSet);
+    }
+}
+
+// ==================== FRIENDLY CONFIRM MODAL ====================
+function setupConfirmModalEvents() {
+    const modal = document.getElementById('confirmModal');
+    const closeBtn = document.getElementById('confirmModalClose');
+    const cancelBtn = document.getElementById('confirmCancelBtn');
+    const bothBtn = document.getElementById('confirmBothBtn');
+    const swapBtn = document.getElementById('confirmSwapBtn');
+    if (!modal || !closeBtn || !cancelBtn || !bothBtn || !swapBtn) {
+        console.error('Confirm modal elements missing');
+        return;
+    }
+    function close() {
+        modal.style.display = 'none';
+        state.pendingSelection = null;
+    }
+    closeBtn.addEventListener('click', close);
+    cancelBtn.addEventListener('click', close);
+    window.addEventListener('click', e => { if (e.target === modal) close(); });
+
+    bothBtn.addEventListener('click', () => {
+        const p = state.pendingSelection;
+        if (!p) { close(); return; }
+        const { iid, isPos, sid, set, st, item } = p;
         if (sid === 'section-6' && isPos) {
             st.positive.clear();
             document.querySelectorAll('#section-6-content .positive-item').forEach(el => el.classList.remove('selected-positive'));
         }
         set.add(iid);
         item.classList.add(isPos ? 'selected-positive' : 'selected-negative');
-    }
+        updateSummary();
+        if (iid.startsWith('section-0')) updateCheck3A3B();
+        showNotification('✅ Both positive and negative selected for this item.');
+        close();
+    });
+
+    swapBtn.addEventListener('click', () => {
+        const p = state.pendingSelection;
+        if (!p) { close(); return; }
+        const { iid, isPos, sid, st, set, pairedEl, pairedIsPositive, pairedSet, item } = p;
+        pairedSet.delete(pairedEl.id);
+        pairedEl.classList.remove(pairedIsPositive ? 'selected-positive' : 'selected-negative');
+        applySelection(iid, isPos, sid, st, set, pairedEl, pairedIsPositive, pairedSet);
+        updateSummary();
+        if (iid.startsWith('section-0')) updateCheck3A3B();
+        showNotification('🔄 Swapped selection to this item.');
+        close();
+    });
 }
-function getItemMaxPoints(itemId) {
-    const parts = itemId.split('-');
-    const si = parseInt(parts[1]);
-    const ii = parseInt(parts[parts.length - 1]);
-    const sec = rubricData.grading_rubric.sections[si];
-    let c = 0;
-    for (const g of sec.groups) for (const it of g.items) { if (c === ii) return it.points; c++; }
-    return 0;
-}
-function showItemModal(itemId) {
-    const modal = document.getElementById('itemModal');
-    const itemText = document.getElementById('itemText');
-    const itemPoints = document.getElementById('itemPoints');
-    const maxSpan = document.getElementById('maxPointDisplay');
-    const el = document.getElementById(itemId);
-    if (!el) return;
-    let textEl = el.querySelector('.editable[data-id$="-text"]');
-    let pointsEl = el.querySelector('.editable[data-id$="-points"]');
-    const isNeg = el.classList.contains('negative-item');
-    let max = 0;
-    if (!isNeg) {
-        max = getItemMaxPoints(itemId);
-        maxSpan.textContent = max;
-        let cur = 0;
-        const badge = el.querySelector('.point-badge');
-        if (badge) cur = parseInt(badge.textContent.replace(/[()]/g, '').replace('pts', '').trim()) || 0;
-        else if (pointsEl) cur = parseFloat(pointsEl.textContent) || 0;
-        itemPoints.value = cur; itemPoints.disabled = false;
-        itemText.value = textEl ? textEl.textContent : '';
-    } else {
-        maxSpan.textContent = 'N/A'; itemPoints.value = 0; itemPoints.disabled = true;
-        const descEl = el.querySelector('.editable.item-description');
-        itemText.value = descEl ? descEl.textContent : (textEl ? textEl.textContent : '');
+
+function openConfirmModal(newItem, pairedEl, newIsPos) {
+    const modal = document.getElementById('confirmModal');
+    const preview = document.getElementById('confirmPairPreview');
+    if (!modal || !preview) return;
+
+    const newTextEl = newItem.querySelector('.editable[data-id$="-text"]');
+    const pairTextEl = pairedEl ? pairedEl.querySelector('.editable[data-id$="-text"]') : null;
+    const newText = newTextEl ? newTextEl.textContent.trim() : '(this item)';
+    const pairText = pairTextEl ? pairTextEl.textContent.trim() : '(paired item)';
+
+    function chip(text, cls, label) {
+        const truncated = text.length > 110 ? text.slice(0, 110) + '…' : text;
+        return `<div class="chip ${cls}"><strong>${label}:</strong> ${truncated}</div>`;
     }
-    state.currentEditingItem = { id: itemId, textElement: textEl, pointsElement: pointsEl, isNegative: isNeg, maxPoints: max, itemElement: el };
+    const newChipCls = newIsPos ? 'pos' : 'neg';
+    const pairChipCls = newIsPos ? 'neg' : 'pos';
+    const newLabel = newIsPos ? 'Positive' : 'Negative';
+    const pairLabel = newIsPos ? 'Negative' : 'Positive';
+    preview.innerHTML =
+        chip(pairText, pairChipCls, `${pairLabel} (currently selected)`) +
+        chip(newText, newChipCls, `${newLabel} (you clicked)`);
     modal.style.display = 'flex';
-}
-function saveItemChanges() {
-    const modal = document.getElementById('itemModal');
-    if (!state.currentEditingItem) return;
-    const { id, textElement, pointsElement, isNegative, maxPoints, itemElement } = state.currentEditingItem;
-    const newText = document.getElementById('itemText').value;
-    const newPoints = parseInt(document.getElementById('itemPoints').value) || 0;
-    if (isNegative) {
-        const descEl = itemElement.querySelector('.editable.item-description');
-        if (descEl) descEl.textContent = newText;
-        else if (textElement) textElement.textContent = newText;
-        const sid = id.split('-').slice(0, 2).join('-');
-        if (!state.selectedItems.has(sid)) state.selectedItems.set(sid, { positive: new Set(), negative: new Set() });
-        const st = state.selectedItems.get(sid);
-        if (!st.negative.has(id)) { st.negative.add(id); itemElement.classList.add('selected-negative'); }
-    } else {
-        if (textElement) textElement.textContent = newText;
-        const clamped = Math.min(newPoints, maxPoints);
-        const badge = itemElement.querySelector('.point-badge');
-        if (badge) { badge.textContent = `(${clamped} pts)`; itemElement.setAttribute('data-points', clamped); }
-        if (pointsElement) pointsElement.textContent = clamped;
-        const parts = id.split('-');
-        const si = parseInt(parts[1]);
-        const ii = parseInt(parts[parts.length - 1]);
-        const sec = rubricData.grading_rubric.sections[si];
-        let c = 0;
-        for (const g of sec.groups) for (const it of g.items) { if (c === ii) it.points = clamped; c++; }
-        const sid = id.split('-').slice(0, 2).join('-');
-        if (!state.selectedItems.has(sid)) state.selectedItems.set(sid, { positive: new Set(), negative: new Set() });
-        const st = state.selectedItems.get(sid);
-        if (!st.positive.has(id)) { st.positive.add(id); itemElement.classList.add('selected-positive'); }
-    }
-    modal.style.display = 'none'; state.currentEditingItem = null; updateSummary();
-    if (id.startsWith('section-0')) updateCheck3A3B();
 }
 
 // ==================== COMMENT MODAL ====================
@@ -1520,53 +1712,55 @@ function openCommentModal(sectionId, negItemId) {
 
 // ==================== SUMMARY ====================
 function updateSummary() {
-    const sb = document.getElementById('summaryBody'); sb.innerHTML = '';
+    const sb = document.getElementById('summaryBody');
+    if (!sb) { console.error('summaryBody not found'); return; }
+    sb.innerHTML = '';
     let mainT = 0, ecP = 0, ecM = 0;
-    const eb = document.getElementById('extraCreditBody'); eb.innerHTML = '';
+    const eb = document.getElementById('extraCreditBody');
+    if (eb) eb.innerHTML = '';
+
     rubricData.grading_rubric.sections.forEach((s, si) => {
         const sid = `section-${si}`;
         const isEC = s.main_section.includes('Extra Credit');
         let sp = isEC ? ecAwardedTier() : sectionScore(si);
         const mx = s.points_available;
-        const st = state.selectedItems.get(sid) || { positive: new Set(), negative: new Set() };
-        let totalRows = 0;
-        s.groups.forEach(g => { totalRows += g.items.length; });
-        let rowsWithSelection = 0;
-        let counter = 0;
-        s.groups.forEach(g => {
-            g.items.forEach(it => {
-                if (st.positive.has(`${sid}-positive-${counter}`)) rowsWithSelection++;
-                counter++;
-            });
-        });
+
         const row = document.createElement('tr');
         row.style.cursor = 'pointer';
         row.addEventListener('click', () => {
             const h = document.getElementById(`header-${sid}`);
             if (h) { h.scrollIntoView({ behavior: 'smooth', block: 'start' }); h.classList.add('section-highlight'); setTimeout(() => h.classList.remove('section-highlight'), 1500); }
         });
-        if (rowsWithSelection === 0) row.className = 'row-not-started';
-        else if (rowsWithSelection >= totalRows) row.className = 'row-completed';
+        if (sp === 0) row.className = 'row-not-started';
+        else if (sp >= mx) row.className = 'row-completed';
         else row.className = 'row-in-progress';
-        row.innerHTML = `<td>${s.main_section.split('(')[0].trim()}</td><td>${sp.toFixed(0)}</td><td>${mx}</td>`;
-        if (isEC) { ecP += sp; ecM = rubricData.grading_rubric.extra_credit_points; eb.appendChild(row); extraCreditPointsValue = ecP; }
+
+        // Section display name: prefer letter + short name
+        let displayName = s.main_section;
+        const parenIdx = displayName.indexOf('(');
+        if (parenIdx > 0) displayName = displayName.slice(0, parenIdx).trim();
+        if (!displayName) displayName = `Section ${sid}`;
+
+        row.innerHTML = `<td>${displayName}</td><td>${sp.toFixed(0)}</td><td>${mx}</td>`;
+        if (isEC) { ecP += sp; ecM = rubricData.grading_rubric.extra_credit_points; if (eb) eb.appendChild(row); extraCreditPointsValue = ecP; }
         else { mainT += sp; sb.appendChild(row); }
-        const he = document.querySelector(`[data-id="${sid}-header"]`);
-        if (he) he.textContent = `${s.main_section.split('(')[0].trim()} (${sp.toFixed(0)}/${mx})`;
     });
+
     document.getElementById('totalPoints').textContent = (mainT + ecP).toFixed(0);
     document.getElementById('maxPoints').textContent = rubricData.grading_rubric.total_points;
     if (ecP > 0 || ecM > 0) {
         document.getElementById('extraCreditSection').classList.remove('hidden');
-        const et = document.createElement('tr'); et.className = 'total-row';
-        et.innerHTML = `<td><strong>EC Total</strong></td><td><strong>${ecP.toFixed(0)}</strong></td><td><strong>${ecM}</strong></td>`;
-        eb.appendChild(et);
+        if (eb) {
+            const et = document.createElement('tr'); et.className = 'total-row';
+            et.innerHTML = `<td><strong>EC Total</strong></td><td><strong>${ecP.toFixed(0)}</strong></td><td><strong>${ecM}</strong></td>`;
+            eb.appendChild(et);
+        }
     } else {
         document.getElementById('extraCreditSection').classList.add('hidden');
     }
 }
 
-// ==================== FEEDBACK GENERATION (verbatim template) ====================
+// ==================== FEEDBACK GENERATION ====================
 function generateFeedback() {
     const os = document.getElementById('outputSection');
     const cb = document.getElementById('copyBtn');
@@ -1655,7 +1849,6 @@ function generateFeedback() {
             }
         }
 
-        // Only emit Section Summary if the grader typed something
         if (ft && ft.trim() !== '') {
             fb += `\nSection Summary:\n${ft}\n`;
         }
@@ -1680,6 +1873,9 @@ function generateFeedback() {
 // ==================== RESET ====================
 function resetAll() {
     state.selectedItems.clear();
+    state.pendingSelection = null;
+    const cm = document.getElementById('confirmModal');
+    if (cm) cm.style.display = 'none';
     document.querySelectorAll('.item').forEach(i => { if (!i.closest('.checks-section')) i.classList.remove('selected-positive', 'selected-negative'); });
     document.querySelectorAll('.positive-item').forEach(i => i.classList.remove('ec-locked'));
 
@@ -1721,11 +1917,14 @@ function resetAll() {
     document.querySelectorAll('textarea').forEach(t => t.value = '');
     document.getElementById('studentName').value = '';
     document.getElementById('nameRequiredError').classList.remove('show');
-    const mt = document.getElementById('minutesTaken'); if (mt) mt.value = '';
-    const gh = document.getElementById('githubHash'); if (gh) gh.value = '';
+    const mt = document.getElementById('minutesTaken'); if (mt) { mt.value = ''; mt.dataset.locked = ''; mt.readOnly = false; mt.classList.remove('locked-input'); }
+    const gh = document.getElementById('githubHash'); if (gh) { gh.value = ''; gh.dataset.locked = ''; gh.readOnly = false; gh.classList.remove('locked-input'); }
     const ag = document.getElementById('aiGeneratedToggle'); if (ag) ag.checked = false;
 
-    updateSummary(); updateCheck3A3B(); clearNotification();
+    const nf = document.getElementById('studentName');
+    if (nf) { nf.dataset.locked = ''; nf.readOnly = false; nf.classList.remove('locked-input'); }
+
+    updateSummary(); updateCheck3A3B(); updateCheck6TopButton(); clearNotification();
 }
 
 // ==================== COPY SCORES ====================
@@ -1741,7 +1940,6 @@ function copyScores() {
 function copyScoresForExcel() {
     const tokens = [];
 
-    // ---- 6 check columns (Check 3 collapses 3A/3B into one column) ----
     const c1 = checkSelections['negative-0'] === 'Y' ? 'Y' : 'N';
     const c2 = checkSelections['negative-1'] === 'Y' ? 'Y' : 'N';
     const c3 = (checkSelections['negative-2'] === 'Y' || checkSelections['negative-3'] === 'Y') ? 'Y' : 'N';
@@ -1750,31 +1948,19 @@ function copyScoresForExcel() {
     const c6 = checkSelections['negative-6'] === 'Y' ? 'Y' : 'N';
     tokens.push(c1, c2, c3, c4, c5, c6);
 
-    // ---- A through F: sub-scores, then EMPTY cell for <Letter>_autosum ----
     for (let si = 0; si <= 5; si++) {
         const s = rubricData.grading_rubric.sections[si];
         for (let gi = 0; gi < s.groups.length; gi++) {
             tokens.push(String(groupScore(si, gi)));
         }
-        tokens.push(''); // <Letter>_autosum — leave blank on paste
+        tokens.push('');
     }
 
-    // ---- EC ----
     tokens.push(String(ecAwardedTier()));
-
-    // ---- Total — leave blank on paste ----
     tokens.push('');
-
-    // ---- AI Generated? ----
     tokens.push(document.getElementById('aiGeneratedToggle')?.checked ? 'Y' : 'N');
-
-    // ---- TA Comments — leave blank on paste ----
     tokens.push('');
-
-    // ---- Grading Duration [mins] ----
     tokens.push((document.getElementById('minutesTaken')?.value || '').trim());
-
-    // ---- GitHub Hash ----
     tokens.push((document.getElementById('githubHash')?.value || '').trim());
 
     const result = tokens.join('\t');
