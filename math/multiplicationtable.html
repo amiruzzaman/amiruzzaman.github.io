@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Math Champions! 12x12 Multiplication Practice</title>
+  <style>
+    :root {
+      --primary: #6c5ce7;
+      --secondary: #00b894;
+      --accent: #fdcb6e;
+      --danger: #ff7675;
+      --bg: #f0f3f8;
+      --card-bg: #ffffff;
+      --text: #2d3436;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Fredoka', 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 20px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      color: var(--primary);
+      margin: 10px 0 20px 0;
+      font-size: 2.2rem;
+      text-align: center;
+      text-shadow: 2px 2px 0px #fff;
+    }
+
+    .container {
+      max-width: 950px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Mode Selector Tabs */
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .tab-btn {
+      padding: 12px 24px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 50px;
+      background-color: #dfe6e9;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    .tab-btn.active {
+      background-color: var(--primary);
+      color: white;
+      transform: scale(1.05);
+    }
+
+    /* Card Panels */
+    .panel {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    /* Grid Explorer */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(13, 1fr);
+      gap: 4px;
+      max-width: 750px;
+      margin: 0 auto 20px auto;
+    }
+
+    .cell {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 0.95rem;
+      border-radius: 6px;
+      background-color: #f1f2f6;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+
+    .cell:hover {
+      transform: scale(1.15);
+      z-index: 2;
+    }
+
+    .cell.header {
+      background-color: var(--accent);
+      color: #2d3436;
+      cursor: default;
+    }
+
+    .cell.highlight {
+      background-color: #a29bfe;
+      color: white;
+    }
+
+    .cell.target {
+      background-color: var(--secondary);
+      color: white;
+      font-size: 1.1rem;
+      box-shadow: 0 0 10px rgba(0,184,148,0.5);
+    }
+
+    /* Visualizer Box */
+    .visualizer-card {
+      background-color: #eccc6815;
+      border: 2px dashed var(--accent);
+      border-radius: 15px;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .dot-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: center;
+      justify-content: center;
+      margin-top: 10px;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+
+    .dot-row {
+      display: flex;
+      gap: 4px;
+    }
+
+    .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background-color: var(--primary);
+    }
+
+    /* Practice Quiz Panel */
+    .quiz-container {
+      text-align: center;
+      max-width: 450px;
+      margin: 0 auto;
+    }
+
+    .stats-bar {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .score-badge { color: var(--secondary); }
+    .streak-badge { color: #e17055; }
+
+    .question-box {
+      font-size: 3.5rem;
+      font-weight: bold;
+      color: var(--primary);
+      margin: 20px 0;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .option-btn {
+      padding: 20px;
+      font-size: 2rem;
+      font-weight: bold;
+      border: 3px solid #dfe6e9;
+      border-radius: 15px;
+      background-color: white;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--primary);
+      background-color: #f8f9fe;
+    }
+
+    .feedback {
+      height: 30px;
+      margin-top: 15px;
+      font-size: 1.3rem;
+      font-weight: bold;
+    }
+
+    .correct-anim {
+      color: var(--secondary);
+      animation: pop 0.3s ease;
+    }
+
+    .wrong-anim {
+      color: var(--danger);
+      animation: shake 0.3s ease;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.8); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    @media (max-width: 600px) {
+      .cell { font-size: 0.65rem; border-radius: 3px; }
+      .cell.target { font-size: 0.75rem; }
+      .question-box { font-size: 2.5rem; }
+      .option-btn { font-size: 1.5rem; padding: 12px; }
+      .dot { width: 10px; height: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>✨ Math Champions! (12×12) ✨</h1>
+
+  <div class="container">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('explore')">🔍 Explore Grid</button>
+      <button class="tab-btn" onclick="switchTab('quiz')">🎮 Practice Game</button>
+    </div>
+
+    <!-- EXPLORE PANEL -->
+    <div id="explore" class="panel active">
+      <div id="grid" class="grid-container"></div>
+      
+      <div class="visualizer-card">
+        <h3 id="vis-title" style="margin: 0 0 10px 0; color: var(--primary);">Hover or click a cell!</h3>
+        <div id="dot-container" class="dot-grid"></div>
+      </div>
+    </div>
+
+    <!-- QUIZ PANEL -->
+    <div id="quiz" class="panel">
+      <div class="quiz-container">
+        <div class="stats-bar">
+          <span class="score-badge">⭐ Score: <span id="score">0</span></span>
+          <span class="streak-badge">🔥 Streak: <span id="streak">0</span></span>
+        </div>
+
+        <div class="question-box" id="question">? × ?</div>
+
+        <div class="options-grid" id="options">
+          <button class="option-btn" onclick="checkAnswer(0)">-</button>
+          <button class="option-btn" onclick="checkAnswer(1)">-</button>
+          <button class="option-btn" onclick="checkAnswer(2)">-</button>
+          <button class="option-btn" onclick="checkAnswer(3)">-</button>
+        </div>
+
+        <div id="feedback" class="feedback"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const MAX_TABLE = 12;
+
+    let lockedRow = null;
+    let lockedCol = null;
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playTone(freq, type, duration) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function soundCorrect() {
+      playTone(523.25, 'sine', 0.1);
+      setTimeout(() => playTone(659.25, 'sine', 0.15), 80);
+      setTimeout(() => playTone(783.99, 'sine', 0.2), 160);
+    }
+
+    function soundWrong() {
+      playTone(220, 'sawtooth', 0.15);
+      setTimeout(() => playTone(196, 'sawtooth', 0.2), 120);
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      
+      if (tabName === 'explore') {
+        document.querySelectorAll('.tab-btn')[0].classList.add('active');
+        document.getElementById('explore').classList.add('active');
+      } else {
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+        document.getElementById('quiz').classList.add('active');
+        generateQuestion();
+      }
+    }
+
+    const gridEl = document.getElementById('grid');
+    const visTitle = document.getElementById('vis-title');
+    const dotContainer = document.getElementById('dot-container');
+
+    function buildGrid() {
+      gridEl.innerHTML = '';
+      
+      gridEl.addEventListener('mouseleave', () => {
+        if (lockedRow !== null && lockedCol !== null) {
+          highlightGrid(lockedRow, lockedCol);
+        }
+      });
+
+      for (let r = 0; r <= MAX_TABLE; r++) {
+        for (let c = 0; c <= MAX_TABLE; c++) {
+          const cell = document.createElement('div');
+          cell.classList.add('cell');
+          cell.dataset.r = r;
+          cell.dataset.c = c;
+
+          if (r === 0 && c === 0) {
+            cell.textContent = '×';
+            cell.classList.add('header');
+          } else if (r === 0) {
+            cell.textContent = c;
+            cell.classList.add('header');
+          } else if (c === 0) {
+            cell.textContent = r;
+            cell.classList.add('header');
+          } else {
+            cell.textContent = r * c;
+            cell.addEventListener('mouseenter', () => highlightGrid(r, c));
+            cell.addEventListener('click', (e) => {
+              e.preventDefault();
+              lockedRow = r;
+              lockedCol = c;
+              highlightGrid(r, c);
+              playTone(200 + (r * c * 3), 'sine', 0.1);
+            });
+          }
+          gridEl.appendChild(cell);
+        }
+      }
+    }
+
+    function highlightGrid(r, c) {
+      if (r === 0 || c === 0) return;
+
+      document.querySelectorAll('.cell').forEach(cell => {
+        const cr = parseInt(cell.dataset.r);
+        const cc = parseInt(cell.dataset.c);
+
+        cell.classList.remove('highlight', 'target');
+
+        if (cr === r && cc === c) {
+          cell.classList.add('target');
+        } else if ((cr === r && cc <= c) || (cc === c && cr <= r)) {
+          if (cr > 0 && cc > 0) cell.classList.add('highlight');
+        }
+      });
+
+      renderVisualizer(r, c);
+    }
+
+    function renderVisualizer(r, c) {
+      visTitle.textContent = `${r} × ${c} = ${r * c}`;
+      dotContainer.innerHTML = '';
+
+      for (let i = 0; i < r; i++) {
+        const row = document.createElement('div');
+        row.classList.add('dot-row');
+        for (let j = 0; j < c; j++) {
+          const dot = document.createElement('div');
+          dot.classList.add('dot');
+          row.appendChild(dot);
+        }
+        dotContainer.appendChild(row);
+      }
+    }
+
+    /* Quiz State */
+    let currentAns = 0;
+    let score = 0;
+    let streak = 0;
+    let currentOptions = [];
+
+    function generateQuestion() {
+      const feedback = document.getElementById('feedback');
+      feedback.textContent = '';
+      feedback.className = 'feedback';
+
+      const num1 = Math.floor(Math.random() * MAX_TABLE) + 1;
+      const num2 = Math.floor(Math.random() * MAX_TABLE) + 1;
+      currentAns = num1 * num2;
+
+      document.getElementById('question').textContent = `${num1} × ${num2}`;
+
+      // Build 4 unique option choices
+      const optionsSet = new Set([currentAns]);
+      while (optionsSet.size < 4) {
+        let wrongR = Math.floor(Math.random() * MAX_TABLE) + 1;
+        let wrongC = Math.floor(Math.random() * MAX_TABLE) + 1;
+        let wrongVal = wrongR * wrongC;
+        optionsSet.add(wrongVal);
+      }
+
+      currentOptions = Array.from(optionsSet);
+      currentOptions.sort(() => Math.random() - 0.5);
+
+      const optionBtns = document.querySelectorAll('.option-btn');
+      optionBtns.forEach((btn, idx) => {
+        btn.textContent = currentOptions[idx];
+        btn.disabled = false;
+        btn.style.backgroundColor = 'white';
+        btn.style.borderColor = '#dfe6e9';
+        btn.style.color = 'var(--text)';
+      });
+    }
+
+    function checkAnswer(index) {
+      const selected = currentOptions[index];
+      const feedback = document.getElementById('feedback');
+      const optionBtns = document.querySelectorAll('.option-btn');
+
+      optionBtns.forEach(b => b.disabled = true);
+
+      if (selected === currentAns) {
+        soundCorrect();
+        score += 10;
+        streak += 1;
+        optionBtns[index].style.backgroundColor = 'var(--secondary)';
+        optionBtns[index].style.borderColor = 'var(--secondary)';
+        optionBtns[index].style.color = 'white';
+        feedback.textContent = '🎉 Awesome Job!';
+        feedback.className = 'feedback correct-anim';
+      } else {
+        soundWrong();
+        streak = 0;
+        optionBtns[index].style.backgroundColor = 'var(--danger)';
+        optionBtns[index].style.borderColor = 'var(--danger)';
+        optionBtns[index].style.color = 'white';
+        
+        // Highlight the actual correct option
+        optionBtns.forEach((b, idx) => {
+          if (currentOptions[idx] === currentAns) {
+            b.style.backgroundColor = 'var(--secondary)';
+            b.style.borderColor = 'var(--secondary)';
+            b.style.color = 'white';
+          }
+        });
+
+        feedback.textContent = '💡 Keep Trying!';
+        feedback.className = 'feedback wrong-anim';
+      }
+
+      document.getElementById('score').textContent = score;
+      document.getElementById('streak').textContent = streak;
+
+      setTimeout(generateQuestion, 1500);
+    }
+
+    buildGrid();
+  </script>
+</body>
+</html>

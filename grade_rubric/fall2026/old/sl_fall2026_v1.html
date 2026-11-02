@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SL Report Fall 2026 Rubric Grading – BRFSS GenHlth</title>
+<style>
+:root{--positive-color:#e8f5e9;--positive-selected:#81c784;--negative-color:#ffebee;--negative-selected:#e57373;--border-color:#ddd;--header-bg:#f5f5f5;}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;margin:0;padding:20px;background:#f9f9f9;}
+.container{display:flex;gap:20px;max-width:1400px;margin:0 auto;}
+.rubric-section{flex:2;background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.1);}
+.summary-section{flex:1;background:#fff;padding:10px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.1);position:sticky;top:15px;height:fit-content;font-size:.85rem;}
+.summary-section .nav-links{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;font-size:.8rem;}
+.summary-section .nav-links a{color:#1976D2;text-decoration:none;padding:2px 8px;border-radius:4px;background:#e3f2fd;}
+.summary-table{width:100%;border-collapse:collapse;margin:15px 0;}
+.summary-table th,.summary-table td{padding:6px;font-size:.8rem;text-align:left;border-bottom:1px solid var(--border-color);}
+.summary-table th{background:var(--header-bg);}
+.summary-table tbody tr{cursor:pointer;}
+.summary-table tbody tr.row-not-started{background:#ffebee;}
+.summary-table tbody tr.row-in-progress{background:#fff3e0;}
+.summary-table tbody tr.row-completed{background:#e8f5e9;}
+.section-header{background:var(--header-bg);padding:10px 15px;margin:15px 0 10px;border-left:4px solid #4CAF50;font-weight:bold;border-radius:4px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;}
+.section-header span{flex:1;}
+.section-buttons{display:flex;gap:4px;margin-left:10px;flex-wrap:wrap;}
+.section-buttons button{background:#6c757d;padding:3px 8px;font-size:10px;border-radius:10px;border:none;color:#fff;cursor:pointer;}
+.section-buttons .select-positive-btn{background:#2e7d32;}
+.section-buttons .select-negative-btn{background:#c62828;}
+.section-buttons .copy-score-btn{background:#1976D2;}
+.section-buttons .copy-group-btn{background:#E65100;}
+.item-list{margin:10px 0;padding-left:20px;}
+.item{padding:6px 10px;margin:3px 0;border-radius:4px;cursor:pointer;font-size:.9em;}
+.positive-item{background:var(--positive-color);border-left:3px solid #4CAF50;}
+.negative-item{background:var(--negative-color);border-left:3px solid #F44336;}
+.selected-positive{background:var(--positive-selected)!important;font-weight:500;}
+.selected-negative{background:var(--negative-selected)!important;font-weight:500;}
+.feedback-textarea{width:100%;min-height:80px;margin:10px 0;padding:10px;border:1px solid var(--border-color);border-radius:4px;font-family:inherit;box-sizing:border-box;}
+.controls{margin:20px 0;text-align:center;display:flex;flex-wrap:wrap;justify-content:center;gap:10px;}
+.section-copy-buttons{margin:15px 0;text-align:center;display:flex;flex-wrap:wrap;justify-content:center;gap:8px;}
+.section-copy-buttons button{padding:8px 16px;background:#1976D2;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:14px;font-weight:bold;min-width:50px;}
+.section-copy-buttons .checks-btn{background:#6c757d;}
+button{padding:10px 20px;background:#4CAF50;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:16px;margin:0 5px;}
+#resetBtn{background:#f44336;}
+.total-row{font-weight:bold;background:#e3f2fd;}
+.output-section{margin-top:30px;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.1);white-space:pre-wrap;font-family:monospace;max-height:500px;overflow-y:auto;}
+.editable{outline:none;border:1px dashed transparent;padding:2px 4px;border-radius:2px;}
+.hidden{display:none;}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:1000;justify-content:center;align-items:center;}
+.modal-content{background:#fff;padding:20px;border-radius:8px;width:500px;max-width:90%;}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding-bottom:10px;border-bottom:1px solid var(--border-color);}
+.modal-title{font-size:18px;font-weight:bold;}
+.close-btn{background:none;border:none;font-size:24px;cursor:pointer;color:#666;padding:0;width:30px;height:30px;}
+.form-group{margin-bottom:15px;}
+.form-group label{display:block;margin-bottom:5px;font-weight:500;}
+.point-input-group{display:flex;align-items:center;gap:8px;}
+.point-input-group input{flex:1;padding:8px 12px;border:1px solid var(--border-color);border-radius:4px;font-family:inherit;}
+.form-control{width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:4px;font-family:inherit;box-sizing:border-box;}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;}
+.modal-btn{padding:8px 16px;border-radius:4px;cursor:pointer;font-size:14px;border:none;}
+.modal-btn-primary{background:#4CAF50;color:#fff;}
+.modal-btn-secondary{background:#f5f5f5;color:#333;border:1px solid #ddd;}
+.modal-btn-danger{background:#f44336;color:#fff;}
+.predefined-feedback{margin:10px 0;}
+.predefined-comment{display:block;width:100%;padding:8px 12px;margin:5px 0;background:#f0f8ff;border:1px solid #b3d9ff;color:#333;border-radius:4px;cursor:pointer;text-align:left;font-size:14px;}
+.predefined-comment:hover{background:#92d841;}
+.feedback-controls{display:flex;gap:10px;margin:10px 0;}
+.feedback-controls button{padding:6px 12px;font-size:14px;margin:0;}
+.global-comment-box{margin-bottom:20px;padding:15px;background:#fef9e7;border-left:4px solid #ff9800;border-radius:4px;}
+.global-comment-row{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;}
+.global-comment-row input{flex:1 1 200px;padding:8px;border:1px solid #ffe0b2;border-radius:4px;font-family:inherit;}
+.global-comment-row select{flex:1 1 250px;padding:8px;border:1px solid #ffe0b2;border-radius:4px;background:#fff;font-family:inherit;}
+.global-comment-row textarea{flex:2 1 300px;min-height:60px;padding:8px;border:1px solid #ffe0b2;border-radius:4px;font-family:inherit;}
+.global-comment-hint{font-size:.9em;color:#bf7f00;margin-top:5px;}
+.notification-bar{width:100%;min-height:36px;line-height:1.4;padding:8px 15px;text-align:center;background:#e3f2fd;color:#0D47A1;border-radius:4px;margin:10px 0;font-size:14px;font-weight:500;border:1px solid #90caf9;display:none;position:relative;box-sizing:border-box;}
+.notification-bar.show{display:block;}
+.notification-bar.success{background:#e8f5e9;color:#1b5e20;border-color:#81c784;}
+.checks-section{background:#f8f9fa;padding:15px;border-radius:4px;margin-bottom:20px;border-left:4px solid #6c757d;}
+.checks-section h3{margin-top:0;display:flex;justify-content:space-between;align-items:center;}
+.checks-section h3 button{padding:4px 12px;font-size:12px;background:#1976D2;}
+.check-item-row{display:flex;align-items:center;gap:10px;padding:4px 0;cursor:pointer;}
+.check-item-row:hover{background:#e9ecef;border-radius:4px;}
+.check-item-row .check-status{font-weight:bold;min-width:24px;cursor:pointer;padding:2px 8px;border-radius:4px;text-align:center;user-select:none;}
+.check-item-row .check-status.N{background:#e8f5e9;color:#2e7d32;}
+.check-item-row .check-status.D{background:#ffebee;color:#c62828;}
+.check-item-row .check-status.T{background:#fff3e0;color:#e65100;}
+.check-item-row .check-text{flex:1;cursor:pointer;padding:4px 8px;border-radius:4px;}
+.check-item-row .check-text.selected{background:#bbdefb;}
+.group-item{background:#f0f4ff;border-left:3px solid #1976D2;padding:8px 10px;margin:5px 0 5px 20px;border-radius:4px;font-weight:500;}
+.group-item .sub-items{font-weight:normal;font-size:.85em;color:#555;margin-top:3px;padding-left:15px;}
+.auto-check-indicator{font-size:.75em;color:#1976D2;margin-left:8px;font-weight:normal;}
+.tracking-note{font-size:.8em;color:#e65100;font-weight:normal;margin-left:6px;}
+.name-required-error{color:#c62828;font-size:.85em;margin-top:4px;display:none;}
+.name-required-error.show{display:block;}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="rubric-section">
+<h1>SL Report Fall 2026 Rubric Grading Interface</h1>
+<div class="global-comment-box" id="nameSection">
+<label for="studentName"><strong>📝 Student name (for greeting):</strong></label>
+<div class="global-comment-row">
+<input type="text" id="studentName" placeholder="e.g., Naga" value="">
+<select id="greetingTemplateSelect">
+<option value="">— None (no greeting) —</option>
+<option value="Nicely done in completing the SL Report, {}! We hope this has given you momentum to make great progress on the next in our series of four reports, the OL Report!" selected>SL Report greeting</option>
+<option value="Hello {}, good start with your assignment report so far. Please see the feedback below for more details.">Hello {name} (standard)</option>
+<option value="Good start, {}. Please see the feedback below.">Good start, {name} (concise)</option>
+</select>
+<textarea id="globalCommentTemplate" placeholder="Editable greeting text">Nicely done in completing the SL Report, {}! We hope this has given you momentum to make great progress on the next in our series of four reports, the OL Report!
+
+Please create a private Ed post if you have any questions, comments, concerns or if you notice something grade- or feedback-related is amiss!
+
+Without further ado, below we've provided both high-level feedback on satisfaction of the basic requirements as well as individualized feedback to help steer you for the better in future assignments where we felt there was room for improvement, not without highlighting your strengths!</textarea>
+</div>
+<div class="global-comment-hint">Select a preset, then edit if needed. The {} will be replaced by the name.</div>
+<div id="nameRequiredError" class="name-required-error">⚠️ Please enter a student name before generating feedback.</div>
+</div>
+
+<div class="checks-section">
+<h3>Checks Configuration <button onclick="copyChecksStatusOnly()">📋 Copy Checks (Y/N)</button></h3>
+<p><strong>Click N/D/T to toggle status, or click text to select/deselect for feedback.</strong> Check 5 is <em>tracking only</em> (no score impact, per rubric p.7).</p>
+<p><strong>No Deductions Made:</strong></p>
+<div class="item-list">
+<div class="check-item-row" onclick="toggleCheckSelection('positive-0')">
+<span class="check-status N" id="check-status-positive-0" onclick="event.stopPropagation(); toggleCheckStatus('positive-0')">N</span>
+<span class="check-text" id="check-text-positive-0">Submission of report and reproducibility materials satisfies major implementation requirements!</span>
+</div>
+</div>
+<p><strong>Deductions Made:</strong></p>
+<div class="item-list">
+<div class="check-item-row" onclick="toggleCheckSelection('negative-0')">
+<span class="check-status N" id="check-status-negative-0" onclick="event.stopPropagation(); toggleCheckStatus('negative-0')">N</span>
+<span class="check-text" id="check-text-negative-0">Check 1 - Unreadable/Missing Report: Between provision and accessibility of your report, we were unable to access and read it in order to provide a grade, thus we have made the hard decision to score your report 0/100.</span>
+</div>
+<div class="check-item-row" onclick="toggleCheckSelection('negative-1')">
+<span class="check-status N" id="check-status-negative-1" onclick="event.stopPropagation(); toggleCheckStatus('negative-1')">N</span>
+<span class="check-text" id="check-text-negative-1">Check 2 - Incorrect Task: Between use of the prescribed dataset and setup of the intended multiclass classification problem, you broke the task requirements and thus we have made the hard decision to score your report 0/100.</span>
+</div>
+<div class="check-item-row" onclick="toggleCheckSelection('negative-2')">
+<span class="check-status N" id="check-status-negative-2" onclick="event.stopPropagation(); toggleCheckStatus('negative-2')">N</span>
+<span class="check-text" id="check-text-negative-2">Check 3A - Overleaf/GitHub Inaccessible: Between the two reproducibility requirements of Overleaf-hosted write-up and project codebase hosted in the GT Enterprise GitHub repo provided you for the course, you missed {TODO} and thus we've deducted points in the A2. Accessibility section. <span class="auto-check-indicator">(auto-filled from A2)</span></span>
+</div>
+<div class="check-item-row" onclick="toggleCheckSelection('negative-3')">
+<span class="check-status N" id="check-status-negative-3" onclick="event.stopPropagation(); toggleCheckStatus('negative-3')">N</span>
+<span class="check-text" id="check-text-negative-3">Check 3B - Overleaf/GitHub Inaccessible: Between requirement that you host and edit your report in LaTex on Overleaf and push all project code to the GT Enterprise GitHub repo provided you for the course, we found you broke this requirement and thus we have made the hard decision to deduct {POINTS} points from your report. <span class="auto-check-indicator">(auto-detected)</span></span>
+</div>
+<div class="check-item-row" onclick="toggleCheckSelection('negative-4')">
+<span class="check-status N" id="check-status-negative-4" onclick="event.stopPropagation(); toggleCheckStatus('negative-4')">N</span>
+<span class="check-text" id="check-text-negative-4">Check 4 - Report Over 8 Pages: A portion of your report spills over the 8 page limit specified in the requirements and thus we consider anything past page 8 as not provided and (not) graded in accordance with this rule.</span>
+</div>
+<div class="check-item-row" onclick="toggleCheckSelection('negative-5')">
+<span class="check-status T" id="check-status-negative-5" onclick="event.stopPropagation(); toggleCheckStatus('negative-5')">T</span>
+<span class="check-text" id="check-text-negative-5">Check 5 - GenAI Blue-Yellow Plots, Flummoxed (tracking only): We identified blue/yellow figure scheme and/or repeated use of the word "flummoxed." This is tracked for instructor review only and does not affect your score. <span class="tracking-note">(tracking only)</span></span>
+</div>
+</div>
+</div>
+
+<div id="rubricContainer"></div>
+
+<div id="notificationBar" class="notification-bar"><span id="notificationMessage"></span><span class="close-notification" onclick="hideNotification()">&times;</span></div>
+
+<div class="controls" id="generateSection">
+<button id="generateBtn">Generate Feedback</button>
+<button id="copyBtn" class="hidden">Copy Feedback</button>
+<button id="copyScoresBtn">Copy Scores (all raw)</button>
+<button id="resetBtn">Reset All</button>
+</div>
+
+<div class="section-copy-buttons">
+<button onclick="copySectionGroupScores(0)">📋 A</button>
+<button onclick="copySectionGroupScores(1)">📋 B</button>
+<button onclick="copySectionGroupScores(2)">📋 C</button>
+<button onclick="copySectionGroupScores(3)">📋 D</button>
+<button onclick="copySectionGroupScores(4)">📋 E</button>
+<button onclick="copySectionGroupScores(5)">📋 F</button>
+<button onclick="copySectionGroupScores(6)">📋 G</button>
+<button onclick="copySectionGroupScores(7)">📋 EC</button>
+<button class="checks-btn" onclick="copyChecksStatusOnly()">📋 Checks</button>
+</div>
+
+<div id="outputSection" class="output-section hidden"></div>
+</div>
+
+<div class="summary-section">
+<h2 style="font-size:1.2rem;margin-top:0;">Points Summary</h2>
+<div class="nav-links"><a href="#nameSection">📝 Name</a><a href="#generateSection">🚀 Generate</a></div>
+<table class="summary-table" id="summaryTable">
+<thead><tr><th>Section</th><th>Points</th><th>Max</th></tr></thead>
+<tbody id="summaryBody"></tbody>
+<tfoot><tr class="total-row"><td>Total (incl. EC)</td><td id="totalPoints">0</td><td id="maxPoints">100</td></tr></tfoot>
+</table>
+<div id="extraCreditSection" class="hidden">
+<h3 style="font-size:1rem;">Extra Credit</h3>
+<table class="summary-table"><thead><tr><th>Section</th><th>Points</th><th>Max</th></tr></thead><tbody id="extraCreditBody"></tbody></table>
+</div>
+</div>
+</div>
+
+<div id="itemModal" class="modal"><div class="modal-content">
+<div class="modal-header"><div class="modal-title">Edit Item</div><button class="close-btn">&times;</button></div>
+<div class="modal-body">
+<div class="form-group"><label for="itemText">Item Description</label><textarea id="itemText" class="form-control" rows="3"></textarea></div>
+<div class="form-group"><label for="itemPoints">Points (max: <span id="maxPointDisplay"></span>)</label>
+<div class="point-input-group">
+<input type="number" id="itemPoints" class="form-control" step="1" min="0" value="0">
+<button type="button" id="incrementPoint">+1</button>
+<button type="button" id="decrementPoint">-1</button>
+<button type="button" id="resetPointBtn">Reset</button>
+</div></div>
+</div>
+<div class="modal-footer">
+<button id="clearTextBtn" class="modal-btn modal-btn-danger">Clear Text</button>
+<button id="cancelBtn" class="modal-btn modal-btn-secondary">Cancel</button>
+<button id="saveBtn" class="modal-btn modal-btn-primary">Save</button>
+</div>
+</div></div>
+
+<script>
+let extraCreditPointsValue=0;
+let checkSelections={};
+let checkTextSelections={};
+
+function showNotification(msg,isSuccess=true){const bar=document.getElementById('notificationBar');document.getElementById('notificationMessage').textContent=msg;bar.className='notification-bar show'+(isSuccess?' success':'');bar.style.display='block';setTimeout(hideNotification,4000);}
+function hideNotification(){document.getElementById('notificationBar').style.display='none';}
+function validateName(){const n=document.getElementById('studentName').value.trim();const e=document.getElementById('nameRequiredError');if(!n){e.classList.add('show');return false;}e.classList.remove('show');return true;}
+
+function initCheckSelections(){
+  checkSelections['positive-0']='N';checkTextSelections['positive-0']=true;
+  for(let i=0;i<6;i++){checkSelections[`negative-${i}`]=(i===5?'T':'N');checkTextSelections[`negative-${i}`]=false;}
+}
+initCheckSelections();
+
+function toggleCheckStatus(id){
+  const el=document.getElementById(`check-status-${id}`);
+  const order=id==='negative-5'?['T','N']:['N','D'];
+  const cur=el.textContent;const idx=order.indexOf(cur);
+  const nxt=order[(idx+1)%order.length];
+  el.textContent=nxt;el.className='check-status '+nxt;
+  checkSelections[id]=nxt;
+  if(nxt==='D'){checkTextSelections[id]=true;document.getElementById(`check-text-${id}`).classList.add('selected');}
+  updateNoDeductionsSelection();
+  if(id==='negative-2')updateCheck3A();
+  if(id==='negative-3')updateCheck3B();
+}
+function toggleCheckSelection(id){
+  const el=document.getElementById(`check-text-${id}`);
+  checkTextSelections[id]=!checkTextSelections[id];
+  el.classList.toggle('selected',checkTextSelections[id]);
+  updateNoDeductionsSelection();
+  if(id==='negative-2')updateCheck3A();
+  if(id==='negative-3')updateCheck3B();
+}
+function updateNoDeductionsSelection(){
+  let hasNeg=false;
+  for(let i=0;i<6;i++){if(checkSelections[`negative-${i}`]==='D'||checkTextSelections[`negative-${i}`])hasNeg=true;}
+  if(checkSelections['positive-0']==='D')hasNeg=true;
+  checkTextSelections['positive-0']=!hasNeg;
+  const el=document.getElementById('check-text-positive-0');
+  if(el)el.classList.toggle('selected',!hasNeg);
+}
+
+function copyChecksStatusOnly(){
+  const toYN = v => (v === 'D' || v === 'T') ? 'Y' : 'N';
+  let s = [];
+  for (let i = 0; i < 6; i++) {
+    s.push(toYN(checkSelections[`negative-${i}`] || 'N'));
+  }
+  const r = s.join('\t');
+  navigator.clipboard.writeText(r);
+  showNotification(`✅ Checks (Y/N): ${r}`);
+}
+
+function getMissingAccessItems(){
+  const st=state.selectedItems.get('section-0')||{positive:new Set(),negative:new Set()};
+  const m=[];
+  if(!st.positive.has('section-0-positive-2'))m.push('Enterprise Overleaf Edit Link');
+  if(!st.positive.has('section-0-positive-3'))m.push('GT Enterprise GitHub commit hash');
+  if(m.length===0)return '';
+  return m.join(' and ');
+}
+function getMissingAccessPoints(){
+  const st=state.selectedItems.get('section-0')||{positive:new Set(),negative:new Set()};
+  let p=0;
+  if(!st.positive.has('section-0-positive-2'))p+=2;
+  if(!st.positive.has('section-0-positive-3'))p+=2;
+  return p;
+}
+function updateCheck3A(){
+  const el=document.getElementById('check-text-negative-2');if(!el)return;
+  const m=getMissingAccessItems();const mp=getMissingAccessPoints();
+  let t=el.textContent.replace(/\s*\(auto-filled from A2\)\s*$/,'');
+  if(m){t=t.replace(/\{TODO\}/g,m).replace(/we've deducted points/,`we've deducted ${mp} points`)+' (auto-filled from A2)';
+    if(!checkTextSelections['negative-2']){checkTextSelections['negative-2']=true;el.classList.add('selected');}
+    if(checkSelections['negative-2']!=='D'){checkSelections['negative-2']='D';document.getElementById('check-status-negative-2').textContent='D';document.getElementById('check-status-negative-2').className='check-status D';}
+  }else{t=t.replace(/\{TODO\}/g,'');
+    if(checkTextSelections['negative-2']){checkTextSelections['negative-2']=false;el.classList.remove('selected');}
+    if(checkSelections['negative-2']==='D'){checkSelections['negative-2']='N';document.getElementById('check-status-negative-2').textContent='N';document.getElementById('check-status-negative-2').className='check-status N';}
+  }
+  el.textContent=t;updateNoDeductionsSelection();
+}
+function updateCheck3B(){
+  const el=document.getElementById('check-text-negative-3');if(!el)return;
+  const m=getMissingAccessItems();
+  if(m&&checkSelections['negative-3']!=='D'){
+    checkSelections['negative-3']='D';
+    document.getElementById('check-status-negative-3').textContent='D';
+    document.getElementById('check-status-negative-3').className='check-status D';
+    checkTextSelections['negative-3']=true;
+    el.classList.add('selected');
+    updateNoDeductionsSelection();
+  } else if(!m&&checkSelections['negative-3']==='D'){
+    checkSelections['negative-3']='N';
+    document.getElementById('check-status-negative-3').textContent='N';
+    document.getElementById('check-status-negative-3').className='check-status N';
+    // Keep text-selection flag consistent so it doesn't leak into output
+    checkTextSelections['negative-3']=false;
+    el.classList.remove('selected');
+    updateNoDeductionsSelection();
+  }
+}
+
+/* ============ RUBRIC DATA — Fall 2026 BRFSS GenHlth ============ */
+const rubricData={grading_rubric:{total_points:100,extra_credit_points:5,sections:[
+{main_section:"A) Compliance (16 points)",points_available:16,section_letter:"A",groups:[
+ {label:"A1. Data Compliance",max:3,items:[
+  {description:"Sample size: Uses an approximately 20,000-instance working dataset and clearly documents its size",points:2},
+  {description:"Source and target: Uses the required BRFSS file and treats GenHlth values 1-5 consistently as the multiclass target (excluded from predictors)",points:1}]},
+ {label:"A2. Accessibility/Reproducibility",max:7,items:[
+  {description:"Enterprise Overleaf: Provides a working EDIT link for the GT/Enterprise Overleaf project, accessible to course staff",points:2},
+  {description:"Enterprise GitHub: Provides a valid final commit hash from the student's GT Enterprise GitHub repository, accessible to course staff",points:2},
+  {description:"Run instructions: Commands, environment requirements, data paths, and seeds sufficient to reproduce experiments on a standard Linux machine",points:2},
+  {description:"Sampling procedure: Sampling method, sample size, random seed, and enough detail/code to recreate the sample",points:1}]},
+ {label:"A3. Legibility/Attribution",max:6,items:[
+  {description:"Readable figures and tables: Figures, tables, axis labels, legends, captions, and text readable at normal grading zoom",points:2},
+  {description:"Outside sources: At least two relevant peer-reviewed sources beyond course materials used to justify methodology or interpretation",points:2},
+  {description:"AI usage statement: Identifies AI tools, describes what they assisted with, and affirms student review/understanding",points:2}]}],
+ negative_items:{items:[
+  "Working dataset is not approximately 20,000 instances, uses full 253,680 data, or sample size is not documented",
+  "Wrong dataset/file used, wrong target, GenHlth collapsed to binary, or GenHlth included among predictors",
+  "Overleaf link missing, only a View (not Edit) link, inaccessible, or personal/non-Enterprise project",
+  "GitHub commit hash missing, invalid, inaccessible, or only a personal GitHub repository",
+  "Run instructions missing or insufficient (no dependencies, no data paths, no execution order)",
+  "Sampling procedure vague (e.g., 'we randomly sampled 20,000 rows' with no seed/procedure)",
+  "Multiple figures/tables too small, blurry, clipped, unlabeled, or otherwise unreadable",
+  "Fewer than two peer-reviewed sources, only docs/blogs/textbooks/arXiv, or sources listed but not used",
+  "AI usage statement missing, says only 'AI was used,' or does not confirm review/understanding"]},
+ feedback_section:"Feedback on Section: <free-text>"},
+
+{main_section:"B) Study Design (14 points)",points_available:14,section_letter:"B",groups:[
+ {label:"B1. EDA Evidence",max:4,items:[
+  {description:"Full-data EDA: Dataset shape, feature characteristics, missingness or absence, GenHlth class counts/proportions, and at least one observation that informs later modeling",points:2},
+  {description:"Sample EDA: Class counts and proportions for the ~20,000 sample reported and compared with full-data distribution",points:2}]},
+ {label:"B2. Sampling Design",max:4,items:[
+  {description:"Sampling rationale: Stratification used and justified (or defended alternative with evidence all classes preserved); consequences for minority classes discussed",points:3},
+  {description:"Ordering effects: Randomized or stratified sampling with documented seed, or convincing justification for an alternative",points:1}]},
+ {label:"B3. Metrics and Hypothesis",max:4,items:[
+  {description:"Metric justification: Explains why Accuracy, Macro-F1, balanced accuracy, confusion matrices, and class-level precision/recall/F1 suit this imbalanced 5-class problem",points:2},
+  {description:"Early hypothesis: Clear, testable hypothesis after EDA and before tuned results, connecting dataset properties to supervised-learning theory",points:1},
+  {description:"Hypothesis revisit: Explicitly determines whether the hypothesis was supported, contradicted, or partially supported using experimental evidence",points:1}]},
+ {label:"B4. Validation",max:2,items:[
+  {description:"Test holdout: Single held-out test set reserved for final evaluation after model/hyperparameter selection",points:1},
+  {description:"Leakage-safe validation: Tuning uses training-only validation; learned preprocessing (e.g., scaling) fit only on training data/folds",points:1}]}],
+ negative_items:{items:[
+  "Full-data EDA is generic, omits GenHlth class distribution, or does not inform modeling",
+  "Sample class counts/proportions missing or without sufficient context; five-class preservation not checked",
+  "Sampling described as random without rationale or comparison to full class distribution",
+  "head(20000) or first 20,000 rows used without justification",
+  "Metrics merely listed, Accuracy treated as sufficient, or Macro-F1/balanced accuracy not explained",
+  "Hypothesis is a generic goal, introduced after results, or not tied to dataset properties/course concepts",
+  "Hypothesis never revisited, or 'it was correct' without supporting evidence",
+  "Test set repeatedly used to select k, tree depth, SVM params, NN architecture, or other settings",
+  "Scaling applied before splitting, GenHlth leaks into features, or test observations influence preprocessing/model selection"]},
+ feedback_section:"Feedback on Section: <free-text>"},
+
+{main_section:"C) Decision Trees (14 points)",points_available:14,section_letter:"C",groups:[
+ {label:"C1. Complexity Control",max:2,items:[
+  {description:"Complexity control: Identifies a pruning/regularization mechanism (e.g., max_depth, min_samples_leaf, ccp_alpha) and explains its effect on model capacity",points:2}]},
+ {label:"C2. Learning and Complexity Curves",max:6,items:[
+  {description:"Learning curve: Training and validation performance across at least four training sizes, interpreted with bias/variance reasoning",points:3},
+  {description:"Complexity curve: At least three meaningful values of a tree-complexity parameter compared; curve supports the final model choice",points:3}]},
+ {label:"C3. Evaluation and Runtime",max:4,items:[
+  {description:"Final evaluation: Accuracy, Macro-F1, balanced accuracy, and meaningful class-level evaluation reported",points:2},
+  {description:"Runtime: Fit and prediction time reported and at least one relevant trade-off discussed (e.g., interpretability, low prediction cost)",points:2}]},
+ {label:"C4. Tuning Quality",max:2,items:[
+  {description:"Tuning quality: Final tree supported by meaningful validation or complexity evidence",points:2}]}],
+ negative_items:{items:[
+  "Unconstrained tree without complexity control discussion, or depth reported without explaining how complexity was managed",
+  "Learning curve has too few training sizes without justification, shows only validation performance, or is described only as 'performance increases'",
+  "Complexity curve tests only one or two values, values too narrow to show meaningful capacity change, or selected tree unrelated to the evidence",
+  "Required aggregate metrics missing, confusion matrix shown but no class-level behavior discussed, or low performance dismissed as the algorithm being 'bad'",
+  "Only fit time listed with no context, or runtime appears in a table but is never discussed",
+  "Final depth/pruning value appears arbitrary, chosen from test performance, or selected without sufficient exploration"]},
+ feedback_section:"Feedback on Section: <free-text>"},
+
+{main_section:"D) kNN (14 points)",points_available:14,section_letter:"D",groups:[
+ {label:"D1. Scaling, Distance and k Exploration",max:4,items:[
+  {description:"Scaling and distance: Scaling is leakage-safe; distance metric and weighting strategy stated and justified",points:2},
+  {description:"k exploration: At least three meaningfully different neighborhood sizes tested to expose changes in locality and smoothing",points:2}]},
+ {label:"D2. Learning and Complexity Curves",max:4,items:[
+  {description:"Learning curve: Training and validation performance across at least four training sizes and interpreted",points:2},
+  {description:"Complexity curve: Validation performance across k values supports the final choice and is interpreted in terms of complexity/locality",points:2}]},
+ {label:"D3. Evaluation and Runtime",max:5,items:[
+  {description:"Final evaluation: Accuracy, Macro-F1, balanced accuracy, and meaningful class-level evaluation reported",points:3},
+  {description:"Runtime: Fit and prediction times reported and characteristic prediction-time cost of kNN discussed",points:2}]},
+ {label:"D4. Sensitivity",max:1,items:[
+  {description:"Sensitivity discussion: At least one kNN-specific issue (scale, locality, irrelevant features, mixed binary/numeric features, neighborhood density, or class imbalance)",points:1}]}],
+ negative_items:{items:[
+  "No scaling used or discussed, scaling before split, or distance/weighting left at defaults without being identified",
+  "Only one k tested, or values like 5, 6, 7 without scientific justification for such a narrow region",
+  "Learning curve missing, too sparse without justification, or shown without discussing whether additional data appears useful",
+  "Complexity curve shown but selected k not connected to it, or no discussion of how neighborhood size affects behavior",
+  "Required metrics missing, minority-class behavior ignored despite poor per-class recall/F1, or kNN labeled ineffective based on a modest aggregate score",
+  "Student calls kNN 'fast' solely because fit time is small, or prediction-time discussion omitted",
+  "No kNN-specific interpretation; analysis could apply unchanged to any model"]},
+ feedback_section:"Feedback on Section: <free-text>"},
+
+{main_section:"E) SVM (14 points)",points_available:14,section_letter:"E",groups:[
+ {label:"E1. Kernel Comparison",max:2,items:[
+  {description:"Kernel comparison: At least two kernels (e.g., linear and RBF) actually evaluated and compared in performance, runtime, or class-level behavior",points:2}]},
+ {label:"E2. Scaling",max:2,items:[
+  {description:"Scaling: Leakage-safe feature scaling applied consistently and described",points:2}]},
+ {label:"E3. Learning and Complexity Curves",max:4,items:[
+  {description:"Learning curve: Training and validation performance across at least four training sizes and interpreted",points:2},
+  {description:"Complexity curve: C and/or gamma varied across at least three reasonable settings, or a justified smaller grid for documented computational constraints",points:2}]},
+ {label:"E4. Evaluation and Runtime",max:4,items:[
+  {description:"Final evaluation: Accuracy, Macro-F1, balanced accuracy, and meaningful class-level evaluation reported",points:3},
+  {description:"Runtime: Fit and prediction time reported and kernel trade-offs discussed",points:1}]},
+ {label:"E5. Tuning Quality",max:2,items:[
+  {description:"Tuning quality: At least two kernels evaluated, C tuned for each, and gamma tuned where appropriate (RBF)",points:2}]}],
+ negative_items:{items:[
+  "Only one kernel used, or second kernel mentioned in methodology without comparable results",
+  "Scaling missing, unclear, or fit before splitting",
+  "Learning curve missing, fewer than four training sizes, or not interpreted",
+  "Complexity curve missing, too few values without justification, or varies an irrelevant parameter",
+  "Required metrics missing or class-level behavior not examined",
+  "Runtime missing, or kernel runtime trade-offs ignored",
+  "Final model arbitrary, kernel choice unsupported, or C/gamma tuning missing without justification"]},
+ feedback_section:"Feedback on Section: <free-text>"},
+
+{main_section:"F) Neural Networks (14 points)",points_available:14,section_letter:"F",groups:[
+ {label:"F1. SGD Setup",max:3,items:[
+  {description:"SGD setup: Optimizer is explicitly plain SGD (no momentum/Adam/AdamW/Adagrad/RMSprop); architecture, learning rate, batch size, epochs, regularization, stopping behavior, and seeds documented for both implementations",points:3}]},
+ {label:"F2. Epoch, Learning and Complexity Curves",max:6,items:[
+  {description:"Epoch curves: Train and validation loss/metric over epochs for BOTH scikit-learn and PyTorch implementations, with optimization behavior interpreted",points:2},
+  {description:"Learning curve: Training and validation performance across at least four training sizes and interpreted",points:2},
+  {description:"Complexity curve: At least three NN settings (depth, width, learning rate, or regularization) varied and final model choice justified",points:2}]},
+ {label:"F3. Evaluation",max:2,items:[
+  {description:"Final evaluation: Accuracy, Macro-F1, balanced accuracy, and confusion matrix or per-class metrics for NN implementations",points:2}]},
+ {label:"F4. Implementation Comparison",max:2,items:[
+  {description:"Implementation comparison: scikit-learn vs PyTorch compared in optimization behavior, stability, runtime, tunability, and/or final performance under SGD-only constraint",points:2}]},
+ {label:"F5. Runtime and Tuning",max:1,items:[
+  {description:"Runtime and tuning: Computational cost reported and final NN configuration supported by tuning evidence",points:1}]}],
+ negative_items:{items:[
+  "Momentum, Nesterov, Adam, AdamW, Adagrad, RMSprop, or other adaptive optimizer used, or training setup not documented",
+  "Epoch evidence missing, shown for only one implementation without justification, or not interpreted",
+  "Learning curve missing, fewer than four training sizes, or not interpreted",
+  "Complexity curve missing, too few settings, or not interpreted",
+  "Only final Accuracy reported, or class-level behavior not examined",
+  "Low performance attributed to 'neural networks being bad' without examining convergence, LR, architecture, regularization, or optimization",
+  "Both implementations present but discussed independently, or one's higher score stated without examining why",
+  "Runtime/training cost absent, or architecture/learning-rate choices appear arbitrary"]},
+ feedback_section:"Feedback on Section: <free-text>"},
+
+{main_section:"G) Discussion (14 points)",points_available:14,section_letter:"G",groups:[
+ {label:"G1. Cross-model Synthesis",max:3,items:[
+  {description:"Cross-model synthesis: At least three required algorithm families directly compared using final metrics, curves, runtime, or error patterns, with connections to supervised-learning concepts",points:3}]},
+ {label:"G2. Performance and Efficiency Tradeoffs",max:2,items:[
+  {description:"Performance and efficiency trade-offs: At least two concrete predictive-performance vs computational-cost trade-offs explained",points:2}]},
+ {label:"G3. Class-level and Curve-based Interpretation",max:4,items:[
+  {description:"Class-level behavior: Identifies important differences among the five GenHlth classes, addresses less-represented classes, and explains at least one confusion pattern using precision/recall/F1 or confusion matrix",points:2},
+  {description:"Curve-based interpretation: Learning and complexity curves support at least two specific claims about underfitting, overfitting, bias, variance, saturation, optimization, or hyperparameter sensitivity",points:2}]},
+ {label:"G4. Limitations and Improvements",max:5,items:[
+  {description:"Limitations and improvements: At least one concrete limitation and one evidence-based follow-up experiment/improvement connected to observed evidence",points:5}]}],
+ negative_items:{items:[
+  "Models discussed only in isolation, section merely ranks final scores, or claims like 'SVM performed best because SVM is powerful' without evidence",
+  "Runtime and predictive metrics listed separately but never compared, or final recommendation considers predictive score alone",
+  "Only aggregate Accuracy discussed, 'best model' identified without examining minority-class behavior, or confusion matrix included without interpreting specific errors",
+  "Curves merely described visually ('the validation line increases'), or bias/variance claims made without pointing to curve evidence",
+  "Only generic statements such as 'use more data,' 'try more models,' or 'tune better' without connecting to observed evidence"]},
+ feedback_section:"Feedback on Section: <free-text>"},
+
+{main_section:"Extra Credit: Activation Study (up to 5 points)",points_available:5,section_letter:"EC",groups:[
+ {label:"EC1. Activation Curves",max:2,items:[
+  {description:"Activation curves: Epoch-wise activation curves for all four activations using the same training budget for fair comparison",points:2}]},
+ {label:"EC2. Comparison Table",max:2,items:[
+  {description:"Comparison table: Final results tabulated with evaluation metrics, runtime, and convergence characteristics",points:2}]},
+ {label:"EC3. Interpretation",max:1,items:[
+  {description:"Interpretation: Convergence stability and different trade-offs under the SGD-only constraint discussed",points:1}]}],
+ negative_items:{items:[
+  "No extra credit attempted, or implementation/results/discussion too cursory to earn points",
+  "Disallowed optimizer used; no extra credit should be awarded",
+  "Activation curves missing, not comparable, or use different training protocols",
+  "Comparison table missing or incomplete",
+  "Activation study only reports numbers without interpretation"]},
+ feedback_section:"Feedback on Section: <free-text>"}
+],general_feedback:{section:"General Feedback",content:""}}};
+
+const predefinedFeedback={
+ requirements:["Please ensure the report uses the required BRFSS file diabetes_012_health_indicators_BRFSS2015.csv as a 5-class task with GenHlth (1-5) as the target, excluded from predictors.","Please verify your Overleaf Edit Link and GT Enterprise GitHub commit hash are accessible to course staff.","The report should stay within the 8-page scoring limit.","Several figures or tables would benefit from larger fonts, clearer labels, and improved captions.","The report should read as a formal technical paper rather than a checklist."],
+ study_design:["The study design would be stronger with clearer full-data EDA and sample-level EDA, including comparison of class distributions.","Please explain the sampling procedure more clearly, including method, sample size, random seed, and stratification rationale.","The metric discussion needs to explain why accuracy alone is insufficient for this imbalanced 5-class problem.","Your hypothesis should be stated after EDA and before tuned results, and revisited later with evidence.","Validation and preprocessing should be described in a leakage-safe way."],
+ algorithms_dt:["For Decision Trees, explain how the chosen complexity control limits overfitting.","The Decision Tree learning curve should include at least four training sizes.","Please report the required multiclass metrics and discuss class-level error patterns.","Runtime should include both fit and predict time."],
+ algorithms_knn:["For kNN, state the distance metric and weighting choices, and make clear scaling was leakage-safe.","The k exploration should include at least three meaningfully different values.","Discuss kNN's prediction-time cost and sensitivity to high dimensionality and mixed feature types.","Use the complexity curve to justify the final k."],
+ algorithms_svm:["For SVM, report and compare results from at least two kernels.","Make clear scaling was leakage-safe and applied consistently.","Explain how C and/or gamma affected validation results.","Runtime should be connected to kernel trade-offs."],
+ algorithms_nn:["For Neural Networks, the optimizer must be explicitly plain SGD (no momentum, no adaptive optimizers).","Document architecture, learning rate, batch size, epochs, regularization, stopping, and seeds for both implementations.","Show epoch curves for both implementations and interpret optimization behavior.","Compare scikit-learn and PyTorch implementations."],
+ discussion:["The discussion should directly compare at least three algorithm families.","Explain performance-efficiency trade-offs with concrete comparisons.","Analyze class-level behavior across the five GenHlth classes, including Fair and Poor.","Use learning and complexity curves to support claims.","Limitations and improvements should be concrete and tied to your evidence."],
+ extra_credit:["For extra credit, all four activations should use the same training budget.","Include epoch-wise activation curves, a comparison table, and interpretation."],
+ general:["Please strengthen interpretation by explaining why the observed results occurred.","Connect claims to course concepts such as bias-variance, locality, margin-based classification, scaling sensitivity, model capacity, or regularization.","Improve the flow so EDA, hypotheses, validation, model results, and discussion build a coherent modeling story."]
+};
+
+const sectionGroupCombinations={
+ 0:{scores:[{label:"A1",groupIndices:[0]},{label:"A2",groupIndices:[1]},{label:"A3",groupIndices:[2]}]},
+ 1:{scores:[{label:"B1",groupIndices:[0]},{label:"B2",groupIndices:[1]},{label:"B3",groupIndices:[2]},{label:"B4",groupIndices:[3]}]},
+ 2:{scores:[{label:"C1",groupIndices:[0]},{label:"C2",groupIndices:[1]},{label:"C3",groupIndices:[2]},{label:"C4",groupIndices:[3]}]},
+ 3:{scores:[{label:"D1",groupIndices:[0]},{label:"D2",groupIndices:[1]},{label:"D3",groupIndices:[2]},{label:"D4",groupIndices:[3]}]},
+ 4:{scores:[{label:"E1",groupIndices:[0]},{label:"E2",groupIndices:[1]},{label:"E3",groupIndices:[2]},{label:"E4",groupIndices:[3]},{label:"E5",groupIndices:[4]}]},
+ 5:{scores:[{label:"F1",groupIndices:[0]},{label:"F2",groupIndices:[1]},{label:"F3",groupIndices:[2]},{label:"F4",groupIndices:[3]},{label:"F5",groupIndices:[4]}]},
+ 6:{scores:[{label:"G1",groupIndices:[0]},{label:"G2",groupIndices:[1]},{label:"G3",groupIndices:[2]},{label:"G4",groupIndices:[3]}]},
+ 7:{scores:[{label:"EC1",groupIndices:[0]},{label:"EC2",groupIndices:[1]},{label:"EC3",groupIndices:[2]}]}
+};
+
+const state={selectedItems:new Map(),currentEditingItem:null};
+
+document.addEventListener('DOMContentLoaded',function(){
+ renderRubric();setupEventListeners();setupModalEvents();setupPredefinedFeedbackEvents();updateSummary();
+ const sel=document.getElementById('greetingTemplateSelect');const ta=document.getElementById('globalCommentTemplate');
+ sel.addEventListener('change',function(){ta.value=this.value||'';});
+ document.getElementById('studentName').addEventListener('input',function(){if(this.value.trim())document.getElementById('nameRequiredError').classList.remove('show');});
+ setTimeout(()=>{updateNoDeductionsSelection();updateCheck3A();updateCheck3B();},100);
+});
+
+function copyGroupScore(si,gi){
+ const s=rubricData.grading_rubric.sections[si];const g=s.groups[gi];const sid=`section-${si}`;
+ const st=state.selectedItems.get(sid)||{positive:new Set()};
+ let t=0,off=0;for(let x=0;x<gi;x++)off+=s.groups[x].items.length;
+ g.items.forEach((it,i)=>{if(st.positive.has(`${sid}-positive-${off+i}`))t+=it.points;});
+ const r=`${t}/${g.max}`;navigator.clipboard.writeText(r);showNotification(`✅ ${g.label}: ${r}`);
+}
+function copySectionScore(si){
+ const s=rubricData.grading_rubric.sections[si];const sid=`section-${si}`;
+ const st=state.selectedItems.get(sid)||{positive:new Set()};
+ let p=0,c=0;s.groups.forEach(g=>g.items.forEach(it=>{if(st.positive.has(`${sid}-positive-${c}`))p+=it.points;c++;}));
+ navigator.clipboard.writeText(`${p}`);showNotification(`✅ Section ${s.section_letter}: ${p}`);
+}
+function copySectionGroupScores(si){
+ const s=rubricData.grading_rubric.sections[si];const sid=`section-${si}`;
+ const st=state.selectedItems.get(sid)||{positive:new Set()};
+ const c=sectionGroupCombinations[si];if(!c)return;
+ let res=[];c.scores.forEach(sd=>{let t=0;sd.groupIndices.forEach(gi=>{const g=s.groups[gi];if(g){let off=0;for(let x=0;x<gi;x++)off+=s.groups[x].items.length;g.items.forEach((it,i)=>{if(st.positive.has(`${sid}-positive-${off+i}`))t+=it.points;});}});res.push(t.toFixed(0));});
+ const r=res.join('\t');navigator.clipboard.writeText(r);showNotification(`✅ Section ${s.section_letter} scores: ${r}`);
+}
+function toggleSelectAllPositives(si){
+ const s=rubricData.grading_rubric.sections[si];const sid=`section-${si}`;
+ if(!state.selectedItems.has(sid))state.selectedItems.set(sid,{positive:new Set(),negative:new Set()});
+ const st=state.selectedItems.get(sid);let tot=0;s.groups.forEach(g=>tot+=g.items.length);
+ let any=false;for(let i=0;i<tot;i++)if(st.positive.has(`${sid}-positive-${i}`)){any=true;break;}
+ if(any){for(let i=0;i<tot;i++){st.positive.delete(`${sid}-positive-${i}`);const el=document.getElementById(`${sid}-positive-${i}`);if(el)el.classList.remove('selected-positive');}}
+ else{for(let i=0;i<tot;i++){st.positive.add(`${sid}-positive-${i}`);const el=document.getElementById(`${sid}-positive-${i}`);if(el)el.classList.add('selected-positive');}}
+ updateSummary();if(si===0){updateCheck3A();updateCheck3B();}
+}
+function toggleSelectAllNegatives(si){
+ const s=rubricData.grading_rubric.sections[si];const sid=`section-${si}`;
+ if(!state.selectedItems.has(sid))state.selectedItems.set(sid,{positive:new Set(),negative:new Set()});
+ const st=state.selectedItems.get(sid);if(!s.negative_items)return;const tot=s.negative_items.items.length;
+ let any=false;for(let i=0;i<tot;i++)if(st.negative.has(`${sid}-negative-${i}`)){any=true;break;}
+ if(any){for(let i=0;i<tot;i++){st.negative.delete(`${sid}-negative-${i}`);const el=document.getElementById(`${sid}-negative-${i}`);if(el)el.classList.remove('selected-negative');}}
+ else{for(let i=0;i<tot;i++){st.negative.add(`${sid}-negative-${i}`);const el=document.getElementById(`${sid}-negative-${i}`);if(el)el.classList.add('selected-negative');}}
+ updateSummary();
+}
+function renderRubric(){
+ const cont=document.getElementById('rubricContainer');cont.innerHTML='';
+ rubricData.grading_rubric.sections.forEach((section,si)=>{
+  const sid=`section-${si}`;
+  const hdr=document.createElement('div');hdr.className='section-header';hdr.id=`header-${sid}`;
+  const ts=document.createElement('span');ts.className='editable';ts.setAttribute('data-id',`${sid}-header`);ts.textContent=section.main_section;hdr.appendChild(ts);
+  const bd=document.createElement('div');bd.className='section-buttons';
+  const pb=document.createElement('button');pb.textContent='✓ All Pos';pb.className='select-positive-btn';pb.onclick=e=>{e.stopPropagation();toggleSelectAllPositives(si);};bd.appendChild(pb);
+  if(section.negative_items){const nb=document.createElement('button');nb.textContent='✗ All Neg';nb.className='select-negative-btn';nb.onclick=e=>{e.stopPropagation();toggleSelectAllNegatives(si);};bd.appendChild(nb);}
+  const cb=document.createElement('button');cb.textContent='📋 Total';cb.className='copy-score-btn';cb.onclick=e=>{e.stopPropagation();copySectionScore(si);};bd.appendChild(cb);
+  section.groups.forEach((g,gi)=>{const gb=document.createElement('button');gb.textContent=`📋 ${g.label}`;gb.className='copy-group-btn';gb.onclick=e=>{e.stopPropagation();copyGroupScore(si,gi);};bd.appendChild(gb);});
+  hdr.appendChild(bd);cont.appendChild(hdr);
+  const sc=document.createElement('div');sc.id=`${sid}-content`;
+  let ic=0;
+  section.groups.forEach(g=>{
+   const gd=document.createElement('div');gd.className='group-item';gd.innerHTML=`<strong>${g.label} (${g.max} pts)</strong>`;
+   const sub=document.createElement('div');sub.className='sub-items';
+   g.items.forEach(it=>{
+    const iid=`${sid}-positive-${ic}`;
+    const ie=document.createElement('div');ie.className='sub-item item positive-item';ie.id=iid;
+    ie.innerHTML=`<span class="editable" data-id="${iid}-text">${it.description}</span> (<span class="editable" data-id="${iid}-points">${it.points}</span> pts)`;
+    sub.appendChild(ie);ic++;
+   });
+   gd.appendChild(sub);sc.appendChild(gd);
+  });
+  if(section.negative_items){
+   const nl=document.createElement('div');nl.className='item-list';nl.innerHTML='<strong>What needs improvement</strong>';
+   section.negative_items.items.forEach((it,ni)=>{
+    const iid=`${sid}-negative-${ni}`;
+    const ie=document.createElement('div');ie.className='item negative-item';ie.id=iid;
+    ie.innerHTML=` - <span class="editable" data-id="${iid}-text">${it}</span>`;
+    nl.appendChild(ie);
+   });
+   sc.appendChild(nl);
+  }
+  const fd=document.createElement('div');fd.innerHTML=`<strong>${section.feedback_section}</strong>`;
+  const ph=createPredefinedFeedback(sid);if(ph)fd.innerHTML+=ph;
+  const ta=document.createElement('textarea');ta.className='feedback-textarea';ta.id=`${sid}-feedback`;ta.placeholder='Enter feedback here (optional)';
+  fd.appendChild(ta);sc.appendChild(fd);cont.appendChild(sc);
+  const sep=document.createElement('hr');sep.style.margin='20px 0';cont.appendChild(sep);
+ });
+ const gd=document.createElement('div');gd.innerHTML=`<h3>${rubricData.grading_rubric.general_feedback.section}</h3>`;
+ const gp=createPredefinedFeedback('general');if(gp)gd.innerHTML+=gp;
+ const gta=document.createElement('textarea');gta.className='feedback-textarea';gta.id='general-feedback';gta.placeholder='Enter general feedback here (optional)';
+ gd.appendChild(gta);cont.appendChild(gd);
+}
+function createPredefinedFeedback(sid){
+ const key=getSectionKey(sid);const cs=predefinedFeedback[key]||[];if(!cs.length)return '';
+ let h=`<div class="predefined-feedback"><strong>Predefined Comments:</strong>`;
+ cs.forEach(c=>{h+=`<button type="button" class="predefined-comment" data-comment="${c.replace(/"/g,'&quot;')}">${c}</button>`;});
+ h+=`<div class="feedback-controls"><button type="button" class="add-all-comments" style="background:#2196F3;">Add All</button><button type="button" class="clear-comments" style="background:#ff9800;">Clear</button></div></div>`;
+ return h;
+}
+function getSectionKey(sid){
+ if(sid==='general')return 'general';
+ const m=sid.match(/section-(\d+)/);if(!m)return 'general';
+ switch(parseInt(m[1])){case 0:return 'requirements';case 1:return 'study_design';case 2:return 'algorithms_dt';case 3:return 'algorithms_knn';case 4:return 'algorithms_svm';case 5:return 'algorithms_nn';case 6:return 'discussion';case 7:return 'extra_credit';default:return 'general';}
+}
+function setupEventListeners(){
+ document.addEventListener('dblclick',e=>{const it=e.target.closest('.item');if(it&&!it.closest('.checks-section')){showItemModal(it.id);e.preventDefault();}});
+ document.addEventListener('click',e=>{const it=e.target.closest('.item');if(it&&!it.closest('.checks-section')){toggleItemSelection(it);updateSummary();if(it.id.startsWith('section-0')){updateCheck3A();updateCheck3B();}}});
+ document.getElementById('generateBtn').addEventListener('click',()=>{if(validateName())generateFeedback();else document.getElementById('studentName').focus();});
+ document.getElementById('resetBtn').addEventListener('click',resetAll);
+ document.getElementById('copyBtn').addEventListener('click',()=>{const o=document.getElementById('outputSection').textContent;if(o.trim()){navigator.clipboard.writeText(o);showNotification('✅ Feedback copied!');}});
+ document.getElementById('copyScoresBtn').addEventListener('click',copyScores);
+}
+function setupModalEvents(){
+ const m=document.getElementById('itemModal');
+ document.querySelector('.close-btn').onclick=()=>m.style.display='none';
+ document.getElementById('cancelBtn').onclick=()=>m.style.display='none';
+ document.getElementById('incrementPoint').onclick=()=>{const i=document.getElementById('itemPoints');i.value=(parseInt(i.value)||0)+1;};
+ document.getElementById('decrementPoint').onclick=()=>{const i=document.getElementById('itemPoints');const c=parseInt(i.value)||0;if(c>0)i.value=c-1;};
+ document.getElementById('resetPointBtn').onclick=()=>{if(state.currentEditingItem)document.getElementById('itemPoints').value=getItemMaxPoints(state.currentEditingItem.id);};
+ document.getElementById('saveBtn').onclick=saveItemChanges;
+ document.getElementById('clearTextBtn').onclick=()=>document.getElementById('itemText').value='';
+ window.addEventListener('click',e=>{if(e.target===m)m.style.display='none';});
+}
+function getItemMaxPoints(iid){const p=iid.split('-');const si=parseInt(p[1]);const ii=parseInt(p[p.length-1]);const s=rubricData.grading_rubric.sections[si];let c=0;for(const g of s.groups)for(const it of g.items){if(c===ii)return it.points;c++;}return 0;}
+function setupPredefinedFeedbackEvents(){
+ document.addEventListener('click',e=>{
+  if(e.target.classList.contains('predefined-comment')){const c=e.target.getAttribute('data-comment');const t=e.target.closest('.predefined-feedback').nextElementSibling;if(t&&t.classList.contains('feedback-textarea')){const cur=t.value.trim();t.value=cur?cur+'\n\n'+c:c;}}
+  if(e.target.classList.contains('add-all-comments')){const pf=e.target.closest('.predefined-feedback');const cs=pf.querySelectorAll('.predefined-comment');const t=pf.nextElementSibling;if(t&&t.classList.contains('feedback-textarea')){let a='';cs.forEach(cb=>a+=cb.getAttribute('data-comment')+'\n\n');const cur=t.value.trim();t.value=cur?cur+'\n\n'+a:a;}}
+  if(e.target.classList.contains('clear-comments')){const t=e.target.closest('.predefined-feedback').nextElementSibling;if(t&&t.classList.contains('feedback-textarea'))t.value='';}
+ });
+}
+function toggleItemSelection(item){
+ const iid=item.id;const isPos=item.classList.contains('positive-item');
+ let sid=iid.split('-').slice(0,2).join('-');
+ if(!state.selectedItems.has(sid))state.selectedItems.set(sid,{positive:new Set(),negative:new Set()});
+ const st=state.selectedItems.get(sid);const set=isPos?st.positive:st.negative;
+ if(set.has(iid)){set.delete(iid);item.classList.remove(isPos?'selected-positive':'selected-negative');}
+ else{set.add(iid);item.classList.add(isPos?'selected-positive':'selected-negative');}
+}
+function showItemModal(iid){
+ const m=document.getElementById('itemModal');const it=document.getElementById('itemText');const ip=document.getElementById('itemPoints');const mp=document.getElementById('maxPointDisplay');
+ const ie=document.getElementById(iid);if(!ie)return;
+ const te=ie.querySelector('.editable[data-id$="-text"]');const pe=ie.querySelector('.editable[data-id$="-points"]');if(!te)return;
+ it.value=te.textContent;const mx=getItemMaxPoints(iid);mp.textContent=mx;ip.value=pe?parseFloat(pe.textContent)||0:0;
+ state.currentEditingItem={id:iid,textElement:te,pointsElement:pe};
+ m.style.display='flex';
+}
+function saveItemChanges(){
+ const m=document.getElementById('itemModal');if(!state.currentEditingItem)return;
+ const{id,textElement,pointsElement}=state.currentEditingItem;
+ textElement.textContent=document.getElementById('itemText').value;
+ if(pointsElement)pointsElement.textContent=parseInt(document.getElementById('itemPoints').value)||0;
+ m.style.display='none';state.currentEditingItem=null;updateSummary();
+}
+function updateSummary(){
+ const sb=document.getElementById('summaryBody');sb.innerHTML='';let mainT=0,ecP=0,ecM=0;
+ const eb=document.getElementById('extraCreditBody');eb.innerHTML='';
+ rubricData.grading_rubric.sections.forEach((s,si)=>{
+  const sid=`section-${si}`;const isEC=s.main_section.includes('Extra Credit');
+  const st=state.selectedItems.get(sid)||{positive:new Set()};
+  let sp=0;const mx=s.points_available;let c=0;
+  s.groups.forEach(g=>g.items.forEach(it=>{if(st.positive.has(`${sid}-positive-${c}`))sp+=it.points;c++;}));
+  const r=document.createElement('tr');r.onclick=()=>document.getElementById(`header-${sid}`).scrollIntoView({behavior:'smooth'});
+  r.className=sp===0?'row-not-started':sp>=mx?'row-completed':'row-in-progress';
+  r.innerHTML=`<td>${s.main_section.split('(')[0].trim()}</td><td>${sp.toFixed(0)}</td><td>${mx}</td>`;
+  if(isEC){ecP+=sp;ecM=rubricData.grading_rubric.extra_credit_points;eb.appendChild(r);extraCreditPointsValue=ecP;}
+  else{mainT+=sp;sb.appendChild(r);}
+  const he=document.querySelector(`[data-id="${sid}-header"]`);if(he)he.textContent=`${s.main_section.split('(')[0].trim()} (${sp.toFixed(0)}/${mx})`;
+ });
+ document.getElementById('totalPoints').textContent=(mainT+ecP).toFixed(0);
+ document.getElementById('maxPoints').textContent=rubricData.grading_rubric.total_points;
+ if(ecP>0||ecM>0){document.getElementById('extraCreditSection').classList.remove('hidden');const et=document.createElement('tr');et.className='total-row';et.innerHTML=`<td><strong>EC Total</strong></td><td><strong>${ecP.toFixed(0)}</strong></td><td><strong>${ecM}</strong></td>`;eb.appendChild(et);}
+ else document.getElementById('extraCreditSection').classList.add('hidden');
+}
+function generateFeedback(){
+ const os=document.getElementById('outputSection');const cb=document.getElementById('copyBtn');let fb='';
+ const sel=document.getElementById('greetingTemplateSelect');const nameInput=document.getElementById('studentName').value.trim();
+ const tmpl=document.getElementById('globalCommentTemplate').value;
+ if(sel.value!==''&&tmpl.trim()!==''){
+  fb+=(nameInput?tmpl.replace(/{}/g,nameInput):tmpl.replace(/{}/g,''))+'\n\n';
+ }
+ /* CHECKS */
+ fb+='====================\nChecks\n{';
+ let noD=[],ded=[],track=[];
+ if(checkTextSelections['positive-0']&&checkSelections['positive-0']==='N'){noD.push(document.getElementById('check-text-positive-0').textContent);}
+ for(let i=0;i<6;i++){
+  const k=`negative-${i}`;
+  const el=document.getElementById(`check-text-${k}`);
+  if(!el)continue;
+
+  // Skip if the check text is not selected AND this check isn't flagged as a deduction.
+  if(!checkTextSelections[k] && checkSelections[k]!=='D') continue;
+
+  let t=el.textContent
+        .replace(/\s*\(auto-filled from A2\)\s*$/,'')
+        .replace(/\s*\(auto-detected\)\s*$/,'')
+        .replace(/\s*\(tracking only\)\s*$/,'')
+        .trim();
+
+  if(i===2){ // Check 3A
+    const m=getMissingAccessItems();
+    const mp=getMissingAccessPoints();
+    t=t.replace(/\{TODO\}/g, m||'')
+       .replace(/we've deducted points/, `we've deducted ${mp} points`);
+  }
+  if(i===3){ // Check 3B — replace {POINTS} with deducted number
+    const mp=getMissingAccessPoints();
+    t=t.replace(/\{POINTS\}/g, String(mp));
+  }
+
+  if(i===5){ track.push(t); continue; }
+
+  if(checkSelections[k]==='D') ded.push(t);
+  else noD.push(t);
+ }
+ if(noD.length){fb+='\nNo Deductions Made: \n';noD.forEach(t=>fb+=`+ ${t}\n`);}
+ if(ded.length){fb+='\nDeductions Made:\n';ded.forEach(t=>fb+=`x ${t}\n`);}
+ if(track.length){fb+='\nTracking Only (No Score Impact):\n';track.forEach(t=>fb+=`* ${t}\n`);}
+ if(!noD.length&&!ded.length&&!track.length){fb+='\nNo Deductions Made:\n+ Submission of report and reproducibility materials satisfies major implementation requirements!\n';}
+ fb+='}\n\n';
+ /* SECTIONS */
+ rubricData.grading_rubric.sections.forEach((s,si)=>{
+  const sid=`section-${si}`;let sp=0;const mx=s.points_available;
+  const st=state.selectedItems.get(sid)||{positive:new Set(),negative:new Set()};
+  const isEC=s.main_section.includes('Extra Credit');
+  let c=0;s.groups.forEach(g=>g.items.forEach(it=>{if(st.positive.has(`${sid}-positive-${c}`))sp+=it.points;c++;}));
+  const hasPos=st.positive.size>0;
+  if(isEC&&!hasPos&&!st.negative.size&&!document.getElementById(`${sid}-feedback`).value)return;
+  const ta=document.getElementById(`${sid}-feedback`);const ft=ta?ta.value:'';
+  if(st.positive.size>0||st.negative.size>0||ft){
+   const sn=s.main_section.split('(')[0].trim();
+   fb+=`====================\n${sn} (${sp.toFixed(0)}/${mx}pts)\n{`;
+   if(st.positive.size>0){
+    fb+='\nWhat you did well:\n';let c2=0;
+    s.groups.forEach(g=>{const items=[];g.items.forEach(it=>{if(st.positive.has(`${sid}-positive-${c2}`))items.push(it);c2++;});
+     if(items.length)fb+=`+ ${g.label}: ${items.map(i=>i.description).join('; ')}\n`;});
+   }
+   if(st.negative.size>0){
+    fb+='\nWhat needs improvement:\n';const ng={};
+    st.negative.forEach(iid=>{const ni=parseInt(iid.split('-').pop());const gl=null;const el=document.getElementById(iid);
+     if(el){const te=el.querySelector('.editable[data-id$="-text"]');if(te){const l=gl||s.section_letter;if(!ng[l])ng[l]=[];ng[l].push(te.textContent.replace(/^[A-Z]{1,2}[0-9]?\.\s*/,''));}}});
+    for(const[l,ts]of Object.entries(ng))fb+=`x ${l}: ${ts.join('; ')}\n`;
+   }
+   if(ft)fb+=`\nSection Summary:\n${ft}\n`;
+   fb+='}\n\n';
+  }
+ });
+ const gt=document.getElementById('general-feedback');
+ if(gt&&gt.value)fb+=`====================\nGeneral Feedback\n{${gt.value}}\n\n`;
+ else fb+=`====================\nGeneral Feedback\n{Great work again on one report down, ${nameInput||''}! Give yourself a pat on the back for where in particular you did well (and carry this through future reports!) and especially heed any improvement-oriented feedback provided below!\n\nWhat you did well:\nSee individual section comments above.\n\nWhat needs Improvement:\nSee individual section comments above.\n}\n\n`;
+ const tp=document.getElementById('totalPoints').textContent;const mp=document.getElementById('maxPoints').textContent;
+ fb+=`Total Score: ${tp}/${mp}${extraCreditPointsValue>0?' (includes extra credit)':''}`;
+ os.textContent=fb;os.classList.remove('hidden');cb.classList.remove('hidden');showNotification('✅ Feedback generated!');
+}
+function resetAll(){
+ state.selectedItems.clear();
+ document.querySelectorAll('.item').forEach(i=>{if(!i.closest('.checks-section'))i.classList.remove('selected-positive','selected-negative');});
+ initCheckSelections();
+ document.querySelectorAll('.check-status').forEach(el=>{el.textContent='N';el.className='check-status N';});
+ document.querySelectorAll('.check-text').forEach(el=>el.classList.remove('selected'));
+ const pe=document.getElementById('check-text-positive-0');if(pe){pe.classList.add('selected');checkTextSelections['positive-0']=true;}
+ const t5=document.getElementById('check-status-negative-5');if(t5){t5.textContent='T';t5.className='check-status T';checkSelections['negative-5']='T';}
+ document.querySelectorAll('textarea').forEach(t=>t.value='');
+ document.getElementById('outputSection').classList.add('hidden');
+ document.getElementById('copyBtn').classList.add('hidden');
+ document.getElementById('studentName').value='';document.getElementById('nameRequiredError').classList.remove('show');
+ updateSummary();updateCheck3A();updateCheck3B();showNotification('✅ Reset complete!');
+}
+function copyScores(){
+ let sc=[];
+ rubricData.grading_rubric.sections.forEach((s,si)=>{
+  if(s.main_section.includes('Extra Credit'))return;
+  const sid=`section-${si}`;const st=state.selectedItems.get(sid)||{positive:new Set()};
+  let p=0,c=0;s.groups.forEach(g=>g.items.forEach(it=>{if(st.positive.has(`${sid}-positive-${c}`))p+=it.points;c++;}));
+  sc.push(p.toFixed(0));
+ });
+ sc.push(document.getElementById('totalPoints').textContent);
+ const r=sc.join('\t');navigator.clipboard.writeText(r);showNotification(`✅ Raw scores: ${r}`);
+}
+</script>
+</body>
+</html>

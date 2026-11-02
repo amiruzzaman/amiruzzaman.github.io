@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OL Report Fall 2026 Rubric Grading – BRFSS GenHlth</title>
+<style>
+:root{--positive-color:#e8f5e9;--positive-selected:#81c784;--negative-color:#ffebee;--negative-selected:#e57373;--border-color:#ddd;--header-bg:#f5f5f5;}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;margin:0;padding:20px;background-color:#f9f9f9;}
+.container{display:flex;gap:20px;max-width:1400px;margin:0 auto;}
+.rubric-section{flex:2;background:white;padding:20px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1);min-width:0;}
+.summary-section{flex:1;background:white;padding:10px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1);position:sticky;top:15px;height:fit-content;font-size:0.85rem;min-width:200px;}
+.summary-section .nav-links{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;font-size:0.8rem;}
+.summary-section .nav-links a{color:#1976D2;text-decoration:none;padding:2px 8px;border-radius:4px;background:#e3f2fd;}
+.summary-section .nav-links a:hover{background:#bbdefb;}
+.summary-table th,.summary-table td{padding:6px 6px;font-size:0.80rem;}
+.summary-table th{background-color:var(--header-bg);}
+.summary-table{width:100%;border-collapse:collapse;margin:15px 0;}
+.summary-table th,.summary-table td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--border-color);}
+.summary-table tbody tr{cursor:pointer;}
+.summary-table tbody tr:hover{background-color:#f0f7ff;}
+.summary-table tbody tr.row-not-started{background-color:#ffebee;}
+.summary-table tbody tr.row-in-progress{background-color:#fff3e0;}
+.summary-table tbody tr.row-completed{background-color:#e8f5e9;}
+.total-row{font-weight:bold;background-color:#e3f2fd;}
+.section-header{background-color:var(--header-bg);padding:10px 15px;margin:15px 0 10px;border-left:4px solid #4CAF50;font-weight:bold;cursor:pointer;border-radius:4px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;}
+.section-header span{flex:1;}
+.section-buttons{display:flex;gap:4px;margin-left:10px;flex-wrap:wrap;}
+.section-buttons button{background-color:#6c757d;padding:3px 8px;font-size:10px;border-radius:10px;border:none;color:white;cursor:pointer;}
+.section-buttons button:hover{background-color:#5a6268;}
+.section-buttons .select-positive-btn{background-color:#2e7d32;}
+.section-buttons .select-positive-btn:hover{background-color:#1b5e20;}
+.section-buttons .select-negative-btn{background-color:#c62828;}
+.section-buttons .select-negative-btn:hover{background-color:#b71c1c;}
+.section-buttons .copy-score-btn{background-color:#1976D2;}
+.section-buttons .copy-score-btn:hover{background-color:#0D47A1;}
+.section-buttons .copy-group-btn{background-color:#E65100;}
+.section-buttons .copy-group-btn:hover{background-color:#BF360C;}
+.item-list{margin:10px 0;padding-left:20px;}
+.item{padding:6px 10px;margin:3px 0;border-radius:4px;cursor:pointer;transition:background-color 0.2s;font-size:0.9em;}
+.item:hover{opacity:0.8;}
+.positive-item{background-color:var(--positive-color);border-left:3px solid #4CAF50;}
+.negative-item{background-color:var(--negative-color);border-left:3px solid #F44336;}
+.selected-positive{background-color:var(--positive-selected)!important;font-weight:500;}
+.selected-negative{background-color:var(--negative-selected)!important;font-weight:500;}
+.positive-item.ec-locked{opacity:.45;pointer-events:none;filter:grayscale(.4);}
+.feedback-textarea{width:100%;min-height:80px;margin:10px 0;padding:10px;border:1px solid var(--border-color);border-radius:4px;font-family:inherit;}
+.controls{margin:20px 0;text-align:center;display:flex;flex-wrap:wrap;justify-content:center;gap:10px;}
+.section-copy-buttons{margin:15px 0;text-align:center;display:flex;flex-wrap:wrap;justify-content:center;gap:8px;}
+.section-copy-buttons button{padding:8px 16px;background-color:#1976D2;color:white;border:none;border-radius:4px;cursor:pointer;font-size:14px;font-weight:bold;min-width:50px;}
+.section-copy-buttons button:hover{background-color:#0D47A1;}
+.section-copy-buttons .checks-btn{background-color:#6c757d;}
+.section-copy-buttons .checks-btn:hover{background-color:#5a6268;}
+button{padding:10px 20px;background-color:#4CAF50;color:white;border:none;border-radius:4px;cursor:pointer;font-size:16px;margin:0 5px;}
+button:hover{background-color:#45a049;}
+#resetBtn{background-color:#f44336;}
+#resetBtn:hover{background-color:#d32f2f;}
+#copyExcelBtn{background-color:#455A64;}
+#copyExcelBtn:hover{background-color:#37474F;}
+.output-section{margin-top:30px;padding:20px;background-color:white;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1);white-space:pre-wrap;font-family:monospace;max-height:500px;overflow-y:auto;}
+.editable{outline:none;border:1px dashed transparent;padding:2px 4px;border-radius:2px;}
+.editable:focus{border-color:#2196F3;background-color:#e3f2fd;}
+.hidden{display:none;}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center;}
+.modal-content{background-color:white;padding:20px;border-radius:8px;width:500px;max-width:90%;box-shadow:0 4px 20px rgba(0,0,0,0.2);}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding-bottom:10px;border-bottom:1px solid var(--border-color);}
+.modal-title{font-size:18px;font-weight:bold;}
+.close-btn{background:none;border:none;font-size:24px;cursor:pointer;color:#666;padding:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center;}
+.close-btn:hover{color:#333;}
+.modal-body{margin-bottom:20px;}
+.form-group{margin-bottom:15px;}
+.form-group label{display:block;margin-bottom:5px;font-weight:500;}
+.point-input-group{display:flex;align-items:center;gap:8px;}
+.point-input-group input{flex:1;padding:8px 12px;border:1px solid var(--border-color);border-radius:4px;font-family:inherit;}
+.point-input-group button{padding:8px 16px;background-color:#2196F3;color:white;border:none;border-radius:4px;cursor:pointer;font-size:16px;margin:0;}
+.point-input-group button:hover{background-color:#1976D2;}
+.point-input-group .reset-point-btn{background-color:#ff9800;}
+.point-input-group .reset-point-btn:hover{background-color:#fb8c00;}
+.form-control{width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:4px;font-family:inherit;box-sizing:border-box;}
+.form-control:focus{border-color:#2196F3;outline:none;}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;}
+.modal-btn{padding:8px 16px;border-radius:4px;cursor:pointer;font-size:14px;}
+.modal-btn-primary{background-color:#4CAF50;color:white;border:none;}
+.modal-btn-primary:hover{background-color:#45a049;}
+.modal-btn-secondary{background-color:#f5f5f5;color:#333;border:1px solid #ddd;}
+.modal-btn-secondary:hover{background-color:#e9e9e9;}
+.modal-btn-danger{background-color:#f44336;color:white;border:none;}
+.modal-btn-danger:hover{background-color:#d32f2f;}
+.predefined-feedback{margin:10px 0;}
+.predefined-comment{display:block;width:100%;padding:8px 12px;margin:5px 0;background-color:#f0f8ff;border:1px solid #b3d9ff;color:#333;border-radius:4px;cursor:pointer;text-align:left;font-size:14px;transition:background-color 0.2s;}
+.predefined-comment:hover{background-color:#92d841;}
+.predefined-comment.selected{background-color:#cce5ff;border-color:#66b3ff;}
+.feedback-controls{display:flex;gap:10px;margin:10px 0;}
+.feedback-controls button{padding:6px 12px;font-size:14px;margin:0;}
+.global-comment-box{margin-bottom:20px;padding:15px;background:#fef9e7;border-left:4px solid #ff9800;border-radius:4px;}
+.global-comment-row{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;}
+.global-comment-row input{flex:1 1 200px;padding:8px;border:1px solid #ffe0b2;border-radius:4px;font-family:inherit;}
+.global-comment-row select{flex:1 1 250px;padding:8px;border:1px solid #ffe0b2;border-radius:4px;background:white;font-family:inherit;cursor:pointer;}
+.global-comment-row textarea{flex:2 1 300px;min-height:60px;padding:8px;border:1px solid #ffe0b2;border-radius:4px;font-family:inherit;}
+.global-comment-hint{font-size:0.9em;color:#bf7f00;margin-top:5px;}
+.section-highlight{animation:highlightPulse 1.5s ease-out;}
+@keyframes highlightPulse{0%{background-color:transparent;}30%{background-color:#fff9c4;}100%{background-color:transparent;}}
+.checks-section{background:#f8f9fa;padding:15px;border-radius:4px;margin-bottom:20px;border-left:4px solid #6c757d;}
+.checks-section h3{margin-top:0;display:flex;justify-content:space-between;align-items:center;}
+.checks-section h3 button{padding:4px 12px;font-size:12px;background-color:#1976D2;}
+.checks-section h3 button:hover{background-color:#0D47A1;}
+.check-item-row{display:flex;align-items:center;gap:10px;padding:4px 0;cursor:pointer;}
+.check-item-row:hover{background-color:#e9ecef;border-radius:4px;}
+.check-item-row .check-status{font-weight:bold;min-width:24px;cursor:pointer;padding:2px 8px;border-radius:4px;text-align:center;user-select:none;}
+.check-item-row .check-status.N{background-color:#e8f5e9;color:#2e7d32;}
+.check-item-row .check-status.Y{background-color:#ffebee;color:#c62828;}
+.check-item-row .check-status.T{background-color:#fff3e0;color:#e65100;}
+.check-item-row .check-status.disabled{opacity:0.5;cursor:not-allowed;}
+.check-item-row .check-text{flex:1;cursor:pointer;padding:4px 8px;border-radius:4px;transition:background-color 0.2s;}
+.check-item-row .check-text:hover{background-color:#e9ecef;}
+.check-item-row .check-text.selected{background-color:#bbdefb;}
+.check-item-row .check-text.disabled{opacity:0.5;cursor:not-allowed;}
+.group-item{background-color:#f0f4ff;border-left:3px solid #1976D2;padding:8px 10px;margin:5px 0 5px 20px;border-radius:4px;font-weight:500;}
+.group-item .sub-items{font-weight:normal;font-size:0.85em;color:#555;margin-top:3px;padding-left:15px;}
+.group-item .sub-items .sub-item{padding:2px 0;}
+.auto-check-indicator{font-size:0.75em;color:#1976D2;margin-left:8px;font-weight:normal;}
+.tracking-note{font-size:0.75em;color:#e65100;margin-left:8px;font-weight:normal;}
+
+.notification-bar{
+  width:100%;
+  min-height:36px;
+  line-height:1.4;
+  padding:8px 34px 8px 15px;
+  text-align:center;
+  background-color:#e3f2fd;
+  color:#0D47A1;
+  border-radius:4px;
+  margin:10px 0;
+  font-size:14px;
+  font-weight:500;
+  border:1px solid #90caf9;
+  position:relative;
+  box-sizing:border-box;
+  visibility:hidden;
+  opacity:0;
+  transition:opacity 0.2s ease;
+}
+.notification-bar.visible{visibility:visible;opacity:1;}
+.notification-bar.success{background-color:#e8f5e9;color:#1b5e20;border-color:#81c784;}
+.notification-bar .close-notification{position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;font-weight:bold;font-size:18px;color:inherit;opacity:0.6;line-height:1;display:none;}
+.notification-bar.visible .close-notification{display:inline;}
+.notification-bar .close-notification:hover{opacity:1;}
+.notification-bar .highlight-letter{font-size:22px;font-weight:700;}
+.notification-bar .highlight-letter-A{color:#e65100;}
+.notification-bar .highlight-letter-B{color:#0D47A1;}
+.notification-bar .highlight-letter-C{color:#1b5e20;}
+.notification-bar .highlight-letter-D{color:#b71c1c;}
+.notification-bar .highlight-letter-E{color:#4a148c;}
+.notification-bar .highlight-letter-F{color:#00695c;}
+
+.name-required-error{color:#c62828;font-size:0.85em;margin-top:4px;display:none;}
+.name-required-error.show{display:block;}
+.master-check-row{background-color:#e8f5e9;border-radius:4px;padding:4px 8px;margin-bottom:10px;font-weight:500;border:2px solid #4CAF50;}
+.master-check-row .check-text{font-weight:500;}
+.master-check-row .check-text.selected{background-color:#a5d6a7;}
+.master-check-row .check-text.unselected{background-color:#ffcdd2;}
+.item-prefix{font-weight:600;color:#1a237e;margin-right:4px;}
+.item-description{flex:1;}
+.negative-item .editable{display:inline;}
+.copy-message-btn{background-color:#9C27B0;color:white;padding:8px 16px;border:none;border-radius:4px;cursor:pointer;font-size:14px;font-weight:bold;transition:background-color 0.2s;}
+.copy-message-btn:hover{background-color:#7B1FA2;}
+.top-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:15px;}
+.top-actions .hint-text{font-size:0.85rem;color:#666;transition:color 0.3s ease;}
+.top-actions .hint-text.success{color:#2e7d32;font-weight:600;}
+.top-actions .hint-text.error{color:#c62828;font-weight:600;}
+.comparison-table{width:100%;border-collapse:collapse;margin:5px 0 15px 0;font-size:0.9em;}
+.comparison-table th{background-color:var(--header-bg);padding:8px 10px;text-align:left;font-weight:600;border-bottom:2px solid #ccc;}
+.comparison-table th:first-child{width:45%;}
+.comparison-table th:last-child{width:45%;}
+.comparison-table td{padding:4px 6px;vertical-align:top;border-bottom:1px solid #eee;}
+.comparison-table .group-label-row td{background-color:#f0f4ff;font-weight:600;padding:6px 10px;border-top:2px solid #ccc;}
+.comparison-table .item-row td{padding:3px 6px 3px 20px;}
+.comparison-table .item-row .item{margin:0;padding:4px 8px;font-size:0.85em;border-radius:3px;cursor:pointer;display:inline-block;width:100%;box-sizing:border-box;}
+.comparison-table .item-row .item .editable{display:inline;}
+.comparison-table .positive-col .item{background-color:var(--positive-color);border-left:3px solid #4CAF50;}
+.comparison-table .positive-col .item.selected-positive{background-color:var(--positive-selected);}
+.comparison-table .negative-col .item{background-color:var(--negative-color);border-left:3px solid #F44336;}
+.comparison-table .negative-col .item.selected-negative{background-color:var(--negative-selected);}
+.comparison-table .point-badge{font-weight:600;color:#1a237e;font-size:0.8em;margin-left:4px;}
+.section-content-wrapper{overflow-x:auto;}
+.modal-btn-orange{background-color:#ff9800;color:white;border:none;}
+.modal-btn-orange:hover{background-color:#fb8c00;}
+.modal-btn-purple{background-color:#9C27B0;color:white;border:none;}
+.modal-btn-purple:hover{background-color:#7B1FA2;}
+.modal-footer .restore-group{display:flex;gap:6px;flex-wrap:wrap;flex:1;}
+.modal-footer .restore-group button{font-size:12px;padding:6px 12px;}
+.neg-comment-btn{background-color:#1976D2;color:white;border:none;border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;margin-left:6px;transition:background-color 0.2s;white-space:nowrap;}
+.neg-comment-btn:hover{background-color:#0D47A1;}
+.negative-item-wrapper{display:flex;align-items:center;width:100%;}
+.negative-item-wrapper .item{flex:1;margin:0;}
+.negative-item-wrapper .neg-comment-btn{flex-shrink:0;margin-left:4px;}
+.comment-modal .modal-content{width:550px;max-width:95%;}
+.comment-modal .modal-body textarea{min-height:120px;}
+.predefined-comment-btn{background-color:#e3f2fd;color:#0D47A1;border:1px solid #90caf9;border-radius:4px;padding:4px 10px;font-size:12px;cursor:pointer;margin:2px 4px 2px 0;transition:background-color 0.2s;display:inline-block;}
+.predefined-comment-btn:hover{background-color:#bbdefb;}
+.predefined-comment-section{margin-bottom:10px;}
+.predefined-comment-section .label{font-weight:500;font-size:13px;display:block;margin-bottom:4px;}
+.optional-fields{margin:12px 0;padding:12px;background:#f0f8ff;border-left:4px solid #1976D2;border-radius:5px;}
+.optional-fields strong{display:block;margin-bottom:6px;font-size:.9em;}
+.optional-row{display:flex;gap:10px;flex-wrap:wrap;}
+.optional-row input{flex:1;min-width:180px;padding:7px 10px;border:1px solid #b3d9ff;border-radius:4px;font-family:inherit;font-size:13px;}
+.ai-gen-row{display:flex;align-items:center;gap:10px;margin:12px 0;padding:10px 14px;background:#f3e5f5;border-left:4px solid #9C27B0;border-radius:5px;font-size:14px;font-weight:500;}
+.ai-gen-row label{display:flex;align-items:center;gap:8px;cursor:pointer;}
+.ai-gen-row input[type=checkbox]{width:18px;height:18px;cursor:pointer;}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="rubric-section">
+<div class="top-actions">
+<button class="copy-message-btn" onclick="copyGradingMessage()">📋 Copy Grading Message</button>
+<span class="hint-text" id="hintText">Click to copy: "Now grade this very strictly..."</span>
+</div>
+
+<h1>OL Report Fall 2026 Rubric Grading Interface</h1>
+
+<div class="global-comment-box" id="nameSection">
+<label for="studentName"><strong>📝 Student name (for greeting):</strong></label>
+<div class="global-comment-row">
+<input type="text" id="studentName" placeholder="e.g., Venkata" value="">
+<select id="greetingTemplateSelect">
+<option value="">— None (no greeting) —</option>
+<option value="Nicely done in completing the OL Report, {}! We hope this has given you momentum to make it through the third of our four reports, the UL Report!" selected>OL Report greeting</option>
+<option value="Hello {}, good start with your OL assignment report. Please see the feedback below for more details.">Hello {name} (standard)</option>
+<option value="Good start, {}. Please see the feedback below.">Good start {name} (concise)</option>
+</select>
+<textarea id="globalCommentTemplate">Nicely done in completing the OL Report, {}! We hope this has given you momentum to make it through the third of our four reports, the UL Report!
+
+Please create a private Ed post if you have any questions, comments, concerns or if you notice something grade- or feedback-related is amiss!
+
+Without further ado, below we've provided both high-level feedback on satisfaction of the basic requirements as well as individualized feedback to help steer you for the better in future assignments where we felt there was room for improvement, not without highlighting your strengths!</textarea>
+</div>
+<div class="global-comment-hint">Select a preset, then edit if needed. The {} will be replaced by the name.</div>
+<div id="nameRequiredError" class="name-required-error">⚠️ Please enter a student name before generating feedback.</div>
+</div>
+
+<div class="optional-fields">
+<strong>📊 Optional fields (for Excel export):</strong>
+<div class="optional-row">
+<input type="text" id="minutesTaken" placeholder="Minutes taken to grade (e.g., 55)">
+<input type="text" id="githubHash" placeholder="GitHub commit hash (e.g., 4d1dfc9...)">
+</div>
+</div>
+
+<div class="ai-gen-row">
+<label><input type="checkbox" id="aiGeneratedToggle"> <strong>AI Generated?</strong> (default N; check if flagged Y)</label>
+</div>
+
+<div class="checks-section">
+<h3>Checks Configuration <button onclick="copyChecksStatusOnly()">📋 Copy Checks (6 items: N/Y)</button></h3>
+<p><strong>Click on the master "No Deductions" check to toggle all checks to N, or click individual checks to toggle N/Y.</strong></p>
+
+<p><strong>Master Control:</strong></p>
+<div class="item-list">
+<div class="check-item-row master-check-row" onclick="toggleMasterNoDeductions()">
+<span class="check-text selected" id="check-text-positive-0">✅ No Deductions Made — All checks are N</span>
+</div>
+</div>
+
+<p><strong>Individual Checks (click N/Y to toggle, click text to select for feedback):</strong></p>
+<div class="item-list">
+<div class="check-item-row" onclick="toggleCheckSelection('negative-0')">
+<span class="check-status N" id="check-status-negative-0" onclick="event.stopPropagation(); toggleCheckStatus('negative-0')">N</span>
+<span class="check-text" id="check-text-negative-0">Check 1 - Unreadable/Missing Report: Between provision and accessibility of your report, we were unable to access and read it in order to provide a grade, thus we have made the hard decision to score your report 0/100.</span>
+</div>
+<div class="check-item-row" onclick="toggleCheckSelection('negative-1')">
+<span class="check-status N" id="check-status-negative-1" onclick="event.stopPropagation(); toggleCheckStatus('negative-1')">N</span>
+<span class="check-text" id="check-text-negative-1">Check 2 - Incorrect Task: Between use of the prescribed dataset and setup of the intended multiclass classification problem, you broke the task requirements and thus we have made the hard decision to score your report 0/100.</span>
+</div>
+<div class="check-item-row" onclick="toggleCheckSelection('negative-2')">
+<span class="check-status N" id="check-status-negative-2" onclick="event.stopPropagation(); toggleCheckStatus('negative-2')">N</span>
+<span class="check-text" id="check-text-negative-2">Check 3A - Overleaf/GitHub Inaccessible: Between the two reproducibility requirements of Overleaf-hosted write-up and project codebase hosted in the GT Enterprise GitHub repo provided you for the course, you missed {TODO} and thus we've deducted you in the A2. Accessibility section. <span class="auto-check-indicator">(auto-filled from A2)</span></span>
+</div>
+<div class="check-item-row" onclick="toggleCheckSelection('negative-3')">
+<span class="check-status N" id="check-status-negative-3" onclick="event.stopPropagation(); toggleCheckStatus('negative-3')">N</span>
+<span class="check-text" id="check-text-negative-3">Check 3B - Overleaf/GitHub Inaccessible: Between requirement that you host and edit your report in LaTex on Overleaf and push all project code to the GT Enterprise GitHub repo provided you for the course, we found you broke this requirement and thus we have made the hard decision to score your report 0/100.</span>
+</div>
+<div class="check-item-row" onclick="toggleCheckSelection('negative-4')">
+<span class="check-status N" id="check-status-negative-4" onclick="event.stopPropagation(); toggleCheckStatus('negative-4')">N</span>
+<span class="check-text" id="check-text-negative-4">Check 4 - Report Over 8 Pages: A portion of your report spills over the 8 page limit specified in the requirements and thus we consider anything past page 8 as not provided and (not) graded in accordance with this rule.</span>
+</div>
+<div class="check-item-row" onclick="toggleCheckSelection('negative-5')">
+<span class="check-status N" id="check-status-negative-5" onclick="event.stopPropagation(); toggleCheckStatus('negative-5')">N</span>
+<span class="check-text" id="check-text-negative-5">Check 5 - Unfinished Draft: We identified several instances in which excessive use of checklist type structure, bulleting as a mode of jotting down notes where extensive analysis was expected and other high-level signs of a draft were spotted, thus we have made the hard decision to score your report 0/100.</span>
+</div>
+<div class="check-item-row" onclick="toggleCheckSelection('negative-6')">
+<span class="check-status T" id="check-status-negative-6" onclick="event.stopPropagation(); toggleCheckStatus('negative-6')">T</span>
+<span class="check-text" id="check-text-negative-6">Check 6 - Flummoxed/B+Y Plots: Unintended adherence to a hidden 'easter egg' instructing use of blue/yellow figure scheme and/or use of the word flummoxed was noted. This is a staff-review tracking flag only; it does not deduct points or establish prohibited authorship. <span class="tracking-note">(tracking only)</span></span>
+</div>
+</div>
+</div>
+
+<div id="rubricContainer"></div>
+
+<div id="notificationBar" class="notification-bar">
+<span id="notificationMessage"></span>
+<span class="close-notification" onclick="clearNotification()">&times;</span>
+</div>
+
+<div class="controls" id="generateSection">
+<button id="generateBtn">Generate Feedback</button>
+<button id="copyBtn" class="hidden">Copy Feedback</button>
+<button id="copyScoresBtn">Copy Scores (all raw)</button>
+<button id="copyExcelBtn">📊 Copy Scores (For Excel)</button>
+<button id="resetBtn">Reset All</button>
+</div>
+
+<div class="section-copy-buttons">
+<button onclick="copySectionGroupScores(0)">📋 A</button>
+<button onclick="copySectionGroupScores(1)">📋 B</button>
+<button onclick="copySectionGroupScores(2)">📋 C</button>
+<button onclick="copySectionGroupScores(3)">📋 D</button>
+<button onclick="copySectionGroupScores(4)">📋 E</button>
+<button onclick="copySectionGroupScores(5)">📋 F</button>
+<button onclick="copySectionGroupScores(6)">📋 EC</button>
+<button class="checks-btn" onclick="copyChecksStatusOnly()">📋 Checks (6)</button>
+</div>
+
+<div id="outputSection" class="output-section hidden"></div>
+</div>
+
+<div class="summary-section">
+<h2 style="font-size:1.2rem;margin-top:0;">Points Summary</h2>
+<div class="nav-links">
+<a href="#nameSection">📝 Go to Name</a>
+<a href="#generateSection">🚀 Go to Generate</a>
+</div>
+<table class="summary-table" id="summaryTable">
+<thead><tr><th>Section</th><th>Points</th><th>Max</th></tr></thead>
+<tbody id="summaryBody"></tbody>
+<tfoot><tr class="total-row"><td>Total (incl. extra credit)</td><td id="totalPoints">0</td><td id="maxPoints">100</td></tr></tfoot>
+</table>
+<div id="extraCreditSection" class="hidden">
+<h3 style="font-size:1rem;">Extra Credit</h3>
+<table class="summary-table"><thead><tr><th>Section</th><th>Points</th><th>Max</th></tr></thead><tbody id="extraCreditBody"></tbody></table>
+</div>
+</div>
+</div>
+
+<div id="itemModal" class="modal">
+<div class="modal-content">
+<div class="modal-header"><div class="modal-title">Edit Item</div><button class="close-btn">&times;</button></div>
+<div class="modal-body">
+<div class="form-group"><label for="itemText">Item Description</label><textarea id="itemText" class="form-control" rows="3"></textarea></div>
+<div class="form-group"><label for="itemPoints">Points (max: <span id="maxPointDisplay"></span>)</label>
+<div class="point-input-group">
+<input type="number" id="itemPoints" class="form-control" step="1" min="0" value="0">
+<button type="button" id="incrementPoint">+1</button>
+<button type="button" id="decrementPoint">-1</button>
+<button type="button" id="resetPointBtn" class="reset-point-btn">Reset</button>
+</div></div>
+</div>
+<div class="modal-footer">
+<div class="restore-group">
+<button id="restoreTextBtn" class="modal-btn modal-btn-orange">↺ Restore Text</button>
+<button id="restorePointsBtn" class="modal-btn modal-btn-purple">↺ Restore Points</button>
+</div>
+<button id="clearTextBtn" class="modal-btn modal-btn-danger">Clear Text</button>
+<button id="cancelBtn" class="modal-btn modal-btn-secondary">Cancel</button>
+<button id="saveBtn" class="modal-btn modal-btn-primary">Save</button>
+</div>
+</div>
+</div>
+
+<div id="commentModal" class="modal comment-modal">
+<div class="modal-content">
+<div class="modal-header"><div class="modal-title">Add Comment to Section Feedback</div><button class="close-btn" id="commentModalClose">&times;</button></div>
+<div class="modal-body">
+<div class="predefined-comment-section">
+<span class="label">Quick predefined comments:</span>
+<button class="predefined-comment-btn" data-comment="Missing or incomplete: please provide more detail.">Missing detail</button>
+<button class="predefined-comment-btn" data-comment="Not clearly explained: please clarify your reasoning.">Unclear explanation</button>
+<button class="predefined-comment-btn" data-comment="Good start but needs more supporting evidence.">Needs evidence</button>
+<button class="predefined-comment-btn" data-comment="Please include more specific examples or data.">Add examples</button>
+<button class="predefined-comment-btn" data-comment="This needs further analysis and interpretation.">Needs analysis</button>
+</div>
+<div class="form-group"><label for="commentText">Comment text:</label><textarea id="commentText" class="form-control" rows="4" placeholder="Enter your comment here..."></textarea></div>
+</div>
+<div class="modal-footer">
+<div class="restore-group"><button id="clearCommentBtn" class="modal-btn modal-btn-danger">Clear</button></div>
+<button id="cancelCommentBtn" class="modal-btn modal-btn-secondary">Cancel</button>
+<button id="addCommentBtn" class="modal-btn modal-btn-primary">Add to Feedback</button>
+</div>
+</div>
+</div>
+
+<script>
+// ==================== COPY GRADING MESSAGE ====================
+function copyGradingMessage() {
+    const message = `Now grade this very strictly, and show me which one to check and which one to x in my checklist. If something is not met, then provide a suggestion to improve as "You could have done... to improve"`;
+    const hintText = document.getElementById('hintText');
+    navigator.clipboard.writeText(message).then(() => {
+        hintText.textContent = '✅ Copied successfully!';
+        hintText.className = 'hint-text success';
+        showNotification('✅ Grading message copied to clipboard!');
+        setTimeout(() => {
+            hintText.textContent = 'Click to copy: "Now grade this very strictly..."';
+            hintText.className = 'hint-text';
+        }, 3000);
+    }).catch(() => {
+        hintText.textContent = '❌ Failed to copy!';
+        hintText.className = 'hint-text error';
+    });
+}
+
+// ==================== STATE ====================
+let extraCreditPointsValue = 0;
+let checkSelections = {};
+let checkTextSelections = {};
+let masterNoDeductions = true;
+let originalRubricData = null;
+
+const state = {
+    selectedItems: new Map(),
+    currentEditingItem: null
+};
+
+// ==================== NOTIFICATIONS (persistent, overwrite in place) ====================
+function showNotification(message, isSuccess = true, sectionLetter = '') {
+    const bar = document.getElementById('notificationBar');
+    const msgEl = document.getElementById('notificationMessage');
+    if (sectionLetter) {
+        const colorClass = `highlight-letter-${sectionLetter}`;
+        const highlighted = `<span class="highlight-letter ${colorClass}">Section ${sectionLetter}</span>`;
+        msgEl.innerHTML = message.replace(`Section ${sectionLetter}`, highlighted);
+    } else {
+        msgEl.textContent = message;
+    }
+    bar.classList.toggle('success', !!isSuccess);
+    bar.classList.add('visible');
+}
+function clearNotification() {
+    const bar = document.getElementById('notificationBar');
+    const msgEl = document.getElementById('notificationMessage');
+    msgEl.textContent = '';
+    msgEl.innerHTML = '';
+    bar.classList.remove('visible', 'success');
+}
+function validateName() {
+    const nameInput = document.getElementById('studentName');
+    const errorEl = document.getElementById('nameRequiredError');
+    const name = nameInput.value.trim();
+    if (!name) { errorEl.classList.add('show'); nameInput.style.borderColor = '#c62828'; return false; }
+    errorEl.classList.remove('show'); nameInput.style.borderColor = ''; return true;
+}
+
+// ==================== CHECKS ====================
+function initCheckSelections() {
+    masterNoDeductions = true;
+    for (let i = 0; i < 6; i++) { checkSelections[`negative-${i}`] = 'N'; checkTextSelections[`negative-${i}`] = false; }
+    checkSelections['negative-6'] = 'T'; checkTextSelections['negative-6'] = false;
+    checkTextSelections['positive-0'] = true;
+}
+initCheckSelections();
+
+function toggleMasterNoDeductions() {
+    masterNoDeductions = !masterNoDeductions;
+    const masterEl = document.getElementById('check-text-positive-0');
+    if (masterEl) {
+        if (masterNoDeductions) { masterEl.classList.add('selected'); masterEl.classList.remove('unselected'); }
+        else { masterEl.classList.remove('selected'); masterEl.classList.add('unselected'); }
+    }
+    for (let i = 0; i < 7; i++) {
+        const statusEl = document.getElementById(`check-status-negative-${i}`);
+        const textEl = document.getElementById(`check-text-negative-${i}`);
+        if (masterNoDeductions) {
+            checkSelections[`negative-${i}`] = (i === 6 ? 'T' : 'N');
+            if (statusEl) { statusEl.textContent = (i === 6 ? 'T' : 'N'); statusEl.className = 'check-status ' + (i === 6 ? 'T' : 'N') + ' disabled'; }
+            if (textEl) { textEl.classList.add('disabled'); textEl.classList.remove('selected'); }
+            checkTextSelections[`negative-${i}`] = false;
+        } else {
+            if (statusEl) statusEl.className = 'check-status ' + (i === 6 ? 'T' : 'N');
+            if (textEl) textEl.classList.remove('disabled');
+        }
+    }
+}
+
+function toggleCheckStatus(id) {
+    if (masterNoDeductions) return;
+    const el = document.getElementById(`check-status-${id}`);
+    const isCheck6 = id === 'negative-6';
+    let next;
+    if (isCheck6) next = el.textContent === 'T' ? 'Y' : (el.textContent === 'Y' ? 'N' : 'T');
+    else next = el.textContent === 'N' ? 'Y' : 'N';
+    el.textContent = next; el.className = 'check-status ' + next; checkSelections[id] = next;
+    if (id === 'negative-2' || id === 'negative-3') updateCheck3A3B();
+}
+function toggleCheckSelection(id) {
+    if (masterNoDeductions) return;
+    const el = document.getElementById(`check-text-${id}`);
+    checkTextSelections[id] = !checkTextSelections[id];
+    el.classList.toggle('selected', checkTextSelections[id]);
+}
+function copyChecksStatusOnly() {
+    const out = [];
+    const c3 = (checkSelections['negative-2'] === 'Y' || checkSelections['negative-3'] === 'Y') ? 'Y' : 'N';
+    out.push(checkSelections['negative-0'] || 'N');
+    out.push(checkSelections['negative-1'] || 'N');
+    out.push(c3);
+    out.push(checkSelections['negative-4'] || 'N');
+    out.push(checkSelections['negative-5'] || 'N');
+    const c6 = checkSelections['negative-6'];
+    out.push(c6 === 'Y' ? 'Y' : 'N');
+    const result = out.join('\t');
+    navigator.clipboard.writeText(result);
+    showNotification(`✅ 6 checks status copied: ${result}`);
+}
+function getMissingAccessItems() {
+    const sectionState = state.selectedItems.get('section-0') || { positive: new Set(), negative: new Set() };
+    const missing = [];
+    if (!sectionState.positive.has('section-0-positive-2')) missing.push('Overleaf link');
+    if (!sectionState.positive.has('section-0-positive-3')) missing.push('GitHub commit hash');
+    if (missing.length === 0) return '';
+    if (missing.length === 1) return missing[0];
+    return missing.join(' and ');
+}
+function getMissingAccessPoints() {
+    const sectionState = state.selectedItems.get('section-0') || { positive: new Set(), negative: new Set() };
+    let p = 0;
+    if (!sectionState.positive.has('section-0-positive-2')) p += 2;
+    if (!sectionState.positive.has('section-0-positive-3')) p += 2;
+    return p;
+}
+function updateCheck3A3B() {
+    const check3AEl = document.getElementById('check-text-negative-2');
+    if (!check3AEl) return;
+    const missing = getMissingAccessItems();
+    let text = check3AEl.textContent.replace(/\s*\(auto-filled from A2\)\s*$/, '');
+    if (missing !== '') {
+        text = text.replace(/\{TODO\}/g, missing);
+        text = text + ' (auto-filled from A2)';
+        if (!masterNoDeductions) {
+            const status3A = document.getElementById('check-status-negative-2');
+            if (status3A && status3A.textContent !== 'Y') { status3A.textContent = 'Y'; status3A.className = 'check-status Y'; checkSelections['negative-2'] = 'Y'; }
+            if (!checkTextSelections['negative-2']) { checkTextSelections['negative-2'] = true; check3AEl.classList.add('selected'); }
+        }
+    } else {
+        if (!masterNoDeductions && checkTextSelections['negative-2']) { checkTextSelections['negative-2'] = false; check3AEl.classList.remove('selected'); }
+    }
+    check3AEl.textContent = text;
+}
+
+// ==================== SECTION GROUP COMBINATIONS ====================
+const sectionGroupCombinations = {
+    0: { scores: [{ label: "A1", groupIndices: [0] }, { label: "A2", groupIndices: [1] }, { label: "A3", groupIndices: [2] }] },
+    1: { scores: [{ label: "B1", groupIndices: [0] }, { label: "B2", groupIndices: [1] }, { label: "B3", groupIndices: [2] }, { label: "B4", groupIndices: [3] }] },
+    2: { scores: [{ label: "C1", groupIndices: [0] }, { label: "C2", groupIndices: [1] }, { label: "C3", groupIndices: [2] }, { label: "C4", groupIndices: [3] }] },
+    3: { scores: [{ label: "D1", groupIndices: [0] }, { label: "D2", groupIndices: [1] }, { label: "D3", groupIndices: [2] }, { label: "D4", groupIndices: [3] }] },
+    4: { scores: [{ label: "E1", groupIndices: [0] }, { label: "E2", groupIndices: [1] }, { label: "E3", groupIndices: [2] }, { label: "E4", groupIndices: [3] }, { label: "E5", groupIndices: [4] }] },
+    5: { scores: [{ label: "F1", groupIndices: [0] }, { label: "F2", groupIndices: [1] }, { label: "F3", groupIndices: [2] }, { label: "F4", groupIndices: [3] }, { label: "F5", groupIndices: [4] }] }
+};
+
+// ==================== VERBATIM TEMPLATE PROSE ====================
+const positiveProse = {
+    A1: "You provide the specified 20k instance sampled dataset with documentation of your selection/sampling. You also appropriately identify the source and targets/labels/classes. In rolling over your SL backbone from the previous report, you properly make use of the PyTorch NN.",
+    A2: "You provide a working read-only link to your Overleaf report, proper citation and use of your GT Enterprise GitHub repo, and in your REPRO documentation you provide run instructions and instructional overview of sampling and randomization used to produce the downsampled dataset, as well as disclosure of your optimizer and RO operator settings, regularization values, random seeds, compute accounting, metric calculations and sufficient detail so as to avail your reviewer to reproduce the results presented as needed.",
+    A3: "Your visuals, plots, tables, etc. are all legible with proper labelling of axes, legends and captions, meaning no zooming is necessary (which need causes illegible blurring in our grading environment). You appropriately cite external sources beyond the course materials and do so in a properly formatted References section. You also acknowledge the nature and extent of your AI/LLM usage.",
+    B1: "You provide disclosure of your train/validation/test splits and assure your reader there is a held-out test set used only in validating your model, as well as offering assurance that your preprocessing is performed only on training data.",
+    B2: "You suitably document gradient and function evals, wall-clock times, seed protocol, hardware and compute used and batch processing to enable fair comparison between your experiments.",
+    B3: "You provide a well-informed hypothesis before diving into experimentation and this hypothesis focuses specifically on anticipated optimization/regularization behavior by invoking theoretical discussion such as by referring to momentum, adaptive scaling, bias correction, regularization, stability or compute tradeoffs.",
+    B4: "You appropriately revisit your initial hypothesis and draw conclusions as to whether it is proven or disproven or if some qualified conclusion is a better fit. In doing so, you lean on your process metrics and cite more than one from validation loss, test Macro-F1, balanced accuracy, class-level behavior, seed stability, gradient or function evals or wall-clock time.",
+    C1: "You provide clear explanation of which of your final 1-3 layers remain unfrozen while confirming all others are frozen. You also provide your RO parameter count and fall appropriately within the rough 50k max param cap.",
+    C2: "You suitably run all three RO algorithms (RHC, SA and GA) on your unfrozen layers using the same validation objective, data splits, PyTorch NN model backbone and fair-for-comparison starting protocol. Your RO methods each capture enough detail for reproducibility's sake: for RHC you provide restarts and step-size policy, for SA you highlight initial temperature, cooling schedule and step-size cooling if used and for GA you offer an overview of population size, selection, crossover, mutation, elitism and number of generations as well as perturbation distribution and scale and any adaptive schedule.",
+    C3: "Your objective here was appropriately validation loss, your RO evaluations use deterministic evaluation behavior such as model.eval(), each candidate objective call is factored in to function evaluations and any fixed validation subset is disclosed along with its size, seed used and sampling method.",
+    C4: "Your report includes best-so-far validation objective against fevals for RHC, SA and GA. You document wall-clock time and compare the three RO methods across fair-for-comparison, if not matched, feval budgets. In the case of GA, you compare this with the others by function calls, not just generations. Of your interpretation, you address RO's place in altering validation behavior, including any tail improvement, plateauing or stalling, and you justify this by calling on several factors from validation loss, fevals, wall-clock time, final test accuracy, Macro-F1, balanced accuracy and/or class-level behavior with a bonus callout for comparison's sake with your SL report results.",
+    D1: "You run all required optimizer variants on the full PyTorch NN baseline, including vanilla SGD, SGD with momentum, SGD with Nesterov momentum, Adam, Adam neglecting bias correction, Adam with beta_1=0 and AdamW. In each case, you state learning rate, momentum (where applicable) or beta values, epsilon (where applicable), weight decay behavior, batch size, max budget and any schedule. Your comparisons here use the same backbone, split, preprocessing and batch size (barring reasonable justification), budget definition, metric reporting and consistent initialization. Seed handling is done fairly and consistently. For any learning-rate scheduling, clipping, early stopping or augmentation of the training-loop, these alterations are explained.",
+    D2: "Your analysis includes validation loss versus wall-clock time and/or gradient evals, and you report a fixed validation-loss threshold using training and validation evidence only, framed by time or steps to reach this threshold. Optimizers that do not reach the threshold before expending their budget are noted as such as exceeding budget.",
+    D3: "You provide a compact heatmap (or heatmaps) across two grid sizes and use identical budgets per grid, indicating divergent or failed cells per grid, offering interpretation of stable, unstable and sensitive regions.",
+    D4: "You report on at least 3 seeds for your main optimizer comparison (barring reasonable justification for fewer) and you document dispersion using median/IQR, variance, stdev or equivalent measure, indicating divergent or failed runs in the process. You compare training versus validation behavior to paint the picture of generalization, as well as provide mention of final test accuracy, Macro-F1, balanced accuracy and class-level behavior. Your explanation highlights the effects of each optimizer -- effects like speed from momentum, stability from adaptive scaling, early behavioral changes from bias correction or better generalization from decoupled weight decay.",
+    E1: "You use standard Adam with the best hyperparameters from your Adam Ablations section, and you do not retune Adam within your Regularization Study to keep things consistent. Learning rate, betas, epsilon, batch size and budget are held fixed (barring necessary justification). In the Regularization Study, you only alter regularization settings.",
+    E2: "You both test and disclose use of L2 weight decay, early stopping, dropout, label smoothing and/or modest input noise injection or augmentation. You provide a summary of any weight decay values used, early stopping monitored quantity and patience, whether best weights are restored, dropout placement and rates, label smoothing magnitude, input-noise magnitude and assurance that injection of noise/smoothing is done only where appropriate.",
+    E3: "You provide comparison of standard Adam with no additional regularization against the best single regularizer as well as the best regularization technique under matched compute budgets and consistent seed protocol. If early stopping changes the number of epochs, you distinguish this saved compute from different training opportunity.",
+    E4: "You demonstrate your selection criteria for different regularization settings, including using a small sweep summary, validation loss comparison or a table of metrics. These supporting visuals are provided in the attached REPRO when deemed too large for the main report.",
+    E5: "You provide disclosure of whether regularization improved validation loss, Macro-F1, balanced accuracy, minority-class recall, train-validation gaps, seed stability or test performance and the size and nature of the regularization effects is compared with the Adam Ablation optimizer effects.",
+    F1: "Your discussion compares RO with Adam Ablations and your Regularization Study, explaining how effects differed using evidence from each including some of the following, for instance, among validation loss, test metrics, class-level behavior, stability and compute tracking. You address the conclusions that can be drawn from each part, such as whether they have any effects on tail tuning, optimizer dynamics or generalization control.",
+    F2: "You explain whether observed improvements are worth their cost in compute terms such as wall-clock time, gradient and function evaluations and final evaluation metrics. You offer differentiation between cheap and costly gains and address which from your trio of experiments were most performant in view of their respective compute overhead.",
+    F3: "You separate optimization behavior from generalization from stability in your discussion, explaining whether each improved validation loss, convergence speed, training-validation performance gap, seed variability or held-out test behavior.",
+    F4: "You analyze multiclass performance and minority-class behavior in your discussion, including whether optimization/regularization tactics affected per-class precision, recall, F1 or confusion matrix results. Your interpretation addresses discrepancies in the stories told by your different metrics.",
+    F5: "You identify concrete limitations of the study and explain how these limitations reduce confidence in the conclusions, pulling from such limitations as sample size, class imbalance, limited RO budget, restrictive freezing/unfreezing protocol, heatmap coarseness/granularity, seed count, validation-subset use, architectural dependence, hardware constraints or unresolved/unmodelled instability. You finish with a practical decision rule focused specifically on use on the BRFSS General Health dataset of when one might strategize optimization over regularization over RO fine-tuning efforts. In provision of this practical decision rule, you offer sufficient evidence, drawing from your metrics and compute constraints."
+};
+const negativeProse = {
+    A1: "You must provide the specified 20k instance sampled dataset with documentation of your selection/sampling. You also should identify the source and targets/labels/classes. Additionally, rolling over from the SL Report, we expected you to use your fixed PyTorch Neural Network as a starting point.",
+    A2: "You must provide a working read-only link to your Overleaf report, proper citation and use of your GT Enterprise GitHub repo, and in your REPRO documentation you need to provide run instructions and instructional overview of sampling and randomization used to produce the downsampled dataset, as well as disclosure of your optimizer and RO operator settings, regularization values, random seeds, compute accounting, metric calculations and sufficient detail so as to avail your reviewer to reproduce the results presented as needed.",
+    A3: "Of your visuals, plots, tables, etc. some are illegible and/or lack proper labelling of axes, legends and captions, rendering zooming as necessary (which is not supported in our grading environment as it causes blurring). You must appropriately cite external sources beyond the course materials and do so in a properly formatted References section. You also need to acknowledge the nature and extent of your AI/LLM usage.",
+    B1: "You neglect to provide disclosure of your train/validation/test splits or to assure your reader there is a held-out test set used only in validating your model; additionally you must provide assurance that your preprocessing is performed only on training data.",
+    B2: "You must suitably document gradient and function evals, wall-clock times, seed protocol, hardware and compute used and batch processing to enable fair comparison between your experiments.",
+    B3: "You must provide a well-informed hypothesis before diving into experimentation and this hypothesis must focus specifically on anticipated optimization/regularization behavior. In doing so, we expected you to invoke theoretical discussion such as by referring to momentum, adaptive scaling, bias correction, regularization, stability or compute tradeoffs.",
+    B4: "You were expected to revisit your initial hypothesis and draw conclusions as to whether it is proven or disproven or if some qualified conclusion is a better fit. In doing so, you should lean on your process metrics and cite more than one from validation loss, test Macro-F1, balanced accuracy, class-level behavior, seed stability, gradient or function evals or wall-clock time.",
+    C1: "You must provide clear explanation of which of your final 1-3 layers remain unfrozen while confirming all others are frozen. You also should provide your RO parameter count and be sure to fall appropriately within the rough 50k max param cap.",
+    C2: "You must suitably run all three RO algorithms (RHC, SA and GA) on your unfrozen layers using the same validation objective, data splits, PyTorch NN model backbone and fair-for-comparison starting protocol. Your RO methods should each capture enough detail for reproducibility's sake: for RHC you must provide restarts and step-size policy, for SA, be sure to highlight initial temperature, cooling schedule and step-size cooling if used and for GA you need to offer an overview of population size, selection, crossover, mutation, elitism and number of generations as well as perturbation distribution and scale and any adaptive schedule.",
+    C3: "Your objective here must be validation loss, your RO evaluations must use deterministic evaluation behavior such as model.eval() and each candidate objective call needs to be factored in to function evaluations and any fixed validation subset disclosed along with its size, seed used and sampling method.",
+    C4: "Your report must include best-so-far validation objective against fevals for RHC, SA and GA. You should also document wall-clock time and compare the three RO methods across fair-for-comparison, if not matched, feval budgets. In the case of GA, you should compare this with the others by function calls, not just generations. Of your interpretation, you need to address RO's place in altering validation behavior, including any tail improvement, plateauing or stalling, and in doing so, you should justify this by calling on several factors from validation loss, fevals, wall-clock time, final test accuracy, Macro-F1, balanced accuracy and/or class-level behavior with a bonus callout for comparison's sake with your SL report results.",
+    D1: "You run all required optimizer variants on the full PyTorch NN baseline, including vanilla SGD, SGD with momentum, SGD with Nesterov momentum, Adam, Adam neglecting bias correction, Adam with beta_1=0 and AdamW. In each case, you state learning rate, momentum (where applicable) or beta values, epsilon (where applicable), weight decay behavior, batch size, max budget and any schedule. Your comparisons here use the same backbone, split, preprocessing and batch size (barring reasonable justification), budget definition, metric reporting and consistent initialization. Seed handling is done fairly and consistently. For any learning-rate scheduling, clipping, early stopping or augmentation of the training-loop, these alterations are explained.",
+    D2: "Your analysis must include validation loss versus wall-clock time and/or gradient evals, and you should report a fixed validation-loss threshold using training and validation evidence only, framed by time or steps to reach this threshold. Optimizers that do not reach the threshold before expending their budget should've been noted as such as exceeding budget.",
+    D3: "You must provide a compact heatmap (or heatmaps) across two grid sizes and use identical budgets per grid, indicating divergent or failed cells per grid and offering interpretation of stable, unstable and sensitive regions.",
+    D4: "You should have reported on at least 3 seeds for your main optimizer comparison (barring reasonable justification for fewer) and you needed to document dispersion using median/IQR, variance, stdev or equivalent measure, indicating divergent or failed runs in the process. You should have compared training versus validation behavior to paint the picture of generalization, as well as provide mention of final test accuracy, Macro-F1, balanced accuracy and class-level behavior. Your explanation neglected to highlight the effects of each optimizer -- effects like speed from momentum, stability from adaptive scaling, early behavioral changes from bias correction or better generalization from decoupled weight decay.",
+    E1: "You must use standard Adam with the best hyperparameters from your Adam Ablations section, where you need not retune Adam within your Regularization Study to keep things consistent. Learning rate, betas, epsilon, batch size and budget should be held fixed (barring necessary justification). In the Regularization Study, you must only alter regularization settings.",
+    E2: "You must both test and disclose use of any L2 weight decay, early stopping, dropout, label smoothing and/or modest input noise injection or augmentation. You need to provide a summary of any weight decay values used, early stopping monitored quantity and patience, whether best weights are restored, dropout placement and rates, label smoothing magnitude, input-noise magnitude and offer assurance that injection of noise/smoothing is done only where appropriate.",
+    E3: "You should provide comparison of standard Adam with no additional regularization against the best single regularizer as well as the best regularization technique under matched compute budgets and consistent seed protocol. If early stopping changes the number of epochs, you must distinguish this saved compute from different training opportunity.",
+    E4: "You must demonstrate your selection criteria for different regularization settings, including using a small sweep summary, validation loss comparison or a table of metrics. These supporting visuals should be provided in the attached REPRO when deemed too large for the main report.",
+    E5: "You must provide disclosure of whether regularization improved validation loss, Macro-F1, balanced accuracy, minority-class recall, train-validation gaps, seed stability or test performance and the size and nature of the regularization effects is compared with the Adam Ablation optimizer effects.",
+    F1: "Your discussion must compare RO with Adam Ablations and your Regularization Study, explaining how effects differed using evidence from each including some of the following, for instance, among validation loss, test metrics, class-level behavior, stability and compute tracking. You must address the conclusions that can be drawn from each part, such as whether they have any effects on tail tuning, optimizer dynamics or generalization control.",
+    F2: "You must explain whether observed improvements are worth their cost in compute terms such as wall-clock time, gradient and function evaluations and final evaluation metrics. You also should differentiate between cheap and costly gains and address which from your trio of experiments were most performant in view of their respective compute overhead.",
+    F3: "You should separate optimization behavior from generalization from stability in your discussion, explaining whether each improved validation loss, convergence speed, training-validation performance gap, seed variability or held-out test behavior.",
+    F4: "You must analyze multiclass performance and minority-class behavior in your discussion, including whether optimization/regularization tactics affected per-class precision, recall, F1 or confusion matrix results. Your interpretation should address discrepancies in the stories told by your different metrics.",
+    F5: "You need to identify concrete limitations of the study and explain how these limitations reduce confidence in the conclusions, pulling from such limitations as sample size, class imbalance, limited RO budget, restrictive freezing/unfreezing protocol, heatmap coarseness/granularity, seed count, validation-subset use, architectural dependence, hardware constraints or unresolved/unmodelled instability. You should then finish with a practical decision rule focused specifically on use on the BRFSS General Health dataset of when one might strategize optimization over regularization over RO fine-tuning efforts. In provision of this practical decision rule, you must offer sufficient evidence, drawing from your metrics and compute constraints."
+};
+const ecPositiveProse = {
+    EC1: "5pts: You provide full integration with compute tradeoff analysis of your integrated combination. You provide a full and thorough account of performance using metrics like gradient steps, function evaluations and wall-clock time. For practicality, you speak to whether the gains justify the extra compute overhead under realistic compute budgets.",
+    EC2: "3pts: You replicate your settings from the Adam Ablation setting and integrate them with your best regularization settings from the Regularization Study and evaluate these on your best RO method identified earlier, providing a clear before and after comparison with a minimum of 3 seeds (barring justification for fewer).",
+    EC3: "1pt: You show a complete integrated run with reporting of compute budget and comparison against your best optimizer from the Adam Ablation section as well as your best regularizer from the Regularization Study and you do so within fair comparison."
+};
+const ecNegativeProse = "0pts. You either didn't attempt the Extra Credit Ablation Study, or across all three core criteria that constitute any points awarded, we deemed your implementation and results or discussion thereof as too cursory an overview to earn any additional points.";
+
+// ==================== RUBRIC DATA ====================
+const baseRubricData = {
+    grading_rubric: {
+        total_points: 100,
+        extra_credit_points: 5,
+        sections: [{
+            main_section: "Compliance (16 points)",
+            points_available: 16,
+            section_letter: "A",
+            groups: [
+                { label: "Data Compliance", max: 3, items: [
+                    { description: "BRFSS sample: Uses an approximately 20,000-instance BRFSS General Health working dataset matching the SL sample, or explicitly documents and justifies any change while explaining its effect on SL comparability", points: 2 },
+                    { description: "Target and SL backbone: Uses the required BRFSS file, identifies GenHlth classes 1-5 as the multiclass target, excludes it from predictors, and uses the PyTorch SL neural-network backbone as the OL model", points: 1 }
+                ]},
+                { label: "Accessibility/Reproducibility", max: 7, items: [
+                    { description: "Enterprise Overleaf: A working EDIT-level link to the student's GT Enterprise Overleaf project is included and accessible to course staff", points: 2 },
+                    { description: "Enterprise GitHub: The report or REPRO includes a valid final commit hash from the student's GT Enterprise GitHub repo, and staff can access the repo and commit", points: 2 },
+                    { description: "Run instructions: Clear commands, environment and package requirements, data paths, execution order, and random seeds sufficient to reproduce outputs on a standard Linux machine", points: 2 },
+                    { description: "Experiment details: REPRO includes SL-to-OL sample, preprocessing and split correspondence; optimizer and RO operator settings; regularization values; seeds; compute accounting; metric calculations", points: 1 }
+                ]},
+                { label: "Legibility/Attribution", max: 6, items: [
+                    { description: "Readable figures and tables: Figures, tables, axes, legends, captions, heatmap labels, and text are readable at normal grading zoom", points: 2 },
+                    { description: "Outside sources: At least two relevant peer-reviewed sources beyond course materials used to justify methods or interpret results, with IEEE-style citations in the report body", points: 2 },
+                    { description: "AI usage statement: Clear AI Use Statement identifying tools used, how they assisted, and affirming the student reviewed, verified, and understood all assisted content", points: 2 }
+                ]}
+            ],
+            negative_items: { items: [
+                "A1. BRFSS sample is not approximately 20,000 instances, uses the full 253,680 dataset without justification, or the sample change is not explained",
+                "A1. Wrong BRFSS file/target, GenHlth collapsed to binary or treated as regression, GenHlth leaked into predictors, or the PyTorch SL backbone is not identifiable",
+                "A2. Overleaf link missing, broken, read-only, inaccessible, or tied only to a personal Overleaf account",
+                "A2. GitHub commit hash missing, invalid, inaccessible, or points only to a personal GitHub repository",
+                "A2. Run instructions missing or insufficient (no environment, data, or execution details)",
+                "A2. Key experiment details are missing, vague, or not linked to submitted results",
+                "A3. Multiple figures or tables too small, clipped, blurry, or poorly labeled to evaluate reliably",
+                "A3. Fewer than two qualifying peer-reviewed sources, references irrelevant or unused, or only textbooks, blogs, documentation, tutorials, lecture slides, or non-peer-reviewed preprints",
+                "A3. AI usage statement missing, vague, does not identify tools or assistance, or fails to affirm review and understanding"
+            ]},
+            feedback_section: "Feedback on Section:"
+        }, {
+            main_section: "Study Design (10 points)",
+            points_available: 10,
+            section_letter: "B",
+            groups: [
+                { label: "Splits/Leakage Controls", max: 2, items: [
+                    { description: "States the reused SL train/validation/test splits, uses the held-out test set only for final evaluation, and confirms learned preprocessing is fit only on training data or training folds; any material SL-to-OL change is justified", points: 2 }
+                ]},
+                { label: "Compute/Seed Protocol", max: 2, items: [
+                    { description: "Defines gradient evaluations, function evaluations, wall-clock measurement, random-seed protocol, hardware class, and batching assumptions consistently enough to support fair comparisons", points: 2 }
+                ]},
+                { label: "Early Hypothesis", max: 3, items: [
+                    { description: "At least one hypothesis stated before full results that predicts optimization or regularization behavior using course concepts such as momentum, adaptive scaling, bias correction, regularization, stability, or compute trade-offs", points: 3 }
+                ]},
+                { label: "Hypothesis Resolution", max: 3, items: [
+                    { description: "The original hypothesis is explicitly accepted, rejected, or qualified using quantitative evidence from at least two of: validation loss, test Macro-F1, balanced accuracy, class-level behavior, seed stability, gradient evaluations, function evaluations, or wall-clock time", points: 3 }
+                ]}
+            ],
+            negative_items: { items: [
+                "B1. Splits ambiguous or differ without explanation, test data used for tuning, or preprocessing/target leakage present or unresolved",
+                "B2. Compute accounting missing or inconsistent, or methods compared only by epoch count without explaining updates, evaluations, or wall-clock",
+                "B3. Hypothesis generic, appears after results, predicts only a winner without theoretical reasoning, or unrelated to OL behavior",
+                "B4. Hypothesis not revisited, discussed only vaguely, or resolved without quantitative evidence from reported experiments"
+            ]},
+            feedback_section: "Feedback on Section:"
+        }, {
+            main_section: "Randomized Optimization (18 points)",
+            points_available: 18,
+            section_letter: "C",
+            groups: [
+                { label: "RO Layer Scope/Param Cap", max: 3, items: [
+                    { description: "Identifies exactly which final 1-3 layers are unfrozen, confirms earlier layers are frozen during RO, reports the exact trainable RO parameter count, and keeps the count approximately <= 50,000 or provides clear computational justification for an allowed deviation", points: 3 }
+                ]},
+                { label: "RO Required Algos/Settings/Design", max: 6, items: [
+                    { description: "RHC, SA, and GA are all run on the same final-layer optimization problem using the same validation objective, data split, model backbone, and comparable initialization or starting-point protocol", points: 3 },
+                    { description: "Reproduces each RO method's settings: RHC restarts and step-size policy; SA initial temperature, cooling schedule, and any step-size cooling; GA population size, selection, crossover, mutation, elitism, and generation count; and perturbation distribution, scale, and adaptation schedule where relevant", points: 3 }
+                ]},
+                { label: "RO Objective/Accounting", max: 3, items: [
+                    { description: "RO optimizes validation loss using deterministic evaluation (e.g., model.eval()), every candidate objective call is counted as a function evaluation, and any fixed validation subset is disclosed with size, seed, and sampling method", points: 3 }
+                ]},
+                { label: "RO Curves/Budget/Interp/Eval", max: 6, items: [
+                    { description: "Includes best-so-far validation objective versus function evaluations for RHC, SA, and GA; reports wall-clock time; and compares methods under matched or clearly justified evaluation budgets, with GA compared by objective calls rather than generation counts alone", points: 3 },
+                    { description: "Explains whether RO provided meaningful tail improvement, plateaued, stalled, or overfit validation behavior using validation loss, evaluations, time, final test Accuracy, Macro-F1, balanced accuracy, and class-level behavior; compares RO with the SL PyTorch SGD baseline or gradient-based methods", points: 3 }
+                ]}
+            ],
+            negative_items: { items: [
+                "C1. RO runs on the full network, unfrozen layers or frozen status unclear, trainable parameter count missing, or cap exceeded without justification",
+                "C2. Any required RO algorithm (RHC, SA, GA) missing, layer scope or objectives differ, or starting conditions make comparison unfair",
+                "C2. Algorithms named without operator details, perturbation scale/distribution omitted, or candidate generation unclear",
+                "C3. Objective changes mid-run, stochastic dropout affects candidate evaluation, function evaluations inconsistent, or test set used as RO objective",
+                "C4. Progress curves missing, axes or budgets incomparable without explanation, GA compared by generation count alone, or only final objective values shown",
+                "C4. Only names the best RO method, ignores compute cost, omits final multiclass evidence, or never discusses whether the RO result justified the compute"
+            ]},
+            feedback_section: "Feedback on Section:"
+        }, {
+            main_section: "Adam-Family Ablations (20 points)",
+            points_available: 20,
+            section_letter: "D",
+            groups: [
+                { label: "AA 7 Optimizers w/ Fair Protocol", max: 7, items: [
+                    { description: "Runs all required optimizer variants on the full PyTorch backbone: SGD without momentum, SGD with momentum, Nesterov momentum, Adam, Adam without bias correction, Adam with beta_1 = 0, and AdamW. For each, states learning rate, momentum or beta values, epsilon, weight decay behavior, batch size, maximum budget, and any schedule", points: 4 },
+                    { description: "Comparison uses the same backbone, split, preprocessing, batch size unless justified, budget definition, metric reporting, and initialization strategy; paired seeds map to comparable initial weights across methods; LR schedules, clipping, early stopping, and other training-loop changes are disclosed", points: 3 }
+                ]},
+                { label: "AA Loss/Compute & Threshold Analysis", max: 3, items: [
+                    { description: "Shows validation loss versus wall-clock time and/or gradient evaluations, defines a fixed validation-loss threshold l* using training/validation evidence only, and reports time or steps to reach l*; optimizers that do not reach the threshold remain in the analysis and are marked as exceeding the budget", points: 3 }
+                ]},
+                { label: "AA Sensitivity Heatmaps", max: 3, items: [
+                    { description: "Provides compact sensitivity heatmaps or summaries for coarse (alpha, beta_1) and (alpha, beta_2) grids, uses identical budgets per grid point, marks divergent or failed cells, and interprets stable, unstable, and sensitive regions; extended heatmaps may appear in REPRO", points: 3 }
+                ]},
+                { label: "AA Seed Stability/Failure Reporting/Generalization", max: 7, items: [
+                    { description: "Main optimizer comparison uses at least 3 seeds unless computationally justified; reports dispersion such as median/IQR, variance bands, or standard deviation; and includes divergent or failed runs in its stability discussion", points: 3 },
+                    { description: "Compares training and validation behavior; final test Accuracy, Macro-F1, balanced accuracy, and class-level results; and interprets what momentum, Nesterov acceleration, adaptive scaling, bias correction, and decoupled weight decay actually changed on BRFSS General Health", points: 4 }
+                ]}
+            ],
+            negative_items: { items: [
+                "D1. Any required optimizer is missing, replaced, mislabeled, not actually run, or not documented well enough to verify the ablation",
+                "D1. Methods use incompatible budgets, initialization, schedules, splits, preprocessing, or architecture without justification",
+                "D2. Threshold missing, changes by optimizer, selected using test performance, excludes failures, or lacks loss-versus-compute evidence",
+                "D3. Sensitivity analysis missing, budgets differ without justification, failed cells hidden, or heatmaps presented without meaningful interpretation",
+                "D4. Only one seed supports the main claims, failed runs hidden, dispersion absent, or conclusions rely on one best-seed result",
+                "D4. Only final test Accuracy is reported, train-validation behavior or class-level effects ignored, or optimizer variants ranked without explaining the ingredients responsible"
+            ]},
+            feedback_section: "Feedback on Section:"
+        }, {
+            main_section: "Regularization Study (16 points)",
+            points_available: 16,
+            section_letter: "E",
+            groups: [
+                { label: "RS Standard Adam", max: 3, items: [
+                    { description: "Uses standard Adam with the best Part 2 hyperparameters and does not retune Adam settings inside Part 3; learning rate, betas, epsilon, batch size, and budget remain fixed unless a necessary deviation is explicitly justified; only regularization mechanisms change", points: 3 }
+                ]},
+                { label: "RS Reqd Reg w/ Testing/Disclosure", max: 4, items: [
+                    { description: "Tests and discloses L2 weight decay, early stopping, dropout, label smoothing, and modest input noise or augmentation; states weight-decay values, early-stopping monitored quantity and patience, whether best weights are restored, dropout layer placement and rates, label-smoothing magnitude, input-noise or augmentation policy and magnitude, and confirms all training-only interventions are confined to the appropriate split and feature types", points: 4 }
+                ]},
+                { label: "RS Budget-matched Comparison", max: 3, items: [
+                    { description: "Compares standard Adam with no added regularization, the best single regularizer, and the best regularization combination under matched compute budgets and a consistent seed protocol; if early stopping reduces epochs, separates saved compute from different training opportunity", points: 3 }
+                ]},
+                { label: "RS Selection w/ REPRO Support", max: 2, items: [
+                    { description: "Main report includes compact evidence showing how regularizer settings were selected, such as a small sweep summary, validation-loss comparison, or metric table; detailed sweeps, full seed tables, and additional plots are available in REPRO when too large for the main report", points: 2 }
+                ]},
+                { label: "Interpretation - Optimizer Changes", max: 4, items: [
+                    { description: "Analyzes whether regularization improved validation loss, Macro-F1, balanced accuracy, Fair/Poor or other class-level recall, train-validation gaps, seed stability, or test performance; and compares the magnitude and nature of the effects with Part 2 optimizer changes", points: 4 }
+                ]}
+            ],
+            negative_items: { items: [
+                "E1. Switches to AdamW, changes optimizer family, retunes learning rate or betas in Part 3, changes batch size without justification, or changes the backbone without justification",
+                "E2. A required technique is missing, inadequately documented, applied to validation/test data inappropriately, or introduces invalid BRFSS indicator/category values without explanation of a valid augmentation approach",
+                "E3. Budgets differ without justification, the baseline/single/combination comparison is missing, test performance selects the best condition, or only favorable single runs are reported",
+                "E4. Only a final regularized result is provided without explaining its selection, or referenced selection evidence is missing from both the report and REPRO",
+                "E5. Results are listed without explaining the changes, generalization improvement is claimed from training loss alone, or effects are not compared with optimizer changes"
+            ]},
+            feedback_section: "Feedback on Section:"
+        }, {
+            main_section: "Discussion (20 points)",
+            points_available: 20,
+            section_letter: "F",
+            groups: [
+                { label: "Discussion Synthesis", max: 4, items: [
+                    { description: "Compares RO, Adam-family ablations, and regularization, and explains how their effects differed using validation loss, test metrics, class-level behavior, stability, and compute; distinguishes questions of tail tuning, optimizer dynamics, and generalization control", points: 4 }
+                ]},
+                { label: "Discussion Compute-Performance", max: 4, items: [
+                    { description: "Explains whether gains justified their cost using wall-clock time, gradient evaluations, function evaluations, and final metrics; distinguishes inexpensive improvements from costly marginal gains and explains the compute value of RO, optimizer variations, and regularization", points: 4 }
+                ]},
+                { label: "Discussion Optim v Generalization v Stability", max: 3, items: [
+                    { description: "Separates convergence/validation-loss behavior from train-validation gaps, held-out test behavior, and seed variability; identifies which aspect of training each method affected rather than treating these outcomes as interchangeable", points: 3 }
+                ]},
+                { label: "Discussion Class-level/Metric Interpretation", max: 3, items: [
+                    { description: "Analyzes five-class General Health performance, including per-class precision, recall, and F1 or confusion patterns, and explains why Accuracy, Macro-F1, balanced accuracy, and validation loss may tell different stories for common and less-represented categories", points: 3 }
+                ]},
+                { label: "Limitations/Threats to Validity/Decision Rule", max: 6, items: [
+                    { description: "Identifies study-specific limitations and explains how they affect confidence in the conclusions, such as sample size, class imbalance, class overlap, limited RO budget, seed count, coarse sensitivity analysis, validation-subset use, architecture dependence, or preprocessing/feature constraints", points: 3 },
+                    { description: "Ends with an evidence-based rule for the BRFSS General Health task describing when to prioritize optimizer changes, regularization, or RO final-layer fine-tuning; the rule is metric-aware, compute-aware, and acknowledges the limits of transfer to other datasets", points: 3 }
+                ]}
+            ],
+            negative_items: { items: [
+                "F1. Treats each part independently without cross-part synthesis, or declares one part best without identifying the nature of its improvement",
+                "F2. Declares a winner without considering compute, lists compute without interpretation, or ignores large cost increases for small metric gains",
+                "F3. Equates lower loss, faster training, higher test metrics, and stability, or never explains which property improved",
+                "F4. Only aggregate scores are discussed, class-level behavior is ignored, or conflicting metric rankings are left unexplained",
+                "F5. Limitations absent, generic, disconnected from results, or phrased only as a need for more tuning without evidence",
+                "F5. Conclusion merely restates scores, recommends generic tuning or 'use Adam' without distinguishing use cases, or proposes a rule unsupported by the experiments"
+            ]},
+            feedback_section: "Feedback on Section:"
+        }, {
+            main_section: "Extra Credit: Integrated Best Combination (up to 5 points)",
+            points_available: 5,
+            section_letter: "EC",
+            groups: [
+                { label: "Integrated Best Combination", max: 5, items: [
+                    { description: "+5: Full integration plus compute trade-off", points: 5 },
+                    { description: "+3: Full integration with evidence", points: 3 },
+                    { description: "+1: Minimal integration, correct and fair", points: 1 }
+                ]}
+            ],
+            negative_items: { items: [
+                "EC. Did not attempt the Extra Credit Integrated Best Combination, or the implementation/results/discussion are too cursory to earn any points",
+                "EC. Model scope changes, compute details absent, or comparison invalid",
+                "EC. A required component is missing or only the best seed is shown",
+                "EC. No substantive compute-value argument (cannot award full extra credit)"
+            ]},
+            feedback_section: "Feedback on Section:"
+        }],
+        general_feedback: { section: "General Feedback", content: "" }
+    }
+};
+
+originalRubricData = JSON.parse(JSON.stringify(baseRubricData));
+
+const sectionLetters = ['A', 'B', 'C', 'D', 'E', 'F'];
+(function applyPrefixes() {
+    const secs = baseRubricData.grading_rubric.sections;
+    for (let i = 0; i < secs.length - 1; i++) {
+        const sec = secs[i];
+        const letter = sectionLetters[i] || sec.section_letter;
+        sec.main_section = `${letter}. ${sec.main_section}`;
+        sec.groups.forEach((group, idx) => { group.label = `${letter}${idx + 1}. ${group.label}`; });
+    }
+})();
+const rubricData = baseRubricData;
+
+// ==================== PREDEFINED FEEDBACK ====================
+const predefinedFeedback = {
+    requirements: [
+        "Please make sure the report uses the required BRFSS file diabetes_012_health_indicators_BRFSS2015.csv as a 5-class task with GenHlth (1-5) as the target, excluded from predictors.",
+        "Please verify that your Overleaf Edit Link and GT Enterprise GitHub commit hash are accessible to course staff.",
+        "The report should stay within the 8-page scoring limit.",
+        "Several figures or tables would benefit from larger fonts, clearer labels, and improved captions.",
+        "The report should read like a formal technical paper rather than a checklist."
+    ],
+    study_design: [
+        "The study design would be stronger with clearer train/validation/test splits and leakage controls.",
+        "Please explain the compute accounting more clearly, including gradient evaluations, function evaluations, wall-clock time, and seed protocol.",
+        "Your hypothesis should be stated before results and should use course concepts such as momentum, adaptive scaling, bias correction, regularization, stability, or compute trade-offs.",
+        "Please revisit the hypothesis later using evidence from validation loss, test Macro-F1, balanced accuracy, class-level behavior, seed stability, or wall-clock time."
+    ],
+    algorithms_ro: [
+        "For Randomized Optimization, identify exactly which final 1-3 layers are unfrozen and report the exact trainable parameter count.",
+        "Make sure RHC, SA, and GA are all run on the same final-layer optimization problem.",
+        "Provide enough detail to reproduce each RO method: RHC restarts and step-size policy; SA initial temperature, cooling schedule; GA population size, selection, crossover, mutation, elitism, and generations.",
+        "The objective must be validation loss, evaluations must use deterministic behavior (model.eval()), and every candidate objective call must be counted as a function evaluation.",
+        "Show best-so-far validation objective vs function evaluations for RHC, SA, and GA, and report wall-clock time."
+    ],
+    algorithms_adam: [
+        "Run all required optimizer variants: SGD w/o momentum, SGD with momentum, Nesterov momentum, Adam, Adam w/o bias correction, Adam with beta_1=0, and AdamW.",
+        "For each optimizer, state learning rate, momentum/beta values, epsilon, weight decay behavior, batch size, max budget, and any schedule.",
+        "Use the same backbone, split, preprocessing, batch size, budget definition, metric reporting, and initialization strategy.",
+        "Show validation loss vs wall-clock time and/or gradient evaluations, and define a fixed validation-loss threshold.",
+        "Include sensitivity heatmaps or summaries for coarse (alpha, beta_1) and (alpha, beta_2) grids.",
+        "Use at least 3 seeds and report dispersion using median/IQR, variance bands, or standard deviation."
+    ],
+    algorithms_reg: [
+        "Use standard Adam with the best Part 2 hyperparameters and do not retune Adam settings inside Part 3.",
+        "Test and disclose L2 weight decay, early stopping, dropout, label smoothing, and modest input noise or augmentation.",
+        "Compare standard Adam with no added regularization, the best single regularizer, and the best combination under matched compute budgets.",
+        "Explain whether regularization improved validation loss, Macro-F1, balanced accuracy, minority-class recall, train-validation gaps, seed stability, or test performance."
+    ],
+    discussion: [
+        "The discussion should compare RO, Adam-family ablations, and regularization, and explain how their effects differed.",
+        "Explain whether observed improvements are worth their cost using wall-clock time, gradient evaluations, function evaluations, and final metrics.",
+        "Separate optimization behavior from generalization and stability.",
+        "Analyze multiclass performance and minority-class behavior.",
+        "Identify concrete limitations and explain how they affect confidence in the conclusions.",
+        "End with a practical decision rule for BRFSS General Health, explaining when to prioritize optimizer changes, regularization, or RO fine-tuning."
+    ],
+    extra_credit: [
+        "For extra credit, use the best Part 2 Adam settings, best Part 3 regularization combination, and best Part 1 RO method.",
+        "Provide a clear before/after comparison with at least 3 seeds.",
+        "Include a compute-value argument using test metric, gradient steps, RO function evaluations, and wall-clock time."
+    ],
+    general: [
+        "Please strengthen the interpretation by explaining why the observed results occurred.",
+        "Connect claims to course concepts such as momentum, adaptive scaling, bias correction, regularization, stability, or compute trade-offs.",
+        "Improve the flow of the report so that the study design, results, and discussion build a coherent story."
+    ]
+};
+
+// ==================== DOM READY ====================
+document.addEventListener('DOMContentLoaded', function () {
+    renderRubric();
+    setupEventListeners();
+    setupModalEvents();
+    setupPredefinedFeedbackEvents();
+    setupCommentModalEvents();
+    updateSummary();
+
+    const nameInput = document.getElementById('studentName');
+    const templateSelect = document.getElementById('greetingTemplateSelect');
+    const templateTextarea = document.getElementById('globalCommentTemplate');
+    templateSelect.addEventListener('change', function () { if (this.value) templateTextarea.value = this.value; });
+    document.getElementById('studentName').addEventListener('input', function () {
+        if (this.value.trim()) { document.getElementById('nameRequiredError').classList.remove('show'); this.style.borderColor = ''; }
+    });
+
+    masterNoDeductions = true;
+    const masterEl = document.getElementById('check-text-positive-0');
+    if (masterEl) { masterEl.classList.add('selected'); masterEl.classList.remove('unselected'); }
+    for (let i = 0; i < 7; i++) {
+        const statusEl = document.getElementById(`check-status-negative-${i}`);
+        const textEl = document.getElementById(`check-text-negative-${i}`);
+        const initVal = (i === 6 ? 'T' : 'N');
+        checkSelections[`negative-${i}`] = initVal;
+        checkTextSelections[`negative-${i}`] = false;
+        if (statusEl) { statusEl.textContent = initVal; statusEl.className = 'check-status ' + initVal + ' disabled'; }
+        if (textEl) { textEl.classList.add('disabled'); textEl.classList.remove('selected'); }
+    }
+    updateCheck3A3B();
+});
+
+// ==================== SCORE HELPERS ====================
+function groupScore(sectionIndex, groupIndex) {
+    const s = rubricData.grading_rubric.sections[sectionIndex];
+    const sid = `section-${sectionIndex}`;
+    const st = state.selectedItems.get(sid) || { positive: new Set(), negative: new Set() };
+    let offset = 0;
+    for (let g = 0; g < groupIndex; g++) offset += s.groups[g].items.length;
+    let total = 0;
+    s.groups[groupIndex].items.forEach((it, i) => { if (st.positive.has(`${sid}-positive-${offset + i}`)) total += it.points; });
+    return total;
+}
+function sectionScore(sectionIndex) {
+    const s = rubricData.grading_rubric.sections[sectionIndex];
+    let total = 0;
+    for (let gi = 0; gi < s.groups.length; gi++) total += groupScore(sectionIndex, gi);
+    return total;
+}
+function ecAwardedTier() {
+    const s = rubricData.grading_rubric.sections[6];
+    const st = state.selectedItems.get('section-6') || { positive: new Set() };
+    let awarded = 0;
+    let counter = 0;
+    s.groups.forEach(g => {
+        g.items.forEach(it => {
+            if (st.positive.has(`section-6-positive-${counter}`)) awarded = Math.max(awarded, it.points);
+            counter++;
+        });
+    });
+    return awarded;
+}
+function copySectionGroupScores(sectionIndex) {
+    const s = rubricData.grading_rubric.sections[sectionIndex];
+    const letter = s.section_letter;
+    if (sectionIndex === 6) {
+        const ec = ecAwardedTier();
+        navigator.clipboard.writeText(String(ec));
+        showNotification(`✅ EC: ${ec}/5`, true, 'EC');
+        return;
+    }
+    const combo = sectionGroupCombinations[sectionIndex];
+    if (!combo) return;
+    const results = combo.scores.map(sd => {
+        let total = 0;
+        sd.groupIndices.forEach(gi => { total += groupScore(sectionIndex, gi); });
+        return total.toFixed(0);
+    });
+    const result = results.join('\t');
+    navigator.clipboard.writeText(result);
+    showNotification(`✅ Section ${letter} scores copied: ${result}`, true, letter);
+}
+function copyGroupScore(sectionIndex, groupIndex) {
+    const s = rubricData.grading_rubric.sections[sectionIndex];
+    const g = s.groups[groupIndex];
+    const score = groupScore(sectionIndex, groupIndex);
+    const result = `${score}/${g.max}`;
+    navigator.clipboard.writeText(result);
+    showNotification(`✅ ${g.label}: ${result}`);
+}
+function copySectionScore(sectionIndex) {
+    const s = rubricData.grading_rubric.sections[sectionIndex];
+    const score = sectionIndex === 6 ? ecAwardedTier() : sectionScore(sectionIndex);
+    navigator.clipboard.writeText(String(score));
+    showNotification(`✅ Section ${s.section_letter}: ${score}`, true, s.section_letter);
+}
+
+// ==================== TOGGLE ALL ====================
+function toggleSelectAllPositives(sectionIndex) {
+    const s = rubricData.grading_rubric.sections[sectionIndex];
+    const sid = `section-${sectionIndex}`;
+    if (!state.selectedItems.has(sid)) state.selectedItems.set(sid, { positive: new Set(), negative: new Set() });
+    const st = state.selectedItems.get(sid);
+    let totalItems = 0;
+    s.groups.forEach(g => { totalItems += g.items.length; });
+    let anySelected = false;
+    for (let i = 0; i < totalItems; i++) if (st.positive.has(`${sid}-positive-${i}`)) { anySelected = true; break; }
+    if (anySelected) {
+        for (let i = 0; i < totalItems; i++) {
+            st.positive.delete(`${sid}-positive-${i}`);
+            const el = document.getElementById(`${sid}-positive-${i}`);
+            if (el) el.classList.remove('selected-positive');
+        }
+    } else {
+        if (sectionIndex === 6) {
+            st.positive.add(`${sid}-positive-0`);
+            const el = document.getElementById(`${sid}-positive-0`);
+            if (el) el.classList.add('selected-positive');
+        } else {
+            for (let i = 0; i < totalItems; i++) {
+                st.positive.add(`${sid}-positive-${i}`);
+                const el = document.getElementById(`${sid}-positive-${i}`);
+                if (el) el.classList.add('selected-positive');
+            }
+        }
+    }
+    updateSummary();
+    if (sectionIndex === 0) updateCheck3A3B();
+}
+function toggleSelectAllNegatives(sectionIndex) {
+    const s = rubricData.grading_rubric.sections[sectionIndex];
+    const sid = `section-${sectionIndex}`;
+    if (!state.selectedItems.has(sid)) state.selectedItems.set(sid, { positive: new Set(), negative: new Set() });
+    const st = state.selectedItems.get(sid);
+    if (!s.negative_items) return;
+    const totalNeg = s.negative_items.items.length;
+    let anySelected = false;
+    for (let i = 0; i < totalNeg; i++) if (st.negative.has(`${sid}-negative-${i}`)) { anySelected = true; break; }
+    if (anySelected) {
+        for (let i = 0; i < totalNeg; i++) {
+            st.negative.delete(`${sid}-negative-${i}`);
+            const el = document.getElementById(`${sid}-negative-${i}`);
+            if (el) el.classList.remove('selected-negative');
+        }
+    } else {
+        for (let i = 0; i < totalNeg; i++) {
+            st.negative.add(`${sid}-negative-${i}`);
+            const el = document.getElementById(`${sid}-negative-${i}`);
+            if (el) el.classList.add('selected-negative');
+        }
+    }
+    updateSummary();
+}
+
+// ==================== RENDER ====================
+function renderRubric() {
+    const container = document.getElementById('rubricContainer');
+    container.innerHTML = '';
+    rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
+        const sectionId = `section-${sectionIndex}`;
+        const isEC = section.main_section.includes('Extra Credit');
+
+        const header = document.createElement('div');
+        header.className = 'section-header';
+        header.id = `header-${sectionId}`;
+        const titleSpan = document.createElement('span');
+        titleSpan.className = 'editable';
+        titleSpan.setAttribute('data-id', `${sectionId}-header`);
+        titleSpan.textContent = section.main_section;
+        header.appendChild(titleSpan);
+
+        const btnDiv = document.createElement('div');
+        btnDiv.className = 'section-buttons';
+        const posBtn = document.createElement('button');
+        posBtn.textContent = '✓ All Pos'; posBtn.className = 'select-positive-btn';
+        posBtn.addEventListener('click', e => { e.stopPropagation(); toggleSelectAllPositives(sectionIndex); });
+        btnDiv.appendChild(posBtn);
+        if (section.negative_items && section.negative_items.items.length > 0) {
+            const negBtn = document.createElement('button');
+            negBtn.textContent = '✗ All Neg'; negBtn.className = 'select-negative-btn';
+            negBtn.addEventListener('click', e => { e.stopPropagation(); toggleSelectAllNegatives(sectionIndex); });
+            btnDiv.appendChild(negBtn);
+        }
+        const copyBtn = document.createElement('button');
+        copyBtn.textContent = '📋 Total'; copyBtn.className = 'copy-score-btn';
+        copyBtn.addEventListener('click', e => { e.stopPropagation(); copySectionScore(sectionIndex); });
+        btnDiv.appendChild(copyBtn);
+        section.groups.forEach((g, gi) => {
+            const gBtn = document.createElement('button');
+            gBtn.textContent = `📋 ${g.label.split('.')[0]}`; gBtn.className = 'copy-group-btn';
+            gBtn.addEventListener('click', e => { e.stopPropagation(); copyGroupScore(sectionIndex, gi); });
+            btnDiv.appendChild(gBtn);
+        });
+        header.appendChild(btnDiv);
+        container.appendChild(header);
+
+        const content = document.createElement('div');
+        content.className = 'section-content-wrapper';
+        content.id = `${sectionId}-content`;
+
+        if (!isEC) {
+            const table = document.createElement('table');
+            table.className = 'comparison-table';
+            const thead = document.createElement('thead');
+            const hr = document.createElement('tr');
+            hr.innerHTML = `<th>✅ What You Did Well</th><th>❌ What Needs Improvement</th>`;
+            thead.appendChild(hr);
+            table.appendChild(thead);
+            const tbody = document.createElement('tbody');
+
+            const negByGroup = {};
+            if (section.negative_items) {
+                section.negative_items.items.forEach((negText, negIndex) => {
+                    const match = negText.match(/^([A-Z][0-9]+)\.\s*(.*)$/);
+                    if (match) {
+                        const prefix = match[1];
+                        if (!negByGroup[prefix]) negByGroup[prefix] = [];
+                        negByGroup[prefix].push({ text: negText, index: negIndex, prefix });
+                    }
+                });
+            }
+
+            let itemCounter = 0;
+            section.groups.forEach((group, gi) => {
+                const groupLabel = group.label;
+                const groupPrefixMatch = groupLabel.match(/^([A-Z][0-9]+)\./);
+                const groupPrefix = groupPrefixMatch ? groupPrefixMatch[1] : null;
+                const groupRow = document.createElement('tr');
+                groupRow.className = 'group-label-row';
+                groupRow.innerHTML = `<td colspan="2"><strong>${groupLabel}</strong></td>`;
+                tbody.appendChild(groupRow);
+
+                const negItems = groupPrefix ? (negByGroup[groupPrefix] || []) : [];
+
+                group.items.forEach((item, idx) => {
+                    const itemId = `${sectionId}-positive-${itemCounter}`;
+                    const negItem = negItems[idx] || null;
+                    const row = document.createElement('tr');
+                    row.className = 'item-row';
+
+                    const posCell = document.createElement('td');
+                    posCell.className = 'positive-col';
+                    const posDiv = document.createElement('div');
+                    posDiv.className = 'item positive-item';
+                    posDiv.id = itemId;
+                    posDiv.setAttribute('data-points', item.points);
+                    posDiv.innerHTML = `<span class="editable" data-id="${itemId}-text">${item.description}</span> <span class="point-badge" data-points="${item.points}">(${item.points} pts)</span>`;
+                    posCell.appendChild(posDiv);
+
+                    const negCell = document.createElement('td');
+                    negCell.className = 'negative-col';
+                    if (negItem) {
+                        const negId = `${sectionId}-negative-${negItem.index}`;
+                        const match = negItem.text.match(/^([A-Z][0-9]+)\.\s*(.*)$/);
+                        const prefix = match ? match[1] + '.' : '';
+                        const description = match ? match[2] : negItem.text;
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'negative-item-wrapper';
+                        const negDiv = document.createElement('div');
+                        negDiv.className = 'item negative-item';
+                        negDiv.id = negId;
+                        negDiv.innerHTML = `<span class="item-prefix">${prefix}</span> <span class="editable item-description" data-id="${negId}-text">${description}</span>`;
+                        wrapper.appendChild(negDiv);
+                        const cBtn = document.createElement('button');
+                        cBtn.className = 'neg-comment-btn';
+                        cBtn.textContent = '💬';
+                        cBtn.title = 'Add comment to section feedback';
+                        cBtn.addEventListener('click', function (e) { e.stopPropagation(); openCommentModal(sectionId, negId); });
+                        wrapper.appendChild(cBtn);
+                        negCell.appendChild(wrapper);
+                    } else {
+                        negCell.innerHTML = '<span style="color:#999;font-style:italic;">—</span>';
+                    }
+
+                    row.appendChild(posCell);
+                    row.appendChild(negCell);
+                    tbody.appendChild(row);
+                    itemCounter++;
+                });
+            });
+            table.appendChild(tbody);
+            content.appendChild(table);
+        } else {
+            let ic = 0;
+            section.groups.forEach(group => {
+                const gd = document.createElement('div');
+                gd.className = 'group-item';
+                gd.innerHTML = `<strong>${group.label} (${group.max} pts)</strong>`;
+                const sub = document.createElement('div');
+                sub.className = 'sub-items';
+                group.items.forEach(item => {
+                    const itemId = `${sectionId}-positive-${ic}`;
+                    const ie = document.createElement('div');
+                    ie.className = 'sub-item item positive-item';
+                    ie.id = itemId;
+                    ie.innerHTML = `<span class="editable" data-id="${itemId}-text">${item.description}</span> (<span class="editable" data-id="${itemId}-points">${item.points}</span> pts)`;
+                    sub.appendChild(ie);
+                    ic++;
+                });
+                gd.appendChild(sub);
+                content.appendChild(gd);
+            });
+            if (section.negative_items) {
+                const nl = document.createElement('div');
+                nl.className = 'item-list';
+                nl.innerHTML = '<strong>What needs improvement</strong>';
+                section.negative_items.items.forEach((item, ni) => {
+                    const itemId = `${sectionId}-negative-${ni}`;
+                    const ie = document.createElement('div');
+                    ie.className = 'item negative-item';
+                    ie.id = itemId;
+                    ie.innerHTML = `- <span class="editable" data-id="${itemId}-text">${item}</span>`;
+                    nl.appendChild(ie);
+                });
+                content.appendChild(nl);
+            }
+        }
+
+        const feedbackDiv = document.createElement('div');
+        feedbackDiv.innerHTML = `<strong>${section.feedback_section}</strong>`;
+        const predef = createPredefinedFeedback(sectionId);
+        if (predef) feedbackDiv.innerHTML += predef;
+        const ta = document.createElement('textarea');
+        ta.className = 'feedback-textarea';
+        ta.id = `${sectionId}-feedback`;
+        ta.placeholder = 'Enter feedback here (optional)';
+        feedbackDiv.appendChild(ta);
+        content.appendChild(feedbackDiv);
+        container.appendChild(content);
+
+        const sep = document.createElement('hr');
+        sep.style.margin = '20px 0';
+        container.appendChild(sep);
+    });
+
+    const gd = document.createElement('div');
+    gd.innerHTML = `<h3>${rubricData.grading_rubric.general_feedback.section}</h3>`;
+    const gp = createPredefinedFeedback('general');
+    if (gp) gd.innerHTML += gp;
+    const gta = document.createElement('textarea');
+    gta.className = 'feedback-textarea';
+    gta.id = 'general-feedback';
+    gta.placeholder = 'Enter general feedback here (optional)';
+    gd.appendChild(gta);
+    container.appendChild(gd);
+}
+function createPredefinedFeedback(sectionId) {
+    const key = getSectionKey(sectionId);
+    const cs = predefinedFeedback[key] || [];
+    if (!cs.length) return '';
+    let html = `<div class="predefined-feedback"><strong>Predefined Comments:</strong>`;
+    cs.forEach(c => { html += `<button type="button" class="predefined-comment" data-comment="${c.replace(/"/g, '&quot;')}">${c}</button>`; });
+    html += `<div class="feedback-controls"><button type="button" class="add-all-comments" style="background-color:#2196F3;">Add All Comments</button><button type="button" class="clear-comments" style="background-color:#ff9800;">Clear Comments</button></div></div>`;
+    return html;
+}
+function getSectionKey(sid) {
+    if (sid === 'general') return 'general';
+    const m = sid.match(/section-(\d+)/); if (!m) return 'general';
+    switch (parseInt(m[1])) {
+        case 0: return 'requirements';
+        case 1: return 'study_design';
+        case 2: return 'algorithms_ro';
+        case 3: return 'algorithms_adam';
+        case 4: return 'algorithms_reg';
+        case 5: return 'discussion';
+        case 6: return 'extra_credit';
+        default: return 'general';
+    }
+}
+
+// ==================== EVENTS ====================
+function setupEventListeners() {
+    document.addEventListener('dblclick', function (e) {
+        const editable = e.target.closest('.editable');
+        if (editable && !editable.closest('.checks-section') && !editable.classList.contains('item-prefix')) {
+            const parentItem = editable.closest('.item');
+            if (parentItem) { showItemModal(parentItem.id); e.preventDefault(); e.stopPropagation(); return; }
+        }
+        const item = e.target.closest('.item');
+        if (item && !item.closest('.checks-section')) { showItemModal(item.id); e.preventDefault(); e.stopPropagation(); }
+    });
+    document.addEventListener('click', function (e) {
+        const item = e.target.closest('.item');
+        if (item && !item.closest('.checks-section')) {
+            toggleItemSelection(item);
+            updateSummary();
+            if (item.id.startsWith('section-0')) updateCheck3A3B();
+            e.stopPropagation();
+        }
+    });
+    document.getElementById('generateBtn').addEventListener('click', function () {
+        if (validateName()) generateFeedback();
+        else { document.getElementById('nameSection').scrollIntoView({ behavior: 'smooth', block: 'center' }); document.getElementById('studentName').focus(); }
+    });
+    document.getElementById('resetBtn').addEventListener('click', resetAll);
+    document.getElementById('copyBtn').addEventListener('click', function () {
+        const output = document.getElementById('outputSection').textContent;
+        if (output.trim()) { navigator.clipboard.writeText(output); showNotification('✅ Feedback copied!'); }
+    });
+    document.getElementById('copyScoresBtn').addEventListener('click', copyScores);
+    document.getElementById('copyExcelBtn').addEventListener('click', copyScoresForExcel);
+}
+function setupModalEvents() {
+    const modal = document.getElementById('itemModal');
+    const closeBtn = document.querySelector('#itemModal .close-btn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const clearTextBtn = document.getElementById('clearTextBtn');
+    const incrementBtn = document.getElementById('incrementPoint');
+    const decrementBtn = document.getElementById('decrementPoint');
+    const resetPointBtn = document.getElementById('resetPointBtn');
+    const restoreTextBtn = document.getElementById('restoreTextBtn');
+    const restorePointsBtn = document.getElementById('restorePointsBtn');
+    [closeBtn, cancelBtn].forEach(b => b.addEventListener('click', () => modal.style.display = 'none'));
+    incrementBtn.addEventListener('click', () => {
+        const i = document.getElementById('itemPoints');
+        const cur = parseInt(i.value) || 0;
+        const max = parseInt(document.getElementById('maxPointDisplay').textContent) || 0;
+        if (cur < max) i.value = cur + 1;
+    });
+    decrementBtn.addEventListener('click', () => {
+        const i = document.getElementById('itemPoints');
+        const cur = parseInt(i.value) || 0;
+        if (cur > 0) i.value = cur - 1;
+    });
+    resetPointBtn.addEventListener('click', () => {
+        if (state.currentEditingItem) {
+            document.getElementById('itemPoints').value = state.currentEditingItem.maxPoints || 0;
+            document.getElementById('maxPointDisplay').textContent = state.currentEditingItem.maxPoints || 0;
+        }
+    });
+    restoreTextBtn.addEventListener('click', () => {
+        if (!state.currentEditingItem) return;
+        const t = getOriginalItemText(state.currentEditingItem.id);
+        if (t !== null) { document.getElementById('itemText').value = t; showNotification('✅ Original text restored'); }
+    });
+    restorePointsBtn.addEventListener('click', () => {
+        if (!state.currentEditingItem) return;
+        const p = getOriginalItemPoints(state.currentEditingItem.id);
+        if (p !== null) {
+            document.getElementById('itemPoints').value = p;
+            document.getElementById('maxPointDisplay').textContent = p;
+            showNotification('✅ Original points restored');
+        }
+    });
+    saveBtn.addEventListener('click', saveItemChanges);
+    clearTextBtn.addEventListener('click', () => document.getElementById('itemText').value = '');
+    window.addEventListener('click', e => { if (e.target === modal) modal.style.display = 'none'; });
+}
+function setupPredefinedFeedbackEvents() {
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('predefined-comment')) {
+            const c = e.target.getAttribute('data-comment');
+            const ta = e.target.closest('.predefined-feedback').nextElementSibling;
+            if (ta && ta.classList.contains('feedback-textarea')) {
+                const cur = ta.value.trim();
+                ta.value = cur ? cur + '\n\n' + c : c;
+                e.target.classList.add('selected');
+                setTimeout(() => e.target.classList.remove('selected'), 800);
+            }
+        }
+        if (e.target.classList.contains('add-all-comments')) {
+            const pf = e.target.closest('.predefined-feedback');
+            const cs = pf.querySelectorAll('.predefined-comment');
+            const ta = pf.nextElementSibling;
+            if (ta && ta.classList.contains('feedback-textarea')) {
+                let all = ''; cs.forEach(c => all += c.getAttribute('data-comment') + '\n\n');
+                const cur = ta.value.trim();
+                ta.value = cur ? cur + '\n\n' + all : all;
+            }
+        }
+        if (e.target.classList.contains('clear-comments')) {
+            const ta = e.target.closest('.predefined-feedback').nextElementSibling;
+            if (ta && ta.classList.contains('feedback-textarea')) ta.value = '';
+        }
+    });
+}
+function getOriginalItemText(itemId) {
+    const parts = itemId.split('-');
+    if (parts.length < 3) return null;
+    const si = parseInt(parts[1]);
+    const isPos = parts[2] === 'positive';
+    const ii = parseInt(parts[3]);
+    const sec = originalRubricData.grading_rubric.sections[si];
+    if (!sec) return null;
+    if (isPos) { let c = 0; for (const g of sec.groups) for (const it of g.items) { if (c === ii) return it.description; c++; } }
+    else { const negs = sec.negative_items?.items; if (negs && ii < negs.length) return negs[ii]; }
+    return null;
+}
+function getOriginalItemPoints(itemId) {
+    const parts = itemId.split('-');
+    if (parts.length < 3) return null;
+    const si = parseInt(parts[1]);
+    const isPos = parts[2] === 'positive';
+    const ii = parseInt(parts[3]);
+    const sec = originalRubricData.grading_rubric.sections[si];
+    if (!sec || !isPos) return null;
+    let c = 0;
+    for (const g of sec.groups) for (const it of g.items) { if (c === ii) return it.points; c++; }
+    return null;
+}
+function toggleItemSelection(item) {
+    const iid = item.id;
+    const isPos = item.classList.contains('positive-item');
+    const sid = iid.split('-').slice(0, 2).join('-');
+    if (!state.selectedItems.has(sid)) state.selectedItems.set(sid, { positive: new Set(), negative: new Set() });
+    const st = state.selectedItems.get(sid);
+    const set = isPos ? st.positive : st.negative;
+    if (set.has(iid)) { set.delete(iid); item.classList.remove(isPos ? 'selected-positive' : 'selected-negative'); }
+    else {
+        if (sid === 'section-6' && isPos) {
+            st.positive.clear();
+            document.querySelectorAll('#section-6-content .positive-item').forEach(el => el.classList.remove('selected-positive'));
+        }
+        set.add(iid);
+        item.classList.add(isPos ? 'selected-positive' : 'selected-negative');
+    }
+}
+function getItemMaxPoints(itemId) {
+    const parts = itemId.split('-');
+    const si = parseInt(parts[1]);
+    const ii = parseInt(parts[parts.length - 1]);
+    const sec = rubricData.grading_rubric.sections[si];
+    let c = 0;
+    for (const g of sec.groups) for (const it of g.items) { if (c === ii) return it.points; c++; }
+    return 0;
+}
+function showItemModal(itemId) {
+    const modal = document.getElementById('itemModal');
+    const itemText = document.getElementById('itemText');
+    const itemPoints = document.getElementById('itemPoints');
+    const maxSpan = document.getElementById('maxPointDisplay');
+    const el = document.getElementById(itemId);
+    if (!el) return;
+    let textEl = el.querySelector('.editable[data-id$="-text"]');
+    let pointsEl = el.querySelector('.editable[data-id$="-points"]');
+    const isNeg = el.classList.contains('negative-item');
+    let max = 0;
+    if (!isNeg) {
+        max = getItemMaxPoints(itemId);
+        maxSpan.textContent = max;
+        let cur = 0;
+        const badge = el.querySelector('.point-badge');
+        if (badge) cur = parseInt(badge.textContent.replace(/[()]/g, '').replace('pts', '').trim()) || 0;
+        else if (pointsEl) cur = parseFloat(pointsEl.textContent) || 0;
+        itemPoints.value = cur; itemPoints.disabled = false;
+        itemText.value = textEl ? textEl.textContent : '';
+    } else {
+        maxSpan.textContent = 'N/A'; itemPoints.value = 0; itemPoints.disabled = true;
+        const descEl = el.querySelector('.editable.item-description');
+        itemText.value = descEl ? descEl.textContent : (textEl ? textEl.textContent : '');
+    }
+    state.currentEditingItem = { id: itemId, textElement: textEl, pointsElement: pointsEl, isNegative: isNeg, maxPoints: max, itemElement: el };
+    modal.style.display = 'flex';
+}
+function saveItemChanges() {
+    const modal = document.getElementById('itemModal');
+    if (!state.currentEditingItem) return;
+    const { id, textElement, pointsElement, isNegative, maxPoints, itemElement } = state.currentEditingItem;
+    const newText = document.getElementById('itemText').value;
+    const newPoints = parseInt(document.getElementById('itemPoints').value) || 0;
+    if (isNegative) {
+        const descEl = itemElement.querySelector('.editable.item-description');
+        if (descEl) descEl.textContent = newText;
+        else if (textElement) textElement.textContent = newText;
+        const sid = id.split('-').slice(0, 2).join('-');
+        if (!state.selectedItems.has(sid)) state.selectedItems.set(sid, { positive: new Set(), negative: new Set() });
+        const st = state.selectedItems.get(sid);
+        if (!st.negative.has(id)) { st.negative.add(id); itemElement.classList.add('selected-negative'); }
+    } else {
+        if (textElement) textElement.textContent = newText;
+        const clamped = Math.min(newPoints, maxPoints);
+        const badge = itemElement.querySelector('.point-badge');
+        if (badge) { badge.textContent = `(${clamped} pts)`; itemElement.setAttribute('data-points', clamped); }
+        if (pointsElement) pointsElement.textContent = clamped;
+        const parts = id.split('-');
+        const si = parseInt(parts[1]);
+        const ii = parseInt(parts[parts.length - 1]);
+        const sec = rubricData.grading_rubric.sections[si];
+        let c = 0;
+        for (const g of sec.groups) for (const it of g.items) { if (c === ii) it.points = clamped; c++; }
+        const sid = id.split('-').slice(0, 2).join('-');
+        if (!state.selectedItems.has(sid)) state.selectedItems.set(sid, { positive: new Set(), negative: new Set() });
+        const st = state.selectedItems.get(sid);
+        if (!st.positive.has(id)) { st.positive.add(id); itemElement.classList.add('selected-positive'); }
+    }
+    modal.style.display = 'none'; state.currentEditingItem = null; updateSummary();
+    if (id.startsWith('section-0')) updateCheck3A3B();
+}
+
+// ==================== COMMENT MODAL ====================
+let commentModalTarget = null;
+function setupCommentModalEvents() {
+    const modal = document.getElementById('commentModal');
+    const closeBtn = document.getElementById('commentModalClose');
+    const cancelBtn = document.getElementById('cancelCommentBtn');
+    const addBtn = document.getElementById('addCommentBtn');
+    const clearBtn = document.getElementById('clearCommentBtn');
+    const text = document.getElementById('commentText');
+    function close() { modal.style.display = 'none'; commentModalTarget = null; text.value = ''; }
+    closeBtn.addEventListener('click', close);
+    cancelBtn.addEventListener('click', close);
+    window.addEventListener('click', e => { if (e.target === modal) close(); });
+    clearBtn.addEventListener('click', () => text.value = '');
+    addBtn.addEventListener('click', () => {
+        const t = text.value.trim();
+        if (!t || !commentModalTarget) return;
+        const ta = document.getElementById(`${commentModalTarget.sectionId}-feedback`);
+        if (ta) { const cur = ta.value; ta.value = cur + (cur && !cur.endsWith('\n') ? '\n' : '') + t; showNotification('✅ Comment added'); }
+        close();
+    });
+    document.querySelectorAll('#commentModal .predefined-comment-btn').forEach(b => {
+        b.addEventListener('click', function () {
+            const c = this.getAttribute('data-comment');
+            const cur = text.value;
+            text.value = cur ? cur + '\n' + c : c;
+            text.focus();
+        });
+    });
+}
+function openCommentModal(sectionId, negItemId) {
+    commentModalTarget = { sectionId, negItemId };
+    document.getElementById('commentText').value = '';
+    document.getElementById('commentModal').style.display = 'flex';
+    setTimeout(() => document.getElementById('commentText').focus(), 100);
+}
+
+// ==================== SUMMARY ====================
+function updateSummary() {
+    const sb = document.getElementById('summaryBody'); sb.innerHTML = '';
+    let mainT = 0, ecP = 0, ecM = 0;
+    const eb = document.getElementById('extraCreditBody'); eb.innerHTML = '';
+    rubricData.grading_rubric.sections.forEach((s, si) => {
+        const sid = `section-${si}`;
+        const isEC = s.main_section.includes('Extra Credit');
+        let sp = isEC ? ecAwardedTier() : sectionScore(si);
+        const mx = s.points_available;
+        const st = state.selectedItems.get(sid) || { positive: new Set(), negative: new Set() };
+        let totalRows = 0;
+        s.groups.forEach(g => { totalRows += g.items.length; });
+        let rowsWithSelection = 0;
+        let counter = 0;
+        s.groups.forEach(g => {
+            g.items.forEach(it => {
+                if (st.positive.has(`${sid}-positive-${counter}`)) rowsWithSelection++;
+                counter++;
+            });
+        });
+        const row = document.createElement('tr');
+        row.style.cursor = 'pointer';
+        row.addEventListener('click', () => {
+            const h = document.getElementById(`header-${sid}`);
+            if (h) { h.scrollIntoView({ behavior: 'smooth', block: 'start' }); h.classList.add('section-highlight'); setTimeout(() => h.classList.remove('section-highlight'), 1500); }
+        });
+        if (rowsWithSelection === 0) row.className = 'row-not-started';
+        else if (rowsWithSelection >= totalRows) row.className = 'row-completed';
+        else row.className = 'row-in-progress';
+        row.innerHTML = `<td>${s.main_section.split('(')[0].trim()}</td><td>${sp.toFixed(0)}</td><td>${mx}</td>`;
+        if (isEC) { ecP += sp; ecM = rubricData.grading_rubric.extra_credit_points; eb.appendChild(row); extraCreditPointsValue = ecP; }
+        else { mainT += sp; sb.appendChild(row); }
+        const he = document.querySelector(`[data-id="${sid}-header"]`);
+        if (he) he.textContent = `${s.main_section.split('(')[0].trim()} (${sp.toFixed(0)}/${mx})`;
+    });
+    document.getElementById('totalPoints').textContent = (mainT + ecP).toFixed(0);
+    document.getElementById('maxPoints').textContent = rubricData.grading_rubric.total_points;
+    if (ecP > 0 || ecM > 0) {
+        document.getElementById('extraCreditSection').classList.remove('hidden');
+        const et = document.createElement('tr'); et.className = 'total-row';
+        et.innerHTML = `<td><strong>EC Total</strong></td><td><strong>${ecP.toFixed(0)}</strong></td><td><strong>${ecM}</strong></td>`;
+        eb.appendChild(et);
+    } else {
+        document.getElementById('extraCreditSection').classList.add('hidden');
+    }
+}
+
+// ==================== FEEDBACK GENERATION (verbatim template) ====================
+function generateFeedback() {
+    const os = document.getElementById('outputSection');
+    const cb = document.getElementById('copyBtn');
+    let fb = '';
+    const nameInput = document.getElementById('studentName').value.trim();
+    const tmpl = document.getElementById('globalCommentTemplate').value;
+    if (tmpl.trim() !== '') fb += tmpl.replace(/{}/g, nameInput) + '\n\n';
+
+    fb += '====================\nChecks\n{';
+    if (masterNoDeductions) {
+        fb += '\nNo Deductions Made: \n+ Submission of report and reproducibility materials satisfies major implementation requirements!\n';
+    } else {
+        let noD = [], ded = [], track = [];
+        for (let i = 0; i <= 6; i++) {
+            const k = `negative-${i}`;
+            const el = document.getElementById(`check-text-${k}`);
+            if (!el || !checkTextSelections[k]) continue;
+            let text = el.textContent.replace(/\s*\(auto-filled from A2\)\s*$/, '').replace(/\s*\(tracking only\)\s*$/, '').trim();
+            if (i === 2) { const item = getMissingAccessItems(); text = text.replace(/\{TODO\}/g, item); }
+            if (i === 6) { track.push(text); continue; }
+            if (checkSelections[k] === 'Y') ded.push(text); else noD.push(text);
+        }
+        if (noD.length) { fb += '\nNo Deductions Made: \n'; noD.forEach(t => fb += `+ ${t}\n`); }
+        if (ded.length) { fb += '\nDeductions Made:\n'; ded.forEach(t => fb += `x ${t}\n`); }
+        if (track.length) { fb += '\nTracking Only (No Score Impact):\n'; track.forEach(t => fb += `* ${t}\n`); }
+        if (!noD.length && !ded.length && !track.length) fb += '\nNo Deductions Made:\n+ Submission of report and reproducibility materials satisfies major implementation requirements!\n';
+    }
+    fb += '}\n\n';
+
+    rubricData.grading_rubric.sections.forEach((s, si) => {
+        const sid = `section-${si}`;
+        const isEC = s.main_section.includes('Extra Credit');
+        const sp = isEC ? ecAwardedTier() : sectionScore(si);
+        const mx = s.points_available;
+        const st = state.selectedItems.get(sid) || { positive: new Set(), negative: new Set() };
+        const ta = document.getElementById(`${sid}-feedback`);
+        const ft = ta ? ta.value : '';
+
+        const hasPos = st.positive.size > 0;
+        const hasNeg = st.negative.size > 0;
+        if (!hasPos && !hasNeg && !ft) return;
+
+        const headerName = s.main_section.split('(')[0].trim();
+        fb += `====================\n${headerName} (${sp.toFixed(0)}/${mx}pts)\n{`;
+
+        if (hasPos) {
+            fb += '\nWhat you did well:\n';
+            if (isEC) {
+                const awarded = ecAwardedTier();
+                const key = awarded === 5 ? 'EC1' : awarded === 3 ? 'EC2' : 'EC3';
+                if (ecPositiveProse[key]) fb += `+ ${key}. ${ecPositiveProse[key]}\n`;
+            } else {
+                let itemCounter = 0;
+                s.groups.forEach((g, gi) => {
+                    const key = `${s.section_letter}${gi + 1}`;
+                    const items = [];
+                    g.items.forEach(it => {
+                        if (st.positive.has(`${sid}-positive-${itemCounter}`)) items.push(it);
+                        itemCounter++;
+                    });
+                    if (items.length > 0) {
+                        const prose = positiveProse[key] || items.map(i => i.description).join('; ');
+                        fb += `+ ${key}. ${g.label.replace(/^[A-Z][0-9]+\.\s*/, '')}: ${prose}\n`;
+                    }
+                });
+            }
+        }
+
+        if (hasNeg) {
+            fb += '\nWhat needs improvement:\n';
+            if (isEC) {
+                fb += `x EC. ${ecNegativeProse}\n`;
+            } else {
+                st.negative.forEach(iid => {
+                    const el = document.getElementById(iid);
+                    if (!el) return;
+                    const prefixEl = el.querySelector('.item-prefix');
+                    const key = prefixEl ? prefixEl.textContent.replace('.', '') : '';
+                    const prose = negativeProse[key];
+                    if (prose) fb += `x ${key}. ${prose}\n`;
+                    else {
+                        const te = el.querySelector('.editable[data-id$="-text"]');
+                        if (te) fb += `x ${key}. ${te.textContent}\n`;
+                    }
+                });
+            }
+        }
+
+        // Only emit Section Summary if the grader typed something
+        if (ft && ft.trim() !== '') {
+            fb += `\nSection Summary:\n${ft}\n`;
+        }
+        fb += '}\n\n';
+    });
+
+    const gta = document.getElementById('general-feedback');
+    if (gta && gta.value && gta.value.trim() !== '') {
+        fb += `====================\nGeneral Feedback\n{${gta.value}}\n\n`;
+    } else {
+        fb += `====================\nGeneral Feedback\n{Great work again on another report down, ${nameInput || ''}! Give yourself a pat on the back for where in particular you did well (and continue this through future reports!) and especially heed any improvement-oriented feedback provided below!\n}\n\n`;
+    }
+
+    const tp = document.getElementById('totalPoints').textContent;
+    const mp = document.getElementById('maxPoints').textContent;
+    fb += `Total Score: ${tp}/${mp}${extraCreditPointsValue > 0 ? ' (includes extra credit)' : ''}`;
+
+    os.textContent = fb; os.classList.remove('hidden'); cb.classList.remove('hidden');
+    showNotification('✅ Feedback generated!');
+}
+
+// ==================== RESET ====================
+function resetAll() {
+    state.selectedItems.clear();
+    document.querySelectorAll('.item').forEach(i => { if (!i.closest('.checks-section')) i.classList.remove('selected-positive', 'selected-negative'); });
+    document.querySelectorAll('.positive-item').forEach(i => i.classList.remove('ec-locked'));
+
+    const orig = originalRubricData.grading_rubric.sections;
+    const cur = rubricData.grading_rubric.sections;
+    for (let i = 0; i < cur.length; i++) {
+        cur[i].main_section = orig[i].main_section;
+        for (let g = 0; g < cur[i].groups.length; g++) {
+            cur[i].groups[g].label = orig[i].groups[g].label;
+            for (let k = 0; k < cur[i].groups[g].items.length; k++) {
+                cur[i].groups[g].items[k].description = orig[i].groups[g].items[k].description;
+                cur[i].groups[g].items[k].points = orig[i].groups[g].items[k].points;
+            }
+        }
+        if (cur[i].negative_items && orig[i].negative_items) cur[i].negative_items.items = [...orig[i].negative_items.items];
+    }
+    for (let i = 0; i < cur.length - 1; i++) {
+        const sec = cur[i];
+        const letter = sectionLetters[i] || sec.section_letter;
+        sec.main_section = `${letter}. ${sec.main_section.replace(/^[A-F]\.\s*/, '')}`;
+        sec.groups.forEach((g, idx) => { g.label = `${letter}${idx + 1}. ${g.label.replace(/^[A-F][0-9]+\.\s*/, '')}`; });
+    }
+
+    renderRubric();
+
+    masterNoDeductions = true;
+    const masterEl = document.getElementById('check-text-positive-0');
+    if (masterEl) { masterEl.classList.add('selected'); masterEl.classList.remove('unselected'); }
+    for (let i = 0; i < 7; i++) {
+        const initVal = (i === 6 ? 'T' : 'N');
+        checkSelections[`negative-${i}`] = initVal;
+        checkTextSelections[`negative-${i}`] = false;
+        const statusEl = document.getElementById(`check-status-negative-${i}`);
+        const textEl = document.getElementById(`check-text-negative-${i}`);
+        if (statusEl) { statusEl.textContent = initVal; statusEl.className = 'check-status ' + initVal + ' disabled'; }
+        if (textEl) { textEl.classList.add('disabled'); textEl.classList.remove('selected'); }
+    }
+
+    document.querySelectorAll('textarea').forEach(t => t.value = '');
+    document.getElementById('studentName').value = '';
+    document.getElementById('nameRequiredError').classList.remove('show');
+    const mt = document.getElementById('minutesTaken'); if (mt) mt.value = '';
+    const gh = document.getElementById('githubHash'); if (gh) gh.value = '';
+    const ag = document.getElementById('aiGeneratedToggle'); if (ag) ag.checked = false;
+
+    updateSummary(); updateCheck3A3B(); clearNotification();
+}
+
+// ==================== COPY SCORES ====================
+function copyScores() {
+    const sc = [];
+    for (let si = 0; si <= 5; si++) sc.push(sectionScore(si).toFixed(0));
+    sc.push(String(ecAwardedTier()));
+    sc.push(document.getElementById('totalPoints').textContent);
+    const result = sc.join('\t');
+    navigator.clipboard.writeText(result);
+    showNotification(`✅ Raw scores copied: ${result}`);
+}
+function copyScoresForExcel() {
+    const tokens = [];
+
+    // ---- 6 check columns (Check 3 collapses 3A/3B into one column) ----
+    const c1 = checkSelections['negative-0'] === 'Y' ? 'Y' : 'N';
+    const c2 = checkSelections['negative-1'] === 'Y' ? 'Y' : 'N';
+    const c3 = (checkSelections['negative-2'] === 'Y' || checkSelections['negative-3'] === 'Y') ? 'Y' : 'N';
+    const c4 = checkSelections['negative-4'] === 'Y' ? 'Y' : 'N';
+    const c5 = checkSelections['negative-5'] === 'Y' ? 'Y' : 'N';
+    const c6 = checkSelections['negative-6'] === 'Y' ? 'Y' : 'N';
+    tokens.push(c1, c2, c3, c4, c5, c6);
+
+    // ---- A through F: sub-scores, then EMPTY cell for <Letter>_autosum ----
+    for (let si = 0; si <= 5; si++) {
+        const s = rubricData.grading_rubric.sections[si];
+        for (let gi = 0; gi < s.groups.length; gi++) {
+            tokens.push(String(groupScore(si, gi)));
+        }
+        tokens.push(''); // <Letter>_autosum — leave blank on paste
+    }
+
+    // ---- EC ----
+    tokens.push(String(ecAwardedTier()));
+
+    // ---- Total — leave blank on paste ----
+    tokens.push('');
+
+    // ---- AI Generated? ----
+    tokens.push(document.getElementById('aiGeneratedToggle')?.checked ? 'Y' : 'N');
+
+    // ---- TA Comments — leave blank on paste ----
+    tokens.push('');
+
+    // ---- Grading Duration [mins] ----
+    tokens.push((document.getElementById('minutesTaken')?.value || '').trim());
+
+    // ---- GitHub Hash ----
+    tokens.push((document.getElementById('githubHash')?.value || '').trim());
+
+    const result = tokens.join('\t');
+    navigator.clipboard.writeText(result);
+    showNotification('✅ Excel-ready scores copied');
+}
+</script>
+</body>
+</html>

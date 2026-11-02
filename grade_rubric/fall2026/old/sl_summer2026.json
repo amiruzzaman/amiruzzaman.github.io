@@ -1,0 +1,567 @@
+{
+  "grading_rubric": {
+    "total_points": 100,
+    "extra_credit_points": 5,
+    "sections": [
+      {
+        "main_section": "A) Compliance (16 points)",
+        "points_available": 16,
+        "section_letter": "A",
+        "groups": [
+          {
+            "label": "A1. Data Compliance",
+            "max": 3,
+            "items": [
+              {
+                "description": "Sample size: Uses an approximately 20,000-instance working dataset and documents the sample size clearly",
+                "points": 2
+              },
+              {
+                "description": "Source and target: Identifies the data source and uses Cover_Type classes 1 through 7 consistently",
+                "points": 1
+              }
+            ]
+          },
+          {
+            "label": "A2. Accessibility/Reproducibility",
+            "max": 7,
+            "items": [
+              {
+                "description": "Enterprise Overleaf: Includes a working read-only Overleaf link associated with the student's Georgia Tech / Enterprise Overleaf account",
+                "points": 2
+              },
+              {
+                "description": "Enterprise GitHub: Includes a valid commit hash from the student's GT Enterprise GitHub repository, accessible to course staff",
+                "points": 2
+              },
+              {
+                "description": "Run instructions: Provides clear commands, environment requirements, data paths, and seeds sufficient to reproduce outputs",
+                "points": 2
+              },
+              {
+                "description": "Sampling procedure: Provides the sampling method, sample size, random seed, and enough detail to recreate the sampled dataset",
+                "points": 1
+              }
+            ]
+          },
+          {
+            "label": "A3. Legibility/Attribution",
+            "max": 6,
+            "items": [
+              {
+                "description": "Readable figures and tables: Figures, tables, axis labels, legends, captions, and text are readable at normal grading zoom",
+                "points": 2
+              },
+              {
+                "description": "Outside sources: Includes at least two relevant peer-reviewed sources beyond course materials and uses them to justify choices or interpret results",
+                "points": 2
+              },
+              {
+                "description": "AI usage statement: Includes a clear AI/LLM usage statement identifying tools, how they were used, and affirming student review/understanding",
+                "points": 2
+              }
+            ]
+          }
+        ],
+        "negative_items": {
+          "items": [
+            "Report does not use an approximately 20,000-instance Covertype working dataset or does not document sample size clearly",
+            "Data source is unclear, target mapping is ambiguous, or Cover Type classes are not treated as classes 1 through 7",
+            "Overleaf link is missing, broken, requires edit permission, or appears to use a personal Overleaf account",
+            "GitHub commit hash is missing, invalid, inaccessible, or hosted only in a personal GitHub repository",
+            "Run instructions are missing or insufficient to reproduce results",
+            "Sampling procedure is vague or the sampled dataset cannot be recreated",
+            "Multiple figures or tables are too small, cropped, blurry, poorly labeled, or unreadable",
+            "Peer-reviewed outside sources are missing, irrelevant, only listed without use, or not connected to methodology/interpretation",
+            "AI/LLM usage statement is missing, vague, incomplete, or does not affirm student review and understanding"
+          ]
+        },
+        "feedback_section": "Feedback on Section: <free-text>"
+      },
+      {
+        "main_section": "B) Study Design (14 points)",
+        "points_available": 14,
+        "section_letter": "B",
+        "groups": [
+          {
+            "label": "B1. EDA Evidence",
+            "max": 4,
+            "items": [
+              {
+                "description": "Full-data EDA: Includes full-dataset shape, feature types, missingness or absence of missingness, class counts, and class proportions",
+                "points": 2
+              },
+              {
+                "description": "Sample EDA: Provides class counts and class proportions for the approximately 20,000-instance sample",
+                "points": 2
+              }
+            ]
+          },
+          {
+            "label": "B2. Sampling Design",
+            "max": 4,
+            "items": [
+              {
+                "description": "Sampling rationale: Stratification is used and justified, or non-stratified sampling is defended with evidence that all classes are preserved",
+                "points": 3
+              },
+              {
+                "description": "Ordering effects: Uses a randomized or stratified procedure, or provides a compelling reason for a different choice",
+                "points": 1
+              }
+            ]
+          },
+          {
+            "label": "B3. Metrics and Hypothesis",
+            "max": 4,
+            "items": [
+              {
+                "description": "Metric justification: Explains why Accuracy, Macro-F1, balanced accuracy, confusion matrix, and per-class precision/recall/F1 are appropriate and why accuracy alone is insufficient",
+                "points": 2
+              },
+              {
+                "description": "Early hypothesis: At least one hypothesis is stated after EDA and before tuned results, tied to dataset properties and course theory",
+                "points": 1
+              },
+              {
+                "description": "Hypothesis revisit: Evaluates the hypothesis using metrics, learning curves, model-complexity curves, runtime, or error patterns",
+                "points": 1
+              }
+            ]
+          },
+          {
+            "label": "B4. Validation",
+            "max": 2,
+            "items": [
+              {
+                "description": "Test holdout: Test set is held out and used only once for final reporting",
+                "points": 1
+              },
+              {
+                "description": "Training-only validation: Hyperparameter tuning uses CV or fixed validation on training data only; preprocessing fit only on training data/folds",
+                "points": 1
+              }
+            ]
+          }
+        ],
+        "negative_items": {
+          "items": [
+            "Full-data EDA is absent, superficial, incorrect, or not connected to the task",
+            "Sample class counts/proportions are missing or unclear",
+            "Sampling is described as random without evidence, rationale, or comparison to the full class distribution",
+            "Student appears to use head(20000) or the first rows without justification",
+            "Metrics are merely listed, only accuracy is meaningfully discussed, or why accuracy alone is insufficient is not explained",
+            "Hypothesis is just a goal, not testable, not tied to dataset/course theory, or stated after results",
+            "Hypothesis is not revisited or is ignored in the discussion",
+            "Hyperparameters appear to be chosen based on test performance or final test set is repeatedly used for model selection",
+            "Validation is unclear, appears to include test data, or preprocessing appears to be fit before splitting"
+          ]
+        },
+        "feedback_section": "Feedback on Section: <free-text>"
+      },
+      {
+        "main_section": "C) Decision Trees (14 points)",
+        "points_available": 14,
+        "section_letter": "C",
+        "groups": [
+          {
+            "label": "C1. Complexity Control",
+            "max": 2,
+            "items": [
+              {
+                "description": "Complexity control: Identifies a control such as max_depth, min_samples_leaf, or ccp_alpha and explains how it limits overfitting",
+                "points": 2
+              }
+            ]
+          },
+          {
+            "label": "C2. Learning and Complexity Curves",
+            "max": 6,
+            "items": [
+              {
+                "description": "Learning curve: Shows training and validation metric versus at least four training sizes and uses it to discuss bias/variance",
+                "points": 3
+              },
+              {
+                "description": "Complexity curve: Varies at least three reasonable values of a pruning/regularization parameter and supports final model choice",
+                "points": 3
+              }
+            ]
+          },
+          {
+            "label": "C3. Evaluation and Runtime",
+            "max": 4,
+            "items": [
+              {
+                "description": "Final evaluation: Reports Accuracy, Macro-F1, balanced accuracy, and includes confusion matrix or per-class precision/recall/F1",
+                "points": 2
+              },
+              {
+                "description": "Runtime: Reports fit and predict time with at least one trade-off",
+                "points": 2
+              }
+            ]
+          },
+          {
+            "label": "C4. Tuning Quality",
+            "max": 2,
+            "items": [
+              {
+                "description": "Tuning quality: Tests at least three reasonable hyperparameter values and justifies the final choice using validation or model-complexity evidence",
+                "points": 2
+              }
+            ]
+          }
+        ],
+        "negative_items": {
+          "items": [
+            "No pruning/regularization mechanism is used or explained",
+            "Learning curve is missing, has fewer than four training sizes without justification, is mislabeled, or is not interpreted",
+            "Complexity curve is missing, uses too few values, varies an unrelated parameter, or is not interpreted",
+            "Required metrics are missing or error patterns are not discussed",
+            "Runtime is missing or only one timing value is reported without context",
+            "Final model appears arbitrary, only one setting is tested, or tested values are too narrow to support the conclusion"
+          ]
+        },
+        "feedback_section": "Feedback on Section: <free-text>"
+      },
+      {
+        "main_section": "D) kNN (14 points)",
+        "points_available": 14,
+        "section_letter": "D",
+        "groups": [
+          {
+            "label": "D1. Scaling, Distance and k Exploration",
+            "max": 4,
+            "items": [
+              {
+                "description": "Scaling and distance: Scaling is leakage-safe, and the distance metric and weighting choices are stated",
+                "points": 2
+              },
+              {
+                "description": "k exploration: At least three distinct k values are tested and include meaningfully different neighborhood sizes",
+                "points": 2
+              }
+            ]
+          },
+          {
+            "label": "D2. Learning and Complexity Curves",
+            "max": 4,
+            "items": [
+              {
+                "description": "Learning curve: Shows training and validation metric versus at least four training sizes and is interpreted",
+                "points": 2
+              },
+              {
+                "description": "Complexity curve: Shows validation metric versus at least three distinct k values and supports the final model choice",
+                "points": 2
+              }
+            ]
+          },
+          {
+            "label": "D3. Evaluation and Runtime",
+            "max": 5,
+            "items": [
+              {
+                "description": "Final evaluation: Reports Accuracy, Macro-F1, balanced accuracy, and includes confusion matrix or per-class precision/recall/F1",
+                "points": 3
+              },
+              {
+                "description": "Runtime: Reports fit and predict time, and prediction-time cost is discussed",
+                "points": 2
+              }
+            ]
+          },
+          {
+            "label": "D4. Sensitivity",
+            "max": 1,
+            "items": [
+              {
+                "description": "Sensitivity discussion: Discusses sensitivity to irrelevant features, high dimensionality, mixed continuous/binary features, or class imbalance",
+                "points": 1
+              }
+            ]
+          }
+        ],
+        "negative_items": {
+          "items": [
+            "Scaling-sensitive preprocessing is missing, unclear, or fit before splitting",
+            "Only one k is tested, fewer than three values are tested without justification, or tested values are too narrow",
+            "Learning curve is missing, has fewer than four training sizes, is mislabeled, or is not interpreted",
+            "Complexity curve is missing, uses too few k values, or is not interpreted",
+            "Required metrics are missing or error patterns are not discussed",
+            "Runtime is missing or prediction-time cost is ignored",
+            "No kNN-specific limitation is discussed"
+          ]
+        },
+        "feedback_section": "Feedback on Section: <free-text>"
+      },
+      {
+        "main_section": "E) SVM (14 points)",
+        "points_available": 14,
+        "section_letter": "E",
+        "groups": [
+          {
+            "label": "E1. Kernel Comparison",
+            "max": 2,
+            "items": [
+              {
+                "description": "Kernel comparison: Results from at least two kernels, such as linear and RBF, are reported and compared",
+                "points": 2
+              }
+            ]
+          },
+          {
+            "label": "E2. Scaling",
+            "max": 2,
+            "items": [
+              {
+                "description": "Scaling: Scaling is leakage-safe and applied consistently",
+                "points": 2
+              }
+            ]
+          },
+          {
+            "label": "E3. Learning and Complexity Curves",
+            "max": 4,
+            "items": [
+              {
+                "description": "Learning curve: Shows training and validation metric versus at least four training sizes and is interpreted",
+                "points": 2
+              },
+              {
+                "description": "Complexity curve: Varies C and/or gamma across at least three reasonable settings total, or provides a justified smaller grid for computational reasons",
+                "points": 2
+              }
+            ]
+          },
+          {
+            "label": "E4. Evaluation and Runtime",
+            "max": 4,
+            "items": [
+              {
+                "description": "Final evaluation: Reports Accuracy, Macro-F1, balanced accuracy, and includes confusion matrix or per-class precision/recall/F1",
+                "points": 3
+              },
+              {
+                "description": "Runtime: Reports fit and predict time and kernel trade-offs are discussed",
+                "points": 1
+              }
+            ]
+          },
+          {
+            "label": "E5. Tuning Quality",
+            "max": 2,
+            "items": [
+              {
+                "description": "Tuning quality: At least two kernels are evaluated, C is varied for each kernel, and gamma is varied for RBF/nonlinear kernels",
+                "points": 2
+              }
+            ]
+          }
+        ],
+        "negative_items": {
+          "items": [
+            "Only one kernel is used or kernels are mentioned but not actually compared",
+            "Scaling is missing, unclear, or fit before splitting",
+            "Learning curve is missing, has fewer than four training sizes, is mislabeled, or is not interpreted",
+            "Complexity curve is missing, uses too few values without justification, varies irrelevant parameter, or is not interpreted",
+            "Required metrics are missing or error patterns are not discussed",
+            "Runtime is missing or kernel runtime trade-offs are ignored",
+            "Final model appears arbitrary, kernel choice is unsupported, or C/gamma tuning is missing without justification"
+          ]
+        },
+        "feedback_section": "Feedback on Section: <free-text>"
+      },
+      {
+        "main_section": "F) Neural Networks (14 points)",
+        "points_available": 14,
+        "section_letter": "F",
+        "groups": [
+          {
+            "label": "F1. SGD Setup",
+            "max": 3,
+            "items": [
+              {
+                "description": "SGD setup: Optimizer is explicitly SGD, no disallowed optimizers are used, and learning rate, batch size, epochs, early stopping if used, and regularization are documented for both implementations",
+                "points": 3
+              }
+            ]
+          },
+          {
+            "label": "F2. Epoch, Learning and Complexity Curves",
+            "max": 6,
+            "items": [
+              {
+                "description": "Epoch curve: Shows train and validation loss or metric over epochs for both scikit-learn and PyTorch implementations and interprets optimization behavior",
+                "points": 2
+              },
+              {
+                "description": "Learning curve: Shows training and validation metric versus at least four training sizes and is interpreted",
+                "points": 2
+              },
+              {
+                "description": "Complexity curve: Varies at least three reasonable neural network settings, such as width, depth, learning rate, or regularization, and supports final model choice",
+                "points": 2
+              }
+            ]
+          },
+          {
+            "label": "F3. Evaluation",
+            "max": 2,
+            "items": [
+              {
+                "description": "Final evaluation: Reports Accuracy, Macro-F1, balanced accuracy, and includes confusion matrix or per-class precision/recall/F1 for NN models",
+                "points": 2
+              }
+            ]
+          },
+          {
+            "label": "F4. Implementation Comparison",
+            "max": 2,
+            "items": [
+              {
+                "description": "Implementation comparison: Compares scikit-learn and PyTorch in optimization behavior, stability, runtime, tunability, or implementation differences under SGD-only constraints",
+                "points": 2
+              }
+            ]
+          },
+          {
+            "label": "F5. Runtime and Tuning",
+            "max": 1,
+            "items": [
+              {
+                "description": "Runtime and tuning: At least three reasonable NN settings are tested, and fit/predict time or epoch-level training cost is reported and interpreted",
+                "points": 1
+              }
+            ]
+          }
+        ],
+        "negative_items": {
+          "items": [
+            "Momentum, Nesterov, Adam, AdamW, Adagrad, RMSprop, or another adaptive optimizer is used; or training setup is not documented",
+            "Epoch evidence is missing, shown for only one implementation without justification, or not interpreted",
+            "Learning curve is missing, has fewer than four training sizes, is mislabeled, or is not interpreted",
+            "Complexity curve is missing, uses too few settings, varies irrelevant setting, or is not interpreted",
+            "Required metrics are missing or error patterns are not discussed",
+            "Both implementations are reported but not meaningfully compared",
+            "Final model appears arbitrary, too few settings are tested without justification, or runtime/training cost is missing"
+          ]
+        },
+        "feedback_section": "Feedback on Section: <free-text>"
+      },
+      {
+        "main_section": "G) Discussion (14 points)",
+        "points_available": 14,
+        "section_letter": "G",
+        "groups": [
+          {
+            "label": "G1. Cross-model Synthesis",
+            "max": 3,
+            "items": [
+              {
+                "description": "Cross-model synthesis: Directly compares at least three required algorithm families and explains behavioral differences using evidence from metrics, curves, runtime, and/or error patterns",
+                "points": 3
+              }
+            ]
+          },
+          {
+            "label": "G2. Performance and Efficiency Tradeoffs",
+            "max": 3,
+            "items": [
+              {
+                "description": "Performance and efficiency trade-offs: Explains trade-offs between predictive performance and computational cost with at least two concrete comparisons",
+                "points": 3
+              }
+            ]
+          },
+          {
+            "label": "G3. Class-level and Curve-based Interpretation",
+            "max": 6,
+            "items": [
+              {
+                "description": "Class-level behavior: Analyzes multiclass performance, identifies easiest/hardest cover types, discusses minority-class behavior, and explains misclassification patterns",
+                "points": 3
+              },
+              {
+                "description": "Curve-based interpretation: Uses learning curves and model-complexity curves to make at least two specific claims about underfitting, overfitting, variance, bias, or hyperparameter sensitivity",
+                "points": 3
+              }
+            ]
+          },
+          {
+            "label": "G4. Limitations and Improvements",
+            "max": 2,
+            "items": [
+              {
+                "description": "Limitations and improvements: Identifies at least one concrete limitation and at least one evidence-based improvement or follow-up experiment",
+                "points": 2
+              }
+            ]
+          }
+        ],
+        "negative_items": {
+          "items": [
+            "Models are presented separately without comparison, only best model is stated, or claims are unsupported",
+            "Runtime and metrics are reported separately but trade-offs are not explained, computational cost is ignored",
+            "Class imbalance is ignored, only overall accuracy is reported, minority classes are not discussed, or confusion matrix is not interpreted",
+            "Curves are included but only described visually or not used to support claims about bias, variance, or tuning behavior",
+            "Limitations are missing, generic, or disconnected from results; improvements are generic and not evidence-based"
+          ]
+        },
+        "feedback_section": "Feedback on Section: <free-text>"
+      },
+      {
+        "main_section": "Extra Credit: Activation Study (up to 5 points)",
+        "points_available": 5,
+        "section_letter": "EC",
+        "groups": [
+          {
+            "label": "EC1. Activation Curves",
+            "max": 2,
+            "items": [
+              {
+                "description": "Activation curves: Epoch-wise validation curves are shown for all four activations using the same training budget",
+                "points": 2
+              }
+            ]
+          },
+          {
+            "label": "EC2. Comparison Table",
+            "max": 2,
+            "items": [
+              {
+                "description": "Comparison table: A final comparison table reports metrics, runtime, and convergence notes",
+                "points": 2
+              }
+            ]
+          },
+          {
+            "label": "EC3. Interpretation",
+            "max": 1,
+            "items": [
+              {
+                "description": "Interpretation: Explains convergence stability and trade-offs under SGD",
+                "points": 1
+              }
+            ]
+          }
+        ],
+        "negative_items": {
+          "items": [
+            "No extra credit implemented",
+            "Extra credit uses a disallowed optimizer; no extra credit should be awarded",
+            "Activation curves are missing, not comparable, or use different training protocols",
+            "Comparison table is missing or incomplete",
+            "Activation study only reports numbers without interpretation"
+          ]
+        },
+        "feedback_section": "Feedback on Section: <free-text>"
+      }
+    ],
+    "general_feedback": {
+      "section": "General Feedback",
+      "content": "<free-text>"
+    }
+  }
+}

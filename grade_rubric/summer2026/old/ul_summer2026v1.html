@@ -1,0 +1,3824 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UL Report Summer 2026 Rubric Grading – Covertype</title>
+    <style>
+        :root {
+            --positive-color: #e8f5e9;
+            --positive-selected: #81c784;
+            --negative-color: #ffebee;
+            --negative-selected: #e57373;
+            --border-color: #ddd;
+            --header-bg: #f5f5f5;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .rubric-section {
+            flex: 2;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            min-width: 0;
+        }
+
+        .summary-section {
+            flex: 1;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 15px;
+            height: fit-content;
+            font-size: 0.85rem;
+            min-width: 200px;
+        }
+
+        .summary-section .nav-links {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            font-size: 0.8rem;
+        }
+
+        .summary-section .nav-links a {
+            color: #1976D2;
+            text-decoration: none;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: #e3f2fd;
+            transition: background-color 0.2s;
+        }
+
+        .summary-section .nav-links a:hover {
+            background: #bbdefb;
+            text-decoration: underline;
+        }
+
+        .summary-table th,
+        .summary-table td {
+            padding: 6px 6px;
+            font-size: 0.80rem;
+        }
+
+        .summary-table th {
+            background-color: var(--header-bg);
+        }
+
+        .summary-table tbody tr {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .summary-table tbody tr:hover {
+            background-color: #f0f7ff;
+        }
+
+        .summary-table tbody tr.row-not-started {
+            background-color: #ffebee;
+        }
+
+        .summary-table tbody tr.row-in-progress {
+            background-color: #fff3e0;
+        }
+
+        .summary-table tbody tr.row-completed {
+            background-color: #e8f5e9;
+        }
+
+        .summary-table tbody tr.row-completed td:first-child::after {
+            content: " ✅";
+            font-size: 0.8em;
+        }
+
+        .section-header {
+            background-color: var(--header-bg);
+            padding: 10px 15px;
+            margin: 15px 0 10px;
+            border-left: 4px solid #4CAF50;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .section-header span {
+            flex: 1;
+        }
+
+        .section-buttons {
+            display: flex;
+            gap: 4px;
+            margin-left: 10px;
+            flex-wrap: wrap;
+        }
+
+        .section-buttons button {
+            background-color: #6c757d;
+            padding: 3px 8px;
+            font-size: 10px;
+            border-radius: 10px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .section-buttons button:hover {
+            background-color: #5a6268;
+        }
+
+        .section-buttons .select-positive-btn {
+            background-color: #2e7d32;
+        }
+
+        .section-buttons .select-positive-btn:hover {
+            background-color: #1b5e20;
+        }
+
+        .section-buttons .select-negative-btn {
+            background-color: #c62828;
+        }
+
+        .section-buttons .select-negative-btn:hover {
+            background-color: #b71c1c;
+        }
+
+        .section-buttons .copy-score-btn {
+            background-color: #1976D2;
+        }
+
+        .section-buttons .copy-score-btn:hover {
+            background-color: #0D47A1;
+        }
+
+        .section-buttons .copy-group-btn {
+            background-color: #E65100;
+        }
+
+        .section-buttons .copy-group-btn:hover {
+            background-color: #BF360C;
+        }
+
+        .item-list {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .item {
+            padding: 6px 10px;
+            margin: 3px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 0.9em;
+        }
+
+        .item:hover {
+            opacity: 0.8;
+        }
+
+        .positive-item {
+            background-color: var(--positive-color);
+            border-left: 3px solid #4CAF50;
+        }
+
+        .negative-item {
+            background-color: var(--negative-color);
+            border-left: 3px solid #F44336;
+        }
+
+        .selected-positive {
+            background-color: var(--positive-selected) !important;
+            font-weight: 500;
+        }
+
+        .selected-negative {
+            background-color: var(--negative-selected) !important;
+            font-weight: 500;
+        }
+
+        .feedback-textarea {
+            width: 100%;
+            min-height: 80px;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .controls {
+            margin: 20px 0;
+            text-align: center;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .section-copy-buttons {
+            margin: 15px 0;
+            text-align: center;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .section-copy-buttons button {
+            padding: 8px 16px;
+            background-color: #1976D2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            min-width: 50px;
+        }
+
+        .section-copy-buttons button:hover {
+            background-color: #0D47A1;
+        }
+
+        .section-copy-buttons .checks-btn {
+            background-color: #6c757d;
+        }
+
+        .section-copy-buttons .checks-btn:hover {
+            background-color: #5a6268;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #resetBtn {
+            background-color: #f44336;
+        }
+
+        #resetBtn:hover {
+            background-color: #d32f2f;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        .summary-table th,
+        .summary-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .total-row {
+            font-weight: bold;
+            background-color: #e3f2fd;
+        }
+
+        .output-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .editable {
+            outline: none;
+            border: 1px dashed transparent;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+
+        .editable:focus {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .point-input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .point-input-group input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .point-input-group button {
+            padding: 8px 16px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .point-input-group button:hover {
+            background-color: #1976D2;
+        }
+
+        .point-input-group .reset-point-btn {
+            background-color: #ff9800;
+        }
+
+        .point-input-group .reset-point-btn:hover {
+            background-color: #fb8c00;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+
+        .form-control:focus {
+            border-color: #2196F3;
+            outline: none;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .modal-btn-primary {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+        }
+
+        .modal-btn-primary:hover {
+            background-color: #45a049;
+        }
+
+        .modal-btn-secondary {
+            background-color: #f5f5f5;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .modal-btn-secondary:hover {
+            background-color: #e9e9e9;
+        }
+
+        .modal-btn-danger {
+            background-color: #f44336;
+            color: white;
+            border: none;
+        }
+
+        .modal-btn-danger:hover {
+            background-color: #d32f2f;
+        }
+
+        .predefined-feedback {
+            margin: 10px 0;
+        }
+
+        .predefined-comment {
+            display: block;
+            width: 100%;
+            padding: 8px 12px;
+            margin: 5px 0;
+            background-color: #f0f8ff;
+            border: 1px solid #b3d9ff;
+            color: #333;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .predefined-comment:hover {
+            background-color: #92d841;
+        }
+
+        .predefined-comment.selected {
+            background-color: #cce5ff;
+            border-color: #66b3ff;
+        }
+
+        .feedback-controls {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .feedback-controls button {
+            padding: 6px 12px;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .global-comment-box {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #fef9e7;
+            border-left: 4px solid #ff9800;
+            border-radius: 4px;
+        }
+
+        .global-comment-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .global-comment-row input {
+            flex: 1 1 200px;
+            padding: 8px;
+            border: 1px solid #ffe0b2;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .global-comment-row select {
+            flex: 1 1 250px;
+            padding: 8px;
+            border: 1px solid #ffe0b2;
+            border-radius: 4px;
+            background: white;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .global-comment-row textarea {
+            flex: 2 1 300px;
+            min-height: 60px;
+            padding: 8px;
+            border: 1px solid #ffe0b2;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .global-comment-hint {
+            font-size: 0.9em;
+            color: #bf7f00;
+            margin-top: 5px;
+        }
+
+        .section-highlight {
+            animation: highlightPulse 1.5s ease-out;
+        }
+
+        @keyframes highlightPulse {
+            0% {
+                background-color: transparent;
+            }
+            30% {
+                background-color: #fff9c4;
+            }
+            100% {
+                background-color: transparent;
+            }
+        }
+
+        .checks-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #6c757d;
+        }
+
+        .checks-section h3 {
+            margin-top: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .checks-section h3 button {
+            padding: 4px 12px;
+            font-size: 12px;
+            background-color: #1976D2;
+        }
+
+        .checks-section h3 button:hover {
+            background-color: #0D47A1;
+        }
+
+        .check-item-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 0;
+            cursor: pointer;
+        }
+
+        .check-item-row:hover {
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }
+
+        .check-item-row .check-status {
+            font-weight: bold;
+            min-width: 24px;
+            cursor: pointer;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-align: center;
+            user-select: none;
+        }
+
+        .check-item-row .check-status.N {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .check-item-row .check-status.Y {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .check-item-row .check-status.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .check-item-row .check-text {
+            flex: 1;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .check-item-row .check-text:hover {
+            background-color: #e9ecef;
+        }
+
+        .check-item-row .check-text.selected {
+            background-color: #bbdefb;
+        }
+
+        .check-item-row .check-text.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .group-item {
+            background-color: #f0f4ff;
+            border-left: 3px solid #1976D2;
+            padding: 8px 10px;
+            margin: 5px 0 5px 20px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .group-item .sub-items {
+            font-weight: normal;
+            font-size: 0.85em;
+            color: #555;
+            margin-top: 3px;
+            padding-left: 15px;
+        }
+
+        .group-item .sub-items .sub-item {
+            padding: 2px 0;
+        }
+
+        .auto-check-indicator {
+            font-size: 0.75em;
+            color: #1976D2;
+            margin-left: 8px;
+            font-weight: normal;
+        }
+
+        .notification-bar {
+            width: 100%;
+            min-height: 36px;
+            line-height: 1.4;
+            padding: 8px 15px;
+            text-align: center;
+            background-color: #e3f2fd;
+            color: #0D47A1;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid #90caf9;
+            display: none;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .notification-bar.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .notification-bar.success {
+            background-color: #e8f5e9;
+            color: #1b5e20;
+            border-color: #81c784;
+        }
+
+        .notification-bar.info {
+            background-color: #e3f2fd;
+            color: #0D47A1;
+            border-color: #90caf9;
+        }
+
+        .notification-bar.error {
+            background-color: #ffebee;
+            color: #c62828;
+            border-color: #ef9a9a;
+        }
+
+        @keyframes slideDown {
+            0% {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .notification-bar .close-notification {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 18px;
+            color: inherit;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+            line-height: 1;
+        }
+
+        .notification-bar .close-notification:hover {
+            opacity: 1;
+        }
+
+        .notification-bar .highlight-letter {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .notification-bar .highlight-letter-A {
+            color: #e65100;
+        }
+        .notification-bar .highlight-letter-B {
+            color: #0D47A1;
+        }
+        .notification-bar .highlight-letter-C {
+            color: #1b5e20;
+        }
+        .notification-bar .highlight-letter-D {
+            color: #b71c1c;
+        }
+        .notification-bar .highlight-letter-E {
+            color: #4a148c;
+        }
+        .notification-bar .highlight-letter-F {
+            color: #00695c;
+        }
+        .notification-bar .highlight-letter-G {
+            color: #e65100;
+        }
+
+        .name-required-error {
+            color: #c62828;
+            font-size: 0.85em;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .name-required-error.show {
+            display: block;
+        }
+
+        .master-check-row {
+            background-color: #e8f5e9;
+            border-radius: 4px;
+            padding: 4px 8px;
+            margin-bottom: 10px;
+            font-weight: 500;
+            border: 2px solid #4CAF50;
+        }
+
+        .master-check-row .check-text {
+            font-weight: 500;
+        }
+
+        .master-check-row .check-text.selected {
+            background-color: #a5d6a7;
+        }
+        
+        .master-check-row .check-text.unselected {
+            background-color: #ffcdd2;
+        }
+
+        .item-prefix {
+            font-weight: 600;
+            color: #1a237e;
+            margin-right: 4px;
+        }
+
+        .item-description {
+            flex: 1;
+        }
+
+        .negative-item .editable {
+            display: inline;
+        }
+
+        .copy-message-btn {
+            background-color: #9C27B0;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .copy-message-btn:hover {
+            background-color: #7B1FA2;
+        }
+        .top-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .top-actions .hint-text {
+            font-size: 0.85rem;
+            color: #666;
+            transition: color 0.3s ease;
+        }
+        .top-actions .hint-text.success {
+            color: #2e7d32;
+            font-weight: 600;
+        }
+        .top-actions .hint-text.error {
+            color: #c62828;
+            font-weight: 600;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 5px 0 15px 0;
+            font-size: 0.9em;
+        }
+        .comparison-table th {
+            background-color: var(--header-bg);
+            padding: 8px 10px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #ccc;
+        }
+        .comparison-table th:first-child {
+            width: 45%;
+        }
+        .comparison-table th:last-child {
+            width: 45%;
+        }
+        .comparison-table td {
+            padding: 4px 6px;
+            vertical-align: top;
+            border-bottom: 1px solid #eee;
+        }
+        .comparison-table .group-label-row td {
+            background-color: #f0f4ff;
+            font-weight: 600;
+            padding: 6px 10px;
+            border-top: 2px solid #ccc;
+        }
+        .comparison-table .item-row td {
+            padding: 3px 6px 3px 20px;
+        }
+        .comparison-table .item-row .item {
+            margin: 0;
+            padding: 4px 8px;
+            font-size: 0.85em;
+            border-radius: 3px;
+            cursor: pointer;
+            display: inline-block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .comparison-table .item-row .item .editable {
+            display: inline;
+        }
+        .comparison-table .positive-col .item {
+            background-color: var(--positive-color);
+            border-left: 3px solid #4CAF50;
+        }
+        .comparison-table .positive-col .item.selected-positive {
+            background-color: var(--positive-selected);
+        }
+        .comparison-table .negative-col .item {
+            background-color: var(--negative-color);
+            border-left: 3px solid #F44336;
+        }
+        .comparison-table .negative-col .item.selected-negative {
+            background-color: var(--negative-selected);
+        }
+        .comparison-table .point-badge {
+            font-weight: 600;
+            color: #1a237e;
+            font-size: 0.8em;
+            margin-left: 4px;
+        }
+        .comparison-table .item .item-prefix {
+            font-weight: 600;
+            color: #1a237e;
+            margin-right: 4px;
+        }
+        .comparison-table .item .item-description {
+            flex: 1;
+        }
+        .comparison-table .item .editable {
+            display: inline;
+        }
+        .section-content-wrapper {
+            overflow-x: auto;
+        }
+        .modal-btn-orange {
+            background-color: #ff9800;
+            color: white;
+            border: none;
+        }
+        .modal-btn-orange:hover {
+            background-color: #fb8c00;
+        }
+        .modal-btn-purple {
+            background-color: #9C27B0;
+            color: white;
+            border: none;
+        }
+        .modal-btn-purple:hover {
+            background-color: #7B1FA2;
+        }
+        .modal-footer .restore-group {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+        .modal-footer .restore-group button {
+            font-size: 12px;
+            padding: 6px 12px;
+        }
+
+        .neg-comment-btn {
+            background-color: #1976D2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 11px;
+            cursor: pointer;
+            margin-left: 6px;
+            transition: background-color 0.2s;
+            white-space: nowrap;
+        }
+        .neg-comment-btn:hover {
+            background-color: #0D47A1;
+        }
+        .negative-item-wrapper {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        .negative-item-wrapper .item {
+            flex: 1;
+            margin: 0;
+        }
+        .negative-item-wrapper .neg-comment-btn {
+            flex-shrink: 0;
+            margin-left: 4px;
+        }
+
+        .comment-modal .modal-content {
+            width: 550px;
+            max-width: 95%;
+        }
+        .comment-modal .modal-body textarea {
+            min-height: 120px;
+        }
+        .comment-modal .modal-footer .restore-group {
+            flex: 1;
+        }
+        .comment-modal .modal-footer .restore-group button {
+            font-size: 12px;
+            padding: 6px 12px;
+        }
+        .modal-btn-green {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+        }
+        .modal-btn-green:hover {
+            background-color: #45a049;
+        }
+        .predefined-comment-btn {
+            background-color: #e3f2fd;
+            color: #0D47A1;
+            border: 1px solid #90caf9;
+            border-radius: 4px;
+            padding: 4px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            margin: 2px 4px 2px 0;
+            transition: background-color 0.2s;
+            display: inline-block;
+        }
+        .predefined-comment-btn:hover {
+            background-color: #bbdefb;
+        }
+        .predefined-comment-section {
+            margin-bottom: 10px;
+        }
+        .predefined-comment-section .label {
+            font-weight: 500;
+            font-size: 13px;
+            display: block;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="rubric-section">
+            <div class="top-actions">
+                <button class="copy-message-btn" onclick="copyGradingMessage()">📋 Copy Grading Message</button>
+                <span class="hint-text" id="hintText">Click to copy: "Now grade this very strictly..."</span>
+            </div>
+            
+            <h1>UL Report Summer 2026 Rubric Grading Interface</h1>
+            <div class="global-comment-box" id="nameSection">
+                <label for="studentName"><strong>📝 Student name (for greeting):</strong></label>
+                <div class="global-comment-row">
+                    <input type="text" id="studentName" placeholder="e.g., Mike" value="">
+                    <select id="greetingTemplateSelect">
+                        <option value="">— None (no greeting) —</option>
+                        <option value="Great work in conquering the final of our three reports this semester, {}! We hope this leaves you with a sense of accomplishment for the challenges overcome and that this, in-turn, gives you confidence as you prepare for the Final Exam!" selected>UL Report greeting</option>
+                        <option value="Hello {}, good work on the UL assignment. Please see the feedback below.">Hello {name} (standard)</option>
+                        <option value="Good work, {}. Please see the feedback below.">Good work, {name} (concise)</option>
+                        <option value="Here is your feedback for the UL assignment.">No name, plain intro</option>
+                        <option value="Hi {}, I've reviewed your UL report. Below you'll find detailed feedback.">Hi {name} (friendly)</option>
+                    </select>
+                    <textarea id="globalCommentTemplate" placeholder="Editable greeting text">Great work in conquering the final of our three reports this semester, {}! We hope this leaves you with a sense of accomplishment for the challenges overcome and that this, in-turn, gives you confidence as you prepare for the Final Exam!
+
+Please see below for strengths and weaknesses we gleaned from your paper.
+
+While we provide feedback here as a guide for your independent growth and encourage you to reach out via private Ed post if you have any questions, comments or concerns, due to the immediacy of the Institute's grading deadline, we will not be offering a typical Reviewer Response Extra Credit opportunity on this assignment.
+
+We wish you the utmost success finishing out the course, as well as in all future endeavors!</textarea>
+                </div>
+                <div class="global-comment-hint">
+                    Select a preset, then edit if needed. The {} will be replaced by the name. Leave name empty for no name insertion. Choose "None" to omit greeting.
+                </div>
+                <div id="nameRequiredError" class="name-required-error">⚠️ Please enter a student name before generating feedback.</div>
+            </div>
+
+            <!-- Checks Section -->
+            <div class="checks-section">
+                <h3>
+                    Checks Configuration
+                    <button onclick="copyChecksStatusOnly()">📋 Copy Checks (6 items: N/Y)</button>
+                </h3>
+                <p><strong>Click on the master "No Deductions" check to toggle all checks to N, or click individual checks to toggle N/Y.</strong></p>
+                
+                <p><strong>Master Control:</strong></p>
+                <div class="item-list">
+                    <div class="check-item-row master-check-row" onclick="toggleMasterNoDeductions()">
+                        <span class="check-text selected" id="check-text-positive-0">✅ No Deductions Made — All checks are N</span>
+                    </div>
+                </div>
+                
+                <p><strong>Individual Checks (click N/Y to toggle, click text to select for feedback):</strong></p>
+                <div class="item-list">
+                    <div class="check-item-row" onclick="toggleCheckSelection('negative-0')">
+                        <span class="check-status N" id="check-status-negative-0" onclick="event.stopPropagation(); toggleCheckStatus('negative-0')">N</span>
+                        <span class="check-text" id="check-text-negative-0">Check 1 - Readability: We were unable to access, open and/or evaluate your report, thus we invoke this penalty which results in a 0/100pts.</span>
+                    </div>
+                    <div class="check-item-row" onclick="toggleCheckSelection('negative-1')">
+                        <span class="check-status N" id="check-status-negative-1" onclick="event.stopPropagation(); toggleCheckStatus('negative-1')">N</span>
+                        <span class="check-text" id="check-text-negative-1">Check 2 - Required Task: The task your report focused on either veered from or altogether missed the required multiclass problem using the Covertype dataset and resultingly, your submission has received a 0/100pts.</span>
+                    </div>
+                    <div class="check-item-row" onclick="toggleCheckSelection('negative-2')">
+                        <span class="check-status N" id="check-status-negative-2" onclick="event.stopPropagation(); toggleCheckStatus('negative-2')">N</span>
+                        <span class="check-text" id="check-text-negative-2">Check 3 - Access: In verifying accessibility, we encountered an issue accessing or viewing one or multiple from among your necessary read-only link to your Overleaf project, your expected REPRO document (meant to be provided as upload) and/or your assigned GT Enterprise GitHub repository (and the necessary commit hash expected in your REPRO doc). Your paper has been graded, however until further clarification, it is marked as 0/100pts. <span class="auto-check-indicator">(auto-filled from A2)</span></span>
+                    </div>
+                    <div class="check-item-row" onclick="toggleCheckSelection('negative-3')">
+                        <span class="check-status N" id="check-status-negative-3" onclick="event.stopPropagation(); toggleCheckStatus('negative-3')">N</span>
+                        <span class="check-text" id="check-text-negative-3">Check 4 - Page Limit: Your paper exceeds the 8-page limit as stated in the assignment description. As a result, while no point penalty is applied, we are unable to count for credit any content falling on the 9th page and beyond.</span>
+                    </div>
+                    <div class="check-item-row" onclick="toggleCheckSelection('negative-4')">
+                        <span class="check-status N" id="check-status-negative-4" onclick="event.stopPropagation(); toggleCheckStatus('negative-4')">N</span>
+                        <span class="check-text" id="check-text-negative-4">Check 5 - Draft Format: Your paper diverges from the expected IEEE formatting, style and tone expected of a formal submittal. In particular, we marked several instances where excessive use of bulleted lists stood in as a sort of summary of the expected fleshed-out analysis.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="rubricContainer"></div>
+
+            <!-- Notification Bar -->
+            <div id="notificationBar" class="notification-bar">
+                <span id="notificationMessage">✅ Section A scores copied: 7 5 4</span>
+                <span class="close-notification" onclick="hideNotification()">&times;</span>
+            </div>
+
+            <div class="controls" id="generateSection">
+                <button id="generateBtn">Generate Feedback</button>
+                <button id="copyBtn" class="hidden">Copy Feedback</button>
+                <button id="copyScoresBtn">Copy Scores (all raw)</button>
+                <button id="resetBtn">Reset All</button>
+            </div>
+
+            <!-- Section Copy Buttons -->
+            <div class="section-copy-buttons">
+                <button onclick="copySectionGroupScores(0)">📋 A</button>
+                <button onclick="copySectionGroupScores(1)">📋 B</button>
+                <button onclick="copySectionGroupScores(2)">📋 C</button>
+                <button onclick="copySectionGroupScores(3)">📋 D</button>
+                <button onclick="copySectionGroupScores(4)">📋 E</button>
+                <button onclick="copySectionGroupScores(5)">📋 F</button>
+                <button onclick="copySectionGroupScores(6)">📋 G</button>
+                <button onclick="copySectionGroupScores(7)">📋 EC</button>
+                <button class="checks-btn" onclick="copyChecksStatusOnly()">📋 Checks (5)</button>
+            </div>
+
+            <div id="outputSection" class="output-section hidden"></div>
+        </div>
+
+        <div class="summary-section">
+            <h2 style="font-size:1.2rem; margin-top:0;">Points Summary</h2>
+            <div class="nav-links">
+                <a href="#nameSection">📝 Go to Name</a>
+                <a href="#generateSection">🚀 Go to Generate</a>
+            </div>
+            <table class="summary-table" id="summaryTable">
+                <thead>
+                    <tr>
+                        <th>Section</th>
+                        <th>Points</th>
+                        <th>Max</th>
+                    </tr>
+                </thead>
+                <tbody id="summaryBody"></tbody>
+                <tfoot>
+                    <tr class="total-row">
+                        <td>Total (incl. extra credit)</td>
+                        <td id="totalPoints">0</td>
+                        <td id="maxPoints">100</td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <div id="extraCreditSection" class="hidden">
+                <h3 style="font-size:1rem;">Extra Credit</h3>
+                <table class="summary-table">
+                    <thead>
+                        <tr>
+                            <th>Section</th>
+                            <th>Points</th>
+                            <th>Max</th>
+                        </tr>
+                    </thead>
+                    <tbody id="extraCreditBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Item Edit Modal -->
+    <div id="itemModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Edit Item</div>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="itemText">Item Description</label>
+                    <textarea id="itemText" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="itemPoints">Points (max: <span id="maxPointDisplay"></span>)</label>
+                    <div class="point-input-group">
+                        <input type="number" id="itemPoints" class="form-control" step="1" min="0" value="0">
+                        <button type="button" id="incrementPoint">+1</button>
+                        <button type="button" id="decrementPoint">-1</button>
+                        <button type="button" id="resetPointBtn" class="reset-point-btn">Reset</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="restore-group">
+                    <button id="restoreTextBtn" class="modal-btn modal-btn-orange">↺ Restore Text</button>
+                    <button id="restorePointsBtn" class="modal-btn modal-btn-purple">↺ Restore Points</button>
+                </div>
+                <button id="clearTextBtn" class="modal-btn modal-btn-danger">Clear Text</button>
+                <button id="cancelBtn" class="modal-btn modal-btn-secondary">Cancel</button>
+                <button id="saveBtn" class="modal-btn modal-btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comment Modal for Negative Items -->
+    <div id="commentModal" class="modal comment-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Add Comment to Section Feedback</div>
+                <button class="close-btn" id="commentModalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="predefined-comment-section">
+                    <span class="label">Quick predefined comments:</span>
+                    <button class="predefined-comment-btn" data-comment="Missing or incomplete: please provide more detail.">Missing detail</button>
+                    <button class="predefined-comment-btn" data-comment="Not clearly explained: please clarify your reasoning.">Unclear explanation</button>
+                    <button class="predefined-comment-btn" data-comment="Good start but needs more supporting evidence.">Needs evidence</button>
+                    <button class="predefined-comment-btn" data-comment="Please include more specific examples or data.">Add examples</button>
+                    <button class="predefined-comment-btn" data-comment="This needs further analysis and interpretation.">Needs analysis</button>
+                </div>
+                <div class="form-group">
+                    <label for="commentText">Comment text:</label>
+                    <textarea id="commentText" class="form-control" rows="4" placeholder="Enter your comment here..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="restore-group">
+                    <button id="clearCommentBtn" class="modal-btn modal-btn-danger">Clear</button>
+                </div>
+                <button id="cancelCommentBtn" class="modal-btn modal-btn-secondary">Cancel</button>
+                <button id="addCommentBtn" class="modal-btn modal-btn-primary">Add to Feedback</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== COPY GRADING MESSAGE ====================
+        function copyGradingMessage() {
+            const message = `Now grade this very strictly, and show me which one to check and which one to x in my checklist. If something is not met, then provide a suggestion to improve as "You could have done... to improve"`;
+            const hintText = document.getElementById('hintText');
+            
+            navigator.clipboard.writeText(message).then(() => {
+                hintText.textContent = '✅ Copied successfully!';
+                hintText.className = 'hint-text success';
+                showNotification('✅ Grading message copied to clipboard!');
+                setTimeout(() => {
+                    hintText.textContent = 'Click to copy: "Now grade this very strictly..."';
+                    hintText.className = 'hint-text';
+                }, 3000);
+            }).catch(() => {
+                try {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = message;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    hintText.textContent = '✅ Copied successfully!';
+                    hintText.className = 'hint-text success';
+                    showNotification('✅ Grading message copied to clipboard!');
+                    setTimeout(() => {
+                        hintText.textContent = 'Click to copy: "Now grade this very strictly..."';
+                        hintText.className = 'hint-text';
+                    }, 3000);
+                } catch (err) {
+                    hintText.textContent = '❌ Failed to copy!';
+                    hintText.className = 'hint-text error';
+                    showNotification('❌ Failed to copy message', false);
+                    setTimeout(() => {
+                        hintText.textContent = 'Click to copy: "Now grade this very strictly..."';
+                        hintText.className = 'hint-text';
+                    }, 3000);
+                }
+            });
+        }
+
+        // ==================== SETUP ====================
+        let extraCreditPointsValue = 0;
+        let checkSelections = {};
+        let checkTextSelections = {};
+        let masterNoDeductions = true;
+
+        let originalRubricData = null;
+
+        function showNotification(message, isSuccess = true, sectionLetter = '') {
+            const bar = document.getElementById('notificationBar');
+            const msgEl = document.getElementById('notificationMessage');
+            if (sectionLetter) {
+                const colorClass = `highlight-letter-${sectionLetter}`;
+                const highlighted = `<span class="highlight-letter ${colorClass}">Section ${sectionLetter}</span>`;
+                msgEl.innerHTML = message.replace(`Section ${sectionLetter}`, highlighted);
+            } else {
+                msgEl.textContent = message;
+            }
+            bar.className = 'notification-bar show' + (isSuccess ? ' success' : '');
+            bar.style.display = 'block';
+        }
+
+        function hideNotification() {
+            const bar = document.getElementById('notificationBar');
+            bar.className = 'notification-bar';
+            bar.style.display = 'none';
+        }
+
+        function validateName() {
+            const nameInput = document.getElementById('studentName');
+            const errorEl = document.getElementById('nameRequiredError');
+            const name = nameInput.value.trim();
+            if (!name) {
+                errorEl.classList.add('show');
+                nameInput.style.borderColor = '#c62828';
+                return false;
+            }
+            errorEl.classList.remove('show');
+            nameInput.style.borderColor = '';
+            return true;
+        }
+
+        // ==================== CHECKS ====================
+        function initCheckSelections() {
+            masterNoDeductions = true;
+            for (let i = 0; i < 5; i++) {
+                checkSelections[`negative-${i}`] = 'N';
+                checkTextSelections[`negative-${i}`] = false;
+            }
+            checkTextSelections['positive-0'] = true;
+        }
+        initCheckSelections();
+
+        function toggleMasterNoDeductions() {
+            masterNoDeductions = !masterNoDeductions;
+            
+            const masterEl = document.getElementById('check-text-positive-0');
+            if (masterEl) {
+                if (masterNoDeductions) {
+                    masterEl.classList.add('selected');
+                    masterEl.classList.remove('unselected');
+                } else {
+                    masterEl.classList.remove('selected');
+                    masterEl.classList.add('unselected');
+                }
+            }
+            
+            for (let i = 0; i < 5; i++) {
+                const statusEl = document.getElementById(`check-status-negative-${i}`);
+                const textEl = document.getElementById(`check-text-negative-${i}`);
+                if (masterNoDeductions) {
+                    checkSelections[`negative-${i}`] = 'N';
+                    if (statusEl) {
+                        statusEl.textContent = 'N';
+                        statusEl.className = 'check-status N disabled';
+                    }
+                    if (textEl) {
+                        textEl.classList.add('disabled');
+                        textEl.classList.remove('selected');
+                    }
+                    checkTextSelections[`negative-${i}`] = false;
+                } else {
+                    if (statusEl) {
+                        statusEl.className = 'check-status N';
+                    }
+                    if (textEl) {
+                        textEl.classList.remove('disabled');
+                    }
+                }
+            }
+        }
+
+        function toggleCheckStatus(id) {
+            if (masterNoDeductions) return;
+            
+            const el = document.getElementById(`check-status-${id}`);
+            if (el.textContent === 'N') {
+                el.textContent = 'Y';
+                el.className = 'check-status Y';
+                if (masterNoDeductions) {
+                    masterNoDeductions = false;
+                    const masterEl = document.getElementById('check-text-positive-0');
+                    if (masterEl) {
+                        masterEl.classList.remove('selected');
+                        masterEl.classList.add('unselected');
+                    }
+                }
+            } else {
+                el.textContent = 'N';
+                el.className = 'check-status N';
+                let allN = true;
+                for (let i = 0; i < 5; i++) {
+                    if (checkSelections[`negative-${i}`] === 'Y') {
+                        allN = false;
+                        break;
+                    }
+                }
+                if (allN && !masterNoDeductions) {
+                    masterNoDeductions = true;
+                    const masterEl = document.getElementById('check-text-positive-0');
+                    if (masterEl) {
+                        masterEl.classList.add('selected');
+                        masterEl.classList.remove('unselected');
+                    }
+                    for (let j = 0; j < 5; j++) {
+                        const statusEl2 = document.getElementById(`check-status-negative-${j}`);
+                        const textEl2 = document.getElementById(`check-text-negative-${j}`);
+                        if (statusEl2) {
+                            statusEl2.textContent = 'N';
+                            statusEl2.className = 'check-status N disabled';
+                        }
+                        if (textEl2) {
+                            textEl2.classList.add('disabled');
+                            textEl2.classList.remove('selected');
+                        }
+                        checkSelections[`negative-${j}`] = 'N';
+                        checkTextSelections[`negative-${j}`] = false;
+                    }
+                }
+            }
+            checkSelections[id] = el.textContent;
+            
+            if (id === 'negative-2') {
+                updateCheck3();
+            }
+        }
+
+        function toggleCheckSelection(id) {
+            if (masterNoDeductions) return;
+            
+            const el = document.getElementById(`check-text-${id}`);
+            if (checkTextSelections[id]) {
+                checkTextSelections[id] = false;
+                el.classList.remove('selected');
+            } else {
+                checkTextSelections[id] = true;
+                el.classList.add('selected');
+            }
+            
+            if (id === 'negative-2') {
+                updateCheck3();
+            }
+        }
+
+        function getCombinedCheck3Status() {
+            return checkSelections['negative-2'] || 'N';
+        }
+
+        function getCombinedCheck3Text() {
+            const el = document.getElementById('check-text-negative-2');
+            if (el && checkTextSelections['negative-2']) {
+                let text = el.textContent;
+                text = text.replace(/\s*\(auto-filled from A2\)\s*$/, '');
+                const missing = getMissingAccessItems();
+                const missingPoints = getMissingAccessPoints();
+                text = text.replace(/\{TODO\}/g, missing || '');
+                text = text.replace(/we've deducted points/, `we've deducted ${missingPoints} points`);
+                return text;
+            }
+            return '';
+        }
+
+        function copyChecksStatusOnly() {
+            let statuses = [];
+            if (masterNoDeductions) {
+                for (let i = 0; i < 5; i++) {
+                    statuses.push('N');
+                }
+            } else {
+                statuses.push(checkSelections['negative-0'] || 'N');
+                statuses.push(checkSelections['negative-1'] || 'N');
+                statuses.push(getCombinedCheck3Status());
+                statuses.push(checkSelections['negative-3'] || 'N');
+                statuses.push(checkSelections['negative-4'] || 'N');
+            }
+            const result = statuses.join('\t');
+            navigator.clipboard.writeText(result);
+            showNotification(`✅ 5 checks status copied: ${result}`);
+        }
+
+        function getMissingAccessItems() {
+            const sectionId = 'section-0';
+            const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
+            const missing = [];
+            if (!sectionState.positive.has('section-0-positive-2')) {
+                missing.push('Overleaf link');
+            }
+            if (!sectionState.positive.has('section-0-positive-3')) {
+                missing.push('GitHub commit hash');
+            }
+            if (missing.length === 0) return '';
+            if (missing.length === 1) return missing[0];
+            return missing.join(' and ');
+        }
+
+        function getMissingAccessPoints() {
+            const sectionId = 'section-0';
+            const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
+            let missingPoints = 0;
+            if (!sectionState.positive.has('section-0-positive-2')) {
+                missingPoints += 2;
+            }
+            if (!sectionState.positive.has('section-0-positive-3')) {
+                missingPoints += 2;
+            }
+            return missingPoints;
+        }
+
+        function updateCheck3() {
+            const checkEl = document.getElementById('check-text-negative-2');
+            const statusEl = document.getElementById('check-status-negative-2');
+            const missing = getMissingAccessItems();
+            const missingPoints = getMissingAccessPoints();
+
+            if (checkEl) {
+                let text = checkEl.textContent;
+                text = text.replace(/\s*\(auto-filled from A2\)\s*$/, '');
+                if (missing !== '' && !masterNoDeductions) {
+                    text = text.replace(/\{TODO\}/g, missing);
+                    text = text.replace(/we've deducted points/, `we've deducted ${missingPoints} points`);
+                    text = text + ' (auto-filled from A2)';
+                    if (!checkTextSelections['negative-2']) {
+                        checkTextSelections['negative-2'] = true;
+                        checkEl.classList.add('selected');
+                    }
+                    if (statusEl && statusEl.textContent !== 'Y') {
+                        statusEl.textContent = 'Y';
+                        statusEl.className = 'check-status Y';
+                        checkSelections['negative-2'] = 'Y';
+                        if (masterNoDeductions) {
+                            masterNoDeductions = false;
+                            const masterEl = document.getElementById('check-text-positive-0');
+                            if (masterEl) {
+                                masterEl.classList.remove('selected');
+                                masterEl.classList.add('unselected');
+                            }
+                        }
+                    }
+                } else if (missing === '' && !masterNoDeductions) {
+                    text = text.replace(/\{TODO\}/g, '');
+                    if (checkTextSelections['negative-2']) {
+                        checkTextSelections['negative-2'] = false;
+                        checkEl.classList.remove('selected');
+                    }
+                    if (statusEl && statusEl.textContent === 'Y') {
+                        statusEl.textContent = 'N';
+                        statusEl.className = 'check-status N';
+                        checkSelections['negative-2'] = 'N';
+                        let allN = true;
+                        for (let i = 0; i < 5; i++) {
+                            if (checkSelections[`negative-${i}`] === 'Y') {
+                                allN = false;
+                                break;
+                            }
+                        }
+                        if (allN && !masterNoDeductions) {
+                            masterNoDeductions = true;
+                            const masterEl = document.getElementById('check-text-positive-0');
+                            if (masterEl) {
+                                masterEl.classList.add('selected');
+                                masterEl.classList.remove('unselected');
+                            }
+                            for (let j = 0; j < 5; j++) {
+                                const sEl = document.getElementById(`check-status-negative-${j}`);
+                                const tEl = document.getElementById(`check-text-negative-${j}`);
+                                if (sEl) {
+                                    sEl.textContent = 'N';
+                                    sEl.className = 'check-status N disabled';
+                                }
+                                if (tEl) {
+                                    tEl.classList.add('disabled');
+                                    tEl.classList.remove('selected');
+                                }
+                                checkSelections[`negative-${j}`] = 'N';
+                                checkTextSelections[`negative-${j}`] = false;
+                            }
+                        }
+                    }
+                }
+                checkEl.textContent = text;
+            }
+        }
+
+        function updateChecksOnSelection() {
+            updateCheck3();
+        }
+
+        // ==================== RUBRIC DATA (UL) ====================
+        const sectionGroupCombinations = {
+            0: {
+                scores: [
+                    { label: "A1", groupIndices: [0] },
+                    { label: "A2", groupIndices: [1] },
+                    { label: "A3", groupIndices: [2] },
+                    { label: "A4", groupIndices: [3] }
+                ],
+                negGroupMap: {
+                    0: "A1", 1: "A1", 2: "A2", 3: "A2", 4: "A3", 5: "A4", 6: "A4"
+                }
+            },
+            1: {
+                scores: [
+                    { label: "B1", groupIndices: [0] },
+                    { label: "B2", groupIndices: [1] },
+                    { label: "B3", groupIndices: [2] },
+                    { label: "B4", groupIndices: [3] }
+                ],
+                negGroupMap: {
+                    0: "B1", 1: "B2", 2: "B3", 3: "B4"
+                }
+            },
+            2: {
+                scores: [
+                    { label: "C1", groupIndices: [0] },
+                    { label: "C2", groupIndices: [1] },
+                    { label: "C3", groupIndices: [2] },
+                    { label: "C4", groupIndices: [3] },
+                    { label: "C5", groupIndices: [4] }
+                ],
+                negGroupMap: {
+                    0: "C1", 1: "C2", 2: "C3", 3: "C4", 4: "C5"
+                }
+            },
+            3: {
+                scores: [
+                    { label: "D1", groupIndices: [0] },
+                    { label: "D2", groupIndices: [1] },
+                    { label: "D3", groupIndices: [2] },
+                    { label: "D4", groupIndices: [3] },
+                    { label: "D5", groupIndices: [4] }
+                ],
+                negGroupMap: {
+                    0: "D1", 1: "D2", 2: "D3", 3: "D4", 4: "D5"
+                }
+            },
+            4: {
+                scores: [
+                    { label: "E1", groupIndices: [0] },
+                    { label: "E2", groupIndices: [1] },
+                    { label: "E3", groupIndices: [2] },
+                    { label: "E4", groupIndices: [3] },
+                    { label: "E5", groupIndices: [4] },
+                    { label: "E6", groupIndices: [5] }
+                ],
+                negGroupMap: {
+                    0: "E1", 1: "E2", 2: "E3", 3: "E4", 4: "E5", 5: "E6"
+                }
+            },
+            5: {
+                scores: [
+                    { label: "F1", groupIndices: [0] },
+                    { label: "F2", groupIndices: [1] },
+                    { label: "F3", groupIndices: [2] },
+                    { label: "F4", groupIndices: [3] },
+                    { label: "F5", groupIndices: [4] }
+                ],
+                negGroupMap: {
+                    0: "F1", 1: "F2", 2: "F3", 3: "F4", 4: "F5"
+                }
+            },
+            6: {
+                scores: [
+                    { label: "G1", groupIndices: [0] },
+                    { label: "G2", groupIndices: [1] },
+                    { label: "G3", groupIndices: [2] },
+                    { label: "G4", groupIndices: [3] },
+                    { label: "G5", groupIndices: [4] },
+                    { label: "G6", groupIndices: [5] },
+                    { label: "G7", groupIndices: [6] }
+                ],
+                negGroupMap: {
+                    0: "G1", 1: "G2", 2: "G3", 3: "G4", 4: "G5", 5: "G6", 6: "G7"
+                }
+            },
+            7: {
+                scores: [
+                    { label: "EC1", groupIndices: [0] },
+                    { label: "EC2", groupIndices: [1] },
+                    { label: "EC3", groupIndices: [2] },
+                    { label: "EC4", groupIndices: [3] }
+                ],
+                negGroupMap: {
+                    0: "EC1", 1: "EC2", 2: "EC3", 3: "EC4"
+                }
+            }
+        };
+
+        function getNegGroupLabel(sectionIndex, negIndex) {
+            const combo = sectionGroupCombinations[sectionIndex];
+            if (combo && combo.negGroupMap) {
+                return combo.negGroupMap[negIndex] || null;
+            }
+            return null;
+        }
+
+        function copySectionGroupScores(sectionIndex) {
+            const section = rubricData.grading_rubric.sections[sectionIndex];
+            const sectionId = `section-${sectionIndex}`;
+            const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
+
+            const combo = sectionGroupCombinations[sectionIndex];
+            if (!combo) {
+                showNotification('❌ No combination defined for this section', false);
+                return;
+            }
+
+            let results = [];
+            combo.scores.forEach(scoreDef => {
+                let total = 0;
+                scoreDef.groupIndices.forEach(groupIdx => {
+                    const group = section.groups[groupIdx];
+                    if (group) {
+                        let offset = 0;
+                        for (let g = 0; g < groupIdx; g++) {
+                            offset += section.groups[g].items.length;
+                        }
+                        group.items.forEach((item, idx) => {
+                            const itemId = `${sectionId}-positive-${offset + idx}`;
+                            if (sectionState.positive.has(itemId)) {
+                                total += item.points;
+                            }
+                        });
+                    }
+                });
+                results.push(total.toFixed(0));
+            });
+
+            const result = results.join('\t');
+            const letter = section.section_letter || section.main_section.charAt(0);
+            showNotification(`✅ Section ${letter} scores copied: ${result}`, true, letter);
+        }
+
+        // ==================== RUBRIC DATA (MODIFIED) ====================
+        const baseRubricData = {
+            "grading_rubric": {
+                "total_points": 100,
+                "extra_credit_points": 5,
+                "sections": [
+                    {
+                        "main_section": "Compliance (16 points)",
+                        "points_available": 16,
+                        "section_letter": "A",
+                        "groups": [
+                            {
+                                "label": "Data Compliance",
+                                "max": 3,
+                                "items": [
+                                    { "description": "Covertype sample: Uses an approximately 20,000-instance Covertype working dataset that matches the SL sample, or clearly justifies any change", "points": 2 },
+                                    { "description": "External label: Identifies Cover_Type classes 1 through 7 as the external label used for evaluation and interpretation", "points": 1 }
+                                ]
+                            },
+                            {
+                                "label": "Submission Access",
+                                "max": 4,
+                                "items": [
+                                    { "description": "Enterprise Overleaf: Includes a working read-only Overleaf link associated with the student's Georgia Tech / Enterprise Overleaf account", "points": 2 },
+                                    { "description": "Enterprise GitHub: Includes a valid commit hash from the student's GT Enterprise GitHub repository, accessible to course staff", "points": 2 }
+                                ]
+                            },
+                            {
+                                "label": "Reproducibility",
+                                "max": 3,
+                                "items": [
+                                    { "description": "Run instructions: Provides clear commands, environment requirements, data paths, and seeds sufficient to reproduce outputs", "points": 2 },
+                                    { "description": "Experiment details: Includes clustering and DR hyperparameters, component counts, random seeds, metric calculations, and enough detail to recreate main figures and tables", "points": 1 }
+                                ]
+                            },
+                            {
+                                "label": "Attribution",
+                                "max": 6,
+                                "items": [
+                                    { "description": "Readable figures and tables: Figures, tables, axis labels, legends, captions, and text are readable at normal grading zoom", "points": 2 },
+                                    { "description": "Outside sources: Includes at least two relevant peer-reviewed sources beyond course materials and uses them to justify choices or interpret results", "points": 2 },
+                                    { "description": "AI usage statement: Includes a clear AI/LLM usage statement identifying tools, how they were used, and affirming student review/understanding", "points": 2 }
+                                ]
+                            }
+                        ],
+                        "negative_items": {
+                            "items": [
+                                "A1. Report does not use an approximately 20,000-instance Covertype working dataset, or does not clearly justify any change",
+                                "A1. Label mapping is missing, ambiguous, collapsed, or treated as a supervised input",
+                                "A2. Overleaf link is missing, broken, requires edit permission, or appears to use a personal Overleaf account",
+                                "A2. GitHub commit hash is missing, invalid, inaccessible, or hosted only in a personal GitHub repository",
+                                "A3. Run instructions are missing or insufficient to reproduce results",
+                                "A4. Multiple figures or tables are too small, cropped, blurry, poorly labeled, or otherwise unreadable",
+                                "A4. AI/LLM usage statement is missing, vague, or does not identify tools used"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    },
+                    {
+                        "main_section": "Study Design (10 points)",
+                        "points_available": 10,
+                        "section_letter": "B",
+                        "groups": [
+                            {
+                                "label": "Preprocessing and Data Handling",
+                                "max": 3,
+                                "items": [
+                                    { "description": "Preprocessing rationale: Explains preprocessing choices for mixed continuous and binary features, including scaling decisions and how those choices affect K-Means, GMM, PCA, ICA, RP, and NN-after-DR", "points": 3 }
+                                ]
+                            },
+                            {
+                                "label": "Label Use Discipline",
+                                "max": 2,
+                                "items": [
+                                    { "description": "External-label use: Uses Cover_Type labels only for post hoc evaluation, interpretation, visualization coloring, and downstream supervised evaluation", "points": 2 }
+                                ]
+                            },
+                            {
+                                "label": "Initial Hypothesis",
+                                "max": 2,
+                                "items": [
+                                    { "description": "Testable hypothesis: States at least one clear hypothesis before results, tied to dataset properties or course concepts", "points": 2 }
+                                ]
+                            },
+                            {
+                                "label": "Leakage Controls",
+                                "max": 3,
+                                "items": [
+                                    { "description": "Downstream leakage controls: For NN-after-DR experiments, learned preprocessing and DR transformations are fit on training data only and applied to validation/test data", "points": 2 },
+                                    { "description": "Hypothesis revisit: Explicitly revisits the stated hypothesis using evidence from clustering, DR, clustering-after-DR, NN-after-DR, or discussion results", "points": 1 }
+                                ]
+                            }
+                        ],
+                        "negative_items": {
+                            "items": [
+                                "B1. Preprocessing is missing, treated as automatic, or not connected to the algorithms being used",
+                                "B2. Labels are used to fit clustering or DR, tune unsupervised methods using test-label performance, or otherwise leak label information",
+                                "B3. Hypothesis is missing, generic, stated after results, or not tied to dataset properties or course concepts",
+                                "B4. Hypothesis is never revisited or is only mentioned without evidence, or DR transformations fit on full dataset before NN evaluation"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    },
+                    {
+                        "main_section": "Clustering (14 points)",
+                        "points_available": 14,
+                        "section_letter": "C",
+                        "groups": [
+                            {
+                                "label": "K-Means Setup",
+                                "max": 3,
+                                "items": [
+                                    { "description": "K-Means setup: Run on original feature space with clearly described preprocessing, at least three reasonable k values, initialization/restart settings, random seed handling, and justified final choice", "points": 3 }
+                                ]
+                            },
+                            {
+                                "label": "GMM/EM Setup",
+                                "max": 3,
+                                "items": [
+                                    { "description": "GMM/EM setup: Run on original feature space with at least three reasonable component counts, stated covariance type, initialization, random seed handling, convergence settings, and justified final choice", "points": 3 }
+                                ]
+                            },
+                            {
+                                "label": "Internal Clustering Evidence",
+                                "max": 3,
+                                "items": [
+                                    { "description": "Internal clustering evidence: Uses at least two appropriate internal or model-selection metrics to evaluate clustering in original feature space, supporting claim about cluster quality", "points": 3 }
+                                ]
+                            },
+                            {
+                                "label": "Label-Alignment Evidence",
+                                "max": 3,
+                                "items": [
+                                    { "description": "Label-alignment evidence: Uses at least one external alignment metric after fitting (ARI, NMI, homogeneity, completeness, V-measure, or contingency table), explains what alignment means", "points": 3 }
+                                ]
+                            },
+                            {
+                                "label": "Cluster Interpretation",
+                                "max": 2,
+                                "items": [
+                                    { "description": "Cluster interpretation: Explains what original-space clusters capture using evidence from feature patterns, cluster summaries, centroids/means, mixture behavior, or label contingency patterns", "points": 2 }
+                                ]
+                            }
+                        ],
+                        "negative_items": {
+                            "items": [
+                                "C1. K-Means run with one arbitrary k, k=7 assumed correct without evidence, preprocessing unclear, initialization/restarts not reported, seeds missing",
+                                "C2. GMM/EM run with one arbitrary component count, covariance type not reported, convergence behavior ignored, seeds missing, component count assumed equal to seven without evidence",
+                                "C3. Metrics missing, inappropriate for method, reported for only one clustering method, not connected to model choice, or included without interpretation",
+                                "C4. Claims clusters align or fail to align with labels without quantitative or tabular evidence, uses labels during fitting, treats weak alignment as automatic failure",
+                                "C5. Only reports scores, cluster counts, or plots without explaining what clusters mean or why alignment is strong/weak/partial"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    },
+                    {
+                        "main_section": "Dimensionality Reduction (16 points)",
+                        "points_available": 16,
+                        "section_letter": "D",
+                        "groups": [
+                            {
+                                "label": "PCA Diagnostics",
+                                "max": 4,
+                                "items": [
+                                    { "description": "PCA diagnostics: Includes explained variance ratios, cumulative explained variance, and justified component count; interprets whether data appears redundant, low-rank, or spread across components", "points": 4 }
+                                ]
+                            },
+                            {
+                                "label": "ICA Diagnostics",
+                                "max": 4,
+                                "items": [
+                                    { "description": "ICA diagnostics: Includes justified component count, evidence of non-Gaussianity (kurtosis or component distribution summaries), convergence behavior, and seed sensitivity; interprets meaningfulness of ICA components", "points": 4 }
+                                ]
+                            },
+                            {
+                                "label": "RP Diagnostics",
+                                "max": 4,
+                                "items": [
+                                    { "description": "RP diagnostics: Includes justified component count, at least three random seeds for variability check, evidence about distance preservation, projection distortion, or reconstruction; explains whether RP preserved enough geometry", "points": 4 }
+                                ]
+                            },
+                            {
+                                "label": "Cross-Method Rationale",
+                                "max": 2,
+                                "items": [
+                                    { "description": "Cross-method component rationale: Compares or justifies component choices across PCA, ICA, and RP using explained variance, kurtosis, distortion, runtime, stability, or downstream needs", "points": 2 }
+                                ]
+                            },
+                            {
+                                "label": "Representation Evidence",
+                                "max": 2,
+                                "items": [
+                                    { "description": "Representation evidence: Includes compact visualization, table, or diagnostic comparison showing how PCA, ICA, and RP transformed spaces differ", "points": 2 }
+                                ]
+                            }
+                        ],
+                        "negative_items": {
+                            "items": [
+                                "D1. PCA applied without explained variance evidence, component count arbitrary, variance retained not reported, no interpretation, or claims PCA preserves classification usefulness solely due to high variance",
+                                "D2. ICA applied without non-Gaussianity evidence, convergence status ignored, component count arbitrary, seed sensitivity not addressed, or treated as generic DR with no method-specific interpretation",
+                                "D3. RP applied once without seed variability, component count arbitrary, distortion/distance-preservation evidence missing, or cherry-picks one projection without discussing stochastic variability",
+                                "D4. Component counts appear arbitrary, selected only because convenient, copied across methods without justification, or chosen based only on final test performance",
+                                "D5. No evidence provided about transformed spaces beyond downstream scores, or representation evidence unreadable/uninterpreted"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    },
+                    {
+                        "main_section": "DR + Clustering (14 points)",
+                        "points_available": 14,
+                        "section_letter": "E",
+                        "groups": [
+                            {
+                                "label": "Required Combinations",
+                                "max": 3,
+                                "items": [
+                                    { "description": "Required combinations: Includes all six required DR + clustering combinations: K-Means after PCA, K-Means after ICA, K-Means after RP, GMM/EM after PCA, GMM/EM after ICA, GMM/EM after RP", "points": 3 }
+                                ]
+                            },
+                            {
+                                "label": "Post-DR Model Selection",
+                                "max": 2,
+                                "items": [
+                                    { "description": "Post-DR model selection: Reselects or explicitly justifies cluster settings after DR; reusing original-space settings only if explained and meaningful", "points": 2 }
+                                ]
+                            },
+                            {
+                                "label": "Comparative Metric Evidence",
+                                "max": 3,
+                                "items": [
+                                    { "description": "Comparative metric evidence: Provides compact table or clear comparison of internal clustering metrics across original-space and DR-space clustering", "points": 3 }
+                                ]
+                            },
+                            {
+                                "label": "Label-Alignment Comparison",
+                                "max": 2,
+                                "items": [
+                                    { "description": "Label-alignment comparison: Compares external label alignment across original-space and DR-space clustering using ARI, NMI, homogeneity, completeness, V-measure, or contingency table", "points": 2 }
+                                ]
+                            },
+                            {
+                                "label": "Representation-Effect Interpretation",
+                                "max": 3,
+                                "items": [
+                                    { "description": "Representation-effect interpretation: Explains why PCA, ICA, or RP changed clustering behavior using evidence from DR diagnostics and clustering results", "points": 3 }
+                                ]
+                            },
+                            {
+                                "label": "Stability/Limitations",
+                                "max": 1,
+                                "items": [
+                                    { "description": "Stability or limitations: Discusses at least one stability or limitation issue specific to DR + clustering (RP seed variability, ICA instability, metric disagreement, scaling sensitivity, etc.)", "points": 1 }
+                                ]
+                            }
+                        ],
+                        "negative_items": {
+                            "items": [
+                                "E1. One or more required combinations are missing, methods not clearly labeled, or results presented in impossible-to-verify way",
+                                "E2. Blindly reuses original-space cluster settings everywhere, ignores that DR changes feature geometry, or gives no rationale for post-DR clustering choices",
+                                "E3. Provides scattered results without direct comparison, omits internal metric evidence, reports metrics for only some combinations, or tables too unclear to evaluate",
+                                "E4. Does not examine whether DR changed label alignment, only reports internal metrics, or makes label-alignment claims without evidence",
+                                "E5. Only states which combination scored highest, gives no explanation for why representation changed clustering, or discusses DR and clustering separately without connecting them",
+                                "E6. No stability/limitation issue discussed for DR + clustering, or limitations generic and not tied to reported evidence"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    },
+                    {
+                        "main_section": "NN after DR (12 points)",
+                        "points_available": 12,
+                        "section_letter": "F",
+                        "groups": [
+                            {
+                                "label": "NN Recipe Justification",
+                                "max": 2,
+                                "items": [
+                                    { "description": "NN recipe justification: States NN recipe used for UL and justifies it using knowledge from SL and OL Reports; changing input layer to match transformed dimensions is acceptable, other changes justified", "points": 2 }
+                                ]
+                            },
+                            {
+                                "label": "Leakage-Safe DR Pipeline",
+                                "max": 3,
+                                "items": [
+                                    { "description": "Leakage-safe DR pipeline: For NN-after-DR experiments, scaling and DR transformations fit on training data only and applied to validation/test data; protocol clearly stated", "points": 3 }
+                                ]
+                            },
+                            {
+                                "label": "Performance Comparison",
+                                "max": 3,
+                                "items": [
+                                    { "description": "Performance comparison: Compares original-feature NN performance to PCA, ICA, and RP feature performance using Accuracy, Macro-F1, balanced accuracy, and class-level behavior", "points": 3 }
+                                ]
+                            },
+                            {
+                                "label": "Runtime Comparison",
+                                "max": 2,
+                                "items": [
+                                    { "description": "Runtime comparison: Compares training time, fit time, prediction time, epoch time, or total wall-clock time across original and DR feature spaces; explains whether performance change is worth trade-off", "points": 2 }
+                                ]
+                            },
+                            {
+                                "label": "NN-after-DR Interpretation",
+                                "max": 2,
+                                "items": [
+                                    { "description": "NN-after-DR interpretation: Explains whether DR helped or hurt downstream learning and why (information loss, denoising, reduced dimensionality, altered geometry, etc.)", "points": 2 }
+                                ]
+                            }
+                        ],
+                        "negative_items": {
+                            "items": [
+                                "F1. NN setup arbitrary, not connected to SL/OL findings, missing key training details, or changes architecture/training recipe without justification",
+                                "F2. DR fit on full dataset before NN evaluation, preprocessing fit using validation/test data, or fitting protocol not clear",
+                                "F3. Omits original-feature NN baseline, omits one or more DR methods, reports only aggregate Accuracy, uses inconsistent splits without justification, or fails to discuss class-level behavior",
+                                "F4. No runtime/efficiency comparison provided, or runtime reported without interpretation of trade-off",
+                                "F5. Only reports numbers, declares winner without explanation, ignores class-level effects, or fails to connect NN behavior to properties of PCA, ICA, or RP"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    },
+                    {
+                        "main_section": "Discussion (18 points)",
+                        "points_available": 18,
+                        "section_letter": "G",
+                        "groups": [
+                            {
+                                "label": "Unsupervised Structure Synthesis",
+                                "max": 3,
+                                "items": [
+                                    { "description": "Unsupervised structure synthesis: Explains whether Covertype has meaningful unsupervised structure in original feature space and supports claim using clustering metrics, cluster descriptions, or feature/label patterns", "points": 3 }
+                                ]
+                            },
+                            {
+                                "label": "Cluster-Label Alignment Synthesis",
+                                "max": 3,
+                                "items": [
+                                    { "description": "Cluster-label alignment synthesis: Explains whether clusters align with Cover_Type, where alignment succeeds or fails, and why unsupervised geometry may differ from supervised labels", "points": 3 }
+                                ]
+                            },
+                            {
+                                "label": "Method-Assumption Comparison",
+                                "max": 3,
+                                "items": [
+                                    { "description": "Method-assumption comparison: Compares K-Means and GMM/EM in terms of assumptions and observed behavior (spherical vs elliptical, hard vs soft assignments, sensitivity to scaling, model-selection behavior)", "points": 3 }
+                                ]
+                            },
+                            {
+                                "label": "Dimensionality-Reduction Synthesis",
+                                "max": 3,
+                                "items": [
+                                    { "description": "Dimensionality-reduction synthesis: Compares PCA, ICA, and RP in terms of structure preservation, interpretability, stability, information loss, and component-count behavior", "points": 3 }
+                                ]
+                            },
+                            {
+                                "label": "DR + Clustering Interpretation",
+                                "max": 2,
+                                "items": [
+                                    { "description": "DR + clustering interpretation: Explains how dimensionality reduction changed clustering behavior, including noise filtering, information loss, improved label alignment, shifted internal metrics, or metric disagreement", "points": 2 }
+                                ]
+                            },
+                            {
+                                "label": "NN-after-DR Interpretation",
+                                "max": 2,
+                                "items": [
+                                    { "description": "NN-after-DR interpretation: Explains whether DR helped downstream NN performance, runtime, stability, or class-level behavior, related to original-feature NN baseline", "points": 2 }
+                                ]
+                            },
+                            {
+                                "label": "Limitations/Practical Takeaways",
+                                "max": 2,
+                                "items": [
+                                    { "description": "Limitations and practical takeaways: Identifies concrete limitations tied to the study and ends with practical conclusion about what UL and DR revealed about Covertype and when DR is useful", "points": 2 }
+                                ]
+                            }
+                        ],
+                        "negative_items": {
+                            "items": [
+                                "G1. Does not state what structure was found, or only says clustering scores high/low without interpreting what clusters represent",
+                                "G2. Assumes cluster-label mismatch means clustering failed, or only reports ARI/NMI/contingency results without explaining them",
+                                "G3. Treats K-Means and GMM/EM as interchangeable or only ranks them by one score",
+                                "G4. Treats PCA, ICA, and RP as interchangeable preprocessing steps or only ranks them by final score",
+                                "G5. Presents DR + clustering results without explaining how or why clustering changed",
+                                "G6. Lists NN results without explaining what the DR comparison reveals",
+                                "G7. Limitations missing, generic, or disconnected from evidence; conclusion only restates which method scored highest without broader takeaway"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    },
+                    {
+                        "main_section": "Extra Credit: Nonlinear Manifold Learning (up to 5 points)",
+                        "points_available": 5,
+                        "section_letter": "EC",
+                        "groups": [
+                            {
+                                "label": "Method Choice/Leakage-Safe Use",
+                                "max": 1,
+                                "items": [
+                                    { "description": "Method choice and leakage-safe use: Implements one nonlinear manifold learning method, justifies choice, explains key hyperparameters, and handles train/test transformation appropriately if used for downstream NN", "points": 1 }
+                                ]
+                            },
+                            {
+                                "label": "Visualization/Quantitative Evidence",
+                                "max": 1,
+                                "items": [
+                                    { "description": "Visualization or quantitative evidence: Includes clear visualization or quantitative diagnostic showing what nonlinear method reveals", "points": 1 }
+                                ]
+                            },
+                            {
+                                "label": "Comparison to Linear DR",
+                                "max": 1,
+                                "items": [
+                                    { "description": "Comparison to linear DR: Nonlinear method compared to at least one required linear method (PCA, ICA, or RP)", "points": 1 }
+                                ]
+                            },
+                            {
+                                "label": "Interpretive Insight",
+                                "max": 2,
+                                "items": [
+                                    { "description": "Interpretive insight: Explains whether nonlinear method reveals structure not captured by linear methods", "points": 2 }
+                                ]
+                            }
+                        ],
+                        "negative_items": {
+                            "items": [
+                                "EC1. Method mentioned but not implemented, or used in way that leaks validation/test information into downstream evaluation",
+                                "EC2. No meaningful evidence shown",
+                                "EC3. Nonlinear method presented in isolation",
+                                "EC4. Only says plot looks interesting or separated without deeper interpretation"
+                            ]
+                        },
+                        "feedback_section": "Feedback on Section: <free-text>"
+                    }
+                ],
+                "general_feedback": { "section": "General Feedback", "content": "<free-text>" }
+            }
+        };
+
+        // Store original for reset
+        originalRubricData = JSON.parse(JSON.stringify(baseRubricData));
+
+        // --- Programmatic transformations ---
+        const sections = baseRubricData.grading_rubric.sections;
+        for (let i = 0; i < sections.length - 1; i++) {
+            const section = sections[i];
+            const letter = section.section_letter;
+            if (letter) {
+                section.main_section = `${letter}) ${section.main_section}`;
+            }
+        }
+
+        const sectionLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+        for (let i = 0; i < sections.length - 1; i++) {
+            const section = sections[i];
+            const letter = sectionLetters[i] || section.section_letter;
+            if (letter) {
+                section.groups.forEach((group, idx) => {
+                    const groupNumber = idx + 1;
+                    group.label = `${letter}${groupNumber}. ${group.label}`;
+                });
+            }
+        }
+
+        const rubricData = baseRubricData;
+
+        // ==================== PREDEFINED FEEDBACK ====================
+        const predefinedFeedback = {
+            "requirements": [
+                "Please make sure the report clearly uses the Forest Cover Type / Covertype dataset as a multiclass classification task with Cover Type classes 1 through 7.",
+                "Please verify that your Overleaf and GitHub links use the required Georgia Tech / Enterprise accounts.",
+                "The report should stay within the 8-page limit.",
+                "Several figures or tables would benefit from larger fonts, clearer labels, and improved captions.",
+                "The report should read like a formal technical paper rather than a checklist."
+            ],
+            "study_design": [
+                "The study design would be stronger with clearer train/validation/test splits and leakage controls.",
+                "Please explain the compute accounting more clearly, including gradient evaluations, function evaluations, wall-clock time, and seed protocol.",
+                "Your hypothesis should be stated before results and should use course concepts such as momentum, adaptive scaling, bias correction, regularization, stability, or compute trade-offs.",
+                "Please revisit the hypothesis later using evidence from validation loss, test Macro-F1, balanced accuracy, class-level behavior, seed stability, or wall-clock time."
+            ],
+            "clustering": [
+                "For K-Means, evaluate at least three reasonable k values and justify your final choice.",
+                "For GMM/EM, state covariance type and justify component count.",
+                "Use at least two internal metrics (silhouette, Davies-Bouldin, Calinski-Harabasz, AIC/BIC) to evaluate clustering quality.",
+                "Include external alignment metrics such as ARI, NMI, or V-measure to compare clusters to Cover_Type labels.",
+                "Interpret what clusters capture—elevation, distance features, wilderness area, soil indicators, etc."
+            ],
+            "dr": [
+                "For PCA, include explained variance ratios, cumulative explained variance, and justify component count.",
+                "For ICA, provide evidence of non-Gaussianity (kurtosis) and discuss stability/seed sensitivity.",
+                "For RP, use at least three random seeds and assess distance preservation or distortion.",
+                "Compare component choices across PCA, ICA, and RP using appropriate diagnostics.",
+                "Include a compact visualization or table showing how transformed spaces differ."
+            ],
+            "dr_clustering": [
+                "Include all six required DR + clustering combinations.",
+                "Reselect or justify cluster settings after DR.",
+                "Provide a compact table comparing internal metrics across original and DR spaces.",
+                "Compare label alignment across original and DR spaces using ARI, NMI, etc.",
+                "Explain why DR changed clustering behavior—noise filtering, information loss, etc.",
+                "Discuss stability issues such as RP seed variability or ICA instability."
+            ],
+            "nn_dr": [
+                "Justify the NN recipe using SL and OL findings.",
+                "Ensure DR transformations are fit on training data only.",
+                "Compare original-feature NN to PCA, ICA, and RP using Accuracy, Macro-F1, balanced accuracy, and class-level behavior.",
+                "Include runtime comparison and interpret trade-offs.",
+                "Explain whether DR helped or hurt downstream learning."
+            ],
+            "discussion": [
+                "Synthesize whether Covertype has meaningful unsupervised structure.",
+                "Explain cluster-label alignment and why unsupervised geometry may differ from labels.",
+                "Compare K-Means and GMM/EM assumptions and behavior.",
+                "Compare PCA, ICA, and RP in terms of structure preservation, stability, and information loss.",
+                "Explain how DR changed clustering behavior.",
+                "Interpret DR's effect on NN performance, runtime, and stability.",
+                "Identify concrete limitations and provide a practical takeaway."
+            ],
+            "extra_credit": [
+                "Implement a nonlinear manifold learning method (e.g., t-SNE, UMAP, Isomap).",
+                "Provide clear visualization or quantitative evidence.",
+                "Compare to at least one linear method (PCA, ICA, or RP).",
+                "Explain whether nonlinear method reveals structure not captured by linear methods."
+            ],
+            "general": [
+                "Please strengthen the interpretation by explaining why the observed results occurred.",
+                "Connect claims to course concepts such as clustering, dimensionality reduction, stability, or downstream learning.",
+                "Improve the flow of the report so that the study design, results, and discussion build a coherent story."
+            ]
+        };
+
+        // ==================== STATE ====================
+        const state = {
+            selectedItems: new Map(),
+            feedbackTexts: new Map(),
+            generalFeedback: "",
+            currentEditingItem: null
+        };
+
+        // ==================== DOM READY ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            renderRubric();
+            setupEventListeners();
+            setupModalEvents();
+            setupPredefinedFeedbackEvents();
+            setupCommentModalEvents();
+            updateSummary();
+            
+            const nameInput = document.getElementById('studentName');
+            const templateSelect = document.getElementById('greetingTemplateSelect');
+            const templateTextarea = document.getElementById('globalCommentTemplate');
+            
+            function updateGreetingPreview() {
+                const name = nameInput.value.trim();
+                const template = templateTextarea.value;
+                const hint = document.querySelector('.global-comment-hint');
+                if (hint) {
+                    if (template.trim() && name) {
+                        const preview = template.replace(/{}/g, name);
+                        hint.textContent = `Preview: ${preview.substring(0, 80)}${preview.length > 80 ? '...' : ''}`;
+                    } else {
+                        hint.textContent = 'Select a preset, then edit if needed. The {} will be replaced by the name. Leave name empty for no name insertion. Choose "None" to omit greeting.';
+                    }
+                }
+            }
+            
+            nameInput.addEventListener('input', updateGreetingPreview);
+            templateTextarea.addEventListener('input', updateGreetingPreview);
+            templateSelect.addEventListener('change', function() {
+                if (this.value) {
+                    templateTextarea.value = this.value;
+                    updateGreetingPreview();
+                } else {
+                    templateTextarea.value = '';
+                    updateGreetingPreview();
+                }
+            });
+            
+            setTimeout(updateGreetingPreview, 100);
+
+            templateSelect.value = 'Great work in conquering the final of our three reports this semester, {}! We hope this leaves you with a sense of accomplishment for the challenges overcome and that this, in-turn, gives you confidence as you prepare for the Final Exam!';
+            templateTextarea.value = 'Great work in conquering the final of our three reports this semester, {}! We hope this leaves you with a sense of accomplishment for the challenges overcome and that this, in-turn, gives you confidence as you prepare for the Final Exam!\n\nPlease see below for strengths and weaknesses we gleaned from your paper.\n\nWhile we provide feedback here as a guide for your independent growth and encourage you to reach out via private Ed post if you have any questions, comments or concerns, due to the immediacy of the Institute\'s grading deadline, we will not be offering a typical Reviewer Response Extra Credit opportunity on this assignment.\n\nWe wish you the utmost success finishing out the course, as well as in all future endeavors!';
+
+            document.getElementById('studentName').addEventListener('input', function() {
+                const errorEl = document.getElementById('nameRequiredError');
+                if (this.value.trim()) {
+                    errorEl.classList.remove('show');
+                    this.style.borderColor = '';
+                }
+            });
+
+            // Initialize: master ON, all checks N and disabled
+            masterNoDeductions = true;
+            const masterEl = document.getElementById('check-text-positive-0');
+            if (masterEl) {
+                masterEl.classList.add('selected');
+                masterEl.classList.remove('unselected');
+            }
+            for (let i = 0; i < 5; i++) {
+                const statusEl = document.getElementById(`check-status-negative-${i}`);
+                const textEl = document.getElementById(`check-text-negative-${i}`);
+                if (statusEl) {
+                    statusEl.textContent = 'N';
+                    statusEl.className = 'check-status N disabled';
+                }
+                if (textEl) {
+                    textEl.classList.add('disabled');
+                    textEl.classList.remove('selected');
+                }
+                checkSelections[`negative-${i}`] = 'N';
+                checkTextSelections[`negative-${i}`] = false;
+            }
+            
+            updateCheck3();
+        });
+
+        // ==================== COPY FUNCTIONS ====================
+        function copyGroupScore(sectionIndex, groupIndex) {
+            const section = rubricData.grading_rubric.sections[sectionIndex];
+            const group = section.groups[groupIndex];
+            const sectionId = `section-${sectionIndex}`;
+            const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
+            let total = 0;
+            let offset = 0;
+            for (let g = 0; g < groupIndex; g++) {
+                offset += section.groups[g].items.length;
+            }
+            group.items.forEach((item, idx) => {
+                const itemId = `${sectionId}-positive-${offset + idx}`;
+                if (sectionState.positive.has(itemId)) {
+                    total += item.points;
+                }
+            });
+            const result = `${total.toFixed(0)}/${group.max}`;
+            navigator.clipboard.writeText(result);
+            showNotification(`✅ ${group.label}: ${result}`);
+        }
+
+        function copySectionScore(sectionIndex) {
+            const section = rubricData.grading_rubric.sections[sectionIndex];
+            const sectionId = `section-${sectionIndex}`;
+            const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
+            let sectionPoints = 0;
+            let totalItems = 0;
+            section.groups.forEach(group => {
+                group.items.forEach((item, idx) => {
+                    const itemId = `${sectionId}-positive-${totalItems + idx}`;
+                    if (sectionState.positive.has(itemId)) {
+                        sectionPoints += item.points;
+                    }
+                });
+                totalItems += group.items.length;
+            });
+            const result = `${sectionPoints.toFixed(0)}`;
+            navigator.clipboard.writeText(result);
+            const letter = section.section_letter || section.main_section.charAt(0);
+            showNotification(`✅ Section ${letter} total score: ${result}`, true, letter);
+        }
+
+        function toggleSelectAllPositives(sectionIndex) {
+            const section = rubricData.grading_rubric.sections[sectionIndex];
+            const sectionId = `section-${sectionIndex}`;
+            if (!state.selectedItems.has(sectionId)) state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
+            const sectionState = state.selectedItems.get(sectionId);
+
+            let totalItems = 0;
+            section.groups.forEach(group => {
+                totalItems += group.items.length;
+            });
+
+            let anySelected = false;
+            for (let i = 0; i < totalItems; i++) {
+                if (sectionState.positive.has(`${sectionId}-positive-${i}`)) {
+                    anySelected = true;
+                    break;
+                }
+            }
+
+            if (anySelected) {
+                for (let i = 0; i < totalItems; i++) {
+                    const itemId = `${sectionId}-positive-${i}`;
+                    if (sectionState.positive.has(itemId)) {
+                        sectionState.positive.delete(itemId);
+                        const el = document.getElementById(itemId);
+                        if (el) el.classList.remove('selected-positive');
+                    }
+                }
+            } else {
+                for (let i = 0; i < totalItems; i++) {
+                    const itemId = `${sectionId}-positive-${i}`;
+                    sectionState.positive.add(itemId);
+                    const el = document.getElementById(itemId);
+                    if (el) el.classList.add('selected-positive');
+                }
+            }
+            updateSummary();
+            if (sectionIndex === 0) updateChecksOnSelection();
+        }
+
+        function toggleSelectAllNegatives(sectionIndex) {
+            const section = rubricData.grading_rubric.sections[sectionIndex];
+            const sectionId = `section-${sectionIndex}`;
+            if (!state.selectedItems.has(sectionId)) state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
+            const sectionState = state.selectedItems.get(sectionId);
+
+            if (!section.negative_items) return;
+            const totalNeg = section.negative_items.items.length;
+
+            let anySelected = false;
+            for (let i = 0; i < totalNeg; i++) {
+                if (sectionState.negative.has(`${sectionId}-negative-${i}`)) {
+                    anySelected = true;
+                    break;
+                }
+            }
+
+            if (anySelected) {
+                for (let i = 0; i < totalNeg; i++) {
+                    const itemId = `${sectionId}-negative-${i}`;
+                    if (sectionState.negative.has(itemId)) {
+                        sectionState.negative.delete(itemId);
+                        const el = document.getElementById(itemId);
+                        if (el) el.classList.remove('selected-negative');
+                    }
+                }
+            } else {
+                for (let i = 0; i < totalNeg; i++) {
+                    const itemId = `${sectionId}-negative-${i}`;
+                    sectionState.negative.add(itemId);
+                    const el = document.getElementById(itemId);
+                    if (el) el.classList.add('selected-negative');
+                }
+            }
+            updateSummary();
+            if (sectionIndex === 0) updateChecksOnSelection();
+        }
+
+        // ==================== COMMENT MODAL ====================
+        let commentModalTarget = null;
+
+        function setupCommentModalEvents() {
+            const modal = document.getElementById('commentModal');
+            const closeBtn = document.getElementById('commentModalClose');
+            const cancelBtn = document.getElementById('cancelCommentBtn');
+            const addBtn = document.getElementById('addCommentBtn');
+            const clearBtn = document.getElementById('clearCommentBtn');
+            const commentText = document.getElementById('commentText');
+
+            function closeModal() {
+                modal.style.display = 'none';
+                commentModalTarget = null;
+                commentText.value = '';
+            }
+
+            closeBtn.addEventListener('click', closeModal);
+            cancelBtn.addEventListener('click', closeModal);
+            window.addEventListener('click', function(e) {
+                if (e.target === modal) closeModal();
+            });
+
+            clearBtn.addEventListener('click', function() {
+                commentText.value = '';
+            });
+
+            addBtn.addEventListener('click', function() {
+                const text = commentText.value.trim();
+                if (!text) {
+                    showNotification('⚠️ Please enter a comment before adding.', false);
+                    return;
+                }
+                if (!commentModalTarget) {
+                    showNotification('⚠️ No target section found.', false);
+                    return;
+                }
+                const { sectionId } = commentModalTarget;
+                const feedbackTextarea = document.getElementById(`${sectionId}-feedback`);
+                if (feedbackTextarea) {
+                    const current = feedbackTextarea.value;
+                    const separator = current && !current.endsWith('\n') ? '\n' : '';
+                    feedbackTextarea.value = current + separator + text;
+                    showNotification('✅ Comment added to feedback section!');
+                } else {
+                    showNotification('⚠️ Feedback textarea not found.', false);
+                }
+                closeModal();
+            });
+
+            document.querySelectorAll('#commentModal .predefined-comment-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const comment = this.getAttribute('data-comment');
+                    const textarea = document.getElementById('commentText');
+                    const current = textarea.value;
+                    if (current) {
+                        textarea.value = current + '\n' + comment;
+                    } else {
+                        textarea.value = comment;
+                    }
+                    textarea.focus();
+                });
+            });
+        }
+
+        function openCommentModal(sectionId, negItemId) {
+            commentModalTarget = { sectionId, negItemId };
+            const modal = document.getElementById('commentModal');
+            const textarea = document.getElementById('commentText');
+            textarea.value = '';
+            modal.style.display = 'flex';
+            setTimeout(() => textarea.focus(), 100);
+        }
+
+        // ==================== RENDER RUBRIC (SIDE-BY-SIDE) ====================
+        function renderRubric() {
+            const container = document.getElementById('rubricContainer');
+            container.innerHTML = '';
+            
+            rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
+                const sectionId = `section-${sectionIndex}`;
+                const isExtraCredit = section.main_section.includes('Extra Credit');
+                
+                // Section Header
+                const sectionHeader = document.createElement('div');
+                sectionHeader.className = 'section-header';
+                sectionHeader.id = `header-${sectionId}`;
+
+                const titleSpan = document.createElement('span');
+                titleSpan.className = 'editable';
+                titleSpan.setAttribute('data-id', `${sectionId}-header`);
+                titleSpan.textContent = section.main_section;
+                sectionHeader.appendChild(titleSpan);
+
+                const btnDiv = document.createElement('div');
+                btnDiv.className = 'section-buttons';
+
+                const posBtn = document.createElement('button');
+                posBtn.textContent = '✓ All Pos';
+                posBtn.className = 'select-positive-btn';
+                posBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleSelectAllPositives(sectionIndex);
+                });
+                btnDiv.appendChild(posBtn);
+
+                if (section.negative_items && section.negative_items.items.length > 0) {
+                    const negBtn = document.createElement('button');
+                    negBtn.textContent = '✗ All Neg';
+                    negBtn.className = 'select-negative-btn';
+                    negBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        toggleSelectAllNegatives(sectionIndex);
+                    });
+                    btnDiv.appendChild(negBtn);
+                }
+
+                const copyBtn = document.createElement('button');
+                copyBtn.textContent = '📋 Total';
+                copyBtn.className = 'copy-score-btn';
+                copyBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    copySectionScore(sectionIndex);
+                });
+                btnDiv.appendChild(copyBtn);
+
+                if (section.groups) {
+                    section.groups.forEach((group, groupIndex) => {
+                        const gBtn = document.createElement('button');
+                        gBtn.textContent = `📋 ${group.label}`;
+                        gBtn.className = 'copy-group-btn';
+                        gBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            copyGroupScore(sectionIndex, groupIndex);
+                        });
+                        btnDiv.appendChild(gBtn);
+                    });
+                }
+
+                sectionHeader.appendChild(btnDiv);
+                container.appendChild(sectionHeader);
+
+                // Section Content with side-by-side table
+                const sectionContent = document.createElement('div');
+                sectionContent.id = `${sectionId}-content`;
+                sectionContent.className = 'section-content-wrapper';
+
+                if (section.groups && !isExtraCredit) {
+                    const table = document.createElement('table');
+                    table.className = 'comparison-table';
+                    
+                    const thead = document.createElement('thead');
+                    const headerRow = document.createElement('tr');
+                    headerRow.innerHTML = `
+                        <th>✅ What You Did Well</th>
+                        <th>❌ What Needs Improvement</th>
+                    `;
+                    thead.appendChild(headerRow);
+                    table.appendChild(thead);
+                    
+                    const tbody = document.createElement('tbody');
+                    
+                    const negByGroup = {};
+                    if (section.negative_items) {
+                        section.negative_items.items.forEach((negText, negIndex) => {
+                            const match = negText.match(/^([A-Z][0-9]+)\.\s*(.*)$/);
+                            if (match) {
+                                const prefix = match[1];
+                                if (!negByGroup[prefix]) negByGroup[prefix] = [];
+                                negByGroup[prefix].push({ text: negText, index: negIndex, prefix: prefix });
+                            }
+                        });
+                    }
+                    
+                    let itemCounter = 0;
+                    section.groups.forEach((group, groupIndex) => {
+                        const groupLabel = group.label;
+                        const groupPrefixMatch = groupLabel.match(/^([A-Z][0-9]+)\./);
+                        const groupPrefix = groupPrefixMatch ? groupPrefixMatch[1] : null;
+                        
+                        const groupRow = document.createElement('tr');
+                        groupRow.className = 'group-label-row';
+                        groupRow.innerHTML = `<td colspan="2"><strong>${groupLabel}</strong></td>`;
+                        tbody.appendChild(groupRow);
+                        
+                        const negItems = groupPrefix ? (negByGroup[groupPrefix] || []) : [];
+                        
+                        group.items.forEach((item, idx) => {
+                            const itemId = `${sectionId}-positive-${itemCounter}`;
+                            const negItem = negItems[idx] || null;
+                            
+                            const row = document.createElement('tr');
+                            row.className = 'item-row';
+                            
+                            const posCell = document.createElement('td');
+                            posCell.className = 'positive-col';
+                            const posDiv = document.createElement('div');
+                            posDiv.className = 'item positive-item';
+                            posDiv.id = itemId;
+                            const pointsValue = item.points;
+                            posDiv.setAttribute('data-points', pointsValue);
+                            posDiv.innerHTML = `
+                                <span class="editable" data-id="${itemId}-text">${item.description}</span>
+                                <span class="point-badge" data-points="${pointsValue}">(${pointsValue} pts)</span>
+                            `;
+                            posCell.appendChild(posDiv);
+                            
+                            const negCell = document.createElement('td');
+                            negCell.className = 'negative-col';
+                            if (negItem) {
+                                const negId = `${sectionId}-negative-${negItem.index}`;
+                                const match = negItem.text.match(/^([A-Z][0-9]+)\.\s*(.*)$/);
+                                let prefix = '';
+                                let description = negItem.text;
+                                if (match) {
+                                    prefix = match[1] + '.';
+                                    description = match[2];
+                                }
+                                const negWrapper = document.createElement('div');
+                                negWrapper.className = 'negative-item-wrapper';
+                                
+                                const negDiv = document.createElement('div');
+                                negDiv.className = 'item negative-item';
+                                negDiv.id = negId;
+                                negDiv.innerHTML = `
+                                    <span class="item-prefix">${prefix}</span>
+                                    <span class="editable item-description" data-id="${negId}-text">${description}</span>
+                                `;
+                                negWrapper.appendChild(negDiv);
+                                
+                                const commentBtn = document.createElement('button');
+                                commentBtn.className = 'neg-comment-btn';
+                                commentBtn.textContent = '💬';
+                                commentBtn.title = 'Add comment to section feedback';
+                                commentBtn.addEventListener('click', function(e) {
+                                    e.stopPropagation();
+                                    openCommentModal(sectionId, negId);
+                                });
+                                negWrapper.appendChild(commentBtn);
+                                
+                                negCell.appendChild(negWrapper);
+                            } else {
+                                negCell.innerHTML = '<span style="color:#999; font-style:italic;">—</span>';
+                            }
+                            
+                            row.appendChild(posCell);
+                            row.appendChild(negCell);
+                            tbody.appendChild(row);
+                            
+                            itemCounter++;
+                        });
+                    });
+                    
+                    table.appendChild(tbody);
+                    sectionContent.appendChild(table);
+                } else if (isExtraCredit) {
+                    if (section.groups) {
+                        let itemCounter = 0;
+                        section.groups.forEach((group) => {
+                            const groupDiv = document.createElement('div');
+                            groupDiv.className = 'group-item';
+                            groupDiv.innerHTML = `<strong>${group.label} (${group.max} pts)</strong>`;
+                            const subDiv = document.createElement('div');
+                            subDiv.className = 'sub-items';
+                            group.items.forEach((item) => {
+                                const itemId = `${sectionId}-positive-${itemCounter}`;
+                                const itemEl = document.createElement('div');
+                                itemEl.className = 'sub-item item positive-item';
+                                itemEl.id = itemId;
+                                itemEl.innerHTML =
+                                    `<span class="editable" data-id="${itemId}-text">${item.description}</span> (<span class="editable point-edit" data-id="${itemId}-points">${item.points}</span> pts)`;
+                                subDiv.appendChild(itemEl);
+                                itemCounter++;
+                            });
+                            groupDiv.appendChild(subDiv);
+                            sectionContent.appendChild(groupDiv);
+                        });
+                    }
+                    
+                    if (section.negative_items) {
+                        const negativeList = document.createElement('div');
+                        negativeList.className = 'item-list';
+                        negativeList.innerHTML = '<strong>What needs improvement</strong>';
+                        section.negative_items.items.forEach((item, itemIndex) => {
+                            const itemId = `${sectionId}-negative-${itemIndex}`;
+                            const match = item.match(/^([A-Z][0-9]+)\.\s*(.*)$/);
+                            let prefix = '';
+                            let description = item;
+                            if (match) {
+                                prefix = match[1] + '.';
+                                description = match[2];
+                            }
+                            const itemElement = document.createElement('div');
+                            itemElement.className = 'item negative-item';
+                            itemElement.id = itemId;
+                            itemElement.innerHTML = `
+                                - <span class="item-prefix">${prefix}</span>
+                                <span class="editable item-description" data-id="${itemId}-text">${description}</span>
+                            `;
+                            negativeList.appendChild(itemElement);
+                        });
+                        sectionContent.appendChild(negativeList);
+                    }
+                }
+
+                const feedbackDiv = document.createElement('div');
+                feedbackDiv.innerHTML = `<strong>${section.feedback_section}</strong>`;
+                const predefinedFeedbackHTML = createPredefinedFeedback(sectionId);
+                if (predefinedFeedbackHTML) feedbackDiv.innerHTML += predefinedFeedbackHTML;
+                const feedbackTextarea = document.createElement('textarea');
+                feedbackTextarea.className = 'feedback-textarea';
+                feedbackTextarea.id = `${sectionId}-feedback`;
+                feedbackTextarea.placeholder = 'Enter feedback here (optional)';
+                feedbackDiv.appendChild(feedbackTextarea);
+                sectionContent.appendChild(feedbackDiv);
+                
+                container.appendChild(sectionContent);
+                
+                const separator = document.createElement('hr');
+                separator.style.margin = '20px 0';
+                container.appendChild(separator);
+            });
+            
+            const generalDiv = document.createElement('div');
+            generalDiv.innerHTML = `<h3>${rubricData.grading_rubric.general_feedback.section}</h3>`;
+            const generalPredefined = createPredefinedFeedback('general');
+            if (generalPredefined) generalDiv.innerHTML += generalPredefined;
+            const generalTA = document.createElement('textarea');
+            generalTA.className = 'feedback-textarea';
+            generalTA.id = 'general-feedback';
+            generalTA.placeholder = 'Enter general feedback here (optional)';
+            generalDiv.appendChild(generalTA);
+            container.appendChild(generalDiv);
+        }
+
+        function createPredefinedFeedback(sectionId) {
+            const sectionKey = getSectionKey(sectionId);
+            const comments = predefinedFeedback[sectionKey] || [];
+            if (comments.length === 0) return '';
+            let html = `<div class="predefined-feedback"><strong>Predefined Comments:</strong>`;
+            comments.forEach((comment) => { html +=
+                    `<button type="button" class="predefined-comment" data-comment="${comment.replace(/"/g, '&quot;')}">${comment}</button>`; });
+            html +=
+                `<div class="feedback-controls"><button type="button" class="add-all-comments" style="background-color: #2196F3;">Add All Comments</button><button type="button" class="clear-comments" style="background-color: #ff9800;">Clear Comments</button></div></div>`;
+            return html;
+        }
+
+        function getSectionKey(sectionId) {
+            if (sectionId === 'general' || sectionId.includes('general-feedback')) return 'general';
+            const sectionMatch = sectionId.match(/section-(\d+)/);
+            if (!sectionMatch) return 'general';
+            const sectionIndex = parseInt(sectionMatch[1]);
+            switch (sectionIndex) {
+                case 0: return 'requirements';
+                case 1: return 'study_design';
+                case 2: return 'clustering';
+                case 3: return 'dr';
+                case 4: return 'dr_clustering';
+                case 5: return 'nn_dr';
+                case 6: return 'discussion';
+                case 7: return 'extra_credit';
+                default: return 'general';
+            }
+        }
+
+        // ==================== EVENT LISTENERS ====================
+        function setupEventListeners() {
+            document.addEventListener('dblclick', function(e) {
+                const editable = e.target.closest('.editable');
+                if (editable && !editable.closest('.checks-section')) {
+                    if (editable.classList.contains('item-prefix')) {
+                        return;
+                    }
+                    const parentItem = editable.closest('.item');
+                    if (parentItem) {
+                        showItemModal(parentItem.id);
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                    }
+                    makeEditable(editable);
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                }
+                
+                const item = e.target.closest('.item');
+                if (item) { 
+                    showItemModal(item.id);
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            });
+            
+            document.addEventListener('click', function(e) {
+                const item = e.target.closest('.item');
+                if (item && !item.closest('.checks-section')) {
+                    toggleItemSelection(item);
+                    updateSummary();
+                    if (item.id.startsWith('section-0')) updateChecksOnSelection();
+                    e.stopPropagation();
+                }
+            });
+            document.addEventListener('click', function(e) {
+                const header = e.target.closest('.section-header, .subsection-header');
+                if (header && !e.target.closest('button')) {
+                    const contentId = header.id ? `${header.id}-content` : header.querySelector('span').getAttribute('data-id')
+                        .replace('-header', '-content');
+                    const content = document.getElementById(contentId);
+                    if (content) content.style.display = content.style.display === 'none' ? 'block' : 'none';
+                    e.stopPropagation();
+                }
+            });
+            document.getElementById('generateBtn').addEventListener('click', function() {
+                if (validateName()) {
+                    generateFeedback();
+                } else {
+                    document.getElementById('nameSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    document.getElementById('studentName').focus();
+                }
+            });
+            document.getElementById('resetBtn').addEventListener('click', resetAll);
+            document.getElementById('copyBtn').addEventListener('click', function() {
+                const output = document.getElementById('outputSection').textContent;
+                if (output.trim()) {
+                    navigator.clipboard.writeText(output);
+                    showNotification('✅ Feedback copied!');
+                }
+            });
+            document.getElementById('copyScoresBtn').addEventListener('click', copyScores);
+        }
+
+        function setupModalEvents() {
+            const modal = document.getElementById('itemModal');
+            const closeBtn = document.querySelector('.close-btn');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            const clearTextBtn = document.getElementById('clearTextBtn');
+            const incrementBtn = document.getElementById('incrementPoint');
+            const decrementBtn = document.getElementById('decrementPoint');
+            const resetPointBtn = document.getElementById('resetPointBtn');
+            const restoreTextBtn = document.getElementById('restoreTextBtn');
+            const restorePointsBtn = document.getElementById('restorePointsBtn');
+
+            [closeBtn, cancelBtn].forEach(btn => btn.addEventListener('click', () => modal.style.display = 'none'));
+
+            incrementBtn.addEventListener('click', function() {
+                const input = document.getElementById('itemPoints');
+                const current = parseInt(input.value) || 0;
+                const maxPoints = parseInt(document.getElementById('maxPointDisplay').textContent) || 0;
+                if (current < maxPoints) {
+                    input.value = current + 1;
+                } else {
+                    showNotification('⚠️ Cannot exceed max points (' + maxPoints + ')', false);
+                }
+            });
+
+            decrementBtn.addEventListener('click', function() {
+                const input = document.getElementById('itemPoints');
+                const current = parseInt(input.value) || 0;
+                if (current > 0) {
+                    input.value = current - 1;
+                } else {
+                    showNotification('⚠️ Cannot go below 0', false);
+                }
+            });
+
+            resetPointBtn.addEventListener('click', () => {
+                if (state.currentEditingItem) {
+                    const maxPoints = state.currentEditingItem.maxPoints || 0;
+                    document.getElementById('itemPoints').value = maxPoints;
+                    document.getElementById('maxPointDisplay').textContent = maxPoints;
+                }
+            });
+
+            restoreTextBtn.addEventListener('click', function() {
+                const itemId = state.currentEditingItem?.id;
+                if (!itemId) return;
+                const originalText = getOriginalItemText(itemId);
+                if (originalText !== null) {
+                    document.getElementById('itemText').value = originalText;
+                    showNotification('✅ Original text restored');
+                } else {
+                    showNotification('⚠️ Could not find original text', false);
+                }
+            });
+
+            restorePointsBtn.addEventListener('click', function() {
+                const itemId = state.currentEditingItem?.id;
+                if (!itemId) return;
+                const originalPoints = getOriginalItemPoints(itemId);
+                if (originalPoints !== null) {
+                    document.getElementById('itemPoints').value = originalPoints;
+                    document.getElementById('maxPointDisplay').textContent = originalPoints;
+                    showNotification('✅ Original points restored');
+                } else {
+                    showNotification('⚠️ Could not find original points', false);
+                }
+            });
+
+            saveBtn.addEventListener('click', saveItemChanges);
+            clearTextBtn.addEventListener('click', () => document.getElementById('itemText').value = '');
+            window.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+        }
+
+        function setupPredefinedFeedbackEvents() {
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('predefined-comment')) {
+                    const comment = e.target.getAttribute('data-comment');
+                    const textarea = e.target.closest('.predefined-feedback').nextElementSibling;
+                    if (textarea && textarea.classList.contains('feedback-textarea')) {
+                        const currentText = textarea.value.trim();
+                        textarea.value = currentText ? currentText + '\n\n' + comment : comment;
+                        e.target.classList.add('selected');
+                        setTimeout(() => e.target.classList.remove('selected'), 1000);
+                    }
+                }
+                if (e.target.classList.contains('add-all-comments')) {
+                    const predefinedSection = e.target.closest('.predefined-feedback');
+                    const comments = predefinedSection.querySelectorAll('.predefined-comment');
+                    const textarea = predefinedSection.nextElementSibling;
+                    if (textarea && textarea.classList.contains('feedback-textarea')) {
+                        let allComments = '';
+                        comments.forEach(cb => allComments += cb.getAttribute('data-comment') + '\n\n');
+                        const current = textarea.value.trim();
+                        textarea.value = current ? current + '\n\n' + allComments : allComments;
+                    }
+                }
+                if (e.target.classList.contains('clear-comments')) {
+                    const textarea = e.target.closest('.predefined-feedback').nextElementSibling;
+                    if (textarea && textarea.classList.contains('feedback-textarea')) textarea.value = '';
+                }
+            });
+        }
+
+        // ==================== HELPER: get original text/points from rubric ====================
+        function getOriginalItemText(itemId) {
+            const parts = itemId.split('-');
+            if (parts.length < 3) return null;
+            const sectionIndex = parseInt(parts[1]);
+            const isPositive = parts[2] === 'positive';
+            const itemIndex = parseInt(parts[3]);
+            const section = originalRubricData.grading_rubric.sections[sectionIndex];
+            if (!section) return null;
+            if (isPositive) {
+                let counter = 0;
+                for (let g = 0; g < section.groups.length; g++) {
+                    for (let i = 0; i < section.groups[g].items.length; i++) {
+                        if (counter === itemIndex) {
+                            return section.groups[g].items[i].description;
+                        }
+                        counter++;
+                    }
+                }
+            } else {
+                const negItems = section.negative_items?.items;
+                if (negItems && itemIndex < negItems.length) {
+                    return negItems[itemIndex];
+                }
+            }
+            return null;
+        }
+
+        function getOriginalItemPoints(itemId) {
+            const parts = itemId.split('-');
+            if (parts.length < 3) return null;
+            const sectionIndex = parseInt(parts[1]);
+            const isPositive = parts[2] === 'positive';
+            const itemIndex = parseInt(parts[3]);
+            const section = originalRubricData.grading_rubric.sections[sectionIndex];
+            if (!section || !isPositive) return null;
+            let counter = 0;
+            for (let g = 0; g < section.groups.length; g++) {
+                for (let i = 0; i < section.groups[g].items.length; i++) {
+                    if (counter === itemIndex) {
+                        return section.groups[g].items[i].points;
+                    }
+                    counter++;
+                }
+            }
+            return null;
+        }
+
+        // ==================== ITEM FUNCTIONS ====================
+        function toggleItemSelection(item) {
+            const itemId = item.id;
+            const isPositive = item.classList.contains('positive-item');
+            let sectionId = itemId.split('-').slice(0, 2).join('-');
+            if (!state.selectedItems.has(sectionId)) state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
+            const sectionState = state.selectedItems.get(sectionId);
+            const itemSet = isPositive ? sectionState.positive : sectionState.negative;
+            if (itemSet.has(itemId)) {
+                itemSet.delete(itemId);
+                item.classList.remove(isPositive ? 'selected-positive' : 'selected-negative');
+            } else {
+                itemSet.add(itemId);
+                item.classList.add(isPositive ? 'selected-positive' : 'selected-negative');
+            }
+        }
+
+        function makeEditable(element) {
+            if (element.classList.contains('item-prefix')) {
+                return;
+            }
+            
+            const currentText = element.textContent;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentText;
+            input.style.width = '100%';
+            input.style.border = '1px solid #2196F3';
+            input.style.padding = '2px 4px';
+            input.style.background = 'white';
+            input.style.borderRadius = '3px';
+            input.style.fontSize = 'inherit';
+            input.style.fontFamily = 'inherit';
+            input.style.boxSizing = 'border-box';
+            input.style.outline = 'none';
+            
+            const originalText = currentText;
+            
+            element.innerHTML = '';
+            element.appendChild(input);
+            
+            setTimeout(function() {
+                input.focus();
+                input.select();
+            }, 10);
+            
+            input.addEventListener('blur', function() {
+                let newValue = input.value.trim();
+                if (newValue === '') {
+                    newValue = originalText;
+                }
+                if (element.dataset.id && element.dataset.id.endsWith('-points')) {
+                    const parts = element.dataset.id.split('-');
+                    const itemIndex = parseInt(parts[parts.length - 1]);
+                    const parentId = parts.slice(0, parts.length - 2).join('-');
+                    rubricData.grading_rubric.sections.forEach((section, si) => {
+                        const sectionId = `section-${si}`;
+                        if (parentId.startsWith(sectionId)) {
+                            let counter = 0;
+                            for (let g = 0; g < section.groups.length; g++) {
+                                for (let i = 0; i < section.groups[g].items.length; i++) {
+                                    if (counter === itemIndex) {
+                                        section.groups[g].items[i].points = parseInt(newValue) || 0;
+                                    }
+                                    counter++;
+                                }
+                            }
+                        }
+                    });
+                    element.textContent = newValue;
+                    updateSummary();
+                } else {
+                    element.textContent = newValue;
+                    const parentItem = element.closest('.item');
+                    if (parentItem && parentItem.classList.contains('negative-item')) {
+                        const itemId = parentItem.id;
+                        let sectionId = itemId.split('-').slice(0, 2).join('-');
+                        if (!state.selectedItems.has(sectionId)) {
+                            state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
+                        }
+                        const sectionState = state.selectedItems.get(sectionId);
+                        if (!sectionState.negative.has(itemId)) {
+                            sectionState.negative.add(itemId);
+                            parentItem.classList.add('selected-negative');
+                        }
+                        updateSummary();
+                    } else if (parentItem && parentItem.classList.contains('positive-item')) {
+                        const pointBadge = parentItem.querySelector('.point-badge');
+                        if (pointBadge) {
+                            const points = parseInt(pointBadge.textContent) || 0;
+                            pointBadge.textContent = `(${points} pts)`;
+                            parentItem.setAttribute('data-points', points);
+                        }
+                        updateSummary();
+                    }
+                }
+                element.classList.add('editable');
+            });
+            
+            input.addEventListener('keypress', function(e) { 
+                if (e.key === 'Enter') {
+                    input.blur();
+                }
+                if (e.key === 'Escape') {
+                    element.textContent = originalText;
+                    element.classList.add('editable');
+                    input.remove();
+                }
+            });
+        }
+
+        function getItemMaxPoints(itemId) {
+            const parts = itemId.split('-');
+            const sectionIndex = parseInt(parts[1]);
+            const itemIndex = parseInt(parts[parts.length - 1]);
+            const section = rubricData.grading_rubric.sections[sectionIndex];
+            let counter = 0;
+            for (let g = 0; g < section.groups.length; g++) {
+                for (let i = 0; i < section.groups[g].items.length; i++) {
+                    if (counter === itemIndex) {
+                        return section.groups[g].items[i].points;
+                    }
+                    counter++;
+                }
+            }
+            return 0;
+        }
+
+        function showItemModal(itemId) {
+            const modal = document.getElementById('itemModal');
+            const itemText = document.getElementById('itemText');
+            const itemPoints = document.getElementById('itemPoints');
+            const maxPointSpan = document.getElementById('maxPointDisplay');
+            const itemElement = document.getElementById(itemId);
+            if (!itemElement) return;
+            
+            let textElement = itemElement.querySelector('.editable[data-id$="-text"]');
+            let pointsElement = itemElement.querySelector('.editable[data-id$="-points"]');
+            
+            if (!textElement) {
+                textElement = itemElement.querySelector('.editable');
+            }
+            
+            const isNegative = itemElement.classList.contains('negative-item');
+            
+            if (!textElement) return;
+            
+            let maxPoints = 0;
+            if (!isNegative) {
+                maxPoints = getItemMaxPoints(itemId);
+                maxPointSpan.textContent = maxPoints;
+                const pointBadge = itemElement.querySelector('.point-badge');
+                let currentPoints = 0;
+                if (pointBadge) {
+                    const badgeText = pointBadge.textContent.replace(/[()]/g, '').replace('pts', '').trim();
+                    currentPoints = parseInt(badgeText) || 0;
+                } else if (pointsElement) {
+                    currentPoints = parseFloat(pointsElement.textContent) || 0;
+                }
+                const dataPoints = itemElement.getAttribute('data-points');
+                if (dataPoints !== null) {
+                    currentPoints = parseInt(dataPoints) || currentPoints;
+                }
+                itemPoints.value = Math.abs(currentPoints);
+                itemPoints.disabled = false;
+                itemText.value = textElement.textContent;
+            } else {
+                const prefixEl = itemElement.querySelector('.item-prefix');
+                const descEl = itemElement.querySelector('.editable.item-description');
+                if (descEl) {
+                    itemText.value = descEl.textContent;
+                } else {
+                    itemText.value = textElement.textContent;
+                }
+                maxPointSpan.textContent = 'N/A';
+                itemPoints.value = 0;
+                itemPoints.disabled = true;
+            }
+            
+            state.currentEditingItem = { 
+                id: itemId, 
+                textElement: textElement, 
+                pointsElement: pointsElement, 
+                isNegative: isNegative,
+                maxPoints: maxPoints,
+                itemElement: itemElement
+            };
+            modal.style.display = 'flex';
+        }
+
+        function saveItemChanges() {
+            const modal = document.getElementById('itemModal');
+            const itemText = document.getElementById('itemText');
+            const itemPoints = document.getElementById('itemPoints');
+            if (!state.currentEditingItem) return;
+            const { id, textElement, pointsElement, isNegative, maxPoints, itemElement } = state.currentEditingItem;
+            
+            if (isNegative) {
+                const descEl = itemElement.querySelector('.editable.item-description');
+                if (descEl) {
+                    descEl.textContent = itemText.value;
+                } else {
+                    textElement.textContent = itemText.value;
+                }
+                let sectionId = id.split('-').slice(0, 2).join('-');
+                if (!state.selectedItems.has(sectionId)) {
+                    state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
+                }
+                const sectionState = state.selectedItems.get(sectionId);
+                if (!sectionState.negative.has(id)) {
+                    sectionState.negative.add(id);
+                    itemElement.classList.add('selected-negative');
+                }
+            } else {
+                textElement.textContent = itemText.value;
+                
+                const pointsValue = parseInt(itemPoints.value) || 0;
+                const clampedPoints = Math.min(pointsValue, maxPoints);
+                
+                const pointBadge = itemElement.querySelector('.point-badge');
+                if (pointBadge) {
+                    pointBadge.textContent = `(${clampedPoints} pts)`;
+                    itemElement.setAttribute('data-points', clampedPoints);
+                }
+                if (pointsElement) {
+                    pointsElement.textContent = clampedPoints;
+                }
+                
+                const parts = id.split('-');
+                const sectionIndex = parseInt(parts[1]);
+                const itemIndex = parseInt(parts[parts.length - 1]);
+                const section = rubricData.grading_rubric.sections[sectionIndex];
+                let counter = 0;
+                for (let g = 0; g < section.groups.length; g++) {
+                    for (let i = 0; i < section.groups[g].items.length; i++) {
+                        if (counter === itemIndex) {
+                            section.groups[g].items[i].points = clampedPoints;
+                        }
+                        counter++;
+                    }
+                }
+
+                if (itemElement && !itemElement.classList.contains('selected-positive')) {
+                    let sectionId = id.split('-').slice(0, 2).join('-');
+                    if (!state.selectedItems.has(sectionId)) state.selectedItems.set(sectionId, { positive: new Set(), negative: new Set() });
+                    const sectionState = state.selectedItems.get(sectionId);
+                    sectionState.positive.add(id);
+                    itemElement.classList.add('selected-positive');
+                }
+            }
+
+            modal.style.display = 'none';
+            state.currentEditingItem = null;
+            updateSummary();
+            if (id.startsWith('section-0')) updateChecksOnSelection();
+        }
+
+        function scrollToSection(sectionIndex) {
+            const headerId = `header-section-${sectionIndex}`;
+            const headerElement = document.getElementById(headerId);
+            if (headerElement) {
+                headerElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                headerElement.classList.add('section-highlight');
+                setTimeout(() => headerElement.classList.remove('section-highlight'), 1500);
+            }
+        }
+
+        // ==================== UPDATE SUMMARY ====================
+        function updateSummary() {
+            const summaryBody = document.getElementById('summaryBody');
+            summaryBody.innerHTML = '';
+            let mainTotal = 0;
+            let extraCreditPoints = 0,
+                extraCreditMaxPoints = 0;
+            const extraCreditBody = document.getElementById('extraCreditBody');
+            extraCreditBody.innerHTML = '';
+            rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
+                const sectionId = `section-${sectionIndex}`;
+                const isExtraCredit = section.main_section.includes('Extra Credit');
+                const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
+                let sectionPoints = 0;
+                const maxPoints = section.points_available;
+                
+                let totalRows = 0;
+                section.groups.forEach(group => {
+                    totalRows += group.items.length;
+                });
+                
+                let rowsWithSelection = 0;
+                let itemCounter = 0;
+                section.groups.forEach(group => {
+                    group.items.forEach((item, idx) => {
+                        const posId = `${sectionId}-positive-${itemCounter}`;
+                        let negSelected = false;
+                        if (section.negative_items) {
+                            if (!isExtraCredit) {
+                                const prefix = group.label.match(/^([A-Z][0-9]+)\./);
+                                if (prefix) {
+                                    const negKey = prefix[1];
+                                    const negItems = section.negative_items.items;
+                                    for (let n = 0; n < negItems.length; n++) {
+                                        if (negItems[n].startsWith(negKey + '.')) {
+                                            const negId = `${sectionId}-negative-${n}`;
+                                            if (sectionState.negative.has(negId)) {
+                                                negSelected = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
+                        const posSelected = sectionState.positive.has(posId);
+                        if (posSelected || negSelected) {
+                            rowsWithSelection++;
+                        }
+                        itemCounter++;
+                    });
+                });
+                
+                itemCounter = 0;
+                section.groups.forEach(group => {
+                    group.items.forEach((item, idx) => {
+                        const posId = `${sectionId}-positive-${itemCounter}`;
+                        if (sectionState.positive.has(posId)) {
+                            sectionPoints += item.points;
+                        }
+                        itemCounter++;
+                    });
+                });
+                
+                const row = document.createElement('tr');
+                row.dataset.sectionIndex = sectionIndex;
+                row.style.cursor = 'pointer';
+                row.addEventListener('click', (e) => {
+                    scrollToSection(sectionIndex);
+                });
+
+                let statusClass = 'row-not-started';
+                if (rowsWithSelection === 0) {
+                    statusClass = 'row-not-started';
+                } else if (rowsWithSelection === totalRows) {
+                    statusClass = 'row-completed';
+                } else {
+                    statusClass = 'row-in-progress';
+                }
+                row.className = statusClass;
+
+                if (isExtraCredit) {
+                    extraCreditPoints += sectionPoints;
+                    extraCreditMaxPoints = rubricData.grading_rubric.extra_credit_points;
+                    row.innerHTML =
+                        `<td>${section.main_section.split('(')[0].trim()}</td><td>${sectionPoints.toFixed(0)}</td><td>${maxPoints}</td>`;
+                    extraCreditBody.appendChild(row);
+                    extraCreditPointsValue = extraCreditPoints;
+                } else {
+                    mainTotal += sectionPoints;
+                    row.innerHTML =
+                        `<td>${section.main_section.split('(')[0].trim()}</td><td>${sectionPoints.toFixed(0)}</td><td>${maxPoints}</td>`;
+                    summaryBody.appendChild(row);
+                }
+                const headerElement = document.querySelector(`[data-id="${sectionId}-header"]`);
+                if (headerElement) headerElement.textContent =
+                    `${section.main_section.split('(')[0].trim()} (${sectionPoints.toFixed(0)}/${maxPoints})`;
+            });
+
+            const totalWithExtra = mainTotal + extraCreditPoints;
+            document.getElementById('totalPoints').textContent = totalWithExtra.toFixed(0);
+            document.getElementById('maxPoints').textContent = rubricData.grading_rubric.total_points;
+
+            if (extraCreditPoints > 0 || extraCreditMaxPoints > 0) {
+                document.getElementById('extraCreditSection').classList.remove('hidden');
+                const extraTotal = document.createElement('tr');
+                extraTotal.className = 'total-row';
+                extraTotal.innerHTML =
+                    `<td><strong>Extra Credit Total</strong></td><td><strong>${extraCreditPoints.toFixed(0)}</strong></td><td><strong>${extraCreditMaxPoints}</strong></td>`;
+                extraCreditBody.appendChild(extraTotal);
+            } else {
+                document.getElementById('extraCreditSection').classList.add('hidden');
+            }
+        }
+
+        // ==================== GENERATE FEEDBACK ====================
+        function generateFeedback() {
+            const outputSection = document.getElementById('outputSection');
+            const copyBtn = document.getElementById('copyBtn');
+            let feedback = '';
+
+            const select = document.getElementById('greetingTemplateSelect');
+            const nameInput = document.getElementById('studentName').value.trim();
+            const textareaTemplate = document.getElementById('globalCommentTemplate').value;
+
+            let finalTemplate = (select.value === '') ? '' : textareaTemplate;
+
+            if (finalTemplate.trim() !== '') {
+                let greeting = finalTemplate;
+                if (nameInput) {
+                    greeting = finalTemplate.replace(/{}/g, nameInput);
+                } else {
+                    greeting = finalTemplate.replace(/{}/g, '');
+                }
+                feedback += greeting + '\n\n';
+            }
+
+            // ==================== CHECKS SECTION ====================
+            feedback += '====================\nChecks\n{';
+            
+            if (masterNoDeductions) {
+                feedback += '\nNo Deductions Made: \n';
+                feedback += '+ Submission of report and reproducibility materials satisfies major implementation requirements! Well done!\n';
+            } else {
+                let hasNoDeductions = false;
+                let hasDeductions = false;
+                let noDeductionTexts = [];
+                let deductionTexts = [];
+
+                if (checkTextSelections['negative-0']) {
+                    const status = checkSelections['negative-0'];
+                    const el = document.getElementById('check-text-negative-0');
+                    if (el) {
+                        let text = el.textContent;
+                        if (status === 'N') {
+                            hasNoDeductions = true;
+                            noDeductionTexts.push(text);
+                        } else {
+                            hasDeductions = true;
+                            deductionTexts.push(text);
+                        }
+                    }
+                }
+                if (checkTextSelections['negative-1']) {
+                    const status = checkSelections['negative-1'];
+                    const el = document.getElementById('check-text-negative-1');
+                    if (el) {
+                        let text = el.textContent;
+                        if (status === 'N') {
+                            hasNoDeductions = true;
+                            noDeductionTexts.push(text);
+                        } else {
+                            hasDeductions = true;
+                            deductionTexts.push(text);
+                        }
+                    }
+                }
+                if (checkTextSelections['negative-2']) {
+                    const combinedText = getCombinedCheck3Text();
+                    if (combinedText) {
+                        const status = getCombinedCheck3Status();
+                        if (status === 'N') {
+                            hasNoDeductions = true;
+                            noDeductionTexts.push(combinedText);
+                        } else {
+                            hasDeductions = true;
+                            deductionTexts.push(combinedText);
+                        }
+                    }
+                }
+                if (checkTextSelections['negative-3']) {
+                    const status = checkSelections['negative-3'];
+                    const el = document.getElementById('check-text-negative-3');
+                    if (el) {
+                        let text = el.textContent;
+                        if (status === 'N') {
+                            hasNoDeductions = true;
+                            noDeductionTexts.push(text);
+                        } else {
+                            hasDeductions = true;
+                            deductionTexts.push(text);
+                        }
+                    }
+                }
+                if (checkTextSelections['negative-4']) {
+                    const status = checkSelections['negative-4'];
+                    const el = document.getElementById('check-text-negative-4');
+                    if (el) {
+                        let text = el.textContent;
+                        if (status === 'N') {
+                            hasNoDeductions = true;
+                            noDeductionTexts.push(text);
+                        } else {
+                            hasDeductions = true;
+                            deductionTexts.push(text);
+                        }
+                    }
+                }
+
+                if (hasNoDeductions) {
+                    feedback += '\nNo Deductions Made: \n';
+                    noDeductionTexts.forEach(text => {
+                        feedback += `+ ${text}\n`;
+                    });
+                }
+                if (hasDeductions) {
+                    feedback += '\nDeductions Made:\n';
+                    deductionTexts.forEach(text => {
+                        feedback += `x ${text}\n`;
+                    });
+                }
+                if (!hasNoDeductions && !hasDeductions) {
+                    feedback += '\nNo Deductions Made:\n+ Submission of report and reproducibility materials satisfies major implementation requirements! Well done!\n';
+                }
+            }
+            feedback += '}\n\n';
+
+            // ==================== SECTIONS ====================
+            rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
+                const sectionId = `section-${sectionIndex}`;
+                let sectionPoints = 0;
+                const sectionMaxPoints = section.points_available;
+                const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
+
+                const isExtraCredit = section.main_section.includes('Extra Credit');
+
+                let itemCounter = 0;
+                section.groups.forEach(group => {
+                    group.items.forEach((item, idx) => {
+                        const itemId = `${sectionId}-positive-${itemCounter}`;
+                        if (sectionState.positive.has(itemId)) {
+                            sectionPoints += item.points;
+                        }
+                        itemCounter++;
+                    });
+                });
+
+                const hasPositives = sectionState.positive.size > 0;
+                if (isExtraCredit && !hasPositives) {
+                    return;
+                }
+
+                const feedbackTextarea = document.getElementById(`${sectionId}-feedback`);
+                const feedbackText = feedbackTextarea ? feedbackTextarea.value : '';
+                const hasContent = sectionState.positive.size > 0 || sectionState.negative.size > 0 || feedbackText;
+
+                if (hasContent || isExtraCredit) {
+                    const sectionLetter = section.section_letter || section.main_section.charAt(0);
+                    const sectionName = section.main_section.split('(')[0].trim();
+                    feedback += `====================\n${sectionName} (${sectionPoints.toFixed(0)}/${sectionMaxPoints}pts)\n{`;
+
+                    if (sectionState.positive.size > 0) {
+                        feedback += '\nWhat you did well:\n';
+                        let itemCounter2 = 0;
+                        section.groups.forEach((group, gi) => {
+                            let hasGroupPositive = false;
+                            let groupItems = [];
+                            group.items.forEach((item, idx) => {
+                                const itemId = `${sectionId}-positive-${itemCounter2}`;
+                                if (sectionState.positive.has(itemId)) {
+                                    hasGroupPositive = true;
+                                    groupItems.push(item);
+                                }
+                                itemCounter2++;
+                            });
+                            if (hasGroupPositive) {
+                                const descs = groupItems.map(item => item.description);
+                                const combined = descs.join('; ');
+                                feedback += `+ ${group.label}: ${combined}\n`;
+                            }
+                        });
+                    }
+
+                    if (sectionState.negative.size > 0) {
+                        feedback += '\nWhat needs improvement:\n';
+                        sectionState.negative.forEach(itemId => {
+                            const el = document.getElementById(itemId);
+                            if (el) {
+                                const textEl = el.querySelector('.editable[data-id$="-text"]');
+                                if (textEl) {
+                                    const prefixEl = el.querySelector('.item-prefix');
+                                    let fullText = textEl.textContent;
+                                    if (prefixEl) {
+                                        fullText = prefixEl.textContent + ' ' + fullText;
+                                    }
+                                    feedback += `x ${fullText}\n`;
+                                }
+                            }
+                        });
+                    }
+
+                    if (feedbackText) {
+                        feedback += `\nSection Summary:\n${feedbackText}\n`;
+                    }
+                    feedback += '}\n\n';
+                }
+            });
+
+            // ==================== GENERAL FEEDBACK ====================
+            const generalTA = document.getElementById('general-feedback');
+            if (generalTA && generalTA.value) {
+                feedback += `====================\nGeneral Feedback\n{${generalTA.value}}\n\n`;
+            } else {
+                feedback +=
+                    `====================\nGeneral Feedback\n{Great work again in completing the final of our three reports this semester. Take a moment to recognize the drive and determination that have gotten you here and consider any feedback here as a helpful signal to carry you on your way as you take on the Final Exam and continue on your journey as an ML Practitioner! Jumping into some more holistic feedback here…\n\nWhat you did well: TODO\n\nWhat needs improvement: TODO}\n\n`;
+            }
+
+            const totalPoints = document.getElementById('totalPoints').textContent;
+            const maxPoints = document.getElementById('maxPoints').textContent;
+            if (extraCreditPointsValue > 0) {
+                feedback += `Total Score: ${totalPoints}/${maxPoints} (includes extra credit)`;
+            } else {
+                feedback += `Total Score: ${totalPoints}/${maxPoints}`;
+            }
+
+            outputSection.textContent = feedback;
+            outputSection.classList.remove('hidden');
+            copyBtn.classList.remove('hidden');
+            showNotification('✅ Feedback generated successfully!');
+        }
+
+        // ==================== RESET ALL ====================
+        function resetAll() {
+            state.selectedItems.clear();
+            document.querySelectorAll('.item').forEach(item => {
+                if (!item.closest('.checks-section')) {
+                    item.classList.remove('selected-positive', 'selected-negative');
+                }
+            });
+
+            const originalSections = originalRubricData.grading_rubric.sections;
+            const currentSections = rubricData.grading_rubric.sections;
+            
+            for (let i = 0; i < currentSections.length; i++) {
+                currentSections[i].main_section = originalSections[i].main_section;
+                for (let g = 0; g < currentSections[i].groups.length; g++) {
+                    currentSections[i].groups[g].label = originalSections[i].groups[g].label;
+                    for (let itemIdx = 0; itemIdx < currentSections[i].groups[g].items.length; itemIdx++) {
+                        currentSections[i].groups[g].items[itemIdx].description = originalSections[i].groups[g].items[itemIdx].description;
+                        currentSections[i].groups[g].items[itemIdx].points = originalSections[i].groups[g].items[itemIdx].points;
+                    }
+                }
+                if (currentSections[i].negative_items && originalSections[i].negative_items) {
+                    currentSections[i].negative_items.items = [...originalSections[i].negative_items.items];
+                }
+            }
+
+            const secs = rubricData.grading_rubric.sections;
+            for (let i = 0; i < secs.length - 1; i++) {
+                const section = secs[i];
+                const letter = section.section_letter;
+                if (letter) {
+                    section.main_section = `${letter}) ${section.main_section}`;
+                }
+            }
+            const secLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+            for (let i = 0; i < secs.length - 1; i++) {
+                const section = secs[i];
+                const letter = secLetters[i] || section.section_letter;
+                if (letter) {
+                    section.groups.forEach((group, idx) => {
+                        const groupNumber = idx + 1;
+                        group.label = `${letter}${groupNumber}. ${group.label}`;
+                    });
+                }
+            }
+
+            renderRubric();
+
+            masterNoDeductions = true;
+            const masterEl = document.getElementById('check-text-positive-0');
+            if (masterEl) {
+                masterEl.classList.add('selected');
+                masterEl.classList.remove('unselected');
+            }
+            
+            for (let i = 0; i < 5; i++) {
+                checkSelections[`negative-${i}`] = 'N';
+                checkTextSelections[`negative-${i}`] = false;
+                const statusEl = document.getElementById(`check-status-negative-${i}`);
+                const textEl = document.getElementById(`check-text-negative-${i}`);
+                if (statusEl) {
+                    statusEl.textContent = 'N';
+                    statusEl.className = 'check-status N disabled';
+                }
+                if (textEl) {
+                    textEl.classList.add('disabled');
+                    textEl.classList.remove('selected');
+                }
+            }
+
+            document.querySelectorAll('textarea').forEach(ta => ta.value = '');
+
+            updateSummary();
+            updateCheck3();
+            showNotification('✅ All reset successfully!');
+        }
+
+        // ==================== COPY SCORES ====================
+        function copyScores() {
+            let scores = [];
+            rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
+                if (!section.main_section.includes('Extra Credit')) {
+                    const sectionId = `section-${sectionIndex}`;
+                    const sectionState = state.selectedItems.get(sectionId) || { positive: new Set(), negative: new Set() };
+                    let sp = 0;
+                    let itemCounter = 0;
+                    section.groups.forEach(group => {
+                        group.items.forEach((item, idx) => {
+                            const itemId = `${sectionId}-positive-${itemCounter}`;
+                            if (sectionState.positive.has(itemId)) {
+                                sp += item.points;
+                            }
+                            itemCounter++;
+                        });
+                    });
+                    scores.push(sp.toFixed(0));
+                }
+            });
+            scores.push(document.getElementById('totalPoints').textContent);
+            const result = scores.join('\t');
+            navigator.clipboard.writeText(result);
+            showNotification(`✅ Raw scores copied: ${result}`);
+        }
+    </script>
+</body>
+
+</html>
