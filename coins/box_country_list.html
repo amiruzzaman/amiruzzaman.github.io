@@ -135,12 +135,46 @@
             white-space: nowrap;
         }
 
+        /* --- SEARCH BOX STYLES --- */
+        .search-input-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
         #searchBox {
-            padding: 8px 12px;
+            padding: 8px 32px 8px 12px;
+            /* extra right padding for the clear icon */
             width: 200px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            box-sizing: border-box;
         }
+
+        .clear-search {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #999;
+            font-size: 18px;
+            font-weight: bold;
+            line-height: 1;
+            display: none;
+            /* hidden by default */
+            user-select: none;
+            transition: color 0.2s;
+        }
+
+        .clear-search:hover {
+            color: #333;
+        }
+
+        .clear-search.visible {
+            display: block;
+        }
+
+        /* --- END SEARCH BOX STYLES --- */
 
         #boxFilter {
             padding: 8px 12px;
@@ -183,6 +217,19 @@
             font-weight: bold;
         }
 
+        /* Clear button inside alpha filter */
+        #alphaFilter button.clear-alpha-btn {
+            background: #fff;
+            border: 1px solid #d36f18;
+            color: #d36f18;
+            font-weight: bold;
+        }
+
+        #alphaFilter button.clear-alpha-btn:hover {
+            background: #d36f18;
+            color: #fff;
+        }
+
         #countryList {
             background-color: white;
             border-radius: 5px;
@@ -190,14 +237,22 @@
             overflow: hidden;
         }
 
+        /* --- UPDATED ALPHABETICAL HEADER STYLES --- */
         .alpha-header {
-            background: #ddd;
+            background: #2c3e50;
+            /* dark slate background */
+            color: #ffd54f;
+            /* warm amber text */
             font-weight: bold;
-            padding: 10px;
-            border-bottom: 1px solid #ccc;
+            font-size: 16px;
+            letter-spacing: 1px;
+            padding: 10px 15px;
+            border-top: 2px solid #1a252f;
+            border-bottom: 2px solid #1a252f;
+            text-transform: uppercase;
         }
 
-
+        /* --- END ALPHABETICAL HEADER STYLES --- */
 
         .cell {
             flex: 1;
@@ -287,9 +342,11 @@
         }
     </style>
     <style>
+        /* --- UPDATED ROW SEPARATOR STYLES (more visible lines) --- */
         .row {
             display: flex;
-            border-bottom: 1px solid #eee;
+            border-bottom: 2px solid #c0c8d0;
+            /* thicker, darker separator */
         }
 
         .row:last-child {
@@ -309,6 +366,8 @@
             cursor: pointer;
             transition: background-color 0.2s ease;
         }
+
+        /* --- END ROW SEPARATOR STYLES --- */
     </style>
 </head>
 
@@ -324,7 +383,11 @@
     <div class="search-sort">
         <div class="filter-group">
             <label for="searchBox">Country:</label>
-            <input type="text" id="searchBox" placeholder="Search country...">
+            <!-- Wrapped search input with clear button -->
+            <div class="search-input-wrapper">
+                <input type="text" id="searchBox" placeholder="Search country...">
+                <span class="clear-search" id="clearSearch" title="Clear search">✕</span>
+            </div>
         </div>
 
         <div class="filter-group">
@@ -368,13 +431,38 @@
             renderAlphaFilter();
             populateBoxFilter();
 
-            // Add event listeners
-            document.getElementById("searchBox").addEventListener("input", renderList);
+            const searchBox = document.getElementById("searchBox");
+            const clearBtn = document.getElementById("clearSearch");
+
+            // Add event listeners for search & clear
+            searchBox.addEventListener("input", function () {
+                toggleClearButton();
+                renderList();
+            });
+
+            clearBtn.addEventListener("click", function () {
+                searchBox.value = "";
+                toggleClearButton();
+                renderList();
+                searchBox.focus();
+            });
+
             document.getElementById("boxFilter").addEventListener("change", function () {
                 activeBoxFilter = this.value;
                 renderList();
             });
         });
+
+        // Show/hide the clear "X" based on search input content
+        function toggleClearButton() {
+            const searchBox = document.getElementById("searchBox");
+            const clearBtn = document.getElementById("clearSearch");
+            if (searchBox.value.length > 0) {
+                clearBtn.classList.add("visible");
+            } else {
+                clearBtn.classList.remove("visible");
+            }
+        }
 
         // Show message function
         function showMessage(message, isSuccess) {
@@ -382,7 +470,7 @@
             messageEl.textContent = message;
             messageEl.className = isSuccess ? "message success" : "message error";
             messageEl.style.display = "block";
-            setTimeout(() => { messageEl.style.display = "none"; }, 3000);
+            setTimeout(() => {messageEl.style.display = "none";}, 3000);
         }
 
         // Populate the box filter dropdown
@@ -408,15 +496,13 @@
             const container = document.getElementById("alphaFilter");
             container.innerHTML = "";
 
+            // "All" button
             const allBtn = document.createElement("button");
             allBtn.textContent = "All";
             allBtn.onclick = () => {
                 activeLetter = "";
                 renderList();
-
-                // Update active state
-                document.querySelectorAll('#alphaFilter button').forEach(b => b.classList.remove('active'));
-                allBtn.classList.add('active');
+                updateAlphaActiveState();
             };
             if (!activeLetter) allBtn.classList.add("active");
             container.appendChild(allBtn);
@@ -426,17 +512,43 @@
                 const letter = String.fromCharCode(i);
                 const btn = document.createElement("button");
                 btn.textContent = letter;
+                btn.dataset.letter = letter;
                 btn.onclick = () => {
                     activeLetter = letter;
                     renderList();
-
-                    // Update active state
-                    document.querySelectorAll('#alphaFilter button').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
+                    updateAlphaActiveState();
                 };
                 if (activeLetter === letter) btn.classList.add("active");
                 container.appendChild(btn);
             }
+
+            // --- Clear filter button ---
+            const clearAlphaBtn = document.createElement("button");
+            clearAlphaBtn.textContent = "Clear";
+            clearAlphaBtn.className = "clear-alpha-btn";
+            clearAlphaBtn.title = "Clear letter filter";
+            clearAlphaBtn.onclick = () => {
+                activeLetter = "";
+                renderList();
+                updateAlphaActiveState();
+            };
+            container.appendChild(clearAlphaBtn);
+        }
+
+        // Update active state for alpha buttons based on current activeLetter
+        function updateAlphaActiveState() {
+            const buttons = document.querySelectorAll('#alphaFilter button');
+            buttons.forEach(btn => {
+                if (btn.classList.contains('clear-alpha-btn')) return; // skip clear button
+                if (!activeLetter) {
+                    // no letter selected -> activate "All"
+                    if (btn.textContent === 'All') btn.classList.add('active');
+                    else btn.classList.remove('active');
+                } else {
+                    if (btn.dataset.letter === activeLetter) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                }
+            });
         }
 
         // Normalize country name for sorting
