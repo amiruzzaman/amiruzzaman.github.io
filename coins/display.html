@@ -629,6 +629,9 @@
       let currentImageIndex = 0; // To keep track of the current image index for modal navigation
       let currentActiveSliderFilter = "all"; // Track the currently selected type filter in the slider ribbon
 
+      // Prevent older image-loading requests from overwriting newer selections
+      let imageLoadRequestId = 0;
+
       // ============================================================
       // ===== MULTI-DONOR HELPERS =====
       // ============================================================
@@ -828,6 +831,7 @@
         const countryFlagElement = document.getElementById("country-flag");
 
         const nameSpan = document.getElementById("donor-name-container");
+
         // ===== MULTI-DONOR: normalize donor (accepts string OR array) =====
         const donorValue = normalizeDonorForDisplay(donor);
 
@@ -847,27 +851,56 @@
 
         currentImageIndex = index;
 
+        // ============================================================
+        // IMAGE LOADING FIX
+        // Only allow the most recent image request to update the display.
+        // This prevents an older image from replacing the selected image.
+        // ============================================================
+
+        const requestId = ++imageLoadRequestId;
+
         const tempImage = new Image();
+
         tempImage.onload = () => {
+          // Ignore outdated image-loading requests
+          if (requestId !== imageLoadRequestId) {
+            return;
+          }
+
           image.setAttribute("src", src);
+
           document.getElementById("modalImage").setAttribute("src", src);
         };
+
         tempImage.onerror = () => {
+          // Ignore errors from outdated image requests
+          if (requestId !== imageLoadRequestId) {
+            return;
+          }
+
           image.setAttribute(
             "src",
             "https://placehold.co/300x200/cccccc/333333?text=Image+Not+Found",
           );
+
           document
             .getElementById("modalImage")
             .setAttribute(
               "src",
               "https://placehold.co/600x400/cccccc/333333?text=Image+Not+Found",
             );
+
           console.error(`Failed to load image: ${src}`);
         };
+
         tempImage.src = src;
 
+        // ============================================================
+        // LANGUAGE INFORMATION
+        // ============================================================
+
         let alphabetExample = "N/A";
+
         if (cache.languagesData) {
           const langMatch = cache.languagesData.find((c) => {
             return (
@@ -880,43 +913,55 @@
           }
         }
 
+        // ============================================================
+        // YEAR INFORMATION
+        // ============================================================
+
         let yearDisplay = "";
+
         if (year) {
           const years = year.split(",").map((y) => y.trim());
+
           years.forEach((yearValue, idx) => {
             const yearNum = parseInt(yearValue);
+
             if (
               !isNaN(yearNum) &&
               yearNum > 1000 &&
               yearNum <= new Date().getFullYear()
             ) {
               const age = new Date().getFullYear() - yearNum;
+
               yearDisplay += `<div class="detail-item${idx > 0 ? " year-additional" : ""}">
-                            <span class="detail-label"><strong>Year:</strong></span>
-                            <span class="detail-value">
-                                ${yearValue} <span style="color: #3498db;">(${age} years old)</span>
-                            </span>
-                        </div>`;
+                      <span class="detail-label"><strong>Year:</strong></span>
+                      <span class="detail-value">
+                          ${yearValue} <span style="color: #3498db;">(${age} years old)</span>
+                      </span>
+                  </div>`;
             } else if (yearValue) {
               yearDisplay += `<div class="detail-item${idx > 0 ? " year-additional" : ""}">
-                            <span class="detail-label"><strong>Year:</strong></span>
-                            <span class="detail-value">${yearValue}</span>
-                        </div>`;
+                      <span class="detail-label"><strong>Year:</strong></span>
+                      <span class="detail-value">${yearValue}</span>
+                  </div>`;
             }
           });
 
           if (!yearDisplay) {
             yearDisplay = `<div class="detail-item">
-                        <span class="detail-label"><strong>Year:</strong></span>
-                        <span class="detail-value">N/A</span>
-                    </div>`;
+                  <span class="detail-label"><strong>Year:</strong></span>
+                  <span class="detail-value">N/A</span>
+              </div>`;
           }
         } else {
           yearDisplay = `<div class="detail-item">
-                    <span class="detail-label"><strong>Year:</strong></span>
-                    <span class="detail-value">N/A</span>
-                </div>`;
+              <span class="detail-label"><strong>Year:</strong></span>
+              <span class="detail-value">N/A</span>
+          </div>`;
         }
+
+        // ============================================================
+        // SIZE INFORMATION
+        // ============================================================
 
         let sizeValue1 = 0;
         let sizeValue2 = 0;
@@ -928,6 +973,7 @@
             const sizeParts = size
               .split("x")
               .map((part) => parseFloat(part.trim()));
+
             if (
               sizeParts.length === 2 &&
               !isNaN(sizeParts[0]) &&
@@ -936,10 +982,12 @@
               sizeValue1 = sizeParts[0];
               sizeValue2 = sizeParts[1];
               isTwoDimensional = true;
+
               displaySize = `${sizeValue1 % 1 === 0 ? sizeValue1 : sizeValue1.toFixed(1)} × ${sizeValue2 % 1 === 0 ? sizeValue2 : sizeValue2.toFixed(1)}`;
             }
           } else {
             sizeValue1 = parseFloat(size);
+
             if (!isNaN(sizeValue1)) {
               displaySize =
                 sizeValue1 % 1 === 0 ? sizeValue1 : sizeValue1.toFixed(1);
@@ -948,9 +996,11 @@
         }
 
         const maxItemSize = Math.max(sizeValue1, sizeValue2, 30.6);
+
         const scalePercentage1 = !isNaN(sizeValue1)
           ? (sizeValue1 / maxItemSize) * 100
           : 0;
+
         const scalePercentage2 = !isNaN(sizeValue2)
           ? (sizeValue2 / maxItemSize) * 100
           : 0;
@@ -961,101 +1011,109 @@
         const dollarBillWidthPercentage = (66.3 / maxItemSize) * 100;
         const dollarBillHeightPercentage = (156 / maxItemSize) * 100;
 
+        // ============================================================
+        // COUNTRY AND COIN DETAILS
+        // ============================================================
+
         const countryDetails = countryInfo
           ? `
-                <div class="detail-item">
-                    <span class="detail-label"><strong>Country:</strong></span>
-                    <span class="detail-value">${safeVal(countryInfo.name)}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label"><strong>Capital:</strong></span>
-                    <span class="detail-value">${safeVal(countryInfo.capital)}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label"><strong>Language:</strong></span>
-                    <span class="detail-value">${safeVal(countryInfo.language?.name)}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label"><strong>Hello:</strong></span>
-                    <span class="detail-value">${alphabetExample}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label"><strong>Currency:</strong></span>
-                    <span class="detail-value">${safeVal(countryInfo.currency?.name)} (${safeVal(countryInfo.currency?.symbol)})</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label"><strong>Note:</strong></span>
-                    <span class="detail-value">${formatNoteWithURLs(safeVal(note) || "No note available")}</span>
-                </div>
-                ${yearDisplay}
-                <div class="detail-item">
-                    <span class="detail-label"><strong>Size:</strong></span>
-                    <span class="detail-value">
-                    ${size ? `${displaySize} <span style="color: #3498db;"> mm${isTwoDimensional ? " (W × H)" : ""}</span>` : "N/A"}
-                    </span>
-                </div>
-                ${
-                  size && !isNaN(sizeValue1)
-                    ? `
-                <div class="detail-item">
-                    <span class="detail-label"><strong>Visual Scale:</strong></span>
-                    <span class="detail-value">
-                        <div class="size-scale-container">
-                            ${
-                              isTwoDimensional
-                                ? `
-                            <div class="two-dimensional-scale">
-                                <div class="scale-rectangle" style="width: ${scalePercentage1}%; height: ${scalePercentage2 / 2}%;">
-                                    <span class="scale-label"><strong>${displaySize} mm</strong></span>
-                                </div>
-                                <div class="scale-dimensions">
-                                    <span class="dimension width"><strong>${sizeValue1 % 1 === 0 ? sizeValue1 : sizeValue1.toFixed(1)} mm width</strong></span>
-                                    <span class="dimension height"><strong>${sizeValue2 % 1 === 0 ? sizeValue2 : sizeValue2.toFixed(1)} mm height</strong></span>
-                                </div>
-                            </div>
-                            `
-                                : `
-                            <div class="size-scale">
-                                <div class="scale-item" style="width: ${scalePercentage1}%;">
-                                    <span class="scale-label"><strong>${displaySize} mm</strong></span>
-                                </div>
-                            </div>
-                            `
-                            }
-                            <div class="scale-reference">
-                                <div class="reference-item">
-                                    <div class="reference-line penny" style="width: ${pennyPercentage}%;"></div>
-                                    <span class="reference-label"><strong>US Penny (19 mm)</strong></span>
-                                </div>
-                                <div class="reference-item">
-                                    <div class="reference-line quarter" style="width: ${quarterPercentage}%;"></div>
-                                    <span class="reference-label"><strong>US Quarter (24.3 mm)</strong></span>
-                                </div>
-                                <div class="reference-item">
-                                    <div class="reference-line dollar-coin" style="width: ${dollarCoinPercentage}%;"></div>
-                                    <span class="reference-label"><strong>US Dollar Coin (30.6 mm)</strong></span>
-                                </div>
-                                <div class="reference-item">
-                                    <div class="reference-rectangle dollar-bill" style="width: ${dollarBillHeightPercentage / 3}%; height: ${dollarBillWidthPercentage}%;"></div>
-                                    <span class="reference-label"><strong>US Dollar Bill (156 × 66.3 mm)</strong></span>
-                                </div>
-                            </div>
-                        </div>
-                    </span>
-                </div>
-                `
-                    : ""
-                }
-                <div class="detail-item donor-highlight">
-                    <span class="detail-label"><strong>Donor (${safeVal(currency_type) || "--"}):</strong></span>
-                    <span class="detail-value">${donorValue}</span>
-                </div>
-            `
+          <div class="detail-item">
+              <span class="detail-label"><strong>Country:</strong></span>
+              <span class="detail-value">${safeVal(countryInfo.name)}</span>
+          </div>
+          <div class="detail-item">
+              <span class="detail-label"><strong>Capital:</strong></span>
+              <span class="detail-value">${safeVal(countryInfo.capital)}</span>
+          </div>
+          <div class="detail-item">
+              <span class="detail-label"><strong>Language:</strong></span>
+              <span class="detail-value">${safeVal(countryInfo.language?.name)}</span>
+          </div>
+          <div class="detail-item">
+              <span class="detail-label"><strong>Hello:</strong></span>
+              <span class="detail-value">${alphabetExample}</span>
+          </div>
+          <div class="detail-item">
+              <span class="detail-label"><strong>Currency:</strong></span>
+              <span class="detail-value">${safeVal(countryInfo.currency?.name)} (${safeVal(countryInfo.currency?.symbol)})</span>
+          </div>
+          <div class="detail-item">
+              <span class="detail-label"><strong>Note:</strong></span>
+              <span class="detail-value">${formatNoteWithURLs(safeVal(note) || "No note available")}</span>
+          </div>
+          ${yearDisplay}
+          <div class="detail-item">
+              <span class="detail-label"><strong>Size:</strong></span>
+              <span class="detail-value">
+              ${size ? `${displaySize} <span style="color: #3498db;"> mm${isTwoDimensional ? " (W × H)" : ""}</span>` : "N/A"}
+              </span>
+          </div>
+          ${
+            size && !isNaN(sizeValue1)
+              ? `
+          <div class="detail-item">
+              <span class="detail-label"><strong>Visual Scale:</strong></span>
+              <span class="detail-value">
+                  <div class="size-scale-container">
+                      ${
+                        isTwoDimensional
+                          ? `
+                      <div class="two-dimensional-scale">
+                          <div class="scale-rectangle" style="width: ${scalePercentage1}%; height: ${scalePercentage2 / 2}%;">
+                              <span class="scale-label"><strong>${displaySize} mm</strong></span>
+                          </div>
+                          <div class="scale-dimensions">
+                              <span class="dimension width"><strong>${sizeValue1 % 1 === 0 ? sizeValue1 : sizeValue1.toFixed(1)} mm width</strong></span>
+                              <span class="dimension height"><strong>${sizeValue2 % 1 === 0 ? sizeValue2 : sizeValue2.toFixed(1)} mm height</strong></span>
+                          </div>
+                      </div>
+                      `
+                          : `
+                      <div class="size-scale">
+                          <div class="scale-item" style="width: ${scalePercentage1}%;">
+                              <span class="scale-label"><strong>${displaySize} mm</strong></span>
+                          </div>
+                      </div>
+                      `
+                      }
+                      <div class="scale-reference">
+                          <div class="reference-item">
+                              <div class="reference-line penny" style="width: ${pennyPercentage}%;"></div>
+                              <span class="reference-label"><strong>US Penny (19 mm)</strong></span>
+                          </div>
+                          <div class="reference-item">
+                              <div class="reference-line quarter" style="width: ${quarterPercentage}%;"></div>
+                              <span class="reference-label"><strong>US Quarter (24.3 mm)</strong></span>
+                          </div>
+                          <div class="reference-item">
+                              <div class="reference-line dollar-coin" style="width: ${dollarCoinPercentage}%;"></div>
+                              <span class="reference-label"><strong>US Dollar Coin (30.6 mm)</strong></span>
+                          </div>
+                          <div class="reference-item">
+                              <div class="reference-rectangle dollar-bill" style="width: ${dollarBillHeightPercentage / 3}%; height: ${dollarBillWidthPercentage}%;"></div>
+                              <span class="reference-label"><strong>US Dollar Bill (156 × 66.3 mm)</strong></span>
+                          </div>
+                      </div>
+                  </div>
+              </span>
+          </div>
+          `
+              : ""
+          }
+          <div class="detail-item donor-highlight">
+              <span class="detail-label"><strong>Donor (${safeVal(currency_type) || "--"}):</strong></span>
+              <span class="detail-value">${donorValue}</span>
+          </div>
+      `
           : `<div class="detail-item">
-                    <span class="detail-value">Country information not available.</span>
-                </div>`;
+              <span class="detail-value">Country information not available.</span>
+          </div>`;
 
         noteElement.innerHTML = countryDetails;
+
+        // ============================================================
+        // CONTINENT AND FLAG INFORMATION
+        // ============================================================
 
         if (countryInfo && countryInfo.name) {
           await loadContinentData(countryInfo.name);

@@ -432,6 +432,221 @@
         }
       }
     </style>
+    <style>
+      /* ===== Clickable donor pills ===== */
+      .donor-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: #eef3f8;
+        color: var(--secondary-color);
+        border: 1px solid #d4e0ec;
+        border-radius: 12px;
+        padding: 3px 10px;
+        font-size: 12px;
+        font-weight: 500;
+        text-decoration: none;
+        cursor: pointer;
+        transition: var(--transition);
+        font-family: inherit;
+        line-height: 1.4;
+        margin: 2px 0;
+      }
+
+      .donor-pill:hover {
+        background: var(--primary-color);
+        color: #fff;
+        border-color: var(--primary-dark);
+        text-decoration: none;
+        transform: translateY(-1px);
+      }
+
+      .donor-pill i {
+        opacity: 0.7;
+        font-size: 11px;
+      }
+
+      .donor-pill:hover i {
+        opacity: 1;
+      }
+
+      .donor-pill.disabled {
+        background: #f5f5f5;
+        color: #aaa;
+        border-color: #e6e6e6;
+        cursor: default;
+      }
+
+      .donor-pill.disabled:hover {
+        background: #f5f5f5;
+        color: #aaa;
+        transform: none;
+      }
+
+      .donor-pill-multi {
+        /* same base look, but a button */
+        background: #fff4e0;
+        border-color: #f0d9a8;
+        color: #7a5c00;
+      }
+
+      .donor-pill-multi:hover {
+        background: var(--accent-light);
+        color: #fff;
+        border-color: #b37600;
+      }
+
+      .donor-count {
+        display: inline-block;
+        background: rgba(0, 0, 0, 0.12);
+        color: inherit;
+        border-radius: 8px;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 0 6px;
+        line-height: 16px;
+        min-width: 16px;
+        text-align: center;
+      }
+
+      .donor-pill:hover .donor-count {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      /* ===== Donor picker modal ===== */
+      #donor-picker-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        z-index: 10000;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      #donor-picker-modal.open {
+        display: flex;
+      }
+
+      .donor-picker-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+        width: 100%;
+        max-width: 640px;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .donor-picker-header {
+        padding: 16px 20px;
+        background: var(--secondary-color);
+        color: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .donor-picker-header h3 {
+        margin: 0;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .donor-picker-header .close {
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 22px;
+        cursor: pointer;
+        line-height: 1;
+        padding: 0 4px;
+        opacity: 0.8;
+      }
+
+      .donor-picker-header .close:hover {
+        opacity: 1;
+      }
+
+      .donor-picker-body {
+        padding: 14px 16px;
+        overflow-y: auto;
+      }
+
+      .donor-picker-sub {
+        font-size: 12px;
+        color: #7f8c8d;
+        margin: 0 0 12px;
+      }
+
+      .donor-picker-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        margin-bottom: 8px;
+        text-decoration: none;
+        color: var(--text-color);
+        transition: var(--transition);
+      }
+
+      .donor-picker-item:hover {
+        background: #f0f8ff;
+        border-color: var(--primary-color);
+        text-decoration: none;
+        transform: translateX(3px);
+      }
+
+      .donor-picker-item img {
+        width: 56px;
+        height: 56px;
+        object-fit: cover;
+        border-radius: 6px;
+        flex-shrink: 0;
+        background: #f0f0f0;
+      }
+
+      .donor-picker-item-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .donor-picker-item-info .country {
+        font-weight: 600;
+        font-size: 13px;
+        color: var(--secondary-color);
+        display: block;
+      }
+
+      .donor-picker-item-info .note {
+        font-size: 12px;
+        color: #7f8c8d;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: block;
+      }
+
+      .donor-picker-item-info .meta {
+        font-size: 11px;
+        color: #95a5a6;
+        margin-top: 2px;
+        display: block;
+      }
+
+      .donor-picker-item .chev {
+        color: var(--primary-color);
+        font-size: 14px;
+        flex-shrink: 0;
+      }
+    </style>
   </head>
 
   <body>
@@ -482,6 +697,25 @@
           coins in this collection. Click any to see the item.
         </p>
         <div id="feature-chips" class="feature-chips"></div>
+      </div>
+    </div>
+
+    <!-- ===== Donor picker modal ===== -->
+    <div id="donor-picker-modal" aria-hidden="true">
+      <div class="donor-picker-card" role="dialog" aria-modal="true">
+        <div class="donor-picker-header">
+          <h3>
+            <i class="fas fa-user-tie"></i>
+            <span id="donor-picker-title">Choose an item</span>
+          </h3>
+          <button type="button" class="close" aria-label="Close">
+            &times;
+          </button>
+        </div>
+        <div class="donor-picker-body">
+          <p class="donor-picker-sub" id="donor-picker-sub"></p>
+          <div id="donor-picker-list"></div>
+        </div>
       </div>
     </div>
 
@@ -1005,11 +1239,11 @@
 
           const tr = document.createElement("tr");
           tr.innerHTML = `
-        <td><a href="display.html?country=${encodeURIComponent(row.country)}"><i class="fas fa-search"></i> ${row.country}</a>${latestBadge}</td>
-        <td><i class="${row.currency_type.includes("coin") ? "fas fa-coins" : "fas fa-money-bill-alt"}"></i> ${swapCoinAndBill(row.currency_type)}</td>
-        <td><i class="fas fa-user-tie"></i> ${row.donor_name}</td>
-        <td>${keywordsCell}</td>
-      `;
+      <td><a href="display.html?country=${encodeURIComponent(row.country)}"><i class="fas fa-search"></i> ${row.country}</a>${latestBadge}</td>
+      <td><i class="${row.currency_type.includes("coin") ? "fas fa-coins" : "fas fa-money-bill-alt"}"></i> ${swapCoinAndBill(row.currency_type)}</td>
+      <td>${renderDonorCell(row)}</td>
+      <td>${keywordsCell}</td>
+    `;
           tbody.appendChild(tr);
         });
 
@@ -1352,7 +1586,33 @@
           const key = th.dataset.key;
           if (!key) return;
 
-          const sortedData = [...combinedData].sort((a, b) => {
+          const searchInput = document.getElementById("search-input");
+          const q = (searchInput.value || "").toLowerCase().trim();
+
+          // Base set: filtered by current search, or full set if no query
+          let base;
+          if (q) {
+            const filtered = originalData.filter((item) => {
+              const donorsText = getDonorsFromItem(item)
+                .join(", ")
+                .toLowerCase();
+              return (
+                item.country.toLowerCase().includes(q) ||
+                item.currency_type.toLowerCase().includes(q) ||
+                donorsText.includes(q) ||
+                (item.note && item.note.toLowerCase().includes(q)) ||
+                (item.hidden_note &&
+                  item.hidden_note.toLowerCase().includes(q)) ||
+                (item.size && item.size.toLowerCase().includes(q)) ||
+                (item.year && item.year.toString().includes(q))
+              );
+            });
+            base = combineData(filtered);
+          } else {
+            base = combineData(originalData);
+          }
+
+          const sortedData = [...base].sort((a, b) => {
             if (a[key] < b[key]) return isAscending ? -1 : 1;
             if (a[key] > b[key]) return isAscending ? 1 : -1;
             return 0;
@@ -1433,6 +1693,158 @@
           });
       });
       /*-------------------end collage---------------------*/
+
+      /* ============================================================
+   DONOR → ITEMS RESOLUTION
+   Returns every item in the collection that has `donorName`
+   in its donor_name (string) or donors (array).
+   ============================================================ */
+      function getItemsForDonor(donorName) {
+        if (!donorName) return [];
+        const target = String(donorName).trim().toLowerCase();
+        if (!target) return [];
+        return originalData.filter((item) => {
+          if (!item.image || item.image.trim() === "") return false;
+          const donors = getDonorsFromItem(item).map((d) => d.toLowerCase());
+          return donors.includes(target);
+        });
+      }
+
+      /* ============================================================
+   BUILD A display.html DEEP-LINK FOR A SINGLE ITEM
+   Always includes &coin=<image-base>, matching display.html's
+   matcher (which compares against coin.image with/without ext).
+   ============================================================ */
+      function buildItemDisplayLink(item) {
+        if (!item || !item.country) return "#";
+        let u = `display.html?country=${encodeURIComponent(item.country)}`;
+        if (item.image) {
+          const base = String(item.image).replace(/\.[^.]+$/, "");
+          u += `&coin=${encodeURIComponent(base)}`;
+        }
+        return u;
+      }
+
+      /* ============================================================
+   RENDER DONOR CELL — one clickable pill per donor
+   Single-item donors get a direct <a>; multi-item donors open
+   a picker modal.
+   ============================================================ */
+      function renderDonorCell(row) {
+        const donors = String(row.donor_name || "")
+          .split(",")
+          .map((d) => d.trim())
+          .filter(Boolean);
+
+        if (donors.length === 0) {
+          return `<i class="fas fa-user-tie"></i> <span style="color:#bdc3c7;">—</span>`;
+        }
+
+        const pills = donors
+          .map((donor) => {
+            const items = getItemsForDonor(donor);
+            const count = items.length;
+
+            if (count === 0) {
+              // No usable items — render as plain text, not clickable
+              return `<span class="donor-pill disabled" title="No viewable items for this donor"><i class="fas fa-user-tie"></i> ${escapeHtml(donor)}</span>`;
+            }
+
+            if (count === 1) {
+              const href = buildItemDisplayLink(items[0]);
+              return `<a class="donor-pill" href="${href}" title="View the item donated by ${escapeAttr(donor)}"><i class="fas fa-user-tie"></i> ${escapeHtml(donor)}</a>`;
+            }
+
+            // count > 1 → open picker modal
+            return `<button type="button" class="donor-pill donor-pill-multi" data-donor="${escapeAttr(donor)}" title="${count} items donated by ${escapeAttr(donor)} — click to choose"><i class="fas fa-user-tie"></i> ${escapeHtml(donor)} <span class="donor-count">${count}</span></button>`;
+          })
+          .join(" ");
+
+        return pills;
+      }
+
+      /* ============================================================
+   DONOR PICKER MODAL
+   ============================================================ */
+      (function initDonorPicker() {
+        const modal = document.getElementById("donor-picker-modal");
+        const titleEl = document.getElementById("donor-picker-title");
+        const subEl = document.getElementById("donor-picker-sub");
+        const listEl = document.getElementById("donor-picker-list");
+        const closeBtn = modal.querySelector(".close");
+
+        function openPicker(donorName) {
+          const items = getItemsForDonor(donorName);
+
+          titleEl.textContent = donorName;
+          subEl.textContent = `${donorName} has donated ${items.length} item${items.length === 1 ? "" : "s"}. Pick one to view:`;
+
+          listEl.innerHTML = items
+            .map((item, idx) => {
+              const href = buildItemDisplayLink(item);
+              const imgSrc = `images/${toTitleCase(item.country)}/${item.image}`;
+              const note = (item.note || "").trim() || "(no note)";
+              const year = item.year && item.year !== "0000" ? item.year : "";
+              const type = item.currency_type || "";
+              const metaParts = [type, year].filter(Boolean).join(" • ");
+
+              return `
+          <a class="donor-picker-item" href="${href}" data-index="${idx}">
+            <img src="${imgSrc}" alt="${escapeAttr(note)}"
+                 onerror="this.src='https://placehold.co/56x56/cccccc/333333?text=404'">
+            <div class="donor-picker-item-info">
+              <span class="country">${escapeHtml(item.country)}</span>
+              <span class="note" title="${escapeAttr(note)}">${escapeHtml(note)}</span>
+              ${metaParts ? `<span class="meta">${escapeHtml(metaParts)}</span>` : ""}
+            </div>
+            <i class="fas fa-chevron-right chev"></i>
+          </a>
+        `;
+            })
+            .join("");
+
+          modal.classList.add("open");
+          modal.setAttribute("aria-hidden", "false");
+          document.body.style.overflow = "hidden";
+
+          // Focus first item for keyboard users
+          const first = listEl.querySelector(".donor-picker-item");
+          if (first) first.focus();
+        }
+
+        function closePicker() {
+          modal.classList.remove("open");
+          modal.setAttribute("aria-hidden", "true");
+          document.body.style.overflow = "";
+        }
+
+        // Delegate clicks on any multi-donor pill (works even after re-renders)
+        document.addEventListener("click", (e) => {
+          const btn = e.target.closest(".donor-pill-multi");
+          if (!btn) return;
+          e.preventDefault();
+          const donor = btn.getAttribute("data-donor");
+          if (donor) openPicker(donor);
+        });
+
+        closeBtn.addEventListener("click", closePicker);
+
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) closePicker();
+        });
+
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape" && modal.classList.contains("open"))
+            closePicker();
+        });
+      })();
+
+      function toTitleCase(str) {
+        return String(str).replace(
+          /\w\S*/g,
+          (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(),
+        );
+      }
     </script>
   </body>
 </html>
