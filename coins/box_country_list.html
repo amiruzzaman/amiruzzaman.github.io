@@ -347,6 +347,11 @@
             display: flex;
             border-bottom: 2px solid #c0c8d0;
             /* thicker, darker separator */
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            align-items: center;
         }
 
         .row:last-child {
@@ -363,8 +368,25 @@
 
         .row:hover {
             background-color: #d36f18;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
+            color: #fff;
+        }
+
+        .row:hover .cell:nth-child(2) {
+            color: #fff;
+        }
+
+        .row .arrow {
+            padding: 12px 16px;
+            color: #2c3e50;
+            font-size: 14px;
+            opacity: 0.4;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .row:hover .arrow {
+            opacity: 1;
+            color: #fff;
+            transform: translateX(3px);
         }
 
         /* --- END ROW SEPARATOR STYLES --- */
@@ -567,6 +589,11 @@
             renderList();
         }
 
+        // Build a display.html deep-link for a country
+        function buildCountryLink(country) {
+            return 'display.html?country=' + encodeURIComponent(country);
+        }
+
         // Render the country list
         function renderList() {
             const query = document.getElementById("searchBox").value.toLowerCase();
@@ -617,7 +644,7 @@
 
             let currentLetter = "";
 
-            // Create rows for each country
+            // Create rows for each country — each row is a clickable link
             filtered.forEach(c => {
                 let firstLetter = normalizeName(c.country).charAt(0).toUpperCase();
 
@@ -630,11 +657,14 @@
                     container.appendChild(header);
                 }
 
-                const row = document.createElement("div");
+                const row = document.createElement("a");
                 row.classList.add("row");
+                row.href = buildCountryLink(c.country);
+                row.title = `View ${c.country} in the collection`;
                 row.innerHTML = `
                     <div class="cell">${c.country}</div>
                     <div class="cell">${c.box || ''}</div>
+                    <div class="arrow"><i class="fas fa-chevron-right"></i></div>
                 `;
                 container.appendChild(row);
             });
