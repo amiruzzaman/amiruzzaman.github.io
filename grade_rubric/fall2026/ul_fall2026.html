@@ -1,0 +1,3227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UL Report Fall 2026 Rubric Grading – BRFSS GenHlth</title>
+    <style>
+        :root {
+            --positive-color: #e8f5e9;
+            --positive-selected: #81c784;
+            --negative-color: #ffebee;
+            --negative-selected: #e57373;
+            --border-color: #ddd;
+            --header-bg: #f5f5f5;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .rubric-section {
+            flex: 2;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            min-width: 0;
+        }
+
+        .summary-section {
+            flex: 1;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 15px;
+            height: fit-content;
+            font-size: 0.85rem;
+            min-width: 200px;
+        }
+
+        .summary-section .nav-links {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            font-size: 0.8rem;
+        }
+
+        .summary-section .nav-links a {
+            color: #1976D2;
+            text-decoration: none;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: #e3f2fd;
+        }
+
+        .summary-section .nav-links a:hover {
+            background: #bbdefb;
+        }
+
+        .summary-table th,
+        .summary-table td {
+            padding: 6px 6px;
+            font-size: 0.80rem;
+        }
+
+        .summary-table th {
+            background-color: var(--header-bg);
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        .summary-table th,
+        .summary-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .summary-table tbody tr {
+            cursor: pointer;
+        }
+
+        .summary-table tbody tr:hover {
+            background-color: #f0f7ff;
+        }
+
+        .summary-table tbody tr.row-not-started {
+            background-color: #ffebee;
+        }
+
+        .summary-table tbody tr.row-in-progress {
+            background-color: #fff3e0;
+        }
+
+        .summary-table tbody tr.row-completed {
+            background-color: #e8f5e9;
+        }
+
+        .total-row {
+            font-weight: bold;
+            background-color: #e3f2fd;
+        }
+
+        .section-header {
+            background-color: var(--header-bg);
+            padding: 10px 15px;
+            margin: 15px 0 10px;
+            border-left: 4px solid #4CAF50;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .section-header span {
+            flex: 1;
+        }
+
+        .section-buttons {
+            display: flex;
+            gap: 4px;
+            margin-left: 10px;
+            flex-wrap: wrap;
+        }
+
+        .section-buttons button {
+            background-color: #6c757d;
+            padding: 3px 8px;
+            font-size: 10px;
+            border-radius: 10px;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+
+        .section-buttons button:hover {
+            background-color: #5a6268;
+        }
+
+        .section-buttons .select-positive-btn {
+            background-color: #2e7d32;
+        }
+
+        .section-buttons .select-positive-btn:hover {
+            background-color: #1b5e20;
+        }
+
+        .section-buttons .select-negative-btn {
+            background-color: #c62828;
+        }
+
+        .section-buttons .select-negative-btn:hover {
+            background-color: #b71c1c;
+        }
+
+        .section-buttons .copy-score-btn {
+            background-color: #1976D2;
+        }
+
+        .section-buttons .copy-score-btn:hover {
+            background-color: #0D47A1;
+        }
+
+        .section-buttons .copy-group-btn {
+            background-color: #E65100;
+        }
+
+        .section-buttons .copy-group-btn:hover {
+            background-color: #BF360C;
+        }
+
+        .item-list {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .item {
+            padding: 6px 10px;
+            margin: 3px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 0.9em;
+        }
+
+        .item:hover {
+            opacity: 0.8;
+        }
+
+        .positive-item {
+            background-color: var(--positive-color);
+            border-left: 3px solid #4CAF50;
+        }
+
+        .negative-item {
+            background-color: var(--negative-color);
+            border-left: 3px solid #F44336;
+        }
+
+        .selected-positive {
+            background-color: var(--positive-selected) !important;
+            font-weight: 500;
+        }
+
+        .selected-negative {
+            background-color: var(--negative-selected) !important;
+            font-weight: 500;
+        }
+
+        .feedback-textarea {
+            width: 100%;
+            min-height: 80px;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .controls {
+            margin: 20px 0;
+            text-align: center;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .section-copy-buttons {
+            margin: 15px 0;
+            text-align: center;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .section-copy-buttons button {
+            padding: 8px 16px;
+            background-color: #1976D2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            min-width: 50px;
+        }
+
+        .section-copy-buttons button:hover {
+            background-color: #0D47A1;
+        }
+
+        .section-copy-buttons .checks-btn {
+            background-color: #6c757d;
+        }
+
+        .section-copy-buttons .checks-btn:hover {
+            background-color: #5a6268;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #resetBtn {
+            background-color: #f44336;
+        }
+
+        #resetBtn:hover {
+            background-color: #d32f2f;
+        }
+
+        #copyExcelBtn {
+            background-color: #455A64;
+        }
+
+        #copyExcelBtn:hover {
+            background-color: #37474F;
+        }
+
+        .output-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .editable {
+            outline: none;
+            border: 1px dashed transparent;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+
+        .editable:focus {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .point-input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .point-input-group input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .point-input-group button {
+            padding: 8px 16px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .point-input-group button:hover {
+            background-color: #1976D2;
+        }
+
+        .point-input-group .reset-point-btn {
+            background-color: #ff9800;
+        }
+
+        .point-input-group .reset-point-btn:hover {
+            background-color: #fb8c00;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+
+        .form-control:focus {
+            border-color: #2196F3;
+            outline: none;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .modal-btn-primary {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+        }
+
+        .modal-btn-primary:hover {
+            background-color: #45a049;
+        }
+
+        .modal-btn-secondary {
+            background-color: #f5f5f5;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .modal-btn-secondary:hover {
+            background-color: #e9e9e9;
+        }
+
+        .modal-btn-danger {
+            background-color: #f44336;
+            color: white;
+            border: none;
+        }
+
+        .modal-btn-danger:hover {
+            background-color: #d32f2f;
+        }
+
+        .predefined-feedback {
+            margin: 10px 0;
+        }
+
+        .predefined-comment {
+            display: block;
+            width: 100%;
+            padding: 8px 12px;
+            margin: 5px 0;
+            background-color: #f0f8ff;
+            border: 1px solid #b3d9ff;
+            color: #333;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .predefined-comment:hover {
+            background-color: #92d841;
+        }
+
+        .predefined-comment.selected {
+            background-color: #cce5ff;
+            border-color: #66b3ff;
+        }
+
+        .feedback-controls {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .feedback-controls button {
+            padding: 6px 12px;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .global-comment-box {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #fef9e7;
+            border-left: 4px solid #ff9800;
+            border-radius: 4px;
+        }
+
+        .global-comment-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .global-comment-row input {
+            flex: 1 1 200px;
+            padding: 8px;
+            border: 1px solid #ffe0b2;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .global-comment-row select {
+            flex: 1 1 250px;
+            padding: 8px;
+            border: 1px solid #ffe0b2;
+            border-radius: 4px;
+            background: white;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .global-comment-row textarea {
+            flex: 2 1 300px;
+            min-height: 60px;
+            padding: 8px;
+            border: 1px solid #ffe0b2;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .global-comment-hint {
+            font-size: 0.9em;
+            color: #bf7f00;
+            margin-top: 5px;
+        }
+
+        .section-highlight {
+            animation: highlightPulse 1.5s ease-out;
+        }
+
+        @keyframes highlightPulse {
+            0% {
+                background-color: transparent;
+            }
+
+            30% {
+                background-color: #fff9c4;
+            }
+
+            100% {
+                background-color: transparent;
+            }
+        }
+
+        .checks-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #6c757d;
+        }
+
+        .checks-section h3 {
+            margin-top: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .checks-section h3 button {
+            padding: 4px 12px;
+            font-size: 12px;
+            background-color: #1976D2;
+        }
+
+        .checks-section h3 button:hover {
+            background-color: #0D47A1;
+        }
+
+        .check-item-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 0;
+            cursor: pointer;
+        }
+
+        .check-item-row:hover {
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }
+
+        .check-item-row .check-status {
+            font-weight: bold;
+            min-width: 24px;
+            cursor: pointer;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-align: center;
+            user-select: none;
+        }
+
+        .check-item-row .check-status.N {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .check-item-row .check-status.Y {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .check-item-row .check-status.T {
+            background-color: #fff3e0;
+            color: #e65100;
+        }
+
+        .check-item-row .check-status.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .check-item-row .check-text {
+            flex: 1;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .check-item-row .check-text:hover {
+            background-color: #e9ecef;
+        }
+
+        .check-item-row .check-text.selected {
+            background-color: #bbdefb;
+        }
+
+        .check-item-row .check-text.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .group-item {
+            background-color: #f0f4ff;
+            border-left: 3px solid #1976D2;
+            padding: 8px 10px;
+            margin: 5px 0 5px 20px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .group-item .sub-items {
+            font-weight: normal;
+            font-size: 0.85em;
+            color: #555;
+            margin-top: 3px;
+            padding-left: 15px;
+        }
+
+        .group-item .sub-items .sub-item {
+            padding: 2px 0;
+        }
+
+        .auto-check-indicator {
+            font-size: 0.75em;
+            color: #1976D2;
+            margin-left: 8px;
+            font-weight: normal;
+        }
+
+        .tracking-note {
+            font-size: 0.75em;
+            color: #e65100;
+            margin-left: 8px;
+            font-weight: normal;
+        }
+
+        .notification-bar {
+            width: 100%;
+            min-height: 36px;
+            line-height: 1.4;
+            padding: 8px 34px 8px 15px;
+            text-align: center;
+            background-color: #e3f2fd;
+            color: #0D47A1;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid #90caf9;
+            position: relative;
+            box-sizing: border-box;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .notification-bar.visible {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .notification-bar.success {
+            background-color: #e8f5e9;
+            color: #1b5e20;
+            border-color: #81c784;
+        }
+
+        .notification-bar .close-notification {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 18px;
+            color: inherit;
+            opacity: 0.6;
+            line-height: 1;
+            display: none;
+        }
+
+        .notification-bar.visible .close-notification {
+            display: inline;
+        }
+
+        .notification-bar .close-notification:hover {
+            opacity: 1;
+        }
+
+        .notification-bar .highlight-letter {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .notification-bar .highlight-letter-A {
+            color: #e65100;
+        }
+
+        .notification-bar .highlight-letter-B {
+            color: #0D47A1;
+        }
+
+        .notification-bar .highlight-letter-C {
+            color: #1b5e20;
+        }
+
+        .notification-bar .highlight-letter-D {
+            color: #b71c1c;
+        }
+
+        .notification-bar .highlight-letter-E {
+            color: #4a148c;
+        }
+
+        .notification-bar .highlight-letter-F {
+            color: #00695c;
+        }
+
+        .name-required-error {
+            color: #c62828;
+            font-size: 0.85em;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .name-required-error.show {
+            display: block;
+        }
+
+        .master-check-row {
+            background-color: #e8f5e9;
+            border-radius: 4px;
+            padding: 4px 8px;
+            margin-bottom: 10px;
+            font-weight: 500;
+            border: 2px solid #4CAF50;
+        }
+
+        .master-check-row .check-text {
+            font-weight: 500;
+        }
+
+        .master-check-row .check-text.selected {
+            background-color: #a5d6a7;
+        }
+
+        .master-check-row .check-text.unselected {
+            background-color: #ffcdd2;
+        }
+
+        .item-prefix {
+            font-weight: 600;
+            color: #1a237e;
+            margin-right: 4px;
+        }
+
+        .item-description {
+            flex: 1;
+        }
+
+        .negative-item .editable {
+            display: inline;
+        }
+
+        .copy-message-btn {
+            background-color: #9C27B0;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .copy-message-btn:hover {
+            background-color: #7B1FA2;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .top-actions .hint-text {
+            font-size: 0.85rem;
+            color: #666;
+            transition: color 0.3s ease;
+        }
+
+        .top-actions .hint-text.success {
+            color: #2e7d32;
+            font-weight: 600;
+        }
+
+        .top-actions .hint-text.error {
+            color: #c62828;
+            font-weight: 600;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 5px 0 15px 0;
+            font-size: 0.9em;
+        }
+
+        .comparison-table th {
+            background-color: var(--header-bg);
+            padding: 8px 10px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #ccc;
+        }
+
+        .comparison-table th:first-child {
+            width: 45%;
+        }
+
+        .comparison-table th:last-child {
+            width: 45%;
+        }
+
+        .comparison-table td {
+            padding: 4px 6px;
+            vertical-align: top;
+            border-bottom: 1px solid #eee;
+        }
+
+        .comparison-table .group-label-row td {
+            background-color: #f0f4ff;
+            font-weight: 600;
+            padding: 6px 10px;
+            border-top: 2px solid #ccc;
+        }
+
+        .comparison-table .item-row td {
+            padding: 3px 6px 3px 20px;
+        }
+
+        .comparison-table .item-row .item {
+            margin: 0;
+            padding: 4px 8px;
+            font-size: 0.85em;
+            border-radius: 3px;
+            cursor: pointer;
+            display: inline-block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .comparison-table .item-row .item .editable {
+            display: inline;
+        }
+
+        .comparison-table .positive-col .item {
+            background-color: var(--positive-color);
+            border-left: 3px solid #4CAF50;
+        }
+
+        .comparison-table .positive-col .item.selected-positive {
+            background-color: var(--positive-selected);
+        }
+
+        .comparison-table .negative-col .item {
+            background-color: var(--negative-color);
+            border-left: 3px solid #F44336;
+        }
+
+        .comparison-table .negative-col .item.selected-negative {
+            background-color: var(--negative-selected);
+        }
+
+        .comparison-table .point-badge {
+            font-weight: 600;
+            color: #1a237e;
+            font-size: 0.8em;
+            margin-left: 4px;
+        }
+
+        .section-content-wrapper {
+            overflow-x: auto;
+        }
+
+        .modal-btn-orange {
+            background-color: #ff9800;
+            color: white;
+            border: none;
+        }
+
+        .modal-btn-orange:hover {
+            background-color: #fb8c00;
+        }
+
+        .modal-btn-purple {
+            background-color: #9C27B0;
+            color: white;
+            border: none;
+        }
+
+        .modal-btn-purple:hover {
+            background-color: #7B1FA2;
+        }
+
+        .modal-footer .restore-group {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .modal-footer .restore-group button {
+            font-size: 12px;
+            padding: 6px 12px;
+        }
+
+        .neg-comment-btn {
+            background-color: #1976D2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 11px;
+            cursor: pointer;
+            margin-left: 6px;
+            transition: background-color 0.2s;
+            white-space: nowrap;
+        }
+
+        .neg-comment-btn:hover {
+            background-color: #0D47A1;
+        }
+
+        .negative-item-wrapper {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .negative-item-wrapper .item {
+            flex: 1;
+            margin: 0;
+        }
+
+        .negative-item-wrapper .neg-comment-btn {
+            flex-shrink: 0;
+            margin-left: 4px;
+        }
+
+        .comment-modal .modal-content {
+            width: 550px;
+            max-width: 95%;
+        }
+
+        .comment-modal .modal-body textarea {
+            min-height: 120px;
+        }
+
+        .predefined-comment-btn {
+            background-color: #e3f2fd;
+            color: #0D47A1;
+            border: 1px solid #90caf9;
+            border-radius: 4px;
+            padding: 4px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            margin: 2px 4px 2px 0;
+            transition: background-color 0.2s;
+            display: inline-block;
+        }
+
+        .predefined-comment-btn:hover {
+            background-color: #bbdefb;
+        }
+
+        .predefined-comment-section {
+            margin-bottom: 10px;
+        }
+
+        .predefined-comment-section .label {
+            font-weight: 500;
+            font-size: 13px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .optional-fields {
+            margin: 12px 0;
+            padding: 12px;
+            background: #f0f8ff;
+            border-left: 4px solid #1976D2;
+            border-radius: 5px;
+        }
+
+        .optional-fields strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: .9em;
+        }
+
+        .optional-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .optional-row input {
+            flex: 1;
+            min-width: 180px;
+            padding: 7px 10px;
+            border: 1px solid #b3d9ff;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 13px;
+        }
+
+        .ai-gen-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 12px 0;
+            padding: 10px 14px;
+            background: #f3e5f5;
+            border-left: 4px solid #9C27B0;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .ai-gen-row label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .ai-gen-row input[type=checkbox] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .locked-input {
+            background: #e8f5e9 !important;
+            border-color: #81c784 !important;
+            color: #1b5e20 !important;
+            cursor: pointer !important;
+            font-weight: 600;
+        }
+
+        .confirm-modal .modal-content {
+            width: 460px;
+            max-width: 94%;
+        }
+
+        .confirm-modal .modal-header {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .confirm-modal .modal-title {
+            font-size: 17px;
+        }
+
+        .confirm-modal .modal-body {
+            font-size: 14px;
+            line-height: 1.55;
+            color: #333;
+        }
+
+        .confirm-modal .modal-body .confirm-pair {
+            display: flex;
+            gap: 10px;
+            margin: 12px 0;
+            flex-wrap: wrap;
+        }
+
+        .confirm-modal .modal-body .confirm-pair .chip {
+            flex: 1;
+            min-width: 160px;
+            padding: 8px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .confirm-modal .modal-body .confirm-pair .chip.pos {
+            background: var(--positive-color);
+            border-left: 3px solid #4CAF50;
+        }
+
+        .confirm-modal .modal-body .confirm-pair .chip.neg {
+            background: var(--negative-color);
+            border-left: 3px solid #F44336;
+        }
+
+        .confirm-modal .modal-footer {
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .confirm-modal .modal-footer button {
+            font-size: 13px;
+            padding: 8px 14px;
+        }
+
+        .group-subitems {
+            font-size: 0.78em;
+            color: #555;
+            margin-top: 4px;
+            padding-left: 14px;
+            border-left: 2px solid #cfd8dc;
+        }
+
+        .group-subitems div {
+            padding: 1px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="rubric-section">
+            <div class="top-actions">
+                <button class="copy-message-btn" onclick="copyGradingMessage()">📋 Copy Grading Message</button>
+                <span class="hint-text" id="hintText">Click to copy: "Now grade this very strictly..."</span>
+            </div>
+
+            <h1>UL Report Fall 2026 Rubric Grading Interface</h1>
+
+            <div class="global-comment-box" id="nameSection">
+                <label for="studentName"><strong>📝 Student name (for greeting):</strong></label>
+                <div class="global-comment-row">
+                    <input type="text" id="studentName" placeholder="e.g., Venkata" value="">
+                    <select id="greetingTemplateSelect">
+                        <option value="">— None (no greeting) —</option>
+                        <option
+                            value="Nicely done in completing the UL Report, {}! We hope this has given you momentum to make it through the final of our four reports, the RL Report!"
+                            selected>UL Report greeting</option>
+                        <option
+                            value="Hello {}, good work with your UL report. Please see the feedback below for more details.">
+                            Hello {name} (standard)</option>
+                        <option value="Good work, {}. Please see the feedback below.">Good work {name} (concise)
+                        </option>
+                    </select>
+                    <textarea
+                        id="globalCommentTemplate">Nicely done in completing the UL Report, {}! We hope this has given you momentum to make it through the final of our four reports, the RL Report!
+
+Please create a private Ed post if you have any questions, comments, concerns or if you notice something grade- or feedback-related is amiss!
+
+Without further ado, below we've provided both high-level feedback on satisfaction of the basic requirements as well as individualized feedback to help steer you for the better in future assignments where we felt there was room for improvement, not without highlighting your strengths!</textarea>
+                </div>
+                <div class="global-comment-hint">Select a preset, then edit if needed. The {} will be replaced by the
+                    name.</div>
+                <div id="nameRequiredError" class="name-required-error">⚠️ Please enter a student name before generating
+                    feedback.</div>
+            </div>
+
+            <div class="optional-fields">
+                <strong>📊 Optional fields (for Excel export):</strong>
+                <div class="optional-row">
+                    <input type="text" id="minutesTaken" placeholder="Minutes taken to grade (e.g., 55)">
+                    <input type="text" id="githubHash" placeholder="GitHub commit hash (e.g., 4d1dfc9...)">
+                </div>
+            </div>
+
+            <div class="ai-gen-row">
+                <label><input type="checkbox" id="aiGeneratedToggle"> <strong>AI Generated?</strong> (default N; check
+                    if flagged Y)</label>
+            </div>
+
+            <div class="checks-section">
+                <h3>Checks Configuration <button onclick="copyChecksStatusOnly()">📋 Copy Checks (6 items: N/Y)</button>
+                </h3>
+                <p><strong>Click on the master "No Deductions" check to toggle all checks to N, or click individual
+                        checks to toggle N/Y.</strong></p>
+
+                <p><strong>Master Control:</strong></p>
+                <div class="item-list">
+                    <div class="check-item-row master-check-row" onclick="toggleMasterNoDeductions()">
+                        <span class="check-text selected" id="check-text-positive-0">✅ No Deductions Made — All checks
+                            are N</span>
+                    </div>
+                </div>
+
+                <p><strong>Individual Checks (click N/Y to toggle, click text to select for feedback):</strong></p>
+                <div class="item-list">
+                    <div class="check-item-row" onclick="toggleCheckSelection('negative-0')">
+                        <span class="check-status N" id="check-status-negative-0"
+                            onclick="event.stopPropagation(); toggleCheckStatus('negative-0')">N</span>
+                        <span class="check-text" id="check-text-negative-0">Check 1 - Unreadable/Missing Report: Between
+                            provision and accessibility of your report, we cannot access your work and thus we will
+                            impose a temporary 0/100 score. You may submit the missing materials for the opportunity to
+                            receive earned_score - 20 points, else your score will remain at 0/100.</span>
+                    </div>
+                    <div class="check-item-row" onclick="toggleCheckSelection('negative-1')">
+                        <span class="check-status N" id="check-status-negative-1"
+                            onclick="event.stopPropagation(); toggleCheckStatus('negative-1')">N</span>
+                        <span class="check-text" id="check-text-negative-1">Check 2 - Incorrect Task: Between use of the
+                            prescribed dataset and setup of the intended multiclass classification problem, you broke
+                            the task requirements and thus we will impose a temporary 0/100 score.</span>
+                    </div>
+                    <div class="check-item-row" onclick="toggleCheckSelection('negative-2')">
+                        <span class="check-status N" id="check-status-negative-2"
+                            onclick="event.stopPropagation(); toggleCheckStatus('negative-2')">N</span>
+                        <span class="check-text" id="check-text-negative-2">Check 3A - Overleaf/GitHub Inaccessible:
+                            Between the two reproducibility requirements of Overleaf-hosted write-up and project
+                            codebase hosted in the GT Enterprise GitHub repo provided you for the course, you missed
+                            {TODO} and thus we've deducted you in the A2. Accessibility section. <span
+                                class="auto-check-indicator">(auto-filled from A2)</span></span>
+                    </div>
+                    <div class="check-item-row" onclick="toggleCheckSelection('negative-3')">
+                        <span class="check-status N" id="check-status-negative-3"
+                            onclick="event.stopPropagation(); toggleCheckStatus('negative-3')">N</span>
+                        <span class="check-text" id="check-text-negative-3">Check 3B - Overleaf/GitHub Inaccessible:
+                            Between requirement that you host and edit your report in LaTeX on Overleaf and push all
+                            project code to the GT Enterprise GitHub repo provided you for the course, we found you
+                            broke this requirement and thus we will impose a temporary 0/100 score.</span>
+                    </div>
+                    <div class="check-item-row" onclick="toggleCheckSelection('negative-4')">
+                        <span class="check-status N" id="check-status-negative-4"
+                            onclick="event.stopPropagation(); toggleCheckStatus('negative-4')">N</span>
+                        <span class="check-text" id="check-text-negative-4">Check 4 - Report Over 8 Pages: Your report
+                            exceeds the 8 page limit specified in the requirements and thus we consider anything past
+                            page 8 as not provided and (not) graded in accordance with this rule. No related penalty is
+                            imposed here.</span>
+                    </div>
+                    <div class="check-item-row" onclick="toggleCheckSelection('negative-5')">
+                        <span class="check-status N" id="check-status-negative-5"
+                            onclick="event.stopPropagation(); toggleCheckStatus('negative-5')">N</span>
+                        <span class="check-text" id="check-text-negative-5">Check 5 - Unfinished Draft: We identified
+                            several instances in which excessive use of checklist type structure, bulleting as a mode of
+                            jotting down notes where extensive analysis was expected and other high-level signs of a
+                            draft were spotted, thus we have made the hard decision to score your report 0/100.</span>
+                    </div>
+                    <div class="check-item-row" onclick="toggleCheckSelection('negative-6')">
+                        <span class="check-status T" id="check-status-negative-6"
+                            onclick="event.stopPropagation(); toggleCheckStatus('negative-6')">T</span>
+                        <span class="check-text" id="check-text-negative-6">Check 6 - Whirling/Blue-Purple Plots:
+                            Unintended adherence to a hidden 'easter egg' instructing repeated use of the word
+                            'whirling' and/or a dark-blue/purple figure gradient was noted. This is a staff-review
+                            tracking flag only; it does not deduct points or establish prohibited authorship. <span
+                                class="tracking-note">(tracking only)</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="rubricContainer"></div>
+
+            <div id="notificationBar" class="notification-bar">
+                <span id="notificationMessage"></span>
+                <span class="close-notification" onclick="clearNotification()">&times;</span>
+            </div>
+
+            <div class="controls" id="generateSection">
+                <button id="check6TopBtn" style="background-color:#e65100;" onclick="cycleCheck6FromButton(this)">Check
+                    6: T (tracking) — click to change</button>
+                <button id="generateBtn">Generate Feedback</button>
+                <button id="copyBtn" class="hidden">Copy Feedback</button>
+                <button id="copyScoresBtn">Copy Scores (all raw)</button>
+                <button id="copyExcelBtn">📊 Copy Scores (For Excel)</button>
+                <button id="resetBtn">Reset All</button>
+            </div>
+
+            <div class="section-copy-buttons">
+                <button onclick="copySectionGroupScores(0)">📋 A</button>
+                <button onclick="copySectionGroupScores(1)">📋 B</button>
+                <button onclick="copySectionGroupScores(2)">📋 C</button>
+                <button onclick="copySectionGroupScores(3)">📋 D</button>
+                <button onclick="copySectionGroupScores(4)">📋 E</button>
+                <button onclick="copySectionGroupScores(5)">📋 F</button>
+                <button onclick="copySectionGroupScores(6)">📋 G</button>
+                <button onclick="copySectionGroupScores(7)">📋 H</button>
+                <button onclick="copySectionGroupScores(8)">📋 EC</button>
+                <button class="checks-btn" onclick="copyChecksStatusOnly()">📋 Checks (6)</button>
+            </div>
+
+            <div id="outputSection" class="output-section hidden"></div>
+        </div>
+
+        <!-- ===== POINTS SUMMARY SIDEBAR ===== -->
+        <div class="summary-section">
+            <h2 style="font-size:1.2rem;margin-top:0;">Points Summary</h2>
+            <div class="nav-links">
+                <a href="#nameSection">📝 Go to Name</a>
+                <a href="#generateSection">🚀 Go to Generate</a>
+            </div>
+            <table class="summary-table" id="summaryTable">
+                <thead>
+                    <tr>
+                        <th>Section</th>
+                        <th>Points</th>
+                        <th>Max</th>
+                    </tr>
+                </thead>
+                <tbody id="summaryBody"></tbody>
+                <tfoot>
+                    <tr class="total-row">
+                        <td>Total (incl. extra credit)</td>
+                        <td id="totalPoints">0</td>
+                        <td id="maxPoints">100</td>
+                    </tr>
+                </tfoot>
+            </table>
+            <div id="extraCreditSection" class="hidden">
+                <h3 style="font-size:1rem;">Extra Credit</h3>
+                <table class="summary-table">
+                    <thead>
+                        <tr>
+                            <th>Section</th>
+                            <th>Points</th>
+                            <th>Max</th>
+                        </tr>
+                    </thead>
+                    <tbody id="extraCreditBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="itemModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Edit Item</div><button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group"><label for="itemText">Item Description</label><textarea id="itemText"
+                        class="form-control" rows="3"></textarea></div>
+                <div class="form-group"><label for="itemPoints">Points (max: <span id="maxPointDisplay"></span>)</label>
+                    <div class="point-input-group">
+                        <input type="number" id="itemPoints" class="form-control" step="1" min="0" value="0">
+                        <button type="button" id="incrementPoint">+1</button>
+                        <button type="button" id="decrementPoint">-1</button>
+                        <button type="button" id="resetPointBtn" class="reset-point-btn">Reset</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="restore-group">
+                    <button id="restoreTextBtn" class="modal-btn modal-btn-orange">↺ Restore Text</button>
+                    <button id="restorePointsBtn" class="modal-btn modal-btn-purple">↺ Restore Points</button>
+                </div>
+                <button id="clearTextBtn" class="modal-btn modal-btn-danger">Clear Text</button>
+                <button id="cancelBtn" class="modal-btn modal-btn-secondary">Cancel</button>
+                <button id="saveBtn" class="modal-btn modal-btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="commentModal" class="modal comment-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Add Comment to Section Feedback</div><button class="close-btn"
+                    id="commentModalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="predefined-comment-section">
+                    <span class="label">Quick predefined comments:</span>
+                    <button class="predefined-comment-btn"
+                        data-comment="Missing or incomplete: please provide more detail.">Missing detail</button>
+                    <button class="predefined-comment-btn"
+                        data-comment="Not clearly explained: please clarify your reasoning.">Unclear
+                        explanation</button>
+                    <button class="predefined-comment-btn"
+                        data-comment="Good start but needs more supporting evidence.">Needs evidence</button>
+                    <button class="predefined-comment-btn"
+                        data-comment="Please include more specific examples or data.">Add examples</button>
+                    <button class="predefined-comment-btn"
+                        data-comment="This needs further analysis and interpretation.">Needs analysis</button>
+                </div>
+                <div class="form-group"><label for="commentText">Comment text:</label><textarea id="commentText"
+                        class="form-control" rows="4" placeholder="Enter your comment here..."></textarea></div>
+            </div>
+            <div class="modal-footer">
+                <div class="restore-group"><button id="clearCommentBtn"
+                        class="modal-btn modal-btn-danger">Clear</button></div>
+                <button id="cancelCommentBtn" class="modal-btn modal-btn-secondary">Cancel</button>
+                <button id="addCommentBtn" class="modal-btn modal-btn-primary">Add to Feedback</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Friendly confirmation modal -->
+    <div id="confirmModal" class="modal confirm-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Select both positive and negative?</div>
+                <button class="close-btn" id="confirmModalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>You’re about to mark <strong>both</strong> the positive and negative entries for this item.</p>
+                <div class="confirm-pair" id="confirmPairPreview"></div>
+                <p style="margin-bottom:0;">Normally these are mutually exclusive. Choose how you’d like to proceed:</p>
+            </div>
+            <div class="modal-footer">
+                <button id="confirmCancelBtn" class="modal-btn modal-btn-secondary">Cancel</button>
+                <button id="confirmSwapBtn" class="modal-btn modal-btn-orange"
+                    style="background-color:#ff9800;color:#fff;">Swap selection</button>
+                <button id="confirmBothBtn" class="modal-btn modal-btn-primary" style="display:none">Select
+                    both</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== STATE ====================
+        let extraCreditPointsValue = 0;
+        let checkSelections = {};
+        let checkTextSelections = {};
+        let masterNoDeductions = true;
+        let originalRubricData = null;
+
+        const state = {
+            selectedItems: new Map(),
+            currentEditingItem: null,
+            pendingSelection: null
+        };
+
+        // ==================== DOM PAIR LOOKUP ====================
+        function findPairedItemElement(itemEl) {
+            if (!itemEl) return null;
+            const row = itemEl.closest('tr.item-row');
+            if (!row) return null;
+            const isPos = itemEl.classList.contains('positive-item');
+            if (isPos) {
+                return row.querySelector('.negative-col .negative-item');
+            } else {
+                return row.querySelector('.positive-col .positive-item');
+            }
+        }
+
+        // ==================== COPY GRADING MESSAGE ====================
+        function copyGradingMessage() {
+            const message = `Now grade this very strictly, and show me which one to check and which one to x in my checklist. If something is not met, then provide a suggestion to improve as "You could have done... to improve". When it comes to multiple items that have suggestions for improvement, then combine them using connecting words, such as "Also", "Again", "Moveover", all in a single paragraph with a nice flow per section."`;
+            const hintText = document.getElementById('hintText');
+            navigator.clipboard.writeText(message).then(() => {
+                hintText.textContent = '✅ Copied successfully!';
+                hintText.className = 'hint-text success';
+                showNotification('✅ Grading message copied to clipboard!');
+                setTimeout(() => {
+                    hintText.textContent = 'Click to copy: "Now grade this very strictly..."';
+                    hintText.className = 'hint-text';
+                }, 3000);
+            }).catch(() => {
+                hintText.textContent = '❌ Failed to copy!';
+                hintText.className = 'hint-text error';
+            });
+        }
+
+        // ==================== NOTIFICATIONS ====================
+        function showNotification(message, isSuccess = true, sectionLetter = '') {
+            const bar = document.getElementById('notificationBar');
+            const msgEl = document.getElementById('notificationMessage');
+            if (sectionLetter) {
+                const colorClass = `highlight-letter-${sectionLetter}`;
+                const highlighted = `<span class="highlight-letter ${colorClass}">Section ${sectionLetter}</span>`;
+                msgEl.innerHTML = message.replace(`Section ${sectionLetter}`, highlighted);
+            } else {
+                msgEl.textContent = message;
+            }
+            bar.classList.toggle('success', !!isSuccess);
+            bar.classList.add('visible');
+        }
+        function clearNotification() {
+            const bar = document.getElementById('notificationBar');
+            const msgEl = document.getElementById('notificationMessage');
+            msgEl.textContent = '';
+            msgEl.innerHTML = '';
+            bar.classList.remove('visible', 'success');
+        }
+        function validateName() {
+            const nameInput = document.getElementById('studentName');
+            const errorEl = document.getElementById('nameRequiredError');
+            const name = nameInput.value.trim();
+            if (!name) {errorEl.classList.add('show'); nameInput.style.borderColor = '#c62828'; return false;}
+            errorEl.classList.remove('show'); nameInput.style.borderColor = ''; return true;
+        }
+
+        // ==================== LOCKABLE FIELDS ====================
+        const LOCKABLE_FIELDS = ['studentName', 'minutesTaken', 'githubHash'];
+        function lockField(el) {
+            if (!el || !el.value.trim()) return;
+            el.dataset.locked = 'true';
+            el.readOnly = true;
+            el.classList.add('locked-input');
+        }
+        function unlockField(el) {
+            if (!el) return;
+            el.dataset.locked = '';
+            el.readOnly = false;
+            el.classList.remove('locked-input');
+            el.focus();
+            el.select();
+        }
+        function setupLockableFields() {
+            LOCKABLE_FIELDS.forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.dataset.locked = '';
+                el.addEventListener('blur', function () {setTimeout(() => lockField(this), 120);});
+                el.addEventListener('click', function () {if (this.dataset.locked === 'true') unlockField(this);});
+                el.addEventListener('focus', function () {
+                    if (this.dataset.locked === 'true') {
+                        this.dataset.locked = '';
+                        this.readOnly = false;
+                        this.classList.remove('locked-input');
+                    }
+                });
+            });
+        }
+
+        // ==================== CHECKS ====================
+        function initCheckSelections() {
+            masterNoDeductions = true;
+            for (let i = 0; i < 6; i++) {checkSelections[`negative-${i}`] = 'N'; checkTextSelections[`negative-${i}`] = false;}
+            checkSelections['negative-6'] = 'T'; checkTextSelections['negative-6'] = false;
+            checkTextSelections['positive-0'] = true;
+        }
+        initCheckSelections();
+
+        const CHECK6_LABELS = {T: 'T (tracking)', Y: 'Y (flagged)', N: 'N (not present)'};
+        function updateCheck6TopButton() {
+            const btn = document.getElementById('check6TopBtn');
+            if (!btn) return;
+            const cur = checkSelections['negative-6'] || 'T';
+            btn.textContent = `Check 6: ${CHECK6_LABELS[cur] || cur} — click to change`;
+            btn.style.backgroundColor = cur === 'Y' ? '#c62828' : cur === 'N' ? '#2e7d32' : '#e65100';
+        }
+        function cycleCheck6FromButton(btn) {
+            if (masterNoDeductions) {
+                masterNoDeductions = false;
+                const masterEl = document.getElementById('check-text-positive-0');
+                if (masterEl) {masterEl.classList.remove('selected'); masterEl.classList.add('unselected');}
+                for (let i = 0; i < 7; i++) {
+                    const s = document.getElementById(`check-status-negative-${i}`);
+                    const t = document.getElementById(`check-text-negative-${i}`);
+                    if (s) s.className = 'check-status ' + (i === 6 ? 'T' : 'N');
+                    if (t) t.classList.remove('disabled');
+                    checkSelections[`negative-${i}`] = (i === 6 ? 'T' : 'N');
+                    if (i !== 6) checkTextSelections[`negative-${i}`] = false;
+                }
+            }
+            const id = 'negative-6';
+            const statusEl = document.getElementById(`check-status-${id}`);
+            if (!statusEl) return;
+            const order = ['T', 'Y', 'N'];
+            const cur = checkSelections[id] || 'T';
+            const next = order[(order.indexOf(cur) + 1) % order.length];
+            statusEl.textContent = next;
+            statusEl.className = 'check-status ' + next;
+            checkSelections[id] = next;
+            const textEl = document.getElementById(`check-text-${id}`);
+            if (textEl) {
+                if (next === 'Y') {checkTextSelections[id] = true; textEl.classList.add('selected');}
+                else {checkTextSelections[id] = false; textEl.classList.remove('selected');}
+            }
+            updateCheck6TopButton();
+            showNotification(`✅ Check 6 set to: ${next}`);
+        }
+        function toggleMasterNoDeductions() {
+            masterNoDeductions = !masterNoDeductions;
+            const masterEl = document.getElementById('check-text-positive-0');
+            if (masterEl) {
+                if (masterNoDeductions) {masterEl.classList.add('selected'); masterEl.classList.remove('unselected');}
+                else {masterEl.classList.remove('selected'); masterEl.classList.add('unselected');}
+            }
+            for (let i = 0; i < 7; i++) {
+                const statusEl = document.getElementById(`check-status-negative-${i}`);
+                const textEl = document.getElementById(`check-text-negative-${i}`);
+                if (masterNoDeductions) {
+                    checkSelections[`negative-${i}`] = (i === 6 ? 'T' : 'N');
+                    if (statusEl) {statusEl.textContent = (i === 6 ? 'T' : 'N'); statusEl.className = 'check-status ' + (i === 6 ? 'T' : 'N') + ' disabled';}
+                    if (textEl) {textEl.classList.add('disabled'); textEl.classList.remove('selected');}
+                    checkTextSelections[`negative-${i}`] = false;
+                } else {
+                    if (statusEl) statusEl.className = 'check-status ' + (i === 6 ? 'T' : 'N');
+                    if (textEl) textEl.classList.remove('disabled');
+                }
+            }
+            updateCheck6TopButton();
+        }
+        function toggleCheckStatus(id) {
+            if (masterNoDeductions) return;
+            const el = document.getElementById(`check-status-${id}`);
+            const isCheck6 = id === 'negative-6';
+            let next;
+            if (isCheck6) next = el.textContent === 'T' ? 'Y' : (el.textContent === 'Y' ? 'N' : 'T');
+            else next = el.textContent === 'N' ? 'Y' : 'N';
+            el.textContent = next; el.className = 'check-status ' + next; checkSelections[id] = next;
+            if (id === 'negative-2' || id === 'negative-3') updateCheck3A3B();
+            if (isCheck6) updateCheck6TopButton();
+        }
+        function toggleCheckSelection(id) {
+            if (masterNoDeductions) return;
+            const el = document.getElementById(`check-text-${id}`);
+            checkTextSelections[id] = !checkTextSelections[id];
+            el.classList.toggle('selected', checkTextSelections[id]);
+        }
+        function copyChecksStatusOnly() {
+            const out = [];
+            const c3 = (checkSelections['negative-2'] === 'Y' || checkSelections['negative-3'] === 'Y') ? 'Y' : 'N';
+            out.push(checkSelections['negative-0'] || 'N');
+            out.push(checkSelections['negative-1'] || 'N');
+            out.push(c3);
+            out.push(checkSelections['negative-4'] || 'N');
+            out.push(checkSelections['negative-5'] || 'N');
+            const c6 = checkSelections['negative-6'];
+            out.push(c6 === 'Y' ? 'Y' : 'N');
+            const result = out.join('\t');
+            navigator.clipboard.writeText(result);
+            showNotification(`✅ 6 checks status copied: ${result}`);
+        }
+        function getMissingAccessItems() {
+            const sectionState = state.selectedItems.get('section-0') || {positive: new Set(), negative: new Set()};
+            const missing = [];
+            if (!sectionState.positive.has('section-0-positive-0')) missing.push('Overleaf link');
+            if (!sectionState.positive.has('section-0-positive-1')) missing.push('GitHub commit hash');
+            if (missing.length === 0) return '';
+            if (missing.length === 1) return missing[0];
+            return missing.join(' and ');
+        }
+        function updateCheck3A3B() {
+            const check3AEl = document.getElementById('check-text-negative-2');
+            if (!check3AEl) return;
+            const missing = getMissingAccessItems();
+            let text = check3AEl.textContent.replace(/\s*\(auto-filled from A2\)\s*$/, '');
+            if (missing !== '') {
+                text = text.replace(/\{TODO\}/g, missing);
+                text = text + ' (auto-filled from A2)';
+                if (!masterNoDeductions) {
+                    const status3A = document.getElementById('check-status-negative-2');
+                    if (status3A && status3A.textContent !== 'Y') {status3A.textContent = 'Y'; status3A.className = 'check-status Y'; checkSelections['negative-2'] = 'Y';}
+                    if (!checkTextSelections['negative-2']) {checkTextSelections['negative-2'] = true; check3AEl.classList.add('selected');}
+                }
+            } else {
+                if (!masterNoDeductions && checkTextSelections['negative-2']) {checkTextSelections['negative-2'] = false; check3AEl.classList.remove('selected');}
+            }
+            check3AEl.textContent = text;
+        }
+
+        // ==================== SECTION GROUP COMBINATIONS ====================
+        // One entry per group (A1, A2, ...); groupIndices is always a single group,
+        // because scoring is all-or-nothing at the group level.
+        const sectionGroupCombinations = {
+            0: {scores: [{label: "A1", groupIndices: [0]}, {label: "A2", groupIndices: [1]}, {label: "A3", groupIndices: [2]}]},
+            1: {scores: [{label: "B1", groupIndices: [0]}, {label: "B2", groupIndices: [1]}, {label: "B3", groupIndices: [2]}, {label: "B4", groupIndices: [3]}, {label: "B5", groupIndices: [4]}]},
+            2: {scores: [{label: "C1", groupIndices: [0]}, {label: "C2", groupIndices: [1]}, {label: "C3", groupIndices: [2]}, {label: "C4", groupIndices: [3]}, {label: "C5", groupIndices: [4]}]},
+            3: {scores: [{label: "D1", groupIndices: [0]}, {label: "D2", groupIndices: [1]}, {label: "D3", groupIndices: [2]}, {label: "D4", groupIndices: [3]}]},
+            4: {scores: [{label: "E1", groupIndices: [0]}, {label: "E2", groupIndices: [1]}, {label: "E3", groupIndices: [2]}, {label: "E4", groupIndices: [3]}, {label: "E5", groupIndices: [4]}]},
+            5: {scores: [{label: "F1", groupIndices: [0]}, {label: "F2", groupIndices: [1]}, {label: "F3", groupIndices: [2]}, {label: "F4", groupIndices: [3]}, {label: "F5", groupIndices: [4]}]},
+            6: {scores: [{label: "G1", groupIndices: [0]}, {label: "G2", groupIndices: [1]}, {label: "G3", groupIndices: [2]}, {label: "G4", groupIndices: [3]}, {label: "G5", groupIndices: [4]}]},
+            7: {scores: [{label: "H1", groupIndices: [0]}, {label: "H2", groupIndices: [1]}, {label: "H3", groupIndices: [2]}, {label: "H4", groupIndices: [3]}, {label: "H5", groupIndices: [4]}]}
+        };
+
+        // ==================== UL POSITIVE / NEGATIVE PROSE ====================
+        const positiveProse = {
+            A1: "You provide the specified 20k instance sampled BRFSS dataset consistent with the baseline built upon in SL and OL Reports or acknowledge and justify any changes made herein. You also appropriately identify the source and targets/labels/classes. In rolling over your SL backbone from the previous report, you properly exclude your GenHlth target from the unsupervised tasks.",
+            A2: "You provide a working read-only link to your Overleaf report, proper citation and use of your GT Enterprise GitHub repo, and in your REPRO documentation you provide run instructions and experimental specifications such as clustering and DR choices, NN configs, component counts and metric procedures.",
+            A3: "Your visuals, plots, tables, etc. are all legible with proper labelling of axes, legends and captions, meaning no zooming is necessary. You appropriately cite two or more peer-reviewed sources beyond the course materials and do so in a properly formatted References section. You also acknowledge the nature and extent of your AI/LLM usage. Well done!",
+            B1: "You aptly explain scaling/encoding decisions made for your mixed data types and features and justify why these preprocessing steps matter for Clustering and DR.",
+            B2: "You fill in the reader on transfer of the dataset from the earlier SL and OL Reports, making sure to disclose and justify any revisions assignment-over-assignment. You also cover train/validation/test partitions and the NN baseline to be invoked in later comparison with your Clustering features and DR components as input rather than the original features.",
+            B3: "You appropriately exclude your GenHlth label set from the unsupervised tasks and invoke them only in later comparison, interpretation and quantification of performance.",
+            B4: "Your study applies the correct train-only fitting protocol for preprocessing and later application of DR and Clustering to your learning problem in Parts 4 and 5. Any transformation of validation and test data is done without refitting and your model selection is done independently of the test results.",
+            B5: "You provide at least one substantive and well-reasoned hypothesis before your main results which predicts a meaningful methodological/data-driven tradeoff and invokes theory to satisfactorily defend any necessary claims.",
+            C1: "KMC is applied to the BRFSS dataset with appropriate preprocessing and a sweep of k-values, as well as disclosed init/restart and seed settings and well-justified ranges for all sweeped settings.",
+            C2: "GMM is applied to your original features and spans a range of component counts for exploratory reasons. You clearly identify your covariance model, provide ample fitting/convergence behavior details in your report or REPRO to support reproducibility and all selection criteria are effectively justified.",
+            C3: "You provide at least two suitable internal model selection diagnostic measures, such as silhouette score, inertia plot and elbow method, DB index or AIC/BIC. These metrics are used to evaluate and reason about your clustering performance.",
+            C4: "Your comparison of clustering results with GenHlth is well-done and you use an appropriate measure such as ARI/NMI/V-measure or contingency table to cite and interpret your results.",
+            C5: "Your analysis covers cluster sizes or profiles and you offer one or more meaningful feature-related pattern with some speculative insight into why there may be alignment between clusters and classes of the original dataset.",
+            D1: "Your PCA implementation entails reporting of eigenvalues, (cumulative or otherwise) explained variance, component count, an interpretation of retained variance, redundancy or feature structure as metrics by which to qualify your DR results. Well done!",
+            D2: "Your ICA implementation entails reporting of component count (with justification), kurtosis or some other non-gaussianity metric, as well as relevant convergence and stability information with thoughtful interpretation.",
+            D3: "Your RP experiment conveys one of the following quality metrics such as justified projected dimension, distance preservation, distortion, reconstruction error, etc. with variability charted across random seeds.",
+            D4: "Your reporting captures all three algorithms -- PCA, ICA and RP -- with sufficient explanation as to their relative compression, different cause and effect in design and measurement of their performance and cited evidence from your exploration including any discussion of tradeoffs. You provide a compact visual or table to summarize the comparative results of the three DR methods.",
+            E1: "Your reporting and exposition includes all pairwise combinations of your two Clustering methods with your three DR methods with labeled and verifiable results for each.",
+            E2: "Well done for reselecting your cluster/component counts and or retuning your clustering settings post-DR with explanation as to your thought process.",
+            E3: "You provide a compact comparison of suitable clustering diagnostics to stitch together the six pairwise combinations in comparing them with the original space baseline.",
+            E4: "Your heldout labels are used in evaluating differences between your original and feature-reduced spaces with some justified metric or tabular evidence and thoughtful interpretation. You make attempts to attribute the effects on clustering quality, geometry, stability or label alignment to the DR method in question by invoking results from Parts 1 and 2.",
+            E5: "You offer a minimum of one grounded limitation or issue of variability in your results and delve into causes such as seed effects, dimensionality, scaling and other preprocessing, covariance (mis)assumptions or disparate metrics across different transformed spaces.",
+            F1: "Your model is appropriately based on the SL/OL baseline PyTorch model and you offer justification as to your training recipe. For any shift in the input dimensions due to a different component count used than original features, you explain this satisfactorily.",
+            F2: "Your baseline NN classification input data from SL/OL Report is then augmented with PCA, ICA and RP to modify the data structure and consequently, you make clear that the same data partitions are used and fair comparison protocol is followed.",
+            F3: "Your four-way comparison provides reporting of held-out accuracy, macro-F1, balanced accuracy and relevant validation loss evidence under a consistent evaluation protocol for fair comparison. Your reporting of the downstream classification results are well visualized by way of your confusion matrix and you discuss per-class behavior such as precision, recall and F1 in the GenHlth multiclass case.",
+            F4: "You log a measure of training time or another justified runtime/compute metric to cross compare between your original NN from the SL/OL report and the DR-augmented trio, cognizant of preprocessing cost discrepancies between the different NN variants.",
+            F5: "Your report captures the observed predictive and efficiency tradeoffs with respect to compression, noise, information loss, transformation/distortion of geometry, addressing this in the light of proposed/candidate strengths one combination may have over another.",
+            G1: "You provide constructed KMC-derived as well as GMM-derived cluster inputs from the original feature space explored in Part 1, and your feature/data types are clearly disclosed, as is your process of augmenting or replacing your original input features.",
+            G2: "Your KMC and GMM settings are traceable to the original space features from Part 1 and your construction and mapping of the cluster-derived inputs across train/validation/test is clear and reproducible.",
+            G3: "Your original feature space and KMC and GMM are evaluated using the same PyTorch backbone, same splits and comparable training budgets where input width changes are made with prior disclosure only.",
+            G4: "Your original feature space and KMC and GMM transformed ones are compared in their downstream use on the classification task in terms of your accuracy, macro-F1, balanced accuracy, relevant validation loss and class-level evidence and runtime or compute.",
+            G5: "You offer explanation as to whether cluster features add information, duplicate the original features or compress away any predictive structure.",
+            H1: "Your report explains the supposed groups (in terms of GenHlth) that seem to be captured by your unsupervised learning algorithms and this is done by assessing quality of clusters and feature evidence rather than by implicit bias or a constructed ranked score. Your cluster agreement is well addressed and you draw some interesting discussion out of the nature of the unsupervised learning algorithms that led to these observations and your domain-situated understanding of the data labels.",
+            H2: "You nicely tie together several assumptions such as softness of classification/clustering and component shape and model selection. Of your DR synthesis, you provide contrast across your DR methods, discuss the variance, non-Gaussianity, distance distortion, stability, component choice and cite the reconstruction quality that are at play in the three.",
+            H3: "Your coverage of DR and Clustering highlights the tradeoffs between using these methods on their own and in tandem, in particular in the effect that combined Clustering after DR can have.",
+            H4: "You directly address the noted change in performing DR on the input data to be passed downstream to your PyTorch NN. In particular, you note any improvement, preservation or detriment to NN performance and efficiency. As for NN-cluster-feature synthesis, you similarly address whether GMM or KMC meaningfully improve NN performance under similar terms.",
+            H5: "Your report addresses any evidence-based limitations such as sampling, class imbalance, scaling, unfit Gaussian assumptions, instability, seed effects or metric incompatibility. As to your hypothesis, you revisit your original hypothesis and cite evidence in drawing a defensible conclusion as to what UL/DR/Clustering features are useful for in this case and perhaps more generally.",
+            EC1: "You provide a defensible choice of your nonlinear manifold learning algorithm and an overview of relevant parameters. Any downstream use is done so carefully as to be leak-proof.",
+            EC2: "You provide a nice visualization to help diagnose your claims about the nonlinear representation and the visualization is expressly chosen to demonstrate this -- well done!",
+            EC3: "Your nonlinear manifold learning results are compared with linear alternatives from your implementation of DR earlier.",
+            EC4: "You offer explanation as to how the nonlinear method reveals structure that's not well visualized or remains hidden in the linear regime."
+        };
+        const negativeProse = {
+            A1: "You must provide the specified 20k instance sampled BRFSS dataset consistent with the baseline built upon in SL and OL Reports or acknowledge and justify any changes made herein. You also should identify the source and targets/labels/classes. In rolling over your SL backbone from the previous report, you must exclude your GenHlth target from the unsupervised tasks.",
+            A2: "You should provide a working read-only link to your Overleaf report, proper citation and use of your GT Enterprise GitHub repo, and in your REPRO documentation you must provide run instructions and experimental specifications such as clustering and DR choices, NN configs, component counts and metric procedures.",
+            A3: "Your visuals, plots, tables, etc. must all be legible with proper labelling of axes, legends and captions, meaning no zooming is necessary. You are expected to cite two or more peer-reviewed sources beyond the course materials and do so in a properly formatted References section. You also must acknowledge the nature and extent of your AI/LLM usage.",
+            B1: "You must explain scaling/encoding decisions made for your mixed data types and features and justify why these preprocessing steps matter for Clustering and DR.",
+            B2: "You should disclose to the reader carry over of the dataset from the earlier SL and OL Reports, making sure to disclose and justify any revisions assignment-over-assignment. You also must cover train/validation/test partitions and the NN baseline to be invoked in later comparison with your Clustering features and DR components as input rather than the original features.",
+            B3: "You were expected to exclude your GenHlth label set from the unsupervised tasks and invoke them only in later comparison, interpretation and quantification of performance.",
+            B4: "Your study should apply the correct train-only fitting protocol for preprocessing and later application of DR and Clustering to your learning problem in Parts 4 and 5. Any transformation of validation and test data must be done without refitting and your model selection should be carried out independently of the test results.",
+            B5: "You must provide at least one substantive and well-reasoned hypothesis before your main results which predicts a meaningful methodological/data-driven tradeoff and invokes theory to defend any necessary claims.",
+            C1: "KMC must be applied to the BRFSS dataset with appropriate preprocessing and a sweep of k-values, as well as offering disclosure of init/restart and seed settings and well-justified ranges for all sweeped settings.",
+            C2: "GMM must be applied to your original features and span a range of component counts for exploratory reasons. You must clearly identify your covariance model, provide fitting/convergence behavior details in your report or REPRO to support reproducibility and all selection criteria must be justified.",
+            C3: "You must provide at least two suitable internal model selection diagnostic measures, such as silhouette score, inertia plot and elbow method, DB index or AIC/BIC. These metrics are to be used to evaluate and reason about your clustering performance.",
+            C4: "Your comparison of clustering results with GenHlth labels needs further review and you must use an appropriate measure such as ARI/NMI/V-measure or contingency table to cite and interpret these clustering results.",
+            C5: "Your analysis should cover cluster sizes or profiles and you must offer one or more meaningful feature-related pattern with some speculative insight into why there may be alignment between clusters and classes of the original dataset.",
+            D1: "Your PCA implementation must entail reporting of at least one of the following from eigenvalues, (cumulative or otherwise) explained variance, component count, an interpretation of retained variance, redundancy or feature structure as metrics by which to qualify your DR results.",
+            D2: "Your ICA implementation must include reporting of component count (with justification), kurtosis or some other non-gaussianity metric, as well as relevant convergence and stability information with thoughtful interpretation.",
+            D3: "Your RP exposition should convey the results of your experiment through one of the following quality metrics such as justified projected dimension, distance preservation, distortion, reconstruction error, etc. with variability tracked across random seeds.",
+            D4: "Your reporting must include all three algorithms -- PCA, ICA and RP -- with sufficient explanation as to their relative compression, different cause and effect in design and measurement of their performance and cited evidence from your exploration including any discussion of tradeoffs. You might consider providing a compact visual or table to summarize the comparative results of the three DR methods as this helps in framing DR's performance alone versus in tandem with clustering and on the downstream NN.",
+            E1: "Your reporting and exposition must include all pairwise combinations of your two Clustering methods with your three DR methods with labeled and verifiable results necessarily being provided for each.",
+            E2: "We would have suggested you consider reselecting your cluster/component counts and or retuning your clustering settings post-DR with explanation as to your thought process and your motivation for doing so.",
+            E3: "You were expected to provide a compact comparison of suitable clustering diagnostics to stitch together the six pairwise combinations in comparing them with the original space baseline.",
+            E4: "Your heldout labels are meant to be used in evaluating differences between your original and feature-reduced spaces with some justified metric or tabular evidence and thoughtful interpretation as always. You must at least attempt to attribute the effects on clustering quality, geometry, stability or label alignment to the DR method in question by invoking results from Parts 1 and 2.",
+            E5: "You must offer a minimum of one grounded limitation or issue of variability in your results and delve into causes such as seed effects, dimensionality, scaling and other preprocessing, covariance (mis)assumptions or disparate metrics across different transformed spaces.",
+            F1: "Your model must be appropriately based on the SL/OL baseline PyTorch model and you must offer justification as to your training recipe. For any shift in the input dimensions due to a different component count used than original features, you need to explain this change.",
+            F2: "Your baseline NN classification input data from SL/OL Report must then be augmented with PCA, ICA and RP to modify the data structure and consequently, you must make clear that the same data partitions are used and fair comparison protocol is followed.",
+            F3: "Through your four-way comparison, you should provide reporting of held-out accuracy, macro-F1, balanced accuracy and relevant validation loss evidence under a consistent evaluation protocol for fair comparison. Your reporting of the downstream classification results should be captured in a confusion matrix and you should discuss per-class behavior such as precision, recall and F1 in the GenHlth multiclass case.",
+            F4: "You must log some measure of training time or another justified runtime/compute metric to cross compare between your original NN from the SL/OL report and the DR-augmented trio, cognizant of preprocessing cost discrepancies between the different NN variants.",
+            F5: "Your report should capture the observed predictive and efficiency tradeoffs with respect to compression, noise, information loss, transformation/distortion of geometry, addressing this in the light of proposed/candidate strengths one combination may have over another.",
+            G1: "You must provide constructed KMC-derived as well as GMM-derived cluster inputs from the original feature space explored in Part 1, and your feature/data types should be clearly disclosed, as should be your process of augmenting or replacing your original input features.",
+            G2: "Your KMC and GMM settings must be traceable to the original space features from Part 1 and your construction and mapping of the cluster-derived inputs across train/validation/test should be clear and reproducible.",
+            G3: "Your original feature space and KMC and GMM must be evaluated using the same PyTorch backbone, same splits and comparable training budgets where input width changes should be made with prior disclosure only.",
+            G4: "Your original feature space and KMC and GMM transformed ones should be compared in their downstream use on the classification task in terms of your accuracy, macro-F1, balanced accuracy, relevant validation loss and class-level evidence and runtime or compute.",
+            G5: "You must articulate whether cluster features add information, duplicate the original features or compress away any predictive structure.",
+            H1: "Your report must explain the supposed groups (in terms of GenHlth) that seem to be captured by your unsupervised learning algorithms and this must be done by assessing quality of clusters and feature evidence rather than by implicit bias or a constructed ranked score. Your cluster agreement evaluation must draw some interesting discussion out of the nature of the unsupervised learning algorithms that led to these observations and your domain-situated understanding of the data labels.",
+            H2: "You must tie together several assumptions such as softness of classification/clustering and component shape and model selection. Of your DR synthesis, you should provide contrast across your DR methods, discuss the variance, non-Gaussianity, distance distortion, stability, component choice and cite the reconstruction quality that are at play in the three.",
+            H3: "Your coverage of DR and Clustering should highlight the tradeoffs between using these methods on their own and in tandem, in particular in the effect that combined Clustering after DR can have.",
+            H4: "You must directly address the noted change in performing DR on the input data to be passed downstream to your PyTorch NN. In particular, you should note any improvement, preservation or detriment to NN performance and efficiency. As for NN-cluster-feature synthesis, you similarly must address whether GMM or KMC meaningfully improve NN performance under similar terms.",
+            H5: "Your report should address any evidence-based limitations such as sampling, class imbalance, scaling, unfit Gaussian assumptions, instability, seed effects or metric incompatibility. As to your hypothesis, you should revisit your original hypothesis and cite evidence in drawing a defensible conclusion as to what UL/DR/Clustering features are useful for in this case and perhaps more generally.",
+            EC1: "You must provide a defensible choice of your nonlinear manifold learning algorithm and an overview of relevant parameters. Any downstream use must be done so carefully as to be leak-proof.",
+            EC2: "You must provide a nice visualization to help diagnose your claims about the nonlinear representation and the visualization should be expressly chosen to demonstrate this.",
+            EC3: "Your nonlinear manifold learning results should be compared with linear alternatives from your implementation of DR earlier.",
+            EC4: "You must explain how the nonlinear method reveals structure that's not well visualized or which remains hidden in the linear regime."
+        };
+
+        // ==================== RUBRIC DATA (group-level, all-or-nothing) ====================
+        // Each group carries one positive "description" (the group summary) plus its
+        // rubric sub-items for display. Points = the group total from the UL rubric.
+        const baseRubricData = {
+            grading_rubric: {
+                total_points: 100,
+                extra_credit_points: 5,
+                sections: [
+                    {
+                        main_section: "Compliance (16 points)",
+                        points_available: 16,
+                        section_letter: "A",
+                        groups: [
+                            {
+                                label: "Data Compliance", max: 3, items: [
+                                    {
+                                        description: "BRFSS working sample + GenHlth task definition: uses ~20,000 observations from the required BRFSS source, consistent with the SL/OL sample or with a disclosed and justified change; correctly identifies GenHlth classes 1-5 as the external evaluation label and supervised NN target while excluding it from unsupervised predictors.", points: 3, sub: [
+                                            "Uses approximately 20,000 observations from the required BRFSS source (or disclosed/justified change)",
+                                            "Correctly identifies GenHlth 1-5 as external label and supervised target",
+                                            "Excludes GenHlth from unsupervised predictors"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                label: "Accessibility/Reproducibility", max: 7, items: [
+                                    {
+                                        description: "Submission access + run instructions + experiment specs: valid GT Enterprise Overleaf EDIT link, valid GT Enterprise GitHub final commit hash and repo, Linux run instructions (environment, commands, data paths, split/seed info), and REPRO experiment specifications (clustering/DR choices, NN configs, component counts, metric procedures, Part 5 cluster-feature construction).", points: 7, sub: [
+                                            "GT Enterprise Overleaf Edit Link provided and verified (2)",
+                                            "GT Enterprise GitHub final commit hash + repo provided and verified (2)",
+                                            "Linux run instructions sufficient to reproduce (2)",
+                                            "Experiment specifications sufficient to support exhibits (1)"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                label: "Presentation/Attribution", max: 6, items: [
+                                    {
+                                        description: "IEEE conference format, readable figures/tables at normal zoom, at least two peer-reviewed sources used in the body beyond course materials with IEEE-style citations, and a clear AI Use Statement identifying tools and affirming review/verification.", points: 6, sub: [
+                                            "Main report uses required IEEE conference format (1)",
+                                            "Central figures/tables legible at normal grading zoom (1)",
+                                            "At least two peer-reviewed sources used in the report body (2)",
+                                            "AI Use Statement present and specific (2)"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ],
+                        negative_items: {
+                            items: [
+                                "A1. BRFSS sample is substantially different without explanation, the working sample is unclear, or another data subset is substituted without justification; GenHlth mapping missing/ambiguous; target included in predictors.",
+                                "A2. Overleaf Edit Link missing/invalid/read-only or unverifiable after opportunity; GitHub final hash/repo missing/invalid/noncompliant; run instructions absent or omit critical steps; key experiment settings/feature construction/metric procedures missing or disconnected from results.",
+                                "A3. Non-IEEE format without permitted exception; multiple important exhibits cropped/unreadable/poorly labeled; fewer than two qualifying peer-reviewed sources or sources merely listed; AI Use Statement absent/vague/does not describe tools and verification."
+                            ]
+                        },
+                        feedback_section: "Feedback on Section:"
+                    },
+                    {
+                        main_section: "Study Design (10 points)",
+                        points_available: 10,
+                        section_letter: "B",
+                        groups: [
+                            {
+                                label: "Preprocessing Rationale", max: 2, items: [
+                                    {description: "Explains scaling/encoding decisions for binary, ordinal, and numeric BRFSS features and why those decisions matter for clustering and DR.", points: 2}
+                                ]
+                            },
+                            {
+                                label: "SL/OL Continuity", max: 2, items: [
+                                    {description: "Identifies the reused working sample, train/validation/test partitions, and NN baseline; material differences from SL/OL are disclosed and justified.", points: 2}
+                                ]
+                            },
+                            {
+                                label: "External-label Discipline", max: 2, items: [
+                                    {description: "GenHlth is excluded from unsupervised fitting and used only afterward for alignment/interpretation, or as the supervised NN label; unsupervised selection does not use held-out test-label agreement.", points: 2}
+                                ]
+                            },
+                            {
+                                label: "Downstream Leakage Controls", max: 2, items: [
+                                    {description: "Demonstrates a correct train-only fitting protocol for learned preprocessing and DR/cluster features in Parts 4 and 5; validation/test data transformed without refitting; test outcomes do not guide model selection.", points: 2}
+                                ]
+                            },
+                            {
+                                label: "Testable Hypothesis", max: 2, items: [
+                                    {description: "At least one hypothesis appears before the main results, predicts a meaningful method/data tradeoff, and connects to theory or dataset properties.", points: 2}
+                                ]
+                            }
+                        ],
+                        negative_items: {
+                            items: [
+                                "B1. Preprocessing is unexplained, described only as a default pipeline, or its effects on feature geometry are ignored.",
+                                "B2. The earlier sample/splits or NN baseline cannot be identified, or material changes are unexplained.",
+                                "B3. Labels are input to clustering/DR, held-out test labels determine unsupervised settings, or label use is unclear.",
+                                "B4. The protocol uses full-sample fitted transforms for supervised testing, tunes with test results, or does not establish how leakage is prevented.",
+                                "B5. The hypothesis is absent, generic, purely a winner prediction without reasoning, or introduced only after seeing outcomes."
+                            ]
+                        },
+                        feedback_section: "Feedback on Section:"
+                    },
+                    {
+                        main_section: "Part 1: Clustering on Original Features (12 points)",
+                        points_available: 12,
+                        section_letter: "C",
+                        groups: [
+                            {
+                                label: "K-Means Model Selection", max: 3, items: [
+                                    {description: "K-Means is applied to original BRFSS features with justified preprocessing, multiple reasonable k values, initialization/restart and seed settings, and a defensible selected value or comparison range.", points: 3}
+                                ]
+                            },
+                            {
+                                label: "EM/GMM Model Selection", max: 3, items: [
+                                    {description: "GMM is applied to original features with multiple reasonable component counts, an identified covariance model, a defensible selection rationale, and sufficient fitting/convergence details in the report or REPRO to reproduce the experiment.", points: 3}
+                                ]
+                            },
+                            {
+                                label: "Internal Clustering Diagnostics", max: 2, items: [
+                                    {description: "At least two appropriate unlabeled/internal or model-selection diagnostics, such as silhouette, inertia/elbow, Davies-Bouldin, AIC, or BIC, are used to evaluate the clustering models and support interpretations.", points: 2}
+                                ]
+                            },
+                            {
+                                label: "Post-fit Label Alignment", max: 2, items: [
+                                    {description: "A post-fit quantitative or tabular comparison with GenHlth is provided (for example ARI, NMI, V-measure, or a contingency table), with at least a correct brief explanation of the result.", points: 2}
+                                ]
+                            },
+                            {
+                                label: "Cluster Characterization", max: 2, items: [
+                                    {description: "The report describes cluster sizes or profiles and at least one meaningful feature-related pattern, and explains why groups may align with or differ from General Health categories.", points: 2}
+                                ]
+                            }
+                        ],
+                        negative_items: {
+                            items: [
+                                "C1. K-Means is missing; one arbitrary k is used; k=5 is assumed correct because of the five labels; or important setup/model-selection evidence is absent.",
+                                "C2. GMM is missing, component/model selection is arbitrary or unsupported, covariance type is unidentified, or essential fit information is insufficient for reproduction.",
+                                "C3. Metrics are absent, inappropriate, unrelated to choices, or only listed without meaningful interpretation.",
+                                "C4. No label-alignment evidence is supplied, the interpretation is misleading, or labels are used to tune the clustering fit.",
+                                "C5. The report gives only scores or cluster counts with no grounded explanation of what clusters represent."
+                            ]
+                        },
+                        feedback_section: "Feedback on Section:"
+                    },
+                    {
+                        main_section: "Part 2: Dimensionality Reduction (14 points)",
+                        points_available: 14,
+                        section_letter: "D",
+                        groups: [
+                            {
+                                label: "PCA Diagnostics", max: 3, items: [
+                                    {description: "PCA reports eigenvalues or explained variance, cumulative explained variance, a justified component count, and interpretation of preserved variance, redundancy, or feature structure.", points: 3}
+                                ]
+                            },
+                            {
+                                label: "ICA Diagnostics", max: 3, items: [
+                                    {description: "ICA reports a justified component count, kurtosis or another non-Gaussianity diagnostic, and relevant convergence/stability information with interpretation.", points: 3}
+                                ]
+                            },
+                            {
+                                label: "RP Diagnostics", max: 3, items: [
+                                    {description: "RP includes a justified projected dimension and distance preservation, distortion, or defensible reconstruction evidence, with variability across multiple seeds.", points: 3}
+                                ]
+                            },
+                            {
+                                label: "Cross-method Dimension-selection + Representation Comparison", max: 5, items: [
+                                    {
+                                        description: "Compares the selected PCA, ICA, and RP dimensions and explains why their compression levels or choices are comparable or intentionally different, using evidence from the explored settings and resulting trade-offs; and a legible compact figure/table or integrated analysis compares what PCA, ICA, and RP preserve or lose, including implications for later clustering or NN use.", points: 5, sub: [
+                                            "Cross-method dimension-selection rationale with evidence (3)",
+                                            "Compact representation comparison figure/table or integrated analysis (2)"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ],
+                        negative_items: {
+                            items: [
+                                "D1. PCA is missing, component count is unsupported, explained-variance evidence is absent, or retained variance is equated with class information without support.",
+                                "D2. ICA is missing, lacks non-Gaussianity evidence, hides convergence problems, or gives no component-count rationale.",
+                                "D3. RP is missing, is evaluated using only one unqualified favorable seed, or provides no diagnostic of preserved/distorted structure.",
+                                "D4. There is no cross-method rationale for the selected dimensions, the comparison is based on held-out test cherry-picking, or the methods are reported in isolation with no comparative representation analysis."
+                            ]
+                        },
+                        feedback_section: "Feedback on Section:"
+                    },
+                    {
+                        main_section: "Part 3: Clustering after DR (12 points)",
+                        points_available: 12,
+                        section_letter: "E",
+                        groups: [
+                            {
+                                label: "All Six Combinations", max: 3, items: [
+                                    {description: "The report includes K-Means and GMM after each of PCA, ICA, and RP; results are labeled and verifiable for all six combinations.", points: 3}
+                                ]
+                            },
+                            {
+                                label: "Post-DR Cluster Choices", max: 2, items: [
+                                    {description: "Cluster/component counts and relevant GMM settings are reselected or explicitly defended in each transformed space.", points: 2}
+                                ]
+                            },
+                            {
+                                label: "Internal Comparison Evidence", max: 2, items: [
+                                    {description: "A compact, intelligible comparison of suitable clustering diagnostics connects the six reduced-space results with the original-space baselines.", points: 2}
+                                ]
+                            },
+                            {
+                                label: "External Alignment + Representation-effect Interpretation", max: 4, items: [
+                                    {
+                                        description: "Post-fit GenHlth alignment is compared across original and reduced spaces using a metric or tabular evidence with appropriate interpretation; and the report explains how PCA, ICA, or RP may have affected cluster quality, geometry, stability, or health-category agreement using findings from Parts 1 and 2.", points: 4, sub: [
+                                            "External alignment compared across original and reduced spaces with interpretation (2)",
+                                            "Representation-effect interpretation tied to Parts 1 and 2 (2)"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                label: "Stability or Comparison Limitation", max: 1, items: [
+                                    {description: "At least one grounded limitation or variability issue is acknowledged, including seed effects, dimensionality, scaling, covariance assumptions, or non-comparable metrics across spaces.", points: 1}
+                                ]
+                            }
+                        ],
+                        negative_items: {
+                            items: [
+                                "E1. Any required pairing is absent, methods are unclear, or results cannot be associated with their pairing.",
+                                "E2. Original settings are copied blindly across all reduced spaces without rationale.",
+                                "E3. Internal results or baseline comparison are missing, fragmented, or uninterpretable.",
+                                "E4. Alignment changes are asserted without evidence or not considered at all, or the analysis merely ranks six scores and offers no explanation tying representation to clustering.",
+                                "E5. No relevant limitation or stability consideration is raised."
+                            ]
+                        },
+                        feedback_section: "Feedback on Section:"
+                    },
+                    {
+                        main_section: "Part 4: Neural Network after DR (10 points)",
+                        points_available: 10,
+                        section_letter: "F",
+                        groups: [
+                            {
+                                label: "Justified PyTorch NN Recipe", max: 2, items: [
+                                    {description: "The model is based on the student's SL/OL PyTorch backbone and justified training recipe; input dimensions may change, while other training choices remain comparable or are explained.", points: 2}
+                                ]
+                            },
+                            {
+                                label: "Four Required Input Conditions", max: 2, items: [
+                                    {description: "The same NN is evaluated on original, PCA, ICA, and RP inputs using the same data partitions and a fair comparison protocol.", points: 2}
+                                ]
+                            },
+                            {
+                                label: "NN Evaluation Metrics + Confusion/Class-level", max: 3, items: [
+                                    {
+                                        description: "The original/PCA/ICA/RP comparison clearly reports held-out Accuracy, Macro-F1, balanced accuracy, and relevant validation-loss evidence under a consistent evaluation protocol; the main report includes an informative confusion matrix and discusses per-class precision, recall, and F1 in the five-class context.", points: 3, sub: [
+                                            "Held-out Accuracy, Macro-F1, balanced accuracy, and validation-loss evidence (2)",
+                                            "Confusion matrix + per-class precision/recall/F1 discussion (1)"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                label: "Efficiency Evidence", max: 1, items: [
+                                    {description: "Training time or another justified runtime/compute measure is compared between original and DR inputs, with preprocessing costs distinguished when material.", points: 1}
+                                ]
+                            },
+                            {
+                                label: "NN-after-DR Interpretation", max: 2, items: [
+                                    {description: "The report explains the observed predictive and efficiency trade-offs in relation to compression, noise, lost information, or transformed geometry, without claiming unsupported superiority.", points: 2}
+                                ]
+                            }
+                        ],
+                        negative_items: {
+                            items: [
+                                "F1. A different model family or a new unexplained architecture search replaces the SL/OL NN, or important training settings are missing.",
+                                "F2. The original baseline or a required DR representation is missing, or conditions use unexplained incompatible splits or budgets.",
+                                "F3. One or more required aggregate metrics or validation-loss evidence is missing, results cannot be matched to the four conditions, the evaluation protocol is not credible, no confusion matrix is presented, or there is no substantive per-class precision/recall/F1 discussion.",
+                                "F4. No runtime/compute evidence is provided or the measure cannot support the stated comparison.",
+                                "F5. The report merely lists outcomes, selects a winner without explanation, or ignores important class-level or cost changes."
+                            ]
+                        },
+                        feedback_section: "Feedback on Section:"
+                    },
+                    {
+                        main_section: "Part 5: NN with Cluster-Derived Features (12 points)",
+                        points_available: 12,
+                        section_letter: "G",
+                        groups: [
+                            {
+                                label: "Cluster-feature Construction", max: 3, items: [
+                                    {description: "The report constructs both K-Means-derived and GMM-derived inputs from the original-space configurations investigated in Part 1, and clearly identifies feature types (e.g., one-hot assignment, centroid distance, posterior probability) and the chosen replacement or augmentation design.", points: 3}
+                                ]
+                            },
+                            {
+                                label: "Part 1 Configuration and Feature Mapping", max: 2, items: [
+                                    {description: "The K-Means and GMM settings are traceable to the raw-space selections in Part 1, and the construction/mapping of cluster-derived inputs across train, validation, and test observations is clear and reproducible.", points: 2}
+                                ]
+                            },
+                            {
+                                label: "Three Comparable NN Conditions", max: 3, items: [
+                                    {description: "Original-feature, K-Means-feature, and GMM-feature NNs are all evaluated using the same justified PyTorch recipe, sample splits, and comparable training budgets; necessary input-width changes are explained.", points: 3}
+                                ]
+                            },
+                            {
+                                label: "Metrics and Compute Comparison", max: 2, items: [
+                                    {description: "The original/K-Means-feature/GMM-feature NNs are compared using Accuracy, Macro-F1, balanced accuracy, relevant validation-loss and class-level evidence, and runtime or compute.", points: 2}
+                                ]
+                            },
+                            {
+                                label: "Cluster-feature Interpretation", max: 2, items: [
+                                    {description: "The report explains whether cluster features add information, duplicate raw features, compress away predictive structure, or alter class-level errors, and connects findings with Part 1 clustering results.", points: 2}
+                                ]
+                            }
+                        ],
+                        negative_items: {
+                            items: [
+                                "G1. A clustering method is omitted, features are undefined, DR-space cluster models are substituted without justification, or the construction cannot be understood.",
+                                "G2. The feature-generating configurations are unrelated to Part 1 without explanation, or the mapping that produces NN features is unclear or unreproducible.",
+                                "G3. Any required NN condition is missing, different network/training settings make the comparison uninterpretable, or the original NN baseline is absent.",
+                                "G4. The three-condition comparison is materially incomplete, relies only on Accuracy, lacks meaningful class-level discussion, or lacks a defensible compute comparison.",
+                                "G5. The report reports scores only or does not explain why the K-Means/GMM features helped, hurt, or had little effect."
+                            ]
+                        },
+                        feedback_section: "Feedback on Section:"
+                    },
+                    {
+                        main_section: "Discussion (14 points)",
+                        points_available: 14,
+                        section_letter: "H",
+                        groups: [
+                            {
+                                label: "Original-space + External-label Synthesis", max: 4, items: [
+                                    {
+                                        description: "Explains what unsupervised groups appear to represent in BRFSS based on cluster/feature evidence rather than simply ranking scores, and discusses where clusters agree or disagree with GenHlth and what that says about unsupervised geometry versus health-category labels.", points: 4, sub: [
+                                            "Original-space synthesis from cluster/feature evidence (2)",
+                                            "External-label synthesis of agreement/disagreement with GenHlth (2)"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                label: "K-Means vs GMM + PCA/ICA/RP Synthesis", max: 4, items: [
+                                    {
+                                        description: "Connects the different assumptions, hard versus soft membership, component shape, model selection, or observed profiles to meaningful findings; and contrasts the three DR methods in terms of variance, non-Gaussianity, distance distortion, stability, component choice, and preservation of useful information as supported by its own evidence.", points: 4, sub: [
+                                            "K-Means versus GMM interpretation (2)",
+                                            "PCA/ICA/RP synthesis with method-specific evidence (2)"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                label: "DR + Clustering Synthesis", max: 2, items: [
+                                    {description: "Explains whether DR changed clustering quality or alignment and relates those changes to representation properties or limitations.", points: 2}
+                                ]
+                            },
+                            {
+                                label: "NN-after-DR + NN Cluster-feature Synthesis", max: 2, items: [
+                                    {
+                                        description: "Explains whether DR improved, preserved, or harmed NN performance or efficiency compared with original features, and whether K-Means/GMM feature construction adds or loses useful predictive structure, connected to original-space clustering.", points: 2, sub: [
+                                            "NN-after-DR synthesis (1)",
+                                            "NN cluster-feature synthesis (1)"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                label: "Specific Limitations + Hypothesis Resolution", max: 2, items: [
+                                    {
+                                        description: "Acknowledges evidence-based limitations such as sampling, class imbalance, scaling, Gaussian assumptions, instability, seed effects, or metric incompatibility connected to findings; and revisits the original hypothesis with evidence, ending with a defensible practical conclusion about what UL/DR/cluster features were useful for.", points: 2, sub: [
+                                            "Specific, evidence-based limitations (1)",
+                                            "Hypothesis resolution and practical takeaway (1)"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ],
+                        negative_items: {
+                            items: [
+                                "H1. The Discussion gives no meaningful conclusion about the original feature-space structure, or low/high ARI/NMI is stated without explanation, or cluster-label matching is treated as the sole definition of success.",
+                                "H2. The methods are treated as interchangeable or only ranked numerically, or there is no conceptual comparison of DR representations.",
+                                "H3. The DR/clustering combinations are listed without a cross-part conclusion.",
+                                "H4. The Discussion overlooks the supervised DR comparison or merely repeats scores, or Part 5 is not integrated or is summarized without meaning.",
+                                "H5. Limitations are absent or generic and not connected to findings, or the hypothesis is not resolved and the conclusion states only which final score was greatest."
+                            ]
+                        },
+                        feedback_section: "Feedback on Section:"
+                    },
+                    {
+                        main_section: "Extra Credit: Nonlinear Manifold Learning (5 points) — Extra Credit",
+                        points_available: 5,
+                        section_letter: "EC",
+                        groups: [
+                            {
+                                label: "EC1 Method Implementation and Rationale", max: 2, items: [
+                                    {description: "One nonlinear method is actually used, with a defensible choice and relevant parameter explanation; downstream use, if any, is leakage-safe.", points: 2}
+                                ]
+                            },
+                            {
+                                label: "EC2 Visualization or Quantitative Evidence", max: 1, items: [
+                                    {description: "A readable visualization or suitable quantitative diagnostic supports a claim about the nonlinear representation.", points: 1}
+                                ]
+                            },
+                            {
+                                label: "EC3 Linear-method Comparison", max: 1, items: [
+                                    {description: "The nonlinear outcome is compared with at least one required linear DR method.", points: 1}
+                                ]
+                            },
+                            {
+                                label: "EC4 Interpretive Insight", max: 1, items: [
+                                    {description: "Explains whether or how the nonlinear method reveals structure not evident from the linear approaches.", points: 1}
+                                ]
+                            }
+                        ],
+                        negative_items: {
+                            items: [
+                                "EC1. The method is only named or applied without a meaningful rationale, or downstream test information leaks into training.",
+                                "EC2. No meaningful empirical evidence is provided.",
+                                "EC3. It is presented in isolation without context.",
+                                "EC4. Interpretation is absent or limited to calling a plot visually interesting."
+                            ]
+                        },
+                        feedback_section: "Feedback on Section:"
+                    }
+                ],
+                general_feedback: {section: "General Feedback", content: ""}
+            }
+        };
+
+        originalRubricData = JSON.parse(JSON.stringify(baseRubricData));
+
+        const sectionLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'EC'];
+        (function applyPrefixes() {
+            const secs = baseRubricData.grading_rubric.sections;
+            for (let i = 0; i < secs.length; i++) {
+                const sec = secs[i];
+                if (sec.section_letter === 'EC') {
+                    sec.main_section = sec.main_section.startsWith('EC') ? sec.main_section : sec.main_section;
+                    sec.groups.forEach((group, idx) => {if (!/^EC\d/.test(group.label)) group.label = `EC${idx + 1}. ${group.label}`;});
+                    continue;
+                }
+                const letter = sectionLetters[i] || sec.section_letter;
+                sec.main_section = `${letter}. ${sec.main_section}`;
+                sec.groups.forEach((group, idx) => {group.label = `${letter}${idx + 1}. ${group.label}`;});
+            }
+        })();
+        const rubricData = baseRubricData;
+
+        // ==================== PREDEFINED FEEDBACK ====================
+        const predefinedFeedback = {
+            requirements: [
+                "Please make sure the report uses the required 2015 BRFSS General Health dataset (~20k instances) with GenHlth classes 1-5 as the target, excluded from unsupervised predictors.",
+                "Please verify that your Overleaf Edit Link and GT Enterprise GitHub commit hash are accessible to course staff.",
+                "The main report should stay within the 8-page scoring limit and use IEEE conference format.",
+                "Several figures or tables would benefit from larger fonts, clearer labels, and improved captions.",
+                "The report should read like a formal technical analysis rather than a checklist."
+            ],
+            study_design: [
+                "The study design would be stronger with clearer train/validation/test splits and leakage controls.",
+                "Please explain the train-only fitting protocol for preprocessing and learned DR/cluster features.",
+                "Your hypothesis should be stated before results and should predict a meaningful methodological or data-driven tradeoff.",
+                "Please revisit the hypothesis later using evidence from your reported experiments."
+            ],
+            part1_clustering: [
+                "For K-Means, justify the range of k values and disclose init/restart and seed settings.",
+                "For GMM, identify the covariance model and provide fitting/convergence details in the report or REPRO.",
+                "Use at least two internal diagnostics (silhouette, inertia/elbow, Davies-Bouldin, AIC/BIC) to support model selection.",
+                "Include a post-fit label-alignment measure (ARI/NMI/V-measure or contingency table) with brief interpretation.",
+                "Describe cluster sizes or profiles and explain what the clusters appear to represent."
+            ],
+            part2_dr: [
+                "For PCA, report eigenvalues/explained variance and justify the retained component count.",
+                "For ICA, report kurtosis or another non-Gaussianity diagnostic plus convergence/stability evidence.",
+                "For RP, justify the projected dimension and show distance-preservation or distortion across multiple seeds.",
+                "Provide a cross-method comparison of the selected dimensions and what each representation preserves or loses."
+            ],
+            part3_cluster_dr: [
+                "Make sure all six K-Means/GMM after PCA/ICA/RP combinations are labeled and verifiable.",
+                "Reselect or explicitly defend cluster/component counts in each transformed space.",
+                "Provide a compact comparison of clustering diagnostics across the six reduced-space results and the original baseline.",
+                "Compare post-fit GenHlth alignment across original and reduced spaces and attribute effects to the DR method.",
+                "Acknowledge at least one grounded limitation or variability issue (seeds, dimensionality, scaling, covariance assumptions)."
+            ],
+            part4_nn_dr: [
+                "Keep the SL/OL PyTorch backbone and justify the training recipe; explain any input-width changes.",
+                "Evaluate the same NN on original, PCA, ICA, and RP inputs with the same splits and fair budgets.",
+                "Report held-out Accuracy, Macro-F1, balanced accuracy, and validation-loss evidence, plus a confusion matrix and per-class discussion.",
+                "Log training time or another runtime/compute measure, distinguishing preprocessing costs.",
+                "Explain the predictive and efficiency trade-offs in terms of compression, noise, information loss, or transformed geometry."
+            ],
+            part5_nn_cluster: [
+                "Construct both K-Means-derived and GMM-derived inputs from the Part 1 configurations and identify feature types.",
+                "Make the cluster-feature mapping across train/validation/test clear and traceable to Part 1 settings.",
+                "Evaluate original, K-Means-feature, and GMM-feature NNs with the same recipe, splits, and comparable budgets.",
+                "Compare Accuracy, Macro-F1, balanced accuracy, validation loss, class-level evidence, and runtime/compute.",
+                "Explain whether cluster features add information, duplicate raw features, or compress away predictive structure."
+            ],
+            discussion: [
+                "The discussion should synthesize the original-space clustering, DR, clustering-after-DR, and both NN parts.",
+                "Compare K-Means versus GMM assumptions and PCA/ICA/RP properties using your own evidence.",
+                "Explain whether DR changed clustering quality or alignment and why.",
+                "Explain whether DR and cluster features helped or hurt the downstream NN, and why.",
+                "Identify concrete limitations and end with a defensible practical takeaway that resolves your hypothesis."
+            ],
+            extra_credit: [
+                "For extra credit, use one nonlinear manifold method with a defensible rationale and parameter explanation.",
+                "Provide a readable visualization or quantitative diagnostic supporting a claim about the nonlinear representation.",
+                "Compare the nonlinear result with at least one linear DR method.",
+                "Explain how the nonlinear method reveals structure not evident from the linear approaches."
+            ],
+            general: [
+                "Please strengthen the interpretation by explaining why the observed results occurred.",
+                "Connect claims to the UL concepts: clustering geometry, Gaussian assumptions, variance preservation, non-Gaussianity, distance distortion, and downstream utility.",
+                "Improve the flow of the report so that the study design, results, and discussion build a coherent story."
+            ]
+        };
+
+        // ==================== DOM READY ====================
+        document.addEventListener('DOMContentLoaded', function () {
+            try {renderRubric();} catch (e) {console.error('renderRubric failed:', e);}
+            try {setupEventListeners();} catch (e) {console.error('setupEventListeners failed:', e);}
+            try {setupModalEvents();} catch (e) {console.error('setupModalEvents failed:', e);}
+            try {setupPredefinedFeedbackEvents();} catch (e) {console.error('setupPredefinedFeedbackEvents failed:', e);}
+            try {setupCommentModalEvents();} catch (e) {console.error('setupCommentModalEvents failed:', e);}
+            try {setupConfirmModalEvents();} catch (e) {console.error('setupConfirmModalEvents failed:', e);}
+            try {setupLockableFields();} catch (e) {console.error('setupLockableFields failed:', e);}
+            try {updateSummary();} catch (e) {console.error('updateSummary failed:', e);}
+
+            const nameInput = document.getElementById('studentName');
+            const templateSelect = document.getElementById('greetingTemplateSelect');
+            const templateTextarea = document.getElementById('globalCommentTemplate');
+
+            let rawTemplate = templateSelect.value || templateTextarea.value;
+
+            function refreshTemplate() {
+                const name = nameInput.value.trim();
+                templateTextarea.value = name ? rawTemplate.replace(/\{\}/g, name) : rawTemplate;
+            }
+
+            templateSelect.addEventListener('change', function () {
+                rawTemplate = this.value || '';
+                refreshTemplate();
+            });
+
+            templateTextarea.addEventListener('input', function () {
+                const name = nameInput.value.trim();
+                if (!name) {
+                    rawTemplate = this.value;
+                } else {
+                    const withPlaceholder = this.value.replace(new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '{}');
+                    rawTemplate = withPlaceholder;
+                }
+            });
+
+            nameInput.addEventListener('input', function () {
+                const name = this.value.trim();
+                if (name) {document.getElementById('nameRequiredError').classList.remove('show'); this.style.borderColor = '';}
+                templateTextarea.value = name ? rawTemplate.replace(/\{\}/g, name) : rawTemplate;
+            });
+
+            rawTemplate = templateSelect.value || templateTextarea.value;
+            refreshTemplate();
+
+            masterNoDeductions = true;
+            const masterEl = document.getElementById('check-text-positive-0');
+            if (masterEl) {masterEl.classList.add('selected'); masterEl.classList.remove('unselected');}
+            for (let i = 0; i < 7; i++) {
+                const statusEl = document.getElementById(`check-status-negative-${i}`);
+                const textEl = document.getElementById(`check-text-negative-${i}`);
+                const initVal = (i === 6 ? 'T' : 'N');
+                checkSelections[`negative-${i}`] = initVal;
+                checkTextSelections[`negative-${i}`] = false;
+                if (statusEl) {statusEl.textContent = initVal; statusEl.className = 'check-status ' + initVal + ' disabled';}
+                if (textEl) {textEl.classList.add('disabled'); textEl.classList.remove('selected');}
+            }
+            try {updateCheck3A3B();} catch (e) {console.error(e);}
+            try {updateCheck6TopButton();} catch (e) {console.error(e);}
+        });
+
+        // ==================== SCORE HELPERS ====================
+        // All-or-nothing at the group level: selecting the group's positive item
+        // awards the full group points; selecting its negative item awards 0.
+        function groupScore(sectionIndex, groupIndex) {
+            const s = rubricData.grading_rubric.sections[sectionIndex];
+            const sid = `section-${sectionIndex}`;
+            const st = state.selectedItems.get(sid) || {positive: new Set(), negative: new Set()};
+            let offset = 0;
+            for (let g = 0; g < groupIndex; g++) offset += s.groups[g].items.length;
+            let total = 0;
+            s.groups[groupIndex].items.forEach((it, i) => {if (st.positive.has(`${sid}-positive-${offset + i}`)) total += it.points;});
+            return total;
+        }
+        function sectionScore(sectionIndex) {
+            const s = rubricData.grading_rubric.sections[sectionIndex];
+            let total = 0;
+            for (let gi = 0; gi < s.groups.length; gi++) total += groupScore(sectionIndex, gi);
+            return total;
+        }
+        function ecAwardedTier() {
+            return sectionScore(8);
+        }
+        function copySectionGroupScores(sectionIndex) {
+            const s = rubricData.grading_rubric.sections[sectionIndex];
+            const letter = s.section_letter;
+            if (sectionIndex === 8) {
+                const ec = ecAwardedTier();
+                navigator.clipboard.writeText(String(ec));
+                showNotification(`✅ EC: ${ec}/5`, true, 'EC');
+                return;
+            }
+            const combo = sectionGroupCombinations[sectionIndex];
+            if (!combo) return;
+            const results = combo.scores.map(sd => {
+                let total = 0;
+                sd.groupIndices.forEach(gi => {total += groupScore(sectionIndex, gi);});
+                return total.toFixed(0);
+            });
+            const result = results.join('\t');
+            navigator.clipboard.writeText(result);
+            showNotification(`✅ Section ${letter} scores copied: ${result}`, true, letter);
+        }
+        function copyGroupScore(sectionIndex, groupIndex) {
+            const s = rubricData.grading_rubric.sections[sectionIndex];
+            const g = s.groups[groupIndex];
+            const score = groupScore(sectionIndex, groupIndex);
+            const result = `${score}/${g.max}`;
+            navigator.clipboard.writeText(result);
+            showNotification(`✅ ${g.label}: ${result}`);
+        }
+        function copySectionScore(sectionIndex) {
+            const s = rubricData.grading_rubric.sections[sectionIndex];
+            const score = sectionIndex === 8 ? ecAwardedTier() : sectionScore(sectionIndex);
+            navigator.clipboard.writeText(String(score));
+            showNotification(`✅ Section ${s.section_letter}: ${score}`, true, s.section_letter);
+        }
+
+        // ==================== TOGGLE ALL ====================
+        function toggleSelectAllPositives(sectionIndex) {
+            const sid = `section-${sectionIndex}`;
+            if (!state.selectedItems.has(sid)) state.selectedItems.set(sid, {positive: new Set(), negative: new Set()});
+            const st = state.selectedItems.get(sid);
+            const pos = [...document.querySelectorAll(`#${sid}-content .positive-item`)];
+            const allSelected = pos.length > 0 && pos.every(el => st.positive.has(el.id));
+            for (const el of pos) {
+                st.positive.delete(el.id);
+                el.classList.remove('selected-positive');
+                const paired = findPairedItemElement(el);
+                if (paired) {st.negative.delete(paired.id); paired.classList.remove('selected-negative');}
+            }
+            if (!allSelected) {
+                for (const el of pos) {st.positive.add(el.id); el.classList.add('selected-positive');}
+            }
+            updateSummary();
+            if (sectionIndex === 0) updateCheck3A3B();
+        }
+        function toggleSelectAllNegatives(sectionIndex) {
+            const sid = `section-${sectionIndex}`;
+            if (!state.selectedItems.has(sid)) state.selectedItems.set(sid, {positive: new Set(), negative: new Set()});
+            const st = state.selectedItems.get(sid);
+            const neg = [...document.querySelectorAll(`#${sid}-content .negative-item`)];
+            const allSelected = neg.length > 0 && neg.every(el => st.negative.has(el.id));
+            for (const el of neg) {
+                st.negative.delete(el.id);
+                el.classList.remove('selected-negative');
+                const paired = findPairedItemElement(el);
+                if (paired) {st.positive.delete(paired.id); paired.classList.remove('selected-positive');}
+            }
+            if (!allSelected) for (const el of neg) {st.negative.add(el.id); el.classList.add('selected-negative');}
+            updateSummary();
+            if (sectionIndex === 0) updateCheck3A3B();
+        }
+
+        function renderRubric() {
+            const container = document.getElementById('rubricContainer');
+            container.innerHTML = '';
+            rubricData.grading_rubric.sections.forEach((section, sectionIndex) => {
+                const sectionId = `section-${sectionIndex}`;
+                const isEC = section.section_letter === 'EC';
+
+                const header = document.createElement('div');
+                header.className = 'section-header';
+                header.id = `header-${sectionId}`;
+                const titleSpan = document.createElement('span');
+                titleSpan.className = 'editable';
+                titleSpan.setAttribute('data-id', `${sectionId}-header`);
+                titleSpan.textContent = section.main_section;
+                header.appendChild(titleSpan);
+
+                const btnDiv = document.createElement('div');
+                btnDiv.className = 'section-buttons';
+                const posBtn = document.createElement('button');
+                posBtn.textContent = '✓ All Pos'; posBtn.className = 'select-positive-btn';
+                posBtn.addEventListener('click', e => {e.stopPropagation(); toggleSelectAllPositives(sectionIndex);});
+                btnDiv.appendChild(posBtn);
+                if (section.negative_items && section.negative_items.items.length > 0) {
+                    const negBtn = document.createElement('button');
+                    negBtn.textContent = '✗ All Neg'; negBtn.className = 'select-negative-btn';
+                    negBtn.addEventListener('click', e => {e.stopPropagation(); toggleSelectAllNegatives(sectionIndex);});
+                    btnDiv.appendChild(negBtn);
+                }
+                const copyBtn = document.createElement('button');
+                copyBtn.textContent = '📋 Total'; copyBtn.className = 'copy-score-btn';
+                copyBtn.addEventListener('click', e => {e.stopPropagation(); copySectionScore(sectionIndex);});
+                btnDiv.appendChild(copyBtn);
+                section.groups.forEach((g, gi) => {
+                    const gBtn = document.createElement('button');
+                    gBtn.textContent = `📋 ${g.label.split('.')[0]}`; gBtn.className = 'copy-group-btn';
+                    gBtn.addEventListener('click', e => {e.stopPropagation(); copyGroupScore(sectionIndex, gi);});
+                    btnDiv.appendChild(gBtn);
+                });
+                header.appendChild(btnDiv);
+                container.appendChild(header);
+
+                const content = document.createElement('div');
+                content.className = 'section-content-wrapper';
+                content.id = `${sectionId}-content`;
+
+                const table = document.createElement('table');
+                table.className = 'comparison-table';
+                const thead = document.createElement('thead');
+                const hr = document.createElement('tr');
+                hr.innerHTML = `<th>✅ What You Did Well</th><th>❌ What Needs Improvement</th>`;
+                thead.appendChild(hr);
+                table.appendChild(thead);
+                const tbody = document.createElement('tbody');
+
+                // One row per group. Positive text = group description; negative text
+                // = the group's negative prose (or its first negative item as fallback).
+                let groupCounter = 0;
+                section.groups.forEach((group, gi) => {
+                    const groupLabel = group.label;
+                    const groupPrefixMatch = groupLabel.match(/^([A-Z]+[0-9]+)\./);
+                    const groupPrefix = groupPrefixMatch ? groupPrefixMatch[1] : null;
+
+                    const groupRow = document.createElement('tr');
+                    groupRow.className = 'group-label-row';
+                    groupRow.innerHTML = `<td colspan="2"><strong>${groupLabel}</strong> — ${group.max} pts (all-or-nothing)</td>`;
+                    tbody.appendChild(groupRow);
+
+                    const row = document.createElement('tr');
+                    row.className = 'item-row';
+
+                    const posCell = document.createElement('td');
+                    posCell.className = 'positive-col';
+                    const posDiv = document.createElement('div');
+                    posDiv.className = 'item positive-item';
+                    posDiv.id = `${sectionId}-positive-${groupCounter}`;
+                    posDiv.setAttribute('data-points', group.max);
+                    let subHtml = '';
+                    if (group.items[0] && group.items[0].sub) {
+                        subHtml = `<div class="group-subitems">${group.items[0].sub.map(s => `<div>• ${s}</div>`).join('')}</div>`;
+                    }
+                    posDiv.innerHTML = `<strong class="item-prefix">${groupPrefix || rubricItemLabel(sectionIndex, groupCounter)}.</strong> <span class="editable" data-id="${posDiv.id}-text">${group.items[0].description}</span> <span class="point-badge" data-points="${group.max}">(${group.max} pts)</span>${subHtml}`;
+                    posCell.appendChild(posDiv);
+
+                    const negCell = document.createElement('td');
+                    negCell.className = 'negative-col';
+                    const negText = negativeProse[groupPrefix] || (section.negative_items && section.negative_items.items[gi]) || 'Criterion not met.';
+                    const negId = `${sectionId}-negative-${groupCounter}`;
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'negative-item-wrapper';
+                    const negDiv = document.createElement('div');
+                    negDiv.className = 'item negative-item';
+                    negDiv.id = negId;
+                    negDiv.innerHTML = `<span class="item-prefix">${groupPrefix || rubricItemLabel(sectionIndex, groupCounter)}.</span> <span class="editable item-description" data-id="${negId}-text">${negText}</span>`;
+                    wrapper.appendChild(negDiv);
+                    const cBtn = document.createElement('button');
+                    cBtn.className = 'neg-comment-btn';
+                    cBtn.textContent = '💬';
+                    cBtn.title = 'Add comment to section feedback';
+                    cBtn.addEventListener('click', function (e) {e.stopPropagation(); openCommentModal(sectionId, negId);});
+                    wrapper.appendChild(cBtn);
+                    negCell.appendChild(wrapper);
+
+                    row.appendChild(posCell);
+                    row.appendChild(negCell);
+                    tbody.appendChild(row);
+                    groupCounter++;
+                });
+                table.appendChild(tbody);
+                content.appendChild(table);
+
+                const feedbackDiv = document.createElement('div');
+                feedbackDiv.innerHTML = `<strong>${section.feedback_section}</strong>`;
+                const predef = createPredefinedFeedback(sectionId);
+                if (predef) feedbackDiv.innerHTML += predef;
+                const ta = document.createElement('textarea');
+                ta.className = 'feedback-textarea';
+                ta.id = `${sectionId}-feedback`;
+                ta.placeholder = 'Enter feedback here (optional) — if blank, a summary is auto-built from your selections';
+                feedbackDiv.appendChild(ta);
+                content.appendChild(feedbackDiv);
+                container.appendChild(content);
+
+                const sep = document.createElement('hr');
+                sep.style.margin = '20px 0';
+                container.appendChild(sep);
+            });
+
+            const gd = document.createElement('div');
+            gd.innerHTML = `<h3>${rubricData.grading_rubric.general_feedback.section}</h3>`;
+            const gp = createPredefinedFeedback('general');
+            if (gp) gd.innerHTML += gp;
+            const gta = document.createElement('textarea');
+            gta.className = 'feedback-textarea';
+            gta.id = 'general-feedback';
+            gta.placeholder = 'Enter general feedback here (optional)';
+            gd.appendChild(gta);
+            container.appendChild(gd);
+        }
+        function createPredefinedFeedback(sectionId) {
+            const key = getSectionKey(sectionId);
+            const cs = predefinedFeedback[key] || [];
+            if (!cs.length) return '';
+            let html = `<div class="predefined-feedback"><strong>Predefined Comments:</strong>`;
+            cs.forEach(c => {html += `<button type="button" class="predefined-comment" data-comment="${c.replace(/"/g, '&quot;')}">${c}</button>`;});
+            html += `<div class="feedback-controls"><button type="button" class="add-all-comments" style="background-color:#2196F3;">Add All Comments</button><button type="button" class="clear-comments" style="background-color:#ff9800;">Clear Comments</button></div></div>`;
+            return html;
+        }
+        function getSectionKey(sid) {
+            if (sid === 'general') return 'general';
+            const m = sid.match(/section-(\d+)/); if (!m) return 'general';
+            switch (parseInt(m[1])) {
+                case 0: return 'requirements';
+                case 1: return 'study_design';
+                case 2: return 'part1_clustering';
+                case 3: return 'part2_dr';
+                case 4: return 'part3_cluster_dr';
+                case 5: return 'part4_nn_dr';
+                case 6: return 'part5_nn_cluster';
+                case 7: return 'discussion';
+                case 8: return 'extra_credit';
+                default: return 'general';
+            }
+        }
+
+        // ==================== EVENTS ====================
+        function setupEventListeners() {
+            document.addEventListener('dblclick', function (e) {
+                const editable = e.target.closest('.editable');
+                if (editable && !editable.closest('.checks-section') && !editable.classList.contains('item-prefix')) {
+                    const parentItem = editable.closest('.item');
+                    if (parentItem) {showItemModal(parentItem.id); e.preventDefault(); e.stopPropagation(); return;}
+                }
+                const item = e.target.closest('.item');
+                if (item && !item.closest('.checks-section')) {showItemModal(item.id); e.preventDefault(); e.stopPropagation();}
+            });
+            document.addEventListener('click', function (e) {
+                const item = e.target.closest('.item');
+                if (item && !item.closest('.checks-section')) {
+                    toggleItemSelection(item);
+                    updateSummary();
+                    if (item.id.startsWith('section-0')) updateCheck3A3B();
+                    e.stopPropagation();
+                }
+            });
+            document.getElementById('generateBtn').addEventListener('click', function () {
+                if (validateName()) generateFeedback();
+                else {document.getElementById('nameSection').scrollIntoView({behavior: 'smooth', block: 'center'}); document.getElementById('studentName').focus();}
+            });
+            document.getElementById('resetBtn').addEventListener('click', resetAll);
+            document.getElementById('copyBtn').addEventListener('click', function () {
+                const output = document.getElementById('outputSection').textContent;
+                if (output.trim()) {navigator.clipboard.writeText(output); showNotification('✅ Feedback copied!');}
+            });
+            document.getElementById('copyScoresBtn').addEventListener('click', copyScores);
+            document.getElementById('copyExcelBtn').addEventListener('click', copyScoresForExcel);
+        }
+        function setupModalEvents() {
+            const modal = document.getElementById('itemModal');
+            const closeBtn = document.querySelector('#itemModal .close-btn');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            const clearTextBtn = document.getElementById('clearTextBtn');
+            const incrementBtn = document.getElementById('incrementPoint');
+            const decrementBtn = document.getElementById('decrementPoint');
+            const resetPointBtn = document.getElementById('resetPointBtn');
+            const restoreTextBtn = document.getElementById('restoreTextBtn');
+            const restorePointsBtn = document.getElementById('restorePointsBtn');
+            [closeBtn, cancelBtn].forEach(b => b.addEventListener('click', () => modal.style.display = 'none'));
+            incrementBtn.addEventListener('click', () => {
+                const i = document.getElementById('itemPoints');
+                const cur = parseInt(i.value) || 0;
+                const max = parseInt(document.getElementById('maxPointDisplay').textContent) || 0;
+                if (cur < max) i.value = cur + 1;
+            });
+            decrementBtn.addEventListener('click', () => {
+                const i = document.getElementById('itemPoints');
+                const cur = parseInt(i.value) || 0;
+                if (cur > 0) i.value = cur - 1;
+            });
+            resetPointBtn.addEventListener('click', () => {
+                if (state.currentEditingItem) {
+                    document.getElementById('itemPoints').value = state.currentEditingItem.maxPoints || 0;
+                    document.getElementById('maxPointDisplay').textContent = state.currentEditingItem.maxPoints || 0;
+                }
+            });
+            restoreTextBtn.addEventListener('click', () => {
+                if (!state.currentEditingItem) return;
+                const t = getOriginalItemText(state.currentEditingItem.id);
+                if (t !== null) {document.getElementById('itemText').value = t; showNotification('✅ Original text restored');}
+            });
+            restorePointsBtn.addEventListener('click', () => {
+                if (!state.currentEditingItem) return;
+                const p = getOriginalItemPoints(state.currentEditingItem.id);
+                if (p !== null) {
+                    document.getElementById('itemPoints').value = p;
+                    document.getElementById('maxPointDisplay').textContent = p;
+                    showNotification('✅ Original points restored');
+                }
+            });
+            saveBtn.addEventListener('click', saveItemChanges);
+            clearTextBtn.addEventListener('click', () => document.getElementById('itemText').value = '');
+            window.addEventListener('click', e => {if (e.target === modal) modal.style.display = 'none';});
+        }
+        function setupPredefinedFeedbackEvents() {
+            document.addEventListener('click', function (e) {
+                if (e.target.classList.contains('predefined-comment')) {
+                    const c = e.target.getAttribute('data-comment');
+                    const ta = e.target.closest('.predefined-feedback').nextElementSibling;
+                    if (ta && ta.classList.contains('feedback-textarea')) {
+                        const cur = ta.value.trim();
+                        ta.value = cur ? cur + '\n\n' + c : c;
+                        e.target.classList.add('selected');
+                        setTimeout(() => e.target.classList.remove('selected'), 800);
+                    }
+                }
+                if (e.target.classList.contains('add-all-comments')) {
+                    const pf = e.target.closest('.predefined-feedback');
+                    const cs = pf.querySelectorAll('.predefined-comment');
+                    const ta = pf.nextElementSibling;
+                    if (ta && ta.classList.contains('feedback-textarea')) {
+                        let all = ''; cs.forEach(c => all += c.getAttribute('data-comment') + '\n\n');
+                        const cur = ta.value.trim();
+                        ta.value = cur ? cur + '\n\n' + all : all;
+                    }
+                }
+                if (e.target.classList.contains('clear-comments')) {
+                    const ta = e.target.closest('.predefined-feedback').nextElementSibling;
+                    if (ta && ta.classList.contains('feedback-textarea')) ta.value = '';
+                }
+            });
+        }
+        function getOriginalItemText(itemId) {
+            const parts = itemId.split('-');
+            if (parts.length < 3) return null;
+            const si = parseInt(parts[1]);
+            const isPos = parts[2] === 'positive';
+            const ii = parseInt(parts[3]);
+            const sec = originalRubricData.grading_rubric.sections[si];
+            if (!sec) return null;
+            if (isPos) {let c = 0; for (const g of sec.groups) for (const it of g.items) {if (c === ii) return it.description; c++;} }
+            else {const negs = sec.negative_items?.items; if (negs && ii < negs.length) return negs[ii];}
+            return null;
+        }
+        function getOriginalItemPoints(itemId) {
+            const parts = itemId.split('-');
+            if (parts.length < 3) return null;
+            const si = parseInt(parts[1]);
+            const isPos = parts[2] === 'positive';
+            const ii = parseInt(parts[3]);
+            const sec = originalRubricData.grading_rubric.sections[si];
+            if (!sec || !isPos) return null;
+            let c = 0;
+            for (const g of sec.groups) for (const it of g.items) {if (c === ii) return it.points; c++;}
+            return null;
+        }
+
+        // ==================== EXCLUSIVE TWO-WAY SELECTION ====================
+        function toggleItemSelection(item) {
+            const sid = item.id.split('-').slice(0, 2).join('-');
+            if (!state.selectedItems.has(sid)) {
+                state.selectedItems.set(sid, {positive: new Set(), negative: new Set()});
+            }
+            const st = state.selectedItems.get(sid);
+            const isPositive = item.classList.contains('positive-item');
+            const own = isPositive ? st.positive : st.negative;
+            const paired = findPairedItemElement(item);
+            const pairedIsPositive = paired && paired.classList.contains('positive-item');
+            const other = paired ? (pairedIsPositive ? st.positive : st.negative) : null;
+            const wasSelected = own.has(item.id);
+
+            own.delete(item.id);
+            item.classList.remove('selected-positive', 'selected-negative');
+            if (paired && other) {
+                other.delete(paired.id);
+                paired.classList.remove('selected-positive', 'selected-negative');
+            }
+
+            const target = wasSelected && paired ? paired : item;
+            const targetIsPositive = target.classList.contains('positive-item');
+            const targetSet = targetIsPositive ? st.positive : st.negative;
+            targetSet.add(target.id);
+            target.classList.add(targetIsPositive ? 'selected-positive' : 'selected-negative');
+        }
+
+        // ==================== CONFIRM MODAL (kept for compatibility) ====================
+        function setupConfirmModalEvents() {
+            const modal = document.getElementById('confirmModal');
+            const closeBtn = document.getElementById('confirmModalClose');
+            const cancelBtn = document.getElementById('confirmCancelBtn');
+            if (!modal || !closeBtn || !cancelBtn) return;
+            function close() {modal.style.display = 'none'; state.pendingSelection = null;}
+            closeBtn.addEventListener('click', close);
+            cancelBtn.addEventListener('click', close);
+            window.addEventListener('click', e => {if (e.target === modal) close();});
+        }
+
+        // ==================== COMMENT MODAL ====================
+        let commentModalTarget = null;
+        function setupCommentModalEvents() {
+            const modal = document.getElementById('commentModal');
+            const closeBtn = document.getElementById('commentModalClose');
+            const cancelBtn = document.getElementById('cancelCommentBtn');
+            const addBtn = document.getElementById('addCommentBtn');
+            const clearBtn = document.getElementById('clearCommentBtn');
+            const text = document.getElementById('commentText');
+            function close() {modal.style.display = 'none'; commentModalTarget = null; text.value = '';}
+            closeBtn.addEventListener('click', close);
+            cancelBtn.addEventListener('click', close);
+            window.addEventListener('click', e => {if (e.target === modal) close();});
+            clearBtn.addEventListener('click', () => text.value = '');
+            addBtn.addEventListener('click', () => {
+                const t = text.value.trim();
+                if (!t || !commentModalTarget) return;
+                const ta = document.getElementById(`${commentModalTarget.sectionId}-feedback`);
+                if (ta) {const cur = ta.value; ta.value = cur + (cur && !cur.endsWith('\n') ? '\n' : '') + t; showNotification('✅ Comment added');}
+                close();
+            });
+            document.querySelectorAll('#commentModal .predefined-comment-btn').forEach(b => {
+                b.addEventListener('click', function () {
+                    const c = this.getAttribute('data-comment');
+                    const cur = text.value;
+                    text.value = cur ? cur + '\n' + c : c;
+                    text.focus();
+                });
+            });
+        }
+        function openCommentModal(sectionId, negItemId) {
+            commentModalTarget = {sectionId, negItemId};
+            document.getElementById('commentText').value = '';
+            document.getElementById('commentModal').style.display = 'flex';
+            setTimeout(() => document.getElementById('commentText').focus(), 100);
+        }
+
+        // ==================== SUMMARY ====================
+        function updateSummary() {
+            const sb = document.getElementById('summaryBody');
+            if (!sb) {console.error('summaryBody not found'); return;}
+            sb.innerHTML = '';
+            let mainT = 0, ecP = 0, ecM = 0;
+            const eb = document.getElementById('extraCreditBody');
+            if (eb) eb.innerHTML = '';
+
+            rubricData.grading_rubric.sections.forEach((s, si) => {
+                const sid = `section-${si}`;
+                const isEC = s.section_letter === 'EC';
+                let sp = isEC ? ecAwardedTier() : sectionScore(si);
+                const mx = s.points_available;
+
+                const row = document.createElement('tr');
+                row.style.cursor = 'pointer';
+                row.addEventListener('click', () => {
+                    const h = document.getElementById(`header-${sid}`);
+                    if (h) {h.scrollIntoView({behavior: 'smooth', block: 'start'}); h.classList.add('section-highlight'); setTimeout(() => h.classList.remove('section-highlight'), 1500);}
+                });
+                if (sp === 0) row.className = 'row-not-started';
+                else if (sp >= mx) row.className = 'row-completed';
+                else row.className = 'row-in-progress';
+
+                let displayName = s.main_section;
+                const parenIdx = displayName.indexOf('(');
+                if (parenIdx > 0) displayName = displayName.slice(0, parenIdx).trim();
+                if (!displayName) displayName = `Section ${sid}`;
+
+                row.innerHTML = `<td>${displayName}</td><td>${sp.toFixed(0)}</td><td>${mx}</td>`;
+                if (isEC) {ecP += sp; ecM = rubricData.grading_rubric.extra_credit_points; if (eb) eb.appendChild(row); extraCreditPointsValue = ecP;}
+                else {mainT += sp; sb.appendChild(row);}
+            });
+
+            document.getElementById('totalPoints').textContent = (mainT + ecP).toFixed(0);
+            document.getElementById('maxPoints').textContent = rubricData.grading_rubric.total_points;
+            if (ecP > 0 || ecM > 0) {
+                document.getElementById('extraCreditSection').classList.remove('hidden');
+                if (eb) {
+                    const et = document.createElement('tr'); et.className = 'total-row';
+                    et.innerHTML = `<td><strong>EC Total</strong></td><td><strong>${ecP.toFixed(0)}</strong></td><td><strong>${ecM}</strong></td>`;
+                    eb.appendChild(et);
+                }
+            } else {
+                document.getElementById('extraCreditSection').classList.add('hidden');
+            }
+        }
+
+        function rubricItemLabel(sectionIndex, flatIndex) {
+            const sec = rubricData.grading_rubric.sections[sectionIndex];
+            if (!sec) return '?';
+            if (sec.section_letter === 'EC') return `EC${flatIndex + 1}`;
+            let offset = 0;
+            for (let gi = 0; gi < sec.groups.length; gi++) {
+                const count = sec.groups[gi].items.length;
+                if (flatIndex < offset + count) {
+                    const base = `${sec.section_letter}${gi + 1}`;
+                    return count > 1 ? base + String.fromCharCode(97 + flatIndex - offset) : base;
+                }
+                offset += count;
+            }
+            return `${sec.section_letter}?`;
+        }
+        function missingRubricSelections() {
+            const missing = [];
+            rubricData.grading_rubric.sections.forEach((sec, si) => {
+                if (sec.section_letter === 'EC') return; // Extra credit optional.
+                const sid = `section-${si}`;
+                const st = state.selectedItems.get(sid) || {positive: new Set(), negative: new Set()};
+                let idx = 0;
+                sec.groups.forEach(g => g.items.forEach(() => {
+                    const pos = document.getElementById(`${sid}-positive-${idx}`);
+                    const neg = pos && findPairedItemElement(pos);
+                    if (!pos || !neg || (st.positive.has(pos.id) === st.negative.has(neg.id)))
+                        missing.push(rubricItemLabel(si, idx));
+                    idx++;
+                }));
+            });
+            return missing;
+        }
+
+        // ==================== FEEDBACK GENERATION ====================
+        function generateFeedback() {
+            const os = document.getElementById('outputSection');
+            const cb = document.getElementById('copyBtn');
+            const missing = missingRubricSelections();
+            if (missing.length) {
+                showNotification(`⚠️ Grade all required items before generating: ${missing.join(', ')}`, false);
+                return;
+            }
+            let fb = '';
+            const nameInput = document.getElementById('studentName').value.trim();
+            const tmpl = document.getElementById('globalCommentTemplate').value;
+            if (tmpl.trim() !== '') fb += tmpl.replace(/{}/g, nameInput) + '\n\n';
+
+            fb += '====================\nChecks\n{';
+            if (masterNoDeductions) {
+                fb += '\nNo Deductions Made: \n+ Submission of report and reproducibility materials satisfies major implementation requirements!\n';
+            } else {
+                let noD = [], ded = [], track = [];
+                for (let i = 0; i <= 6; i++) {
+                    const k = `negative-${i}`;
+                    const el = document.getElementById(`check-text-${k}`);
+                    if (!el || !checkTextSelections[k]) continue;
+                    let text = el.textContent.replace(/\s*\(auto-filled from A2\)\s*$/, '').replace(/\s*\(tracking only\)\s*$/, '').trim();
+                    if (i === 2) {const item = getMissingAccessItems(); text = text.replace(/\{TODO\}/g, item);}
+                    if (i === 6) {track.push(text); continue;}
+                    if (checkSelections[k] === 'Y') ded.push(text); else noD.push(text);
+                }
+                if (noD.length) {fb += '\nNo Deductions Made: \n'; noD.forEach(t => fb += `+ ${t}\n`);}
+                if (ded.length) {fb += '\nDeductions Made:\n'; ded.forEach(t => fb += `x ${t}\n`);}
+                if (track.length) {fb += '\nTracking Only (No Score Impact):\n'; track.forEach(t => fb += `* ${t}\n`);}
+                if (!noD.length && !ded.length && !track.length) fb += '\nNo Deductions Made:\n+ Submission of report and reproducibility materials satisfies major implementation requirements!\n';
+            }
+            fb += '}\n\n';
+
+            rubricData.grading_rubric.sections.forEach((s, si) => {
+                const sid = `section-${si}`;
+                const isEC = s.section_letter === 'EC';
+                const sp = isEC ? ecAwardedTier() : sectionScore(si);
+                const mx = s.points_available;
+                const st = state.selectedItems.get(sid) || {positive: new Set(), negative: new Set()};
+                const ta = document.getElementById(`${sid}-feedback`);
+                const ft = ta ? ta.value : '';
+
+                const hasPos = st.positive.size > 0;
+                const hasNeg = st.negative.size > 0;
+                if (!hasPos && !hasNeg && !ft) return;
+
+                const headerName = s.main_section.split('(')[0].trim();
+                fb += `====================\n${headerName} (${sp.toFixed(0)}/${mx}pts)\n{`;
+
+                // Auto summary if no manual summary provided.
+                let autoSummaryParts = [];
+
+                if (hasPos) {
+                    fb += '\nWhat you did well:\n';
+                    let idx = 0;
+                    s.groups.forEach((g, gi) => {
+                        g.items.forEach((it) => {
+                            const id = `${sid}-positive-${idx++}`;
+                            if (!st.positive.has(id)) return;
+                            const label = g.label.split('.')[0];
+                            const text = positiveProse[label] || it.description;
+                            fb += `+ ${label}. (${g.max}/${g.max} pts) ${text}\n`;
+                            autoSummaryParts.push(`${label} satisfied.`);
+                        });
+                    });
+                }
+                if (hasNeg) {
+                    fb += '\nWhat needs improvement:\n';
+                    let idx = 0;
+                    s.groups.forEach((g, gi) => {
+                        g.items.forEach((it) => {
+                            const id = `${sid}-negative-${idx++}`;
+                            if (!st.negative.has(id)) return;
+                            const label = g.label.split('.')[0];
+                            const text = negativeProse[label] || 'Criterion not met.';
+                            fb += `x ${label}. (0/${g.max} pts) ${text}\n`;
+                            autoSummaryParts.push(`${label} unmet.`);
+                        });
+                    });
+                }
+
+                if (ft && ft.trim() !== '') {
+                    fb += `\nSection Summary:\n${ft}\n`;
+                } else if (autoSummaryParts.length) {
+                    fb += `\nSection Summary:\n${autoSummaryParts.join(' ')}\n`;
+                }
+                fb += '}\n\n';
+            });
+
+            const gta = document.getElementById('general-feedback');
+            if (gta && gta.value && gta.value.trim() !== '') {
+                fb += `====================\nGeneral Feedback\n{${gta.value}}\n\n`;
+            } else {
+                fb += `====================\nGeneral Feedback\n{Please review the criterion-level feedback and section summaries above, ${nameInput || 'student'}.\n}\n\n`;
+            }
+
+            const tp = document.getElementById('totalPoints').textContent;
+            const mp = document.getElementById('maxPoints').textContent;
+            fb += `Total Score: ${tp}/${mp}${extraCreditPointsValue > 0 ? ' (includes extra credit)' : ''}`;
+
+            os.textContent = fb; os.classList.remove('hidden'); cb.classList.remove('hidden');
+            showNotification('✅ Feedback generated!');
+        }
+
+        // ==================== RESET ====================
+        function resetAll() {
+            state.selectedItems.clear();
+            state.pendingSelection = null;
+            const cm = document.getElementById('confirmModal');
+            if (cm) cm.style.display = 'none';
+            document.querySelectorAll('.item').forEach(i => {if (!i.closest('.checks-section')) i.classList.remove('selected-positive', 'selected-negative');});
+
+            const orig = originalRubricData.grading_rubric.sections;
+            const cur = rubricData.grading_rubric.sections;
+            for (let i = 0; i < cur.length; i++) {
+                cur[i].main_section = orig[i].main_section;
+                for (let g = 0; g < cur[i].groups.length; g++) {
+                    cur[i].groups[g].label = orig[i].groups[g].label;
+                    for (let k = 0; k < cur[i].groups[g].items.length; k++) {
+                        cur[i].groups[g].items[k].description = orig[i].groups[g].items[k].description;
+                        cur[i].groups[g].items[k].points = orig[i].groups[g].items[k].points;
+                    }
+                }
+                if (cur[i].negative_items && orig[i].negative_items) cur[i].negative_items.items = [...orig[i].negative_items.items];
+            }
+
+            renderRubric();
+
+            masterNoDeductions = true;
+            const masterEl = document.getElementById('check-text-positive-0');
+            if (masterEl) {masterEl.classList.add('selected'); masterEl.classList.remove('unselected');}
+            for (let i = 0; i < 7; i++) {
+                const initVal = (i === 6 ? 'T' : 'N');
+                checkSelections[`negative-${i}`] = initVal;
+                checkTextSelections[`negative-${i}`] = false;
+                const statusEl = document.getElementById(`check-status-negative-${i}`);
+                const textEl = document.getElementById(`check-text-negative-${i}`);
+                if (statusEl) {statusEl.textContent = initVal; statusEl.className = 'check-status ' + initVal + ' disabled';}
+                if (textEl) {textEl.classList.add('disabled'); textEl.classList.remove('selected');}
+            }
+
+            document.querySelectorAll('textarea').forEach(t => t.value = '');
+            document.getElementById('studentName').value = '';
+            document.getElementById('nameRequiredError').classList.remove('show');
+            const mt = document.getElementById('minutesTaken'); if (mt) {mt.value = ''; mt.dataset.locked = ''; mt.readOnly = false; mt.classList.remove('locked-input');}
+            const gh = document.getElementById('githubHash'); if (gh) {gh.value = ''; gh.dataset.locked = ''; gh.readOnly = false; gh.classList.remove('locked-input');}
+            const ag = document.getElementById('aiGeneratedToggle'); if (ag) ag.checked = false;
+
+            const nf = document.getElementById('studentName');
+            if (nf) {nf.dataset.locked = ''; nf.readOnly = false; nf.classList.remove('locked-input');}
+
+            updateSummary(); updateCheck3A3B(); updateCheck6TopButton(); clearNotification();
+        }
+
+        // ==================== COPY SCORES ====================
+        function copyScores() {
+            const sc = [];
+            for (let si = 0; si <= 7; si++) sc.push(sectionScore(si).toFixed(0));
+            sc.push(String(ecAwardedTier()));
+            sc.push(document.getElementById('totalPoints').textContent);
+            const result = sc.join('\t');
+            navigator.clipboard.writeText(result);
+            showNotification(`✅ Raw scores copied: ${result}`);
+        }
+        function copyScoresForExcel() {
+            const tokens = [];
+
+            const c1 = checkSelections['negative-0'] === 'Y' ? 'Y' : 'N';
+            const c2 = checkSelections['negative-1'] === 'Y' ? 'Y' : 'N';
+            const c3 = (checkSelections['negative-2'] === 'Y' || checkSelections['negative-3'] === 'Y') ? 'Y' : 'N';
+            const c4 = checkSelections['negative-4'] === 'Y' ? 'Y' : 'N';
+            const c5 = checkSelections['negative-5'] === 'Y' ? 'Y' : 'N';
+            const c6 = checkSelections['negative-6'] === 'Y' ? 'Y' : 'N';
+            tokens.push(c1, c2, c3, c4, c5, c6);
+
+            for (let si = 0; si <= 7; si++) {
+                const s = rubricData.grading_rubric.sections[si];
+                for (let gi = 0; gi < s.groups.length; gi++) {
+                    tokens.push(String(groupScore(si, gi)));
+                }
+                tokens.push('');
+            }
+
+            tokens.push(String(ecAwardedTier()));
+            tokens.push('');
+            tokens.push(document.getElementById('aiGeneratedToggle')?.checked ? 'Y' : 'N');
+            tokens.push('');
+            tokens.push((document.getElementById('minutesTaken')?.value || '').trim());
+            tokens.push((document.getElementById('githubHash')?.value || '').trim());
+
+            const result = tokens.join('\t');
+            navigator.clipboard.writeText(result);
+            showNotification('✅ Excel-ready scores copied');
+        }
+
+        // ==================== ITEM MODAL SAVE (edits text/points in place) ====================
+        function showItemModal(itemId) {
+            const itemEl = document.getElementById(itemId);
+            if (!itemEl) return;
+            const parts = itemId.split('-');
+            const si = parseInt(parts[1]);
+            const isPos = parts[2] === 'positive';
+            const idx = parseInt(parts[3]);
+            const sec = rubricData.grading_rubric.sections[si];
+            if (!sec) return;
+
+            let groupIndex = -1, counter = 0;
+            for (let gi = 0; gi < sec.groups.length; gi++) {
+                if (idx < counter + sec.groups[gi].items.length) {groupIndex = gi; break;}
+                counter += sec.groups[gi].items.length;
+            }
+            if (groupIndex < 0) return;
+            const group = sec.groups[groupIndex];
+
+            const textEl = itemEl.querySelector('.editable[data-id$="-text"]');
+            const maxPoints = isPos ? group.max : group.max;
+            state.currentEditingItem = {id: itemId, sectionIndex: si, groupIndex, isPos, maxPoints};
+
+            document.getElementById('itemText').value = textEl ? textEl.textContent.trim() : '';
+            document.getElementById('itemPoints').value = isPos ? group.max : 0;
+            document.getElementById('maxPointDisplay').textContent = maxPoints;
+            const modal = document.getElementById('itemModal');
+            modal.querySelector('.modal-title').textContent = isPos ? `Edit Positive: ${group.label}` : `Edit Negative: ${group.label}`;
+            modal.style.display = 'flex';
+        }
+        function saveItemChanges() {
+            const cur = state.currentEditingItem;
+            if (!cur) return;
+            const sec = rubricData.grading_rubric.sections[cur.sectionIndex];
+            const group = sec.groups[cur.groupIndex];
+            const newText = document.getElementById('itemText').value;
+            const newPoints = parseInt(document.getElementById('itemPoints').value) || 0;
+
+            if (cur.isPos) {
+                group.items[0].description = newText;
+                group.items[0].points = newPoints;
+                group.max = newPoints;
+            } else {
+                // Negative text edit is local only; stored for rendering on next pass.
+                const negPrefix = group.label.split('.')[0];
+                negativeProse[negPrefix] = newText;
+            }
+
+            const itemEl = document.getElementById(cur.id);
+            if (itemEl) {
+                const textEl = itemEl.querySelector('.editable[data-id$="-text"]');
+                if (textEl) textEl.textContent = newText;
+                if (cur.isPos) {
+                    itemEl.setAttribute('data-points', newPoints);
+                    const badge = itemEl.querySelector('.point-badge');
+                    if (badge) {badge.textContent = `(${newPoints} pts)`; badge.setAttribute('data-points', newPoints);}
+                }
+            }
+            document.getElementById('itemModal').style.display = 'none';
+            state.currentEditingItem = null;
+            updateSummary();
+        }
+    </script>
+</body>
+
+</html>

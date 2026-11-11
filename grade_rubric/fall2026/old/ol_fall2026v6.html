@@ -419,7 +419,7 @@ Without further ado, below we've provided both high-level feedback on satisfacti
 <div class="modal-footer">
 <button id="confirmCancelBtn" class="modal-btn modal-btn-secondary">Cancel</button>
 <button id="confirmSwapBtn" class="modal-btn modal-btn-orange" style="background-color:#ff9800;color:#fff;">Swap selection</button>
-<button id="confirmBothBtn" class="modal-btn modal-btn-primary" style="display:none">Select both</button>
+<button id="confirmBothBtn" class="modal-btn modal-btn-primary">Select both</button>
 </div>
 </div>
 </div>
@@ -682,7 +682,7 @@ const sectionGroupCombinations = {
 // ==================== VERBATIM TEMPLATE PROSE ====================
 const positiveProse = {
     A1: "You provide the specified 20k instance sampled dataset with documentation of your selection/sampling. You also appropriately identify the source and targets/labels/classes. In rolling over your SL backbone from the previous report, you properly make use of the PyTorch NN.",
-    A2: "You provide a working read-only link to your Overleaf report, proper citation and use of your GT Enterprise GitHub repo, and in your REPRO documentation you provide run instructions and instructional overview of sampling and randomization used to produce the downsampled dataset, as well as disclosure of your optimizer and RO operator settings, regularization values, random seeds, compute accounting, metric calculations and sufficient detail so as to avail your reviewer to reproduce the results presented as needed.",
+    A2: "You provide a workingread-only link to your Overleaf report, proper citation and use of your GT Enterprise GitHub repo, and in your REPRO documentation you provide run instructions and instructional overview of sampling and randomization used to produce the downsampled dataset, as well as disclosure of your optimizer and RO operator settings, regularization values, random seeds, compute accounting, metric calculations and sufficient detail so as to avail your reviewer to reproduce the results presented as needed.",
     A3: "Your visuals, plots, tables, etc. are all legible with proper labelling of axes, legends and captions, meaning no zooming is necessary (which need causes illegible blurring in our grading environment). You appropriately cite external sources beyond the course materials and do so in a properly formatted References section. You also acknowledge the nature and extent of your AI/LLM usage.",
     B1: "You provide disclosure of your train/validation/test splits and assure your reader there is a held-out test set used only in validating your model, as well as offering assurance that your preprocessing is performed only on training data.",
     B2: "You suitably document gradient and function evals, wall-clock times, seed protocol, hardware and compute used and batch processing to enable fair comparison between your experiments.",
@@ -705,11 +705,11 @@ const positiveProse = {
     F2: "You explain whether observed imporvements are worth their cost in compute terms such as wall-clock time, gradient and function evaluations and final evaluation metrics. You offer differentiation between cheap and costly gains and address which from your trio of experiments were most performant in view of their respective compute overhead.",
     F3: "You separate optimization behavior from generalization from stability in your discussion, explaining whether each improved validation loss, convergence speed, training-validation performance gap, seed variability or held-out test behavior.",
     F4: "You analyze multiclass performance and minority-class behavior in your discussion, including whether optimization/regularization tactics affected per-class precision, recall, F1 or confusion matrix results. Your interpretation addresses discrepencies in the stories told by your different metrics.",
-    F5: "You identify concrete limitations of the study and explain how these limitations reduce confidence in the conclusions, pulling from such limitations as sample size, class imbalance, limited RO budget, restrictive freezing/unfreezing protocol, heatmap courseness/granularity, seed count, validation-subset use, architectural dependence, hardware constraints or unresolved/unmodelled instability. You finish with a practical decision rule focused specifically on use on the BRFSS General Health dataset of when one might strategize optimization over regularization over RO fine-tuning efforts. In provision of this practical decision rule, you offer sufficient evidence, drawing from your metrics and compute constraints."
+    F5: "You identify concrete limitations of the study and explain how these limitations reduce confidence in the conclusions, pulling from such limitations as sample size, class imbalance, limited RO budget, restrictive freezing/unfreezing protocol, heatmap courseness/granularity, seed count, validation-subset use, architectural dependence, hardware constraints or unresolved/unmodelled instability. You finish with a practical decision rule focused specifically on use on the Covertype dataset of when one might strategize optimization over regularization over RO fine-tuning efforts. In provision of this practical decision rule, you offer sufficient evidence, drawing from your metrics and compute constraints."
 };
 const negativeProse = {
     A1: "You must provide the specified 20k instance sampled dataset with documentation of your selection/sampling. You also should identify the source and targets/labels/classes. Additionally, rolling over from the SL Report, we expected you to use your fixed PyTorch Neural Network as a starting point.",
-    A2: "You must provide a working read-only link to your Overleaf report, proper citation and use of your GT Enterprise GitHub repo, and in your REPRO documentation you need to provide run instructions and instructional overview of sampling and randomization used to produce the downsampled dataset, as well as disclosure of your optimizer and RO operator settings, regularization values, random seeds, compute accounting, metric calculations and sufficient detail so as to avail your reviewer to reproduce the results presented as needed.",
+    A2: "You must provide a workingread-only link to your Overleaf report, proper citation and use of your GT Enterprise GitHub repo, and in your REPRO documentation you need to provide run instructions and instructional overview of sampling and randomization used to produce the downsampled dataset, as well as disclosure of your optimizer and RO operator settings, regularization values, random seeds, compute accounting, metric calculations and sufficient detail so as to avail your reviewer to reproduce the results presented as needed.",
     A3: "Of your visuals, plots, tables, etc. some are illegible and/or lack proper labelling of axes, legends and captions, rendering zooming as necessary (which is not supported in our grading environment as it causes blurring). You must appropriately cite external sources beyond the course materials and do so in a properly formatted References section. You also need to acknowledge the nature and extent of your AI/LLM usage.",
     B1: "You neglect to provide disclosure of your train/validation/test splits or to assure your reader there is a held-out test set used only in validating your model; additionally you must provide assurance that your preprocessing is performed only on training data.",
     B2: "You must suitably document gradient and function evals, wall-clock times, seed protocol, hardware and compute used and batch processing to enable fair comparison between your experiments.",
@@ -732,7 +732,7 @@ const negativeProse = {
     F2: "You must explain whether observed imporvements are worth their cost in compute terms such as wall-clock time, gradient and function evaluations and final evaluation metrics. You also should differentiate between cheap and costly gains and address which from your trio of experiments were most performant in view of their respective compute overhead.",
     F3: "You should separate optimization behavior from generalization from stability in your discussion, explaining whether each improved validation loss, convergence speed, training-validation performance gap, seed variability or held-out test behavior.",
     F4: "You must analyze multiclass performance and minority-class behavior in your discussion, including whether optimization/regularization tactics affected per-class precision, recall, F1 or confusion matrix results. Your interpretation should address discrepencies in the stories told by your different metrics.",
-    F5: "You need to identify concrete limitations of the study and explain how these limitations reduce confidence in the conclusions, pulling from such limitations as sample size, class imbalance, limited RO budget, restrictive freezing/unfreezing protocol, heatmap courseness/granularity, seed count, validation-subset use, architectural dependence, hardware constraints or unresolved/unmodelled instability. You should then finish with a practical decision rule focused specifically on use on the BRFSS General Health dataset of when one might strategize optimization over regularization over RO fine-tuning efforts. In provision of this practical decision rule, you must offer sufficient evidence, drawing from your metrics and compute constraints."
+    F5: "You need to identify concrete limitations of the study and explain how these limitations reduce confidence in the conclusions, pulling from such limitations as sample size, class imbalance, limited RO budget, restrictive freezing/unfreezing protocol, heatmap courseness/granularity, seed count, validation-subset use, architectural dependence, hardware constraints or unresolved/unmodelled instability. You should then finish with a practical decision rule focused specifically on use on the Covertype dataset of when one might strategize optimization over regularization over RO fine-tuning efforts. In provision of this practical decision rule, you must offer sufficient evidence, drawing from your metrics and compute constraints."
 };
 const ecPositiveProse = {
     EC1: "5pts: You proivde full integration with compute tradeoff analysis of your integrated combination. You provide a full and thorough account of performance using metrics like gradient steps, function evaluations and wall-clock time. For practicality, you speak to whether the gains justify the extra compute overhead under realistic compute budgets.",
@@ -923,7 +923,7 @@ const baseRubricData = {
             ]},
             feedback_section: "Feedback on Section:"
         }, {
-            main_section: "Extra Credit Study (5 points) — Extra Credit",
+            main_section: "Activation Study (5 points) — Extra Credit",
             points_available: 5,
             section_letter: "EC",
             groups: [
@@ -1144,41 +1144,62 @@ function copySectionScore(sectionIndex) {
 
 // ==================== TOGGLE ALL ====================
 function toggleSelectAllPositives(sectionIndex) {
+    const s = rubricData.grading_rubric.sections[sectionIndex];
     const sid = `section-${sectionIndex}`;
-    if (!state.selectedItems.has(sid)) state.selectedItems.set(sid, {positive:new Set(),negative:new Set()});
+    if (!state.selectedItems.has(sid)) state.selectedItems.set(sid, { positive: new Set(), negative: new Set() });
     const st = state.selectedItems.get(sid);
-    const pos = [...document.querySelectorAll(`#${sid}-content .positive-item`)];
-    const allSelected = pos.length > 0 && pos.every(el => st.positive.has(el.id));
-    for (const el of pos) {
-        st.positive.delete(el.id);
-        el.classList.remove('selected-positive');
-        const paired = findPairedItemElement(el);
-        if (paired) {st.negative.delete(paired.id);paired.classList.remove('selected-negative');}
-    }
-    if (!allSelected) {
-        const targets = sectionIndex === 6 ? pos.slice(0,1) : pos;
-        for (const el of targets) {st.positive.add(el.id);el.classList.add('selected-positive');}
+    let totalItems = 0;
+    s.groups.forEach(g => { totalItems += g.items.length; });
+    let anySelected = false;
+    for (let i = 0; i < totalItems; i++) if (st.positive.has(`${sid}-positive-${i}`)) { anySelected = true; break; }
+    if (anySelected) {
+        for (let i = 0; i < totalItems; i++) {
+            st.positive.delete(`${sid}-positive-${i}`);
+            const el = document.getElementById(`${sid}-positive-${i}`);
+            if (el) el.classList.remove('selected-positive');
+        }
+    } else {
+        if (sectionIndex === 6) {
+            st.positive.add(`${sid}-positive-0`);
+            const el = document.getElementById(`${sid}-positive-0`);
+            if (el) el.classList.add('selected-positive');
+        } else {
+            for (let i = 0; i < totalItems; i++) {
+                st.positive.add(`${sid}-positive-${i}`);
+                const el = document.getElementById(`${sid}-positive-${i}`);
+                if (el) el.classList.add('selected-positive');
+            }
+        }
     }
     updateSummary();
     if (sectionIndex === 0) updateCheck3A3B();
 }
 function toggleSelectAllNegatives(sectionIndex) {
+    const s = rubricData.grading_rubric.sections[sectionIndex];
     const sid = `section-${sectionIndex}`;
-    if (!state.selectedItems.has(sid)) state.selectedItems.set(sid, {positive:new Set(),negative:new Set()});
+    if (!state.selectedItems.has(sid)) state.selectedItems.set(sid, { positive: new Set(), negative: new Set() });
     const st = state.selectedItems.get(sid);
-    const neg = [...document.querySelectorAll(`#${sid}-content .negative-item`)];
-    const allSelected = neg.length > 0 && neg.every(el => st.negative.has(el.id));
-    for (const el of neg) {
-        st.negative.delete(el.id);
-        el.classList.remove('selected-negative');
-        const paired = findPairedItemElement(el);
-        if (paired) {st.positive.delete(paired.id);paired.classList.remove('selected-positive');}
+    if (!s.negative_items) return;
+    const totalNeg = s.negative_items.items.length;
+    let anySelected = false;
+    for (let i = 0; i < totalNeg; i++) if (st.negative.has(`${sid}-negative-${i}`)) { anySelected = true; break; }
+    if (anySelected) {
+        for (let i = 0; i < totalNeg; i++) {
+            st.negative.delete(`${sid}-negative-${i}`);
+            const el = document.getElementById(`${sid}-negative-${i}`);
+            if (el) el.classList.remove('selected-negative');
+        }
+    } else {
+        for (let i = 0; i < totalNeg; i++) {
+            st.negative.add(`${sid}-negative-${i}`);
+            const el = document.getElementById(`${sid}-negative-${i}`);
+            if (el) el.classList.add('selected-negative');
+        }
     }
-    if (!allSelected) for (const el of neg) {st.negative.add(el.id);el.classList.add('selected-negative');}
     updateSummary();
-    if (sectionIndex === 0) updateCheck3A3B();
 }
 
+// ==================== RENDER ====================
 function renderRubric() {
     const container = document.getElementById('rubricContainer');
     container.innerHTML = '';
@@ -1270,7 +1291,7 @@ function renderRubric() {
                     posDiv.className = 'item positive-item';
                     posDiv.id = itemId;
                     posDiv.setAttribute('data-points', item.points);
-                    posDiv.innerHTML = `<strong class="item-prefix">${rubricItemLabel(sectionIndex, itemCounter)}.</strong> <span class="editable" data-id="${itemId}-text">${item.description}</span> <span class="point-badge" data-points="${item.points}">(${item.points} pts)</span>`;
+                    posDiv.innerHTML = `<span class="editable" data-id="${itemId}-text">${item.description}</span> <span class="point-badge" data-points="${item.points}">(${item.points} pts)</span>`;
                     posCell.appendChild(posDiv);
 
                     const negCell = document.createElement('td');
@@ -1278,7 +1299,7 @@ function renderRubric() {
                     if (negItem) {
                         const negId = `${sectionId}-negative-${negItem.index}`;
                         const match = negItem.text.match(/^([A-Z][0-9]+)\.\s*(.*)$/);
-                        const prefix = rubricItemLabel(sectionIndex, itemCounter) + '.';
+                        const prefix = match ? match[1] + '.' : '';
                         const description = match ? match[2] : negItem.text;
                         const wrapper = document.createElement('div');
                         wrapper.className = 'negative-item-wrapper';
@@ -1526,40 +1547,57 @@ function getOriginalItemPoints(itemId) {
     return null;
 }
 
-// ==================== EXCLUSIVE TWO-WAY SELECTION ====================
-// Clicking an unselected side selects it. Clicking the selected side again
-// selects its opposite. No modal, no simultaneous positive/negative marks.
-function toggleItemSelection(item) {
-    const sid = item.id.split('-').slice(0, 2).join('-');
-    if (!state.selectedItems.has(sid)) {
-        state.selectedItems.set(sid, { positive: new Set(), negative: new Set() });
+// ==================== PAIR LOGIC (DOM-based, bulletproof) ====================
+function applySelection(iid, isPos, sid, st, set, pairedEl, pairedIsPositive, pairedSet) {
+    if (pairedEl && pairedSet && pairedSet.has(pairedEl.id)) {
+        pairedSet.delete(pairedEl.id);
+        pairedEl.classList.remove(pairedIsPositive ? 'selected-positive' : 'selected-negative');
     }
-    const st = state.selectedItems.get(sid);
-    const isPositive = item.classList.contains('positive-item');
-    const own = isPositive ? st.positive : st.negative;
-    const paired = findPairedItemElement(item);
-    const pairedIsPositive = paired && paired.classList.contains('positive-item');
-    const other = paired ? (pairedIsPositive ? st.positive : st.negative) : null;
-    const wasSelected = own.has(item.id);
-
-    // Clear the old selection, including any legacy conflicting selection.
-    own.delete(item.id);
-    item.classList.remove('selected-positive', 'selected-negative');
-    if (paired && other) {
-        other.delete(paired.id);
-        paired.classList.remove('selected-positive', 'selected-negative');
-    }
-
-    const target = wasSelected && paired ? paired : item;
-    const targetIsPositive = target.classList.contains('positive-item');
-    const targetSet = targetIsPositive ? st.positive : st.negative;
-    if (sid === 'section-6' && targetIsPositive) {
+    if (sid === 'section-6' && isPos) {
         st.positive.clear();
-        document.querySelectorAll('#section-6-content .positive-item').forEach(el =>
-            el.classList.remove('selected-positive'));
+        document.querySelectorAll('#section-6-content .positive-item').forEach(el => el.classList.remove('selected-positive'));
     }
-    targetSet.add(target.id);
-    target.classList.add(targetIsPositive ? 'selected-positive' : 'selected-negative');
+    set.add(iid);
+    const itemEl = document.getElementById(iid);
+    if (itemEl) itemEl.classList.add(isPos ? 'selected-positive' : 'selected-negative');
+}
+function removeSelection(iid, isPos, set, itemEl) {
+    set.delete(iid);
+    if (itemEl) itemEl.classList.remove(isPos ? 'selected-positive' : 'selected-negative');
+}
+function toggleItemSelection(item) {
+    const iid = item.id;
+    const isPos = item.classList.contains('positive-item');
+    const sid = iid.split('-').slice(0, 2).join('-');
+    if (!state.selectedItems.has(sid)) state.selectedItems.set(sid, { positive: new Set(), negative: new Set() });
+    const st = state.selectedItems.get(sid);
+    const set = isPos ? st.positive : st.negative;
+
+    // Find paired element via DOM (same table row)
+    const pairedEl = findPairedItemElement(item);
+    const pairedIsPositive = pairedEl ? pairedEl.classList.contains('positive-item') : null;
+    const pairedSet = pairedEl ? (pairedIsPositive ? st.positive : st.negative) : null;
+
+    if (set.has(iid)) {
+        removeSelection(iid, isPos, set, item);
+        if (isPos && pairedEl && pairedSet) {
+            if (!pairedSet.has(pairedEl.id)) {
+                pairedSet.add(pairedEl.id);
+                pairedEl.classList.add(pairedIsPositive ? 'selected-positive' : 'selected-negative');
+            }
+        }
+    } else {
+        if (pairedEl && pairedSet && pairedSet.has(pairedEl.id)) {
+            state.pendingSelection = {
+                iid, isPos, sid, set, st,
+                pairedEl, pairedIsPositive, pairedSet,
+                item
+            };
+            openConfirmModal(item, pairedEl, isPos);
+            return;
+        }
+        applySelection(iid, isPos, sid, st, set, pairedEl, pairedIsPositive, pairedSet);
+    }
 }
 
 // ==================== FRIENDLY CONFIRM MODAL ====================
@@ -1582,8 +1620,6 @@ function setupConfirmModalEvents() {
     window.addEventListener('click', e => { if (e.target === modal) close(); });
 
     bothBtn.addEventListener('click', () => {
-        // Legacy 'select both' control is disabled: selections are exclusive.
-        close(); return;
         const p = state.pendingSelection;
         if (!p) { close(); return; }
         const { iid, isPos, sid, set, st, item } = p;
@@ -1724,55 +1760,10 @@ function updateSummary() {
     }
 }
 
-// Unique subcriterion labels are derived from the rubric group order, not the
-// repeated parent label stored in the negative description.
-function rubricItemLabel(sectionIndex, flatIndex) {
-    const sec = rubricData.grading_rubric.sections[sectionIndex];
-    if (!sec || sectionIndex === 6) return 'EC';
-    let offset = 0;
-    for (let gi = 0; gi < sec.groups.length; gi++) {
-        const count = sec.groups[gi].items.length;
-        if (flatIndex < offset + count) {
-            const base = `${sec.section_letter}${gi + 1}`;
-            return count > 1 ? base + String.fromCharCode(97 + flatIndex - offset) : base;
-        }
-        offset += count;
-    }
-    return `${sec.section_letter}?`;
-}
-function rubricFlatIndexForNegative(sectionIndex, negativeId) {
-    const el = document.getElementById(negativeId);
-    const row = el && el.closest('tr.item-row');
-    const positive = row && row.querySelector('.positive-col .positive-item');
-    return positive ? Number(positive.id.split('-').pop()) : -1;
-}
-function missingRubricSelections() {
-    const missing = [];
-    rubricData.grading_rubric.sections.forEach((sec, si) => {
-        if (si === 6) return; // Extra credit is optional.
-        const sid = `section-${si}`;
-        const st = state.selectedItems.get(sid) || {positive:new Set(),negative:new Set()};
-        let idx = 0;
-        sec.groups.forEach(g => g.items.forEach(() => {
-            const pos = document.getElementById(`${sid}-positive-${idx}`);
-            const neg = pos && findPairedItemElement(pos);
-            if (!pos || !neg || (st.positive.has(pos.id) === st.negative.has(neg.id)))
-                missing.push(rubricItemLabel(si, idx));
-            idx++;
-        }));
-    });
-    return missing;
-}
-
 // ==================== FEEDBACK GENERATION ====================
 function generateFeedback() {
     const os = document.getElementById('outputSection');
     const cb = document.getElementById('copyBtn');
-    const missing = missingRubricSelections();
-    if (missing.length) {
-        showNotification(`⚠️ Grade all required items before generating: ${missing.join(', ')}`, false);
-        return;
-    }
     let fb = '';
     const nameInput = document.getElementById('studentName').value.trim();
     const tmpl = document.getElementById('globalCommentTemplate').value;
@@ -1815,8 +1806,6 @@ function generateFeedback() {
         const headerName = s.main_section.split('(')[0].trim();
         fb += `====================\n${headerName} (${sp.toFixed(0)}/${mx}pts)\n{`;
 
-        // Each selected rubric row is printed exactly once. The displayed,
-        // editable criterion text is authoritative, not generic group prose.
         if (hasPos) {
             fb += '\nWhat you did well:\n';
             if (isEC) {
@@ -1824,43 +1813,44 @@ function generateFeedback() {
                 const key = awarded === 5 ? 'EC1' : awarded === 3 ? 'EC2' : 'EC3';
                 if (ecPositiveProse[key]) fb += `+ ${key}. ${ecPositiveProse[key]}\n`;
             } else {
-                let idx = 0;
+                let itemCounter = 0;
                 s.groups.forEach((g, gi) => {
-                    g.items.forEach((it) => {
-                        const id = `${sid}-positive-${idx++}`;
-                        if (!st.positive.has(id)) return;
-                        const el = document.getElementById(id);
-                        const textEl = el && el.querySelector('.editable[data-id$="-text"]');
-                        const label = rubricItemLabel(si, idx - 1);
-                        const text = textEl ? textEl.textContent.trim() : it.description;
-                        fb += `+ ${label}. (${it.points}/${it.points} pts) ${text}\n`;
+                    const key = `${s.section_letter}${gi + 1}`;
+                    const items = [];
+                    g.items.forEach(it => {
+                        if (st.positive.has(`${sid}-positive-${itemCounter}`)) items.push(it);
+                        itemCounter++;
                     });
+                    if (items.length > 0) {
+                        const prose = positiveProse[key] || items.map(i => i.description).join('; ');
+                        fb += `+ ${key}. ${g.label.replace(/^[A-Z][0-9]+\.\s*/, '')}: ${prose}\n`;
+                    }
                 });
             }
         }
+
         if (hasNeg) {
             fb += '\nWhat needs improvement:\n';
             if (isEC) {
                 fb += `x EC. ${ecNegativeProse}\n`;
             } else {
-                const seen = new Set();
-                for (const id of st.negative) {
-                    if (seen.has(id)) continue;
-                    seen.add(id);
-                    const el = document.getElementById(id);
-                    if (!el) continue;
-                    const flatIndex = rubricFlatIndexForNegative(si, id);
-                    const label = rubricItemLabel(si, flatIndex);
-                    const pos = document.getElementById(`${sid}-positive-${flatIndex}`);
-                    const maxPoints = pos ? Number(pos.getAttribute('data-points')) : 0;
-                    const text = el.querySelector('.editable[data-id$="-text"]')?.textContent.trim() || '';
-                    fb += `x ${label}. (0/${maxPoints} pts) ${text}\n`;
-                }
+                st.negative.forEach(iid => {
+                    const el = document.getElementById(iid);
+                    if (!el) return;
+                    const prefixEl = el.querySelector('.item-prefix');
+                    const key = prefixEl ? prefixEl.textContent.replace('.', '') : '';
+                    const prose = negativeProse[key];
+                    if (prose) fb += `x ${key}. ${prose}\n`;
+                    else {
+                        const te = el.querySelector('.editable[data-id$="-text"]');
+                        if (te) fb += `x ${key}. ${te.textContent}\n`;
+                    }
+                });
             }
         }
 
         if (ft && ft.trim() !== '') {
-            fb += `\nInstructor Section Summary:\n${ft}\n`;
+            fb += `\nSection Summary:\n${ft}\n`;
         }
         fb += '}\n\n';
     });
@@ -1869,7 +1859,7 @@ function generateFeedback() {
     if (gta && gta.value && gta.value.trim() !== '') {
         fb += `====================\nGeneral Feedback\n{${gta.value}}\n\n`;
     } else {
-        fb += `====================\nGeneral Feedback\n{Please review the criterion-level feedback and section summaries above, ${nameInput || ''}.\n}\n\n`;
+        fb += `====================\nGeneral Feedback\n{Great work again on another report down, ${nameInput || ''}! Give yourself a pat on the back for where in particular you did well (and continue this through future reports!) and especially heed any improvement-oriented feedback provided below!\n}\n\n`;
     }
 
     const tp = document.getElementById('totalPoints').textContent;

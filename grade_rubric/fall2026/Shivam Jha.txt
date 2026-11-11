@@ -1,0 +1,140 @@
+N	N	N	N	N	N	3	7	6		2	2	2	2	2		3	3	2	2	2		3	3	3	5		3	2	2	4	1		2	2	0	1	2		3	2	3	2	2		4	4	2	2	2		5		N		80	73b31311adc932f8fa11ffddccd1fd2d34e025f4
+
+Nicely done in completing the UL Report, Shivam! We hope this has given you momentum to make it through the final of our four reports, the RL Report!
+
+====================
+Checks
+{
+No Deductions Made: 
++ Submission of report and reproducibility materials satisfies major implementation requirements!
+}
+
+====================
+A. Compliance (16/16pts)
+{
+What you did well:
++ A1. (3/3 pts) You provide the specified 20k instance sampled BRFSS dataset consistent with the baseline built upon in SL and OL Reports or acknowledge and justify any changes made herein. You also appropriately identify the source and targets/labels/classes. In rolling over your SL backbone from the previous report, you properly exclude your GenHlth target from the unsupervised tasks.
++ A2. (7/7 pts) You provide a working read-only link to your Overleaf report, proper citation and use of your GT Enterprise GitHub repo, and in your REPRO documentation you provide run instructions and experimental specifications such as clustering and DR choices, NN configs, component counts and metric procedures.
++ A3. (6/6 pts) Your visuals, plots, tables, etc. are all legible with proper labelling of axes, legends and captions, meaning no zooming is necessary. You appropriately cite two or more peer-reviewed sources beyond the course materials and do so in a properly formatted References section. You also acknowledge the nature and extent of your AI/LLM usage. Well done!
+
+Section Summary:
+Good work!
+}
+
+====================
+B. Study Design (10/10pts)
+{
+What you did well:
++ B1. (2/2 pts) You aptly explain scaling/encoding decisions made for your mixed data types and features and justify why these preprocessing steps matter for Clustering and DR.
++ B2. (2/2 pts) You fill in the reader on transfer of the dataset from the earlier SL and OL Reports, making sure to disclose and justify any revisions assignment-over-assignment. You also cover train/validation/test partitions and the NN baseline to be invoked in later comparison with your Clustering features and DR components as input rather than the original features.
++ B3. (2/2 pts) You appropriately exclude your GenHlth label set from the unsupervised tasks and invoke them only in later comparison, interpretation and quantification of performance.
++ B4. (2/2 pts) Your study applies the correct train-only fitting protocol for preprocessing and later application of DR and Clustering to your learning problem in Parts 4 and 5. Any transformation of validation and test data is done without refitting and your model selection is done independently of the test results.
++ B5. (2/2 pts) You provide at least one substantive and well-reasoned hypothesis before your main results which predicts a meaningful methodological/data-driven tradeoff and invokes theory to satisfactorily defend any necessary claims.
+
+Section Summary:
+Good work on the study design.
+}
+
+====================
+C. Part 1: Clustering on Original Features (12/12pts)
+{
+What you did well:
++ C1. (3/3 pts) KMC is applied to the BRFSS dataset with appropriate preprocessing and a sweep of k-values, as well as disclosed init/restart and seed settings and well-justified ranges for all sweeped settings.
++ C2. (3/3 pts) GMM is applied to your original features and spans a range of component counts for exploratory reasons. You clearly identify your covariance model, provide ample fitting/convergence behavior details in your report or REPRO to support reproducibility and all selection criteria are effectively justified.
++ C3. (2/2 pts) You provide at least two suitable internal model selection diagnostic measures, such as silhouette score, inertia plot and elbow method, DB index or AIC/BIC. These metrics are used to evaluate and reason about your clustering performance.
++ C4. (2/2 pts) Your comparison of clustering results with GenHlth is well-done and you use an appropriate measure such as ARI/NMI/V-measure or contingency table to cite and interpret your results.
++ C5. (2/2 pts) Your analysis covers cluster sizes or profiles and you offer one or more meaningful feature-related pattern with some speculative insight into why there may be alignment between clusters and classes of the original dataset.
+
+Section Summary:
+The clustering experiments satisfy the required model-selection, evaluation, and interpretation criteria.
+}
+
+====================
+D. Part 2: Dimensionality Reduction (14/14pts)
+{
+What you did well:
++ D1. (3/3 pts) Your PCA implementation entails reporting of eigenvalues, (cumulative or otherwise) explained variance, component count, an interpretation of retained variance, redundancy or feature structure as metrics by which to qualify your DR results. Well done!
++ D2. (3/3 pts) Your ICA implementation entails reporting of component count (with justification), kurtosis or some other non-gaussianity metric, as well as relevant convergence and stability information with thoughtful interpretation.
++ D3. (3/3 pts) Your RP experiment conveys one of the following quality metrics such as justified projected dimension, distance preservation, distortion, reconstruction error, etc. with variability charted across random seeds.
++ D4. (5/5 pts) Your reporting captures all three algorithms -- PCA, ICA and RP -- with sufficient explanation as to their relative compression, different cause and effect in design and measurement of their performance and cited evidence from your exploration including any discussion of tradeoffs. You provide a compact visual or table to summarize the comparative results of the three DR methods.
+
+Section Summary:
+Your report provides the required dimensionality-reduction diagnostics and a supported comparison of the three representations.
+}
+
+====================
+E. Part 3: Clustering after DR (12/12pts)
+{
+What you did well:
++ E1. (3/3 pts) Your reporting and exposition includes all pairwise combinations of your two Clustering methods with your three DR methods with labeled and verifiable results for each.
++ E2. (2/2 pts) Well done for reselecting your cluster/component counts and or retuning your clustering settings post-DR with explanation as to your thought process.
++ E3. (2/2 pts) You provide a compact comparison of suitable clustering diagnostics to stitch together the six pairwise combinations in comparing them with the original space baseline.
++ E4. (4/4 pts) Your heldout labels are used in evaluating differences between your original and feature-reduced spaces with some justified metric or tabular evidence and thoughtful interpretation. You make attempts to attribute the effects on clustering quality, geometry, stability or label alignment to the DR method in question by invoking results from Parts 1 and 2.
++ E5. (1/1 pts) You offer a minimum of one grounded limitation or issue of variability in your results and delve into causes such as seed effects, dimensionality, scaling and other preprocessing, covariance (mis)assumptions or disparate metrics across different transformed spaces.
+
+Section Summary:
+E1 satisfied. E2 satisfied. E3 satisfied. E4 satisfied. E5 satisfied.
+}
+
+====================
+F. Part 4: Neural Network after DR (7/10pts)
+{
+What you did well:
++ F1. (2/2 pts) Your model is appropriately based on the SL/OL baseline PyTorch model and you offer justification as to your training recipe. For any shift in the input dimensions due to a different component count used than original features, you explain this satisfactorily.
++ F2. (2/2 pts) Your baseline NN classification input data from SL/OL Report is then augmented with PCA, ICA and RP to modify the data structure and consequently, you make clear that the same data partitions are used and fair comparison protocol is followed.
++ F4. (1/1 pts) You log a measure of training time or another justified runtime/compute metric to cross compare between your original NN from the SL/OL report and the DR-augmented trio, cognizant of preprocessing cost discrepancies between the different NN variants.
++ F5. (2/2 pts) Your report captures the observed predictive and efficiency tradeoffs with respect to compression, noise, information loss, transformation/distortion of geometry, addressing this in the light of proposed/candidate strengths one combination may have over another.
+
+What needs improvement:
+x F3. (0/3 pts) Through your four-way comparison, you should provide reporting of held-out accuracy, macro-F1, balanced accuracy and relevant validation loss evidence under a consistent evaluation protocol for fair comparison. Your reporting of the downstream classification results should be captured in a confusion matrix and you should discuss per-class behavior such as precision, recall and F1 in the GenHlth multiclass case.
+
+Section Summary:
+You could have done a more comprehensive per-class evaluation covering precision, recall, and F1 for all five General Health categories to improve the interpretation of the neural network results. Also, you could have connected the class-level F1 differences shown in Figure 6 with the corresponding precision, recall, and confusion-matrix patterns to improve the explanation of how dimensionality reduction affects different health categories.
+}
+
+====================
+G. Part 5: NN with Cluster-Derived Features (12/12pts)
+{
+What you did well:
++ G1. (3/3 pts) You provide constructed KMC-derived as well as GMM-derived cluster inputs from the original feature space explored in Part 1, and your feature/data types are clearly disclosed, as is your process of augmenting or replacing your original input features.
++ G2. (2/2 pts) Your KMC and GMM settings are traceable to the original space features from Part 1 and your construction and mapping of the cluster-derived inputs across train/validation/test is clear and reproducible.
++ G3. (3/3 pts) Your original feature space and KMC and GMM are evaluated using the same PyTorch backbone, same splits and comparable training budgets where input width changes are made with prior disclosure only.
++ G4. (2/2 pts) Your original feature space and KMC and GMM transformed ones are compared in their downstream use on the classification task in terms of your accuracy, macro-F1, balanced accuracy, relevant validation loss and class-level evidence and runtime or compute.
++ G5. (2/2 pts) You offer explanation as to whether cluster features add information, duplicate the original features or compress away any predictive structure.
+
+Section Summary:
+Your report satisfies the cluster-feature construction, comparison, and interpretation requirements.
+}
+
+====================
+H. Discussion (14/14pts)
+{
+What you did well:
++ H1. (4/4 pts) Your report explains the supposed groups (in terms of GenHlth) that seem to be captured by your unsupervised learning algorithms and this is done by assessing quality of clusters and feature evidence rather than by implicit bias or a constructed ranked score. Your cluster agreement is well addressed and you draw some interesting discussion out of the nature of the unsupervised learning algorithms that led to these observations and your domain-situated understanding of the data labels.
++ H2. (4/4 pts) You nicely tie together several assumptions such as softness of classification/clustering and component shape and model selection. Of your DR synthesis, you provide contrast across your DR methods, discuss the variance, non-Gaussianity, distance distortion, stability, component choice and cite the reconstruction quality that are at play in the three.
++ H3. (2/2 pts) Your coverage of DR and Clustering highlights the tradeoffs between using these methods on their own and in tandem, in particular in the effect that combined Clustering after DR can have.
++ H4. (2/2 pts) You directly address the noted change in performing DR on the input data to be passed downstream to your PyTorch NN. In particular, you note any improvement, preservation or detriment to NN performance and efficiency. As for NN-cluster-feature synthesis, you similarly address whether GMM or KMC meaningfully improve NN performance under similar terms.
++ H5. (2/2 pts) Your report addresses any evidence-based limitations such as sampling, class imbalance, scaling, unfit Gaussian assumptions, instability, seed effects or metric incompatibility. As to your hypothesis, you revisit your original hypothesis and cite evidence in drawing a defensible conclusion as to what UL/DR/Clustering features are useful for in this case and perhaps more generally.
+
+Section Summary:
+H1 satisfied. H2 satisfied. H3 satisfied. H4 satisfied. H5 satisfied.
+}
+
+====================
+Extra Credit: Nonlinear Manifold Learning (5/5pts)
+{
+What you did well:
++ EC1 Method Implementation and Rationale. (2/2 pts) One nonlinear method is actually used, with a defensible choice and relevant parameter explanation; downstream use, if any, is leakage-safe.
++ EC2 Visualization or Quantitative Evidence. (1/1 pts) A readable visualization or suitable quantitative diagnostic supports a claim about the nonlinear representation.
++ EC3 Linear-method Comparison. (1/1 pts) The nonlinear outcome is compared with at least one required linear DR method.
++ EC4 Interpretive Insight. (1/1 pts) Explains whether or how the nonlinear method reveals structure not evident from the linear approaches.
+
+Section Summary:
+EC1 Method Implementation and Rationale satisfied. EC2 Visualization or Quantitative Evidence satisfied. EC3 Linear-method Comparison satisfied. EC4 Interpretive Insight satisfied.
+}
+
+====================
+General Feedback
+{You could have done a more comprehensive per-class analysis of precision, recall, and F1 across all five General Health categories to improve the interpretation of your neural network experiments. Also, you could have connected the class-level F1 results more explicitly with the confusion matrices and precision-recall trade-offs to improve your explanation of how dimensionality reduction affected individual classes.}
+
+Total Score: 102/100 (includes extra credit)
